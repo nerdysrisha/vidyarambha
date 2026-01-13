@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Popper</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: black;
+        color: white;
+        font-size: 30px;
+        font-family: Arial, sans-serif;
+        user-select: none;
+        text-align: center;
+    }
+    #word {
+        padding: 10px;
+    }
+</style>
+</head>
+<body>
+<span id="word">Loading...</span>
+
+<script>
+// Words array with all your latest words
+let words = [
+"AM","AN","AS","AT","BE","BY","DO","GO","HE","IF","IN","IS","IT","ME","MY","NO","OF","OH","ON","OR","SO","TO","UP","US","WE",
+"CAT","RAT","BAT","MAT","HAT","FAT","SAT","PAT","BAD","SAD","MAD","PAD","LAD","HAD","ADD","BED","RED","FED","LED","NET","SET","GET","LET","MET","PET","BET","JET","WET","YET","BIG","DIG","FIG","PIG","RIG","WIN","BIN","TIN","PIN","SIN","RUN","SUN","FUN","GUN","BUN","CUT","BUT","NUT","PUT","OUT","OUR","YOU","AND","THE","FOR","NOT","CAN","MAY","NOW","HOW","NEW","OLD","ONE","TWO","SIX","TEN","DAY","WAY","SAY","PAY","LAY","MAY","BOY","TOY","JOY","KEY","EYE","ICE","ATE","EAT","TEA","SEA","SEE","FLY","DRY","CRY","TRY","SKY","WHY","ALL","ANY","MAN","CAN","FAN","RAN","VAN","WAR","CAR","FAR","BAR","JAR","DOG","LOG","FOG","HOT","NOT","POT","LOT","BOX","FOX","COW","NOW","LOW","ROW","BOW","FEW","NEW","FEW","ONE","TWO","RED","PEN","TEN","DEN","MEN","HEN","LEG","BEG","PEG","DIG","BIG","PIG","SIT","HIT","BIT","FIT","LIT","PIT","WIT","ZIP","TIP","RIP","DIP","LIP","HIP","SIP","CAT","RAT","BAT","MAT","HAT","DOG","LOG","FOX","BOX","PEN","TEN","RED","BED","FED","LED","NET","SET","GET","LET","MET","PET","BET","JET","BIG","DIG","PIG","WIN","BIN","TIN","RUN","SUN","FUN","CUT","BUT","NUT","OUT","OUR","YOU","AND","THE","FOR","NOT","CAN","MAY","NOW","HOW","NEW","OLD","ONE","DAY","WAY","SAY","BOY","TOY","KEY","EYE","ICE","ATE","EAT","TEA","SEA","FLY","DRY","TRY","ALL","ANY","MAN","FAN","CAR","FAR","BAR","WAR","COW","LOW","FEW","SIT","HIT","FIT","TIP","ZIP",
+"CHAIR","NAME","BALL","HOW","LION","EGG","INK","TABLE","BAT","SUN","DAY","THIS","THE","IN","WALL","EAR","NOSE","HAT","FISH","JUMP","COW","THAT","PAN","PIN","PIG","BOX","JAR","TOY","PENCIL","MAP","BUS","PEN","CAP","BAG","SHE","THIS","TURN","YOU","PLAY","STOP","MILK","DOOR","HAND","ANT","AND","OFF","THAT","BOOK","BIRD","CAT","BIG","FOR","LAMP","COLD","HER","RED","CUP","CAN","BUT","PUT","GLASS","BUN","RUN","CUT","CURD","PANT","AND","HOW","EAT","GATE","SEE","EAR","BIG","BED","ZIP","JAM","BUG","WIN","BAG","MAT","POT","NET","SIT","VAN","BOY","EYE","RAT","HEN","GUN","AXE","GAS","BAR","JOY","ICE","LID","KEY","ADD","SHIRT","PHONE","FAST","WHEN","LOW","TAKE","PART","HALF","SKIP","ODD","SLOW","EVEN","HIGH","WIDE","TOO","SEE","CHAIR","TABLE","WALL","PENDIL","SUM","WHERE","SET","END","SMALL","LOT","OUT","WHY","FEW","FAR","WHOSE","NOW","TRY","NEAR","LESS","MORE","TAP","MIX","NEW","NOW","NET","CUT","TOP","WHEN","NEAR","WHICH","TOO","WHERE","RED","BLUE","GREEN","YELLOW","PURPLE","PINK","ORANGE","WHITE","GREY","BROWN","MAROON","DIVIDEND","DIVISOR","REMAINDER","ADDITION","SUBTRACTION","DIVISION","MULTIPLICATION","QUOTIENT","BRACKET","EQUALS","ZERO","EATING","WORK","WORKING","PLAYING","PLAY","READ","TALK","FEEL","DANCE","HUNGRY","GAVE","RAMU","ANAYA","RIYA","GIVE","APPLE","FRIEND","LEFT","BRING","BANANA","FRUIT","BASKET","MOTHER","FATHER","SISTER","BARKING","RUNNING","FLOWERS","EVERYDAY","PAGE","SPEED","DROP","LUNCH","SCHOOL"
+];
+// Shuffle function
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Random color generator
+function randomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgb(${r},${g},${b})`;
+}
+
+let index = 0;
+
+// Show a word
+function showWord(word) {
+    const span = document.getElementById('word');
+    span.textContent = word;
+    span.style.color = randomColor();
+}
+
+// Initialize
+shuffle(words);
+showWord(words[0]);
+
+// Advance word function
+function nextWord() {
+    index++;
+    if (index >= words.length) index = 0;
+    showWord(words[index]);
+}
+
+// Flag to prevent double firing on mobile
+let isTouch = false;
+
+// Desktop: space or enter
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') nextWord();
+});
+
+// Mobile: touch
+document.body.addEventListener('touchstart', e => {
+    isTouch = true;
+    nextWord();
+});
+
+// Desktop click
+document.body.addEventListener('click', e => {
+    if (!isTouch) nextWord();
+});
+
+// Reset touch flag shortly after touch ends
+document.body.addEventListener('touchend', e => {
+    setTimeout(() => { isTouch = false; }, 50);
+});
+
+</script>
+</body>
+</html>

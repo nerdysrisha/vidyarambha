@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Globe Popper</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        user-select: none;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .box {
+        width: 30%;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        border: 1px solid #555;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    #left {
+        color: white;
+    }
+
+    #center {
+        font-size: 40px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+    }
+
+    #right {
+        color: rgba(255,255,255,0.8);
+    }
+
+    .globe-word {
+        position: absolute;
+        font-weight: bold;
+        cursor: default;
+        transition: opacity 0.5s;
+        white-space: nowrap;
+    }
+</style>
+</head>
+<body>
+
+<div id="left" class="box"></div>
+<div id="center" class="box">Loading...</div>
+<div id="right" class="box"></div>
+
+<script>
+let words = ["AM","AN","AS","AT","BE","BY","DO","GO","HE","IF","IN","IS","IT","ME","MY","NO","OF","ON","OR","SO","TO","UP","US","WE","YOU","THE","AND","FOR","NOT","BUT","ALL","ANY","CAN","HAD","HER","HIM","HIS","HOW","MAN","NEW","NOW","OLD","OUR","OUT","SEE","SHE","TWO","WAY","WHO","WAS","DAY"];
+let leftWords = [];
+let centerWord = null;
+let rightWords = [...words];
+
+// Elements
+const leftBox = document.getElementById('left');
+const centerBox = document.getElementById('center');
+const rightBox = document.getElementById('right');
+
+// Random color
+function randomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgb(${r},${g},${b})`;
+}
+
+// Render left box
+function renderLeft() {
+    leftBox.innerHTML = '';
+    leftWords.forEach(w => {
+        const span = document.createElement('span');
+        span.textContent = w;
+        span.className = 'word-item';
+        leftBox.appendChild(span);
+    });
+}
+
+// Create globe words on the right
+function renderGlobe() {
+    rightBox.innerHTML = '';
+    const radius = Math.min(rightBox.clientWidth, rightBox.clientHeight) / 2 - 20;
+    const centerX = rightBox.clientWidth / 2;
+    const centerY = rightBox.clientHeight / 2;
+
+    rightWords.forEach((w, i) => {
+        const span = document.createElement('span');
+        span.className = 'globe-word';
+        span.textContent = w;
+        const angle = Math.random() * 2 * Math.PI;
+        const r = radius * Math.sqrt(Math.random()); // uniform distribution in circle
+        const x = centerX + r * Math.cos(angle) - 10;
+        const y = centerY + r * Math.sin(angle) - 10;
+        span.style.left = x + 'px';
+        span.style.top = y + 'px';
+        span.style.fontSize = 14 + Math.random() * 10 + 'px';
+        span.style.transform = `rotate(${Math.random()*60-30}deg)`;
+        rightBox.appendChild(span);
+    });
+}
+
+// Pick next word
+function nextWord() {
+    if(rightWords.length === 0) return;
+
+    // Move previous center word to left
+    if(centerWord) {
+        leftWords.push(centerWord);
+        renderLeft();
+    }
+
+    // Pick a random word from rightWords
+    const randomIndex = Math.floor(Math.random() * rightWords.length);
+    centerWord = rightWords.splice(randomIndex, 1)[0];
+    renderGlobe();
+
+    // Display in center
+    centerBox.textContent = centerWord;
+    centerBox.style.color = randomColor();
+}
+
+// Initialize
+renderGlobe();
+
+// Event listeners
+let isTouch = false;
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') nextWord();
+});
+document.body.addEventListener('touchstart', e => {
+    isTouch = true;
+    nextWord();
+});
+document.body.addEventListener('click', e => {
+    if (!isTouch) nextWord();
+});
+document.body.addEventListener('touchend', e => {
+    setTimeout(() => { isTouch = false; }, 50);
+});
+</script>
+
+</body>
+</html>

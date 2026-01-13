@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Globe Popper</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        user-select: none;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .box {
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        border: 1px solid #555;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    #left {
+        width: 20%; /* slightly larger than before */
+        color: white;
+    }
+
+    #center {
+        width: 55%; /* bigger center box for fun */
+        font-size: 100px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+    }
+
+    #right {
+        width: 25%; /* small, barely visible globe */
+        color: rgba(255,255,255,0.03); /* super faint, almost invisible */
+    }
+
+    .globe-word {
+        position: absolute;
+        font-weight: bold;
+        cursor: default;
+        transition: opacity 0.5s;
+        white-space: nowrap;
+    }
+
+	@keyframes bounceFromTop {
+		0%   { transform: translateY(-200px) scale(0.5); opacity: 0; }
+		50%  { transform: translateY(20px) scale(1.2); opacity: 1; }
+		70%  { transform: translateY(-10px) scale(0.9); }
+		100% { transform: translateY(0) scale(1); }
+	}
+
+	#center .word {
+		display: inline-block;
+		animation: bounceFromTop 0.7s ease;
+	}
+#center .emoji {
+    display: block;
+    width: 120px;   /* increase width */
+    height: 120px;  /* increase height */
+    margin-top: 20px;
+}
+
+ 
+	
+	
+</style>
+
+
+</head>
+<body>
+
+<div id="left" class="box"></div>
+<div id="center" class="box">😃</div>
+<div id="right" class="box"></div>
+
+<script>
+
+const threeLetterWordsUrl = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/3-letter-words.json";
+
+let words = []; // empty initially
+
+fetch(threeLetterWordsUrl)
+  .then(response => response.json())
+  .then(data => {
+      words = data;
+      rightWords = [...words];
+      renderGlobe();
+      nextWord();
+  })
+  .catch(err => console.error("Failed to load words:", err));
+
+
+let leftWords = [];
+let centerWord = null;
+let rightWords = [...words];
+
+// Elements
+const leftBox = document.getElementById('left');
+const centerBox = document.getElementById('center');
+const rightBox = document.getElementById('right');
+
+// GIF emoji URL
+const emojiGifUrl = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWY4dDZ0NWppdXkyeWV2dzRua3NxaDZpend4cWxiaTU0d3BpNzc5eCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oiLuYNJt3Qe9ssUr1m/giphy.gif";
+
+// Preload GIF
+const preloadGif = new Image();
+preloadGif.src = emojiGifUrl;
+
+function speakWord(word) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// Random color
+function randomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgb(${r},${g},${b})`;
+}
+
+// Render left box
+function renderLeft() {
+    leftBox.innerHTML = '';
+    leftWords.forEach(w => {
+        const span = document.createElement('span');
+        span.textContent = w;
+        span.className = 'word-item';
+        leftBox.appendChild(span);
+    });
+    if(leftBox.lastChild) {
+        leftBox.lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+}
+
+// Create globe words on the right
+function renderGlobe() {
+    rightBox.innerHTML = '';
+    const radius = Math.min(rightBox.clientWidth, rightBox.clientHeight) / 2 - 20;
+    const centerX = rightBox.clientWidth / 2;
+    const centerY = rightBox.clientHeight / 2;
+
+    rightWords.forEach((w) => {
+        const span = document.createElement('span');
+        span.className = 'globe-word';
+        span.textContent = w;
+        const angle = Math.random() * 2 * Math.PI;
+        const r = radius * Math.sqrt(Math.random());
+        const x = centerX + r * Math.cos(angle) - 10;
+        const y = centerY + r * Math.sin(angle) - 10;
+        span.style.left = x + 'px';
+        span.style.top = y + 'px';
+        span.style.fontSize = 14 + Math.random() * 10 + 'px';
+        span.style.transform = `rotate(${Math.random()*60-30}deg)`;
+        rightBox.appendChild(span);
+    });
+}
+
+// Pick next word
+function nextWord() {
+    if(rightWords.length === 0) return;
+
+    if(centerWord) {
+        // Speak current center word
+        speakWord(centerWord);
+
+        // Wait 2 seconds before moving left and showing next word
+        setTimeout(() => {
+            leftWords.push(centerWord);
+            renderLeft();
+
+            const randomIndex = Math.floor(Math.random() * rightWords.length);
+            centerWord = rightWords.splice(randomIndex, 1)[0];
+            renderGlobe();
+
+            centerBox.innerHTML = `
+                <span class="word" style="color:${randomColor()}">${centerWord}</span>
+                <img class="emoji" src="${emojiGifUrl}" alt="emoji">
+            `;
+        }, 1000);
+    } else {
+        // First word — show immediately
+        const randomIndex = Math.floor(Math.random() * rightWords.length);
+        centerWord = rightWords.splice(randomIndex, 1)[0];
+        renderGlobe();
+
+        centerBox.innerHTML = `
+            <span class="word" style="color:${randomColor()}">${centerWord}</span>
+            <img class="emoji" src="${emojiGifUrl}" alt="emoji">
+        `;
+    }
+}
+
+// Initialize — show first word automatically
+window.onload = () => nextWord();
+
+// Event listeners
+let isTouch = false;
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') nextWord();
+});
+document.body.addEventListener('touchstart', e => {
+    isTouch = true;
+    nextWord();
+});
+document.body.addEventListener('click', e => {
+    if (!isTouch) nextWord();
+});
+document.body.addEventListener('touchend', e => {
+    setTimeout(() => { isTouch = false; }, 50);
+});
+</script>
+ 
+</body>
+</html>

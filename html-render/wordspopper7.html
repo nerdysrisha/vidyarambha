@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Globe Popper</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        user-select: none;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .box {
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        border: 1px solid #555;
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    #left {
+        width: 20%; /* slightly larger than before */
+        color: white;
+    }
+
+    #center {
+        width: 55%; /* bigger center box for fun */
+        font-size: 100px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        height: 100%;
+    }
+
+    #right {
+        width: 25%; /* small, barely visible globe */
+        color: rgba(255,255,255,0.03); /* super faint, almost invisible */
+    }
+
+    .globe-word {
+        position: absolute;
+        font-weight: bold;
+        cursor: default;
+        transition: opacity 0.5s;
+        white-space: nowrap;
+    }
+
+	@keyframes bounceFromTop {
+		0%   { transform: translateY(-200px) scale(0.5); opacity: 0; }
+		50%  { transform: translateY(20px) scale(1.2); opacity: 1; }
+		70%  { transform: translateY(-10px) scale(0.9); }
+		100% { transform: translateY(0) scale(1); }
+	}
+
+	#center .word {
+		display: inline-block;
+		animation: bounceFromTop 0.7s ease;
+	}
+#center .emoji {
+    display: block;
+    width: 120px;   /* increase width */
+    height: 120px;  /* increase height */
+    margin-top: 20px;
+}
+
+ 
+	
+	
+</style>
+
+
+</head>
+<body>
+
+<div id="left" class="box"></div>
+<div id="center" class="box">😃</div>
+<div id="right" class="box"></div>
+
+<script>
+let words = ["AM","AN","AS","AT","BE","BY","DO","GO","HE","IF","IN","IS","IT","ME","MY","NO","OF","OH","ON","OR","SO","TO","UP","US","WE","CAT","RAT","BAT","MAT","HAT","FAT","SAT","PAT","BAD","SAD","MAD","PAD","LAD","HAD","ADD","BED","RED","FED","LED","NET","SET","GET","LET","MET","PET","BET","JET","WET","YET","BIG","DIG","FIG","PIG","RIG","WIN","BIN","TIN","PIN","SIN","RUN","SUN","FUN","GUN","BUN","CUT","BUT","NUT","PUT","OUT","OUR","YOU","AND","THE","FOR","NOT","CAN","MAY","NOW","HOW","NEW","OLD","ONE","TWO","SIX","TEN","DAY","WAY","SAY","PAY","LAY","MAY","BOY","TOY","JOY","KEY","EYE","ICE","ATE","EAT","TEA","SEA","SEE","FLY","DRY","CRY","TRY","SKY","WHY","ALL","ANY","MAN","CAN","FAN","RAN","VAN","WAR","CAR","FAR","BAR","JAR","DOG","LOG","FOG","HOT","NOT","POT","LOT","BOX","FOX","COW","NOW","LOW","ROW","BOW","FEW","NEW","FEW","ONE","TWO","RED","PEN","TEN","DEN","MEN","HEN","LEG","BEG","PEG","DIG","BIG","PIG","SIT","HIT","BIT","FIT","LIT","PIT","WIT","ZIP","TIP","RIP","DIP","LIP","HIP","SIP","CAT","RAT","BAT","MAT","HAT","DOG","LOG","FOX","BOX","PEN","TEN","RED","BED","FED","LED","NET","SET","GET","LET","MET","PET","BET","JET","BIG","DIG","PIG","WIN","BIN","TIN","RUN","SUN","FUN","CUT","BUT","NUT","OUT","OUR","YOU","AND","THE","FOR","NOT","CAN","MAY","NOW","HOW","NEW","OLD","ONE","DAY","WAY","SAY","BOY","TOY","KEY","EYE","ICE","ATE","EAT","TEA","SEA","FLY","DRY","TRY","ALL","ANY","MAN","FAN","CAR","FAR","BAR","WAR","COW","LOW","FEW","SIT","HIT","FIT","TIP","ZIP","CHAIR","NAME","BALL","HOW","LION","EGG","INK","TABLE","BAT","SUN","DAY","THIS","THE","IN","WALL","EAR","NOSE","HAT","FISH","JUMP","COW","THAT","PAN","PIN","PIG","BOX","JAR","TOY","PENCIL","MAP","BUS","PEN","CAP","BAG","SHE","THIS","TURN","YOU","PLAY","STOP","MILK","DOOR","HAND","ANT","AND","OFF","THAT","BOOK","BIRD","CAT","BIG","FOR","LAMP","COLD","HER","RED","CUP","CAN","BUT","PUT","GLASS","BUN","RUN","CUT","CURD","PANT","AND","HOW","EAT","GATE","SEE","EAR","BIG","BED","ZIP","JAM","BUG","WIN","BAG","MAT","POT","NET","SIT","VAN","BOY","EYE","RAT","HEN","GUN","AXE","GAS","BAR","JOY","ICE","LID","KEY","ADD","SHIRT","PHONE","FAST","WHEN","LOW","TAKE","PART","HALF","SKIP","ODD","SLOW","EVEN","HIGH","WIDE","TOO","SEE","CHAIR","TABLE","WALL","PENDIL","SUM","WHERE","SET","END","SMALL","LOT","OUT","WHY","FEW","FAR","WHOSE","NOW","TRY","NEAR","LESS","MORE","TAP","MIX","NEW","NOW","NET","CUT","TOP","WHEN","NEAR","WHICH","TOO","WHERE","RED","BLUE","GREEN","YELLOW","PURPLE","PINK","ORANGE","WHITE","GREY","BROWN","MAROON","DIVIDEND","DIVISOR","REMAINDER","ADDITION","SUBTRACTION","DIVISION","MULTIPLICATION","QUOTIENT","BRACKET","EQUALS","ZERO","EATING","WORK","WORKING","PLAYING","PLAY","READ","TALK","FEEL","DANCE","HUNGRY","GAVE","RAMU","ANAYA","RIYA","GIVE","APPLE","FRIEND","LEFT","BRING","BANANA","FRUIT","BASKET","MOTHER","FATHER","SISTER","BARKING","RUNNING","FLOWERS","EVERYDAY","PAGE","SPEED","DROP","LUNCH","SCHOOL"];
+let leftWords = [];
+let centerWord = null;
+let rightWords = [...words];
+
+// Elements
+const leftBox = document.getElementById('left');
+const centerBox = document.getElementById('center');
+const rightBox = document.getElementById('right');
+
+// GIF emoji URL
+const emojiGifUrl = "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWY4dDZ0NWppdXkyeWV2dzRua3NxaDZpend4cWxiaTU0d3BpNzc5eCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oiLuYNJt3Qe9ssUr1m/giphy.gif";
+
+// Preload GIF
+const preloadGif = new Image();
+preloadGif.src = emojiGifUrl;
+
+function speakWord(word) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// Random color
+function randomColor() {
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    return `rgb(${r},${g},${b})`;
+}
+
+// Render left box
+function renderLeft() {
+    leftBox.innerHTML = '';
+    leftWords.forEach(w => {
+        const span = document.createElement('span');
+        span.textContent = w;
+        span.className = 'word-item';
+        leftBox.appendChild(span);
+    });
+    if(leftBox.lastChild) {
+        leftBox.lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+}
+
+// Create globe words on the right
+function renderGlobe() {
+    rightBox.innerHTML = '';
+    const radius = Math.min(rightBox.clientWidth, rightBox.clientHeight) / 2 - 20;
+    const centerX = rightBox.clientWidth / 2;
+    const centerY = rightBox.clientHeight / 2;
+
+    rightWords.forEach((w) => {
+        const span = document.createElement('span');
+        span.className = 'globe-word';
+        span.textContent = w;
+        const angle = Math.random() * 2 * Math.PI;
+        const r = radius * Math.sqrt(Math.random());
+        const x = centerX + r * Math.cos(angle) - 10;
+        const y = centerY + r * Math.sin(angle) - 10;
+        span.style.left = x + 'px';
+        span.style.top = y + 'px';
+        span.style.fontSize = 14 + Math.random() * 10 + 'px';
+        span.style.transform = `rotate(${Math.random()*60-30}deg)`;
+        rightBox.appendChild(span);
+    });
+}
+
+// Pick next word
+function nextWord() {
+    if(rightWords.length === 0) return;
+
+    if(centerWord) {
+        // Speak current center word
+        speakWord(centerWord);
+
+        // Wait 2 seconds before moving left and showing next word
+        setTimeout(() => {
+            leftWords.push(centerWord);
+            renderLeft();
+
+            const randomIndex = Math.floor(Math.random() * rightWords.length);
+            centerWord = rightWords.splice(randomIndex, 1)[0];
+            renderGlobe();
+
+            centerBox.innerHTML = `
+                <span class="word" style="color:${randomColor()}">${centerWord}</span>
+                <img class="emoji" src="${emojiGifUrl}" alt="emoji">
+            `;
+        }, 1000);
+    } else {
+        // First word — show immediately
+        const randomIndex = Math.floor(Math.random() * rightWords.length);
+        centerWord = rightWords.splice(randomIndex, 1)[0];
+        renderGlobe();
+
+        centerBox.innerHTML = `
+            <span class="word" style="color:${randomColor()}">${centerWord}</span>
+            <img class="emoji" src="${emojiGifUrl}" alt="emoji">
+        `;
+    }
+}
+
+// Initialize — show first word automatically
+window.onload = () => nextWord();
+
+// Event listeners
+let isTouch = false;
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') nextWord();
+});
+document.body.addEventListener('touchstart', e => {
+    isTouch = true;
+    nextWord();
+});
+document.body.addEventListener('click', e => {
+    if (!isTouch) nextWord();
+});
+document.body.addEventListener('touchend', e => {
+    setTimeout(() => { isTouch = false; }, 50);
+});
+</script>
+ 
+</body>
+</html>
