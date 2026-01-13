@@ -1,9 +1,8 @@
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Word   Popper</title>
+<title>Word  Popper</title>
 
 <style>
 html, body {
@@ -18,9 +17,9 @@ html, body {
 /* OUTERMOST FRAME */
 #outer {
     height: calc(100% - 80px);
-    margin: 40px;                  /* ~5 lines space */
-    border: 4px double white;      /* white double border */
-    padding: 30px;                 /* inner breathing space */
+    margin: 40px;                  
+    border: 4px double white;      
+    padding: 30px;                 
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -51,7 +50,7 @@ html, body {
 #inner {
     flex: 1;
     display: flex;
-    gap: 30px;                     /* 3–4 lines gap */
+    gap: 30px;                     
     overflow: hidden;
 }
 
@@ -65,7 +64,7 @@ html, body {
 
 /* CENTER (70%) */
 #center {
-    width: 80%; /* make center box take most of the space */
+    width: 80%; 
     font-size: 100px;
     font-weight: bold;
     display: flex;
@@ -81,11 +80,9 @@ html, body {
     background-color: black;
 }
 
-
 /* LEFT (30%) */
-
 #left {
-    width: 20%; /* keep left box proportion */
+    width: 20%; 
 }
 
 /* ANIMATION */
@@ -117,8 +114,29 @@ html, body {
             <option value="3-letter" selected>3 Letter Words</option>
             <option value="4-letter">4 Letter Words</option>
             <option value="5-letter">5 Letter Words</option>
-            <option value="big-words">Big Words</option>
-            <option value="complex-words">Complex Words</option>
+            <option value="actionitems">Action Items</option>
+            <option value="animals">Animals</option>
+            <option value="body-actions">Body Actions</option>
+            <option value="bodyparts">Body Parts</option>
+            <option value="clothing">Clothing</option>
+            <option value="colors">Colors</option>
+            <option value="emotions">Emotions</option>
+            <option value="family">Family</option>
+            <option value="fooditems">Food Items</option>
+            <option value="fruits">Fruits</option>
+            <option value="houseitems">House Items</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="months-days-time">Months/Days/Time</option>
+            <option value="nature">Nature</option>
+            <option value="numbernames">Number Names</option>
+            <option value="opposite">Opposites</option>
+            <option value="playground">Playground</option>
+            <option value="professions">Professions</option>
+            <option value="school">School</option>
+            <option value="shapes">Shapes</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="vehicles">Vehicles</option>
+            <option value="weather">Weather</option>
         </select>
         <div id="counter">0 / 0</div>
     </div>
@@ -138,11 +156,17 @@ const leftBox=document.getElementById('left');
 const counterEl=document.getElementById('counter');
 const patternSelector=document.getElementById('patternSelector');
 
-const emojiGifUrl="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWY4dDZ0NWppdXkyeWV2dzRua3NxaDZpend4cWxiaTU0d3BpNzc5eCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oiLuYNJt3Qe9ssUr1m/giphy.gif";
+// GitHub emojis count
+const EMOJI_COUNT = 55;
+
+function getRandomEmojiUrl() {
+    const n = Math.floor(Math.random()*EMOJI_COUNT) + 1;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+}
 
 function getJsonUrl(p){
-    const b="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/";
-    return b+p+"-words.json";
+    const base="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/";
+    return base+p+"-words.json";
 }
 
 function loadWords(p){
@@ -158,7 +182,8 @@ function loadWords(p){
         counterEl.textContent=`0 / ${totalWords}`;
         nextWord();
         centerBox.focus();
-    });
+    })
+    .catch(err=>console.error("Failed to load words:",err));
 }
 
 function speakWord(w){
@@ -198,11 +223,11 @@ function nextWord(){
             }
 
             centerWord=words.splice(Math.random()*words.length|0,1)[0];
-            centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${emojiGifUrl}">`;
+            centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
         },1000);
     } else {
         centerWord=words.splice(Math.random()*words.length|0,1)[0];
-        centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${emojiGifUrl}">`;
+        centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
     }
 }
 
@@ -219,4 +244,3 @@ loadWords(patternSelector.value);
 </script>
 </body>
 </html>
-```
