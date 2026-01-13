@@ -156,7 +156,13 @@ const leftBox=document.getElementById('left');
 const counterEl=document.getElementById('counter');
 const patternSelector=document.getElementById('patternSelector');
 
-const emojiGifUrl="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWY4dDZ0NWppdXkyeWV2dzRua3NxaDZpend4cWxiaTU0d3BpNzc5eCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/oiLuYNJt3Qe9ssUr1m/giphy.gif";
+// GitHub emojis count
+const EMOJI_COUNT = 55;
+
+function getRandomEmojiUrl() {
+    const n = Math.floor(Math.random()*EMOJI_COUNT) + 1;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+}
 
 function getJsonUrl(p){
     const base="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/";
@@ -217,11 +223,11 @@ function nextWord(){
             }
 
             centerWord=words.splice(Math.random()*words.length|0,1)[0];
-            centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${emojiGifUrl}">`;
+            centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
         },1000);
     } else {
         centerWord=words.splice(Math.random()*words.length|0,1)[0];
-        centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${emojiGifUrl}">`;
+        centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
     }
 }
 
