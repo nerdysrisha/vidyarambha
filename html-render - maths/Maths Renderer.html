@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Popper</title>
+
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+#outer {
+    height: calc(100% - 80px);
+    margin: 40px;
+    border: 4px double white;
+    padding: 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#topbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+#patternSelector {
+    font-size: 18px;
+    padding: 8px;
+}
+
+#counter {
+    position: absolute;
+    right: 0;
+    font-size: 18px;
+    color: #aaa;
+}
+
+#inner {
+    flex: 1;
+    display: flex;
+    gap: 30px;
+}
+
+.box {
+    border: 2px solid white;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+#center {
+    width: 80%;
+    font-size: 80px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 4px double white;
+}
+
+#left {
+    width: 20%;
+}
+
+button {
+    margin-top: 20px;
+    font-size: 18px;
+    padding: 10px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div id="outer">
+
+    <div id="topbar">
+        <select id="patternSelector">
+            <option value="division">Missing Numbers Division</option>
+            <option value="multiplication">Missing Numbers Multiplication</option>
+        </select>
+        <div id="counter">0 / 0</div>
+    </div>
+
+    <div id="inner">
+        <div id="center" class="box">🙂</div>
+        <div id="left" class="box">
+            <button id="showAnswer">Show Answer</button>
+            <div id="answerBox"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let data=null, questions=[], answers=[], current=null, shown=0;
+
+const center=document.getElementById('center');
+const counter=document.getElementById('counter');
+const selector=document.getElementById('patternSelector');
+const answerBox=document.getElementById('answerBox');
+const showBtn=document.getElementById('showAnswer');
+
+const urls={
+    division:"https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/math/missing-division.json",
+    multiplication:"https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/math/missing-multiplication.json"
+};
+
+function loadData(type){
+    fetch(urls[type])
+    .then(r=>r.json())
+    .then(d=>{
+        data=d;
+        questions=[...d.questions];
+        answers=[...d.answers];
+        shown=0;
+        nextQuestion();
+    });
+}
+
+function nextQuestion(){
+    if(shown>=10){ center.textContent="🎉"; return; }
+    const i=Math.floor(Math.random()*questions.length);
+    current=i;
+    center.textContent=questions[i];
+    answerBox.textContent="";
+    counter.textContent=`${shown+1} / 10`;
+    shown++;
+}
+
+showBtn.onclick=()=>{
+    if(current!==null) answerBox.textContent=answers[current];
+};
+
+document.body.addEventListener('keydown',e=>{
+    if(e.code==="Space"||e.code==="Enter") nextQuestion();
+});
+
+selector.onchange=()=>loadData(selector.value);
+
+loadData(selector.value);
+</script>
+</body>
+</html>
