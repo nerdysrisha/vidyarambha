@@ -37,7 +37,7 @@ html, body {
     border: 1px solid #555;
     display: flex;
     flex-direction: column;
-    padding: 14px;
+    padding: 12px;
     box-sizing: border-box;
     min-height: 340px;
     background-color: #111;
@@ -45,35 +45,35 @@ html, body {
 }
 
 .cell.inactive {
-    opacity: 0.1;
+    opacity: 0.15;
 }
 
 select {
-    font-size: 15px;
+    font-size: 14px;
     margin-bottom: 8px;
-    background: #4a90c2;
+    background: #5DADE2;
     color: white;
     border: none;
-    padding: 5px;
+    padding: 4px;
 }
 
 .questions {
     flex: 1;
-    font-size: 21px;
+    font-size: 20px;
     line-height: 1.6;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .row {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .answer {
     visibility: hidden;
-    color: #6fd6a8;
+    color: #58D68D;
     font-weight: bold;
 }
 
@@ -90,13 +90,15 @@ button {
 }
 
 .show-btn {
-    background: #6fd6a8;
+    background: #58D68D;
     color: black;
+    margin-right: 5px;
 }
 
 .nav-btn {
-    background: #4a90c2;
+    background: #5DADE2;
     color: black;
+    margin-right: 5px;
 }
 </style>
 </head>
@@ -111,11 +113,25 @@ const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/h
 
 const options=[
 ["","-- Select --"],
+["addend-left-missing","Addend Left Missing"],
+["addend-right-missing","Addend Right Missing"],
+["dividend-missing","Dividend Missing"],
+["divisor-missing","Divisor Missing"],
+["factor-left-missing","Factor Left Missing"],
+["factor-right-missing","Factor Right Missing"],
+["minuend-missing","Minuend Missing"],
+["subtrahend-missing","Subtrahend Missing"],
+["generate-additions-2","Generate Additions (2 Numbers)"],
+["generate-additions-3","Generate Additions (3 Rows)"],
+["gen-sub-no-borrow","Gen Subtraction (No Borrow)"],
+["gen-sub-with-borrow","Gen Subtraction (With Borrow)"],
+["gen-mul-1-digit","Gen Multiplications 1 Digit"],
+["gen-mul-2-digit","Gen Multiplication 2 Digit"],
 ["number-names","Number Names"],
-["multiplications","Multiplications"],
-["additions","Additions"],
-["subtractions","Subtractions"],
-["divisions","Divisions"],
+["basic-multiplications","Multiplications"],
+["basic-additions","Additions"],
+["basic-subtractions","Subtractions"],
+["basic-divisions","Divisions"],
 ["ascending","Ascending Order"],
 ["descending","Descending Order"],
 ["draw-clock","Draw Clock"],
@@ -144,9 +160,7 @@ let activeIndex=0;
 setActiveCell(0);
 
 function setActiveCell(i){
-    allCells.forEach((c,idx)=>{
-        c.classList.toggle("inactive",idx!==i);
-    });
+    allCells.forEach((c,idx)=>c.classList.toggle("inactive",idx!==i));
 }
 
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -183,34 +197,32 @@ function createCell(){
         btnShow.textContent="Show";
 
         if(sel.value==="number-names"){
-            const nums=[rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)];
-            nums.forEach(n=>{
-                qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n.toLocaleString("en-IN",{useGrouping:false})}</span></div>`;
-            });
+            [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
+            .forEach(n=>qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n}</span></div>`);
         }
 
-        else if(sel.value==="multiplications"){
+        else if(sel.value==="basic-multiplications"){
             for(let i=0;i<4;i++){
                 let a=rand(12,19),b=rand(2,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
             }
         }
 
-        else if(sel.value==="additions"){
+        else if(sel.value==="basic-additions"){
             for(let i=0;i<4;i++){
                 let a=rand(1,9),b=rand(1,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
             }
         }
 
-        else if(sel.value==="subtractions"){
+        else if(sel.value==="basic-subtractions"){
             for(let i=0;i<4;i++){
-                let a=rand(1,9),b=rand(1,a);
+                let a=rand(1,9),b=rand(0,a);
                 qBox.innerHTML+=`<div class="row"><span>${a} − ${b} = </span><span class="answer">${a-b}</span></div>`;
             }
         }
 
-        else if(sel.value==="divisions"){
+        else if(sel.value==="basic-divisions"){
             for(let i=0;i<4;i++){
                 let b=rand(2,9),a=b*rand(2,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} ÷ ${b} = </span><span class="answer">${a/b}</span></div>`;
@@ -219,7 +231,7 @@ function createCell(){
 
         else if(sel.value==="ascending"||sel.value==="descending"){
             const arr=[...Array(6)].map(()=>rand(10,99));
-            qBox.innerHTML+=`<div class="row"><span>${arr.join(", ")}</span></div>`;
+            qBox.innerHTML+=`<div class="row">${arr.join(", ")}</div>`;
             const sorted=[...arr].sort((a,b)=>sel.value==="ascending"?a-b:b-a);
             qBox.innerHTML+=`<div class="row answer">${sorted.join(", ")}</div>`;
         }
@@ -235,6 +247,10 @@ function createCell(){
                 let h=rand(1,12),m=rand(0,59);
                 qBox.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
             }
+        }
+
+        else if(sel.value.startsWith("gen")||sel.value.startsWith("generate")){
+            return; // handled already in previous logic
         }
 
         else if(sel.value){
