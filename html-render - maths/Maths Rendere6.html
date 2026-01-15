@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Grid</title>
+
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#outer {
+    height: calc(100% - 40px);
+    margin: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#grid {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+
+.column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cell {
+    border: 1px solid #555;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    box-sizing: border-box;
+    min-height: 340px;
+    background-color: #111;
+    transition: all 0.2s;
+}
+
+.cell.inactive {
+    opacity: 0.1;
+}
+
+select {
+    font-size: 15px;
+    margin-bottom: 8px;
+    background: #4a90c2;
+    color: white;
+    border: none;
+    padding: 5px;
+}
+
+.questions {
+    flex: 1;
+    font-size: 21px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+.answer {
+    visibility: hidden;
+    color: #6fd6a8;
+    font-weight: bold;
+}
+
+.answer.show {
+    visibility: visible;
+}
+
+button {
+    margin-top: 6px;
+    font-size: 14px;
+    padding: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.show-btn {
+    background: #6fd6a8;
+    color: black;
+}
+
+.nav-btn {
+    background: #4a90c2;
+    color: black;
+}
+</style>
+</head>
+
+<body>
+<div id="outer">
+    <div id="grid"></div>
+</div>
+
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+
+const options=[
+["","-- Select --"],
+["number-names","Number Names"],
+["multiplications","Multiplications"],
+["additions","Additions"],
+["subtractions","Subtractions"],
+["divisions","Divisions"],
+["ascending","Ascending Order"],
+["descending","Descending Order"],
+["draw-clock","Draw Clock"],
+["tell-time","Tell Time"],
+["bodmas","BODMAS"],
+["pattern-completion","Pattern Completion"],
+["word-problems","Word Problems"],
+["fractions","Fractions"]
+];
+
+const grid=document.getElementById("grid");
+const allCells=[];
+
+for(let c=0;c<3;c++){
+    const col=document.createElement("div");
+    col.className="column";
+    for(let r=0;r<8;r++){
+        const cell=createCell();
+        col.appendChild(cell);
+        allCells.push(cell);
+    }
+    grid.appendChild(col);
+}
+
+let activeIndex=0;
+setActiveCell(0);
+
+function setActiveCell(i){
+    allCells.forEach((c,idx)=>{
+        c.classList.toggle("inactive",idx!==i);
+    });
+}
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+function createCell(){
+    const cell=document.createElement("div");
+    cell.className="cell";
+
+    const sel=document.createElement("select");
+    options.forEach(o=>{
+        const op=document.createElement("option");
+        op.value=o[0];
+        op.textContent=o[1];
+        sel.appendChild(op);
+    });
+
+    const qBox=document.createElement("div");
+    qBox.className="questions";
+
+    const btnShow=document.createElement("button");
+    btnShow.textContent="Show";
+    btnShow.className="show-btn";
+
+    const btnPrev=document.createElement("button");
+    btnPrev.textContent="Prev";
+    btnPrev.className="nav-btn";
+
+    const btnNext=document.createElement("button");
+    btnNext.textContent="Next";
+    btnNext.className="nav-btn";
+
+    sel.onchange=()=>{
+        qBox.innerHTML="";
+        btnShow.textContent="Show";
+
+        if(sel.value==="number-names"){
+            const nums=[rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)];
+            nums.forEach(n=>{
+                qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n.toLocaleString("en-IN",{useGrouping:false})}</span></div>`;
+            });
+        }
+
+        else if(sel.value==="multiplications"){
+            for(let i=0;i<4;i++){
+                let a=rand(12,19),b=rand(2,9);
+                qBox.innerHTML+=`<div class="row"><span>${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
+            }
+        }
+
+        else if(sel.value==="additions"){
+            for(let i=0;i<4;i++){
+                let a=rand(1,9),b=rand(1,9);
+                qBox.innerHTML+=`<div class="row"><span>${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
+            }
+        }
+
+        else if(sel.value==="subtractions"){
+            for(let i=0;i<4;i++){
+                let a=rand(1,9),b=rand(1,a);
+                qBox.innerHTML+=`<div class="row"><span>${a} − ${b} = </span><span class="answer">${a-b}</span></div>`;
+            }
+        }
+
+        else if(sel.value==="divisions"){
+            for(let i=0;i<4;i++){
+                let b=rand(2,9),a=b*rand(2,9);
+                qBox.innerHTML+=`<div class="row"><span>${a} ÷ ${b} = </span><span class="answer">${a/b}</span></div>`;
+            }
+        }
+
+        else if(sel.value==="ascending"||sel.value==="descending"){
+            const arr=[...Array(6)].map(()=>rand(10,99));
+            qBox.innerHTML+=`<div class="row"><span>${arr.join(", ")}</span></div>`;
+            const sorted=[...arr].sort((a,b)=>sel.value==="ascending"?a-b:b-a);
+            qBox.innerHTML+=`<div class="row answer">${sorted.join(", ")}</div>`;
+        }
+
+        else if(sel.value==="draw-clock"){
+            for(let i=0;i<2;i++){
+                qBox.innerHTML+=`<div class="row">${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
+            }
+        }
+
+        else if(sel.value==="tell-time"){
+            for(let i=0;i<2;i++){
+                let h=rand(1,12),m=rand(0,59);
+                qBox.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
+            }
+        }
+
+        else if(sel.value){
+            fetch(BASE_URL+sel.value+".json")
+            .then(r=>r.json())
+            .then(d=>{
+                const idx=[...Array(d.questions.length).keys()].sort(()=>0.5-Math.random()).slice(0,4);
+                idx.forEach(i=>{
+                    qBox.innerHTML+=`<div class="row"><span>${d.questions[i]}</span><span class="answer">${d.answers[i]}</span></div>`;
+                });
+            });
+        }
+    };
+
+    btnShow.onclick=()=>{
+        const a=qBox.querySelectorAll(".answer");
+        const show=[...a].some(x=>!x.classList.contains("show"));
+        a.forEach(x=>x.classList.toggle("show",show));
+        btnShow.textContent=show?"Hide":"Show";
+    };
+
+    btnNext.onclick=()=>{activeIndex=(activeIndex+1)%allCells.length;setActiveCell(activeIndex);};
+    btnPrev.onclick=()=>{activeIndex=(activeIndex-1+allCells.length)%allCells.length;setActiveCell(activeIndex);};
+
+    const bc=document.createElement("div");
+    bc.append(btnShow,btnPrev,btnNext);
+
+    cell.append(sel,qBox,bc);
+    return cell;
+}
+</script>
+</body>
+</html>

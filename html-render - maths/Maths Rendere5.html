@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Grid</title>
+
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#outer {
+    height: calc(100% - 40px);
+    margin: 20px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#grid {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+
+.column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cell {
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    box-sizing: border-box;
+    min-height: 320px; /* bigger box for larger problems */
+    background-color: #111;
+    transition: all 0.2s;
+    opacity: 1;
+}
+
+.cell.active {
+    background-color: #111;
+    opacity: 1;
+}
+
+.cell.inactive {
+    background-color: #111;
+    opacity: 0.15;
+}
+
+select {
+    font-size: 14px;
+    margin-bottom: 8px;
+    background: #5DADE2;
+    color: white;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.questions {
+    flex: 1;
+    font-size: 20px; /* slightly larger font for bigger space */
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.answer {
+    visibility: hidden;
+    color: #58D68D;
+    font-weight: bold;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+.answer.show {
+    visibility: visible;
+    transform: scale(1.05);
+    opacity: 1;
+}
+
+button {
+    margin-top: 6px;
+    font-size: 14px;
+    padding: 6px;
+    cursor: pointer;
+    border: none;
+}
+
+.show-btn {
+    background: #58D68D;
+    color: black;
+    margin-right: 5px;
+}
+
+.next-btn {
+    background: #5DADE2;
+    color: black;
+    margin-right: 5px;
+}
+</style>
+</head>
+
+<body>
+<div id="outer">
+    <div id="grid"></div>
+</div>
+
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/missingnumbers/";
+
+const options=[
+  ["","-- Select --"],
+  ["addend-left-missing","Addend Left Missing"],
+  ["addend-right-missing","Addend Right Missing"],
+  ["dividend-missing","Dividend Missing"],
+  ["divisor-missing","Divisor Missing"],
+  ["factor-left-missing","Factor Left Missing"],
+  ["factor-right-missing","Factor Right Missing"],
+  ["minuend-missing","Minuend Missing"],
+  ["subtrahend-missing","Subtrahend Missing"],
+  ["generate-additions-2","Generate Additions (2 Numbers)"],
+  ["generate-additions-3","Generate Additions (3 Rows)"],
+  ["gen-sub-no-borrow","Gen Subtraction (No Borrow)"],
+  ["gen-sub-with-borrow","Gen Subtraction (With Borrow)"],
+  ["gen-mul-1-digit","Gen Multiplications 1 Digit"],
+  ["gen-mul-2-digit","Gen Multiplication 2 Digit"]
+];
+
+const grid=document.getElementById("grid");
+const allCells = [];
+
+// 3 columns x 8 stacked boxes
+for(let c=0;c<3;c++){
+    const col=document.createElement("div");
+    col.className="column";
+    for(let r=0;r<8;r++){
+        const cell = createCell();
+        col.appendChild(cell);
+        allCells.push(cell);
+    }
+    grid.appendChild(col);
+}
+
+let activeIndex = 0;
+setActiveCell(activeIndex);
+
+function setActiveCell(index){
+    allCells.forEach((cell,i)=>{
+        if(i===index){
+            cell.classList.add("active");
+            cell.classList.remove("inactive");
+        } else {
+            cell.classList.remove("active");
+            cell.classList.add("inactive");
+        }
+    });
+}
+
+function createCell(){
+    const cell=document.createElement("div");
+    cell.className="cell";
+
+    const sel=document.createElement("select");
+    options.forEach(o=>{
+        const opt=document.createElement("option");
+        opt.value=o[0];
+        opt.textContent=o[1];
+        sel.appendChild(opt);
+    });
+
+    const qBox=document.createElement("div");
+    qBox.className="questions";
+
+    const btnShow=document.createElement("button");
+    btnShow.textContent="Show";
+    btnShow.className="show-btn";
+
+    const btnPrev=document.createElement("button");
+    btnPrev.textContent="Prev";
+    btnPrev.className="next-btn";
+
+    const btnNext=document.createElement("button");
+    btnNext.textContent="Next";
+    btnNext.className="next-btn";
+
+    sel.onchange=()=>{
+        qBox.innerHTML="";
+        btnShow.textContent="Show";
+
+        if(sel.value==="generate-additions-2"){
+            for(let i=0;i<4;i++){
+                const a=Math.floor(Math.random()*900)+100;
+                const b=Math.floor(Math.random()*900)+100;
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} + ${b} = </span><span class="answer">${a+b}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value==="generate-additions-3"){
+            for(let i=0;i<4;i++){
+                const a=Math.floor(Math.random()*900)+100;
+                const b=Math.floor(Math.random()*900)+100;
+                const c=Math.floor(Math.random()*900)+100;
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} + ${b} + ${c} = </span><span class="answer">${a+b+c}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value==="gen-sub-no-borrow"){
+            for(let i=0;i<4;i++){
+                let a=Math.floor(Math.random()*900)+100;
+                let b=Math.floor(Math.random()*900)+100;
+                const aDigits = String(a).split('').map(Number);
+                const bDigits = String(b).split('').map(Number);
+                for(let d=0; d<3; d++){
+                    if(bDigits[d]>aDigits[d]) bDigits[d]=aDigits[d];
+                }
+                b=parseInt(bDigits.join(''));
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value==="gen-sub-with-borrow"){
+            for(let i=0;i<4;i++){
+                let a=Math.floor(Math.random()*900)+100;
+                let b=Math.floor(Math.random()*900)+100;
+                if(b>a) [a,b]=[b,a];
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value==="gen-mul-1-digit"){
+            for(let i=0;i<4;i++){
+                let a=Math.floor(Math.random()*90)+10; // 2-digit
+                let b=Math.floor(Math.random()*9)+1;  // 1-digit
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value==="gen-mul-2-digit"){
+            for(let i=0;i<4;i++){
+                let a=Math.floor(Math.random()*90)+10;
+                let b=Math.floor(Math.random()*90)+10;
+                const row=document.createElement("div");
+                row.className="row";
+                row.innerHTML=`<span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span>`;
+                qBox.appendChild(row);
+            }
+        } else if(sel.value){
+            fetch(BASE_URL+sel.value+".json")
+            .then(r=>r.json())
+            .then(d=>{
+                const idx=[...Array(d.questions.length).keys()]
+                  .sort(()=>0.5-Math.random())
+                  .slice(0,4);
+
+                idx.forEach(i=>{
+                    const row=document.createElement("div");
+                    row.className="row";
+                    row.innerHTML=`<span>${d.questions[i]}</span><span class="answer">${d.answers[i]}</span>`;
+                    qBox.appendChild(row);
+                });
+            });
+        }
+    };
+
+    btnShow.onclick=()=>{
+        const answers = qBox.querySelectorAll(".answer");
+        let anyHidden = Array.from(answers).some(a=>!a.classList.contains("show"));
+        answers.forEach(a=>{
+            if(anyHidden) a.classList.add("show");
+            else a.classList.remove("show");
+        });
+        btnShow.textContent = anyHidden ? "Hide" : "Show";
+    };
+
+    btnNext.onclick=()=>{
+        activeIndex = (activeIndex + 1) % allCells.length;
+        setActiveCell(activeIndex);
+    };
+
+    btnPrev.onclick=()=>{
+        activeIndex = (activeIndex - 1 + allCells.length) % allCells.length;
+        setActiveCell(activeIndex);
+    };
+
+    const btnContainer = document.createElement("div");
+    btnContainer.style.display = "flex";
+    btnContainer.appendChild(btnShow);
+    btnContainer.appendChild(btnPrev);
+    btnContainer.appendChild(btnNext);
+
+    cell.appendChild(sel);
+    cell.appendChild(qBox);
+    cell.appendChild(btnContainer);
+    return cell;
+}
+</script>
+</body>
+</html>
