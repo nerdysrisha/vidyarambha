@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Panel</title>
+
+<style>
+html,body{
+    margin:0;
+    height:100%;
+    background:black;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+#outer{
+    margin:20px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+#control{
+    position:sticky;
+    top:0;
+    z-index:10;
+    border:1px solid #444;
+    padding:12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    background:black;
+}
+.ctrl-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:14px;
+}
+#questions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+}
+.stack{
+    width:calc(33.33% - 14px);
+    border:1px solid #222;
+    background:#111;
+    padding:12px;
+    box-sizing:border-box;
+    min-height:260px;
+}
+.row{
+    display:flex;
+    gap:8px;
+    font-size:22px;
+    line-height:1.7;
+}
+.answer{
+    visibility:hidden;
+    color:#58D68D;
+    font-weight:bold;
+}
+.answer.show{
+    visibility:visible;
+}
+button{
+    padding:6px 12px;
+    border:none;
+    cursor:pointer;
+    background:#58D68D;
+    color:black;
+}
+</style>
+</head>
+
+<body>
+<div id="outer">
+    <div id="control">
+        <button id="toggleAll">Show</button>
+    </div>
+    <div id="questions"></div>
+</div>
+
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+
+const options=[
+["addend-left-missing","Addend Left Missing"],
+["addend-right-missing","Addend Right Missing"],
+["dividend-missing","Dividend Missing"],
+["divisor-missing","Divisor Missing"],
+["factor-left-missing","Factor Left Missing"],
+["factor-right-missing","Factor Right Missing"],
+["minuend-missing","Minuend Missing"],
+["subtrahend-missing","Subtrahend Missing"],
+["generate-additions-2","Generate Additions (2 Numbers)"],
+["generate-additions-3","Generate Additions (3 Rows)"],
+["gen-sub-no-borrow","Gen Subtraction (No Borrow)"],
+["gen-sub-with-borrow","Gen Subtraction (With Borrow)"],
+["gen-mul-1-digit","Gen Multiplications 1 Digit"],
+["gen-mul-2-digit","Gen Multiplication 2 Digit"],
+["number-names","Number Names"],
+["basic-multiplications","Multiplications"],
+["basic-additions","Additions"],
+["basic-subtractions","Subtractions"],
+["basic-divisions","Divisions"],
+["ascending","Ascending Order"],
+["descending","Descending Order"],
+["draw-clock","Draw Clock"],
+["tell-time","Tell Time"],
+["bodmas","BODMAS"],
+["pattern-completion","Pattern Completion"],
+["word-problems","Word Problems"],
+["fractions","Fractions"]
+];
+
+const control=document.getElementById("control");
+const questions=document.getElementById("questions");
+const toggleAll=document.getElementById("toggleAll");
+let showAll=false;
+const stacks={};
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+options.forEach(([val,label])=>{
+    const wrap=document.createElement("label");
+    wrap.className="ctrl-item";
+    const cb=document.createElement("input");
+    cb.type="checkbox";
+    cb.onchange=()=>cb.checked?addStack(val):removeStack(val);
+    wrap.append(cb,document.createTextNode(label));
+    control.appendChild(wrap);
+});
+
+toggleAll.onclick=()=>{
+    showAll=!showAll;
+    document.querySelectorAll(".answer").forEach(a=>a.classList.toggle("show",showAll));
+    toggleAll.textContent=showAll?"Hide":"Show";
+};
+
+function addStack(val){
+    if(stacks[val]) return;
+    const box=document.createElement("div");
+    box.className="stack";
+    stacks[val]=box;
+    questions.appendChild(box);
+    generate(box,val);
+}
+
+function removeStack(val){
+    stacks[val]?.remove();
+    delete stacks[val];
+}
+
+function generate(box,val){
+    box.innerHTML="";
+    if(val==="generate-additions-2"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}+${b}=<span class="answer">${a+b}</span></div>`;
+        }
+    }
+    else if(val==="generate-additions-3"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999),c=rand(100,999);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}+${b}+${c}=<span class="answer">${a+b+c}</span></div>`;
+        }
+    }
+    else if(val==="gen-sub-no-borrow"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999);
+            let aD=String(a).split('').map(Number);
+            let bD=String(rand(100,999)).split('').map((d,j)=>Math.min(d,aD[j]));
+            let b=parseInt(bD.join(''));
+            box.innerHTML+=`<div class="row">${i+1}. ${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="gen-sub-with-borrow"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999);
+            if(b>a)[a,b]=[b,a];
+            box.innerHTML+=`<div class="row">${i+1}. ${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="gen-mul-1-digit"){
+        for(let i=0;i<4;i++){
+            let a=rand(10,99),b=rand(1,9);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="gen-mul-2-digit"){
+        for(let i=0;i<4;i++){
+            let a=rand(10,99),b=rand(10,99);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="number-names"){
+        [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
+        .forEach(n=>{
+            box.innerHTML+=`<div class="row">${n}<span class="answer">${n}</span></div>`;
+        });
+    }
+    else if(val==="basic-multiplications"){
+        for(let i=0;i<4;i++){
+            let a=rand(12,19),b=rand(2,9);
+            box.innerHTML+=`<div class="row">${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="basic-additions"){
+        for(let i=0;i<4;i++){
+            let a=rand(1,9),b=rand(1,9);
+            box.innerHTML+=`<div class="row">${a}+${b}=<span class="answer">${a+b}</span></div>`;
+        }
+    }
+    else if(val==="basic-subtractions"){
+        for(let i=0;i<4;i++){
+            let a=rand(1,9),b=rand(0,a);
+            box.innerHTML+=`<div class="row">${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="basic-divisions"){
+        for(let i=0;i<4;i++){
+            let b=rand(2,9),a=b*rand(2,9);
+            box.innerHTML+=`<div class="row">${a}÷${b}=<span class="answer">${a/b}</span></div>`;
+        }
+    }
+    else if(val==="ascending"||val==="descending"){
+        let arr=[...Array(6)].map(()=>rand(10,99));
+        box.innerHTML+=`<div class="row">${arr.join(", ")}</div>`;
+        let s=[...arr].sort((a,b)=>val==="ascending"?a-b:b-a);
+        box.innerHTML+=`<div class="row answer">${s.join(", ")}</div>`;
+    }
+    else if(val==="draw-clock"){
+        for(let i=0;i<2;i++){
+            box.innerHTML+=`<div class="row">${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
+        }
+    }
+    else if(val==="tell-time"){
+        for(let i=0;i<2;i++){
+            let h=rand(1,12),m=rand(0,59);
+            box.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
+        }
+    }
+    else{
+        fetch(BASE_URL+val+".json")
+        .then(r=>r.json())
+        .then(d=>{
+            const idx=[...Array(d.questions.length).keys()].sort(()=>0.5-Math.random()).slice(0,4);
+            idx.forEach(i=>{
+                box.innerHTML+=`<div class="row">${d.questions[i]}<span class="answer">${d.answers[i]}</span></div>`;
+            });
+        });
+    }
+}
+</script>
+</body>
+</html>
