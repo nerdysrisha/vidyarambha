@@ -12,27 +12,23 @@ html, body {
     color: white;
     font-family: Arial, sans-serif;
 }
-
 #outer {
     height: calc(100% - 40px);
     margin: 20px;
     padding: 10px;
     box-sizing: border-box;
 }
-
 #grid {
     display: flex;
     gap: 20px;
     height: 100%;
 }
-
 .column {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
-
 .cell {
     border: 1px solid #555;
     display: flex;
@@ -43,11 +39,9 @@ html, body {
     background-color: #111;
     transition: all 0.2s;
 }
-
 .cell.inactive {
     opacity: 0.15;
 }
-
 select {
     font-size: 14px;
     margin-bottom: 8px;
@@ -56,7 +50,6 @@ select {
     border: none;
     padding: 4px;
 }
-
 .questions {
     flex: 1;
     font-size: 20px;
@@ -65,22 +58,18 @@ select {
     flex-direction: column;
     gap: 12px;
 }
-
 .row {
     display: flex;
     gap: 8px;
 }
-
 .answer {
     visibility: hidden;
     color: #58D68D;
     font-weight: bold;
 }
-
 .answer.show {
     visibility: visible;
 }
-
 button {
     margin-top: 6px;
     font-size: 14px;
@@ -88,13 +77,11 @@ button {
     border: none;
     cursor: pointer;
 }
-
 .show-btn {
     background: #58D68D;
     color: black;
     margin-right: 5px;
 }
-
 .nav-btn {
     background: #5DADE2;
     color: black;
@@ -162,7 +149,6 @@ setActiveCell(0);
 function setActiveCell(i){
     allCells.forEach((c,idx)=>c.classList.toggle("inactive",idx!==i));
 }
-
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 
 function createCell(){
@@ -196,64 +182,108 @@ function createCell(){
         qBox.innerHTML="";
         btnShow.textContent="Show";
 
-        if(sel.value==="number-names"){
-            [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
-            .forEach(n=>qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n}</span></div>`);
-        }
-
-        else if(sel.value==="basic-multiplications"){
+        // ---------- Generate Logic ----------
+        if(sel.value==="generate-additions-2"){
             for(let i=0;i<4;i++){
-                let a=rand(12,19),b=rand(2,9);
+                const a=rand(100,999), b=rand(100,999);
+                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
+            }
+        } else if(sel.value==="generate-additions-3"){
+            for(let i=0;i<4;i++){
+                const a=rand(100,999), b=rand(100,999), c=rand(100,999);
+                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} + ${b} + ${c} = </span><span class="answer">${a+b+c}</span></div>`;
+            }
+        } else if(sel.value==="gen-sub-no-borrow"){
+			for(let i=0;i<4;i++){
+				let a = rand(100,999); // minuend
+				let bDigits = String(rand(100,999)).split('').map(Number);
+				let aDigits = String(a).split('').map(Number);
+				// ensure no borrow per digit
+				bDigits = bDigits.map((d, idx) => Math.min(d, aDigits[idx]));
+				let b = parseInt(bDigits.join(''));
+				qBox.innerHTML += `<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
+			}
+		} else if(sel.value==="gen-sub-with-borrow"){
+			for(let i=0;i<4;i++){
+				let a = rand(100,999);
+				let b = rand(100,999);
+				// ensure at least one digit requires borrowing
+				let aDigits = String(a).split('').map(Number);
+				let bDigits = String(b).split('').map(Number);
+				let borrowNeeded = false;
+				for(let j=0;j<3;j++){
+					if(bDigits[j] > aDigits[j]){
+						borrowNeeded = true;
+						break;
+					}
+				}
+				// if no borrow occurs, swap digits to force borrow
+				if(!borrowNeeded){
+					let j = rand(0,2);
+					if(aDigits[j] > 0){
+						bDigits[j] = aDigits[j] + rand(1,9-aDigits[j]);
+						if(bDigits[j] > 9) bDigits[j] = 9;
+					}
+				}
+				b = parseInt(bDigits.join(''));
+				// ensure a >= b
+				if(b > a) [a,b]=[b,a];
+				qBox.innerHTML += `<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
+			}
+		} else if(sel.value==="gen-sub-with-borrow"){
+            for(let i=0;i<4;i++){
+                let a=rand(10,99), b=rand(10,99);
+                if(b>a) [a,b]=[b,a];
+                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
+            }
+        } else if(sel.value==="gen-mul-1-digit"){
+            for(let i=0;i<4;i++){
+                let a=rand(10,99), b=rand(1,9);
+                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
+            }
+        } else if(sel.value==="gen-mul-2-digit"){
+            for(let i=0;i<4;i++){
+                let a=rand(10,99), b=rand(10,99);
+                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
+            }
+        } else if(sel.value==="number-names"){
+            [rand(100,999), rand(100,999), rand(1000,9999), rand(1000,9999)]
+            .forEach(n=>qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n}</span></div>`);
+        } else if(sel.value==="basic-multiplications"){
+            for(let i=0;i<4;i++){
+                let a=rand(12,19), b=rand(2,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
             }
-        }
-
-        else if(sel.value==="basic-additions"){
+        } else if(sel.value==="basic-additions"){
             for(let i=0;i<4;i++){
-                let a=rand(1,9),b=rand(1,9);
+                let a=rand(1,9), b=rand(1,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
             }
-        }
-
-        else if(sel.value==="basic-subtractions"){
+        } else if(sel.value==="basic-subtractions"){
             for(let i=0;i<4;i++){
-                let a=rand(1,9),b=rand(0,a);
+                let a=rand(1,9), b=rand(0,a);
                 qBox.innerHTML+=`<div class="row"><span>${a} − ${b} = </span><span class="answer">${a-b}</span></div>`;
             }
-        }
-
-        else if(sel.value==="basic-divisions"){
+        } else if(sel.value==="basic-divisions"){
             for(let i=0;i<4;i++){
-                let b=rand(2,9),a=b*rand(2,9);
+                let b=rand(2,9), a=b*rand(2,9);
                 qBox.innerHTML+=`<div class="row"><span>${a} ÷ ${b} = </span><span class="answer">${a/b}</span></div>`;
             }
-        }
-
-        else if(sel.value==="ascending"||sel.value==="descending"){
+        } else if(sel.value==="ascending"||sel.value==="descending"){
             const arr=[...Array(6)].map(()=>rand(10,99));
             qBox.innerHTML+=`<div class="row">${arr.join(", ")}</div>`;
             const sorted=[...arr].sort((a,b)=>sel.value==="ascending"?a-b:b-a);
             qBox.innerHTML+=`<div class="row answer">${sorted.join(", ")}</div>`;
-        }
-
-        else if(sel.value==="draw-clock"){
+        } else if(sel.value==="draw-clock"){
             for(let i=0;i<2;i++){
                 qBox.innerHTML+=`<div class="row">${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
             }
-        }
-
-        else if(sel.value==="tell-time"){
+        } else if(sel.value==="tell-time"){
             for(let i=0;i<2;i++){
-                let h=rand(1,12),m=rand(0,59);
+                let h=rand(1,12), m=rand(0,59);
                 qBox.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
             }
-        }
-
-        else if(sel.value.startsWith("gen")||sel.value.startsWith("generate")){
-            return; // handled already in previous logic
-        }
-
-        else if(sel.value){
+        } else if(sel.value){
             fetch(BASE_URL+sel.value+".json")
             .then(r=>r.json())
             .then(d=>{
