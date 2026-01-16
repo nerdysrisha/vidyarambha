@@ -148,9 +148,6 @@ button{
     padding-left:8px;
 }
 
-.small-font {
-    font-size: 18px; /* or whatever smaller size works */
-}
 
 
 
@@ -243,17 +240,17 @@ toggleAll.onclick=()=>{
 };
 
 
- 
-
-function renderRow(letter, question, answer, extraClass="") {
+// ---- define once at top ----
+function renderRow(letter, questionText, answer){
     return `
-        <div class="row row-flex ${extraClass}">
-            <span>(${letter}) ${question}</span>
+        <div class="row row-flex">
+            <span>(${letter}) ${questionText}</span>
             <input type="text" class="answer-input" />
             <span class="answer">${answer}</span>
         </div>
     `;
 }
+
 
 
 
@@ -649,6 +646,7 @@ else if(val==="greater-lesser"){
 
 /////INLINE GENERATED END
 
+ 
 // ----------DYNAMICALLY FETCHED FROM GITHUB ----------
 else{
     // Add dynamic heading
@@ -666,17 +664,10 @@ else{
 
         idx.forEach((i, j) => {
             let letter = String.fromCharCode(97 + j); // (a), (b), ...
-            let fontClass = "";
-            if(val === "bodmas" || val === "word-problems" || val === "fractions"){
-                fontClass = "small-font"; // apply smaller font
-            }
-            // Use renderRow for proper formatting, passing extra class if needed
-            box.innerHTML += renderRow(letter, d.questions[i], d.answers[i], fontClass);
+            box.innerHTML += `<div class="row">(${letter}) ${d.questions[i]}<span class="answer">${d.answers[i]}</span></div>`;
         });
     });
 }
-
-
 
 	
 }
