@@ -2,104 +2,129 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Math Grid</title>
+<title>Math Panel</title>
 
 <style>
-html, body {
-    margin: 0;
-    height: 100%;
-    background: black;
-    color: white;
-    font-family: Arial, sans-serif;
+html,body{
+    margin:0;
+    height:100%;
+    background:black;
+    color:white;
+    font-family:Arial, sans-serif;
 }
-#outer {
-    height: calc(100% - 40px);
-    margin: 20px;
-    padding: 10px;
-    box-sizing: border-box;
+#outer{
+    margin:20px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
 }
-#grid {
-    display: flex;
-    gap: 20px;
-    height: 100%;
+
+/* CONTROL PANEL */
+#control{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:10px 16px;
+    background:black;
+    border:1px solid #444;   /* ensures border is visible */
+    padding:16px;
 }
-.column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+
+#control legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
 }
-.cell {
-    border: 1px solid #555;
-    display: flex;
-    flex-direction: column;
-    padding: 12px;
-    box-sizing: border-box;
-    min-height: 340px;
-    background-color: #111;
-    transition: all 0.2s;
+
+/* checkbox items inside control panel */
+.ctrl-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
 }
-.cell.inactive {
-    opacity: 0.15;
+
+/* QUESTIONS PANEL */
+#questions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    border:1px solid #444;
+    padding:12px;
+
+    /* make it scrollable without going under the sticky control panel */
+    max-height: calc(100vh - 120px); /* adjust 120px to roughly control panel + margin height */
+    overflow-y:auto;
 }
-select {
-    font-size: 14px;
-    margin-bottom: 8px;
-    background: #5DADE2;
-    color: white;
-    border: none;
-    padding: 4px;
+
+
+#questions legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
 }
-.questions {
-    flex: 1;
-    font-size: 20px;
-    line-height: 1.6;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+
+/* STACKS / BOXES */
+.stack{
+    width:calc(33.33% - 14px);
+    border:1px solid #222;
+    background:#111;
+    padding:12px;
+    box-sizing:border-box;
+    min-height:260px;
 }
-.row {
-    display: flex;
-    gap: 8px;
+
+/* QUESTIONS ROWS */
+.row{
+    display:flex;
+    gap:8px;
+    font-size:24px;
+    line-height:1.9;
 }
-.answer {
-    visibility: hidden;
-    color: #58D68D;
-    font-weight: bold;
+
+/* ANSWERS */
+.answer{
+    visibility:hidden;
+    color:#58D68D;
+    font-weight:bold;
 }
-.answer.show {
-    visibility: visible;
+.answer.show{
+    visibility:visible;
 }
-button {
-    margin-top: 6px;
-    font-size: 14px;
-    padding: 6px;
-    border: none;
-    cursor: pointer;
-}
-.show-btn {
-    background: #58D68D;
-    color: black;
-    margin-right: 5px;
-}
-.nav-btn {
-    background: #5DADE2;
-    color: black;
-    margin-right: 5px;
+
+/* BUTTONS */
+button{
+    padding:6px 12px;
+    border:none;
+    cursor:pointer;
+    background:#58D68D;
+    color:black;
 }
 </style>
-</head>
-
 <body>
 <div id="outer">
-    <div id="grid"></div>
+
+    <!-- CONTROL PANEL -->
+    <fieldset id="control">
+        <legend>Control Panel</legend>
+        <button id="toggleAll">Show</button>
+        <!-- checkboxes will be appended here dynamically -->
+    </fieldset>
+
+    <!-- QUESTIONS PANEL -->
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+        <!-- generated questions will appear here -->
+    </fieldset>
+
 </div>
 
 <script>
 const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 
 const options=[
-["","-- Select --"],
 ["addend-left-missing","Addend Left Missing"],
 ["addend-right-missing","Addend Right Missing"],
 ["dividend-missing","Dividend Missing"],
@@ -129,187 +154,149 @@ const options=[
 ["fractions","Fractions"]
 ];
 
-const grid=document.getElementById("grid");
-const allCells=[];
+const control=document.getElementById("control");
+const questions=document.getElementById("questions");
+const toggleAll=document.getElementById("toggleAll");
+let showAll=false;
+const stacks={};
 
-for(let c=0;c<3;c++){
-    const col=document.createElement("div");
-    col.className="column";
-    for(let r=0;r<8;r++){
-        const cell=createCell();
-        col.appendChild(cell);
-        allCells.push(cell);
-    }
-    grid.appendChild(col);
-}
-
-let activeIndex=0;
-setActiveCell(0);
-
-function setActiveCell(i){
-    allCells.forEach((c,idx)=>c.classList.toggle("inactive",idx!==i));
-}
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 
-function createCell(){
-    const cell=document.createElement("div");
-    cell.className="cell";
+options.forEach(([val,label])=>{
+    const wrap=document.createElement("label");
+    wrap.className="ctrl-item";
+    const cb=document.createElement("input");
+    cb.type="checkbox";
+    cb.onchange=()=>cb.checked?addStack(val):removeStack(val);
+    wrap.append(cb,document.createTextNode(label));
+    control.appendChild(wrap);
+});
 
-    const sel=document.createElement("select");
-    options.forEach(o=>{
-        const op=document.createElement("option");
-        op.value=o[0];
-        op.textContent=o[1];
-        sel.appendChild(op);
-    });
 
-    const qBox=document.createElement("div");
-    qBox.className="questions";
+toggleAll.onclick=()=>{
+    const pwd=prompt("Enter PIN");
+    if(pwd!=="0000") return;
+    showAll=!showAll;
+    document.querySelectorAll(".answer").forEach(a=>a.classList.toggle("show",showAll));
+    toggleAll.textContent=showAll?"Hide":"Show";
+};
 
-    const btnShow=document.createElement("button");
-    btnShow.textContent="Show";
-    btnShow.className="show-btn";
 
-    const btnPrev=document.createElement("button");
-    btnPrev.textContent="Prev";
-    btnPrev.className="nav-btn";
 
-    const btnNext=document.createElement("button");
-    btnNext.textContent="Next";
-    btnNext.className="nav-btn";
 
-    sel.onchange=()=>{
-        qBox.innerHTML="";
-        btnShow.textContent="Show";
+function addStack(val){
+    if(stacks[val]) return;
+    const box=document.createElement("div");
+    box.className="stack";
+    stacks[val]=box;
+    questions.appendChild(box);
+    generate(box,val);
+}
 
-        // ---------- Generate Logic ----------
-        if(sel.value==="generate-additions-2"){
-            for(let i=0;i<4;i++){
-                const a=rand(100,999), b=rand(100,999);
-                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
-            }
-        } else if(sel.value==="generate-additions-3"){
-            for(let i=0;i<4;i++){
-                const a=rand(100,999), b=rand(100,999), c=rand(100,999);
-                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} + ${b} + ${c} = </span><span class="answer">${a+b+c}</span></div>`;
-            }
-        } else if(sel.value==="gen-sub-no-borrow"){
-			for(let i=0;i<4;i++){
-				let a = rand(100,999); // minuend
-				let bDigits = String(rand(100,999)).split('').map(Number);
-				let aDigits = String(a).split('').map(Number);
-				// ensure no borrow per digit
-				bDigits = bDigits.map((d, idx) => Math.min(d, aDigits[idx]));
-				let b = parseInt(bDigits.join(''));
-				qBox.innerHTML += `<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
-			}
-		} else if(sel.value==="gen-sub-with-borrow"){
-			for(let i=0;i<4;i++){
-				let a = rand(100,999);
-				let b = rand(100,999);
-				// ensure at least one digit requires borrowing
-				let aDigits = String(a).split('').map(Number);
-				let bDigits = String(b).split('').map(Number);
-				let borrowNeeded = false;
-				for(let j=0;j<3;j++){
-					if(bDigits[j] > aDigits[j]){
-						borrowNeeded = true;
-						break;
-					}
-				}
-				// if no borrow occurs, swap digits to force borrow
-				if(!borrowNeeded){
-					let j = rand(0,2);
-					if(aDigits[j] > 0){
-						bDigits[j] = aDigits[j] + rand(1,9-aDigits[j]);
-						if(bDigits[j] > 9) bDigits[j] = 9;
-					}
-				}
-				b = parseInt(bDigits.join(''));
-				// ensure a >= b
-				if(b > a) [a,b]=[b,a];
-				qBox.innerHTML += `<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
-			}
-		} else if(sel.value==="gen-sub-with-borrow"){
-            for(let i=0;i<4;i++){
-                let a=rand(10,99), b=rand(10,99);
-                if(b>a) [a,b]=[b,a];
-                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} - ${b} = </span><span class="answer">${a-b}</span></div>`;
-            }
-        } else if(sel.value==="gen-mul-1-digit"){
-            for(let i=0;i<4;i++){
-                let a=rand(10,99), b=rand(1,9);
-                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
-            }
-        } else if(sel.value==="gen-mul-2-digit"){
-            for(let i=0;i<4;i++){
-                let a=rand(10,99), b=rand(10,99);
-                qBox.innerHTML+=`<div class="row"><span>${i+1}. ${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
-            }
-        } else if(sel.value==="number-names"){
-            [rand(100,999), rand(100,999), rand(1000,9999), rand(1000,9999)]
-            .forEach(n=>qBox.innerHTML+=`<div class="row"><span>${n}</span><span class="answer">${n}</span></div>`);
-        } else if(sel.value==="basic-multiplications"){
-            for(let i=0;i<4;i++){
-                let a=rand(12,19), b=rand(2,9);
-                qBox.innerHTML+=`<div class="row"><span>${a} × ${b} = </span><span class="answer">${a*b}</span></div>`;
-            }
-        } else if(sel.value==="basic-additions"){
-            for(let i=0;i<4;i++){
-                let a=rand(1,9), b=rand(1,9);
-                qBox.innerHTML+=`<div class="row"><span>${a} + ${b} = </span><span class="answer">${a+b}</span></div>`;
-            }
-        } else if(sel.value==="basic-subtractions"){
-            for(let i=0;i<4;i++){
-                let a=rand(1,9), b=rand(0,a);
-                qBox.innerHTML+=`<div class="row"><span>${a} − ${b} = </span><span class="answer">${a-b}</span></div>`;
-            }
-        } else if(sel.value==="basic-divisions"){
-            for(let i=0;i<4;i++){
-                let b=rand(2,9), a=b*rand(2,9);
-                qBox.innerHTML+=`<div class="row"><span>${a} ÷ ${b} = </span><span class="answer">${a/b}</span></div>`;
-            }
-        } else if(sel.value==="ascending"||sel.value==="descending"){
-            const arr=[...Array(6)].map(()=>rand(10,99));
-            qBox.innerHTML+=`<div class="row">${arr.join(", ")}</div>`;
-            const sorted=[...arr].sort((a,b)=>sel.value==="ascending"?a-b:b-a);
-            qBox.innerHTML+=`<div class="row answer">${sorted.join(", ")}</div>`;
-        } else if(sel.value==="draw-clock"){
-            for(let i=0;i<2;i++){
-                qBox.innerHTML+=`<div class="row">${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
-            }
-        } else if(sel.value==="tell-time"){
-            for(let i=0;i<2;i++){
-                let h=rand(1,12), m=rand(0,59);
-                qBox.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
-            }
-        } else if(sel.value){
-            fetch(BASE_URL+sel.value+".json")
-            .then(r=>r.json())
-            .then(d=>{
-                const idx=[...Array(d.questions.length).keys()].sort(()=>0.5-Math.random()).slice(0,4);
-                idx.forEach(i=>{
-                    qBox.innerHTML+=`<div class="row"><span>${d.questions[i]}</span><span class="answer">${d.answers[i]}</span></div>`;
-                });
-            });
+function removeStack(val){
+    stacks[val]?.remove();
+    delete stacks[val];
+}
+
+function generate(box,val){
+    box.innerHTML="";
+    if(val==="generate-additions-2"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}+${b}=<span class="answer">${a+b}</span></div>`;
         }
-    };
-
-    btnShow.onclick=()=>{
-        const a=qBox.querySelectorAll(".answer");
-        const show=[...a].some(x=>!x.classList.contains("show"));
-        a.forEach(x=>x.classList.toggle("show",show));
-        btnShow.textContent=show?"Hide":"Show";
-    };
-
-    btnNext.onclick=()=>{activeIndex=(activeIndex+1)%allCells.length;setActiveCell(activeIndex);};
-    btnPrev.onclick=()=>{activeIndex=(activeIndex-1+allCells.length)%allCells.length;setActiveCell(activeIndex);};
-
-    const bc=document.createElement("div");
-    bc.append(btnShow,btnPrev,btnNext);
-
-    cell.append(sel,qBox,bc);
-    return cell;
+    }
+    else if(val==="generate-additions-3"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999),c=rand(100,999);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}+${b}+${c}=<span class="answer">${a+b+c}</span></div>`;
+        }
+    }
+    else if(val==="gen-sub-no-borrow"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999);
+            let aD=String(a).split('').map(Number);
+            let bD=String(rand(100,999)).split('').map((d,j)=>Math.min(d,aD[j]));
+            let b=parseInt(bD.join(''));
+            box.innerHTML+=`<div class="row">${i+1}. ${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="gen-sub-with-borrow"){
+        for(let i=0;i<4;i++){
+            let a=rand(100,999),b=rand(100,999);
+            if(b>a)[a,b]=[b,a];
+            box.innerHTML+=`<div class="row">${i+1}. ${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="gen-mul-1-digit"){
+        for(let i=0;i<4;i++){
+            let a=rand(10,99),b=rand(1,9);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="gen-mul-2-digit"){
+        for(let i=0;i<4;i++){
+            let a=rand(10,99),b=rand(10,99);
+            box.innerHTML+=`<div class="row">${i+1}. ${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="number-names"){
+        [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
+        .forEach(n=>{
+            box.innerHTML+=`<div class="row">${n}<span class="answer">${n}</span></div>`;
+        });
+    }
+    else if(val==="basic-multiplications"){
+        for(let i=0;i<4;i++){
+            let a=rand(12,19),b=rand(2,9);
+            box.innerHTML+=`<div class="row">${a}×${b}=<span class="answer">${a*b}</span></div>`;
+        }
+    }
+    else if(val==="basic-additions"){
+        for(let i=0;i<4;i++){
+            let a=rand(1,9),b=rand(1,9);
+            box.innerHTML+=`<div class="row">${a}+${b}=<span class="answer">${a+b}</span></div>`;
+        }
+    }
+    else if(val==="basic-subtractions"){
+        for(let i=0;i<4;i++){
+            let a=rand(1,9),b=rand(0,a);
+            box.innerHTML+=`<div class="row">${a}-${b}=<span class="answer">${a-b}</span></div>`;
+        }
+    }
+    else if(val==="basic-divisions"){
+        for(let i=0;i<4;i++){
+            let b=rand(2,9),a=b*rand(2,9);
+            box.innerHTML+=`<div class="row">${a}÷${b}=<span class="answer">${a/b}</span></div>`;
+        }
+    }
+    else if(val==="ascending"||val==="descending"){
+        let arr=[...Array(6)].map(()=>rand(10,99));
+        box.innerHTML+=`<div class="row">${arr.join(", ")}</div>`;
+        let s=[...arr].sort((a,b)=>val==="ascending"?a-b:b-a);
+        box.innerHTML+=`<div class="row answer">${s.join(", ")}</div>`;
+    }
+    else if(val==="draw-clock"){
+        for(let i=0;i<2;i++){
+            box.innerHTML+=`<div class="row">${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
+        }
+    }
+    else if(val==="tell-time"){
+        for(let i=0;i<2;i++){
+            let h=rand(1,12),m=rand(0,59);
+            box.innerHTML+=`<div class="row">🕒</div><div class="row answer">${h}:${m.toString().padStart(2,"0")}</div>`;
+        }
+    }
+    else{
+        fetch(BASE_URL+val+".json")
+        .then(r=>r.json())
+        .then(d=>{
+            const idx=[...Array(d.questions.length).keys()].sort(()=>0.5-Math.random()).slice(0,4);
+            idx.forEach(i=>{
+                box.innerHTML+=`<div class="row">${d.questions[i]}<span class="answer">${d.answers[i]}</span></div>`;
+            });
+        });
+    }
 }
 </script>
 </body>

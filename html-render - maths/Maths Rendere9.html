@@ -18,29 +18,55 @@ html,body{
     flex-direction:column;
     gap:20px;
 }
+
+/* CONTROL PANEL */
 #control{
     position:sticky;
     top:0;
     z-index:10;
-    border:1px solid #444;
-    padding:12px;
-    display:flex;
-    flex-wrap:wrap;
-    gap:14px;
-    align-items:center;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:10px 16px;
     background:black;
+    border:1px solid #444;   /* ensures border is visible */
+    padding:16px;
 }
+
+#control legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* checkbox items inside control panel */
 .ctrl-item{
     display:flex;
     align-items:center;
-    gap:6px;
-    font-size:14px;
+    gap:8px;
+    white-space:nowrap;
 }
+
+/* QUESTIONS PANEL */
 #questions{
     display:flex;
     flex-wrap:wrap;
     gap:20px;
+    border:1px solid #444;
+    padding:12px;
+
+    /* make it scrollable without going under the sticky control panel */
+    max-height: calc(100vh - 120px); /* adjust 120px to roughly control panel + margin height */
+    overflow-y:auto;
 }
+
+
+#questions legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* STACKS / BOXES */
 .stack{
     width:calc(33.33% - 14px);
     border:1px solid #222;
@@ -49,12 +75,16 @@ html,body{
     box-sizing:border-box;
     min-height:260px;
 }
+
+/* QUESTIONS ROWS */
 .row{
     display:flex;
     gap:8px;
-    font-size:22px;
-    line-height:1.7;
+    font-size:24px;
+    line-height:1.9;
 }
+
+/* ANSWERS */
 .answer{
     visibility:hidden;
     color:#58D68D;
@@ -63,6 +93,8 @@ html,body{
 .answer.show{
     visibility:visible;
 }
+
+/* BUTTONS */
 button{
     padding:6px 12px;
     border:none;
@@ -71,14 +103,22 @@ button{
     color:black;
 }
 </style>
-</head>
-
 <body>
 <div id="outer">
-    <div id="control">
+
+    <!-- CONTROL PANEL -->
+    <fieldset id="control">
+        <legend>Control Panel</legend>
         <button id="toggleAll">Show</button>
-    </div>
-    <div id="questions"></div>
+        <!-- checkboxes will be appended here dynamically -->
+    </fieldset>
+
+    <!-- QUESTIONS PANEL -->
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+        <!-- generated questions will appear here -->
+    </fieldset>
+
 </div>
 
 <script>
@@ -132,11 +172,17 @@ options.forEach(([val,label])=>{
     control.appendChild(wrap);
 });
 
+
 toggleAll.onclick=()=>{
+    const pwd=prompt("Enter PIN");
+    if(pwd!=="0000") return;
     showAll=!showAll;
     document.querySelectorAll(".answer").forEach(a=>a.classList.toggle("show",showAll));
     toggleAll.textContent=showAll?"Hide":"Show";
 };
+
+
+
 
 function addStack(val){
     if(stacks[val]) return;
