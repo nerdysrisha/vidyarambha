@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Word Popper Panel</title>
-<!--
-v14
--->
 <style>
 html, body {
     margin: 0;
@@ -52,6 +49,7 @@ html, body {
 }
 
 #counter {
+    margin-left: auto;
     color: #aaa;
 }
 
@@ -136,46 +134,44 @@ button {
 
     <!-- CONTROL PANEL -->
     <div id="control-container" class="shrink">
-<div id="control-top-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-    <div style="flex-grow:1;">
-        <select id="patternSelector">
-            <option value="2-letter">2 Letter Words</option>
-            <option value="3-letter" selected>3 Letter Words</option>
-            <option value="4-letter">4 Letter Words</option>
-            <option value="5-letter">5 Letter Words</option>
-            <option value="actionitems">Action Items</option>
-            <option value="animals">Animals</option>
-            <option value="body-actions">Body Actions</option>
-            <option value="bodyparts">Body Parts</option>
-            <option value="clothing">Clothing</option>
-            <option value="colors">Colors</option>
-            <option value="emotions">Emotions</option>
-            <option value="family">Family</option>
-            <option value="fooditems">Food Items</option>
-            <option value="fruits">Fruits</option>
-            <option value="houseitems">House Items</option>
-            <option value="kitchen">Kitchen</option>
-            <option value="months-days-time">Months/Days/Time</option>
-            <option value="nature">Nature</option>
-            <option value="numbernames">Number Names</option>
-            <option value="opposite">Opposites</option>
-            <option value="playground">Playground</option>
-            <option value="professions">Professions</option>
-            <option value="school">School</option>
-            <option value="shapes">Shapes</option>
-            <option value="vegetables">Vegetables</option>
-            <option value="vehicles">Vehicles</option>
-            <option value="weather">Weather</option>
-        </select>
-    </div>
-    <div id="counter">0 / 0</div>
-</div>
-
+        <div id="control-top-bar">
+ 
+            <select id="patternSelector">
+                <option value="2-letter">2 Letter Words</option>
+                <option value="3-letter" selected>3 Letter Words</option>
+                <option value="4-letter">4 Letter Words</option>
+                <option value="5-letter">5 Letter Words</option>
+                <option value="actionitems">Action Items</option>
+                <option value="animals">Animals</option>
+                <option value="body-actions">Body Actions</option>
+                <option value="bodyparts">Body Parts</option>
+                <option value="clothing">Clothing</option>
+                <option value="colors">Colors</option>
+                <option value="emotions">Emotions</option>
+                <option value="family">Family</option>
+                <option value="fooditems">Food Items</option>
+                <option value="fruits">Fruits</option>
+                <option value="houseitems">House Items</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="months-days-time">Months/Days/Time</option>
+                <option value="nature">Nature</option>
+                <option value="numbernames">Number Names</option>
+                <option value="opposite">Opposites</option>
+                <option value="playground">Playground</option>
+                <option value="professions">Professions</option>
+                <option value="school">School</option>
+                <option value="shapes">Shapes</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="vehicles">Vehicles</option>
+                <option value="weather">Weather</option>
+            </select>
+            <div id="counter">0 / 0</div>
+        </div>
     </div>
 
     <!-- PANELS: CENTER + LEFT -->
     <div id="panels">
-        <div id="center" tabindex="0"></div>
+        <div id="center"></div>
         <div id="left"></div>
     </div>
 
@@ -194,26 +190,6 @@ function getRandomEmojiUrl() {
     const n = Math.floor(Math.random()*EMOJI_COUNT)+1;
     return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
 }
-
-function animateWord(word, color) {
-    centerBox.innerHTML = `
-        <div class="word-container">
-            <span class="word" style="color:${color}"></span>
-            <img class="emoji" src="${getRandomEmojiUrl()}">
-        </div>
-    `;
-    const wordSpan = centerBox.querySelector('.word');
-    let i = 0;
-
-    const interval = setInterval(() => {
-        wordSpan.textContent += word[i];
-        i++;
-        if (i >= word.length) clearInterval(interval);
-    }, 200); // 200ms per letter
-}
-
-
-
 
 function getJsonUrl(p){
     return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${p}-words.json`;
@@ -236,13 +212,10 @@ function loadWords(p){
     .catch(err=>console.error("Failed to load words:",err));
 }
 
- 
-
-function speakWord(word, callback) {
-    const utter = new SpeechSynthesisUtterance(word);
-    utter.lang = 'en-US';
-    utter.onend = callback; // call after speaking finishes
-    speechSynthesis.speak(utter);
+function speakWord(w){
+    const u=new SpeechSynthesisUtterance(w);
+    u.lang='en-US';
+    speechSynthesis.speak(u);
 }
 
 function randomColor(){
@@ -259,44 +232,42 @@ function renderLeft(){
     leftBox.scrollTop=leftBox.scrollHeight;
 }
 
-let currentWordSpoken = false;
+function nextWord(){
+    if(!centerWord && !words.length) return;
 
-function nextWord() {
-    if (!centerWord && !words.length) return;
+    if(centerWord){
+        speakWord(centerWord);
+        setTimeout(()=>{
+            leftWords.push(centerWord);
+            counterEl.textContent=`${leftWords.length} / ${totalWords}`;
+            renderLeft();
 
-    // If there is a current word that hasn't been spoken yet
-    if (centerWord && !currentWordSpoken) {
-        speakWord(centerWord);   // speak it now
-        currentWordSpoken = true;
-        return;                  // don't pop new word yet
+            if(!words.length){
+                centerWord=null;
+                centerBox.innerHTML='🎉';
+                return;
+            }
+
+            centerWord = words.splice(Math.random()*words.length|0, 1)[0];
+            centerBox.innerHTML = `
+                <div class="word-container">
+                    <span class="word" style="color:${randomColor()}">${centerWord}</span>
+                    <img class="emoji" src="${getRandomEmojiUrl()}">
+                </div>
+            `;
+        }, 1000);
+    } else {
+        centerWord = words.splice(Math.random()*words.length|0, 1)[0];
+        centerBox.innerHTML = `
+            <div class="word-container">
+                <span class="word" style="color:${randomColor()}">${centerWord}</span>
+                <img class="emoji" src="${getRandomEmojiUrl()}">
+            </div>
+        `;
     }
-
-    // Move current word to left box if spoken
-    if (centerWord && currentWordSpoken) {
-        leftWords.push(centerWord);
-        counterEl.textContent = `${leftWords.length} / ${totalWords}`;
-        renderLeft();
-    }
-
-    // Pick new word
-    if (words.length === 0) {
-        centerWord = null;
-        centerBox.innerHTML = '🎉';
-        return;
-    }
-
-    centerWord = words.splice(Math.random() * words.length | 0, 1)[0];
-    currentWordSpoken = false;
-
-    animateWord(centerWord, randomColor());
 }
 
-
-
-patternSelector.addEventListener('change', () => {
-    loadWords(patternSelector.value);
-    setTimeout(() => centerBox.focus(), 0); // tiny delay ensures focus
-});
+patternSelector.addEventListener('change',()=>{ loadWords(patternSelector.value); centerBox.focus(); });
 document.body.addEventListener('keydown',e=>{ if(e.code==='Space'||e.code==='Enter') nextWord(); });
 
 loadWords(patternSelector.value);

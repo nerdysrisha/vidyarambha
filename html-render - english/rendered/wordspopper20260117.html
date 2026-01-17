@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word  Popper</title>
+
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* OUTERMOST FRAME */
+#outer {
+    height: calc(100% - 80px);
+    margin: 40px;                  
+    border: 4px double white;      
+    padding: 30px;                 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOP BAR */
+#topbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+#patternSelector {
+    font-size: 18px;
+    padding: 8px;
+}
+
+#counter {
+    position: absolute;
+    right: 0;
+    font-size: 18px;
+    color: #aaa;
+}
+
+/* INNER BOX CONTAINER */
+#inner {
+    flex: 1;
+    display: flex;
+    gap: 30px;                     
+    overflow: hidden;
+}
+
+/* COMMON BOX STYLE */
+.box {
+    border: 2px solid white;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* CENTER (70%) */
+#center {
+    width: 80%; 
+    font-size: 100px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    border: 4px double white;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: black;
+}
+
+/* LEFT (30%) */
+#left {
+    width: 20%; 
+}
+
+/* ANIMATION */
+@keyframes bounceFromTop {
+    0% { transform: translateY(-200px) scale(0.5); opacity: 0; }
+    50% { transform: translateY(20px) scale(1.2); opacity: 1; }
+    70% { transform: translateY(-10px) scale(0.9); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+.word {
+    animation: bounceFromTop 0.7s ease;
+}
+
+.emoji {
+    width: 120px;
+    height: 120px;
+    margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+<div id="outer">
+
+    <div id="topbar">
+        <select id="patternSelector">
+            <option value="2-letter">2 Letter Words</option>
+            <option value="3-letter" selected>3 Letter Words</option>
+            <option value="4-letter">4 Letter Words</option>
+            <option value="5-letter">5 Letter Words</option>
+            <option value="actionitems">Action Items</option>
+            <option value="animals">Animals</option>
+            <option value="body-actions">Body Actions</option>
+            <option value="bodyparts">Body Parts</option>
+            <option value="clothing">Clothing</option>
+            <option value="colors">Colors</option>
+            <option value="emotions">Emotions</option>
+            <option value="family">Family</option>
+            <option value="fooditems">Food Items</option>
+            <option value="fruits">Fruits</option>
+            <option value="houseitems">House Items</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="months-days-time">Months/Days/Time</option>
+            <option value="nature">Nature</option>
+            <option value="numbernames">Number Names</option>
+            <option value="opposite">Opposites</option>
+            <option value="playground">Playground</option>
+            <option value="professions">Professions</option>
+            <option value="school">School</option>
+            <option value="shapes">Shapes</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="vehicles">Vehicles</option>
+            <option value="weather">Weather</option>
+        </select>
+        <div id="counter">0 / 0</div>
+    </div>
+
+    <div id="inner">
+        <div id="center" class="box" tabindex="0">😃😃</div>
+        <div id="left" class="box"></div>
+    </div>
+
+</div>
+
+<script>
+let words=[], leftWords=[], centerWord=null, totalWords=0;
+
+const centerBox=document.getElementById('center');
+const leftBox=document.getElementById('left');
+const counterEl=document.getElementById('counter');
+const patternSelector=document.getElementById('patternSelector');
+
+// GitHub emojis count
+const EMOJI_COUNT = 55;
+
+function getRandomEmojiUrl() {
+    const n = Math.floor(Math.random()*EMOJI_COUNT) + 1;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+}
+
+function getJsonUrl(p){
+    const base="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/";
+    return base+p+"-words.json";
+}
+
+function loadWords(p){
+    fetch(getJsonUrl(p))
+    .then(r=>r.json())
+    .then(d=>{
+        words=d;
+        totalWords=d.length;
+        leftWords=[];
+        centerWord=null;
+        leftBox.innerHTML='';
+        centerBox.innerHTML='😃';
+        counterEl.textContent=`0 / ${totalWords}`;
+        nextWord();
+        centerBox.focus();
+    })
+    .catch(err=>console.error("Failed to load words:",err));
+}
+
+function speakWord(w){
+    const u=new SpeechSynthesisUtterance(w);
+    u.lang='en-US';
+    speechSynthesis.speak(u);
+}
+
+function randomColor(){
+    return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
+}
+
+function renderLeft(){
+    leftBox.innerHTML='';
+    leftWords.forEach(w=>{
+        const d=document.createElement('div');
+        d.textContent=w;
+        leftBox.appendChild(d);
+    });
+    leftBox.scrollTop=leftBox.scrollHeight;
+}
+
+function nextWord(){
+    if(!centerWord && !words.length) return;
+
+    if(centerWord){
+        speakWord(centerWord);
+        setTimeout(()=>{
+            leftWords.push(centerWord);
+            counterEl.textContent=`${leftWords.length} / ${totalWords}`;
+            renderLeft();
+
+            if(!words.length){
+                centerWord=null;
+                centerBox.innerHTML='🎉';
+                return;
+            }
+
+            centerWord=words.splice(Math.random()*words.length|0,1)[0];
+            centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
+        },1000);
+    } else {
+        centerWord=words.splice(Math.random()*words.length|0,1)[0];
+        centerBox.innerHTML=`<span class="word" style="color:${randomColor()}">${centerWord}</span><img class="emoji" src="${getRandomEmojiUrl()}">`;
+    }
+}
+
+patternSelector.addEventListener('change',()=>{
+    loadWords(patternSelector.value);
+    centerBox.focus();
+});
+
+document.body.addEventListener('keydown',e=>{
+    if(e.code==='Space'||e.code==='Enter') nextWord();
+});
+
+loadWords(patternSelector.value);
+</script>
+</body>
+</html>
