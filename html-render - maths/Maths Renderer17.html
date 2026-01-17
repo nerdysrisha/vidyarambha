@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Panel</title>
 <!--
-Maths Renderer - V19
-Have the question panel to be fixed size. 
+Maths Renderer - V17
+Split layout: questions on left, answer inputs and answers on right
 -->
 <style>
 html,body{
@@ -17,11 +17,9 @@ html,body{
 }
 #outer{
     margin:20px;
-    height: calc(100vh - 40px); /* Full viewport minus margins */
     display:flex;
     flex-direction:column;
     gap:20px;
-    overflow: hidden; /* Prevent outer scrolling */
 }
 
 /* CONTROL PANEL */
@@ -52,17 +50,14 @@ html,body{
 }
 
 /* QUESTIONS PANEL */
- 
-
-#questions {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    border: 1px solid #444;
-    padding: 12px;
-    flex: 1; /* Take remaining space */
-    overflow-y: auto; /* Scroll inside this panel */
-    min-height: 0; /* Important for flex scrolling */
+#questions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    border:1px solid #444;
+    padding:12px;
+    max-height: calc(100vh - 120px);
+    overflow-y:auto;
 }
 
 #questions legend{
@@ -72,13 +67,13 @@ html,body{
 }
 
 /* STACK WRAPPER - contains the two boxes side by side */
-.stack-wrapper {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 12px;
-    min-height: 400px; /* Increased from 260px */
-    align-items: stretch;
+.stack-wrapper{
+    width:100%;
+    display:grid;
+    grid-template-columns: 2fr 1fr; /* left box bigger, right box smaller */
+    gap:12px;
+    min-height:260px;
+    align-items: stretch;  /* add this */
 }
 
 /* INDIVIDUAL BOXES */
@@ -99,9 +94,7 @@ html,body{
 
 /* ANSWERS BOX (right) */
 .answers-box{
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Vertically center from top to bottom */
+    /* smaller box for inputs and answers */
 }
 
 /* HEADINGS */
@@ -149,13 +142,12 @@ html,body{
 
 
 .answer-item .answer-letter {
-    width: 40px;       /* fixed width for the letter */
-    text-align: right; /* align letter to the right */
-    margin-right: 12px; /* space between letter and input */
-    color: #28a745;
+    width: 30px;      /* fixed space for letter */
+    text-align: right; 
+    color: #28a745;   /* green like question letters */
     font-weight: bold;
-    flex-shrink: 0;    /* prevent shrinking */
 }
+
 
 
 /* ANSWERS */
@@ -186,26 +178,6 @@ button{
     text-align:center;
     font-size:14px;
 }
-
-/* Dark scrollbar for the main questions panel */
-#questions::-webkit-scrollbar {
-    width: 12px;
-}
-
-#questions::-webkit-scrollbar-track {
-    background: #111;
-}
-
-#questions::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 6px;
-    border: 3px solid #111;
-}
-
-#questions::-webkit-scrollbar-thumb:hover {
-    background-color: #888;
-}
-
 </style>
 </head>
 <body>

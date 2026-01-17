@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Panel</title>
+<!--
+Maths Renderer - V16
+Changing font size of bodmas etc to same size. 
+-->
+<style>
+html,body{
+    margin:0;
+    height:100%;
+    background:black;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+#outer{
+    margin:20px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* CONTROL PANEL */
+#control{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:10px 16px;
+    background:black;
+    border:1px solid #444;   /* ensures border is visible */
+    padding:16px;
+}
+
+#control legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* checkbox items inside control panel */
+.ctrl-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+}
+
+/* QUESTIONS PANEL */
+#questions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    border:1px solid #444;
+    padding:12px;
+
+    /* make it scrollable without going under the sticky control panel */
+    max-height: calc(100vh - 120px); /* adjust 120px to roughly control panel + margin height */
+    overflow-y:auto;
+}
+
+
+#questions legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* STACKS / BOXES */
+.stack{
+    width:100%; /* full width for single column */
+    border:1px solid #222;
+    background:#111;
+    padding:12px;
+    box-sizing:border-box;
+    min-height:260px;
+}
+
+/* QUESTIONS ROWS INDENTATION */
+ 
+ 
+
+/* Increase font size for all questions, both inline and GitHub-fetched */
+.row{
+    display:flex;
+    gap:8px;
+    font-size:40px;
+    line-height:2;
+    padding-left:40px; /* keep indentation */
+    box-sizing:border-box;
+}
+
+/* ANSWERS */
+.answer{
+    visibility:hidden;
+    color:#58D68D;
+    font-weight:bold;
+}
+.answer.show{
+    visibility:visible;
+}
+
+/* BUTTONS */
+button{
+    padding:6px 12px;
+    border:none;
+    cursor:pointer;
+    background:#58D68D;
+    color:black;
+}
+
+.stack {
+    
+    line-height: 2;
+}
+
+/* Keep indentation for questions only */
+.stack .row {
+    padding-left: 40px; /* indent questions */
+    box-sizing: border-box;
+    font-size: 40px; /* force same size for all questions */
+}
+
+
+
+ 
+
+/* Inline-generated headings: light green text */
+.problem-title.inline-title {
+    color: #28a745;  /* green */
+    font-weight: bold;
+    margin-bottom: 8px; /* optional spacing after heading */
+}
+
+/* GitHub-fetched headings: amber text */
+.problem-title.github-title {
+    color: #ff9900;  /* amber */
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+
+ 
+
+.row-flex {
+    display: grid;
+    grid-template-columns: 1fr 100px 70px;
+    align-items: center;
+    column-gap: 16px;
+    font-size: 40px; /* ADD THIS LINE */
+}
+
+ 
+.answer-input{
+    width:90px;
+    height:22px;
+    background:#000;
+    color:#fff;
+    border:1px solid #444;
+    text-align:center;
+    font-size:14px;
+}
+
+.answer{
+    text-align:right;
+    font-weight:bold;
+    padding-left:8px;
+}
+
+ 
+
+
+</style>
+<body>
+<div id="outer">
+
+    <!-- CONTROL PANEL -->
+    <fieldset id="control">
+        <legend>Control Panel</legend>
+        <button id="toggleAll">Show</button>
+        <!-- checkboxes will be appended here dynamically -->
+    </fieldset>
+
+    <!-- QUESTIONS PANEL -->
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+        <!-- generated questions will appear here -->
+    </fieldset>
+
+</div>
+
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+
+const options = [
+    ["addend-left-missing","1. Missing Left Addend"],
+    ["addend-right-missing","2. Missing Right Addend"],
+    ["dividend-missing","3. Missing Dividend"],
+    ["divisor-missing","4. Missing Divisor"],
+    ["factor-left-missing","5. Missing Left Factor"],
+    ["factor-right-missing","6. Missing Right Factor"],
+    ["minuend-missing","7. Missing Minuend"],
+    ["subtrahend-missing","8. Missing Subtrahend"],
+    ["generate-additions-2","9. Additions 2 Numbers"],
+    ["generate-additions-3","10. Additions 3 Numbers"],
+    ["gen-sub-no-borrow","11. Subtraction No Borrow"],
+    ["gen-sub-with-borrow","12. Subtraction With Borrow"],
+    ["gen-mul-1-digit","13. Multiply 1 Digit"],
+    ["gen-mul-2-digit","14. Multiply 2 Digits"],
+    ["number-names","15. Number Names"],
+    ["basic-multiplications","16. Multiplications"],
+    ["basic-additions","17. Additions"],
+    ["basic-subtractions","18. Subtractions"],
+    ["basic-divisions","19. Divisions"],
+    ["ascending","20. Ascending Order"],
+    ["descending","21. Descending Order"],
+    ["draw-clock","22. Draw Clock"],
+    ["tell-time","23. Tell Time"],
+    ["bodmas","24. BODMAS"],
+    ["pattern-completion","25. Pattern Completion"],
+    ["word-problems","26. Word Problems"],
+    ["fractions","27. Fractions"],
+    ["round-off-numbers","28. Round Off Numbers"],
+    ["before-numbers","29. Before Numbers"],
+    ["after-numbers","30. After Numbers"],
+    ["between-numbers","31. Between Numbers"],
+    ["greater-lesser","32. Greater / Lesser"]
+];
+
+
+
+const control=document.getElementById("control");
+const questions=document.getElementById("questions");
+const toggleAll=document.getElementById("toggleAll");
+let showAll=false;
+const stacks={};
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+options.forEach(([val,label])=>{
+    const wrap=document.createElement("label");
+    wrap.className="ctrl-item";
+    const cb=document.createElement("input");
+    cb.type="checkbox";
+    cb.onchange=()=>cb.checked?addStack(val):removeStack(val);
+    wrap.append(cb,document.createTextNode(label));
+    control.appendChild(wrap);
+});
+
+
+toggleAll.onclick=()=>{
+    const pwd=prompt("Enter PIN");
+    if(pwd!=="0000") return;
+    showAll=!showAll;
+    document.querySelectorAll(".answer").forEach(a=>a.classList.toggle("show",showAll));
+    toggleAll.textContent=showAll?"Hide":"Show";
+};
+
+
+ 
+
+function renderRow(letter, question, answer, extraClass="") {
+    return `
+        <div class="row row-flex ${extraClass}">
+            <span>(${letter}) ${question}</span>
+            <input type="text" class="answer-input" />
+            <span class="answer">${answer}</span>
+        </div>
+    `;
+}
+
+
+ 
+
+function addStack(val){
+    if(stacks[val]) return;
+    const box=document.createElement("div");
+    box.className="stack";
+    stacks[val]=box;
+    questions.appendChild(box);
+    box.scrollIntoView({behavior:"smooth", block:"end"}); // keep focus at new item
+    generate(box,val);
+}
+
+
+function removeStack(val){
+    stacks[val]?.remove();
+    delete stacks[val];
+}
+
+function generate(box,val){
+    box.innerHTML="";
+
+
+/////INLINE GENERATED START
+if(val==="generate-additions-2"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(100,999), b = rand(100,999);
+        let letter = String.fromCharCode(97 + i); // a, b, c, d
+        box.innerHTML += renderRow(letter, `${a}+${b}=`, a+b);
+    }
+}
+
+else if(val==="generate-additions-3"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(100,999), b = rand(100,999), c = rand(100,999);
+        let letter = String.fromCharCode(97 + i); // a, b, c, d
+        box.innerHTML += renderRow(letter, `${a}+${b}+${c}=`, a+b+c);
+    }
+}
+else if(val==="gen-sub-no-borrow"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(100,999);
+        let aD = String(a).split('').map(Number);
+        let bD = String(rand(100,999)).split('').map((d,j)=>Math.min(d,aD[j]));
+        let b = parseInt(bD.join(''));
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}-${b}=`, a-b);
+    }
+}
+
+else if(val==="gen-sub-with-borrow"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(100,999), b = rand(100,999);
+        if(b>a)[a,b]=[b,a];
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}-${b}=`, a-b);
+    }
+}
+else if(val==="gen-mul-1-digit"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(10,99), b = rand(1,9);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}×${b}=`, a*b);
+    }
+}
+
+else if(val==="gen-mul-2-digit"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(10,99), b = rand(10,99);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}×${b}=`, a*b);
+    }
+}
+
+else if(val==="number-names"){
+
+	
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+	
+	
+	
+	
+    const letters = ["a","b","c","d"];
+    [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
+    .forEach((n,i)=>{
+        box.innerHTML+=`<div class="row">(${letters[i]}) ${n}<span class="answer">${n}</span></div>`;
+    });
+}
+else if(val==="basic-multiplications"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(12,19), b = rand(2,9);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}×${b}=`, a*b);
+    }
+}
+
+else if(val==="basic-additions"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(1,9), b = rand(1,9);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}+${b}=`, a+b);
+    }
+}
+
+else if(val==="basic-subtractions"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let a = rand(1,9), b = rand(0,a);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}-${b}=`, a-b);
+    }
+}
+
+else if(val==="basic-divisions"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let b = rand(2,9), a = b * rand(2,9);
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML += renderRow(letter, `${a}÷${b}=`, a/b);
+    }
+}
+
+
+
+
+/////NOT DONE RENDERING FOR THIS 
+else if(val==="ascending" || val==="descending"){
+
+
+	
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+	
+	
+	
+	
+	
+    for(let i=0; i<2; i++){ // generate 2 rows
+        let arr = [...Array(6)].map(() => rand(10,99));
+        let letter = String.fromCharCode(97 + i); // a, b
+        box.innerHTML += `<div class="row">(${letter}) ${arr.join(", ")}</div>`;
+
+        let s = [...arr].sort((a,b)=>val==="ascending"?a-b:b-a);
+        box.innerHTML += `<div class="row answer">(${letter}) ${s.join(", ")}</div>`;
+    }
+}
+/////NOT DONE RENDERING FOR THIS 
+else if(val==="draw-clock"){
+
+
+	
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+	
+	
+	
+	
+	
+    for(let i=0;i<2;i++){
+        let letter = String.fromCharCode(97 + i);
+        box.innerHTML+=`<div class="row">(${letter}) ${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}</div>`;
+    }
+}
+else if(val==="tell-time"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    const row = document.createElement("div");
+    row.className = "row";   
+    row.style.display = "flex"; // keep clocks side by side
+    row.style.flexWrap = "nowrap"; 
+    row.style.gap = "16px";
+
+    let first = rand(1,68);
+    let second;
+    do {
+        second = rand(1,68);
+    } while(second === first);
+
+    const numbers = [first, second];
+    const letters = ["a","b"];
+
+    numbers.forEach((n,i) => {
+        const wrapper = document.createElement("div");
+        wrapper.style.display = "flex";
+        wrapper.style.flexDirection = "column";
+        wrapper.style.alignItems = "center";
+
+        const img = document.createElement("img");
+        img.src = `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/clocks/clock${n}.png`;
+        img.alt = `Clock ${n}`;
+        img.style.width = "160px";   
+        img.style.height = "160px";
+
+        const filename = document.createElement("span");
+        filename.textContent = `(${letters[i]}) clock${n}.png`;
+        filename.style.fontSize = "14px";
+        filename.style.marginTop = "4px";
+        filename.style.color = "#aaa";
+
+        // Add text box below filename
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "answer-input";
+        input.style.marginTop = "4px";
+        input.style.width = "80px"; // smaller width
+        input.style.height = "22px";
+        input.style.background = "#000";
+        input.style.color = "#fff";
+        input.style.border = "1px solid #444";
+        input.style.textAlign = "center";
+        input.dataset.answer = ""; // you can fill later with the correct answer if needed
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(filename);
+        wrapper.appendChild(input);
+        row.appendChild(wrapper);
+    });
+
+    box.appendChild(row);
+}
+
+else if(val==="round-off-numbers"){
+
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let n = rand(11,99);
+        let rounded = Math.round(n/10)*10;
+        let letter = String.fromCharCode(97 + i);
+
+        box.innerHTML += renderRow(letter, `${n}`, rounded);
+    }
+}
+
+else if(val==="before-numbers"){
+
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let n = rand(2,99);
+        let letter = String.fromCharCode(97 + i);
+
+        box.innerHTML += renderRow(letter, `__, ${n}`, n-1);
+    }
+}
+
+else if(val==="after-numbers"){
+
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let n = rand(1,98);
+        let letter = String.fromCharCode(97 + i);
+
+        box.innerHTML += renderRow(letter, `${n}, __`, n+1);
+    }
+}
+
+else if(val==="between-numbers"){
+
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    for(let i=0;i<4;i++){
+        let start = rand(10,97);
+        let end = start + 2;
+        let mid = start + 1;
+        let letter = String.fromCharCode(97 + i);
+
+        box.innerHTML += renderRow(letter, `${start}, __, ${end}`, mid);
+    }
+}
+else if(val==="greater-lesser"){
+
+    // Find the label dynamically and add at the top of questions. 
+    let option = options.find(o => o[0] === val);  
+    if(option){
+        box.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`; 
+    }
+
+    let ops = [">", "<"];
+    let counts = {">":2, "<":2};
+    let generated = 0;
+    let letterCode = 97; // 'a'
+
+    while(generated < 4){
+        let op = ops.find(o => counts[o] > 0);
+        if(!op) break;
+        counts[op]--;
+
+        let a, b;
+        if(op === ">"){ a = rand(100,999); b = rand(100, a-1); }
+        else if(op === "<"){ a = rand(100,998); b = rand(a+1, 999); }
+
+        let letter = String.fromCharCode(letterCode++);
+        box.innerHTML += renderRow(letter, `${a} __ ${b}`, op);
+
+        generated++;
+    }
+}
+
+/////INLINE GENERATED END
+
+// ----------DYNAMICALLY FETCHED FROM GITHUB ----------
+else{
+    // Add dynamic heading
+    let option = options.find(o => o[0] === val);
+    if(option){
+        box.innerHTML = `<div class="problem-title github-title">${option[1]}</div>`;
+    }
+
+    fetch(BASE_URL + val + ".json")
+    .then(r => r.json())
+    .then(d => {
+        const idx = [...Array(d.questions.length).keys()]
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, 4);
+
+        idx.forEach((i, j) => {
+            let letter = String.fromCharCode(97 + j); // (a), (b), ...
+            // No fontClass assigned, so all rows inherit .row CSS
+            box.innerHTML += renderRow(letter, d.questions[i], d.answers[i]);
+        });
+    });
+}
+
+
+
+	
+}
+</script>
+</body>
+</html>

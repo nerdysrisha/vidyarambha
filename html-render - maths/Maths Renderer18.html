@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Panel</title>
 <!--
-Maths Renderer - V19
-Have the question panel to be fixed size. 
+Maths Renderer - V18
+Adjusting the right side panel to have properly aligned. 
 -->
 <style>
 html,body{
@@ -17,11 +17,9 @@ html,body{
 }
 #outer{
     margin:20px;
-    height: calc(100vh - 40px); /* Full viewport minus margins */
     display:flex;
     flex-direction:column;
     gap:20px;
-    overflow: hidden; /* Prevent outer scrolling */
 }
 
 /* CONTROL PANEL */
@@ -52,17 +50,14 @@ html,body{
 }
 
 /* QUESTIONS PANEL */
- 
-
-#questions {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    border: 1px solid #444;
-    padding: 12px;
-    flex: 1; /* Take remaining space */
-    overflow-y: auto; /* Scroll inside this panel */
-    min-height: 0; /* Important for flex scrolling */
+#questions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    border:1px solid #444;
+    padding:12px;
+    max-height: calc(100vh - 120px);
+    overflow-y:auto;
 }
 
 #questions legend{
@@ -75,9 +70,9 @@ html,body{
 .stack-wrapper {
     width: 100%;
     display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: 3fr 1fr; /* questions box bigger, answers box smaller */
     gap: 12px;
-    min-height: 400px; /* Increased from 260px */
+    min-height: 260px;
     align-items: stretch;
 }
 
@@ -99,9 +94,7 @@ html,body{
 
 /* ANSWERS BOX (right) */
 .answers-box{
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Vertically center from top to bottom */
+    /* smaller box for inputs and answers */
 }
 
 /* HEADINGS */
