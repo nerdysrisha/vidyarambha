@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Panel</title>
 <!--
-Maths Renderer - v22
-Adding focus blocks. making other blocks unfocussed. Increase clock size. 
+Maths Renderer - v21
+Adding Timer and reducing number of questions for bodmas and word problems 
 -->
 <style>
 html,body{
@@ -269,41 +269,6 @@ button{
 #control-container.shrink #control {
     display: none;
 }
-
-
- 
-
-/* focus / dim effect */
-
-@keyframes rainbowGlow {
-    0%   { box-shadow: 0 0 14px #ff004c, 0 0 30px #ff004c; }
-    20%  { box-shadow: 0 0 14px #ff9900, 0 0 30px #ff9900; }
-    40%  { box-shadow: 0 0 14px #ffee00, 0 0 30px #ffee00; }
-    60%  { box-shadow: 0 0 14px #28a745, 0 0 30px #28a745; }
-    80%  { box-shadow: 0 0 14px #00c8ff, 0 0 30px #00c8ff; }
-    100% { box-shadow: 0 0 14px #ff004c, 0 0 30px #ff004c; }
-}
-
-.stack-wrapper {
-    transition: filter 0.25s ease, opacity 0.25s ease;
-}
-
-.stack-wrapper.dimmed {
-    opacity: 0.25;
-    filter: grayscale(60%);
-}
-
-.stack-wrapper.active {
-    opacity: 1;
-    filter: none;
-    animation: rainbowGlow 4s linear infinite;
-    border-radius: 8px;
-}
-
-
-
-/* focus / dim effect */
-
 </style>
 </head>
 <body>
@@ -600,7 +565,7 @@ function generate(questionsBox, answersBox, val){
     // Parent container to hold both clocks side by side
     const clocksContainer = document.createElement("div");
     clocksContainer.style.display = "flex";
-    clocksContainer.style.gap = "140px";       // space between clocks
+    clocksContainer.style.gap = "24px";       // space between clocks
     clocksContainer.style.justifyContent = "flex-start";
     clocksContainer.style.marginBottom = "12px";
 
@@ -613,8 +578,8 @@ function generate(questionsBox, answersBox, val){
         const img = document.createElement("img");
         img.src = `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/clocks/clock${n}.png`;
         img.alt = `Clock ${n}`;
-        img.style.width = "260px";
-        img.style.height = "260px";
+        img.style.width = "160px";
+        img.style.height = "160px";
 
         const filename = document.createElement("span");
         filename.textContent = `(${letters[i]}) clock${n}.png`;
@@ -797,31 +762,6 @@ resetTimer.onclick = () => {
     timerBtn.textContent = "Start Timer";
     timerBtn.style.backgroundColor = "green"; // back to default
 };
-
-
-//Focus Dim effect script 
-let activeStack = null;
-
-questions.addEventListener("click", e => {
-    const stack = e.target.closest(".stack-wrapper");
-    if (!stack) return;
-
-    if (activeStack === stack) {
-        document.querySelectorAll(".stack-wrapper").forEach(s => {
-            s.classList.remove("active","dimmed");
-        });
-        activeStack = null;
-        return;
-    }
-
-    document.querySelectorAll(".stack-wrapper").forEach(s => {
-        s.classList.toggle("active", s === stack);
-        s.classList.toggle("dimmed", s !== stack);
-    });
-
-    activeStack = stack;
-});
-//Focus Dim effect script
 
 </script>
 </body>
