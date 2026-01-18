@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Math Popper</title>
+<title>Math Panel</title>
 <!--
-Maths Renderer - v25
-Added Geometric shapes and spacing between operators. 
+Maths Renderer - v24
+Select All button
 -->
 <style>
 html,body{
@@ -114,7 +114,6 @@ html,body{
     flex: 1; /* Take remaining space */
     overflow-y: auto; /* Scroll inside this panel */
     min-height: 0; /* Important for flex scrolling */
-    padding-bottom: 32px;   /* extra space so bottom glow is not clipped */
 }
 
 #questions legend{
@@ -172,25 +171,13 @@ html,body{
 }
 
 /* QUESTION ROWS (left box) */
- 
-
 .question-row{
-    display: flex;
-    align-items: center;
-    font-size: 40px;
-    line-height: 2.2;
-    padding-left: 40px;
-}
-
-.question-letter{
-    width: 60px;          /* increase this for more space */
-    text-align: right;
-    margin-right: 20px;   /* gap between (a) and question */
-    font-weight: bold;
-}
-
-.question-text{
-    flex: 1;
+    display:flex;
+    gap:8px;
+    font-size:40px;
+    line-height:2;
+    padding-left:40px;
+    box-sizing:border-box;
 }
 
 /* ANSWER ROWS (right box) */
@@ -289,12 +276,12 @@ button{
 /* focus / dim effect */
 
 @keyframes rainbowGlow {
-    0%   { outline-color: #ff004c; }
-    20%  { outline-color: #ff9900; }
-    40%  { outline-color: #ffee00; }
-    60%  { outline-color: #28a745; }
-    80%  { outline-color: #00c8ff; }
-    100% { outline-color: #ff004c; }
+    0%   { box-shadow: 0 0 14px #ff004c, 0 0 30px #ff004c; }
+    20%  { box-shadow: 0 0 14px #ff9900, 0 0 30px #ff9900; }
+    40%  { box-shadow: 0 0 14px #ffee00, 0 0 30px #ffee00; }
+    60%  { box-shadow: 0 0 14px #28a745, 0 0 30px #28a745; }
+    80%  { box-shadow: 0 0 14px #00c8ff, 0 0 30px #00c8ff; }
+    100% { box-shadow: 0 0 14px #ff004c, 0 0 30px #ff004c; }
 }
 
 .stack-wrapper {
@@ -309,17 +296,11 @@ button{
 .stack-wrapper.active {
     opacity: 1;
     filter: none;
-    position: relative;
-}
-.stack-wrapper.active::after {
-    content: "";
-    position: absolute;
-    inset: -10px;
-    border-radius: 12px;
-    outline: 3px solid transparent;
     animation: rainbowGlow 4s linear infinite;
-    pointer-events: none;
+    border-radius: 8px;
 }
+
+
 
 /* focus / dim effect */
 
@@ -363,7 +344,6 @@ button{
 <script>
 const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 
- 
 const options = [
     ["addend-left-missing","1. Missing Left Addend","github"],
     ["addend-right-missing","2. Missing Right Addend","github"],
@@ -372,7 +352,7 @@ const options = [
     ["factor-left-missing","5. Missing Left Factor","github"],
     ["factor-right-missing","6. Missing Right Factor","github"],
     ["minuend-missing","7. Missing Minuend","github"],
-    ["subtrahend-missing","8. Subtrahend","github"],
+    ["subtrahend-missing","8. Missing Subtrahend","github"],
     ["generate-additions-2","9. Additions 2 Numbers","inline"],
     ["generate-additions-3","10. Additions 3 Numbers","inline"],
     ["gen-sub-no-borrow","11. Subtraction No Borrow","inline"],
@@ -396,11 +376,8 @@ const options = [
     ["before-numbers","29. Before Numbers","inline"],
     ["after-numbers","30. After Numbers","inline"],
     ["between-numbers","31. Between Numbers","inline"],
-    ["greater-lesser","32. Greater / Lesser","inline"],
-    ["geometric-shapes","33. Geometric Shapes","github"]
+    ["greater-lesser","32. Greater / Lesser","inline"]
 ];
-
-
 
 
 const control=document.getElementById("control");
@@ -462,12 +439,7 @@ toggleAll.onclick = () => {
 
 function renderSplitRow(letter, question, answer) {
     return {
-        questionHTML: `
-						<div class="question-row">
-							<span class="question-letter">(${letter})</span>
-							<span class="question-text">${question}</span>
-						</div>
-						` ,
+        questionHTML: `<div class="question-row">(${letter}) ${question}</div>`,
         answerHTML: `
             <div class="answer-item">
                 <span class="answer-letter">(${letter})</span>
@@ -513,59 +485,59 @@ function generate(questionsBox, answersBox, val){
     }
 
     if(val==="generate-additions-2"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(100,999), b = rand(100,999);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} + ${b} =`, a + b);
+            let row = renderSplitRow(letter, `${a}+${b}=`, a+b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
     }
     else if(val==="generate-additions-3"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(100,999), b = rand(100,999), c = rand(100,999);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} + ${b} + ${c} =`, a + b + c);
+            let row = renderSplitRow(letter, `${a}+${b}+${c}=`, a+b+c);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
     }
     else if(val==="gen-sub-no-borrow"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(100,999);
             let aD = String(a).split('').map(Number);
             let bD = String(rand(100,999)).split('').map((d,j)=>Math.min(d,aD[j]));
             let b = parseInt(bD.join(''));
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            let row = renderSplitRow(letter, `${a}-${b}=`, a-b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
     }
     else if(val==="gen-sub-with-borrow"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(100,999), b = rand(100,999);
             if(b>a)[a,b]=[b,a];
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            let row = renderSplitRow(letter, `${a}-${b}=`, a-b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
     }
     else if(val==="gen-mul-1-digit"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(10,99), b = rand(1,9);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            let row = renderSplitRow(letter, `${a}×${b}=`, a*b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
     }
     else if(val==="gen-mul-2-digit"){
-        for(let i=0;i<2;i++){
+        for(let i=0;i<4;i++){
             let a = rand(10,99), b = rand(10,99);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            let row = renderSplitRow(letter, `${a}×${b}=`, a*b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
@@ -583,7 +555,7 @@ function generate(questionsBox, answersBox, val){
         for(let i=0;i<4;i++){
             let a = rand(12,19), b = rand(2,9);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            let row = renderSplitRow(letter, `${a}×${b}=`, a*b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
@@ -592,7 +564,7 @@ function generate(questionsBox, answersBox, val){
         for(let i=0;i<4;i++){
             let a = rand(1,9), b = rand(1,9);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} + ${b} =`, a + b);
+            let row = renderSplitRow(letter, `${a}+${b}=`, a+b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
@@ -601,7 +573,7 @@ function generate(questionsBox, answersBox, val){
         for(let i=0;i<4;i++){
             let a = rand(1,9), b = rand(0,a);
             let letter = String.fromCharCode(97 + i);
-			let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            let row = renderSplitRow(letter, `${a}-${b}=`, a-b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
@@ -610,7 +582,7 @@ function generate(questionsBox, answersBox, val){
         for(let i=0;i<4;i++){
             let b = rand(2,9), a = b * rand(2,9);
             let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} ÷ ${b} =`, a / b);
+            let row = renderSplitRow(letter, `${a}÷${b}=`, a/b);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         }
@@ -694,68 +666,6 @@ function generate(questionsBox, answersBox, val){
     // Append the parent container with both clocks to questionsBox
     questionsBox.appendChild(clocksContainer);
 }
-else if (val === "geometric-shapes") {
-    fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
-        .then(res => res.json())
-        .then(files => {
-            const pngs = files.filter(f => f.name.endsWith(".png"));
-            const picked = [];
-            while (picked.length < 4) {
-                const f = pngs[rand(0, pngs.length - 1)];
-                if (!picked.includes(f)) picked.push(f);
-            }
-
-            const letters = ["a", "b", "c", "d"];
-
-            const shapesContainer = document.createElement("div");
-            shapesContainer.style.display = "flex";
-            shapesContainer.style.gap = "60px";
-            shapesContainer.style.marginBottom = "12px";
-
-            picked.forEach((file, i) => {
-                const imgWrapper = document.createElement("div");
-                imgWrapper.style.display = "flex";
-                imgWrapper.style.flexDirection = "column";
-                imgWrapper.style.alignItems = "center";
-
-                const img = document.createElement("img");
-                img.src = file.download_url;
-                img.style.width = "180px";
-                img.style.height = "180px";
-
-                const label = document.createElement("span");
-                label.textContent = `(${letters[i]})`;
-                label.style.fontSize = "14px";
-                label.style.marginTop = "4px";
-                label.style.color = "#aaa";
-
-                imgWrapper.appendChild(img);
-                imgWrapper.appendChild(label);
-                shapesContainer.appendChild(imgWrapper);
-
-                const answerItem = document.createElement("div");
-                answerItem.className = "answer-item";
-                answerItem.style.marginBottom = "12px";
-
-                const input = document.createElement("input");
-                input.type = "text";
-                input.className = "answer-input";
-
-                const answer = document.createElement("span");
-                answer.className = "answer";
-                answer.textContent = file.name.replace(".png", "");
-
-                answerItem.appendChild(input);
-                answerItem.appendChild(answer);
-                answersBox.appendChild(answerItem);
-            });
-
-            questionsBox.appendChild(shapesContainer);
-        });
-}
-
-
-
 
     else if(val==="round-off-numbers"){
         for(let i=0;i<4;i++){
@@ -827,8 +737,10 @@ else {
     .then(r => r.json())
     .then(d => {
         // Determine how many questions to pick
-        let numQuestions = 2; // default
-        //if (val === "bodmas" || val === "word-problems" || val=== "fractions") { numQuestions = 2; }
+        let numQuestions = 4; // default
+        if (val === "bodmas" || val === "word-problems" || val=== "fractions") {
+            numQuestions = 2;
+        }
 
         const idx = [...Array(d.questions.length).keys()]
                         .sort(() => 0.5 - Math.random())
