@@ -5,7 +5,7 @@
 <title>Math Popper</title>
 <!--
 Maths Renderer - v25
-Added Geometric shapes and spacing between operators. 
+Added Geometric shapes and spacing between operators, and placevalues
 -->
 <style>
 html,body{
@@ -397,7 +397,8 @@ const options = [
     ["after-numbers","30. After Numbers","inline"],
     ["between-numbers","31. Between Numbers","inline"],
     ["greater-lesser","32. Greater / Lesser","inline"],
-    ["geometric-shapes","33. Geometric Shapes","github"]
+    ["geometric-shapes","33. Geometric Shapes","github"],
+    ["place-values","34. Place Values","inline"]
 ];
 
 
@@ -796,6 +797,27 @@ else if (val === "geometric-shapes") {
             answersBox.innerHTML += row.answerHTML;
         }
     }
+	
+	else if(val==="place-values"){
+		const places = ["Thousands", "Hundreds", "Tens", "Ones"];
+		for(let i=0;i<2;i++){
+			let number = rand(1000,9999); // 4-digit number
+			let digits = [
+				Math.floor(number / 1000),           // Thousands
+				Math.floor((number % 1000) / 100),   // Hundreds
+				Math.floor((number % 100) / 10),     // Tens
+				number % 10                           // Ones
+			];
+			let placeIndex = rand(0,3); // randomly choose which place to ask
+			let letter = String.fromCharCode(97 + i);
+			let row = renderSplitRow(letter, `${number} → ${places[placeIndex]}: __`, digits[placeIndex]);
+			questionsBox.innerHTML += row.questionHTML;
+			answersBox.innerHTML += row.answerHTML;
+		}
+	}
+
+
+
     else if(val==="greater-lesser"){
         let ops = [">", "<"];
         let counts = {">":2, "<":2};
