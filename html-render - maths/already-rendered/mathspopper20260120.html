@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v26
-Adding navigate to top or bottom question. 
+Maths Renderer - v25
+Added Geometric shapes and spacing between operators, and placevalues
 -->
 <style>
 html,body{
@@ -323,18 +323,6 @@ button{
 
 /* focus / dim effect */
 
-
-/* Up / Down Buttons */
-.nav-btn{
-    background:#00c8ff;
-    color:black;
-    font-weight:bold;
-}
-.nav-btn:hover{
-    background:#ffee00;
-}
-
-
 </style>
 </head>
 <body>
@@ -356,10 +344,6 @@ button{
 			<button id="timerBtn">Start Timer</button>
 			<button id="resetTimer">Reset</button>
 			<span id="timerDisplay">00:00</span>
-			
-			 
-			<button id="goTop" class="nav-btn">⬆ Top Q</button>
-			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
 		</div>
 
         <!-- Existing control panel -->
@@ -978,43 +962,6 @@ questions.scrollTo({ top: scrollTo, behavior: "smooth" });
 	
 });
 //Focus Dim effect script
-
-
-///Navigate to topmost or bottommost question 
-
-/* REPLACE / ADD THIS JS */
- 
-function activateStack(stack){
-    document.querySelectorAll(".stack-wrapper").forEach(s=>{
-        s.classList.toggle("active", s===stack);
-        s.classList.toggle("dimmed", s!==stack);
-    });
-    activeStack = stack;
-}
-
-goTop.onclick = () => {
-    const first = questions.querySelector(".stack-wrapper");
-    if(!first) return;
-    questions.scrollTo({ top: 0, behavior: "smooth" });
-    activateStack(first);
-};
-
-goBottom.onclick = () => {
-    const stacksArr = questions.querySelectorAll(".stack-wrapper");
-    const last = stacksArr[stacksArr.length - 1];
-    if(!last) return;
-
-    const maxScroll =
-        questions.scrollHeight - questions.clientHeight;
-
-    questions.scrollTo({
-        top: maxScroll,
-        behavior: "smooth"
-    });
-
-    activateStack(last);
-};
-///Navigate to topmost or bottommost question 
 
 </script>
 </body>
