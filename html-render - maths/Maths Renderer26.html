@@ -360,6 +360,8 @@ button{
 			 
 			<button id="goTop" class="nav-btn">⬆ Top Q</button>
 			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
+			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
+		
 		</div>
 
         <!-- Existing control panel -->
@@ -1016,6 +1018,18 @@ goBottom.onclick = () => {
 };
 ///Navigate to topmost or bottommost question 
 
+/// Full Screen modes
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        document.getElementById("fsBtn").innerText = "Exit Fullscreen";
+      } else {
+        document.exitFullscreen();
+        document.getElementById("fsBtn").innerText = "Go Fullscreen";
+      }
+    }
+
+	
 </script>
 </body>
 </html>
