@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v29
-Adding an hour glass emoji in questions section
+Maths Renderer - v28
+increasing the control panel text size and select box sizes
 -->
 <style>
 html,body{
@@ -968,16 +968,13 @@ resetTimer.onclick = () => {
 //Focus Dim effect script 
 let activeStack = null;
 
-
-questions.addEventListener("click", async e => {
+questions.addEventListener("click", e => {
     const stack = e.target.closest(".stack-wrapper");
     if (!stack) return;
 
     if (activeStack === stack) {
         document.querySelectorAll(".stack-wrapper").forEach(s => {
             s.classList.remove("active","dimmed");
-            const emoji = s.querySelector(".github-emoji");
-            if (emoji) emoji.remove();
         });
         activeStack = null;
         return;
@@ -986,38 +983,21 @@ questions.addEventListener("click", async e => {
     document.querySelectorAll(".stack-wrapper").forEach(s => {
         s.classList.toggle("active", s === stack);
         s.classList.toggle("dimmed", s !== stack);
-        if (s !== stack) {
-            const emoji = s.querySelector(".github-emoji");
-            if (emoji) emoji.remove();
-        }
     });
 
-    // Add GitHub emoji to questions box
-    const questionsBox = stack.querySelector(".questions-box");
-    let emojiImg = questionsBox.querySelector(".github-emoji");
-    if (!emojiImg) {
-        emojiImg = document.createElement("img");
-        emojiImg.className = "github-emoji";
-        emojiImg.src = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/hourglass.gif";
-        emojiImg.style.width = "48px";
-        emojiImg.style.height = "48px";
-        emojiImg.style.position = "absolute";
-        emojiImg.style.top = "10px";
-        emojiImg.style.right = "10px";
-        questionsBox.style.position = "relative"; // ensure parent is positioned
-        questionsBox.appendChild(emojiImg);
-    }
+activeStack = stack;
 
-    activeStack = stack;
+// Scroll active stack to center of questions panel
+const containerRect = questions.getBoundingClientRect();
+const stackRect = stack.getBoundingClientRect();
+const currentScroll = questions.scrollTop;
 
-    // Scroll active stack to center
-    const containerRect = questions.getBoundingClientRect();
-    const stackRect = stack.getBoundingClientRect();
-    const currentScroll = questions.scrollTop;
-    const scrollTo = currentScroll + (stackRect.top - containerRect.top) - (containerRect.height / 2) + (stackRect.height / 2);
-    questions.scrollTo({ top: scrollTo, behavior: "smooth" });
+const scrollTo = currentScroll + (stackRect.top - containerRect.top) - (containerRect.height / 2) + (stackRect.height / 2);
+questions.scrollTo({ top: scrollTo, behavior: "smooth" });
+
+	
+	
 });
-
 //Focus Dim effect script
 
 
