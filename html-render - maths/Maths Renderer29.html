@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Popper</title>
+<!--
+Maths Renderer - v29
+Adding an hour glass emoji in questions section
+-->
+<style>
+html,body{
+    margin:0;
+    height:100%;
+    background:black;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+#outer{
+    margin:20px;
+    height: calc(100vh - 40px); /* Full viewport minus margins */
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    overflow: hidden; /* Prevent outer scrolling */
+}
+
+/* CONTROL PANEL */
+#control{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:20px 16px;            /* MORE vertical spacing between rows */
+    background:black;
+    border:1px solid #444;
+    padding:16px;
+}
+
+#control legend{
+    padding:0 10px;
+    font-size:18px;          /* slightly larger */
+    color:#aaa;
+}
+
+/* checkbox items inside control panel */
+.ctrl-item{
+    display:flex;
+    align-items:center;
+    gap:12px;                /* more space between checkbox and text */
+    white-space:nowrap;
+    font-size:20px;          /* BIGGER text for touch */
+    padding:6px 0;           /* extra vertical touch area */
+}
+
+
+/* NEW: CONTROL PANEL WRAPPER */
+#control-container {
+    display: flex;
+    flex-direction: column;
+    transition: flex-basis 0.3s ease, min-height 0.3s ease;
+    min-height: 40px; /* shrunk height */
+    overflow: hidden;
+}
+
+/* NEW: SHRINKED STATE */
+#control-container.shrink {
+    flex-basis: 40px;
+    min-height: 40px;
+    padding: 4px 0; /* keep select visible */
+    border: 1px solid #444; /* keep visible border */
+}
+
+/* NEW: Inner select always visible */
+#control-select {
+    margin: 4px 8px;
+    padding: 4px 8px;
+    font-size: 14px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    cursor: pointer;
+}
+
+/* Optional: nice dark scrollbar if select has many options */
+#control-select::-webkit-scrollbar {
+    width: 8px;
+}
+
+#control-select::-webkit-scrollbar-track {
+    background: #111;
+}
+
+#control-select::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #111;
+}
+
+#control-select::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+
+/* Bigger checkboxes for touch */
+.ctrl-item input[type="checkbox"]{
+    width:22px;
+    height:22px;
+}
+
+/* Bigger top bar controls */
+#control-top-bar,
+#control-top-bar button,
+#control-top-bar label,
+#control-top-bar span{
+    font-size:18px;
+}
+
+#control-top-bar button{
+    padding:8px 14px;
+}
+
+
+
+/* QUESTIONS PANEL */
+ 
+
+#questions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid #444;
+    padding: 12px;
+    flex: 1; /* Take remaining space */
+    overflow-y: auto; /* Scroll inside this panel */
+    min-height: 0; /* Important for flex scrolling */
+    padding-bottom: 32px;   /* extra space so bottom glow is not clipped */
+}
+
+#questions legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* STACK WRAPPER - contains the two boxes side by side */
+.stack-wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 12px;
+    min-height: 400px; /* Increased from 260px */
+    align-items: stretch;
+}
+
+/* INDIVIDUAL BOXES */
+.stack-box{
+    border:1px solid #222;
+    background:#111;
+    padding:12px;
+    box-sizing:border-box;
+    display:flex;           /* add this */
+    flex-direction: column; /* add this */
+    height: 100%;           /* add this */
+}
+
+/* QUESTIONS BOX (left) */
+.questions-box{
+    /* larger box for questions only */
+}
+
+/* ANSWERS BOX (right) */
+.answers-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center from top to bottom */
+}
+
+/* HEADINGS */
+.problem-title.inline-title {
+    color: #28a745;
+    font-weight:bold;
+    margin-bottom:8px;
+    font-size:24px;
+}
+
+.problem-title.github-title {
+    color: #ff9900;
+    font-weight:bold;
+    margin-bottom:8px;
+    font-size:24px;
+}
+
+/* QUESTION ROWS (left box) */
+ 
+
+.question-row{
+    display: flex;
+    align-items: center;
+    font-size: 40px;
+    line-height: 2.2;
+    padding-left: 40px;
+}
+
+.question-letter{
+    width: 60px;          /* increase this for more space */
+    text-align: right;
+    margin-right: 20px;   /* gap between (a) and question */
+    font-weight: bold;
+}
+
+.question-text{
+    flex: 1;
+}
+
+/* ANSWER ROWS (right box) */
+.answer-row{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    font-size:40px;
+    line-height:2;
+    padding-left:20px;
+}
+
+.answer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px; /* vertical spacing */
+    font-size: 40px;
+}
+
+
+.answer-item .answer-letter {
+    width: 40px;       /* fixed width for the letter */
+    text-align: right; /* align letter to the right */
+    margin-right: 12px; /* space between letter and input */
+    color: #28a745;
+    font-weight: bold;
+    flex-shrink: 0;    /* prevent shrinking */
+}
+
+
+/* ANSWERS */
+.answer{
+    visibility:hidden;
+    color:#58D68D;
+    font-weight:bold;
+}
+.answer.show{
+    visibility:visible;
+}
+
+/* BUTTONS */
+button{
+    padding:6px 12px;
+    border:none;
+    cursor:pointer;
+    background:#58D68D;
+    color:black;
+}
+
+.answer-input{
+    width:90px;
+    height:22px;
+    background:#000;
+    color:#fff;
+    border:1px solid #444;
+    text-align:center;
+    font-size:14px;
+}
+
+/* Dark scrollbar for the main questions panel */
+#questions::-webkit-scrollbar {
+    width: 12px;
+}
+
+#questions::-webkit-scrollbar-track {
+    background: #111;
+}
+
+#questions::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 6px;
+    border: 3px solid #111;
+}
+
+#questions::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+/* INLINE ITEMS (green) */
+.inline-item {
+    color: #28a745; /* same green as inline questions */
+}
+
+/* GITHUB ITEMS (amber) */
+.github-item {
+    color: #ff9900; /* same amber as GitHub questions */
+}
+/* When control panel is shrinked, hide the actual fieldset completely */
+#control-container.shrink #control {
+    display: none;
+}
+
+
+ 
+
+/* focus / dim effect */
+
+@keyframes rainbowGlow {
+    0%   { outline-color: #ff004c; }
+    20%  { outline-color: #ff9900; }
+    40%  { outline-color: #ffee00; }
+    60%  { outline-color: #28a745; }
+    80%  { outline-color: #00c8ff; }
+    100% { outline-color: #ff004c; }
+}
+
+.stack-wrapper {
+    transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.stack-wrapper.dimmed {
+    opacity: 0.25;
+    filter: grayscale(60%);
+}
+
+.stack-wrapper.active {
+    opacity: 1;
+    filter: none;
+    position: relative;
+}
+.stack-wrapper.active::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: 12px;
+    outline: 3px solid transparent;
+    animation: rainbowGlow 4s linear infinite;
+    pointer-events: none;
+}
+
+/* focus / dim effect */
+
+
+/* Up / Down Buttons */
+.nav-btn{
+    background:#00c8ff;
+    color:black;
+    font-weight:bold;
+}
+.nav-btn:hover{
+    background:#ffee00;
+}
+
+
+</style>
+</head>
+<body>
+ 
+<div id="outer">
+    <!-- CONTROL PANEL WRAPPER -->
+    <div id="control-container" class="shrink"> 
+		<!-- Top bar: checkbox + Show button + Timer buttons -->
+		<div id="control-top-bar" style="display:flex; align-items:center; gap:12px; margin:4px 8px;">
+			<button id="selectAllBtn">All Qs</button>  
+
+			<label style="display:flex; align-items:center; gap:8px;">
+				<input type="checkbox" id="control-toggle" />
+				Show Control Panel
+			</label>
+			<button id="toggleAll">Show</button>
+
+			<!-- TIMER BUTTONS -->
+			<button id="timerBtn">Start Timer</button>
+			<button id="resetTimer">Reset</button>
+			<span id="timerDisplay">00:00</span>
+			
+			 
+			<button id="goTop" class="nav-btn">⬆ Top Q</button>
+			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
+			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
+		
+		</div>
+
+        <!-- Existing control panel -->
+        <fieldset id="control">
+            <legend>Control Panel</legend>
+            <!-- your checkboxes for questions go here -->
+        </fieldset>
+    </div>
+
+    <!-- QUESTIONS PANEL -->
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+		
+    </fieldset>
+</div>
+
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+
+ 
+const options = [
+    ["addend-left-missing","1. Missing Left Addend","github"],
+    ["addend-right-missing","2. Missing Right Addend","github"],
+    ["dividend-missing","3. Missing Dividend","github"],
+    ["divisor-missing","4. Missing Divisor","github"],
+    ["factor-left-missing","5. Missing Left Factor","github"],
+    ["factor-right-missing","6. Missing Right Factor","github"],
+    ["minuend-missing","7. Missing Minuend","github"],
+    ["subtrahend-missing","8. Subtrahend","github"],
+    ["generate-additions-2","9. Additions 2 Numbers","inline"],
+    ["generate-additions-3","10. Additions 3 Numbers","inline"],
+    ["gen-sub-no-borrow","11. Subtraction No Borrow","inline"],
+    ["gen-sub-with-borrow","12. Subtraction With Borrow","inline"],
+    ["gen-mul-1-digit","13. Multiply 1 Digit","inline"],
+    ["gen-mul-2-digit","14. Multiply 2 Digits","inline"],
+    ["number-names","15. Number Names","inline"],
+    ["basic-multiplications","16. Multiplications","inline"],
+    ["basic-additions","17. Additions","inline"],
+    ["basic-subtractions","18. Subtractions","inline"],
+    ["basic-divisions","19. Divisions","inline"],
+    ["ascending","20. Ascending Order","inline"],
+    ["descending","21. Descending Order","inline"],
+    ["draw-clock","22. Draw Clock","inline"],
+    ["tell-time","23. Tell Time","inline"],
+    ["bodmas","24. BODMAS","github"],
+    ["pattern-completion","25. Pattern Completion","github"],
+    ["word-problems","26. Word Problems","github"],
+    ["fractions","27. Fractions","github"],
+    ["round-off-numbers","28. Round Off Numbers","inline"],
+    ["before-numbers","29. Before Numbers","inline"],
+    ["after-numbers","30. After Numbers","inline"],
+    ["between-numbers","31. Between Numbers","inline"],
+    ["greater-lesser","32. Greater / Lesser","inline"],
+    ["geometric-shapes","33. Geometric Shapes","github"],
+    ["place-values","34. Place Values","inline"]
+];
+
+
+
+
+const control=document.getElementById("control");
+const questions=document.getElementById("questions");
+const toggleAll=document.getElementById("toggleAll");
+let showAll=false;
+const stacks={};
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+ 
+
+options.forEach(([val,label,type])=>{
+    const wrap = document.createElement("label");
+    wrap.className = "ctrl-item";
+
+    if(type === "inline"){
+        wrap.classList.add("inline-item");  // green
+    } else if(type === "github"){
+        wrap.classList.add("github-item");  // amber
+    }
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
+
+    wrap.append(cb, document.createTextNode(label));
+    control.appendChild(wrap);
+});
+
+//Below selects all the select boxes automatically, when 'select all q button' clicked'. 
+const selectAllBtn = document.getElementById("selectAllBtn");
+const checkboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
+
+selectAllBtn.onclick = async () => {
+    for (let cb of checkboxes) {
+        if (!cb.checked) {
+            cb.checked = true;
+            cb.onchange();  // trigger addStack
+            await new Promise(r => setTimeout(r, 500)); // half-second delay
+        }
+    }
+};
+
+
+
+
+toggleAll.onclick = () => {
+    if (!showAll) { // currently hidden, about to show
+        const pwd = prompt("Enter PIN");
+        if (pwd !== "0000") return;
+    }
+
+    showAll = !showAll;
+    document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
+    toggleAll.textContent = showAll ? "Hide" : "Show";
+};
+
+
+function renderSplitRow(letter, question, answer) {
+    return {
+        questionHTML: `
+						<div class="question-row">
+							<span class="question-letter">(${letter})</span>
+							<span class="question-text">${question}</span>
+						</div>
+						` ,
+        answerHTML: `
+            <div class="answer-item">
+                <span class="answer-letter">(${letter})</span>
+                <input type="text" class="answer-input" />
+                <span class="answer">${answer}</span>
+            </div>
+        `
+    };
+}
+
+function addStack(val){
+    if(stacks[val]) return;
+    const wrapper=document.createElement("div");
+    wrapper.className="stack-wrapper";
+    
+    const questionsBox=document.createElement("div");
+    questionsBox.className="stack-box questions-box";
+    
+    const answersBox=document.createElement("div");
+    answersBox.className="stack-box answers-box";
+    
+    wrapper.appendChild(questionsBox);
+    wrapper.appendChild(answersBox);
+    
+    stacks[val]=wrapper;
+    questions.appendChild(wrapper);
+    wrapper.scrollIntoView({behavior:"smooth", block:"end"});
+    generate(questionsBox, answersBox, val);
+}
+
+function removeStack(val){
+    stacks[val]?.remove();
+    delete stacks[val];
+}
+
+function generate(questionsBox, answersBox, val){
+    questionsBox.innerHTML="";
+    answersBox.innerHTML="";
+
+    let option = options.find(o => o[0] === val);
+    if(option){
+        questionsBox.innerHTML = `<div class="problem-title inline-title">${option[1]}</div>`;
+    }
+
+    if(val==="generate-additions-2"){
+        for(let i=0;i<2;i++){
+            let a = rand(100,999), b = rand(100,999);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} + ${b} =`, a + b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="generate-additions-3"){
+        for(let i=0;i<2;i++){
+            let a = rand(100,999), b = rand(100,999), c = rand(100,999);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} + ${b} + ${c} =`, a + b + c);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="gen-sub-no-borrow"){
+        for(let i=0;i<2;i++){
+            let a = rand(100,999);
+            let aD = String(a).split('').map(Number);
+            let bD = String(rand(100,999)).split('').map((d,j)=>Math.min(d,aD[j]));
+            let b = parseInt(bD.join(''));
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="gen-sub-with-borrow"){
+        for(let i=0;i<2;i++){
+            let a = rand(100,999), b = rand(100,999);
+            if(b>a)[a,b]=[b,a];
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="gen-mul-1-digit"){
+        for(let i=0;i<2;i++){
+            let a = rand(10,99), b = rand(1,9);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="gen-mul-2-digit"){
+        for(let i=0;i<2;i++){
+            let a = rand(10,99), b = rand(10,99);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="number-names"){
+        const letters = ["a","b","c","d"];
+        [rand(100,999),rand(100,999),rand(1000,9999),rand(1000,9999)]
+        .forEach((n,i)=>{
+            let row = renderSplitRow(letters[i], `${n}`, n);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        });
+    }
+    else if(val==="basic-multiplications"){
+        for(let i=0;i<4;i++){
+            let a = rand(12,19), b = rand(2,9);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="basic-additions"){
+        for(let i=0;i<4;i++){
+            let a = rand(1,9), b = rand(1,9);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} + ${b} =`, a + b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="basic-subtractions"){
+        for(let i=0;i<4;i++){
+            let a = rand(1,9), b = rand(0,a);
+            let letter = String.fromCharCode(97 + i);
+			let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="basic-divisions"){
+        for(let i=0;i<4;i++){
+            let b = rand(2,9), a = b * rand(2,9);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${a} ÷ ${b} =`, a / b);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="ascending" || val==="descending"){
+        for(let i=0; i<2; i++){
+            let arr = [...Array(6)].map(() => rand(10,99));
+            let letter = String.fromCharCode(97 + i);
+            let s = [...arr].sort((a,b)=>val==="ascending"?a-b:b-a);
+            let row = renderSplitRow(letter, arr.join(", "), s.join(", "));
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="draw-clock"){
+        for(let i=0;i<2;i++){
+            let letter = String.fromCharCode(97 + i);
+            let time = `${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}`;
+            let row = renderSplitRow(letter, time, "");
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+   else if(val==="tell-time"){
+    let first = rand(1,68);
+    let second;
+    do {
+        second = rand(1,68);
+    } while(second === first);
+
+    const numbers = [first, second];
+    const letters = ["a","b"];
+
+    // Parent container to hold both clocks side by side
+    const clocksContainer = document.createElement("div");
+    clocksContainer.style.display = "flex";
+    clocksContainer.style.gap = "140px";       // space between clocks
+    clocksContainer.style.justifyContent = "flex-start";
+    clocksContainer.style.marginBottom = "12px";
+
+    numbers.forEach((n,i) => {
+        const imgWrapper = document.createElement("div");
+        imgWrapper.style.display = "flex";
+        imgWrapper.style.flexDirection = "column";
+        imgWrapper.style.alignItems = "center";
+
+        const img = document.createElement("img");
+        img.src = `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/clocks/clock${n}.png`;
+        img.alt = `Clock ${n}`;
+        img.style.width = "260px";
+        img.style.height = "260px";
+
+        const filename = document.createElement("span");
+        filename.textContent = `(${letters[i]}) clock${n}.png`;
+        filename.style.fontSize = "14px";
+        filename.style.marginTop = "4px";
+        filename.style.color = "#aaa";
+
+        imgWrapper.appendChild(img);
+        imgWrapper.appendChild(filename);
+        clocksContainer.appendChild(imgWrapper);
+
+        // Answer box
+        const answerItem = document.createElement("div");
+        answerItem.className = "answer-item";
+        answerItem.style.marginBottom = "12px";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "answer-input";
+
+        const answer = document.createElement("span");
+        answer.className = "answer";
+        answer.textContent = "";
+
+        answerItem.appendChild(input);
+        answerItem.appendChild(answer);
+        answersBox.appendChild(answerItem);
+    });
+
+    // Append the parent container with both clocks to questionsBox
+    questionsBox.appendChild(clocksContainer);
+}
+else if (val === "geometric-shapes") {
+    fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
+        .then(res => res.json())
+        .then(files => {
+            const pngs = files.filter(f => f.name.endsWith(".png"));
+            const picked = [];
+            while (picked.length < 4) {
+                const f = pngs[rand(0, pngs.length - 1)];
+                if (!picked.includes(f)) picked.push(f);
+            }
+
+            const letters = ["a", "b", "c", "d"];
+
+            const shapesContainer = document.createElement("div");
+            shapesContainer.style.display = "flex";
+            shapesContainer.style.gap = "60px";
+            shapesContainer.style.marginBottom = "12px";
+
+            picked.forEach((file, i) => {
+                const imgWrapper = document.createElement("div");
+                imgWrapper.style.display = "flex";
+                imgWrapper.style.flexDirection = "column";
+                imgWrapper.style.alignItems = "center";
+
+                const img = document.createElement("img");
+                img.src = file.download_url;
+                img.style.width = "180px";
+                img.style.height = "180px";
+
+                const label = document.createElement("span");
+                label.textContent = `(${letters[i]})`;
+                label.style.fontSize = "14px";
+                label.style.marginTop = "4px";
+                label.style.color = "#aaa";
+
+                imgWrapper.appendChild(img);
+                imgWrapper.appendChild(label);
+                shapesContainer.appendChild(imgWrapper);
+
+                const answerItem = document.createElement("div");
+                answerItem.className = "answer-item";
+                answerItem.style.marginBottom = "12px";
+
+                const input = document.createElement("input");
+                input.type = "text";
+                input.className = "answer-input";
+
+                const answer = document.createElement("span");
+                answer.className = "answer";
+                answer.textContent = file.name.replace(".png", "");
+
+                answerItem.appendChild(input);
+                answerItem.appendChild(answer);
+                answersBox.appendChild(answerItem);
+            });
+
+            questionsBox.appendChild(shapesContainer);
+        });
+}
+
+
+
+
+    else if(val==="round-off-numbers"){
+        for(let i=0;i<4;i++){
+            let n = rand(11,99);
+            let rounded = Math.round(n/10)*10;
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${n}`, rounded);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="before-numbers"){
+        for(let i=0;i<4;i++){
+            let n = rand(2,99);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `__, ${n}`, n-1);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="after-numbers"){
+        for(let i=0;i<4;i++){
+            let n = rand(1,98);
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${n}, __`, n+1);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+    else if(val==="between-numbers"){
+        for(let i=0;i<4;i++){
+            let start = rand(10,97);
+            let end = start + 2;
+            let mid = start + 1;
+            let letter = String.fromCharCode(97 + i);
+            let row = renderSplitRow(letter, `${start}, __, ${end}`, mid);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        }
+    }
+	
+	else if(val==="place-values"){
+		const places = ["Thousands", "Hundreds", "Tens", "Ones"];
+		for(let i=0;i<2;i++){
+			let number = rand(1000,9999); // 4-digit number
+			let digits = [
+				Math.floor(number / 1000),           // Thousands
+				Math.floor((number % 1000) / 100),   // Hundreds
+				Math.floor((number % 100) / 10),     // Tens
+				number % 10                           // Ones
+			];
+			let placeIndex = rand(0,3); // randomly choose which place to ask
+			let letter = String.fromCharCode(97 + i);
+			let row = renderSplitRow(letter, `${number} → ${places[placeIndex]}: __`, digits[placeIndex]);
+			questionsBox.innerHTML += row.questionHTML;
+			answersBox.innerHTML += row.answerHTML;
+		}
+	}
+
+
+
+    else if(val==="greater-lesser"){
+        let ops = [">", "<"];
+        let counts = {">":2, "<":2};
+        let generated = 0;
+        let letterCode = 97;
+
+        while(generated < 4){
+            let op = ops.find(o => counts[o] > 0);
+            if(!op) break;
+            counts[op]--;
+
+            let a, b;
+            if(op === ">"){ a = rand(100,999); b = rand(100, a-1); }
+            else if(op === "<"){ a = rand(100,998); b = rand(a+1, 999); }
+
+            let letter = String.fromCharCode(letterCode++);
+            let row = renderSplitRow(letter, `${a} __ ${b}`, op);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+
+            generated++;
+        }
+    }
+else {
+    // GitHub fetched
+    questionsBox.innerHTML = `<div class="problem-title github-title">${option[1]}</div>`;
+
+    fetch(BASE_URL + val + ".json")
+    .then(r => r.json())
+    .then(d => {
+        // Determine how many questions to pick
+        let numQuestions = 2; // default
+        //if (val === "bodmas" || val === "word-problems" || val=== "fractions") { numQuestions = 2; }
+
+        const idx = [...Array(d.questions.length).keys()]
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, numQuestions);
+
+        idx.forEach((i, j) => {
+            let letter = String.fromCharCode(97 + j);
+            let row = renderSplitRow(letter, d.questions[i], d.answers[i]);
+            questionsBox.innerHTML += row.questionHTML;
+            answersBox.innerHTML += row.answerHTML;
+        });
+    });
+}
+
+	
+	
+	
+}
+
+
+
+const controlContainer = document.getElementById("control-container");
+const controlToggle = document.getElementById("control-toggle");
+
+// Default state: shrinked
+controlToggle.checked = false;
+
+controlToggle.onchange = () => {
+    if(controlToggle.checked){
+        controlContainer.classList.remove("shrink");
+    } else {
+        controlContainer.classList.add("shrink");
+    }
+};
+
+
+// ===== TIMER LOGIC =====
+let timer = null;
+let seconds = 0;
+
+const timerBtn = document.getElementById("timerBtn");
+const resetTimer = document.getElementById("resetTimer");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function updateTimerDisplay() {
+    const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const secs = String(seconds % 60).padStart(2, "0");
+    timerDisplay.textContent = `${mins}:${secs}`;
+}
+timerBtn.onclick = () => {
+    if (!timer) {
+        // Start or resume timer
+        timer = setInterval(() => {
+            seconds++;
+            updateTimerDisplay();
+        }, 1000);
+        timerBtn.textContent = "Pause";
+        timerBtn.style.backgroundColor = "red";   // show running
+    } else {
+        // Pause timer
+        clearInterval(timer);
+        timer = null;
+        timerBtn.textContent = "Start Timer";
+        timerBtn.style.backgroundColor = "green"; // indicate paused
+    }
+};
+
+resetTimer.onclick = () => {
+    clearInterval(timer);
+    timer = null;
+    seconds = 0;
+    updateTimerDisplay();
+    timerBtn.textContent = "Start Timer";
+    timerBtn.style.backgroundColor = "green"; // back to default
+};
+
+
+//Focus Dim effect script 
+let activeStack = null;
+
+
+questions.addEventListener("click", async e => {
+    const stack = e.target.closest(".stack-wrapper");
+    if (!stack) return;
+
+    if (activeStack === stack) {
+        document.querySelectorAll(".stack-wrapper").forEach(s => {
+            s.classList.remove("active","dimmed");
+            const emoji = s.querySelector(".github-emoji");
+            if (emoji) emoji.remove();
+        });
+        activeStack = null;
+        return;
+    }
+
+    document.querySelectorAll(".stack-wrapper").forEach(s => {
+        s.classList.toggle("active", s === stack);
+        s.classList.toggle("dimmed", s !== stack);
+        if (s !== stack) {
+            const emoji = s.querySelector(".github-emoji");
+            if (emoji) emoji.remove();
+        }
+    });
+
+    // Add GitHub emoji to questions box
+    const questionsBox = stack.querySelector(".questions-box");
+    let emojiImg = questionsBox.querySelector(".github-emoji");
+    if (!emojiImg) {
+        emojiImg = document.createElement("img");
+        emojiImg.className = "github-emoji";
+        emojiImg.src = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/hourglass.gif";
+        emojiImg.style.width = "48px";
+        emojiImg.style.height = "48px";
+        emojiImg.style.position = "absolute";
+        emojiImg.style.top = "10px";
+        emojiImg.style.right = "10px";
+        questionsBox.style.position = "relative"; // ensure parent is positioned
+        questionsBox.appendChild(emojiImg);
+    }
+
+    activeStack = stack;
+
+    // Scroll active stack to center
+    const containerRect = questions.getBoundingClientRect();
+    const stackRect = stack.getBoundingClientRect();
+    const currentScroll = questions.scrollTop;
+    const scrollTo = currentScroll + (stackRect.top - containerRect.top) - (containerRect.height / 2) + (stackRect.height / 2);
+    questions.scrollTo({ top: scrollTo, behavior: "smooth" });
+});
+
+//Focus Dim effect script
+
+
+///Navigate to topmost or bottommost question 
+
+/* REPLACE / ADD THIS JS */
+ 
+function activateStack(stack){
+    document.querySelectorAll(".stack-wrapper").forEach(s=>{
+        s.classList.toggle("active", s===stack);
+        s.classList.toggle("dimmed", s!==stack);
+    });
+    activeStack = stack;
+}
+
+goTop.onclick = () => {
+    const first = questions.querySelector(".stack-wrapper");
+    if(!first) return;
+    questions.scrollTo({ top: 0, behavior: "smooth" });
+    activateStack(first);
+};
+
+goBottom.onclick = () => {
+    const stacksArr = questions.querySelectorAll(".stack-wrapper");
+    const last = stacksArr[stacksArr.length - 1];
+    if(!last) return;
+
+    const maxScroll =
+        questions.scrollHeight - questions.clientHeight;
+
+    questions.scrollTo({
+        top: maxScroll,
+        behavior: "smooth"
+    });
+
+    activateStack(last);
+};
+///Navigate to topmost or bottommost question 
+
+/// Full Screen modes
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        document.getElementById("fsBtn").innerText = "Exit Fullscreen";
+      } else {
+        document.exitFullscreen();
+        document.getElementById("fsBtn").innerText = "Go Fullscreen";
+      }
+    }
+
+	
+</script>
+</body>
+</html>
