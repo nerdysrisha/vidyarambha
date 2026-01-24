@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v28
-increasing the control panel text size and select box sizes
+Maths Renderer - v30
+Increase bodmas equations size and giving gap between numbers evenly
 -->
 <style>
 html,body{
@@ -351,6 +351,15 @@ button{
 }
 .nav-btn:hover{
     background:#ffee00;
+}
+/* ===== Oscillation animation for emoji/PNG ===== */
+/* ===== Oscillation in all directions ===== */
+@keyframes oscillate {
+    0%   { transform: translate(-4px, -4px); }
+    25%  { transform: translate(4px, -2px); }
+    50%  { transform: translate(-4px, 4px); }
+    75%  { transform: translate(4px, 2px); }
+    100% { transform: translate(0px, -4px); }
 }
 
 
@@ -885,9 +894,7 @@ else {
     fetch(BASE_URL + val + ".json")
     .then(r => r.json())
     .then(d => {
-        // Determine how many questions to pick
         let numQuestions = 2; // default
-        //if (val === "bodmas" || val === "word-problems" || val=== "fractions") { numQuestions = 2; }
 
         const idx = [...Array(d.questions.length).keys()]
                         .sort(() => 0.5 - Math.random())
@@ -895,7 +902,21 @@ else {
 
         idx.forEach((i, j) => {
             let letter = String.fromCharCode(97 + j);
-            let row = renderSplitRow(letter, d.questions[i], d.answers[i]);
+
+            // ==== MODIFIED FOR BODMAS: Add extra space around operators ====
+            let questionText = d.questions[i];
+			if(val === "bodmas") {
+				// Replace operators with spaces around them
+				questionText = questionText.replace(/([+\-×÷*/x])/gi, " $1 "); // include x for multiplication
+				questionText = questionText.replace(/\s+/g, " "); // normalize multiple spaces
+
+				// Wrap in larger font
+				questionText = `<span style="font-size: 1.5em; letter-spacing: 0.15em;">${questionText}</span>`;
+			}
+
+            // ================================================================
+
+            let row = renderSplitRow(letter, questionText, d.answers[i]);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML += row.answerHTML;
         });
@@ -968,36 +989,77 @@ resetTimer.onclick = () => {
 //Focus Dim effect script 
 let activeStack = null;
 
-questions.addEventListener("click", e => {
+questions.addEventListener("click", async e => {
     const stack = e.target.closest(".stack-wrapper");
     if (!stack) return;
 
+    // ===== If the clicked stack is already active, deselect it =====
     if (activeStack === stack) {
         document.querySelectorAll(".stack-wrapper").forEach(s => {
             s.classList.remove("active","dimmed");
+            const emoji = s.querySelector(".github-emoji");
+            if (emoji) emoji.remove();
         });
         activeStack = null;
         return;
     }
 
+    // ===== Activate clicked stack and dim others =====
     document.querySelectorAll(".stack-wrapper").forEach(s => {
         s.classList.toggle("active", s === stack);
         s.classList.toggle("dimmed", s !== stack);
+
+        // Remove emoji from stacks that are not active
+        if (s !== stack) {
+            const emoji = s.querySelector(".github-emoji");
+            if (emoji) emoji.remove();
+        }
     });
 
-activeStack = stack;
+    // ===== Add GitHub emoji/PNG to questions box with fade-in + oscillation =====
+    const questionsBox = stack.querySelector(".questions-box");
+    let emojiImg = questionsBox.querySelector(".github-emoji");
+    if (!emojiImg) {
+        emojiImg = document.createElement("img");
+        emojiImg.className = "github-emoji";
+        emojiImg.src = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/hourglass.gif";
 
-// Scroll active stack to center of questions panel
-const containerRect = questions.getBoundingClientRect();
-const stackRect = stack.getBoundingClientRect();
-const currentScroll = questions.scrollTop;
+        // ===== Size & position =====
+        emojiImg.style.width = "80px";
+        emojiImg.style.height = "80px";
+        emojiImg.style.position = "absolute";
+        emojiImg.style.top = "50%";
+        emojiImg.style.right = "10px";
+        emojiImg.style.transform = "translateY(-50%)";
 
-const scrollTo = currentScroll + (stackRect.top - containerRect.top) - (containerRect.height / 2) + (stackRect.height / 2);
-questions.scrollTo({ top: scrollTo, behavior: "smooth" });
+        // ===== Fade-in effect =====
+        emojiImg.style.opacity = "0";
+        emojiImg.style.transition = "opacity 2s";
 
-	
-	
+        // ===== Oscillation animation =====
+        emojiImg.style.animation = "oscillate 1s infinite alternate ease-in-out";
+
+        // Ensure parent has relative positioning
+        questionsBox.style.position = "relative";
+        questionsBox.appendChild(emojiImg);
+
+        // Trigger fade-in
+        setTimeout(() => {
+            emojiImg.style.opacity = "1";
+        }, 100); // slight delay for transition to take effect
+    }
+
+    activeStack = stack;
+
+    // ===== Scroll active stack to center =====
+    const containerRect = questions.getBoundingClientRect();
+    const stackRect = stack.getBoundingClientRect();
+    const currentScroll = questions.scrollTop;
+    const scrollTo = currentScroll + (stackRect.top - containerRect.top) - (containerRect.height / 2) + (stackRect.height / 2);
+    questions.scrollTo({ top: scrollTo, behavior: "smooth" });
 });
+
+
 //Focus Dim effect script
 
 

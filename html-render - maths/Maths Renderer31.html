@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v32
-Save questions and answers locally. 
+Maths Renderer - v31
+Remove the clock emoji when 'answers are shown' and replaced with 
 -->
 <style>
 html,body{
@@ -389,7 +389,7 @@ button{
 			<button id="goTop" class="nav-btn">⬆ Top Q</button>
 			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
 			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
-			<button id="saveBtn">Save Answers</button>
+		
 		</div>
 
         <!-- Existing control panel -->
@@ -1110,44 +1110,7 @@ goBottom.onclick = () => {
       }
     }
 
-///Saving questions and answers locally 
-document.getElementById("saveBtn").onclick = () => {
-    const stacks = document.querySelectorAll(".stack-wrapper");
-    let output = [];
-
-    stacks.forEach(stack => {
-        const title = stack.querySelector(".problem-title")?.innerText;
-        if (title) output.push(`\n=== ${title} ===`);
-
-        // Special handling for Geometric Shapes
-        if (title?.includes("Geometric Shapes")) {
-            const imgs = stack.querySelectorAll(".questions-box img");
-            const inputs = stack.querySelectorAll(".answer-item input");
-
-            imgs.forEach((img, i) => {
-                const fileName = img.src.split("/").pop();
-                const answer = inputs[i]?.value || "";
-                output.push(`${fileName}  =>  ${answer}`);
-            });
-            return;
-        }
-
-        const qs = stack.querySelectorAll(".question-row");
-        const ans = stack.querySelectorAll(".answer-item input");
-
-        qs.forEach((q, i) => {
-            const qText = q.innerText.replace(/\s+/g, " ").trim();
-            const aText = ans[i]?.value || "";
-            output.push(`${qText}  =>  ${aText}`);
-        });
-    });
-
-    const blob = new Blob([output.join("\n")], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "answers.txt";
-    a.click();
-};
+	
 </script>
 </body>
 </html>
