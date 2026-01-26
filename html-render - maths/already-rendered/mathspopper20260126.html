@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v33
-Save questions and answers locally with current timestamp
+Maths Renderer - v32
+Save questions and answers locally. 
 -->
 <style>
 html,body{
@@ -1145,11 +1145,7 @@ document.getElementById("saveBtn").onclick = () => {
     const blob = new Blob([output.join("\n")], { type: "text/plain" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-	const ts = new Date().toISOString().replace(/[:.]/g, "-");
-	a.download = `mathspaper-${ts}.txt`;
-
-	
-	
+    a.download = "answers.txt";
     a.click();
 };
 </script>

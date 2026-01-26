@@ -129,6 +129,26 @@ button {
     border: 1px solid #444;
     cursor: pointer;
 }
+
+ 
+
+.dark-select{
+    background:#111;
+    color:#fff;
+    border:1px solid #444;
+}
+.dark-select:disabled{
+    background:#333;
+    color:#777;
+    border-color:#222;
+}
+.dark-select.active{
+    background:#58D68D;
+    color:#000;
+    border-color:#58D68D;
+}
+
+
 </style>
 </head>
 <body>
@@ -169,9 +189,10 @@ button {
             <option value="weather">Weather</option>
         </select>
 		<select id="exerciseSelector" class="dark-select">
-			<option value="months-identification">Months Identification</option>
-			<option value="dictation">Dictation</option>
-			 
+			<option value="dictation-months">Months Dictation</option>
+			<option value="dictation-3letterwords">Dictation 3 Letter Words</option>
+			<option value="dictation-4letterwords">Dictation 4 Letter Words</option>
+			<option value="dictation-5letterwords">Dictation 5 Letter Words</option> 
 		</select>
     </div>
     <div id="counter">0 / 0</div>
@@ -307,7 +328,49 @@ document.body.addEventListener('keydown',e=>{ if(e.code==='Space'||e.code==='Ent
 
 loadWords(patternSelector.value);
 
- 
+//selection of drop down clearing screen. 
+const exerciseSelector = document.getElementById('exerciseSelector');
+
+function resetScreen(){
+    words=[];
+    leftWords=[];
+    centerWord=null;
+    totalWords=0;
+    leftBox.innerHTML='';
+    centerBox.innerHTML='';
+    counterEl.textContent='0 / 0';
+    speechSynthesis.cancel();
+}
+
+function setActive(active, inactive){
+    active.classList.add('active');
+    inactive.classList.remove('active');
+    inactive.disabled=true;
+    active.disabled=false;
+}
+
+function unlockBoth(){
+    patternSelector.disabled=false;
+    exerciseSelector.disabled=false;
+    patternSelector.classList.remove('active');
+    exerciseSelector.classList.remove('active');
+}
+
+patternSelector.addEventListener('change',()=>{
+    resetScreen();
+    setActive(patternSelector, exerciseSelector);
+    loadWords(patternSelector.value);
+});
+
+exerciseSelector.addEventListener('change',()=>{
+    resetScreen();
+    setActive(exerciseSelector, patternSelector);
+});
+
+patternSelector.addEventListener('mouseenter', unlockBoth);
+exerciseSelector.addEventListener('mouseenter', unlockBoth);
+patternSelector.addEventListener('mouseenter', unlockBoth);
+exerciseSelector.addEventListener('mouseenter', unlockBoth);
 </script>
 </body>
 </html>
