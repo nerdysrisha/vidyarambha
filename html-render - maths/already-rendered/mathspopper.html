@@ -4,9 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v34
-Saving of all questions ONLY, without answers. 
-Adding new item for negative numbers. 
+Maths Renderer - v33
+Added new item for random table writing. 
 -->
 <style>
 html,body{
@@ -391,7 +390,6 @@ button{
 			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
 			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
 			<button id="saveBtn">Save Answers</button>
-			<button id="saveQuestionsBtn">Save Questions</button>
 		</div>
 
         <!-- Existing control panel -->
@@ -447,8 +445,7 @@ const options = [
     ["greater-lesser","32. Greater / Lesser","inline"],
     ["geometric-shapes","33. Geometric Shapes","github"],
     ["place-values","34. Place Values","inline"],
-	["multiplication-tables","35. Multiplication Tables","inline"],
-	["neg-pos-numbers","36. +ve/-ve Numbers","inline"]
+	["multiplication-tables","35. Multiplication Tables","inline"]
 ];
 
 
@@ -805,38 +802,6 @@ else if (val === "geometric-shapes") {
         });
 }
 
-
-else if (val === "neg-pos-numbers") {
-    for (let i = 0; i < 2; i++) {
-        let start = rand(1, 95);
-        let end = start + rand(3, 5);
-
-        let questionType = rand(1, 2); // 1 = negative only, 2 = cross zero
-        let questionText = "";
-        let answerText = "";
-
-        if (questionType === 1) {
-            // Negative numbers only
-            questionText = `Write negative numbers from ${start} to ${end}`;
-            let nums = [];
-            for (let n = end; n >= start; n--) nums.push(`-${n}`);
-            answerText = nums.join(", ");
-        } else {
-            // Cross zero
-            let a = rand(1, 5);
-            let b = rand(1, 5);
-            questionText = `Write numbers from -${a} to ${b}`;
-            let nums = [];
-            for (let n = -a; n <= b; n++) nums.push(n);
-            answerText = nums.join(", ");
-        }
-
-        let letter = String.fromCharCode(97 + i);
-        let row = renderSplitRow(letter, questionText, answerText);
-        questionsBox.innerHTML += row.questionHTML;
-        answersBox.innerHTML += row.answerHTML;
-    }
-}
 
 
 
@@ -1208,43 +1173,6 @@ document.getElementById("saveBtn").onclick = () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "answers.txt";
-    a.click();
-};
-
-
-///Save Questions ONLY. 
-
-document.getElementById("saveQuestionsBtn").onclick = () => {
-    const stacks = document.querySelectorAll(".stack-wrapper");
-    let output = [];
-
-    stacks.forEach(stack => {
-        const title = stack.querySelector(".problem-title")?.innerText;
-        if (title) output.push(`\n=== ${title} ===`);
-
-        // Geometric Shapes (save image names only)
-        if (title?.includes("Geometric Shapes")) {
-            const imgs = stack.querySelectorAll(".questions-box img");
-            imgs.forEach(img => {
-                const fileName = img.src.split("/").pop();
-                output.push(fileName);
-            });
-            return;
-        }
-
-        // Normal questions
-        const qs = stack.querySelectorAll(".question-row");
-        qs.forEach(q => {
-            const qText = q.innerText.replace(/\s+/g, " ").trim();
-            output.push(qText);
-        });
-    });
-
-    const blob = new Blob([output.join("\n")], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-	const ts = new Date().toISOString().replace(/[:.]/g,"-");
-	a.download = `questions-only-${ts}.txt`;
     a.click();
 };
 </script>
