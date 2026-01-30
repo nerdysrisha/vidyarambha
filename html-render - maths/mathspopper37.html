@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Renderer - v33
-Added new item for random table writing. 
+Maths Popper 37
+Keep screen alive with video on top
 -->
 <style>
 html,body{
@@ -64,12 +64,14 @@ html,body{
 }
 
 /* NEW: SHRINKED STATE */
+ 
 #control-container.shrink {
-    flex-basis: 40px;
-    min-height: 40px;
-    padding: 4px 0; /* keep select visible */
-    border: 1px solid #444; /* keep visible border */
+    flex-basis: auto;      /* allow height to fit content */
+    min-height: 88px;      /* enough to fit top bar + video */
+    padding: 4px 8px;
+    border: 1px solid #444;
 }
+
 
 /* NEW: Inner select always visible */
 #control-select {
@@ -114,6 +116,15 @@ html,body{
 #control-top-bar span{
     font-size:18px;
 }
+
+
+#control-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 68px;       /* enough for video */
+}
+
 
 #control-top-bar button{
     padding:8px 14px;
@@ -297,9 +308,9 @@ button{
 .github-item {
     color: #ff9900; /* same amber as GitHub questions */
 }
-/* When control panel is shrinked, hide the actual fieldset completely */
+/* Hide only the lower control fieldset, keep top bar visible */
 #control-container.shrink #control {
-    display: none;
+    display: none;         /* hide full control panel */
 }
 
 
@@ -390,6 +401,15 @@ button{
 			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
 			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
 			<button id="saveBtn">Save Answers</button>
+			<button id="saveQuestionsBtn">Save Questions</button>
+			
+			 
+			<video autoplay loop muted playsinline
+				style="width:120px; height:68px; margin-left:12px; border:1px solid #fff; border-radius:4px;">
+				<source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+
 		</div>
 
         <!-- Existing control panel -->
@@ -445,7 +465,9 @@ const options = [
     ["greater-lesser","32. Greater / Lesser","inline"],
     ["geometric-shapes","33. Geometric Shapes","github"],
     ["place-values","34. Place Values","inline"],
-	["multiplication-tables","35. Multiplication Tables","inline"]
+	["multiplication-tables","35. Multiplication Tables","inline"],
+	["neg-pos-numbers","36. +ve/-ve Numbers","inline"],
+	["drawing-shapes","37. Drawing Shapes","github"]
 ];
 
 
@@ -495,15 +517,20 @@ selectAllBtn.onclick = async () => {
 
 
 
-
 toggleAll.onclick = () => {
-    if (!showAll) { // currently hidden, about to show
+    if (!showAll) {
         const pwd = prompt("Enter PIN");
         if (pwd !== "0000") return;
     }
 
     showAll = !showAll;
     document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
+
+    // Show/hide images inside all question rows
+    document.querySelectorAll("#questions .question-row img").forEach(img => {
+        img.style.display = showAll ? "block" : "none";
+    });
+
     toggleAll.textContent = showAll ? "Hide" : "Show";
 };
 
@@ -801,7 +828,87 @@ else if (val === "geometric-shapes") {
             questionsBox.appendChild(shapesContainer);
         });
 }
+else if (val === "drawing-shapes") {
 
+// Use the same as geometric-shapes
+		fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
+		.then(res => res.json())
+        .then(files => {
+            const pngs = files.filter(f => f.name.endsWith(".png"));
+            const picked = [];
+            while (picked.length < 4 && picked.length < pngs.length) {
+                const f = pngs[rand(0, pngs.length - 1)];
+                if (!picked.includes(f)) picked.push(f);
+            }
+
+            const letters = ["a", "b", "c", "d"];
+
+            picked.forEach((file, i) => {
+                // Question row container
+                const questionItem = document.createElement("div");
+                questionItem.className = "question-row";
+                questionItem.style.position = "relative";
+
+                // Display filename first
+                const qText = document.createElement("span");
+                qText.className = "question-text";
+                qText.innerHTML = `<span class="question-letter">(${letters[i]})</span> ${file.name.replace(".png","")}`;
+
+                // Hidden image
+                const img = document.createElement("img");
+                img.src = file.download_url;
+                img.style.width = "200px";
+                img.style.height = "200px";
+                img.style.display = "none";
+                img.style.marginTop = "8px";
+
+                questionItem.appendChild(qText);
+                questionItem.appendChild(img);
+                questionsBox.appendChild(questionItem);
+
+                // Answer box
+                const answerItem = document.createElement("div");
+                answerItem.className = "answer-item";
+                answerItem.style.marginBottom = "12px";
+                answerItem.innerHTML = `<span class="answer-letter">(${letters[i]})</span> <span class="answer">${file.name.replace(".png","")}</span>`;
+                answersBox.appendChild(answerItem);
+            });
+        })
+        .catch(err => console.error("Error fetching drawing-shapes:", err));
+}
+
+
+else if (val === "neg-pos-numbers") {
+    for (let i = 0; i < 2; i++) {
+        let start = rand(1, 95);
+        let end = start + rand(3, 5);
+
+        let questionType = rand(1, 2); // 1 = negative only, 2 = cross zero
+        let questionText = "";
+        let answerText = "";
+
+        if (questionType === 1) {
+            // Negative numbers only
+            questionText = `Write negative numbers from ${start} to ${end}`;
+            let nums = [];
+            for (let n = end; n >= start; n--) nums.push(`-${n}`);
+            answerText = nums.join(", ");
+        } else {
+            // Cross zero
+            let a = rand(1, 5);
+            let b = rand(1, 5);
+            questionText = `Write numbers from -${a} to ${b}`;
+            let nums = [];
+            for (let n = -a; n <= b; n++) nums.push(n);
+            answerText = nums.join(", ");
+        }
+
+        let letter = String.fromCharCode(97 + i);
+        let row = renderSplitRow(letter, questionText, answerText);
+        questionsBox.innerHTML += row.questionHTML;
+        answersBox.innerHTML += row.answerHTML;
+    }
+}
 
 
 
@@ -1175,6 +1282,77 @@ document.getElementById("saveBtn").onclick = () => {
     a.download = "answers.txt";
     a.click();
 };
+
+
+///Save Questions ONLY. 
+
+document.getElementById("saveQuestionsBtn").onclick = () => {
+    const stacks = document.querySelectorAll(".stack-wrapper");
+    let output = [];
+
+    stacks.forEach(stack => {
+        const title = stack.querySelector(".problem-title")?.innerText;
+        if (title) output.push(`\n=== ${title} ===`);
+
+        // Geometric Shapes (save image names only)
+        if (title?.includes("Geometric Shapes")) {
+            const imgs = stack.querySelectorAll(".questions-box img");
+            imgs.forEach(img => {
+                const fileName = img.src.split("/").pop();
+                output.push(fileName);
+            });
+            return;
+        }
+
+        // Normal questions
+        const qs = stack.querySelectorAll(".question-row");
+        qs.forEach(q => {
+            const qText = q.innerText.replace(/\s+/g, " ").trim();
+            output.push(qText);
+        });
+    });
+
+    const blob = new Blob([output.join("\n")], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+	const ts = new Date().toISOString().replace(/[:.]/g,"-");
+	a.download = `questions-only-${ts}.txt`;
+    a.click();
+};
+
+//Screen wake up
+
+let wakeLock = null;
+
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log('Screen Wake Lock active');
+            wakeLock.addEventListener('release', () => {
+                console.log('Screen Wake Lock released');
+            });
+        } else {
+            console.log('Wake Lock API not supported on this browser.');
+        }
+    } catch (err) {
+        console.error('Wake Lock request failed:', err);
+    }
+}
+
+// Re-request wake lock if page becomes visible again
+document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+        requestWakeLock();
+    }
+});
+
+// Activate wake lock immediately
+requestWakeLock();
+
+
 </script>
+ 
+
 </body>
 </html>

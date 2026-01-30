@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Popper 37
-Keep screen alive with video on top
+Maths Popper 36
+Keep screen alive. 
 -->
 <style>
 html,body{
@@ -64,14 +64,12 @@ html,body{
 }
 
 /* NEW: SHRINKED STATE */
- 
 #control-container.shrink {
-    flex-basis: auto;      /* allow height to fit content */
-    min-height: 88px;      /* enough to fit top bar + video */
-    padding: 4px 8px;
-    border: 1px solid #444;
+    flex-basis: 40px;
+    min-height: 40px;
+    padding: 4px 0; /* keep select visible */
+    border: 1px solid #444; /* keep visible border */
 }
-
 
 /* NEW: Inner select always visible */
 #control-select {
@@ -116,15 +114,6 @@ html,body{
 #control-top-bar span{
     font-size:18px;
 }
-
-
-#control-top-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 68px;       /* enough for video */
-}
-
 
 #control-top-bar button{
     padding:8px 14px;
@@ -308,9 +297,9 @@ button{
 .github-item {
     color: #ff9900; /* same amber as GitHub questions */
 }
-/* Hide only the lower control fieldset, keep top bar visible */
+/* When control panel is shrinked, hide the actual fieldset completely */
 #control-container.shrink #control {
-    display: none;         /* hide full control panel */
+    display: none;
 }
 
 
@@ -402,14 +391,6 @@ button{
 			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
 			<button id="saveBtn">Save Answers</button>
 			<button id="saveQuestionsBtn">Save Questions</button>
-			
-			 
-			<video autoplay loop muted playsinline
-				style="width:120px; height:68px; margin-left:12px; border:1px solid #fff; border-radius:4px;">
-				<source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-				Your browser does not support the video tag.
-			</video>
-
 		</div>
 
         <!-- Existing control panel -->
@@ -1352,7 +1333,12 @@ requestWakeLock();
 
 
 </script>
- 
+
+<video autoplay loop muted playsinline
+    style="width:400px; height:225px; border:2px solid #fff; display:block; margin:20px auto;">
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
 
 </body>
 </html>
