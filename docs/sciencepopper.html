@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Popper</title>
+<!--
+Science Popper 1
+Popping Science Knowlege
+-->
+<style>
+html,body{
+    margin:0;
+    height:100%;
+    background:black;
+    color:white;
+    font-family:Arial, sans-serif;
+}
+#outer{
+    margin:20px;
+    height: calc(100vh - 40px); /* Full viewport minus margins */
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    overflow: hidden; /* Prevent outer scrolling */
+}
+
+/* CONTROL PANEL */
+#control{
+    position:sticky;
+    top:0;
+    z-index:10;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:20px 16px;            /* MORE vertical spacing between rows */
+    background:black;
+    border:1px solid #444;
+    padding:16px;
+}
+
+#control legend{
+    padding:0 10px;
+    font-size:18px;          /* slightly larger */
+    color:#aaa;
+}
+
+/* checkbox items inside control panel */
+.ctrl-item{
+    display:flex;
+    align-items:center;
+    gap:12px;                /* more space between checkbox and text */
+    white-space:nowrap;
+    font-size:20px;          /* BIGGER text for touch */
+    padding:6px 0;           /* extra vertical touch area */
+}
+
+
+/* NEW: CONTROL PANEL WRAPPER */
+#control-container {
+    display: flex;
+    flex-direction: column;
+    transition: flex-basis 0.3s ease, min-height 0.3s ease;
+    min-height: 40px; /* shrunk height */
+    overflow: hidden;
+}
+
+/* NEW: SHRINKED STATE */
+ 
+#control-container.shrink {
+    flex-basis: auto;      /* allow height to fit content */
+    min-height: 88px;      /* enough to fit top bar + video */
+    padding: 4px 8px;
+    border: 1px solid #444;
+}
+
+
+/* NEW: Inner select always visible */
+#control-select {
+    margin: 4px 8px;
+    padding: 4px 8px;
+    font-size: 14px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    cursor: pointer;
+}
+
+/* Optional: nice dark scrollbar if select has many options */
+#control-select::-webkit-scrollbar {
+    width: 8px;
+}
+
+#control-select::-webkit-scrollbar-track {
+    background: #111;
+}
+
+#control-select::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #111;
+}
+
+#control-select::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+
+/* Bigger checkboxes for touch */
+.ctrl-item input[type="checkbox"]{
+    width:22px;
+    height:22px;
+}
+
+/* Bigger top bar controls */
+#control-top-bar,
+#control-top-bar button,
+#control-top-bar label,
+#control-top-bar span{
+    font-size:18px;
+}
+
+
+#control-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 68px;       /* enough for video */
+}
+
+
+#control-top-bar button{
+    padding:8px 14px;
+}
+
+
+
+/* QUESTIONS PANEL */
+ 
+
+#questions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: 1px solid #444;
+    padding: 12px;
+    flex: 1; /* Take remaining space */
+    overflow-y: auto; /* Scroll inside this panel */
+    min-height: 0; /* Important for flex scrolling */
+    padding-bottom: 32px;   /* extra space so bottom glow is not clipped */
+}
+
+#questions legend{
+    padding:0 10px;
+    font-size:16px;
+    color:#aaa;
+}
+
+/* STACK WRAPPER - contains the two boxes side by side */
+.stack-wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 12px;
+    min-height: 400px; /* Increased from 260px */
+    align-items: stretch;
+}
+
+/* INDIVIDUAL BOXES */
+.stack-box{
+    border:1px solid #222;
+    background:#111;
+    padding:12px;
+    box-sizing:border-box;
+    display:flex;           /* add this */
+    flex-direction: column; /* add this */
+    height: 100%;           /* add this */
+}
+
+/* QUESTIONS BOX (left) */
+.questions-box{
+    /* larger box for questions only */
+}
+
+/* ANSWERS BOX (right) */
+.answers-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically center from top to bottom */
+}
+
+/* HEADINGS */
+.problem-title.inline-title {
+    color: #28a745;
+    font-weight:bold;
+    margin-bottom:8px;
+    font-size:24px;
+}
+
+.problem-title.github-title {
+    color: #ff9900;
+    font-weight:bold;
+    margin-bottom:8px;
+    font-size:24px;
+}
+
+/* QUESTION ROWS (left box) */
+ 
+
+.question-row{
+    display: flex;
+    align-items: center;
+    font-size: 40px;
+    line-height: 2.2;
+    padding-left: 40px;
+}
+
+.question-letter{
+    width: 60px;          /* increase this for more space */
+    text-align: right;
+    margin-right: 20px;   /* gap between (a) and question */
+    font-weight: bold;
+}
+
+.question-text{
+    flex: 1;
+}
+
+/* ANSWER ROWS (right box) */
+.answer-row{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    font-size:40px;
+    line-height:2;
+    padding-left:20px;
+}
+
+.answer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px; /* vertical spacing */
+    font-size: 40px;
+}
+
+
+.answer-item .answer-letter {
+    width: 40px;       /* fixed width for the letter */
+    text-align: right; /* align letter to the right */
+    margin-right: 12px; /* space between letter and input */
+    color: #28a745;
+    font-weight: bold;
+    flex-shrink: 0;    /* prevent shrinking */
+}
+
+
+/* ANSWERS */
+.answer{
+    visibility:hidden;
+    color:#58D68D;
+    font-weight:bold;
+}
+.answer.show{
+    visibility:visible;
+}
+
+/* BUTTONS */
+button{
+    padding:6px 12px;
+    border:none;
+    cursor:pointer;
+    background:#58D68D;
+    color:black;
+}
+
+.answer-input{
+    width:90px;
+    height:22px;
+    background:#000;
+    color:#fff;
+    border:1px solid #444;
+    text-align:center;
+    font-size:14px;
+}
+
+/* Dark scrollbar for the main questions panel */
+#questions::-webkit-scrollbar {
+    width: 12px;
+}
+
+#questions::-webkit-scrollbar-track {
+    background: #111;
+}
+
+#questions::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 6px;
+    border: 3px solid #111;
+}
+
+#questions::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+/* INLINE ITEMS (green) */
+.inline-item {
+    color: #28a745; /* same green as inline questions */
+}
+
+/* GITHUB ITEMS (amber) */
+.github-item {
+    color: #ff9900; /* same amber as GitHub questions */
+}
+/* Hide only the lower control fieldset, keep top bar visible */
+#control-container.shrink #control {
+    display: none;         /* hide full control panel */
+}
+
+
+ 
+
+/* focus / dim effect */
+
+@keyframes rainbowGlow {
+    0%   { outline-color: #ff004c; }
+    20%  { outline-color: #ff9900; }
+    40%  { outline-color: #ffee00; }
+    60%  { outline-color: #28a745; }
+    80%  { outline-color: #00c8ff; }
+    100% { outline-color: #ff004c; }
+}
+
+.stack-wrapper {
+    transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.stack-wrapper.dimmed {
+    opacity: 0.25;
+    filter: grayscale(60%);
+}
+
+.stack-wrapper.active {
+    opacity: 1;
+    filter: none;
+    position: relative;
+}
+.stack-wrapper.active::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border-radius: 12px;
+    outline: 3px solid transparent;
+    animation: rainbowGlow 4s linear infinite;
+    pointer-events: none;
+}
+
+/* focus / dim effect */
+
+
+/* Up / Down Buttons */
+.nav-btn{
+    background:#00c8ff;
+    color:black;
+    font-weight:bold;
+}
+.nav-btn:hover{
+    background:#ffee00;
+}
+/* ===== Oscillation animation for emoji/PNG ===== */
+/* ===== Oscillation in all directions ===== */
+@keyframes oscillate {
+    0%   { transform: translate(-4px, -4px); }
+    25%  { transform: translate(4px, -2px); }
+    50%  { transform: translate(-4px, 4px); }
+    75%  { transform: translate(4px, 2px); }
+    100% { transform: translate(0px, -4px); }
+}
+
+
+</style>
+</head>
+<body>
+ 
+<div id="outer">
+    <!-- CONTROL PANEL WRAPPER -->
+    <div id="control-container" class="shrink"> 
+		<!-- Top bar: checkbox + Show button + Timer buttons -->
+		<div id="control-top-bar" style="display:flex; align-items:center; gap:12px; margin:4px 8px;">
+			<button id="selectAllBtn">All Qs</button>  
+
+			<label style="display:flex; align-items:center; gap:8px;">
+				<input type="checkbox" id="control-toggle" />
+				Show Control Panel
+			</label>
+			<button id="toggleAll">Show</button>
+
+			<!-- TIMER BUTTONS -->
+			<button id="timerBtn">Start Timer</button>
+			<button id="resetTimer">Reset</button>
+			<span id="timerDisplay">00:00</span>
+			
+			 
+			<button id="goTop" class="nav-btn">⬆ Top Q</button>
+			<button id="goBottom" class="nav-btn">⬇ Last Q</button>
+			<button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
+			<button id="saveBtn">Save Answers</button>
+			<button id="saveQuestionsBtn">Save Questions</button>
+			
+			 
+			<video autoplay loop muted playsinline
+				style="width:120px; height:68px; margin-left:12px; border:1px solid #fff; border-radius:4px;">
+				<source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+				Your browser does not support the video tag.
+			</video>
+
+		</div>
+
+        <!-- Existing control panel -->
+        <fieldset id="control">
+            <legend>Control Panel</legend>
+            <!-- your checkboxes for questions go here -->
+        </fieldset>
+    </div>
+
+    <!-- QUESTIONS PANEL -->
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+		
+    </fieldset>
+</div>
+<script>
+const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/planets/pictures/";
+
+// GIF filenames in your repo
+const gifs = [
+  "OBJECT1-SUN.gif",
+  "OBJECT2-MERCURY.gif",
+  "OBJECT3-VENUS.gif",
+  "OBJECT4-EARTH.gif",
+  "OBJECT5-MARS.gif",
+  "OBJECT6-JUPITER.gif",
+  "OBJECT7-SATURN.gif",
+  "OBJECT8-URANUS.gif",
+  "OBJECT9-NEPTUNE.gif"
+];
+
+const options = [
+  ["planets", "1. Planets", "github"],
+  ["naming-planet", "2. Name the Planet", "inline"]
+];
+
+const control=document.getElementById("control");
+const questions=document.getElementById("questions");
+const toggleAll=document.getElementById("toggleAll");
+let showAll=false;
+const stacks={};
+
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+// Generate control panel checkboxes
+options.forEach(([val,label,type])=>{
+  const wrap=document.createElement("label");
+  wrap.className="ctrl-item "+(type==="inline"?"inline-item":"github-item");
+  const cb=document.createElement("input");
+  cb.type="checkbox";
+  cb.onchange=()=>cb.checked?addStack(val):removeStack(val);
+  wrap.append(cb,document.createTextNode(label));
+  control.appendChild(wrap);
+});
+
+// Render a single row for question/answer
+function renderSplitRow(letter, question, answer){
+  return {
+    questionHTML:`<div class="question-row">
+      <span class="question-letter">(${letter})</span>
+      <span class="question-text">${question}</span>
+    </div>`,
+    answerHTML:`<div class="answer-item">
+      <span class="answer-letter">(${letter})</span>
+      <input type="text" class="answer-input"/>
+      <span class="answer">${answer}</span>
+    </div>`
+  };
+}
+
+// Add/remove a stack (question box + answer box)
+function addStack(val){
+  if(stacks[val]) return;
+  const wrapper=document.createElement("div");
+  wrapper.className="stack-wrapper";
+  const qb=document.createElement("div");
+  qb.className="stack-box questions-box";
+  const ab=document.createElement("div");
+  ab.className="stack-box answers-box";
+  wrapper.append(qb,ab);
+  stacks[val]=wrapper;
+  questions.appendChild(wrapper);
+  generate(qb,ab,val);
+}
+
+function removeStack(val){
+  stacks[val]?.remove();
+  delete stacks[val];
+}
+
+// Generate questions & answers for a given stack
+function generate(questionsBox,answersBox,val){
+  questionsBox.innerHTML="";
+  answersBox.innerHTML="";
+
+  if(val==="naming-planet"){
+    questionsBox.innerHTML=`<div class="problem-title inline-title">Name the Planet</div>`;
+    for(let i=0;i<2;i++){
+      const n=rand(1,8);
+      const q=`Which is the ${n}${["th","st","nd","rd"][n%10]||"th"} planet from the Sun?`;
+      const a=gifs[n]; // pick corresponding gif as “answer”
+      const letter=String.fromCharCode(97+i);
+      const row=renderSplitRow(letter,q,a);
+      questionsBox.innerHTML+=row.questionHTML;
+      answersBox.innerHTML+=row.answerHTML;
+    }
+  } else {
+    questionsBox.innerHTML=`<div class="problem-title github-title">Planets</div>`;
+    // Pick a random GIF from the list
+    const idx = rand(0, gifs.length - 1);
+    const gifFile = gifs[idx];
+    const row=renderSplitRow("a", `Random Planet GIF`, `<img src="${BASE_URL+gifFile}" width="120">`);
+    questionsBox.innerHTML+=row.questionHTML;
+    answersBox.innerHTML+=row.answerHTML;
+  }
+}
+
+// ===== Show / Hide Control Panel fix =====
+const controlContainer = document.getElementById("control-container");
+const controlToggle = document.getElementById("control-toggle");
+controlToggle.checked = false;
+
+controlToggle.onchange = () => {
+  if (controlToggle.checked) {
+    controlContainer.classList.remove("shrink");
+  } else {
+    controlContainer.classList.add("shrink");
+  }
+};
+</script>
+
+</body>
+</html>
