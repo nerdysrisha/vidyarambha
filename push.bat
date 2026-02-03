@@ -1,32 +1,42 @@
 @echo off
-REM Auto-git commit & push with dynamic message
-
-REM Get list of changed files
 setlocal enabledelayedexpansion
-set "msg="
-set "fileList="
 
+REM --- Get list of changed files ---
+set "fileList="
 for /f "delims=" %%f in ('git status -s') do (
-    if not defined msg set "msg=%%f"
     set "fileList=!fileList!%%f
 "
 )
 
-if "%msg%"=="" (
+if "%fileList%"=="" (
     echo No changes detected.
-) else (
-    echo Changed files:
-    echo !fileList!
     echo.
-    echo Committing changes: %msg%
-    git add .
-    git commit -m "%msg%"
-    git push origin main
+    echo Press SPACEBAR to exit...
+    pause > nul
+    exit /b
 )
 
+REM --- Show changed files ---
+echo Changed files:
+echo !fileList!
 echo.
-echo Press SPACEBAR to exit...
-:waitKey
-pause>nul
-for /f "delims=" %%k in ('xcopy /w /L "%~f0" "%~f0" 2^>nul') do set "key=%%k"
-goto waitKey
+
+REM --- Wait for SPACEBAR to continue ---
+echo Press SPACEBAR to commit and push changes...
+:wait_continue
+choice /c " " /n /m ""
+if errorlevel 1 goto continue_commit
+goto wait_continue
+
+:continue_commit
+REM --- Use first changed file as commit message ---
+for /f "delims=" %%m in ('git status -s') do set "commitMsg=%%m" & goto do_commit
+
+:do_commit
+git add .
+git commit -m "!commitMsg!"
+git push origin main
+
+echo.
+echo Done! Press SPACEBAR to exit...
+pause > nul
