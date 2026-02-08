@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Word Speaker</title>
-<!--v5 - display the sentence also -->
+<!--v4 - speaking sentence and display word after spacebar -->
 <style>
 html, body {
     margin: 0;
@@ -54,12 +54,6 @@ html, body {
     font-size: clamp(20px, 8vw, 100px);
     overflow: hidden;
     padding: 12px;
-}
-
-#center .sentence {
-    font-size: clamp(12px, 3vw, 30px);
-    margin-top: 10px;
-    color: #ccc;
 }
 
 #left {
@@ -126,7 +120,7 @@ const leftBox = document.getElementById('left');
 const counterEl = document.getElementById('counter');
 const patternSelector = document.getElementById('patternSelector');
 
-// 0 = speak word, 1 = speak sentence, 2 = display word+sentence
+// 0 = speak word, 1 = speak sentence, 2 = display word
 let step = 0;
 
 const EMOJI_COUNT = 55;
@@ -135,12 +129,11 @@ function getRandomEmojiUrl() {
     return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
 }
 
-function animateWordAndSentence(word, sentence, color) {
+function animateWord(word, color) {
     centerBox.innerHTML = `
         <div class="word-container">
             <span class="word" style="color:${color}"></span>
             <img class="emoji" src="${getRandomEmojiUrl()}">
-            <span class="sentence">${sentence}</span>
         </div>
     `;
     const wordSpan = centerBox.querySelector('.word');
@@ -174,13 +167,15 @@ function loadWords(p){
 function speak(text, callback){
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'en-US';
-    utter.rate = 0.8; // slower
+    utter.rate = 0.8; // slower speech
+    // Choose a female voice if available
     const voices = speechSynthesis.getVoices();
     const femaleVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
     if(femaleVoice) utter.voice = femaleVoice;
     utter.onend = callback;
     speechSynthesis.speak(utter);
 }
+
 
 function randomColor(){
     return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
@@ -211,8 +206,8 @@ function nextStep() {
         speak(sentences[centerIndex], () => {});
         step = 2;
     } else if(step === 2){
-        // Display the word AND sentence together
-        animateWordAndSentence(words[centerIndex], sentences[centerIndex], randomColor());
+        // Display the word after previous two steps
+        animateWord(words[centerIndex], randomColor());
         leftWords.push(words[centerIndex]);
         renderLeft();
         counterEl.textContent = `${leftWords.length} / ${totalWords}`;
