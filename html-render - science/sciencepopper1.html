@@ -425,8 +425,9 @@ button{
 		
     </fieldset>
 </div>
-<script>
-const BASE_URL="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/planets/pictures/";
+
+<script> 
+const BASE_URL = "https://nerdysrisha.github.io/vidyarambha/planets/pictures/";
 
 // GIF filenames in your repo
 const gifs = [
@@ -446,33 +447,32 @@ const options = [
   ["naming-planet", "2. Name the Planet", "inline"]
 ];
 
-const control=document.getElementById("control");
-const questions=document.getElementById("questions");
-const toggleAll=document.getElementById("toggleAll");
-let showAll=false;
-const stacks={};
+const control = document.getElementById("control");
+const questions = document.getElementById("questions");
+const toggleAll = document.getElementById("toggleAll");
+const stacks = {};
 
-function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 // Generate control panel checkboxes
-options.forEach(([val,label,type])=>{
-  const wrap=document.createElement("label");
-  wrap.className="ctrl-item "+(type==="inline"?"inline-item":"github-item");
-  const cb=document.createElement("input");
-  cb.type="checkbox";
-  cb.onchange=()=>cb.checked?addStack(val):removeStack(val);
-  wrap.append(cb,document.createTextNode(label));
+options.forEach(([val, label, type]) => {
+  const wrap = document.createElement("label");
+  wrap.className = "ctrl-item " + (type === "inline" ? "inline-item" : "github-item");
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
+  wrap.append(cb, document.createTextNode(label));
   control.appendChild(wrap);
 });
 
 // Render a single row for question/answer
-function renderSplitRow(letter, question, answer){
+function renderSplitRow(letter, question, answer) {
   return {
-    questionHTML:`<div class="question-row">
+    questionHTML: `<div class="question-row">
       <span class="question-letter">(${letter})</span>
       <span class="question-text">${question}</span>
     </div>`,
-    answerHTML:`<div class="answer-item">
+    answerHTML: `<div class="answer-item">
       <span class="answer-letter">(${letter})</span>
       <input type="text" class="answer-input"/>
       <span class="answer">${answer}</span>
@@ -481,49 +481,52 @@ function renderSplitRow(letter, question, answer){
 }
 
 // Add/remove a stack (question box + answer box)
-function addStack(val){
-  if(stacks[val]) return;
-  const wrapper=document.createElement("div");
-  wrapper.className="stack-wrapper";
-  const qb=document.createElement("div");
-  qb.className="stack-box questions-box";
-  const ab=document.createElement("div");
-  ab.className="stack-box answers-box";
-  wrapper.append(qb,ab);
-  stacks[val]=wrapper;
+function addStack(val) {
+  if (stacks[val]) return;
+  const wrapper = document.createElement("div");
+  wrapper.className = "stack-wrapper";
+  const qb = document.createElement("div");
+  qb.className = "stack-box questions-box";
+  const ab = document.createElement("div");
+  ab.className = "stack-box answers-box";
+  wrapper.append(qb, ab);
+  stacks[val] = wrapper;
   questions.appendChild(wrapper);
-  generate(qb,ab,val);
+  generate(qb, ab, val);
 }
 
-function removeStack(val){
+function removeStack(val) {
   stacks[val]?.remove();
   delete stacks[val];
 }
 
 // Generate questions & answers for a given stack
-function generate(questionsBox,answersBox,val){
-  questionsBox.innerHTML="";
-  answersBox.innerHTML="";
+function generate(questionsBox, answersBox, val) {
+  questionsBox.innerHTML = "";
+  answersBox.innerHTML = "";
 
-  if(val==="naming-planet"){
-    questionsBox.innerHTML=`<div class="problem-title inline-title">Name the Planet</div>`;
-    for(let i=0;i<2;i++){
-      const n=rand(1,8);
-      const q=`Which is the ${n}${["th","st","nd","rd"][n%10]||"th"} planet from the Sun?`;
-      const a=gifs[n]; // pick corresponding gif as “answer”
-      const letter=String.fromCharCode(97+i);
-      const row=renderSplitRow(letter,q,a);
-      questionsBox.innerHTML+=row.questionHTML;
-      answersBox.innerHTML+=row.answerHTML;
+  if (val === "naming-planet") {
+    questionsBox.innerHTML = `<div class="problem-title inline-title">Name the Planet</div>`;
+    for (let i = 0; i < 2; i++) {
+      const n = rand(0, gifs.length - 1); // 0-based index
+      const q = `Which is the ${n+1}${["th","st","nd","rd"][(n+1)%10]||"th"} planet from the Sun?`;
+      const a = `<img src="${BASE_URL + gifs[n]}" width="120">`; // display GIF
+      const letter = String.fromCharCode(97 + i);
+      const row = renderSplitRow(letter, q, a);
+      questionsBox.innerHTML += row.questionHTML;
+      answersBox.innerHTML += row.answerHTML;
     }
   } else {
-    questionsBox.innerHTML=`<div class="problem-title github-title">Planets</div>`;
-    // Pick a random GIF from the list
+    questionsBox.innerHTML = `<div class="problem-title github-title">Planets</div>`;
     const idx = rand(0, gifs.length - 1);
     const gifFile = gifs[idx];
-    const row=renderSplitRow("a", `Random Planet GIF`, `<img src="${BASE_URL+gifFile}" width="120">`);
-    questionsBox.innerHTML+=row.questionHTML;
-    answersBox.innerHTML+=row.answerHTML;
+    const row = renderSplitRow(
+      "a",
+      `Random Planet GIF`,
+      `<img src="${BASE_URL + gifFile}" width="120">`
+    );
+    questionsBox.innerHTML += row.questionHTML;
+    answersBox.innerHTML += row.answerHTML;
   }
 }
 
