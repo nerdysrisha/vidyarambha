@@ -225,13 +225,26 @@ function loadWords(p){
 function speak(text, callback){
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = 'en-US';
-    utter.rate = 0.8; // slower
+    utter.rate = 0.6; // slower
     const voices = speechSynthesis.getVoices();
     const femaleVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
     if(femaleVoice) utter.voice = femaleVoice;
     utter.onend = callback;
     speechSynthesis.speak(utter);
 }
+
+function speakIndian(text, callback){
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-IN'; // Indian English
+    utter.rate = 0.6; // slower
+    const voices = speechSynthesis.getVoices();
+    const femaleIndianVoice = voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female'));
+    if(femaleIndianVoice) utter.voice = femaleIndianVoice;
+    utter.onend = callback;
+    speechSynthesis.speak(utter);
+}
+
+
 
 function randomColor(){
     return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
@@ -257,9 +270,11 @@ function nextStep() {
         // Clear previous content for a clean start
         contentArea.innerHTML = '';
         speak(words[centerIndex], () => {});
+		speakIndian(words[centerIndex], () => {}); //speak second time same word 
         step = 1;
     } else if(step === 1){
         speak(sentences[centerIndex], () => {});
+		speakIndian(sentences[centerIndex], () => {});//speak second time same sentence
         step = 2;
     } else if(step === 2){
         animateWordAndSentence(words[centerIndex], sentences[centerIndex], randomColor());
