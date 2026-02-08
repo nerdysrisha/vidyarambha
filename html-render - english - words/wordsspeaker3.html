@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Word Speaker</title>
-<!-- v3 - Speaking sentences as well with different array from github -->
+<!--v3 speaking sentences and fetching from github -->
 <style>
 html, body {
     margin: 0;
@@ -101,33 +101,7 @@ button {
     <div id="control-container">
         <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
             <select id="patternSelector" class="dark-select">
-                <option value="2-letter">2 Letter Words</option>
-                <option value="3-letter" selected>3 Letter Words</option>
-                <option value="4-letter">4 Letter Words</option>
-                <option value="5-letter">5 Letter Words</option>
-                <option value="actionitems">Action Items</option>
-                <option value="animals">Animals</option>
-                <option value="body-actions">Body Actions</option>
-                <option value="bodyparts">Body Parts</option>
-                <option value="clothing">Clothing</option>
-                <option value="colors">Colors</option>
-                <option value="emotions">Emotions</option>
-                <option value="family">Family</option>
-                <option value="fooditems">Food Items</option>
-                <option value="fruits">Fruits</option>
-                <option value="houseitems">House Items</option>
-                <option value="kitchen">Kitchen</option>
-                <option value="months-days-time">Months/Days/Time</option>
-                <option value="nature">Nature</option>
-                <option value="numbernames">Number Names</option>
-                <option value="opposite">Opposites</option>
-                <option value="playground">Playground</option>
-                <option value="professions">Professions</option>
-                <option value="school">School</option>
-                <option value="shapes">Shapes</option>
-                <option value="vegetables">Vegetables</option>
-                <option value="vehicles">Vehicles</option>
-                <option value="weather">Weather</option>
+                <option value="3-letter-words-speaking" selected>3 Letter Words Speaking</option>
             </select>
             <div id="counter">0 / 0</div>
         </div>
@@ -140,77 +114,102 @@ button {
 </div>
 
 <script>
-let words=[], sentences=[], leftWords=[], centerWord=null, centerSentence=null, totalWords=0;
-const centerBox=document.getElementById('center');
-const leftBox=document.getElementById('left');
-const counterEl=document.getElementById('counter');
-const patternSelector=document.getElementById('patternSelector');
-let wordSpoken=false;
+let words = [], sentences = [], leftWords = [], centerIndex = 0, totalWords = 0;
+const centerBox = document.getElementById('center');
+const leftBox = document.getElementById('left');
+const counterEl = document.getElementById('counter');
+const patternSelector = document.getElementById('patternSelector');
+let step = 0; // 0 = speak word, 1 = speak sentence
+
+const EMOJI_COUNT = 55;
+function getRandomEmojiUrl() {
+    const n = Math.floor(Math.random()*EMOJI_COUNT)+1;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+}
+
+function animateWord(word, color) {
+    centerBox.innerHTML = `
+        <div class="word-container">
+            <span class="word" style="color:${color}"></span>
+            <img class="emoji" src="${getRandomEmojiUrl()}">
+        </div>
+    `;
+    const wordSpan = centerBox.querySelector('.word');
+    let i = 0;
+    const interval = setInterval(() => {
+        wordSpan.textContent += word[i++];
+        if (i >= word.length) clearInterval(interval);
+    }, 200);
+}
 
 function getJsonUrl(p){
-    
-	return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${p}-words-speaking.json`;
-
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/speaking/${p}.json`;
 }
 
 function loadWords(p){
     fetch(getJsonUrl(p))
-    .then(r=>r.json())
-    .then(d=>{
-        words=d.words;
-        sentences=d.sentences;
-        totalWords=words.length;
-        leftWords=[];
-        leftBox.innerHTML='';
-        centerBox.innerHTML='😃';
-        counterEl.textContent=`0 / ${totalWords}`;
-        pickNext();
+    .then(r => r.json())
+    .then(d => {
+        words = d.words;
+        sentences = d.sentences;
+        totalWords = words.length;
+        leftWords = [];
+        centerIndex = 0;
+        centerBox.innerHTML = '😃';
+        counterEl.textContent = `0 / ${totalWords}`;
+        step = 0;
+        centerBox.focus();
     });
 }
 
-function pickNext(){
-    const i=Math.random()*words.length|0;
-    centerWord=words.splice(i,1)[0];
-    centerSentence=sentences.splice(i,1)[0];
-    wordSpoken=false;
+function speak(text, callback){
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    utter.onend = callback;
+    speechSynthesis.speak(utter);
 }
 
-function speak(text, cb){
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US';
-    u.onend=cb;
-    speechSynthesis.speak(u);
+function randomColor(){
+    return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
 }
 
-function animateWord(word){
-    centerBox.textContent='';
-    let i=0;
-    const t=setInterval(()=>{
-        centerBox.textContent+=word[i++];
-        if(i>=word.length) clearInterval(t);
-    },200);
+function renderLeft(){
+    leftBox.innerHTML = '';
+    leftWords.forEach(w => {
+        const d = document.createElement('div');
+        d.textContent = w;
+        leftBox.appendChild(d);
+    });
+    leftBox.scrollTop = leftBox.scrollHeight;
 }
 
-function nextWord(){
-    if(!centerWord) return;
-    if(!wordSpoken){
-        speak(centerWord,()=>setTimeout(()=>speak(centerSentence),1000));
-        wordSpoken=true;
+function nextStep() {
+    if(centerIndex >= totalWords) {
+        centerBox.innerHTML = '🎉';
         return;
     }
-    animateWord(centerWord);
-    leftWords.push(centerWord);
-    counterEl.textContent=`${leftWords.length} / ${totalWords}`;
-    if(words.length===0){
-        centerBox.textContent='🎉';
-        return;
+    if(step === 0){
+        // Speak the word first
+        speak(words[centerIndex], () => {
+            step = 1;
+        });
+    } else if(step === 1){
+        // Speak the sentence
+        speak(sentences[centerIndex], () => {
+            // Animate and display the word
+            animateWord(words[centerIndex], randomColor());
+            leftWords.push(words[centerIndex]);
+            renderLeft();
+            counterEl.textContent = `${leftWords.length} / ${totalWords}`;
+            centerIndex++;
+            step = 0;
+        });
     }
-    pickNext();
 }
 
-patternSelector.addEventListener('change',()=>loadWords(patternSelector.value));
-document.body.addEventListener('keydown',e=>{
-    if(e.code==='Space'||e.code==='Enter') nextWord();
+patternSelector.addEventListener('change', () => loadWords(patternSelector.value));
+document.body.addEventListener('keydown', e => {
+    if(e.code === 'Space' || e.code === 'Enter') nextStep();
 });
 
 loadWords(patternSelector.value);
@@ -218,4 +217,3 @@ loadWords(patternSelector.value);
 
 </body>
 </html>
- 
