@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Speaker</title>
+<!-- v3 - Speaking sentences as well with different array from github -->
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+#outer {
+    margin: 20px;
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#control-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 40px;
+    overflow: hidden;
+    border: 1px solid #444;
+    padding: 8px;
+}
+
+#counter {
+    color: #aaa;
+}
+
+#panels {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+}
+
+#center {
+    border: 1px solid #222;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: clamp(20px, 8vw, 100px);
+    overflow: hidden;
+    padding: 12px;
+}
+
+#left {
+    border: 1px solid #222;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    overflow-y: auto;
+}
+
+.word-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.emoji {
+    width: 120px;
+    height: 120px;
+    margin-top: 10px;
+}
+
+button {
+    padding: 4px 8px;
+    border: none;
+    cursor: pointer;
+    background: #58D68D;
+    color: black;
+}
+
+.dark-select {
+    padding: 4px 8px;
+    font-size: 14px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="control-container">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+            <select id="patternSelector" class="dark-select">
+                <option value="2-letter">2 Letter Words</option>
+                <option value="3-letter" selected>3 Letter Words</option>
+                <option value="4-letter">4 Letter Words</option>
+                <option value="5-letter">5 Letter Words</option>
+                <option value="actionitems">Action Items</option>
+                <option value="animals">Animals</option>
+                <option value="body-actions">Body Actions</option>
+                <option value="bodyparts">Body Parts</option>
+                <option value="clothing">Clothing</option>
+                <option value="colors">Colors</option>
+                <option value="emotions">Emotions</option>
+                <option value="family">Family</option>
+                <option value="fooditems">Food Items</option>
+                <option value="fruits">Fruits</option>
+                <option value="houseitems">House Items</option>
+                <option value="kitchen">Kitchen</option>
+                <option value="months-days-time">Months/Days/Time</option>
+                <option value="nature">Nature</option>
+                <option value="numbernames">Number Names</option>
+                <option value="opposite">Opposites</option>
+                <option value="playground">Playground</option>
+                <option value="professions">Professions</option>
+                <option value="school">School</option>
+                <option value="shapes">Shapes</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="vehicles">Vehicles</option>
+                <option value="weather">Weather</option>
+            </select>
+            <div id="counter">0 / 0</div>
+        </div>
+    </div>
+
+    <div id="panels">
+        <div id="center" tabindex="0"></div>
+        <div id="left"></div>
+    </div>
+</div>
+
+<script>
+let words=[], sentences=[], leftWords=[], centerWord=null, centerSentence=null, totalWords=0;
+const centerBox=document.getElementById('center');
+const leftBox=document.getElementById('left');
+const counterEl=document.getElementById('counter');
+const patternSelector=document.getElementById('patternSelector');
+let wordSpoken=false;
+
+function getJsonUrl(p){
+    
+	return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${p}-words-speaking.json`;
+
+}
+
+function loadWords(p){
+    fetch(getJsonUrl(p))
+    .then(r=>r.json())
+    .then(d=>{
+        words=d.words;
+        sentences=d.sentences;
+        totalWords=words.length;
+        leftWords=[];
+        leftBox.innerHTML='';
+        centerBox.innerHTML='😃';
+        counterEl.textContent=`0 / ${totalWords}`;
+        pickNext();
+    });
+}
+
+function pickNext(){
+    const i=Math.random()*words.length|0;
+    centerWord=words.splice(i,1)[0];
+    centerSentence=sentences.splice(i,1)[0];
+    wordSpoken=false;
+}
+
+function speak(text, cb){
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US';
+    u.onend=cb;
+    speechSynthesis.speak(u);
+}
+
+function animateWord(word){
+    centerBox.textContent='';
+    let i=0;
+    const t=setInterval(()=>{
+        centerBox.textContent+=word[i++];
+        if(i>=word.length) clearInterval(t);
+    },200);
+}
+
+function nextWord(){
+    if(!centerWord) return;
+    if(!wordSpoken){
+        speak(centerWord,()=>setTimeout(()=>speak(centerSentence),1000));
+        wordSpoken=true;
+        return;
+    }
+    animateWord(centerWord);
+    leftWords.push(centerWord);
+    counterEl.textContent=`${leftWords.length} / ${totalWords}`;
+    if(words.length===0){
+        centerBox.textContent='🎉';
+        return;
+    }
+    pickNext();
+}
+
+patternSelector.addEventListener('change',()=>loadWords(patternSelector.value));
+document.body.addEventListener('keydown',e=>{
+    if(e.code==='Space'||e.code==='Enter') nextWord();
+});
+
+loadWords(patternSelector.value);
+</script>
+
+</body>
+</html>
+ 
