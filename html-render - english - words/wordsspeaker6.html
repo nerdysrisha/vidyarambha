@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Word Speaker</title>
-<!--v8 - Random word picking by shuffling before rendering   -->
+<!--v6 - Repeat Symbol -->
 <style>
 html, body {
     margin: 0;
@@ -152,15 +152,6 @@ function getRandomEmojiUrl() {
     return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
 }
 
-
-function shuffleArray(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-}
-
-
 const repeatBtn = document.getElementById('repeatBtn');
 
 function repeatCurrent() {
@@ -202,19 +193,11 @@ function loadWords(p){
     fetch(getJsonUrl(p))
     .then(r => r.json())
     .then(d => {
-        // copy arrays
-        words = d.words.slice();
-        sentences = d.sentences.slice();
+        words = d.words;
+        sentences = d.sentences;
         totalWords = words.length;
         leftWords = [];
         centerIndex = 0;
-
-        // shuffle words & sentences together
-        const combined = words.map((w, i) => ({word: w, sentence: sentences[i]}));
-        shuffleArray(combined);
-        words = combined.map(c => c.word);
-        sentences = combined.map(c => c.sentence);
-
         contentArea.innerHTML = '😃';  // only replace the content area
         counterEl.textContent = `0 / ${totalWords}`;
         step = 0;
@@ -254,8 +237,6 @@ function nextStep() {
     }
 
     if(step === 0){
-        // Clear previous content for a clean start
-        contentArea.innerHTML = '';
         speak(words[centerIndex], () => {});
         step = 1;
     } else if(step === 1){
