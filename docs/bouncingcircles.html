@@ -1,15 +1,37 @@
 <!DOCTYPE html>
-<!-- v10 -->
+
+<!--V12-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pac-Man Squad – Hunger Games Edition</title>
+  <title>Pac-Man Squad + Moving Yellow Dot Clock</title>
   <style>
     body { margin:0; height:100vh; background:#000; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
-    .big { position:absolute; width:340px; height:340px; border-radius:50%; border:2px solid #555; box-sizing:border-box;
-           will-change:transform; box-shadow:0 0 50px rgba(200,220,255,0.1); pointer-events:none;
-           transition:transform 0.4s ease-out, border-color 0.4s, box-shadow 0.4s; }
+    .big {
+      position:absolute; width:340px; height:340px; border-radius:50%; border:2px solid #555; box-sizing:border-box;
+      will-change:transform; box-shadow:0 0 50px rgba(200,220,255,0.1); pointer-events:none;
+      transition:transform 0.4s ease-out, border-color 0.4s, box-shadow 0.4s;
+      background: radial-gradient(circle at 50% 50%, #111 0%, #000 70%);
+    }
     .big.pulse { transform:scale(1.12); border-color:#88ccff; box-shadow:0 0 80px rgba(120,180,255,0.5); }
+
+    .minute-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      box-shadow: 0 0 14px #ffeb3b, 0 0 28px #ffeb3baa, 0 0 48px #ffeb3b66;
+      pointer-events: none;
+      z-index: 5;
+      transition: left 0.18s linear, top 0.18s linear;
+    }
+    .minute-dot.jump {
+      box-shadow: 0 0 24px #ffeb3b, 0 0 48px #ffeb3bee, 0 0 80px #ffeb3bcc;
+      transform: scale(1.4);
+      transition: box-shadow 0.6s ease-out, transform 0.6s ease-out;
+    }
+
     .small { position:absolute; width:20px; height:20px; background:#ff4d88; border-radius:50%;
              transform:translate(-50%,-50%); box-shadow:0 0 18px #ff4d88cc; pointer-events:none; will-change:transform; }
     .particle { position:absolute; width:10px; height:10px; border-radius:50%; transform:translate(-50%,-50%);
@@ -25,42 +47,43 @@
   </style>
 </head>
 <body>
-<div class="big" id="big"></div>
+<div class="big" id="big">
+  <div class="minute-dot" id="dot"></div>
+</div>
 <div class="small" id="small"></div>
 <div id="score">0</div>
 
 <script>
-const bigEl    = document.getElementById("big");
-const smallEl  = document.getElementById("small");
-const scoreEl  = document.getElementById("score");
-const body     = document.body;
+const bigEl = document.getElementById("big");
+const smallEl = document.getElementById("small");
+const scoreEl = document.getElementById("score");
+const dotEl = document.getElementById("dot");
+const body = document.body;
 
-const R_BIG   = 170;
+const R_BIG = 170;
 const R_SMALL = 10;
 
-// Big circle
 let bigX = innerWidth / 2;
 let bigY = innerHeight / 2;
 let bigVX = (Math.random()-0.5)*0.7;
 let bigVY = (Math.random()-0.5)*0.7;
-let wanderAngle  = Math.random()*Math.PI*2;
+let wanderAngle = Math.random()*Math.PI*2;
 let wanderChange = 0.003 + Math.random()*0.004;
 
-// Ball
-let ballX  = bigX + (Math.random()-0.5)*100;
-let ballY  = bigY + (Math.random()-0.5)*100;
+let ballX = bigX + (Math.random()-0.5)*100;
+let ballY = bigY + (Math.random()-0.5)*100;
 let ballVX = (Math.random()-0.5)*1.8;
 let ballVY = (Math.random()-0.5)*1.8;
 
-// Pac settings
 const pacmen = [];
-const PAC_SPEED         = 4.0;
-const MIN_DISTANCE      = 55;
-const SEPARATION_FORCE  = 0.85;
-const HUNGER_TIME       = 5000;     // 5 seconds in ms
-const SPAWN_EVERY       = 10;
+const PAC_SPEED = 4.0;
+const MIN_DISTANCE = 55;
+const SEPARATION_FORCE = 0.85;
+const HUNGER_TIME = 5000;
+const SPAWN_EVERY = 10;
 
 let eatenCount = 0;
+let lastSecond = -1;
 
 function updateScore() {
   scoreEl.textContent = `${eatenCount}`;
@@ -70,10 +93,8 @@ function createPacMan() {
   const pac = document.createElement("div");
   pac.className = "pacman";
   body.appendChild(pac);
-
   let startX = Math.random() * innerWidth * 0.7 + innerWidth * 0.15;
   let startY = Math.random() * innerHeight * 0.7 + innerHeight * 0.15;
-
   const obj = {
     el: pac,
     x: startX,
@@ -91,7 +112,6 @@ function createPacMan() {
 function updateAppearance(p) {
   const rot = p.angle * 180 / Math.PI;
   p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${rot}deg)`;
-  // Visual hunger feedback
   if (!p.isImmortal && performance.now() - p.lastEatTime > HUNGER_TIME * 0.65) {
     p.el.classList.add("hungry");
   } else {
@@ -103,8 +123,6 @@ function removePacMan(pacObj) {
   pacObj.el.remove();
   const idx = pacmen.indexOf(pacObj);
   if (idx !== -1) pacmen.splice(idx, 1);
-
-  // Last one standing becomes immortal
   if (pacmen.length === 1) {
     pacmen[0].isImmortal = true;
     pacmen[0].el.classList.remove("hungry");
@@ -123,7 +141,7 @@ function createParticles(x, y, count=12) {
     p.style.background = `hsl(${hue},90%,65%)`;
     p.style.boxShadow = `0 0 12px hsla(${hue},90%,65%,0.7)`;
     p.style.left = x + "px";
-    p.style.top  = y + "px";
+    p.style.top = y + "px";
     body.appendChild(p);
   }
 }
@@ -151,25 +169,20 @@ function separatePacmen() {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const dist = Math.hypot(dx, dy);
-
       if (dist < MIN_DISTANCE && dist > 1) {
         const overlap = MIN_DISTANCE - dist;
         const nx = dx / dist;
         const ny = dy / dist;
-
         const push = overlap * SEPARATION_FORCE;
         a.x -= nx * push;
         a.y -= ny * push;
         b.x += nx * push;
         b.y += ny * push;
-
         const perpX = -ny;
         const perpY = nx;
         const side = Math.random() < 0.5 ? 1 : -1;
-
         a.vx = perpX * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
         a.vy = perpY * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
-
         b.vx = -perpX * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
         b.vy = -perpY * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
       }
@@ -177,10 +190,31 @@ function separatePacmen() {
   }
 }
 
-function animate() {
+function updateClock() {
   const now = performance.now();
+  const secondsTotal = now / 1000;
+  const currentSecond = Math.floor(secondsTotal) % 60;
 
-  // Big circle
+  if (currentSecond !== lastSecond) {
+    lastSecond = currentSecond;
+    dotEl.classList.remove("jump");
+    void dotEl.offsetWidth; // force reflow to restart animation
+    dotEl.classList.add("jump");
+  }
+
+  const angleDeg = (currentSecond / 60) * 360;
+  const rad = angleDeg * Math.PI / 180;
+  const dotRadius = R_BIG;
+  const dotRelX = Math.cos(rad) * dotRadius;
+  const dotRelY = Math.sin(rad) * dotRadius;
+
+  dotEl.style.left = (170 + dotRelX) + "px";
+  dotEl.style.top  = (170 + dotRelY) + "px";
+}
+
+function animate() {
+  updateClock();
+
   wanderAngle += (Math.random()-0.5)*0.22;
   wanderChange += (Math.random()-0.5)*0.0009;
   wanderChange = Math.max(0.0025, Math.min(0.008,wanderChange));
@@ -199,9 +233,9 @@ function animate() {
   if (bigX > innerWidth-bm) bigVX -= 0.5;
   if (bigY < bm) bigVY += 0.5;
   if (bigY > innerHeight-bm) bigVY -= 0.5;
+
   bigEl.style.transform = `translate(${bigX-R_BIG}px, ${bigY-R_BIG}px)`;
 
-  // Ball
   ballX += ballVX; ballY += ballVY;
   let dxb = ballX - bigX, dyb = ballY - bigY;
   let distb = Math.hypot(dxb, dyb);
@@ -228,10 +262,9 @@ function animate() {
     setTimeout(()=>bigEl.classList.remove("pulse"),400);
   }
 
-  // ── Pac-Men logic ────────────────────────────────────────
   separatePacmen();
 
-  // Hunger check + death (skip if only 1 left)
+  const now = performance.now();
   if (pacmen.length > 1) {
     for (let i = pacmen.length - 1; i >= 0; i--) {
       const p = pacmen[i];
@@ -242,9 +275,8 @@ function animate() {
     }
   }
 
-  // Movement & eating
   pacmen.forEach(p => {
-    updateAppearance(p); // handles hungry visual
+    updateAppearance(p);
 
     let target = getClosestParticle(p.x, p.y);
     if (target) {
@@ -258,10 +290,8 @@ function animate() {
         updateScore();
         p.el.classList.add("eating");
         setTimeout(()=>p.el.classList.remove("eating"),500);
-        p.lastEatTime = now;           // reset hunger timer
-        if (eatenCount % SPAWN_EVERY === 0) {
-          createPacMan();
-        }
+        p.lastEatTime = now;
+        if (eatenCount % SPAWN_EVERY === 0) createPacMan();
       } else if (d > 8) {
         const dirx = dx / d;
         const diry = dy / d;
@@ -273,16 +303,14 @@ function animate() {
       p.vy += (Math.random()-0.5)*0.7;
     }
 
-    // Move
     p.x += p.vx;
     p.y += p.vy;
 
-    // Walls
     const pm = 40;
-    if (p.x < pm)               { p.x = pm;               p.vx = Math.abs(p.vx)*0.7 + 0.8; }
-    if (p.x > innerWidth-pm)    { p.x = innerWidth-pm;    p.vx = -Math.abs(p.vx)*0.7 - 0.8; }
-    if (p.y < pm)               { p.y = pm;               p.vy = Math.abs(p.vy)*0.7 + 0.8; }
-    if (p.y > innerHeight-pm)   { p.y = innerHeight-pm;   p.vy = -Math.abs(p.vy)*0.7 - 0.8; }
+    if (p.x < pm) { p.x = pm; p.vx = Math.abs(p.vx)*0.7 + 0.8; }
+    if (p.x > innerWidth-pm) { p.x = innerWidth-pm; p.vx = -Math.abs(p.vx)*0.7 - 0.8; }
+    if (p.y < pm) { p.y = pm; p.vy = Math.abs(p.vy)*0.7 + 0.8; }
+    if (p.y > innerHeight-pm) { p.y = innerHeight-pm; p.vy = -Math.abs(p.vy)*0.7 - 0.8; }
 
     if (Math.hypot(p.vx, p.vy) > 0.5) {
       p.angle = Math.atan2(p.vy, p.vx);
@@ -291,7 +319,6 @@ function animate() {
     updateAppearance(p);
   });
 
-  // Particles
   document.querySelectorAll(".particle").forEach(el => {
     let vx = +el.dataset.vx;
     let vy = +el.dataset.vy;
@@ -299,7 +326,7 @@ function animate() {
     let py = parseFloat(el.style.top)||0;
     px += vx; py += vy;
     el.style.left = px+"px";
-    el.style.top  = py+"px";
+    el.style.top = py+"px";
 
     const de = Math.min(px, innerWidth-px, py, innerHeight-py);
     el.style.opacity = de < 140 ? Math.max(0, de/140) : 0.92;
@@ -310,7 +337,7 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
-// ── Start ────────────────────────────────────────────────────
+// Start
 createPacMan();
 animate();
 
