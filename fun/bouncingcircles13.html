@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pac-Man Squad + Moving Yellow Dot Clock</title>
+  <style>
+    body { margin:0; height:100vh; background:#000; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
+    .big {
+      position:absolute; width:340px; height:340px; border-radius:50%; border:2px solid #555; box-sizing:border-box;
+      will-change:transform; box-shadow:0 0 50px rgba(200,220,255,0.1); pointer-events:none;
+      transition:transform 0.4s ease-out, border-color 0.4s, box-shadow 0.4s;
+      background: radial-gradient(circle at 50% 50%, #111 0%, #000 70%);
+    }
+    .big.pulse { transform:scale(1.12); border-color:#88ccff; box-shadow:0 0 80px rgba(120,180,255,0.5); }
+    .minute-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      box-shadow: 0 0 14px #ffeb3b, 0 0 28px #ffeb3baa, 0 0 48px #ffeb3b66;
+      pointer-events: none;
+      z-index: 5;
+      transition: left 0.18s linear, top 0.18s linear;
+    }
+    .minute-dot.jump {
+      box-shadow: 0 0 24px #ffeb3b, 0 0 48px #ffeb3bee, 0 0 80px #ffeb3bcc;
+      transform: scale(1.4);
+      transition: box-shadow 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .small { position:absolute; width:20px; height:20px; background:#ff4d88; border-radius:50%;
+             transform:translate(-50%,-50%); box-shadow:0 0 18px #ff4d88cc; pointer-events:none; will-change:transform; }
+    .particle { position:absolute; width:10px; height:10px; border-radius:50%; transform:translate(-50%,-50%);
+                box-shadow:0 0 12px rgba(255,136,170,0.6); pointer-events:none;
+                will-change:transform, opacity, background, box-shadow; opacity:0.92; }
+    .pacman {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      box-shadow: 0 0 16px #ffeb3b88;
+      pointer-events: none;
+      animation: chomp 0.36s infinite alternate ease-in-out;
+      clip-path: polygon(50% 50%, 100% 0%, 100% 100%);
+      transition: box-shadow 0.4s ease-out, filter 0.4s ease-out, opacity 0.8s;
+      will-change: transform, clip-path;
+    }
+    @keyframes chomp {
+      0%   { clip-path: polygon(50% 50%, 100% 20%, 100% 80%); } /* closed-ish */
+      100% { clip-path: polygon(50% 50%, 100% 0%, 100% 100%); } /* open */
+    }
+    .pacman.eating {
+      box-shadow: 0 0 60px #ffeb3b, 0 0 100px #ffeb3b80 !important;
+      filter: brightness(1.4);
+      animation-duration: 0.22s !important;
+    }
+    .pacman.hungry {
+      opacity: 0.45;
+      filter: brightness(0.7) saturate(0.6);
+    }
+    #score { position:fixed; top:16px; right:24px; color:#ffeb3b; font-size:28px; font-weight:bold;
+             text-shadow:0 0 10px #ffeb3b88, 0 0 20px #ffeb3b44; z-index:100; pointer-events:none; user-select:none; }
+  </style>
+</head>
+<body>
+<div class="big" id="big">
+  <div class="minute-dot" id="dot"></div>
+</div>
+<div class="small" id="small"></div>
+<div id="score">0</div>
+<script>
+const bigEl = document.getElementById("big");
+const smallEl = document.getElementById("small");
+const scoreEl = document.getElementById("score");
+const dotEl = document.getElementById("dot");
+const body = document.body;
+const R_BIG = 170;
+const R_SMALL = 10;
+let bigX = innerWidth / 2;
+let bigY = innerHeight / 2;
+let bigVX = (Math.random()-0.5)*0.7;
+let bigVY = (Math.random()-0.5)*0.7;
+let wanderAngle = Math.random()*Math.PI*2;
+let wanderChange = 0.003 + Math.random()*0.004;
+let ballX = bigX + (Math.random()-0.5)*100;
+let ballY = bigY + (Math.random()-0.5)*100;
+let ballVX = (Math.random()-0.5)*1.8;
+let ballVY = (Math.random()-0.5)*1.8;
+const pacmen = [];
+const PAC_SPEED = 4.0;
+const MIN_DISTANCE = 55;
+const SEPARATION_FORCE = 0.85;
+const HUNGER_TIME = 5000;
+const SPAWN_EVERY = 10;
+let eatenCount = 0;
+let lastSecond = -1;
+function updateScore() {
+  scoreEl.textContent = `${eatenCount}`;
+}
+function createPacMan() {
+  const pac = document.createElement("div");
+  pac.className = "pacman";
+  body.appendChild(pac);
+  let startX = Math.random() * innerWidth * 0.7 + innerWidth * 0.15;
+  let startY = Math.random() * innerHeight * 0.7 + innerHeight * 0.15;
+  const obj = {
+    el: pac,
+    x: startX,
+    y: startY,
+    vx: (Math.random()-0.5)*2,
+    vy: (Math.random()-0.5)*2,
+    angle: 0,
+    lastEatTime: performance.now(),
+    isImmortal: false
+  };
+  pacmen.push(obj);
+  updateAppearance(obj);
+}
+function updateAppearance(p) {
+  const rot = p.angle * 180 / Math.PI;
+  p.el.style.left = (p.x - 14) + 'px'; // center the 28px div
+  p.el.style.top = (p.y - 14) + 'px';
+  p.el.style.transform = `rotate(${rot}deg)`;
+  if (!p.isImmortal && performance.now() - p.lastEatTime > HUNGER_TIME * 0.65) {
+    p.el.classList.add("hungry");
+  } else {
+    p.el.classList.remove("hungry");
+  }
+}
+function removePacMan(pacObj) {
+  pacObj.el.remove();
+  const idx = pacmen.indexOf(pacObj);
+  if (idx !== -1) pacmen.splice(idx, 1);
+  if (pacmen.length === 1) {
+    pacmen[0].isImmortal = true;
+    pacmen[0].el.classList.remove("hungry");
+  }
+}
+function createParticles(x, y, count=12) {
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const ang = Math.random() * Math.PI * 2;
+    const spd = 3 + Math.random() * 2.5;
+    p.dataset.vx = Math.cos(ang) * spd;
+    p.dataset.vy = Math.sin(ang) * spd;
+    const hue = Math.random() * 360;
+    p.style.background = `hsl(${hue},90%,65%)`;
+    p.style.boxShadow = `0 0 12px hsla(${hue},90%,65%,0.7)`;
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    body.appendChild(p);
+  }
+}
+function isNearEdge(x,y,m=20) {
+  return x < m || x > innerWidth-m || y < m || y > innerHeight-m;
+}
+function getClosestParticle(x,y) {
+  let best = null, minD = Infinity;
+  document.querySelectorAll(".particle").forEach(el => {
+    const px = parseFloat(el.style.left)||0;
+    const py = parseFloat(el.style.top)||0;
+    const d = Math.hypot(px-x, py-y);
+    if (d < minD) { minD = d; best = {el, x:px, y:py}; }
+  });
+  return best;
+}
+function separatePacmen() {
+  for (let i = 0; i < pacmen.length; i++) {
+    for (let j = i+1; j < pacmen.length; j++) {
+      const a = pacmen[i];
+      const b = pacmen[j];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < MIN_DISTANCE && dist > 1) {
+        const overlap = MIN_DISTANCE - dist;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        const push = overlap * SEPARATION_FORCE;
+        a.x -= nx * push;
+        a.y -= ny * push;
+        b.x += nx * push;
+        b.y += ny * push;
+        const perpX = -ny;
+        const perpY = nx;
+        const side = Math.random() < 0.5 ? 1 : -1;
+        a.vx = perpX * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
+        a.vy = perpY * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
+        b.vx = -perpX * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
+        b.vy = -perpY * side * PAC_SPEED * 0.8 + (Math.random()-0.5)*1.5;
+      }
+    }
+  }
+}
+function updateClock() {
+  const now = performance.now();
+  const secondsTotal = now / 1000;
+  const currentSecond = Math.floor(secondsTotal) % 60;
+  if (currentSecond !== lastSecond) {
+    lastSecond = currentSecond;
+    dotEl.classList.remove("jump");
+    void dotEl.offsetWidth; // force reflow to restart animation
+    dotEl.classList.add("jump");
+  }
+  const angleDeg = (currentSecond / 60) * 360;
+  const rad = angleDeg * Math.PI / 180;
+  const dotRadius = R_BIG;
+  const dotRelX = Math.cos(rad) * dotRadius;
+  const dotRelY = Math.sin(rad) * dotRadius;
+  dotEl.style.left = (170 + dotRelX) + "px";
+  dotEl.style.top = (170 + dotRelY) + "px";
+}
+function animate() {
+  updateClock();
+  wanderAngle += (Math.random()-0.5)*0.22;
+  wanderChange += (Math.random()-0.5)*0.0009;
+  wanderChange = Math.max(0.0025, Math.min(0.008,wanderChange));
+  bigVX += Math.cos(wanderAngle)*wanderChange*1.4;
+  bigVY += Math.sin(wanderAngle)*wanderChange*1.4;
+  if (Math.random()<0.007) {
+    bigVX += (Math.random()-0.5)*1.6;
+    bigVY += (Math.random()-0.5)*1.6;
+  }
+  let bs = Math.hypot(bigVX,bigVY);
+  if (bs>2.2) { bigVX*=2.2/bs; bigVY*=2.2/bs; }
+  bigX += bigVX; bigY += bigVY;
+  const bm = R_BIG + 30;
+  if (bigX < bm) bigVX += 0.5;
+  if (bigX > innerWidth-bm) bigVX -= 0.5;
+  if (bigY < bm) bigVY += 0.5;
+  if (bigY > innerHeight-bm) bigVY -= 0.5;
+  bigEl.style.transform = `translate(${bigX-R_BIG}px, ${bigY-R_BIG}px)`;
+  ballX += ballVX; ballY += ballVY;
+  let dxb = ballX - bigX, dyb = ballY - bigY;
+  let distb = Math.hypot(dxb, dyb);
+  let hit = false;
+  const maxDb = R_BIG - R_SMALL - 2;
+  if (distb > maxDb) {
+    const nx = dxb/distb, ny = dyb/distb;
+    const reld = (ballVX-bigVX)*nx + (ballVY-bigVY)*ny;
+    if (reld > 0) {
+      ballVX -= 2*reld*nx;
+      ballVY -= 2*reld*ny;
+      ballVX *= 0.93 + Math.random()*0.03;
+      ballVY *= 0.93 + Math.random()*0.03;
+      hit = true;
+    }
+    const over = distb - maxDb;
+    ballX -= nx*over*1.1;
+    ballY -= ny*over*1.1;
+  }
+  smallEl.style.transform = `translate(${ballX}px, ${ballY}px)`;
+  if (hit) {
+    createParticles(ballX, ballY);
+    bigEl.classList.add("pulse");
+    setTimeout(()=>bigEl.classList.remove("pulse"),400);
+  }
+  separatePacmen();
+  const now = performance.now();
+  if (pacmen.length > 1) {
+    for (let i = pacmen.length - 1; i >= 0; i--) {
+      const p = pacmen[i];
+      if (p.isImmortal) continue;
+      if (now - p.lastEatTime > HUNGER_TIME) {
+        removePacMan(p);
+      }
+    }
+  }
+  pacmen.forEach(p => {
+    updateAppearance(p);
+    let target = getClosestParticle(p.x, p.y);
+    if (target) {
+      const dx = target.x - p.x;
+      const dy = target.y - p.y;
+      const d = Math.hypot(dx, dy);
+      if (d < 18 && now - p.lastEatTime > 350) {
+        target.el.remove();
+        eatenCount++;
+        updateScore();
+        p.el.classList.add("eating");
+        setTimeout(()=>p.el.classList.remove("eating"),500);
+        p.lastEatTime = now;
+        if (eatenCount % SPAWN_EVERY === 0) createPacMan();
+      } else if (d > 8) {
+        const dirx = dx / d;
+        const diry = dy / d;
+        p.vx = dirx * PAC_SPEED + (Math.random()-0.5)*0.6;
+        p.vy = diry * PAC_SPEED + (Math.random()-0.5)*0.6;
+      }
+    } else {
+      p.vx += (Math.random()-0.5)*0.7;
+      p.vy += (Math.random()-0.5)*0.7;
+    }
+    p.x += p.vx;
+    p.y += p.vy;
+    const pm = 40;
+    if (p.x < pm) { p.x = pm; p.vx = Math.abs(p.vx)*0.7 + 0.8; }
+    if (p.x > innerWidth-pm) { p.x = innerWidth-pm; p.vx = -Math.abs(p.vx)*0.7 - 0.8; }
+    if (p.y < pm) { p.y = pm; p.vy = Math.abs(p.vy)*0.7 + 0.8; }
+    if (p.y > innerHeight-pm) { p.y = innerHeight-pm; p.vy = -Math.abs(p.vy)*0.7 - 0.8; }
+    if (Math.hypot(p.vx, p.vy) > 0.5) {
+      p.angle = Math.atan2(p.vy, p.vx);
+    }
+    updateAppearance(p);
+  });
+  document.querySelectorAll(".particle").forEach(el => {
+    let vx = +el.dataset.vx;
+    let vy = +el.dataset.vy;
+    let px = parseFloat(el.style.left)||0;
+    let py = parseFloat(el.style.top)||0;
+    px += vx; py += vy;
+    el.style.left = px+"px";
+    el.style.top = py+"px";
+    const de = Math.min(px, innerWidth-px, py, innerHeight-py);
+    el.style.opacity = de < 140 ? Math.max(0, de/140) : 0.92;
+    if (isNearEdge(px,py,25)) el.remove();
+  });
+  requestAnimationFrame(animate);
+}
+// Start
+createPacMan();
+animate();
+window.addEventListener('resize', () => {
+  bigX = innerWidth/2; bigY = innerHeight/2;
+  ballX = bigX; ballY = bigY;
+});
+</script>
+</body>
+</html>

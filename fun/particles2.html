@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Glitter Drawing Recognition</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #recognized-char {
+            position: absolute;
+            color: white;
+            font-size: 48px;
+            top: 20px;
+            left: 20px;
+            opacity: 0;
+            transition: opacity 2s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="recognized-char"></div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const charDisplay = document.getElementById('recognized-char');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Particle class
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 4 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+                this.opacity = Math.random() * 0.5 + 0.5;
+                this.life = 100;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= 1;
+                this.opacity = Math.max(0, this.opacity - 0.01);
+                this.size = Math.max(0.2, this.size * 0.98);
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Handle particles and drawing
+        const particlesArray = [];
+        let mouseX = 0;
+        let mouseY = 0;
+        let isDrawing = false;
+        let path = [];
+        let lastMoveTime = Date.now();
+
+        // Mouse events
+        window.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            path = [];
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            path.push({ x: mouseX, y: mouseY });
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            lastMoveTime = Date.now();
+            if (isDrawing) {
+                path.push({ x: mouseX, y: mouseY });
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDrawing = false;
+            recognizeAndDisplayCharacter();
+        });
+
+        // Simple shape recognition
+        function recognizeAndDisplayCharacter() {
+            if (path.length < 10) return; // Ignore very short paths
+
+            // Normalize path for analysis
+            const normalizedPath = normalizePath(path);
+            const character = recognizeCharacter(normalizedPath);
+
+            // Display recognized character
+            if (character) {
+                charDisplay.textContent = character;
+                charDisplay.style.opacity = 1;
+                setTimeout(() => {
+                    charDisplay.style.opacity = 0;
+                }, 100); // Start fade-out after 100ms
+            }
+        }
+
+        // Normalize path to a standard scale
+        function normalizePath(path) {
+            if (path.length === 0) return [];
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            path.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+            });
+            const width = maxX - minX || 1;
+            const height = maxY - minY || 1;
+            return path.map(p => ({
+                x: (p.x - minX) / width,
+                y: (p.y - minY) / height
+            }));
+        }
+
+        // Simple character recognition (basic heuristic-based)
+        function recognizeCharacter(path) {
+            if (path.length < 10) return null;
+
+            // Analyze path features
+            const { isLoop, isVertical, isHorizontal, hasSharpTurn, segmentCount } = analyzePath(path);
+
+            // Basic rules for digits and some letters
+            if (isLoop && segmentCount <= 2) {
+                if (Math.abs(path[0].x - path[path.length - 1].x) < 0.1 &&
+                    Math.abs(path[0].y - path[path.length - 1].y) < 0.1) {
+                    return '0'; // Closed loop
+                }
+                return 'O';
+            }
+            if (isVertical && segmentCount === 1) return '1' || 'I';
+            if (hasSharpTurn && segmentCount === 2) {
+                const angle = getAngle(path);
+                if (angle > 80 && angle < 100) return 'L';
+                if (angle > 45 && angle < 80) return '7';
+            }
+            if (segmentCount === 3 && hasSharpTurn) return 'Z';
+            if (isHorizontal && segmentCount === 1) return '-';
+            if (segmentCount === 2 && !isLoop) {
+                const mid = Math.floor(path.length / 2);
+                if (path[0].y < path[mid].y && path[mid].y > path[path.length - 1].y) return 'A';
+            }
+            if (isLoop && segmentCount === 3) return '8';
+            if (segmentCount === 4 && hasSharpTurn) return 'E';
+
+            return null; // Unrecognized
+        }
+
+        // Analyze path features
+        function analyzePath(path) {
+            let isLoop = false;
+            let isVertical = true;
+            let isHorizontal = true;
+            let hasSharpTurn = false;
+            let segmentCount = 1;
+
+            // Check for loop
+            if (path.length > 5) {
+                const start = path[0];
+                const end = path[path.length - 1];
+                isLoop = Math.abs(start.x - end.x) < 0.1 && Math.abs(start.y - end.y) < 0.1;
+            }
+
+            // Check direction and turns
+            let lastAngle = null;
+            for (let i = 1; i < path.length; i++) {
+                const dx = path[i].x - path[i - 1].x;
+                const dy = path[i].y - path[i - 1].y;
+                if (Math.abs(dx) > 0.05) isVertical = false;
+                if (Math.abs(dy) > 0.05) isHorizontal = false;
+
+                if (i > 1) {
+                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                    if (lastAngle !== null && Math.abs(angle - lastAngle) > 45) {
+                        hasSharpTurn = true;
+                        segmentCount++;
+                    }
+                    lastAngle = angle;
+                }
+            }
+
+            return { isLoop, isVertical, isHorizontal, hasSharpTurn, segmentCount };
+        }
+
+        // Calculate angle between path segments
+        function getAngle(path) {
+            const mid = Math.floor(path.length / 2);
+            const dx1 = path[mid].x - path[0].x;
+            const dy1 = path[mid].y - path[0].y;
+            const dx2 = path[path.length - 1].x - path[mid].x;
+            const dy2 = path[path.length - 1].y - path[mid].y;
+            const angle = Math.atan2(dy2, dx2) - Math.atan2(dy1, dx1);
+            return Math.abs(angle * 180 / Math.PI);
+        }
+
+        // Handle particles
+        function handleParticles() {
+            if (isDrawing) {
+                for (let i = 0; i < 2; i++) {
+                    particlesArray.push(new Particle(mouseX, mouseY));
+                }
+            }
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+                if (particlesArray[i].life <= 0 || particlesArray[i].opacity <= 0) {
+                    particlesArray.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            // Check for cursor stop
+            if (Date.now() - lastMoveTime > 500 && isDrawing) {
+                isDrawing = false;
+                recognizeAndDisplayCharacter();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loose Cannon + Bouncing Ball + Long-living Burst</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+    }
+    .big {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      border: 2px solid #555;
+      box-sizing: border-box;
+      will-change: transform;
+      box-shadow: 0 0 50px rgba(200,220,255,0.1);
+      pointer-events: none;
+    }
+    .small {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff4d88;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 18px #ff4d88cc;
+      will-change: transform;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff88aa;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 12px #ff88aaaa;
+      pointer-events: none;
+      will-change: transform, opacity;
+      opacity: 0.92;
+    }
+  </style>
+</head>
+<body>
+
+<div class="big" id="big"></div>
+<div class="small" id="small"></div>
+
+<script>
+const bigEl   = document.getElementById("big");
+const smallEl  = document.getElementById("small");
+const body     = document.body;
+
+const R_BIG   = 170;
+const R_SMALL = 10;
+
+let bigX = window.innerWidth / 2;
+let bigY = window.innerHeight / 2;
+let bigVX = (Math.random() - 0.5) * 0.7;
+let bigVY = (Math.random() - 0.5) * 0.7;
+let wanderAngle = Math.random() * Math.PI * 2;
+let wanderChange = 0.003 + Math.random() * 0.004;
+
+// Main small ball
+let ballX = bigX + (Math.random() - 0.5) * 100;
+let ballY = bigY + (Math.random() - 0.5) * 100;
+let ballVX = (Math.random() - 0.5) * 1.8;
+let ballVY = (Math.random() - 0.5) * 1.8;
+
+function createParticles(x, y, count = 3) {
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3.0 + Math.random() * 2.5; // 3–5.5 px/frame — travels decent distance
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed;
+
+    p.dataset.vx = vx;
+    p.dataset.vy = vy;
+
+    p.style.left = x + "px";
+    p.style.top  = y + "px";
+
+    body.appendChild(p);
+  }
+}
+
+function isNearEdge(x, y, margin = 40) {
+  return (
+    x < margin ||
+    x > window.innerWidth - margin ||
+    y < margin ||
+    y > window.innerHeight - margin
+  );
+}
+
+function animate() {
+  // Big circle movement (unchanged)
+  wanderAngle += (Math.random() - 0.5) * 0.22;
+  wanderChange += (Math.random() - 0.5) * 0.0009;
+  wanderChange = Math.max(0.0025, Math.min(0.008, wanderChange));
+
+  bigVX += Math.cos(wanderAngle) * wanderChange * 1.4;
+  bigVY += Math.sin(wanderAngle) * wanderChange * 1.4;
+
+  if (Math.random() < 0.007) {
+    bigVX += (Math.random() - 0.5) * 1.6;
+    bigVY += (Math.random() - 0.5) * 1.6;
+  }
+
+  let bigSpeed = Math.hypot(bigVX, bigVY);
+  if (bigSpeed > 2.2) {
+    bigVX *= 2.2 / bigSpeed;
+    bigVY *= 2.2 / bigSpeed;
+  }
+
+  bigX += bigVX;
+  bigY += bigVY;
+
+  const margin = R_BIG + 30;
+  if (bigX < margin) bigVX += 0.5;
+  if (bigX > innerWidth - margin) bigVX -= 0.5;
+  if (bigY < margin) bigVY += 0.5;
+  if (bigY > innerHeight - margin) bigVY -= 0.5;
+
+  bigEl.style.transform = `translate(${bigX - R_BIG}px, ${bigY - R_BIG}px)`;
+
+  // Main ball move + collision (unchanged logic)
+  ballX += ballVX;
+  ballY += ballVY;
+
+  let dx = ballX - bigX;
+  let dy = ballY - bigY;
+  let dist = Math.hypot(dx, dy);
+  const maxDist = R_BIG - R_SMALL - 2;
+
+  let hit = false;
+
+  if (dist > maxDist) {
+    const nx = dx / dist;
+    const ny = dy / dist;
+
+    const rel_dot = (ballVX - bigVX) * nx + (ballVY - bigVY) * ny;
+
+    if (rel_dot > 0) {
+      ballVX -= 2 * rel_dot * nx;
+      ballVY -= 2 * rel_dot * ny;
+
+      const damping = 0.92 + Math.random() * 0.04;
+      ballVX *= damping;
+      ballVY *= damping;
+
+      hit = true;
+    }
+
+    const overshoot = dist - maxDist;
+    ballX -= nx * overshoot * 1.1;
+    ballY -= ny * overshoot * 1.1;
+
+    dist = Math.hypot(ballX - bigX, ballY - bigY);
+    if (dist > maxDist) {
+      const nx2 = (ballX - bigX) / dist;
+      const ny2 = (ballY - bigY) / dist;
+      ballX -= nx2 * (dist - maxDist) * 1.1;
+      ballY -= ny2 * (dist - maxDist) * 1.1;
+    }
+  }
+
+  smallEl.style.transform = `translate(${ballX}px, ${ballY}px)`;
+
+  // ─── Particles ──────────────────────────────────────────────────
+  if (hit) {
+    createParticles(ballX, ballY, 3);
+  }
+
+  // Update & fade/remove particles near screen edge
+  document.querySelectorAll(".particle").forEach(p => {
+    let vx = parseFloat(p.dataset.vx);
+    let vy = parseFloat(p.dataset.vy);
+
+    let px = parseFloat(p.style.left) || 0;
+    let py = parseFloat(p.style.top)  || 0;
+
+    px += vx;
+    py += vy;
+
+    p.style.left = px + "px";
+    p.style.top  = py + "px";
+
+    // Fade as approaching edge
+    const distanceToEdge = Math.min(
+      px, window.innerWidth - px,
+      py, window.innerHeight - py
+    );
+    const fadeStart = 120; // start fading when closer than 120px to any edge
+    if (distanceToEdge < fadeStart) {
+      const opacity = Math.max(0, distanceToEdge / fadeStart);
+      p.style.opacity = opacity;
+    } else {
+      p.style.opacity = 0.92;
+    }
+
+    // Remove when really at/outside border
+    if (isNearEdge(px, py, 20)) {
+      p.remove();
+    }
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+  bigX = innerWidth / 2;
+  bigY = innerHeight / 2;
+  ballX = bigX;
+  ballY = bigY;
+});
+</script>
+</body>
+</html>

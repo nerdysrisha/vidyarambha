@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loose Cannon + Bouncing Ball + Burst + Pac-Man Eater + Score</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .big {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      border: 2px solid #555;
+      box-sizing: border-box;
+      will-change: transform;
+      box-shadow: 0 0 50px rgba(200,220,255,0.1);
+      pointer-events: none;
+      transition: transform 0.4s ease-out, border-color 0.4s, box-shadow 0.4s; /* added for smooth pulse */
+    }
+    .big.pulse {
+      transform: scale(1.12);
+      border-color: #88ccff;
+      box-shadow: 0 0 80px rgba(120,180,255,0.5);
+    }
+    .small {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff4d88;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 18px #ff4d88cc;
+      pointer-events: none;
+      will-change: transform;
+    }
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 12px rgba(255,136,170,0.6);
+      pointer-events: none;
+      will-change: transform, opacity, background, box-shadow;
+      opacity: 0.92;
+    }
+    .pacman {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border: 14px solid #ffeb3b;
+      border-radius: 50%;
+      border-right-color: transparent;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+      box-shadow: 0 0 16px #ffeb3b88;
+      pointer-events: none;
+    }
+    .pacman.eating {
+      animation: chomp 0.18s ease-in-out;
+    }
+    @keyframes chomp {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      50% { transform: translate(-50%, -50%) rotate(0deg) scale(1.15); }
+    }
+    #score {
+      position: fixed;
+      top: 16px;
+      right: 24px;
+      color: #ffeb3b;
+      font-size: 28px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ffeb3b88, 0 0 20px #ffeb3b44;
+      z-index: 100;
+      pointer-events: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+<div class="big" id="big"></div>
+<div class="small" id="small"></div>
+<div class="pacman" id="pacman"></div>
+<div id="score">Eaten: 0</div>
+
+<script>
+const bigEl = document.getElementById("big");
+const smallEl = document.getElementById("small");
+const pacmanEl = document.getElementById("pacman");
+const scoreEl = document.getElementById("score");
+const body = document.body;
+const R_BIG = 170;
+const R_SMALL = 10;
+let bigX = window.innerWidth / 2;
+let bigY = window.innerHeight / 2;
+let bigVX = (Math.random() - 0.5) * 0.7;
+let bigVY = (Math.random() - 0.5) * 0.7;
+let wanderAngle = Math.random() * Math.PI * 2;
+let wanderChange = 0.003 + Math.random() * 0.004;
+// Main small ball
+let ballX = bigX + (Math.random() - 0.5) * 100;
+let ballY = bigY + (Math.random() - 0.5) * 100;
+let ballVX = (Math.random() - 0.5) * 1.8;
+let ballVY = (Math.random() - 0.5) * 1.8;
+// Pac-Man
+let pacX = window.innerWidth * 0.3;
+let pacY = window.innerHeight * 0.7;
+let pacSpeed = 2.4;
+// Score
+let eatenCount = 0;
+function updateScore() {
+  scoreEl.textContent = `Eaten: ${eatenCount}`;
+}
+function createParticles(x, y, count = 6) {
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3.0 + Math.random() * 2.5;
+    p.dataset.vx = Math.cos(angle) * speed;
+    p.dataset.vy = Math.sin(angle) * speed;
+    const hue = Math.random() * 360;
+    p.style.background = `hsl(${hue}, 90%, 65%)`;
+    p.style.boxShadow = `0 0 12px hsla(${hue}, 90%, 65%, 0.7)`;
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    body.appendChild(p);
+  }
+}
+function isNearEdge(x, y, margin = 20) {
+  return (
+    x < margin || x > window.innerWidth - margin ||
+    y < margin || y > window.innerHeight - margin
+  );
+}
+function getClosestParticle() {
+  let closest = null;
+  let minDist = Infinity;
+  document.querySelectorAll(".particle").forEach(p => {
+    const px = parseFloat(p.style.left) || 0;
+    const py = parseFloat(p.style.top) || 0;
+    const d = Math.hypot(px - pacX, py - pacY);
+    if (d < minDist) {
+      minDist = d;
+      closest = { el: p, x: px, y: py, dist: d };
+    }
+  });
+  return closest;
+}
+function animate() {
+  // Big circle movement
+  wanderAngle += (Math.random() - 0.5) * 0.22;
+  wanderChange += (Math.random() - 0.5) * 0.0009;
+  wanderChange = Math.max(0.0025, Math.min(0.008, wanderChange));
+  bigVX += Math.cos(wanderAngle) * wanderChange * 1.4;
+  bigVY += Math.sin(wanderAngle) * wanderChange * 1.4;
+  if (Math.random() < 0.007) {
+    bigVX += (Math.random() - 0.5) * 1.6;
+    bigVY += (Math.random() - 0.5) * 1.6;
+  }
+  let bigSpeed = Math.hypot(bigVX, bigVY);
+  if (bigSpeed > 2.2) {
+    bigVX *= 2.2 / bigSpeed;
+    bigVY *= 2.2 / bigSpeed;
+  }
+  bigX += bigVX;
+  bigY += bigVY;
+  const margin = R_BIG + 30;
+  if (bigX < margin) bigVX += 0.5;
+  if (bigX > innerWidth - margin) bigVX -= 0.5;
+  if (bigY < margin) bigVY += 0.5;
+  if (bigY > innerHeight - margin) bigVY -= 0.5;
+  bigEl.style.transform = `translate(${bigX - R_BIG}px, ${bigY - R_BIG}px)`;
+  // Main ball + collision
+  ballX += ballVX;
+  ballY += ballVY;
+  let dx = ballX - bigX;
+  let dy = ballY - bigY;
+  let dist = Math.hypot(dx, dy);
+  const maxDist = R_BIG - R_SMALL - 2;
+  let hit = false;
+  if (dist > maxDist) {
+    const nx = dx / dist;
+    const ny = dy / dist;
+    const rel_dot = (ballVX - bigVX) * nx + (ballVY - bigVY) * ny;
+    if (rel_dot > 0) {
+      ballVX -= 2 * rel_dot * nx;
+      ballVY -= 2 * rel_dot * ny;
+      const damping = 0.92 + Math.random() * 0.04;
+      ballVX *= damping;
+      ballVY *= damping;
+      hit = true;
+    }
+    const overshoot = dist - maxDist;
+    ballX -= nx * overshoot * 1.1;
+    ballY -= ny * overshoot * 1.1;
+    dist = Math.hypot(ballX - bigX, ballY - bigY);
+    if (dist > maxDist) {
+      const nx2 = (ballX - bigX) / dist;
+      const ny2 = (ballY - bigY) / dist;
+      ballX -= nx2 * (dist - maxDist) * 1.1;
+      ballY -= ny2 * (dist - maxDist) * 1.1;
+    }
+  }
+  smallEl.style.transform = `translate(${ballX}px, ${ballY}px)`;
+
+  // ← ONLY CHANGE: glow/pulse when hit
+  if (hit) {
+    createParticles(ballX, ballY, 6);
+    bigEl.classList.add("pulse");
+    setTimeout(() => bigEl.classList.remove("pulse"), 400);
+  }
+
+  // Pac-Man logic (unchanged)
+  const target = getClosestParticle();
+  if (target) {
+    const dx = target.x - pacX;
+    const dy = target.y - pacY;
+    const distToTarget = Math.hypot(dx, dy);
+    if (distToTarget < 18) {
+      target.el.remove();
+      eatenCount++;
+      updateScore();
+      pacmanEl.classList.add("eating");
+      setTimeout(() => pacmanEl.classList.remove("eating"), 200);
+    } else {
+      const angle = Math.atan2(dy, dx);
+      pacX += Math.cos(angle) * pacSpeed;
+      pacY += Math.sin(angle) * pacSpeed;
+      const rot = Math.atan2(dy, dx) * 180 / Math.PI;
+      pacmanEl.style.transform = `translate(${pacX}px, ${pacY}px) rotate(${rot}deg)`;
+    }
+  } else {
+    pacX += (Math.random() - 0.5) * 1.2;
+    pacY += (Math.random() - 0.5) * 1.2;
+  }
+  // Update particles
+  document.querySelectorAll(".particle").forEach(p => {
+    let vx = parseFloat(p.dataset.vx);
+    let vy = parseFloat(p.dataset.vy);
+    let px = parseFloat(p.style.left) || 0;
+    let py = parseFloat(p.style.top) || 0;
+    px += vx;
+    py += vy;
+    p.style.left = px + "px";
+    p.style.top = py + "px";
+    const distanceToEdge = Math.min(
+      px, window.innerWidth - px,
+      py, window.innerHeight - py
+    );
+    const fadeStart = 120;
+    p.style.opacity = distanceToEdge < fadeStart ? Math.max(0, distanceToEdge / fadeStart) : 0.92;
+    if (isNearEdge(px, py, 20)) p.remove();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+window.addEventListener('resize', () => {
+  bigX = innerWidth / 2;
+  bigY = innerHeight / 2;
+  ballX = bigX;
+  ballY = bigY;
+});
+</script>
+</body>
+</html>
