@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <title>Math Popper</title>
 <!--
-Maths Popper 41
-Increase Word problems to 4
+Maths Popper 40
+Removing some items. 
 -->
 <style>
 html,body{
@@ -374,13 +374,6 @@ button{
 }
 
 
-
-/* ADD THIS */
-.stack-wrapper.word-problems {
-    min-height: 650px;
-}
-
-
 </style>
 </head>
 <body>
@@ -569,15 +562,9 @@ function renderSplitRow(letter, question, answer) {
 
 function addStack(val){
     if(stacks[val]) return;
-
     const wrapper=document.createElement("div");
     wrapper.className="stack-wrapper";
-
- 
-    if (val === "word-problems") {
-        wrapper.classList.add("word-problems");
-    }
-
+    
     const questionsBox=document.createElement("div");
     questionsBox.className="stack-box questions-box";
     
@@ -1048,8 +1035,7 @@ else {
     fetch(BASE_URL + val + ".json")
     .then(r => r.json())
     .then(d => {
-        // REPLACE with:
-let numQuestions = (val === "word-problems") ? 4 : 2;
+        let numQuestions = 2; // default
 
         const idx = [...Array(d.questions.length).keys()]
                         .sort(() => 0.5 - Math.random())
