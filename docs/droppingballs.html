@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Plinko</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #050510;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Orbitron', monospace;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #ui {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(180,220,255,0.55);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-shadow: 0 0 12px rgba(100,180,255,0.6);
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">neon plinko &mdash; balls in freefall</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', () => { resize(); spawnBars(); });
+
+// ─── CONFIG ───────────────────────────────────────────────
+const GRAVITY       = 0.22;
+const BALL_RADIUS   = 7;
+const BALL_SPEED    = 2.2;          // initial drop speed
+const BAR_COUNT     = 18;
+const BAR_W_MIN     = 60;
+const BAR_W_MAX     = 130;
+const BAR_H         = 5;
+const BOUNCE_DAMP   = 0.52;         // energy kept on bounce
+const LATERAL_KICK  = 1.8;          // sideways scatter on hit
+const SPAWN_INTERVAL= 900;          // ms between new balls
+const MAX_BALLS     = 9;
+const PARTICLE_CNT  = 22;
+
+// ─── PALETTE ──────────────────────────────────────────────
+const BALL_COLORS = [
+  ['#ff2d78','#ff80b0'],
+  ['#00f5ff','#80faff'],
+  ['#b24fff','#d98fff'],
+  ['#ffcc00','#ffe980'],
+  ['#00ff88','#80ffcc'],
+  ['#ff6a00','#ffaa55'],
+];
+
+// ─── STATE ────────────────────────────────────────────────
+let bars = [];
+let balls = [];
+let particles = [];
+let lastSpawn = 0;
+
+// ─── BARS ─────────────────────────────────────────────────
+function spawnBars() {
+  bars = [];
+  const rows = BAR_COUNT;
+  for (let i = 0; i < rows; i++) {
+    const w = BAR_W_MIN + Math.random() * (BAR_W_MAX - BAR_W_MIN);
+    const x = Math.random() * (W - w - 40) + 20;
+    const y = 80 + (i / rows) * (H - 160) + (Math.random() - 0.5) * 30;
+    bars.push({ x, y, w, h: BAR_H, glow: 0 });
+  }
+}
+spawnBars();
+
+// ─── BALLS ────────────────────────────────────────────────
+function spawnBall() {
+  if (balls.length >= MAX_BALLS) return;
+  const col = BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)];
+  balls.push({
+    x: Math.random() * (W - 80) + 40,
+    y: -BALL_RADIUS,
+    vx: (Math.random() - 0.5) * 1.2,
+    vy: BALL_SPEED,
+    r: BALL_RADIUS,
+    color: col[0],
+    glow: col[1],
+    trail: [],
+    dead: false,
+    bounces: 0,
+  });
+}
+
+// ─── PARTICLES (explosion) ────────────────────────────────
+function explode(x, y, color, glow) {
+  for (let i = 0; i < PARTICLE_CNT; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 1.5 + Math.random() * 5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      r: 2 + Math.random() * 3,
+      color, glow,
+      life: 1,
+      decay: 0.025 + Math.random() * 0.03,
+    });
+  }
+}
+
+// ─── DRAW HELPERS ─────────────────────────────────────────
+function glowCircle(x, y, r, color, glowColor, glowSize = 18) {
+  ctx.save();
+  ctx.shadowBlur = glowSize;
+  ctx.shadowColor = glowColor;
+  const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(0.3, color);
+  g.addColorStop(1, color + '88');
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.restore();
+}
+
+function glowBar(bar) {
+  ctx.save();
+  const intensity = 8 + bar.glow * 20;
+  ctx.shadowBlur = intensity;
+  ctx.shadowColor = '#00f5ff';
+  const g = ctx.createLinearGradient(bar.x, bar.y, bar.x + bar.w, bar.y);
+  g.addColorStop(0, 'rgba(0,200,255,0.15)');
+  g.addColorStop(0.5, `rgba(0,245,255,${0.55 + bar.glow * 0.4})`);
+  g.addColorStop(1, 'rgba(0,200,255,0.15)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(bar.x, bar.y, bar.w, bar.h, 3);
+  ctx.fill();
+
+  // top edge highlight
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = `rgba(160,240,255,${0.4 + bar.glow * 0.6})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(bar.x + 4, bar.y + 1);
+  ctx.lineTo(bar.x + bar.w - 4, bar.y + 1);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ─── UPDATE ───────────────────────────────────────────────
+function update(ts) {
+  // spawn
+  if (ts - lastSpawn > SPAWN_INTERVAL) {
+    spawnBall();
+    lastSpawn = ts;
+  }
+
+  // bar glow decay
+  for (const b of bars) b.glow = Math.max(0, b.glow - 0.04);
+
+  // balls
+  for (const ball of balls) {
+    if (ball.dead) continue;
+
+    // trail
+    ball.trail.push({ x: ball.x, y: ball.y });
+    if (ball.trail.length > 10) ball.trail.shift();
+
+    // physics
+    ball.vy += GRAVITY;
+    ball.x  += ball.vx;
+    ball.y  += ball.vy;
+
+    // wall bounce
+    if (ball.x - ball.r < 0)  { ball.x = ball.r;  ball.vx = Math.abs(ball.vx); }
+    if (ball.x + ball.r > W)  { ball.x = W - ball.r; ball.vx = -Math.abs(ball.vx); }
+
+    // bar collision
+    for (const bar of bars) {
+      const inX = ball.x + ball.r > bar.x && ball.x - ball.r < bar.x + bar.w;
+      const inY = ball.y + ball.r >= bar.y && ball.y + ball.r <= bar.y + bar.h + Math.abs(ball.vy) + 2;
+      if (inX && inY && ball.vy > 0) {
+        ball.y  = bar.y - ball.r;
+        ball.vy = -Math.abs(ball.vy) * BOUNCE_DAMP;
+        ball.vx += (Math.random() - 0.5) * LATERAL_KICK;
+        ball.vx *= 0.9;
+        ball.bounces++;
+        bar.glow = 1;
+      }
+    }
+
+    // bottom — explode
+    if (ball.y - ball.r > H) {
+      explode(ball.x, H - 10, ball.color, ball.glow);
+      ball.dead = true;
+    }
+  }
+  balls = balls.filter(b => !b.dead);
+
+  // particles
+  for (const p of particles) {
+    p.vy += 0.15;
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.life -= p.decay;
+  }
+  particles = particles.filter(p => p.life > 0);
+}
+
+// ─── DRAW ─────────────────────────────────────────────────
+function draw() {
+  // background fade (motion blur feel)
+  ctx.fillStyle = 'rgba(5,5,16,0.55)';
+  ctx.fillRect(0, 0, W, H);
+
+  // grid lines (subtle)
+  ctx.save();
+  ctx.strokeStyle = 'rgba(30,60,120,0.12)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y = 0; y < H; y += 60) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+  ctx.restore();
+
+  // bars
+  for (const bar of bars) glowBar(bar);
+
+  // particles
+  for (const p of particles) {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = p.glow;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ball trails + balls
+  for (const ball of balls) {
+    // trail
+    for (let i = 0; i < ball.trail.length; i++) {
+      const t = ball.trail[i];
+      const alpha = (i / ball.trail.length) * 0.35;
+      const r = ball.r * (i / ball.trail.length) * 0.8;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = ball.glow;
+      ctx.fillStyle = ball.color;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    glowCircle(ball.x, ball.y, ball.r, ball.color, ball.glow, 22);
+  }
+
+  // bottom floor glow
+  ctx.save();
+  ctx.shadowBlur = 0;
+  const floorGrad = ctx.createLinearGradient(0, H - 6, 0, H);
+  floorGrad.addColorStop(0, 'rgba(0,200,255,0.25)');
+  floorGrad.addColorStop(1, 'rgba(0,200,255,0)');
+  ctx.fillStyle = floorGrad;
+  ctx.fillRect(0, H - 6, W, 6);
+  ctx.restore();
+}
+
+// ─── LOOP ─────────────────────────────────────────────────
+function loop(ts) {
+  update(ts);
+  draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

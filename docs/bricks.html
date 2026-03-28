@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bricks</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+  }
+  #autopilot {
+    margin-bottom: 10px;
+    padding: 6px 18px;
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: default;
+    border-radius: 3px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  #autopilot.on {
+    border-color: #00ffaa;
+    color: #00ffaa;
+    box-shadow: 0 0 8px rgba(0,255,170,0.3);
+  }
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+    height: 18px;
+  }
+  canvas {
+    border: 1px solid #1a1a2e;
+    display: block;
+    background: #07070e;
+  }
+  #msg {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    pointer-events: none;
+    display: none;
+    z-index: 10;
+  }
+  #msg h1 { font-size: 38px; font-family: 'Courier New', monospace; letter-spacing: 0.1em; margin-bottom: 12px; }
+  #msg p  { font-size: 14px; color: #888; letter-spacing: 0.15em; }
+</style>
+</head>
+<body>
+
+<button id="autopilot">⚡ Auto-play</button>
+<div id="hud"></div>
+<canvas id="c"></canvas>
+<div id="msg">
+  <h1 id="msgTitle"></h1>
+  <p id="msgSub"></p>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+const CW = 960, CH = 680;
+canvas.width = CW; canvas.height = CH;
+
+// ── constants ────────────────────────────────────────────
+const BALL_R         = 6;
+const PAD_H          = 11;
+const PAD_SPEED      = 10;
+const COLS           = 18;
+const BRICK_PAD      = 4;
+const BRICK_H        = 16;
+const TOP_OFF        = 50;
+const MAX_BALLS      = 12;   // hard cap — prevents runaway spawning
+const SPEED_SCALE    = 0.85; // global speed multiplier — tune here
+
+const NORMAL_COLOR   = '#b0b8c8';   // light grey for all regular bricks
+const SPAWNER_COLOR  = '#ffd84d';   // lighter golden for spawner brick
+
+// ── state ────────────────────────────────────────────────
+let level = 1, score = 0, lives = 5;
+let state = 'ready';
+let autoPlay    = false;
+let autoTarget  = CW / 2;   // where AI wants the paddle centre to be
+let autoOffset  = 0;        // human-like imperfection offset // ready | playing | paused | dead | gameover
+
+function setCursor(hidden) {
+  document.body.style.cursor = hidden ? 'none' : 'default';
+}
+let padW, padX, padY, baseSpeed;
+let balls      = [];
+let bricks     = [];
+let particles  = [];
+const keys     = {};
+
+// ── input ────────────────────────────────────────────────
+window.addEventListener('keydown', e => {
+  keys[e.code] = true;
+
+  if (e.code === 'Escape') {
+    if (state === 'playing') {
+      state = 'paused';
+      setCursor(false);
+      showMsg('Paused', 'Press Escape or Space to resume');
+    } else if (state === 'paused') {
+      state = 'playing';
+      setCursor(true);
+      hideMsg();
+    }
+  }
+
+  if ((e.code === 'Space' || e.code === 'Enter')) {
+    if (state === 'ready' || state === 'dead') {
+      hideMsg(); state = 'playing'; setCursor(true);
+    } else if (state === 'paused') {
+      hideMsg(); state = 'playing'; setCursor(true);
+    }
+  }
+  if (e.code === 'Space') e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+const autoBtn = document.getElementById('autopilot');
+autoBtn.addEventListener('click', () => {
+  autoPlay = !autoPlay;
+  autoBtn.classList.toggle('on', autoPlay);
+  autoBtn.textContent = autoPlay ? '⚡ Auto-play ON' : '⚡ Auto-play';
+  // auto-launch if sitting on ready/dead
+  if (autoPlay && (state === 'ready' || state === 'dead')) {
+    hideMsg(); state = 'playing'; setCursor(true);
+  }
+});
+// Track mouse on the whole window using movementX so paddle
+// follows even when cursor is outside the canvas.
+window.addEventListener('mousemove', e => {
+  padX = Math.max(0, Math.min(CW - padW, padX + e.movementX));
+});
+
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 0 && (state === 'ready' || state === 'dead')) {
+    hideMsg(); state = 'playing'; setCursor(true);
+  }
+});
+
+// ── HUD ──────────────────────────────────────────────────
+function updateHud() {
+  const hud = document.getElementById('hud');
+  hud.innerHTML = '';
+  for (let i = 0; i < lives; i++) {
+    const ball = document.createElement('canvas');
+    ball.width  = 16;
+    ball.height = 16;
+    const bc = ball.getContext('2d');
+    const bg = bc.createRadialGradient(5, 5, 1, 8, 8, 7);
+    bg.addColorStop(0, '#ffffff');
+    bg.addColorStop(1, '#88ccff');
+    bc.fillStyle = bg;
+    bc.shadowBlur  = 6;
+    bc.shadowColor = '#88ccff';
+    bc.beginPath();
+    bc.arc(8, 8, 6, 0, Math.PI * 2);
+    bc.fill();
+    hud.appendChild(ball);
+  }
+}
+function showMsg(title, sub) {
+  document.getElementById('msgTitle').textContent = title;
+  document.getElementById('msgSub').textContent   = sub;
+  document.getElementById('msg').style.display    = 'block';
+}
+function hideMsg() { document.getElementById('msg').style.display = 'none'; }
+
+// ── bricks ───────────────────────────────────────────────
+function buildBricks() {
+  bricks = [];
+  const rows   = 10 + (level - 1) * 2;
+  const brickW = (CW - BRICK_PAD * (COLS + 1)) / COLS;
+
+  for (let r = 0; r < rows; r++) {
+    // one random golden spawner column per row (only from row 1 onwards)
+    const spawnerCol = r >= 1 ? Math.floor(Math.random() * COLS) : -1;
+    const hp = r < 2 ? 3 : r < 5 ? 2 : 1;
+
+    for (let c = 0; c < COLS; c++) {
+      const isSpawner = c === spawnerCol;
+      // spawner gives (row index) extra balls, capped at 3 to stay sane
+      const spawnCount = Math.min(r, 3);
+
+      bricks.push({
+        x: BRICK_PAD + c * (brickW + BRICK_PAD),
+        y: TOP_OFF   + r * (BRICK_H  + BRICK_PAD),
+        w: brickW, h: BRICK_H,
+        color:    isSpawner ? SPAWNER_COLOR : NORMAL_COLOR,
+        hp, maxHp: hp,
+        alive: true,
+        isSpawner, spawnCount,
+      });
+    }
+  }
+}
+
+// ── ball factory ─────────────────────────────────────────
+function makeBall(x, y, dx, dy, isMain) {
+  return { x, y, dx, dy, isMain };
+}
+
+function resetPadBall() {
+  padW      = Math.max(50, 90 - (level - 1) * 4);
+  padX      = (CW - padW) / 2;
+  padY      = CH - 36;
+  baseSpeed = (5.8 + (level - 1) * 0.5) * SPEED_SCALE;
+  const ang = -Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+  balls     = [makeBall(CW / 2, padY - 12,
+                Math.cos(ang) * baseSpeed,
+                Math.sin(ang) * baseSpeed, true)];
+}
+
+function initLevel() {
+  buildBricks();
+  resetPadBall();
+  particles = [];
+  state = 'ready';
+  setCursor(false);
+  updateHud();
+  showMsg(`Level ${level}`, 'Press Space or Enter to launch');
+}
+
+// ── particles ────────────────────────────────────────────
+function burst(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 1.5 + Math.random() * 4.5;
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      r: 2 + Math.random() * 3,
+      color, life: 1,
+      decay: 0.025 + Math.random() * 0.04,
+    });
+  }
+}
+
+// ── spawn extra balls from golden brick ──────────────────
+function spawnExtra(brick, count) {
+  const out = [];
+  const available = MAX_BALLS - balls.length;
+  const actual = Math.min(count, available);
+  for (let i = 0; i < actual; i++) {
+    const ang = -Math.PI / 2 + (Math.random() - 0.5) * (Math.PI / 2);
+    const spd = baseSpeed * 1.3;
+    out.push(makeBall(
+      brick.x + brick.w / 2 + (Math.random() - 0.5) * 8,
+      brick.y + brick.h / 2,
+      Math.cos(ang) * spd,
+      Math.sin(ang) * spd,
+      false
+    ));
+  }
+  return out;
+}
+
+// ── move one ball ─────────────────────────────────────────
+function stepBall(ball) {
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+
+  if (ball.x - BALL_R < 0)  { ball.x = BALL_R;      ball.dx =  Math.abs(ball.dx); }
+  if (ball.x + BALL_R > CW) { ball.x = CW - BALL_R; ball.dx = -Math.abs(ball.dx); }
+  if (ball.y - BALL_R < 0)  { ball.y = BALL_R;       ball.dy =  Math.abs(ball.dy); }
+
+  // paddle
+  if (ball.dy > 0 &&
+      ball.y + BALL_R >= padY &&
+      ball.y + BALL_R <= padY + PAD_H + Math.abs(ball.dy) &&
+      ball.x > padX - BALL_R && ball.x < padX + padW + BALL_R) {
+    const hit   = (ball.x - (padX + padW / 2)) / (padW / 2);
+    const angle = hit * (Math.PI / 3);
+    const upSpd = baseSpeed * 1.7;
+    ball.dx = Math.sin(angle) * upSpd;
+    ball.dy = -Math.abs(Math.cos(angle) * upSpd);
+    ball.y  = padY - BALL_R;
+  }
+
+  // clamp downward speed
+  if (ball.dy > 0) {
+    const spd = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+    if (spd > baseSpeed) {
+      const f = baseSpeed / spd;
+      ball.dx *= f; ball.dy *= f;
+    }
+  }
+}
+
+// ── brick collision ───────────────────────────────────────
+function hitsBrick(ball, b) {
+  return ball.x + BALL_R > b.x && ball.x - BALL_R < b.x + b.w &&
+         ball.y + BALL_R > b.y && ball.y - BALL_R < b.y + b.h;
+}
+function resolveHit(ball, b) {
+  const oL = (ball.x + BALL_R) - b.x,       oR = (b.x + b.w) - (ball.x - BALL_R);
+  const oT = (ball.y + BALL_R) - b.y,       oB = (b.y + b.h) - (ball.y - BALL_R);
+  if (Math.min(oL, oR) < Math.min(oT, oB)) ball.dx = -ball.dx;
+  else                                       ball.dy = -ball.dy;
+}
+
+// ── main update ───────────────────────────────────────────
+function update() {
+  if (state !== 'playing') return;
+
+  if (autoPlay) {
+    // find the main ball (or first extra ball if main is gone)
+    const tracked = balls.find(b => b.isMain) || balls[0];
+    if (tracked) {
+      // predict where ball will land on paddle row by simulating its path
+      let px = tracked.x, py = tracked.y, pdx = tracked.dx, pdy = tracked.dy;
+      let steps = 0;
+      while (py < padY - BALL_R && steps < 600) {
+        px += pdx; py += pdy;
+        if (px - BALL_R < 0)  { px = BALL_R;      pdx =  Math.abs(pdx); }
+        if (px + BALL_R > CW) { px = CW - BALL_R; pdx = -Math.abs(pdx); }
+        steps++;
+      }
+      // recalculate offset every ~80 frames for natural drift
+      if (Math.random() < 0.012) {
+        autoOffset = (Math.random() - 0.5) * padW * 0.6;
+      }
+      autoTarget = px + autoOffset;
+    }
+
+    // move paddle gradually toward target — human-like speed, not instant
+    const centre  = padX + padW / 2;
+    const diff    = autoTarget - centre;
+    const maxStep = 5.5 + Math.random() * 1.5; // slight speed variation
+    if (Math.abs(diff) > 1) {
+      padX += Math.sign(diff) * Math.min(Math.abs(diff), maxStep);
+      padX  = Math.max(0, Math.min(CW - padW, padX));
+    }
+  } else {
+    if (keys['ArrowLeft'])  padX = Math.max(0,         padX - PAD_SPEED);
+    if (keys['ArrowRight']) padX = Math.min(CW - padW, padX + PAD_SPEED);
+  }
+
+  for (const ball of balls) stepBall(ball);
+
+  // while waiting, keep main ball glued to paddle centre
+  if (state === 'ready') {
+    const main = balls.find(b => b.isMain);
+    if (main) { main.x = padX + padW / 2; main.y = padY - BALL_R; }
+  }
+
+  // brick collisions — collect new balls separately
+  const newBalls = [];
+  for (const ball of balls) {
+    for (const b of bricks) {
+      if (!b.alive || !hitsBrick(ball, b)) continue;
+
+      b.hp--;
+      burst(b.x + b.w / 2, b.y + b.h / 2, b.color, b.hp <= 0 ? 16 : 7);
+
+      if (b.hp <= 0) {
+        b.alive = false;
+        score  += b.isSpawner ? 30 * level : 10 * level;
+        if (b.isSpawner && balls.length + newBalls.length < MAX_BALLS) {
+          newBalls.push(...spawnExtra(b, b.spawnCount));
+          burst(b.x + b.w / 2, b.y + b.h / 2, '#ffdd00', 24);
+        }
+      }
+
+      resolveHit(ball, b);
+
+      // mild speed-up going upward after brick hit
+      if (ball.dy < 0) {
+        const spd = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        const max = baseSpeed * 1.85;
+        if (spd < max) {
+          const f = Math.min(spd + 0.07, max) / spd;
+          ball.dx *= f; ball.dy *= f;
+        }
+      }
+      break;
+    }
+  }
+
+  // safely add new balls (respect cap)
+  for (const nb of newBalls) {
+    if (balls.length < MAX_BALLS) balls.push(nb);
+  }
+
+  // remove balls that fell below screen
+  const mainLost = balls.some(b => b.isMain && b.y - BALL_R > CH);
+  balls = balls.filter(b => b.y - BALL_R <= CH);
+
+  updateHud();
+
+  if (mainLost) {
+    lives--;
+    updateHud();
+    if (lives <= 0) {
+      state = 'gameover';
+      setCursor(false);
+      showMsg('Game Over', `Refresh to restart`);
+    } else {
+      state = 'dead';
+      setCursor(false);
+      resetPadBall();
+      if (autoPlay) {
+        // brief pause then auto-resume
+        setTimeout(() => { if (autoPlay) { hideMsg(); state = 'playing'; } }, 900);
+        showMsg('Oops!', 'Auto-play resuming…');
+      } else {
+        showMsg('Oops!', 'Click or press Space to continue');
+      }
+    }
+    return;
+  }
+
+  if (bricks.every(b => !b.alive)) {
+    score += 100 * level;
+    level++;
+    updateHud();
+    setCursor(false);
+    initLevel();
+    if (autoPlay) {
+      setTimeout(() => { if (autoPlay) { hideMsg(); state = 'playing'; } }, 600);
+    }
+    return;
+  }
+
+  for (const p of particles) { p.x += p.vx; p.y += p.vy; p.life -= p.decay; }
+  particles = particles.filter(p => p.life > 0);
+}
+
+// ── draw brick ────────────────────────────────────────────
+function drawBrick(b) {
+  const fade = b.hp / b.maxHp;
+  ctx.globalAlpha = 0.25 + fade * 0.75;
+
+  if (b.isSpawner) {
+    // golden glow
+    ctx.save();
+    ctx.shadowBlur  = 10;
+    ctx.shadowColor = '#ffcc44';
+    ctx.fillStyle   = SPAWNER_COLOR;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.restore();
+    // bright top edge
+    ctx.fillStyle = 'rgba(255,255,200,0.5)';
+    ctx.fillRect(b.x, b.y, b.w, 2);
+  } else {
+    ctx.fillStyle = NORMAL_COLOR;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    // subtle top highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.fillRect(b.x, b.y, b.w, 2);
+    // subtle bottom shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(b.x, b.y + b.h - 2, b.w, 2);
+  }
+
+  // damage crack
+  if (b.hp < b.maxHp && b.maxHp > 1) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(b.x + b.w * 0.3,  b.y);
+    ctx.lineTo(b.x + b.w * 0.48, b.y + b.h);
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+// ── draw ball ─────────────────────────────────────────────
+function drawBall(ball) {
+  const c1   = ball.isMain ? '#ffffff' : '#ffdd88';
+  const c2   = ball.isMain ? '#88ccff' : '#ff8800';
+  const glow = ball.isMain ? '#88ccff' : '#ffaa00';
+  const bg   = ctx.createRadialGradient(ball.x - 2, ball.y - 2, 1, ball.x, ball.y, BALL_R);
+  bg.addColorStop(0, c1); bg.addColorStop(1, c2);
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2); ctx.fill();
+  ctx.save();
+  ctx.shadowBlur  = ball.isMain ? 14 : 10;
+  ctx.shadowColor = glow;
+  ctx.fillStyle   = 'rgba(255,255,255,0.15)';
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+// ── draw ──────────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, CW, CH);
+
+  // scanlines
+  for (let y = 0; y < CH; y += 4) {
+    ctx.fillStyle = 'rgba(0,0,0,0.07)';
+    ctx.fillRect(0, y, CW, 2);
+  }
+
+  for (const b of bricks)    if (b.alive) drawBrick(b);
+  for (const p of particles) {
+    ctx.save(); ctx.globalAlpha = p.life * 0.9;
+    ctx.fillStyle = p.color;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // paddle
+  const pg = ctx.createLinearGradient(padX, padY, padX, padY + PAD_H);
+  pg.addColorStop(0, '#ffffff'); pg.addColorStop(1, '#8899cc');
+  ctx.fillStyle = pg;
+  ctx.beginPath(); ctx.roundRect(padX, padY, padW, PAD_H, 5); ctx.fill();
+
+  for (const ball of balls) drawBall(ball);
+
+  // subtle esc hint bottom-left during play
+  if (state === 'playing') {
+    ctx.save();
+    ctx.fillStyle    = 'rgba(255,255,255,0.12)';
+    ctx.font         = '10px Courier New';
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('ESC = pause', 8, CH - 6);
+    ctx.restore();
+  }
+}
+
+// ── loop ──────────────────────────────────────────────────
+function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+updateHud();
+initLevel();
+loop();
+</script>
+</body>
+</html>
