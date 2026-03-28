@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--V 43 number names -->
+<!--V 42 aesthetics from claude -->
 <style>
 html, body {
     margin: 0;
@@ -342,16 +342,6 @@ button:active {
 .inline-item { color: #28a745; }
 .github-item { color: #ff9900; }
 
-/* NUMBER NAMES - inline word answer */
-.num-word {
-    visibility: hidden;
-    color: #58D68D;
-    font-weight: bold;
-    font-size: 0.65em;
-    margin-left: 16px;
-    letter-spacing: 0.02em;
-}
-
 /* RAINBOW GLOW */
 @keyframes rainbowGlow {
     0%   { outline-color: #ff004c; }
@@ -431,22 +421,6 @@ const stacks = {};
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-function numberToWords(n) {
-    const ones  = ["","one","two","three","four","five","six","seven","eight","nine",
-                   "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen",
-                   "seventeen","eighteen","nineteen"];
-    const tens  = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
-    if (n === 0) return "zero";
-    if (n < 20)  return ones[n];
-    if (n < 100) return tens[Math.floor(n/10)] + (n % 10 ? " " + ones[n % 10] : "");
-    if (n < 1000) {
-        const rest = n % 100;
-        return ones[Math.floor(n/100)] + " hundred" + (rest ? " " + numberToWords(rest) : "");
-    }
-    const rest = n % 1000;
-    return numberToWords(Math.floor(n/1000)) + " thousand" + (rest ? " " + numberToWords(rest) : "");
-}
-
 options.forEach(([val, label, type]) => {
     const wrap = document.createElement("label");
     wrap.className = "ctrl-item " + (type === "inline" ? "inline-item" : "github-item");
@@ -478,9 +452,6 @@ toggleAll.onclick = () => {
     document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
     document.querySelectorAll("#questions .question-row img").forEach(img => {
         img.style.display = showAll ? "block" : "none";
-    });
-    document.querySelectorAll(".num-word").forEach(el => {
-        el.style.visibility = showAll ? "visible" : "hidden";
     });
     toggleAll.textContent = showAll ? "Hide" : "Show";
 };
@@ -567,9 +538,7 @@ function generate(questionsBox, answersBox, val) {
     else if (val === "number-names") {
         const letters = ["a", "b", "c", "d"];
         [rand(100, 999), rand(100, 999), rand(1000, 9999), rand(1000, 9999)].forEach((n, i) => {
-            const word = numberToWords(n);
-            const questionWithWord = `${n} <span class="num-word">${word}</span>`;
-            let row = renderSplitRow(letters[i], questionWithWord, "");
+            let row = renderSplitRow(letters[i], `${n}`, n);
             questionsBox.innerHTML += row.questionHTML;
             answersBox.innerHTML   += row.answerHTML;
         });
