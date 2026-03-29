@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v45 added bodmos block bit bigger -->
+<!--v44 random questions based on date -->
 <style>
 html, body {
     margin: 0;
@@ -224,14 +224,14 @@ button:active {
     pointer-events: none;
 }
 
-/* Word problems & BODMAS: auto-size to content */
-.stack-wrapper.auto-size {
+/* Word problems: auto-size */
+.stack-wrapper.word-problems {
     min-height: unset;
     height: auto;
     align-items: start;
 }
 
-.stack-wrapper.auto-size .stack-box {
+.stack-wrapper.word-problems .stack-box {
     height: auto;
 }
 
@@ -519,8 +519,7 @@ function renderSplitRow(letter, question, answer) {
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
-    const autoSize = ["word-problems", "bodmas"];
-    wrapper.className = "stack-wrapper" + (autoSize.includes(val) ? " auto-size" : "");
+    wrapper.className = "stack-wrapper" + (val === "word-problems" ? " word-problems" : "");
     const questionsBox = document.createElement("div");
     questionsBox.className = "stack-box questions-box";
     const answersBox = document.createElement("div");
