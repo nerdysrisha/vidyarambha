@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v44 random questions based on date -->
+<!--V 43 number names -->
 <style>
 html, body {
     margin: 0;
@@ -352,23 +352,6 @@ button:active {
     letter-spacing: 0.02em;
 }
 
-/* CONFETTI */
-@keyframes confettiFall {
-    0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(420px) rotate(720deg) scale(0.4); opacity: 0; }
-}
-
-.confetti-piece {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    pointer-events: none;
-    z-index: 9999;
-    animation: confettiFall linear forwards;
-}
-
 /* RAINBOW GLOW */
 @keyframes rainbowGlow {
     0%   { outline-color: #ff004c; }
@@ -536,84 +519,6 @@ function removeStack(val) {
     stacks[val]?.remove();
     delete stacks[val];
 }
-
-// ── SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────────
-
-// Mulberry32 — fast, good-quality 32-bit PRNG from a single uint seed
-function mulberry32(seed) {
-    return function() {
-        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-        return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-}
-
-// Turn a string into a stable uint32 hash (djb2)
-function hashStr(str) {
-    let h = 5381;
-    for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
-    return h >>> 0;
-}
-
-// Build today's numeric seed: date string + question type name → unique per type per day
-function dailySeed(val) {
-    const d = new Date();
-    const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
-    return hashStr(dateStr + val);
-}
-
-// Fisher-Yates shuffle using a seeded PRNG
-function seededShuffle(arr, rng) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
-
-// Pick `n` questions from total `count` using date+type seed.
-// Guarantees full coverage cycle: all questions seen before repeating.
-// Handles any count — future-proof if JSON grows or shrinks.
-function pickDailyIndices(val, total, n) {
-    // Edge case: fewer questions than needed → return all shuffled
-    if (total <= n) {
-        const rng = mulberry32(dailySeed(val));
-        return seededShuffle([...Array(total).keys()], rng).slice(0, total);
-    }
-
-    const seed    = dailySeed(val);
-    const rng     = mulberry32(seed);
-    const shuffled = seededShuffle([...Array(total).keys()], rng);
-
-    // How many full pages of n fit in total?
-    const pagesInCycle = Math.floor(total / n);
-    // Remaining questions that don't fill a full page
-    const remainder    = total % n;
-
-    // Which day-of-year are we? (0-based)
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const dayOfYear = Math.floor((now - start) / 86400000); // 1–366
-
-    // Which page within this cycle?
-    const page = dayOfYear % pagesInCycle;
-    const sliceStart = page * n;
-
-    let indices = shuffled.slice(sliceStart, sliceStart + n);
-
-    // Safety: if we somehow got fewer than n (shouldn't happen but guard it),
-    // top up from the remainder pool at end of shuffled array
-    if (indices.length < n && remainder > 0) {
-        const topUp = shuffled.slice(pagesInCycle * n);
-        indices = indices.concat(topUp).slice(0, n);
-    }
-
-    return indices;
-}
-
-// ── END SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────
 
 function generate(questionsBox, answersBox, val) {
     questionsBox.innerHTML = "";
@@ -841,10 +746,10 @@ function generate(questionsBox, answersBox, val) {
         fetch(BASE_URL + val + ".json")
             .then(r => r.json())
             .then(d => {
-                const total        = d.questions.length;
                 const numQuestions = val === "word-problems" ? 4 : 2;
-                const idx          = pickDailyIndices(val, total, numQuestions);
-
+                const idx = [...Array(d.questions.length).keys()]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, numQuestions);
                 idx.forEach((i, j) => {
                     let letter = String.fromCharCode(97 + j);
                     let questionText = d.questions[i];
@@ -897,50 +802,6 @@ resetTimer.onclick = () => {
     timerBtn.style.boxShadow  = "0 0 8px rgba(40,167,69,0.5)";
 };
 
-// CONFETTI
-const CONFETTI_COLORS = ["#ff004c","#ff9900","#ffee00","#28a745","#00c8ff","#cc44ff","#ff66aa","#ffffff"];
-
-function launchConfetti() {
-    const count   = 38;
-    const half    = Math.floor(count / 2);
-    const vpW     = window.innerWidth;
-
-    for (let i = 0; i < count; i++) {
-        const piece = document.createElement("div");
-        piece.className = "confetti-piece";
-
-        // Left burst or right burst
-        const isLeft  = i < half;
-        const originX = isLeft
-            ? rand(0, 60)                   // left edge band
-            : rand(vpW - 60, vpW - 4);      // right edge band
-
-        const spreadX = isLeft
-            ? rand(-10, 90)                 // fans right from left
-            : rand(-90, 10);                // fans left from right
-
-        const duration = rand(700, 1300);
-        const delay    = rand(0, 220);
-        const size     = rand(7, 13);
-        const color    = CONFETTI_COLORS[rand(0, CONFETTI_COLORS.length - 1)];
-        const isCircle = rand(0, 1) === 0;
-
-        piece.style.cssText = `
-            left: ${originX + spreadX}px;
-            top: ${rand(-30, 40)}px;
-            width: ${size}px;
-            height: ${size * rand(1,2)}px;
-            background: ${color};
-            border-radius: ${isCircle ? "50%" : "2px"};
-            animation-duration: ${duration}ms;
-            animation-delay: ${delay}ms;
-        `;
-
-        document.body.appendChild(piece);
-        setTimeout(() => piece.remove(), duration + delay + 100);
-    }
-}
-
 // FOCUS / DIM
 let activeStack = null;
 
@@ -957,7 +818,6 @@ questions.addEventListener("click", e => {
         s.classList.toggle("dimmed", s !== stack);
     });
     activeStack = stack;
-    launchConfetti();
     const cr = questions.getBoundingClientRect(), sr = stack.getBoundingClientRect();
     questions.scrollTo({ top: questions.scrollTop + (sr.top - cr.top) - (cr.height / 2) + (sr.height / 2), behavior: "smooth" });
 });
