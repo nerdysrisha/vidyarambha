@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v46 Caraousel pattern questions -->
+<!--v45 added bodmos block bit bigger -->
 <style>
 html, body {
     margin: 0;
@@ -15,8 +15,7 @@ html, body {
 
 #outer {
     margin: 20px;
-    margin-bottom: 0;
-    height: calc(100vh - 40px - 64px); /* viewport minus top margin minus bottom nav */
+    height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -136,6 +135,17 @@ button:active {
     box-shadow: 0 0 16px rgba(0, 153, 255, 0.9);
 }
 
+/* Amber fullscreen */
+#fsBtn {
+    background: #ff9900;
+    color: #000;
+    box-shadow: 0 0 8px rgba(255, 153, 0, 0.5);
+}
+
+#fsBtn:hover {
+    box-shadow: 0 0 16px rgba(255, 153, 0, 0.9);
+}
+
 /* Timer */
 #timerBtn {
     background: #28a745;
@@ -157,77 +167,67 @@ button:active {
     letter-spacing: 2px;
 }
 
-/* ONE-AT-A-TIME: hide all stacks, show only .visible-stack */
-.stack-wrapper {
-    display: none;
-}
-
-/* Question counter badge */
-#qCounter {
-    font-size: 16px;
-    font-weight: bold;
-    color: #00c8ff;
-    min-width: 60px;
-    text-align: center;
-    letter-spacing: 1px;
-}
-
-/* QUESTIONS PANEL - carousel viewport */
+/* QUESTIONS PANEL */
 #questions {
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
     border: 1px solid #333;
     border-radius: 8px;
+    padding: 12px;
     flex: 1;
+    overflow-y: auto;
     min-height: 0;
-    padding: 8px;
-    box-sizing: border-box;
+    padding-bottom: 32px;
 }
 
-/* STACK WRAPPER - carousel slide */
+#questions legend {
+    padding: 0 10px;
+    font-size: 16px;
+    color: #aaa;
+}
+
+#questions::-webkit-scrollbar { width: 12px; }
+#questions::-webkit-scrollbar-track { background: #111; }
+#questions::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; border: 3px solid #111; }
+#questions::-webkit-scrollbar-thumb:hover { background-color: #888; }
+
+/* STACK WRAPPER */
 .stack-wrapper {
-    display: none;
-    position: absolute;
-    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    width: 100%;
+    display: grid;
     grid-template-columns: 3fr 1fr;
     gap: 12px;
+    min-height: 400px;
     align-items: stretch;
-    overflow-y: auto;
-    box-sizing: border-box;
+    transition: filter 0.25s ease, opacity 0.25s ease;
 }
-
-/* Scrollbar for individual stack */
-.stack-wrapper::-webkit-scrollbar { width: 10px; }
-.stack-wrapper::-webkit-scrollbar-track { background: #111; }
-.stack-wrapper::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; border: 2px solid #111; }
-.stack-wrapper::-webkit-scrollbar-thumb:hover { background-color: #888; }
 
 .stack-wrapper.dimmed {
     opacity: 0.25;
     filter: grayscale(60%);
 }
 
-.stack-wrapper.visible-stack {
-    display: grid;
-    position: absolute;
-    animation: slideIn 0.4s ease forwards;
+.stack-wrapper.active {
+    opacity: 1;
+    filter: none;
+    position: relative;
 }
 
-/* Glow on visible stack */
-.stack-wrapper.visible-stack::after {
+.stack-wrapper.active::after {
     content: "";
     position: absolute;
-    inset: -4px;
+    inset: -10px;
     border-radius: 12px;
     outline: 3px solid transparent;
     animation: rainbowGlow 4s linear infinite;
     pointer-events: none;
 }
 
-/* Word problems, BODMAS, Tables: auto-size height */
+/* Word problems & BODMAS: auto-size to content */
 .stack-wrapper.auto-size {
+    min-height: unset;
     height: auto;
-    min-height: 100%;
     align-items: start;
 }
 
@@ -338,37 +338,6 @@ button:active {
     box-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
 }
 
-/* FIXED BOTTOM NAV BAR */
-#bottom-nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    padding: 8px 20px;
-    background: #0f0f0f;
-    border-top: 1px solid #333;
-    z-index: 100;
-    box-sizing: border-box;
-}
-
-#bottom-nav button {
-    padding: 12px 32px;
-    font-size: 18px;
-    border-radius: 12px;
-}
-
-#bottom-qCounter {
-    font-size: 20px;
-    font-weight: bold;
-    color: #00c8ff;
-    min-width: 80px;
-    text-align: center;
-    letter-spacing: 2px;
-}
-
 /* CHECKBOX COLORS */
 .inline-item { color: #28a745; }
 .github-item { color: #ff9900; }
@@ -425,7 +394,9 @@ button:active {
             <button id="timerBtn">Start Timer</button>
             <button id="resetTimer">Reset</button>
             <span id="timerDisplay">00:00</span>
-            <button id="goTopBtn" class="nav-btn">⬆ Top Q</button>
+            <button id="goTop" class="nav-btn">⬆ Top Q</button>
+            <button id="goBottom" class="nav-btn">⬇ Last Q</button>
+            <button id="fsBtn" onclick="toggleFullscreen()">Go Fullscreen</button>
             <button id="saveBtn">Save Answers</button>
             <button id="saveQuestionsBtn">Save Questions</button>
         </div>
@@ -437,13 +408,6 @@ button:active {
     <fieldset id="questions">
         <legend>Questions Panel</legend>
     </fieldset>
-</div>
-
-<!-- FIXED BOTTOM NAVIGATION -->
-<div id="bottom-nav">
-    <button id="prevBtn" class="nav-btn">&#8592; Prev</button>
-    <span id="bottom-qCounter">0 / 0</span>
-    <button id="nextBtn" class="nav-btn">Next &#8594;</button>
 </div>
 
 <script>
@@ -555,7 +519,7 @@ function renderSplitRow(letter, question, answer) {
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
-    const autoSize = ["word-problems", "bodmas", "multiplication-tables"];
+    const autoSize = ["word-problems", "bodmas"];
     wrapper.className = "stack-wrapper" + (autoSize.includes(val) ? " auto-size" : "");
     const questionsBox = document.createElement("div");
     questionsBox.className = "stack-box questions-box";
@@ -564,30 +528,14 @@ function addStack(val) {
     wrapper.appendChild(questionsBox);
     wrapper.appendChild(answersBox);
     stacks[val] = wrapper;
-    stackOrder.push(val);
     questions.appendChild(wrapper);
+    wrapper.scrollIntoView({ behavior: "smooth", block: "end" });
     generate(questionsBox, answersBox, val);
-    // Slide to the newly added stack
-    navigateTo(stackOrder.length - 1, "next");
 }
 
 function removeStack(val) {
     stacks[val]?.remove();
     delete stacks[val];
-    const idx = stackOrder.indexOf(val);
-    if (idx !== -1) stackOrder.splice(idx, 1);
-    if (stackOrder.length === 0) {
-        currentIndex = 0;
-        updateCounter();
-    } else {
-        const newIdx = Math.min(currentIndex, stackOrder.length - 1);
-        // Show without animation when unchecking
-        stackOrder.forEach((v, i) => {
-            stacks[v]?.classList.toggle("visible-stack", i === newIdx);
-        });
-        currentIndex = newIdx;
-        updateCounter();
-    }
 }
 
 // ── SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────────
@@ -994,99 +942,59 @@ function launchConfetti() {
     }
 }
 
-// CONFETTI on question block click
+// FOCUS / DIM
 let activeStack = null;
 
 questions.addEventListener("click", e => {
     const stack = e.target.closest(".stack-wrapper");
     if (!stack) return;
-    if (activeStack === stack) { activeStack = null; return; }
+    if (activeStack === stack) {
+        document.querySelectorAll(".stack-wrapper").forEach(s => s.classList.remove("active", "dimmed"));
+        activeStack = null;
+        return;
+    }
+    document.querySelectorAll(".stack-wrapper").forEach(s => {
+        s.classList.toggle("active",  s === stack);
+        s.classList.toggle("dimmed", s !== stack);
+    });
     activeStack = stack;
     launchConfetti();
+    const cr = questions.getBoundingClientRect(), sr = stack.getBoundingClientRect();
+    questions.scrollTo({ top: questions.scrollTop + (sr.top - cr.top) - (cr.height / 2) + (sr.height / 2), behavior: "smooth" });
 });
 
-// CAROUSEL NAVIGATION
-const stackOrder   = [];
-let   currentIndex = 0;
-let   isAnimating  = false;
-
-function updateCounter() {
-    const total = stackOrder.length;
-    const txt   = total === 0 ? "0 / 0" : `${currentIndex + 1} / ${total}`;
-    document.getElementById("bottom-qCounter").textContent = txt;
+function activateStack(stack) {
+    document.querySelectorAll(".stack-wrapper").forEach(s => {
+        s.classList.toggle("active",  s === stack);
+        s.classList.toggle("dimmed", s !== stack);
+    });
+    activeStack = stack;
 }
 
-// Slide animation navigation
-function navigateTo(newIdx, direction) {
-    if (stackOrder.length === 0) { updateCounter(); return; }
-    if (isAnimating) return;
-    if (newIdx === currentIndex) return;
+document.getElementById("goTop").onclick = () => {
+    const first = questions.querySelector(".stack-wrapper");
+    if (!first) return;
+    questions.scrollTo({ top: 0, behavior: "smooth" });
+    activateStack(first);
+};
 
-    isAnimating = true;
-    const oldEl = stacks[stackOrder[currentIndex]];
-    const newEl = stacks[stackOrder[newIdx]];
+document.getElementById("goBottom").onclick = () => {
+    const all  = questions.querySelectorAll(".stack-wrapper");
+    const last = all[all.length - 1];
+    if (!last) return;
+    questions.scrollTo({ top: questions.scrollHeight - questions.clientHeight, behavior: "smooth" });
+    activateStack(last);
+};
 
-    currentIndex = newIdx;
-
-    // Animate old out
-    if (oldEl) {
-        oldEl.style.transition = "transform 0.38s ease, opacity 0.38s ease";
-        oldEl.style.transform  = direction === "next" ? "translateX(-100%)" : "translateX(100%)";
-        oldEl.style.opacity    = "0";
-        setTimeout(() => {
-            oldEl.classList.remove("visible-stack");
-            oldEl.style.transform  = "";
-            oldEl.style.opacity    = "";
-            oldEl.style.transition = "";
-        }, 390);
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        document.getElementById("fsBtn").innerText = "Exit Fullscreen";
+    } else {
+        document.exitFullscreen();
+        document.getElementById("fsBtn").innerText = "Go Fullscreen";
     }
-
-    // Prepare new one just off screen
-    if (newEl) {
-        newEl.style.transition = "none";
-        newEl.style.transform  = direction === "next" ? "translateX(100%)" : "translateX(-100%)";
-        newEl.style.opacity    = "0";
-        newEl.classList.add("visible-stack");
-        // Scroll to top
-        newEl.scrollTop = 0;
-        // Animate in on next frame
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                newEl.style.transition = "transform 0.38s ease, opacity 0.38s ease";
-                newEl.style.transform  = "translateX(0)";
-                newEl.style.opacity    = "1";
-                setTimeout(() => {
-                    newEl.style.transition = "";
-                    newEl.style.transform  = "";
-                    newEl.style.opacity    = "";
-                    isAnimating = false;
-                }, 400);
-            });
-        });
-    }
-
-    updateCounter();
 }
-
-document.getElementById("prevBtn").onclick = () => {
-    if (stackOrder.length === 0) return;
-    const idx = (currentIndex - 1 + stackOrder.length) % stackOrder.length;
-    navigateTo(idx, "prev");
-    launchConfetti();
-};
-
-document.getElementById("nextBtn").onclick = () => {
-    if (stackOrder.length === 0) return;
-    const idx = (currentIndex + 1) % stackOrder.length;
-    navigateTo(idx, "next");
-    launchConfetti();
-};
-
-document.getElementById("goTopBtn").onclick = () => {
-    if (stackOrder.length === 0) return;
-    navigateTo(0, "prev");
-    launchConfetti();
-};
 
 // SAVE ANSWERS
 document.getElementById("saveBtn").onclick = () => {
