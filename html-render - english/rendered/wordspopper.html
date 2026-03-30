@@ -2,60 +2,186 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Word Popper Panel</title>
+<title>Word Popper</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
 <!--
-v14
+v15. Kid-friendly rainbow glow UI:
+  - Removed exerciseSelector
+  - Slider (1-20) for daily word count
+  - Rainbow glow on word, neon panel borders
+  - History chips with index + per-word color
+  - Animated rainbow progress bar
+  - Fun completion screen
+  - Nunito rounded font
+  - Seeded PRNG daily word selection (dynamic JSON size)
 -->
 <style>
+*, *::before, *::after { box-sizing: border-box; }
+
+@keyframes rainbowBorder {
+    0%   { border-color: #ff4fcf; box-shadow: 0 0 16px 4px #ff4fcf88; }
+    16%  { border-color: #ff9a3c; box-shadow: 0 0 16px 4px #ff9a3c88; }
+    33%  { border-color: #ffe04b; box-shadow: 0 0 16px 4px #ffe04b88; }
+    50%  { border-color: #4bff91; box-shadow: 0 0 16px 4px #4bff9188; }
+    66%  { border-color: #4bcfff; box-shadow: 0 0 16px 4px #4bcfff88; }
+    83%  { border-color: #a64bff; box-shadow: 0 0 16px 4px #a64bff88; }
+    100% { border-color: #ff4fcf; box-shadow: 0 0 16px 4px #ff4fcf88; }
+}
+
+@keyframes rainbowText {
+    0%   { color: #ff4fcf; text-shadow: 0 0 24px #ff4fcf, 0 0 60px #ff4fcf88; }
+    16%  { color: #ff9a3c; text-shadow: 0 0 24px #ff9a3c, 0 0 60px #ff9a3c88; }
+    33%  { color: #ffe04b; text-shadow: 0 0 24px #ffe04b, 0 0 60px #ffe04b88; }
+    50%  { color: #4bff91; text-shadow: 0 0 24px #4bff91, 0 0 60px #4bff9188; }
+    66%  { color: #4bcfff; text-shadow: 0 0 24px #4bcfff, 0 0 60px #4bcfff88; }
+    83%  { color: #a64bff; text-shadow: 0 0 24px #a64bff, 0 0 60px #a64bff88; }
+    100% { color: #ff4fcf; text-shadow: 0 0 24px #ff4fcf, 0 0 60px #ff4fcf88; }
+}
+
+@keyframes progressRainbow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+@keyframes popIn {
+    0%   { transform: scale(0.5); opacity: 0; }
+    70%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+@keyframes celebrationBounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25%       { transform: scale(1.12) rotate(-3deg); }
+    75%       { transform: scale(1.12) rotate(3deg); }
+}
+
 html, body {
     margin: 0;
     height: 100%;
-    background: black;
+    background: #0a0a12;
     color: white;
-    font-family: Arial, sans-serif;
+    font-family: 'Nunito', Arial, sans-serif;
     overflow: hidden;
 }
 
 #outer {
-    margin: 20px;
-    height: calc(100vh - 40px);
+    margin: 16px;
+    height: calc(100vh - 32px);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
 }
 
-/* CONTROL PANEL */
+/* ── CONTROL BAR ── */
 #control-container {
     display: flex;
-    flex-direction: column;
-    transition: flex-basis 0.3s ease, min-height 0.3s ease;
-    min-height: 40px;
-    overflow: hidden;
-    border: 1px solid #444;
-    padding: 8px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 2px solid #ff4fcf;
+    border-radius: 16px;
+    background: #10101e;
+    animation: rainbowBorder 4s linear infinite;
+    flex-shrink: 0;
 }
 
-#control-container.shrink {
-    flex-basis: 40px;
-    min-height: 40px;
-    padding: 4px 8px;
-}
- 
-
-#patternSelector {
-    padding: 4px 8px;
+.dark-select {
+    padding: 5px 10px;
     font-size: 14px;
-    background: #111;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    background: #1a1a2e;
     color: #fff;
-    border: 1px solid #444;
+    border: 2px solid #444;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.dark-select:hover, .dark-select:focus {
+    border-color: #a64bff;
+    box-shadow: 0 0 8px #a64bff66;
+}
+
+/* ── SLIDER ── */
+#slider-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+#slider-block label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #aaa;
+    white-space: nowrap;
+}
+#wordCountSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 110px;
+    height: 6px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ff4fcf, #ff9a3c, #ffe04b, #4bff91, #4bcfff, #a64bff);
+    outline: none;
     cursor: pointer;
 }
-
-#counter {
-    color: #aaa;
+#wordCountSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px #a64bffaa;
+    cursor: pointer;
+    border: 2px solid #a64bff;
+    transition: box-shadow 0.2s;
+}
+#wordCountSlider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px #ff4fcf;
+}
+#sliderValue {
+    font-size: 16px;
+    font-weight: 900;
+    color: #ffe04b;
+    text-shadow: 0 0 10px #ffe04b;
+    min-width: 26px;
+    text-align: center;
 }
 
-/* PANELS */
+/* ── DAY BADGE ── */
+#day-info {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ccc;
+    background: #1a1a2e;
+    border: 1px solid #444;
+    border-radius: 20px;
+    padding: 3px 10px;
+    white-space: nowrap;
+    margin-left: auto;
+}
+
+/* ── PROGRESS BAR ── */
+#progress-wrap {
+    height: 8px;
+    border-radius: 6px;
+    background: #1a1a2e;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+#progress-bar {
+    height: 100%;
+    border-radius: 6px;
+    width: 0%;
+    background: linear-gradient(90deg,
+        #ff4fcf, #ff9a3c, #ffe04b, #4bff91, #4bcfff, #a64bff, #ff4fcf);
+    background-size: 200% 100%;
+    animation: progressRainbow 2s linear infinite;
+    transition: width 0.4s ease;
+}
+
+/* ── PANELS ── */
 #panels {
     display: grid;
     grid-template-columns: 4fr 1fr;
@@ -64,69 +190,91 @@ html, body {
     min-height: 0;
 }
 
-/* CENTER (WORD) BOX */
+/* ── CENTER BOX ── */
 #center {
-    border: 1px solid #222;
-    background: #111;
+    border: 3px solid #ff4fcf;
+    border-radius: 20px;
+    background: #0d0d1a;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: clamp(20px, 8vw, 100px);
+    font-weight: 900;
+    font-size: clamp(24px, 8vw, 110px);
     overflow: hidden;
     padding: 12px;
+    animation: rainbowBorder 4s linear infinite;
+    outline: none;
 }
 
-/* LEFT (HISTORY) BOX */
+/* ── HISTORY BOX ── */
 #left {
-    border: 1px solid #222;
-    background: #111;
+    border: 2px solid #333;
+    border-radius: 16px;
+    background: #0d0d1a;
     display: flex;
     flex-direction: column;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px;
     overflow-y: auto;
+    animation: rainbowBorder 4s linear infinite;
+    animation-delay: -2s;
+}
+#left::-webkit-scrollbar { width: 6px; }
+#left::-webkit-scrollbar-track { background: transparent; }
+#left::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+/* ── HISTORY CHIP ── */
+.history-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    animation: popIn 0.3s ease;
+}
+.chip-index {
+    font-size: 10px;
+    opacity: 0.6;
+    min-width: 14px;
 }
 
-/* WORD + EMOJI STACK */
+/* ── WORD + EMOJI ── */
 .word-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: popIn 0.35s ease;
 }
-
+.word {
+    animation: rainbowText 3s linear infinite;
+    letter-spacing: 0.04em;
+}
 .emoji {
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     margin-top: 10px;
 }
 
-/* Scrollbars */
-#left::-webkit-scrollbar {
-    width: 10px;
+/* ── COMPLETION ── */
+.completion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: celebrationBounce 1s ease infinite;
 }
-
-#left::-webkit-scrollbar-track {
-    background: #111;
+.completion .big-emoji { font-size: 72px; line-height: 1; }
+.completion .done-text {
+    font-size: clamp(18px, 3vw, 32px);
+    font-weight: 900;
+    animation: rainbowText 2s linear infinite;
 }
-
-#left::-webkit-scrollbar-thumb {
-    background-color: #555;
-    border-radius: 6px;
-    border: 2px solid #111;
-}
-
-#left::-webkit-scrollbar-thumb:hover {
-    background-color: #888;
-}
-
-/* BUTTONS */
-button {
-    padding: 4px 8px;
-    border: none;
-    cursor: pointer;
-    background: #58D68D;
-    color: black;
+.completion .done-sub {
+    font-size: 13px;
+    color: #aaa;
 }
 </style>
 </head>
@@ -134,11 +282,9 @@ button {
 
 <div id="outer">
 
-    <!-- CONTROL PANEL -->
-    <div id="control-container" class="shrink">
-<div id="control-top-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-    <div style="flex-grow:1;">
-        <select id="patternSelector">
+    <!-- CONTROL BAR -->
+    <div id="control-container">
+        <select id="patternSelector" class="dark-select">
             <option value="2-letter">2 Letter Words</option>
             <option value="3-letter" selected>3 Letter Words</option>
             <option value="4-letter">4 Letter Words</option>
@@ -167,13 +313,22 @@ button {
             <option value="vehicles">Vehicles</option>
             <option value="weather">Weather</option>
         </select>
-    </div>
-    <div id="counter">0 / 0</div>
-</div>
 
+        <div id="slider-block">
+            <label>Words:</label>
+            <input type="range" id="wordCountSlider" min="1" max="20" value="5">
+            <span id="sliderValue">5</span>
+        </div>
+
+        <span id="day-info"></span>
     </div>
 
-    <!-- PANELS: CENTER + LEFT -->
+    <!-- PROGRESS BAR -->
+    <div id="progress-wrap">
+        <div id="progress-bar"></div>
+    </div>
+
+    <!-- PANELS -->
     <div id="panels">
         <div id="center" tabindex="0"></div>
         <div id="left"></div>
@@ -182,126 +337,267 @@ button {
 </div>
 
 <script>
-let words=[], leftWords=[], centerWord=null, totalWords=0;
+// ─────────────────────────────────────────────
+// PRNG: Mulberry32
+// ─────────────────────────────────────────────
+function mulberry32(seed) {
+    return function() {
+        seed |= 0;
+        seed = seed + 0x6D2B79F5 | 0;
+        let z = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        z = z + Math.imul(z ^ z >>> 7, 61 | z) ^ z;
+        return ((z ^ z >>> 14) >>> 0) / 4294967296;
+    };
+}
 
-const centerBox = document.getElementById('center');
-const leftBox = document.getElementById('left');
-const counterEl = document.getElementById('counter');
+// ─────────────────────────────────────────────
+// Hash: string → uint32
+// ─────────────────────────────────────────────
+function hashString(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+}
+
+// ─────────────────────────────────────────────
+// Fisher-Yates with seeded PRNG
+// ─────────────────────────────────────────────
+function seededShuffle(arr, rng) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// ─────────────────────────────────────────────
+// Date helpers
+// ─────────────────────────────────────────────
+function getTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getDayOfYear() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    return Math.floor((now - start) / 86400000);
+}
+
+// ─────────────────────────────────────────────
+// Daily word selection
+// ─────────────────────────────────────────────
+function getDailyWords(patternName, allWords, n) {
+    const total = allWords.length;
+    if (total <= n) return allWords.slice();
+    const seed      = hashString(getTodayString() + '|' + patternName);
+    const rng       = mulberry32(seed);
+    const shuffled  = seededShuffle(allWords, rng);
+    const totalPages = Math.floor(total / n);
+    const pageIndex  = getDayOfYear() % totalPages;
+    return shuffled.slice(pageIndex * n, pageIndex * n + n);
+}
+
+// ─────────────────────────────────────────────
+// Chip colors
+// ─────────────────────────────────────────────
+const CHIP_COLORS = [
+    { bg:'#2d0a1f', text:'#ff4fcf', border:'#ff4fcf55' },
+    { bg:'#2d1a06', text:'#ff9a3c', border:'#ff9a3c55' },
+    { bg:'#2a2500', text:'#ffe04b', border:'#ffe04b55' },
+    { bg:'#062d18', text:'#4bff91', border:'#4bff9155' },
+    { bg:'#062228', text:'#4bcfff', border:'#4bcfff55' },
+    { bg:'#1a0a2e', text:'#a64bff', border:'#a64bff55' },
+];
+
+// ─────────────────────────────────────────────
+// DOM refs
+// ─────────────────────────────────────────────
+const centerBox       = document.getElementById('center');
+const leftBox         = document.getElementById('left');
+const dayInfoEl       = document.getElementById('day-info');
+const progressBar     = document.getElementById('progress-bar');
 const patternSelector = document.getElementById('patternSelector');
+const slider          = document.getElementById('wordCountSlider');
+const sliderValueEl   = document.getElementById('sliderValue');
 
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let words = [], leftWords = [], centerWord = null, totalWords = 0;
+let currentWordSpoken = false;
+let userN = 5;
+
+// ─────────────────────────────────────────────
+// Emoji
+// ─────────────────────────────────────────────
 const EMOJI_COUNT = 55;
 function getRandomEmojiUrl() {
-    const n = Math.floor(Math.random()*EMOJI_COUNT)+1;
-    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${Math.floor(Math.random()*EMOJI_COUNT)+1}.gif`;
 }
 
-function animateWord(word, color) {
+// ─────────────────────────────────────────────
+// Word animation
+// ─────────────────────────────────────────────
+function animateWord(word) {
     centerBox.innerHTML = `
         <div class="word-container">
-            <span class="word" style="color:${color}"></span>
+            <span class="word"></span>
             <img class="emoji" src="${getRandomEmojiUrl()}">
-        </div>
-    `;
-    const wordSpan = centerBox.querySelector('.word');
+        </div>`;
+    const span = centerBox.querySelector('.word');
     let i = 0;
-
-    const interval = setInterval(() => {
-        wordSpan.textContent += word[i];
-        i++;
-        if (i >= word.length) clearInterval(interval);
-    }, 200); // 200ms per letter
+    const iv = setInterval(() => {
+        span.textContent += word[i++];
+        if (i >= word.length) clearInterval(iv);
+    }, 200);
 }
 
-
-
-
-function getJsonUrl(p){
-    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${p}-words.json`;
+// ─────────────────────────────────────────────
+// Progress
+// ─────────────────────────────────────────────
+function updateProgress() {
+    progressBar.style.width = totalWords > 0
+        ? (leftWords.length / totalWords * 100) + '%'
+        : '0%';
 }
 
-function loadWords(p){
-    fetch(getJsonUrl(p))
-    .then(r=>r.json())
-    .then(d=>{
-        words=d;
-        totalWords=d.length;
-        leftWords=[];
-        centerWord=null;
-        leftBox.innerHTML='';
-        centerBox.innerHTML='😃';
-        counterEl.textContent=`0 / ${totalWords}`;
-        nextWord();
-        centerBox.focus();
-    })
-    .catch(err=>console.error("Failed to load words:",err));
+// ─────────────────────────────────────────────
+// Speech
+// ─────────────────────────────────────────────
+function speakWord(word) {
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
 }
 
- 
-
-function speakWord(word, callback) {
-    const utter = new SpeechSynthesisUtterance(word);
-    utter.lang = 'en-US';
-    utter.onend = callback; // call after speaking finishes
-    speechSynthesis.speak(utter);
-}
-
-function randomColor(){
-    return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
-}
-
-function renderLeft(){
-    leftBox.innerHTML='';
-    leftWords.forEach(w=>{
-        const d=document.createElement('div');
-        d.textContent=w;
-        leftBox.appendChild(d);
+// ─────────────────────────────────────────────
+// History
+// ─────────────────────────────────────────────
+function renderLeft() {
+    leftBox.innerHTML = '';
+    leftWords.forEach((w, idx) => {
+        const c = CHIP_COLORS[idx % CHIP_COLORS.length];
+        const chip = document.createElement('div');
+        chip.className = 'history-chip';
+        chip.style.cssText = `background:${c.bg};color:${c.text};border:1px solid ${c.border}`;
+        chip.innerHTML = `<span class="chip-index">${idx+1}</span><span>${w}</span>`;
+        leftBox.appendChild(chip);
     });
-    leftBox.scrollTop=leftBox.scrollHeight;
+    leftBox.scrollTop = leftBox.scrollHeight;
 }
 
-let currentWordSpoken = false;
+// ─────────────────────────────────────────────
+// Day badge
+// ─────────────────────────────────────────────
+function updateDayInfo(patternName, pageIndex, totalPages) {
+    dayInfoEl.textContent = `📅 ${getTodayString()} · Set ${pageIndex+1}/${totalPages}`;
+}
 
+// ─────────────────────────────────────────────
+// Load
+// ─────────────────────────────────────────────
+function loadWords(patternName) {
+    fetch(`https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${patternName}-words.json`)
+        .then(r => r.json())
+        .then(allWords => {
+            const total      = allWords.length;
+            words            = getDailyWords(patternName, allWords, userN);
+            totalWords       = words.length;
+            leftWords        = [];
+            centerWord       = null;
+            leftBox.innerHTML   = '';
+            centerBox.innerHTML = '😃';
+            updateProgress();
+            const totalPages = total <= userN ? 1 : Math.floor(total / userN);
+            updateDayInfo(patternName, getDayOfYear() % totalPages, totalPages);
+            nextWord();
+            centerBox.focus();
+        })
+        .catch(err => console.error('Failed to load words:', err));
+}
+
+// ─────────────────────────────────────────────
+// Next word
+// ─────────────────────────────────────────────
 function nextWord() {
     if (!centerWord && !words.length) return;
 
-    // If there is a current word that hasn't been spoken yet
     if (centerWord && !currentWordSpoken) {
-        speakWord(centerWord);   // speak it now
+        speakWord(centerWord);
         currentWordSpoken = true;
-        return;                  // don't pop new word yet
-    }
-
-    // Move current word to left box if spoken
-    if (centerWord && currentWordSpoken) {
-        leftWords.push(centerWord);
-        counterEl.textContent = `${leftWords.length} / ${totalWords}`;
-        renderLeft();
-    }
-
-    // Pick new word
-    if (words.length === 0) {
-        centerWord = null;
-        centerBox.innerHTML = '🎉';
         return;
     }
 
-    centerWord = words.splice(Math.random() * words.length | 0, 1)[0];
-    currentWordSpoken = false;
+    if (centerWord && currentWordSpoken) {
+        leftWords.push(centerWord);
+        updateProgress();
+        renderLeft();
+    }
 
-    animateWord(centerWord, randomColor());
+    if (words.length === 0) {
+        centerWord = null;
+        const label = patternSelector.options[patternSelector.selectedIndex].text;
+        centerBox.innerHTML = `
+            <div class="completion">
+                <div class="big-emoji">🎉</div>
+                <div class="done-text">All done!</div>
+                <div class="done-sub">${label} · ${totalWords} words · ${getTodayString()}</div>
+            </div>`;
+        return;
+    }
+
+    centerWord = words.splice(0, 1)[0];
+    currentWordSpoken = false;
+    animateWord(centerWord);
 }
 
+// ─────────────────────────────────────────────
+// Reset
+// ─────────────────────────────────────────────
+function resetScreen() {
+    words = []; leftWords = []; centerWord = null; totalWords = 0;
+    leftBox.innerHTML = '';
+    centerBox.innerHTML = '';
+    progressBar.style.width = '0%';
+    dayInfoEl.textContent = '';
+    speechSynthesis.cancel();
+}
 
-
+// ─────────────────────────────────────────────
+// Events
+// ─────────────────────────────────────────────
 patternSelector.addEventListener('change', () => {
+    resetScreen();
     loadWords(patternSelector.value);
-    setTimeout(() => centerBox.focus(), 0); // tiny delay ensures focus
+    setTimeout(() => centerBox.focus(), 0);
 });
-document.body.addEventListener('keydown',e=>{ if(e.code==='Space'||e.code==='Enter') nextWord(); });
 
+// Live preview of slider number while dragging
+slider.addEventListener('input', () => {
+    userN = parseInt(slider.value);
+    sliderValueEl.textContent = userN;
+});
+
+// Reload words only when slider thumb is released
+slider.addEventListener('change', () => {
+    userN = parseInt(slider.value);
+    resetScreen();
+    loadWords(patternSelector.value);
+    setTimeout(() => centerBox.focus(), 0);
+});
+
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') nextWord();
+});
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
 loadWords(patternSelector.value);
-
- 
 </script>
 </body>
 </html>
