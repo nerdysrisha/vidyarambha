@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Word Popper Panel</title>
 <!--
-v15. Adding identifying calendar 
+v14
 -->
 <style>
 html, body {
@@ -41,7 +41,15 @@ html, body {
     padding: 4px 8px;
 }
  
- 
+
+#patternSelector {
+    padding: 4px 8px;
+    font-size: 14px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    cursor: pointer;
+}
 
 #counter {
     color: #aaa;
@@ -120,35 +128,6 @@ button {
     background: #58D68D;
     color: black;
 }
-
-.dark-select {
-    padding: 4px 8px;
-    font-size: 14px;
-    background: #111;
-    color: #fff;
-    border: 1px solid #444;
-    cursor: pointer;
-}
-
- 
-
-.dark-select{
-    background:#111;
-    color:#fff;
-    border:1px solid #444;
-}
-.dark-select:disabled{
-    background:#333;
-    color:#777;
-    border-color:#222;
-}
-.dark-select.active{
-    background:#58D68D;
-    color:#000;
-    border-color:#58D68D;
-}
-
-
 </style>
 </head>
 <body>
@@ -159,7 +138,7 @@ button {
     <div id="control-container" class="shrink">
 <div id="control-top-bar" style="display:flex; align-items:center; justify-content:space-between; width:100%;">
     <div style="flex-grow:1;">
-        <select id="patternSelector" class="dark-select">
+        <select id="patternSelector">
             <option value="2-letter">2 Letter Words</option>
             <option value="3-letter" selected>3 Letter Words</option>
             <option value="4-letter">4 Letter Words</option>
@@ -188,12 +167,6 @@ button {
             <option value="vehicles">Vehicles</option>
             <option value="weather">Weather</option>
         </select>
-		<select id="exerciseSelector" class="dark-select">
-			<option value="dictation-months">Months Dictation</option>
-			<option value="dictation-3letterwords">Dictation 3 Letter Words</option>
-			<option value="dictation-4letterwords">Dictation 4 Letter Words</option>
-			<option value="dictation-5letterwords">Dictation 5 Letter Words</option> 
-		</select>
     </div>
     <div id="counter">0 / 0</div>
 </div>
@@ -328,49 +301,7 @@ document.body.addEventListener('keydown',e=>{ if(e.code==='Space'||e.code==='Ent
 
 loadWords(patternSelector.value);
 
-//selection of drop down clearing screen. 
-const exerciseSelector = document.getElementById('exerciseSelector');
-
-function resetScreen(){
-    words=[];
-    leftWords=[];
-    centerWord=null;
-    totalWords=0;
-    leftBox.innerHTML='';
-    centerBox.innerHTML='';
-    counterEl.textContent='0 / 0';
-    speechSynthesis.cancel();
-}
-
-function setActive(active, inactive){
-    active.classList.add('active');
-    inactive.classList.remove('active');
-    inactive.disabled=true;
-    active.disabled=false;
-}
-
-function unlockBoth(){
-    patternSelector.disabled=false;
-    exerciseSelector.disabled=false;
-    patternSelector.classList.remove('active');
-    exerciseSelector.classList.remove('active');
-}
-
-patternSelector.addEventListener('change',()=>{
-    resetScreen();
-    setActive(patternSelector, exerciseSelector);
-    loadWords(patternSelector.value);
-});
-
-exerciseSelector.addEventListener('change',()=>{
-    resetScreen();
-    setActive(exerciseSelector, patternSelector);
-});
-
-patternSelector.addEventListener('mouseenter', unlockBoth);
-exerciseSelector.addEventListener('mouseenter', unlockBoth);
-patternSelector.addEventListener('mouseenter', unlockBoth);
-exerciseSelector.addEventListener('mouseenter', unlockBoth);
+ 
 </script>
 </body>
 </html>
