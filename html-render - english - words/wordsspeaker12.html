@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Speaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset & Base ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    background: #0a0a12;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+/* ─── Rainbow Glow on Word ──────────────────────── */
+@keyframes rainbowGlow {
+    0%   { color: #ff6ec7; text-shadow: 0 0 18px #ff6ec7, 0 0 40px #ff6ec7aa; }
+    16%  { color: #ff9d4a; text-shadow: 0 0 18px #ff9d4a, 0 0 40px #ff9d4aaa; }
+    33%  { color: #ffe033; text-shadow: 0 0 18px #ffe033, 0 0 40px #ffe033aa; }
+    50%  { color: #4eff91; text-shadow: 0 0 18px #4eff91, 0 0 40px #4eff91aa; }
+    66%  { color: #33f0ff; text-shadow: 0 0 18px #33f0ff, 0 0 40px #33f0ffaa; }
+    83%  { color: #cc66ff; text-shadow: 0 0 18px #cc66ff, 0 0 40px #cc66ffaa; }
+    100% { color: #ff6ec7; text-shadow: 0 0 18px #ff6ec7, 0 0 40px #ff6ec7aa; }
+}
+
+@keyframes popIn {
+    0%   { transform: scale(0.5); opacity: 0; }
+    70%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    30%       { transform: translateY(-18px); }
+    60%       { transform: translateY(-8px); }
+}
+
+@keyframes rainbowProgress {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* ─── Layout ────────────────────────────────────── */
+#outer {
+    margin: 14px;
+    height: calc(100vh - 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ─── Controls ──────────────────────────────────── */
+#control-container {
+    border: 1px solid #333;
+    background: #0d0d1a;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-radius: 10px;
+}
+
+.ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Dropdown */
+.dark-select {
+    padding: 6px 10px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    background: #111;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    transition: box-shadow 0.25s, border-color 0.25s;
+}
+.dark-select:hover,
+.dark-select:focus {
+    border-color: #aa66ff;
+    box-shadow: 0 0 10px #aa66ffaa;
+}
+
+/* Slider wrapper */
+.slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.slider-label {
+    font-size: 13px;
+    color: #aaa;
+    white-space: nowrap;
+}
+.slider-value {
+    font-size: 16px;
+    font-weight: 900;
+    color: #ffe033;
+    text-shadow: 0 0 8px #ffe033cc;
+    min-width: 22px;
+    text-align: center;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ff6ec7, #ff9d4a, #ffe033, #4eff91, #33f0ff, #cc66ff);
+    outline: none;
+    cursor: pointer;
+    width: 140px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #aa66ff;
+    box-shadow: 0 0 8px #aa66ffbb;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 18px #cc88ffee;
+}
+input[type=range]::-moz-range-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #aa66ff;
+    box-shadow: 0 0 8px #aa66ffbb;
+    border: none;
+    cursor: pointer;
+}
+
+/* Counter + date */
+#counter-date {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    font-size: 13px;
+    color: #aaa;
+}
+#date-label { color: #888; }
+
+/* Progress bar */
+#progress-wrap {
+    width: 100%;
+    height: 7px;
+    background: #1a1a2e;
+    border-radius: 6px;
+    overflow: hidden;
+}
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #ff6ec7, #ff9d4a, #ffe033, #4eff91, #33f0ff, #cc66ff, #ff6ec7);
+    background-size: 200% 100%;
+    animation: rainbowProgress 3s linear infinite;
+    transition: width 0.4s ease;
+}
+
+/* ─── Main panels ───────────────────────────────── */
+#panels {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Center display */
+#center {
+    border: 1px solid #333;
+    background: #0d0d1a;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: clamp(24px, 8vw, 100px);
+    overflow: hidden;
+    padding: 16px;
+    position: relative;
+    outline: none;
+}
+
+/* The animated word */
+.word {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: inherit;
+    animation: rainbowGlow 2.4s linear infinite, popIn 0.35s ease-out;
+    display: inline-block;
+}
+
+.sentence {
+    font-size: 0.42em;
+    margin-top: 14px;
+    color: #ccc;
+    text-align: center;
+    font-weight: 700;
+    max-width: 90%;
+    line-height: 1.4;
+}
+
+.emoji {
+    width: 110px;
+    height: 110px;
+    margin-top: 10px;
+}
+
+.word-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: popIn 0.35s ease-out;
+}
+
+/* Repeat button */
+#repeatBtn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ffe033;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ffe033bb;
+    z-index: 10;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+#repeatBtn:hover {
+    box-shadow: 0 0 22px #ffe033ee;
+    transform: scale(1.12);
+}
+
+/* ─── History panel ─────────────────────────────── */
+#left {
+    border: 1px solid #333;
+    background: #0d0d1a;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 8px;
+    overflow-y: auto;
+    gap: 5px;
+}
+
+/* Color chip palette (6 neon colors cycling) */
+.chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.chip-num {
+    font-size: 11px;
+    opacity: 0.75;
+    min-width: 16px;
+    text-align: right;
+}
+
+/* palette applied via JS */
+.chip-0 { background: #2a0d1e; color: #ff6ec7; }
+.chip-1 { background: #1e1500; color: #ff9d4a; }
+.chip-2 { background: #1c1a00; color: #ffe033; }
+.chip-3 { background: #0a1f13; color: #4eff91; }
+.chip-4 { background: #001c20; color: #33f0ff; }
+.chip-5 { background: #160828; color: #cc66ff; }
+
+/* ─── Completion screen ─────────────────────────── */
+#completion {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+}
+#completion.active { display: flex; }
+
+.done-emoji {
+    font-size: 72px;
+    animation: bounce 1s ease-in-out infinite;
+    display: block;
+}
+
+.done-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: clamp(28px, 6vw, 64px);
+    animation: rainbowGlow 2s linear infinite, bounce 1.2s ease-in-out infinite;
+}
+
+.done-sub {
+    font-size: clamp(13px, 2vw, 22px);
+    color: #ccc;
+    font-weight: 700;
+    line-height: 1.7;
+}
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <!-- Controls -->
+    <div id="control-container">
+        <div class="ctrl-row">
+            <select id="patternSelector" class="dark-select">
+                <option value="3-letter-words-speaking">3 Letter Words Speaking</option>
+                <option value="4-letter-words-speaking">4 Letter Words Speaking</option>
+            </select>
+
+            <div class="slider-wrap">
+                <span class="slider-label">Words/day:</span>
+                <input type="range" id="nSlider" min="1" max="20" value="5">
+                <span class="slider-value" id="nValue">5</span>
+            </div>
+
+            <div id="counter-date">
+                <span id="counter">0 / 0</span>
+                <span id="date-label"></span>
+            </div>
+        </div>
+
+        <div id="progress-wrap">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Panels -->
+    <div id="panels">
+        <div id="center" tabindex="0">
+            <div class="content-area">😃</div>
+            <button id="repeatBtn" title="Repeat">⟳</button>
+        </div>
+        <div id="left"></div>
+    </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   PRNG — Mulberry32
+══════════════════════════════════════════════════ */
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+/* Simple string → uint32 hash */
+function hashStr(s) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    return h >>> 0;
+}
+
+/* Seeded Fisher-Yates shuffle (returns new array) */
+function seededShuffle(arr, rng) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/* Day-of-year (1-based) */
+function dayOfYear(d) {
+    const start = new Date(d.getFullYear(), 0, 0);
+    const diff = d - start + (start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
+    return Math.floor(diff / 86400000);
+}
+
+/* Format today nicely */
+function formatDate(d) {
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+/* Daily slice of indices */
+function getDailyIndices(patternName, totalLen, N) {
+    const today = new Date();
+    const seed = hashStr(`${patternName}|${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`);
+    const rng = mulberry32(seed);
+
+    const allIndices = Array.from({ length: totalLen }, (_, i) => i);
+    const shuffled = seededShuffle(allIndices, rng);
+
+    // Handle edge cases gracefully
+    const safeN = Math.min(N, totalLen);
+    if (totalLen <= N) return shuffled; // use all if total ≤ N
+
+    const pageSize = Math.floor(totalLen / safeN) || 1;
+    const doy = dayOfYear(today);
+    const pageIndex = doy % pageSize;
+    const start = pageIndex * safeN;
+    return shuffled.slice(start, start + safeN);
+}
+
+/* ══════════════════════════════════════════════════
+   DOM refs
+══════════════════════════════════════════════════ */
+const centerBox      = document.getElementById('center');
+const contentArea    = centerBox.querySelector('.content-area');
+const leftBox        = document.getElementById('left');
+const counterEl      = document.getElementById('counter');
+const dateLabelEl    = document.getElementById('date-label');
+const patternSelector = document.getElementById('patternSelector');
+const repeatBtn      = document.getElementById('repeatBtn');
+const nSlider        = document.getElementById('nSlider');
+const nValueEl       = document.getElementById('nValue');
+const progressBar    = document.getElementById('progress-bar');
+
+/* ══════════════════════════════════════════════════
+   State
+══════════════════════════════════════════════════ */
+let words = [], sentences = [], leftWords = [];
+let centerIndex = 0, totalWords = 0, step = 0;
+let currentPatternName = '';
+
+const EMOJI_COUNT = 55;
+function getRandomEmojiUrl() {
+    const n = Math.floor(Math.random() * EMOJI_COUNT) + 1;
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${n}.gif`;
+}
+
+function getJsonUrl(p) {
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/speaking/${p}.json`;
+}
+
+/* ══════════════════════════════════════════════════
+   Load + Daily Seed
+══════════════════════════════════════════════════ */
+function loadWords(pattern) {
+    currentPatternName = pattern;
+    const N = parseInt(nSlider.value);
+    fetch(getJsonUrl(pattern))
+        .then(r => r.json())
+        .then(d => {
+            const allWords     = d.words;
+            const allSentences = d.sentences;
+            const total        = allWords.length;
+
+            const indices = getDailyIndices(pattern, total, N);
+
+            words     = indices.map(i => allWords[i]);
+            sentences = indices.map(i => allSentences[i]);
+            totalWords  = words.length;
+            leftWords   = [];
+            centerIndex = 0;
+            step        = 0;
+
+            contentArea.innerHTML = '<span style="font-size:2em">😃</span>';
+            counterEl.textContent  = `0 / ${totalWords}`;
+            dateLabelEl.textContent = formatDate(new Date());
+            setProgress(0);
+            renderLeft();
+            centerBox.focus();
+        });
+}
+
+/* ══════════════════════════════════════════════════
+   Progress
+══════════════════════════════════════════════════ */
+function setProgress(done) {
+    const pct = totalWords > 0 ? (done / totalWords) * 100 : 0;
+    progressBar.style.width = pct + '%';
+}
+
+/* ══════════════════════════════════════════════════
+   Speech
+══════════════════════════════════════════════════ */
+function speak(text, lang, callback) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    utter.rate = 0.6;
+    const voices = speechSynthesis.getVoices();
+    const female = voices.find(v => v.lang.startsWith(lang.split('-')[0]) && v.name.toLowerCase().includes('female'));
+    if (female) utter.voice = female;
+    utter.onend = callback || (() => {});
+    speechSynthesis.speak(utter);
+}
+
+function speakEnUS(text, cb)  { speak(text, 'en-US', cb); }
+function speakEnIN(text, cb)  { speak(text, 'en-IN', cb); }
+
+function repeatCurrent() {
+    if (centerIndex >= totalWords) return;
+    speakEnUS(words[centerIndex], () => {});
+    speakEnIN(words[centerIndex], () => {
+        centerBox.focus();
+    });
+}
+repeatBtn.addEventListener('click', repeatCurrent);
+
+/* ══════════════════════════════════════════════════
+   Animate word + sentence
+══════════════════════════════════════════════════ */
+function animateWordAndSentence(word, sentence) {
+    contentArea.innerHTML = `
+        <div class="word-container">
+            <span class="word"></span>
+            <img class="emoji" src="${getRandomEmojiUrl()}" alt="">
+            <span class="sentence">${sentence}</span>
+        </div>
+    `;
+    const wordSpan = contentArea.querySelector('.word');
+    let i = 0;
+    const iv = setInterval(() => {
+        wordSpan.textContent += word[i++];
+        if (i >= word.length) clearInterval(iv);
+    }, 200);
+}
+
+/* ══════════════════════════════════════════════════
+   History chips
+══════════════════════════════════════════════════ */
+function renderLeft() {
+    leftBox.innerHTML = '';
+    leftWords.forEach((w, idx) => {
+        const chip = document.createElement('div');
+        chip.className = `chip chip-${idx % 6}`;
+        chip.innerHTML = `<span class="chip-num">${idx + 1}</span>${w}`;
+        leftBox.appendChild(chip);
+    });
+    leftBox.scrollTop = leftBox.scrollHeight;
+}
+
+/* ══════════════════════════════════════════════════
+   Completion screen
+══════════════════════════════════════════════════ */
+function showCompletion() {
+    const patLabel = patternSelector.options[patternSelector.selectedIndex].text;
+    contentArea.innerHTML = `
+        <div id="completion" class="active">
+            <span class="done-emoji">🎉</span>
+            <span class="done-text">All Done!</span>
+            <div class="done-sub">
+                <strong>${patLabel}</strong><br>
+                ${totalWords} words &nbsp;·&nbsp; ${formatDate(new Date())}
+            </div>
+        </div>
+    `;
+}
+
+/* ══════════════════════════════════════════════════
+   Step machine
+══════════════════════════════════════════════════ */
+function nextStep() {
+    if (centerIndex >= totalWords) {
+        showCompletion();
+        return;
+    }
+
+    if (step === 0) {
+        contentArea.innerHTML = '';
+        speakEnUS(words[centerIndex], () => {});
+        speakEnIN(words[centerIndex], () => {});
+        step = 1;
+
+    } else if (step === 1) {
+        speakEnUS(sentences[centerIndex], () => {});
+        speakEnIN(sentences[centerIndex], () => {});
+        step = 2;
+
+    } else if (step === 2) {
+        animateWordAndSentence(words[centerIndex], sentences[centerIndex]);
+        leftWords.push(words[centerIndex]);
+        renderLeft();
+        centerIndex++;
+        setProgress(centerIndex);
+        counterEl.textContent = `${centerIndex} / ${totalWords}`;
+        step = 0;
+    }
+}
+
+/* ══════════════════════════════════════════════════
+   Event listeners
+══════════════════════════════════════════════════ */
+patternSelector.addEventListener('change', () => loadWords(patternSelector.value));
+
+nSlider.addEventListener('input', () => {
+    nValueEl.textContent = nSlider.value;
+    loadWords(patternSelector.value);
+});
+
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        nextStep();
+    }
+});
+
+/* ══════════════════════════════════════════════════
+   Init
+══════════════════════════════════════════════════ */
+dateLabelEl.textContent = formatDate(new Date());
+loadWords(patternSelector.value);
+</script>
+</body>
+</html>

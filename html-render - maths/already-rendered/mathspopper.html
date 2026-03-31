@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v46 Caraousel pattern questions -->
+<!--v47. Removing Anwer panel -->
 <style>
 html, body {
     margin: 0;
@@ -184,15 +184,12 @@ button:active {
     box-sizing: border-box;
 }
 
-/* STACK WRAPPER - carousel slide */
+/* STACK WRAPPER - carousel slide, single column now */
 .stack-wrapper {
     display: none;
     position: absolute;
     top: 8px; left: 8px; right: 8px; bottom: 8px;
-    grid-template-columns: 3fr 1fr;
-    gap: 12px;
-    align-items: stretch;
-    overflow-y: auto;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -208,57 +205,44 @@ button:active {
 }
 
 .stack-wrapper.visible-stack {
-    display: grid;
+    display: block;
     position: absolute;
-    animation: slideIn 0.4s ease forwards;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Glow on visible stack */
 .stack-wrapper.visible-stack::after {
     content: "";
-    position: absolute;
-    inset: -4px;
-    border-radius: 12px;
-    outline: 3px solid transparent;
-    animation: rainbowGlow 4s linear infinite;
+    position: fixed;
+    inset: 0;
     pointer-events: none;
+    border: 3px solid transparent;
+    animation: rainbowGlow 4s linear infinite;
+    z-index: 0;
 }
 
-/* Word problems, BODMAS, Tables: auto-size height */
+/* auto-size: scroll naturally */
 .stack-wrapper.auto-size {
     height: auto;
     min-height: 100%;
-    align-items: start;
 }
 
-.stack-wrapper.auto-size .stack-box {
-    height: auto;
-}
-
-/* BOXES */
+/* SINGLE FULL-WIDTH BOX */
 .stack-box {
     border: 1px solid #2a2a2a;
     border-radius: 6px;
     background: #111;
-    padding: 12px;
+    padding: 16px 20px;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
+    width: 100%;
     height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-.questions-box {
-    border-left: 4px solid #28a745;
-}
-
-.questions-box.github-box {
-    border-left: 4px solid #ff9900;
-}
-
-.answers-box {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.stack-box.auto-size {
+    height: auto;
 }
 
 /* TITLES */
@@ -276,13 +260,15 @@ button:active {
     font-size: 24px;
 }
 
-/* QUESTION ROWS */
+/* QUESTION ROWS - inline with answer */
 .question-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     font-size: 40px;
-    line-height: 2.2;
-    padding-left: 40px;
+    line-height: 2;
+    padding: 4px 0 4px 20px;
+    border-bottom: 1px solid #1e1e1e;
 }
 
 .question-letter {
@@ -290,25 +276,43 @@ button:active {
     text-align: right;
     margin-right: 20px;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
-.question-text { flex: 1; }
+.question-text {
+    flex: 1;
+    min-width: 0;
+}
 
-/* ANSWER ITEMS */
-.answer-item {
+/* word-problems question text wraps, answer goes below */
+.question-row.word-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 12px;
+}
+
+.question-row.word-row .word-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    width: 100%;
+}
+
+.question-row.word-row .word-answer-line {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    font-size: 40px;
+    gap: 12px;
+    margin-top: 8px;
+    padding-left: 80px;
+    font-size: 32px;
 }
 
-.answer-item .answer-letter {
-    width: 40px;
-    text-align: right;
-    margin-right: 12px;
-    color: #28a745;
-    font-weight: bold;
+/* INLINE ANSWER */
+.inline-answer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 16px;
     flex-shrink: 0;
 }
 
@@ -321,14 +325,14 @@ button:active {
 .answer.show { visibility: visible; }
 
 .answer-input {
-    width: 90px;
-    height: 28px;
+    width: 110px;
+    height: 36px;
     background: #000;
     color: #fff;
     border: 1px solid #444;
     border-radius: 6px;
     text-align: center;
-    font-size: 14px;
+    font-size: 22px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -523,6 +527,78 @@ selectAllBtn.onclick = async () => {
     }
 };
 
+// Draw a simple analogue clock on a canvas element for a given "H:MM" time string
+function drawClock(canvas, timeStr) {
+    const size = canvas.width;
+    const cx   = size / 2;
+    const cy   = size / 2;
+    const r    = size / 2 - 6;
+    const ctx  = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+
+    // Face
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle   = "#1a1a2e";
+    ctx.fill();
+    ctx.strokeStyle = "#00c8ff";
+    ctx.lineWidth   = 3;
+    ctx.stroke();
+
+    // Hour markers & numbers
+    ctx.textAlign    = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle    = "#ffffff";
+    ctx.font         = `bold ${size * 0.09}px Arial`;
+    for (let h = 1; h <= 12; h++) {
+        const angle = (h / 6) * Math.PI - Math.PI / 2;
+        const nr    = r * 0.78;
+        ctx.fillText(h, cx + nr * Math.cos(angle), cy + nr * Math.sin(angle));
+        // Tick mark
+        const t1x = cx + r * 0.88 * Math.cos(angle);
+        const t1y = cy + r * 0.88 * Math.sin(angle);
+        const t2x = cx + r * 0.97 * Math.cos(angle);
+        const t2y = cy + r * 0.97 * Math.sin(angle);
+        ctx.beginPath();
+        ctx.moveTo(t1x, t1y);
+        ctx.lineTo(t2x, t2y);
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth   = 2;
+        ctx.stroke();
+    }
+
+    // Parse time
+    const [hRaw, mRaw] = timeStr.split(":").map(Number);
+    const hours   = hRaw % 12;
+    const minutes = mRaw;
+
+    // Minute hand
+    const minAngle = (minutes / 60) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * 0.75 * Math.cos(minAngle), cy + r * 0.75 * Math.sin(minAngle));
+    ctx.strokeStyle = "#58D68D";
+    ctx.lineWidth   = size * 0.025;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+
+    // Hour hand
+    const hourAngle = ((hours + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * 0.5 * Math.cos(hourAngle), cy + r * 0.5 * Math.sin(hourAngle));
+    ctx.strokeStyle = "#ff9900";
+    ctx.lineWidth   = size * 0.04;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+
+    // Centre dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.035, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+}
+
 toggleAll.onclick = () => {
     if (!showAll) {
         if (prompt("Enter PIN") !== "0000") return;
@@ -535,21 +611,44 @@ toggleAll.onclick = () => {
     document.querySelectorAll(".num-word").forEach(el => {
         el.style.visibility = showAll ? "visible" : "hidden";
     });
+    // Draw clock canvases when showing, clear when hiding
+    document.querySelectorAll("canvas.clock-answer").forEach(canvas => {
+        if (showAll) {
+            canvas.style.display = "block";
+            drawClock(canvas, canvas.dataset.time);
+        } else {
+            canvas.style.display = "none";
+            canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        }
+    });
     toggleAll.textContent = showAll ? "Hide" : "Show";
 };
 
-function renderSplitRow(letter, question, answer) {
-    return {
-        questionHTML: `<div class="question-row">
-            <span class="question-letter">(${letter})</span>
-            <span class="question-text">${question}</span>
-        </div>`,
-        answerHTML: `<div class="answer-item">
-            <span class="answer-letter">(${letter})</span>
+// Inline row: question + input + answer all on one line
+function renderInlineRow(letter, question, answer) {
+    return `<div class="question-row">
+        <span class="question-letter">(${letter})</span>
+        <span class="question-text">${question}</span>
+        <span class="inline-answer-wrap">
             <input type="text" class="answer-input" />
             <span class="answer">${answer}</span>
-        </div>`
-    };
+        </span>
+    </div>`;
+}
+
+// Word problem row: question wraps, input+answer on separate indented line below
+function renderWordRow(letter, question, answer) {
+    return `<div class="question-row word-row">
+        <div class="word-top">
+            <span class="question-letter">(${letter})</span>
+            <span class="question-text">${question}</span>
+        </div>
+        <div class="word-answer-line">
+            <span style="color:#aaa; font-size:0.8em;">Answer:</span>
+            <input type="text" class="answer-input" style="width:160px;" />
+            <span class="answer">${answer}</span>
+        </div>
+    </div>`;
 }
 
 function addStack(val) {
@@ -558,16 +657,13 @@ function addStack(val) {
     const autoSize = ["word-problems", "bodmas", "multiplication-tables"];
     wrapper.className = "stack-wrapper" + (autoSize.includes(val) ? " auto-size" : "");
     const questionsBox = document.createElement("div");
-    questionsBox.className = "stack-box questions-box";
-    const answersBox = document.createElement("div");
-    answersBox.className = "stack-box answers-box";
+    const isGithub = options.find(o => o[0] === val)?.[2] === "github";
+    questionsBox.className = "stack-box" + (isGithub ? " github-box" : "");
     wrapper.appendChild(questionsBox);
-    wrapper.appendChild(answersBox);
     stacks[val] = wrapper;
     stackOrder.push(val);
     questions.appendChild(wrapper);
-    generate(questionsBox, answersBox, val);
-    // Slide to the newly added stack
+    generate(questionsBox, null, val);
     navigateTo(stackOrder.length - 1, "next");
 }
 
@@ -668,17 +764,17 @@ function pickDailyIndices(val, total, n) {
 
 // ── END SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────
 
-function generate(questionsBox, answersBox, val) {
+function generate(questionsBox, _unused, val) {
     questionsBox.innerHTML = "";
-    answersBox.innerHTML   = "";
 
-    const option   = options.find(o => o[0] === val);
-    const isGithub = option?.[2] === "github";
+    const option     = options.find(o => o[0] === val);
+    const isGithub   = option?.[2] === "github";
     const titleClass = isGithub ? "github-title" : "inline-title";
+    const borderCol  = isGithub ? "#ff9900" : "#28a745";
 
     if (option) {
         questionsBox.innerHTML = `<div class="problem-title ${titleClass}">${option[1]}</div>`;
-        questionsBox.classList.toggle("github-box", isGithub);
+        questionsBox.style.borderLeft = `4px solid ${borderCol}`;
     }
 
     if (val === "gen-sub-no-borrow") {
@@ -687,101 +783,98 @@ function generate(questionsBox, answersBox, val) {
             let aD = String(a).split('').map(Number);
             let bD = String(rand(100, 999)).split('').map((d, j) => Math.min(d, aD[j]));
             let b  = parseInt(bD.join(''));
-            let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} - ${b} =`, a - b);
         }
     }
     else if (val === "gen-sub-with-borrow") {
         for (let i = 0; i < 2; i++) {
             let a = rand(100, 999), b = rand(100, 999);
             if (b > a) [a, b] = [b, a];
-            let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} - ${b} =`, a - b);
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} - ${b} =`, a - b);
         }
     }
     else if (val === "gen-mul-2-digit") {
         for (let i = 0; i < 2; i++) {
             let a = rand(10, 99), b = rand(10, 99);
-            let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} × ${b} =`, a * b);
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} × ${b} =`, a * b);
         }
     }
     else if (val === "number-names") {
-        const letters = ["a", "b", "c", "d"];
-        [rand(100, 999), rand(100, 999), rand(1000, 9999), rand(1000, 9999)].forEach((n, i) => {
+        const letters = ["a","b","c","d"];
+        [rand(100,999), rand(100,999), rand(1000,9999), rand(1000,9999)].forEach((n, i) => {
             const word = numberToWords(n);
-            const questionWithWord = `${n} <span class="num-word">${word}</span>`;
-            let row = renderSplitRow(letters[i], questionWithWord, "");
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            questionsBox.innerHTML += renderInlineRow(letters[i],
+                `${n} <span class="num-word">${word}</span>`, "");
         });
     }
     else if (val === "basic-divisions") {
         for (let i = 0; i < 4; i++) {
-            let b = rand(2, 9), a = b * rand(2, 9);
-            let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, `${a} ÷ ${b} =`, a / b);
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            let b = rand(2,9), a = b * rand(2,9);
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} ÷ ${b} =`, a / b);
         }
     }
     else if (val === "ascending" || val === "descending") {
         for (let i = 0; i < 2; i++) {
-            let arr    = [...Array(6)].map(() => rand(10, 99));
-            let letter = String.fromCharCode(97 + i);
-            let s = [...arr].sort((a, b) => val === "ascending" ? a - b : b - a);
-            let row = renderSplitRow(letter, arr.join(", "), s.join(", "));
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            let arr = [...Array(6)].map(() => rand(10,99));
+            let s   = [...arr].sort((a,b) => val === "ascending" ? a-b : b-a);
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), arr.join(", "), s.join(", "));
         }
     }
     else if (val === "draw-clock") {
         for (let i = 0; i < 2; i++) {
-            let letter = String.fromCharCode(97 + i);
-            let time   = `${rand(1,12)}:${rand(0,59).toString().padStart(2,"0")}`;
-            let row = renderSplitRow(letter, time, "");
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            const h    = rand(1, 12);
+            const m    = rand(0, 59);
+            const time = `${h}:${String(m).padStart(2, "0")}`;
+            const letter = String.fromCharCode(97 + i);
+
+            const row = document.createElement("div");
+            row.className = "question-row";
+            row.style.cssText = "align-items:center; gap:20px; padding:12px 0 12px 20px; flex-wrap:wrap;";
+
+            row.innerHTML = `
+                <span class="question-letter">(${letter})</span>
+                <span class="question-text" style="font-size:44px; font-weight:bold; color:#fff; min-width:100px;">${time}</span>
+                <span style="color:#aaa; font-size:22px;">← Draw this on paper</span>
+            `;
+
+            // Hidden canvas — shown when answers revealed
+            const canvas = document.createElement("canvas");
+            canvas.className    = "clock-answer";
+            canvas.width        = 180;
+            canvas.height       = 180;
+            canvas.dataset.time = time;
+            canvas.style.cssText = "display:none; border-radius:50%; margin-left:20px;";
+            row.appendChild(canvas);
+
+            questionsBox.appendChild(row);
         }
     }
     else if (val === "tell-time") {
-        let first = rand(1, 68), second;
-        do { second = rand(1, 68); } while (second === first);
-        const letters = ["a", "b"];
-        const clocksContainer = document.createElement("div");
-        clocksContainer.style.cssText = "display:flex; gap:140px; justify-content:flex-start; margin-bottom:12px;";
+        let first = rand(1,68), second;
+        do { second = rand(1,68); } while (second === first);
+        const letters = ["a","b"];
+        const container = document.createElement("div");
+        container.style.cssText = "display:flex; gap:80px; flex-wrap:wrap; padding:8px 0;";
         [first, second].forEach((n, i) => {
-            const imgWrapper = document.createElement("div");
-            imgWrapper.style.cssText = "display:flex; flex-direction:column; align-items:center;";
+            const block = document.createElement("div");
+            block.style.cssText = "display:flex; flex-direction:column; align-items:center; gap:8px;";
             const img = document.createElement("img");
             img.src = `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/clocks/clock${n}.png`;
-            img.alt = `Clock ${n}`;
-            img.style.cssText = "width:260px; height:260px;";
-            const filename = document.createElement("span");
-            filename.textContent = `(${letters[i]}) clock${n}.png`;
-            filename.style.cssText = "font-size:14px; margin-top:4px; color:#aaa;";
-            imgWrapper.appendChild(img);
-            imgWrapper.appendChild(filename);
-            clocksContainer.appendChild(imgWrapper);
-            const answerItem = document.createElement("div");
-            answerItem.className = "answer-item";
-            answerItem.style.marginBottom = "12px";
-            const input  = document.createElement("input");
-            input.type   = "text";
-            input.className = "answer-input";
-            const answer = document.createElement("span");
-            answer.className = "answer";
-            answerItem.appendChild(input);
-            answerItem.appendChild(answer);
-            answersBox.appendChild(answerItem);
+            img.style.cssText = "width:220px; height:220px;";
+            const lbl = document.createElement("span");
+            lbl.textContent = `(${letters[i]})`;
+            lbl.style.cssText = "font-size:22px; color:#aaa;";
+            const ansRow = document.createElement("div");
+            ansRow.style.cssText = "display:flex; align-items:center; gap:10px; font-size:24px;";
+            ansRow.innerHTML = `<span style="color:#aaa;">Answer:</span>
+                <input type="text" class="answer-input" style="width:120px;" />
+                <span class="answer"></span>`;
+            block.appendChild(img);
+            block.appendChild(lbl);
+            block.appendChild(ansRow);
+            container.appendChild(block);
         });
-        questionsBox.appendChild(clocksContainer);
+        questionsBox.appendChild(container);
     }
     else if (val === "geometric-shapes") {
         fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
@@ -790,36 +883,29 @@ function generate(questionsBox, answersBox, val) {
                 const pngs = files.filter(f => f.name.endsWith(".png"));
                 const picked = [];
                 while (picked.length < 4) {
-                    const f = pngs[rand(0, pngs.length - 1)];
+                    const f = pngs[rand(0, pngs.length-1)];
                     if (!picked.includes(f)) picked.push(f);
                 }
-                const letters = ["a", "b", "c", "d"];
+                const letters = ["a","b","c","d"];
                 const container = document.createElement("div");
-                container.style.cssText = "display:flex; gap:60px; margin-bottom:12px;";
+                container.style.cssText = "display:flex; gap:40px; flex-wrap:wrap; padding:8px 0;";
                 picked.forEach((file, i) => {
-                    const imgWrapper = document.createElement("div");
-                    imgWrapper.style.cssText = "display:flex; flex-direction:column; align-items:center;";
+                    const block = document.createElement("div");
+                    block.style.cssText = "display:flex; flex-direction:column; align-items:center; gap:8px;";
                     const img = document.createElement("img");
                     img.src = file.download_url;
-                    img.style.cssText = "width:180px; height:180px;";
-                    const label = document.createElement("span");
-                    label.textContent = `(${letters[i]})`;
-                    label.style.cssText = "font-size:14px; margin-top:4px; color:#aaa;";
-                    imgWrapper.appendChild(img);
-                    imgWrapper.appendChild(label);
-                    container.appendChild(imgWrapper);
-                    const answerItem = document.createElement("div");
-                    answerItem.className = "answer-item";
-                    answerItem.style.marginBottom = "12px";
-                    const input  = document.createElement("input");
-                    input.type   = "text";
-                    input.className = "answer-input";
-                    const answer = document.createElement("span");
-                    answer.className = "answer";
-                    answer.textContent = file.name.replace(".png", "");
-                    answerItem.appendChild(input);
-                    answerItem.appendChild(answer);
-                    answersBox.appendChild(answerItem);
+                    img.style.cssText = "width:160px; height:160px;";
+                    const lbl = document.createElement("span");
+                    lbl.textContent = `(${letters[i]})`;
+                    lbl.style.cssText = "font-size:20px; color:#aaa;";
+                    const ansRow = document.createElement("div");
+                    ansRow.style.cssText = "display:flex; align-items:center; gap:8px; font-size:22px;";
+                    ansRow.innerHTML = `<input type="text" class="answer-input" style="width:130px;" />
+                        <span class="answer">${file.name.replace(".png","")}</span>`;
+                    block.appendChild(img);
+                    block.appendChild(lbl);
+                    block.appendChild(ansRow);
+                    container.appendChild(block);
                 });
                 questionsBox.appendChild(container);
             });
@@ -831,83 +917,71 @@ function generate(questionsBox, answersBox, val) {
                 const pngs = files.filter(f => f.name.endsWith(".png"));
                 const picked = [];
                 while (picked.length < 4 && picked.length < pngs.length) {
-                    const f = pngs[rand(0, pngs.length - 1)];
+                    const f = pngs[rand(0, pngs.length-1)];
                     if (!picked.includes(f)) picked.push(f);
                 }
-                const letters = ["a", "b", "c", "d"];
+                const letters = ["a","b","c","d"];
                 picked.forEach((file, i) => {
-                    const questionItem = document.createElement("div");
-                    questionItem.className = "question-row";
-                    questionItem.style.position = "relative";
-                    const qText = document.createElement("span");
-                    qText.className = "question-text";
-                    qText.innerHTML = `<span class="question-letter">(${letters[i]})</span> ${file.name.replace(".png", "")}`;
-                    const img = document.createElement("img");
-                    img.src = file.download_url;
-                    img.style.cssText = "width:200px; height:200px; display:none; margin-top:8px;";
-                    questionItem.appendChild(qText);
-                    questionItem.appendChild(img);
-                    questionsBox.appendChild(questionItem);
-                    const answerItem = document.createElement("div");
-                    answerItem.className = "answer-item";
-                    answerItem.style.marginBottom = "12px";
-                    answerItem.innerHTML = `<span class="answer-letter">(${letters[i]})</span> <span class="answer">${file.name.replace(".png", "")}</span>`;
-                    answersBox.appendChild(answerItem);
+                    const row = document.createElement("div");
+                    row.className = "question-row";
+                    row.innerHTML = `
+                        <span class="question-letter">(${letters[i]})</span>
+                        <span class="question-text">${file.name.replace(".png","")}</span>
+                        <img src="${file.download_url}" style="width:180px;height:180px;display:none;margin-left:16px;" />
+                        <span class="inline-answer-wrap">
+                            <span class="answer">${file.name.replace(".png","")}</span>
+                        </span>`;
+                    questionsBox.appendChild(row);
                 });
             })
-            .catch(err => console.error("Error fetching drawing-shapes:", err));
+            .catch(err => console.error("Error:", err));
     }
     else if (val === "neg-pos-numbers") {
         for (let i = 0; i < 2; i++) {
-            let start = rand(1, 95), end = start + rand(3, 5);
-            let questionText, answerText;
-            if (rand(1, 2) === 1) {
-                questionText = `Write negative numbers from ${start} to ${end}`;
-                let nums = [];
-                for (let n = end; n >= start; n--) nums.push(`-${n}`);
-                answerText = nums.join(", ");
+            let start = rand(1,95), end = start + rand(3,5);
+            let qText, aText;
+            if (rand(1,2) === 1) {
+                qText = `Write negative numbers from ${start} to ${end}`;
+                let nums = []; for (let n = end; n >= start; n--) nums.push(`-${n}`);
+                aText = nums.join(", ");
             } else {
-                let a = rand(1, 5), b = rand(1, 5);
-                questionText = `Write numbers from -${a} to ${b}`;
-                let nums = [];
-                for (let n = -a; n <= b; n++) nums.push(n);
-                answerText = nums.join(", ");
+                let a = rand(1,5), b = rand(1,5);
+                qText = `Write numbers from -${a} to ${b}`;
+                let nums = []; for (let n = -a; n <= b; n++) nums.push(n);
+                aText = nums.join(", ");
             }
-            let letter = String.fromCharCode(97 + i);
-            let row = renderSplitRow(letter, questionText, answerText);
-            questionsBox.innerHTML += row.questionHTML;
-            answersBox.innerHTML   += row.answerHTML;
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), qText, aText);
         }
     }
     else if (val === "multiplication-tables") {
-        const table = rand(12, 19);
-        questionsBox.innerHTML += `<div class="question-row" style="font-size:42px; padding-left:40px;">Write table ${table}</div>`;
+        const table = rand(12,19);
+        questionsBox.innerHTML += `<div class="question-row" style="font-size:36px; padding-left:20px; border-bottom:none;">Write table of ${table}</div>`;
         for (let i = 1; i <= 10; i++) {
-            answersBox.innerHTML += `<div class="answer-item">
-                <span class="answer-letter">(${String.fromCharCode(96 + i)})</span>
-                <input type="text" class="answer-input" />
-                <span class="answer">${table * i}</span>
-            </div>`;
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(96+i),
+                `${table} × ${i} =`, table * i);
         }
     }
     else {
+        // GitHub-fetched
         fetch(BASE_URL + val + ".json")
             .then(r => r.json())
             .then(d => {
                 const total        = d.questions.length;
                 const numQuestions = val === "word-problems" ? 4 : 2;
                 const idx          = pickDailyIndices(val, total, numQuestions);
-
-                idx.forEach((i, j) => {
-                    let letter = String.fromCharCode(97 + j);
-                    let questionText = d.questions[i];
-                    if (val === "bodmas") {
-                        questionText = questionText.replace(/([+\-×÷*/x])/gi, " $1 ").replace(/\s+/g, " ");
-                        questionText = `<span style="font-size:1.5em; letter-spacing:0.15em;">${questionText}</span>`;
+                idx.forEach((qi, j) => {
+                    const letter = String.fromCharCode(97 + j);
+                    let qText    = d.questions[qi];
+                    const ans    = d.answers[qi];
+                    if (val === "word-problems") {
+                        questionsBox.innerHTML += renderWordRow(letter, qText, ans);
+                    } else {
+                        if (val === "bodmas") {
+                            qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
+                            qText = `<span style="font-size:1.3em;letter-spacing:0.12em;">${qText}</span>`;
+                        }
+                        questionsBox.innerHTML += renderInlineRow(letter, qText, ans);
                     }
-                    let row = renderSplitRow(letter, questionText, d.answers[i]);
-                    questionsBox.innerHTML += row.questionHTML;
-                    answersBox.innerHTML   += row.answerHTML;
                 });
             });
     }
@@ -1095,15 +1169,14 @@ document.getElementById("saveBtn").onclick = () => {
     all.forEach(stack => {
         const title = stack.querySelector(".problem-title")?.innerText;
         if (title) output.push(`\n=== ${title} ===`);
-        if (title?.includes("Geometric Shapes")) {
-            const imgs = stack.querySelectorAll(".questions-box img");
-            const inputs = stack.querySelectorAll(".answer-item input");
-            imgs.forEach((img, i) => output.push(`${img.src.split("/").pop()}  =>  ${inputs[i]?.value || ""}`));
-            return;
-        }
-        const qs  = stack.querySelectorAll(".question-row");
-        const ans = stack.querySelectorAll(".answer-item input");
-        qs.forEach((q, i) => output.push(`${q.innerText.replace(/\s+/g," ").trim()}  =>  ${ans[i]?.value || ""}`));
+        const qs     = stack.querySelectorAll(".question-row");
+        const inputs = stack.querySelectorAll(".answer-input");
+        qs.forEach((q, i) => {
+            const qText = q.querySelector(".question-text")?.innerText
+                       || q.querySelector(".word-top")?.innerText
+                       || q.innerText;
+            output.push(`${qText.replace(/\s+/g," ").trim()}  =>  ${inputs[i]?.value || ""}`);
+        });
     });
     Object.assign(document.createElement("a"), {
         href: URL.createObjectURL(new Blob([output.join("\n")], { type: "text/plain" })),
@@ -1118,11 +1191,12 @@ document.getElementById("saveQuestionsBtn").onclick = () => {
     all.forEach(stack => {
         const title = stack.querySelector(".problem-title")?.innerText;
         if (title) output.push(`\n=== ${title} ===`);
-        if (title?.includes("Geometric Shapes")) {
-            stack.querySelectorAll(".questions-box img").forEach(img => output.push(img.src.split("/").pop()));
-            return;
-        }
-        stack.querySelectorAll(".question-row").forEach(q => output.push(q.innerText.replace(/\s+/g, " ").trim()));
+        stack.querySelectorAll(".question-row").forEach(q => {
+            const qText = q.querySelector(".question-text")?.innerText
+                       || q.querySelector(".word-top .question-text")?.innerText
+                       || q.innerText;
+            output.push(qText.replace(/\s+/g, " ").trim());
+        });
     });
     const ts = new Date().toISOString().replace(/[:.]/g, "-");
     Object.assign(document.createElement("a"), {
