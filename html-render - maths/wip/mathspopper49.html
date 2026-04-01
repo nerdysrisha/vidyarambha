@@ -1023,10 +1023,13 @@ function generate(questionsBox, _unused, val) {
     }
     else {
         // GitHub-fetched
-        // Types that use word-row layout (question wraps, answer below)
         const wordRowTypes = ["word-problems", "spell-the-word", "simple-equations"];
-        // Questions shown per day per type
-        const numMap = { "word-problems": 4, "spell-the-word": 3, "simple-equations": 2 };
+        const numMap = {
+            "word-problems":     4,
+            "spell-the-word":    3,
+            "simple-equations":  2,
+            "general-knowledge": 4
+        };
         const numQuestions = numMap[val] || 2;
 
         fetch(BASE_URL + val + ".json")
@@ -1038,9 +1041,17 @@ function generate(questionsBox, _unused, val) {
                 idx.forEach((qi, j) => {
                     const letter = String.fromCharCode(97 + j);
 
-                    // Strip tab + (Qxxx) from question, strip (Qxxx) from answer
+                    // Strip tab+(Qxxx) from question text for display
                     let qText = d.questions[qi].replace(/\t\(Q\d+\)$/, "").trim();
-                    let aText = d.answers[qi].replace(/\s*\(Q\d+\)$/, "").trim();
+
+                    // Extract Q-code from answer, keep it dimmed next to answer
+                    const rawAnswer  = d.answers[qi];
+                    const qCodeMatch = rawAnswer.match(/\(Q\d+\)$/);
+                    const qCode      = qCodeMatch ? qCodeMatch[0] : "";
+                    const aText      = rawAnswer.replace(/\s*\(Q\d+\)$/, "").trim();
+                    const aDisplay   = qCode
+                        ? `${aText} <span style="color:#555;font-size:0.7em;margin-left:6px;">${qCode}</span>`
+                        : aText;
 
                     if (val === "bodmas") {
                         qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
@@ -1048,9 +1059,9 @@ function generate(questionsBox, _unused, val) {
                     }
 
                     if (wordRowTypes.includes(val)) {
-                        questionsBox.innerHTML += renderWordRow(letter, qText, aText);
+                        questionsBox.innerHTML += renderWordRow(letter, qText, aDisplay);
                     } else {
-                        questionsBox.innerHTML += renderInlineRow(letter, qText, aText);
+                        questionsBox.innerHTML += renderInlineRow(letter, qText, aDisplay);
                     }
                 });
             });
