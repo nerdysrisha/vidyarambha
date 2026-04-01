@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v50 - word problem correction --> 
+<!--v49. Adding more question types -->
 <style>
 html, body {
     margin: 0;
@@ -1033,12 +1033,8 @@ function generate(questionsBox, _unused, val) {
         const numQuestions = numMap[val] || 2;
 
         fetch(BASE_URL + val + ".json")
-            .then(r => {
-                if (!r.ok) throw new Error(`HTTP ${r.status} for ${val}.json`);
-                return r.json();
-            })
+            .then(r => r.json())
             .then(d => {
-                if (!d.questions || !d.answers) throw new Error(`Invalid JSON structure in ${val}.json`);
                 const total = d.questions.length;
                 const idx   = pickDailyIndices(val, total, numQuestions);
 
@@ -1046,10 +1042,10 @@ function generate(questionsBox, _unused, val) {
                     const letter = String.fromCharCode(97 + j);
 
                     // Strip tab+(Qxxx) from question text for display
-                    let qText = String(d.questions[qi] ?? "").replace(/\t\(Q\d+\)$/, "").trim();
+                    let qText = d.questions[qi].replace(/\t\(Q\d+\)$/, "").trim();
 
                     // Extract Q-code from answer, keep it dimmed next to answer
-                    const rawAnswer  = String(d.answers[qi] ?? "");
+                    const rawAnswer  = d.answers[qi];
                     const qCodeMatch = rawAnswer.match(/\(Q\d+\)$/);
                     const qCode      = qCodeMatch ? qCodeMatch[0] : "";
                     const aText      = rawAnswer.replace(/\s*\(Q\d+\)$/, "").trim();
@@ -1068,10 +1064,6 @@ function generate(questionsBox, _unused, val) {
                         questionsBox.innerHTML += renderInlineRow(letter, qText, aDisplay);
                     }
                 });
-            })
-            .catch(err => {
-                console.error(`Fetch error for ${val}:`, err);
-                questionsBox.innerHTML += `<div style="color:#f66;padding:12px;font-size:18px;">⚠️ Could not load: ${val}.json<br><small>${err.message}</small></div>`;
             });
     }
 }
