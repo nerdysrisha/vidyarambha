@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!-- v51 animals running -->
+<!--v50 - word problem correction --> 
 <style>
 html, body {
     margin: 0;
@@ -402,27 +402,6 @@ button:active {
     pointer-events: none;
     z-index: 9999;
     animation: confettiFall linear forwards;
-}
-
-/* ANIMAL RUN */
-@keyframes animalRunRight {
-    0%   { transform: translateX(-120px) scaleX(1); }
-    100% { transform: translateX(calc(100vw + 120px)) scaleX(1); }
-}
-
-@keyframes animalRunLeft {
-    0%   { transform: translateX(calc(100vw + 120px)) scaleX(-1); }
-    100% { transform: translateX(-120px) scaleX(-1); }
-}
-
-.animal-runner {
-    position: fixed;
-    bottom: 72px;
-    font-size: 52px;
-    pointer-events: none;
-    z-index: 9998;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 /* RAINBOW GLOW */
@@ -1178,32 +1157,6 @@ function launchConfetti() {
     }
 }
 
-// ANIMAL RUN
-const ANIMALS = ["🐢","🐇","🦁","🐘","🦊","🐸","🐧","🦄","🐯","🦋"];
-let lastAnimalIdx = -1;
-
-function runAnimal(direction) {
-    // Pick a different animal each time
-    let idx;
-    do { idx = Math.floor(Math.random() * ANIMALS.length); } while (idx === lastAnimalIdx);
-    lastAnimalIdx = idx;
-
-    const el = document.createElement("div");
-    el.className   = "animal-runner";
-    el.textContent = ANIMALS[idx];
-
-    const goingRight = direction === "next";
-    const duration   = rand(6800, 9800); // ms — faster animals feel snappier
-
-    el.style.animationName     = goingRight ? "animalRunRight" : "animalRunLeft";
-    el.style.animationDuration = `${duration}ms`;
-    el.style.animationTimingFunction = "linear";
-    el.style.animationFillMode = "forwards";
-
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), duration + 100);
-}
-
 // CONFETTI on question block click
 let activeStack = null;
 
@@ -1283,7 +1236,6 @@ document.getElementById("prevBtn").onclick = () => {
     const idx = (currentIndex - 1 + stackOrder.length) % stackOrder.length;
     navigateTo(idx, "prev");
     launchConfetti();
-    runAnimal("prev");
 };
 
 document.getElementById("nextBtn").onclick = () => {
@@ -1291,14 +1243,12 @@ document.getElementById("nextBtn").onclick = () => {
     const idx = (currentIndex + 1) % stackOrder.length;
     navigateTo(idx, "next");
     launchConfetti();
-    runAnimal("next");
 };
 
 document.getElementById("goTopBtn").onclick = () => {
     if (stackOrder.length === 0) return;
     navigateTo(0, "prev");
     launchConfetti();
-    runAnimal("prev");
 };
 
 // SAVE ANSWERS
