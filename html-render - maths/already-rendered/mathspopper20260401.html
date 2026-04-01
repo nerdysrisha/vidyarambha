@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v49. Adding more question types -->
+<!--v48. Telling time handled dynamically with answers -->
 <style>
 html, body {
     margin: 0;
@@ -477,12 +477,7 @@ const options = [
     ["draw-clock",           "34. Draw Clock",            "inline"],
     ["tell-time",            "35. Tell Time",             "inline"],
     ["drawing-shapes",       "36. Drawing Shapes",        "github"],
-    ["geometric-shapes",     "37. Geometric Shapes",      "github"],
-    ["spell-the-word",       "38. Spell the Word",        "github"],
-    ["true-or-false",        "39. True or False",         "github"],
-    ["missing-number",       "40. Missing Number",        "github"],
-    ["simple-equations",     "41. Simple Equations",      "github"],
-    ["general-knowledge",    "42. General Knowledge",     "github"]
+    ["geometric-shapes",     "37. Geometric Shapes",      "github"]
 ];
 
 const control   = document.getElementById("control");
@@ -899,7 +894,7 @@ function generate(questionsBox, _unused, val) {
                     // DEBUG: always visible — shows raw filename + split parts + extracted time
                     const debugLbl = document.createElement("div");
                     debugLbl.style.cssText = "font-size:12px; color:#ff9900; word-break:break-all; max-width:240px; text-align:center; background:#1a1a0a; padding:4px 8px; border-radius:4px;";
-                    debugLbl.textContent = `📁 ${file.name} | parts[${parts.length}]: [${parts.join("|")}] → "${timeStr}"`;
+                    //debugLbl.textContent = `📁 ${file.name} | parts[${parts.length}]: [${parts.join("|")}] → "${timeStr}"`;
 
                     const ansRow = document.createElement("div");
                     ansRow.style.cssText = "display:flex; align-items:center; gap:10px; font-size:24px;";
@@ -1023,34 +1018,24 @@ function generate(questionsBox, _unused, val) {
     }
     else {
         // GitHub-fetched
-        // Types that use word-row layout (question wraps, answer below)
-        const wordRowTypes = ["word-problems", "spell-the-word", "simple-equations"];
-        // Questions shown per day per type
-        const numMap = { "word-problems": 4, "spell-the-word": 3, "simple-equations": 2 };
-        const numQuestions = numMap[val] || 2;
-
         fetch(BASE_URL + val + ".json")
             .then(r => r.json())
             .then(d => {
-                const total = d.questions.length;
-                const idx   = pickDailyIndices(val, total, numQuestions);
-
+                const total        = d.questions.length;
+                const numQuestions = val === "word-problems" ? 4 : 2;
+                const idx          = pickDailyIndices(val, total, numQuestions);
                 idx.forEach((qi, j) => {
                     const letter = String.fromCharCode(97 + j);
-
-                    // Strip tab + (Qxxx) from question, strip (Qxxx) from answer
-                    let qText = d.questions[qi].replace(/\t\(Q\d+\)$/, "").trim();
-                    let aText = d.answers[qi].replace(/\s*\(Q\d+\)$/, "").trim();
-
-                    if (val === "bodmas") {
-                        qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
-                        qText = `<span style="font-size:1.3em;letter-spacing:0.12em;">${qText}</span>`;
-                    }
-
-                    if (wordRowTypes.includes(val)) {
-                        questionsBox.innerHTML += renderWordRow(letter, qText, aText);
+                    let qText    = d.questions[qi];
+                    const ans    = d.answers[qi];
+                    if (val === "word-problems") {
+                        questionsBox.innerHTML += renderWordRow(letter, qText, ans);
                     } else {
-                        questionsBox.innerHTML += renderInlineRow(letter, qText, aText);
+                        if (val === "bodmas") {
+                            qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
+                            qText = `<span style="font-size:1.3em;letter-spacing:0.12em;">${qText}</span>`;
+                        }
+                        questionsBox.innerHTML += renderInlineRow(letter, qText, ans);
                     }
                 });
             });
