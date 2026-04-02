@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v52, add answers breakdown and added more types -->
+<!-- v51 animals running -->
 <style>
 html, body {
     margin: 0;
@@ -425,25 +425,6 @@ button:active {
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
-/* STEP-BY-STEP WORKING */
-.working-block {
-    display: none;
-    margin-top: 8px;
-    padding: 10px 14px;
-    background: #0d1a0d;
-    border-left: 3px solid #28a745;
-    border-radius: 4px;
-    font-size: 18px;
-    color: #aaa;
-    line-height: 1.9;
-}
-
-.working-block.show { display: block; }
-
-.working-block .w-step { color: #58D68D; font-weight: bold; }
-.working-block .w-label { color: #ff9900; font-size: 0.8em; margin-right: 6px; }
-.working-block .w-result { color: #00c8ff; font-weight: bold; }
-
 /* RAINBOW GLOW */
 @keyframes rainbowGlow {
     0%   { outline-color: #ff004c; }
@@ -522,12 +503,7 @@ const options = [
     ["true-or-false",        "39. True or False",         "github"],
     ["missing-number",       "40. Missing Number",        "github"],
     ["simple-equations",     "41. Simple Equations",      "github"],
-    ["general-knowledge",    "42. General Knowledge",     "github"],
-    ["units-length",         "43. Units - Length",        "github"],
-    ["units-weight",         "44. Units - Weight",        "github"],
-    ["units-liquid",         "45. Units - Liquid",        "github"],
-    ["units-time",           "46. Units - Time",          "github"],
-    ["units-money",          "47. Units - Money",         "github"]
+    ["general-knowledge",    "42. General Knowledge",     "github"]
 ];
 
 const control   = document.getElementById("control");
@@ -649,135 +625,6 @@ function drawClock(canvas, timeStr) {
     ctx.fill();
 }
 
-// ── BODMAS STEP-BY-STEP ──────────────────────────────────────────────────────
-function bodmasSteps(expr) {
-    // Normalise
-    let e = expr.replace(/🧠\s*/,'').replace(/\s*\(Q\d+\)/,'').trim();
-    e = e.replace(/×/g,'*').replace(/÷/g,'/').replace(/x/gi,'*');
-
-    const steps = [];
-    let cur = e;
-
-    function fmt(s) {
-        return s.replace(/\*/g,'×').replace(/\//g,'÷');
-    }
-
-    // Step 1: Brackets — evaluate innermost first
-    let prev = cur;
-    let iter = 0;
-    while (/\(/.test(cur) && iter++ < 20) {
-        cur = cur.replace(/\(([^()]+)\)/g, (_, inner) => {
-            try { return String(eval(inner)); } catch(e) { return _; }
-        });
-        if (cur !== prev) steps.push({ label: "Brackets", expr: fmt(cur) });
-        prev = cur;
-    }
-
-    // Step 2: Division & Multiplication (left to right)
-    prev = cur;
-    iter = 0;
-    while (/[\d.]+\s*[*/]\s*[\d.]+/.test(cur) && iter++ < 20) {
-        cur = cur.replace(/([\d.]+)\s*([*/])\s*([\d.]+)/, (_, a, op, b) => {
-            const v = op === '*' ? parseFloat(a)*parseFloat(b) : parseFloat(a)/parseFloat(b);
-            return String(Number.isInteger(v) ? v : parseFloat(v.toFixed(4)));
-        });
-        if (cur !== prev) steps.push({ label: "× ÷", expr: fmt(cur) });
-        prev = cur;
-    }
-
-    // Step 3: Addition & Subtraction (left to right)
-    prev = cur;
-    iter = 0;
-    while (/([\d.]+)\s*([+\-])\s*([\d.]+)/.test(cur) && iter++ < 20) {
-        cur = cur.replace(/([\d.]+)\s*([+\-])\s*([\d.]+)/, (_, a, op, b) => {
-            const v = op === '+' ? parseFloat(a)+parseFloat(b) : parseFloat(a)-parseFloat(b);
-            return String(Number.isInteger(v) ? v : parseFloat(v.toFixed(4)));
-        });
-        if (cur !== prev) steps.push({ label: "+ −", expr: fmt(cur) });
-        prev = cur;
-    }
-
-    steps.push({ label: "Answer", expr: `<span class="w-result">${fmt(cur)}</span>` });
-    return steps;
-}
-
-// ── MISSING EQUATION WORKING ─────────────────────────────────────────────────
-function missingWorking(qText) {
-    // Patterns: __ + b = c  |  a + __ = c  |  __ - b = c  |  a - __ = c
-    //           __ × b = c  |  a × __ = c  |  __ ÷ b = c  |  a ÷ __ = c
-    const clean = qText.replace(/🔍\s*/,'').replace(/\s*\(Q\d+\)/,'').replace(/\s*=\s*/,' = ').trim();
-
-    let m;
-    // __ + b = c  → c - b
-    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/))) {
-        const [,b,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} − ${b} = <span class="w-step">${parseFloat(c)-parseFloat(b)}</span>`];
-    }
-    // a + __ = c  → c - a
-    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/))) {
-        const [,a,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} − ${a} = <span class="w-step">${parseFloat(c)-parseFloat(a)}</span>`];
-    }
-    // __ - b = c  → c + b
-    if ((m = clean.match(/^__\s*[-−]\s*([\d.]+)\s*=\s*([\d.]+)/))) {
-        const [,b,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} + ${b} = <span class="w-step">${parseFloat(c)+parseFloat(b)}</span>`];
-    }
-    // a - __ = c  → a - c
-    if ((m = clean.match(/^([\d.]+)\s*[-−]\s*__\s*=\s*([\d.]+)/))) {
-        const [,a,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${a} − ${c} = <span class="w-step">${parseFloat(a)-parseFloat(c)}</span>`];
-    }
-    // __ × b = c  → c ÷ b
-    if ((m = clean.match(/^__\s*[×x\*]\s*([\d.]+)\s*=\s*([\d.]+)/i))) {
-        const [,b,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} ÷ ${b} = <span class="w-step">${parseFloat(c)/parseFloat(b)}</span>`];
-    }
-    // a × __ = c  → c ÷ a
-    if ((m = clean.match(/^([\d.]+)\s*[×x\*]\s*__\s*=\s*([\d.]+)/i))) {
-        const [,a,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} ÷ ${a} = <span class="w-step">${parseFloat(c)/parseFloat(a)}</span>`];
-    }
-    // __ ÷ b = c  → c × b
-    if ((m = clean.match(/^__\s*[÷\/]\s*([\d.]+)\s*=\s*([\d.]+)/))) {
-        const [,b,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${c} × ${b} = <span class="w-step">${parseFloat(c)*parseFloat(b)}</span>`];
-    }
-    // a ÷ __ = c  → a ÷ c
-    if ((m = clean.match(/^([\d.]+)\s*[÷\/]\s*__\s*=\s*([\d.]+)/))) {
-        const [,a,c] = m;
-        return [`<span class="w-label">Reverse:</span> ${a} ÷ ${c} = <span class="w-step">${parseFloat(a)/parseFloat(c)}</span>`];
-    }
-    return [];
-}
-
-// ── MISSING-NUMBER SEQUENCE WORKING ──────────────────────────────────────────
-function sequenceWorking(qText) {
-    const clean = qText.replace(/🔍\s*/,'').replace(/\s*\(Q\d+\)/,'').trim();
-    const parts = clean.split(',').map(s => s.trim());
-    const nums = parts.map(p => p === '__' ? null : parseFloat(p));
-    const known = nums.filter(n => n !== null);
-    if (known.length < 2) return [];
-
-    // Find the difference (common difference for arithmetic)
-    const diffs = [];
-    for (let i = 1; i < known.length; i++) diffs.push(known[i] - known[i-1]);
-    const allSame = diffs.every(d => d === diffs[0]);
-
-    if (allSame) {
-        return [`<span class="w-label">Pattern:</span> each number ${diffs[0] >= 0 ? '+' : ''}${diffs[0]} → <span class="w-step">${clean.replace('__', '<span class="w-result">?</span>')}</span>`];
-    }
-    return [`<span class="w-label">Look at the pattern in:</span> <span class="w-step">${clean}</span>`];
-}
-
-// MISSING QUESTION TYPES that get working blocks
-const MISSING_TYPES = new Set([
-    "addend-left-missing","addend-right-missing",
-    "minuend-missing","subtrahend-missing",
-    "factor-left-missing","factor-right-missing",
-    "dividend-missing","divisor-missing"
-]);
-
 toggleAll.onclick = () => {
     if (!showAll) {
         if (prompt("Enter PIN") !== "0000") return;
@@ -790,6 +637,7 @@ toggleAll.onclick = () => {
     document.querySelectorAll(".num-word").forEach(el => {
         el.style.visibility = showAll ? "visible" : "hidden";
     });
+    // Draw clock canvases when showing, clear when hiding
     document.querySelectorAll("canvas.clock-answer").forEach(canvas => {
         if (showAll) {
             canvas.style.display = "block";
@@ -799,61 +647,12 @@ toggleAll.onclick = () => {
             canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         }
     });
-
-    // Show/hide working blocks for BODMAS, missing equations, sequences
-    document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
-
-    // Generate BODMAS steps if not yet generated
-    if (showAll) {
-        document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
-            if (row.querySelector(".working-block")) return; // already done
-            const qSpan = row.querySelector(".question-text");
-            if (!qSpan) return;
-            const rawText = qSpan.innerText || "";
-            const steps = bodmasSteps(rawText);
-            if (!steps.length) return;
-            const wb = document.createElement("div");
-            wb.className = "working-block show";
-            wb.innerHTML = steps.map((s,i) =>
-                `<div><span class="w-label">Step ${i+1} (${s.label}):</span> ${s.expr}</div>`
-            ).join("");
-            row.appendChild(wb);
-        });
-
-        // Generate missing-equation working
-        document.querySelectorAll(".question-row[data-type='missing']").forEach(row => {
-            if (row.querySelector(".working-block")) return;
-            const qSpan = row.querySelector(".question-text");
-            if (!qSpan) return;
-            const lines = missingWorking(qSpan.innerText || "");
-            if (!lines.length) return;
-            const wb = document.createElement("div");
-            wb.className = "working-block show";
-            wb.innerHTML = lines.map(l => `<div>${l}</div>`).join("");
-            row.appendChild(wb);
-        });
-
-        // Generate sequence working for missing-number
-        document.querySelectorAll(".question-row[data-type='sequence']").forEach(row => {
-            if (row.querySelector(".working-block")) return;
-            const qSpan = row.querySelector(".question-text");
-            if (!qSpan) return;
-            const lines = sequenceWorking(qSpan.innerText || "");
-            if (!lines.length) return;
-            const wb = document.createElement("div");
-            wb.className = "working-block show";
-            wb.innerHTML = lines.map(l => `<div>${l}</div>`).join("");
-            row.appendChild(wb);
-        });
-    }
-
     toggleAll.textContent = showAll ? "Hide" : "Show";
 };
 
 // Inline row: question + input + answer all on one line
-function renderInlineRow(letter, question, answer, dataType) {
-    const dt = dataType ? ` data-type="${dataType}"` : "";
-    return `<div class="question-row"${dt}>
+function renderInlineRow(letter, question, answer) {
+    return `<div class="question-row">
         <span class="question-letter">(${letter})</span>
         <span class="question-text">${question}</span>
         <span class="inline-answer-wrap">
@@ -881,8 +680,7 @@ function renderWordRow(letter, question, answer) {
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
-    const autoSize = ["word-problems", "bodmas", "multiplication-tables",
-                      "units-length","units-weight","units-liquid","units-time","units-money"];
+    const autoSize = ["word-problems", "bodmas", "multiplication-tables"];
     wrapper.className = "stack-wrapper" + (autoSize.includes(val) ? " auto-size" : "");
     const questionsBox = document.createElement("div");
     const isGithub = options.find(o => o[0] === val)?.[2] === "github";
@@ -1246,18 +1044,12 @@ function generate(questionsBox, _unused, val) {
     }
     else {
         // GitHub-fetched
-        const wordRowTypes = ["word-problems", "spell-the-word", "simple-equations",
-                              "units-length","units-weight","units-liquid","units-time","units-money"];
+        const wordRowTypes = ["word-problems", "spell-the-word", "simple-equations"];
         const numMap = {
             "word-problems":     4,
             "spell-the-word":    3,
             "simple-equations":  2,
-            "general-knowledge": 4,
-            "units-length":      2,
-            "units-weight":      2,
-            "units-liquid":      2,
-            "units-time":        2,
-            "units-money":       2
+            "general-knowledge": 4
         };
         const numQuestions = numMap[val] || 2;
 
@@ -1274,8 +1066,10 @@ function generate(questionsBox, _unused, val) {
                 idx.forEach((qi, j) => {
                     const letter = String.fromCharCode(97 + j);
 
+                    // Strip tab+(Qxxx) from question text for display
                     let qText = String(d.questions[qi] ?? "").replace(/\t\(Q\d+\)$/, "").trim();
 
+                    // Extract Q-code from answer, keep it dimmed next to answer
                     const rawAnswer  = String(d.answers[qi] ?? "");
                     const qCodeMatch = rawAnswer.match(/\(Q\d+\)$/);
                     const qCode      = qCodeMatch ? qCodeMatch[0] : "";
@@ -1283,12 +1077,6 @@ function generate(questionsBox, _unused, val) {
                     const aDisplay   = qCode
                         ? `${aText} <span style="color:#555;font-size:0.7em;margin-left:6px;">${qCode}</span>`
                         : aText;
-
-                    // Determine data-type for working block
-                    let dataType = null;
-                    if (val === "bodmas")              dataType = "bodmas";
-                    else if (MISSING_TYPES.has(val))   dataType = "missing";
-                    else if (val === "missing-number" || val === "pattern-completion") dataType = "sequence";
 
                     if (val === "bodmas") {
                         qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
@@ -1298,7 +1086,7 @@ function generate(questionsBox, _unused, val) {
                     if (wordRowTypes.includes(val)) {
                         questionsBox.innerHTML += renderWordRow(letter, qText, aDisplay);
                     } else {
-                        questionsBox.innerHTML += renderInlineRow(letter, qText, aDisplay, dataType);
+                        questionsBox.innerHTML += renderInlineRow(letter, qText, aDisplay);
                     }
                 });
             })
@@ -1405,7 +1193,7 @@ function runAnimal(direction) {
     el.textContent = ANIMALS[idx];
 
     const goingRight = direction === "next";
-    const duration   = rand(900, 1400); // ms — faster animals feel snappier
+    const duration   = rand(6800, 9800); // ms — faster animals feel snappier
 
     el.style.animationName     = goingRight ? "animalRunRight" : "animalRunLeft";
     el.style.animationDuration = `${duration}ms`;
