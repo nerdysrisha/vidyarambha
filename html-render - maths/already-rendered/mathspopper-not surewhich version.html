@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Popper</title>
+<!--v52, add answers breakdown and added more types -->
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 64px); /* viewport minus top margin minus bottom nav */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: hidden;
+}
+
+/* CONTROL PANEL */
+#control {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px 16px;
+    background: #0a0a0a;
+    border: 1px solid #444;
+    padding: 16px;
+}
+
+#control legend {
+    padding: 0 10px;
+    font-size: 18px;
+    color: #aaa;
+}
+
+.ctrl-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    font-size: 20px;
+    padding: 6px 0;
+}
+
+.ctrl-item input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+}
+
+/* CONTROL PANEL WRAPPER */
+#control-container {
+    display: flex;
+    flex-direction: column;
+    transition: flex-basis 0.3s ease, min-height 0.3s ease;
+    min-height: 40px;
+    overflow: hidden;
+}
+
+#control-container.shrink {
+    flex-basis: auto;
+    min-height: 64px;
+    padding: 4px 8px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #111 0%, #1a1a2e 100%);
+}
+
+#control-container.shrink #control {
+    display: none;
+}
+
+/* TOP BAR */
+#control-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 52px;
+}
+
+#control-top-bar label,
+#control-top-bar span {
+    font-size: 16px;
+}
+
+/* BUTTONS - base */
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+    transform: scale(1.06);
+    filter: brightness(1.2);
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* Green buttons */
+#selectAllBtn, #toggleAll, #saveBtn, #saveQuestionsBtn {
+    background: #28a745;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+#selectAllBtn:hover, #toggleAll:hover, #saveBtn:hover, #saveQuestionsBtn:hover {
+    box-shadow: 0 0 16px rgba(40, 167, 69, 0.9);
+}
+
+/* Blue nav buttons */
+.nav-btn {
+    background: #0077cc;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(0, 119, 204, 0.5);
+}
+
+.nav-btn:hover {
+    background: #0099ff;
+    box-shadow: 0 0 16px rgba(0, 153, 255, 0.9);
+}
+
+/* Timer */
+#timerBtn {
+    background: #28a745;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+#resetTimer {
+    background: #555;
+    color: #fff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+}
+
+#timerDisplay {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 56px;
+    letter-spacing: 2px;
+}
+
+/* ONE-AT-A-TIME: hide all stacks, show only .visible-stack */
+.stack-wrapper {
+    display: none;
+}
+
+/* Question counter badge */
+#qCounter {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 60px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* QUESTIONS PANEL - carousel viewport */
+#questions {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+/* STACK WRAPPER - carousel slide, single column now */
+.stack-wrapper {
+    display: none;
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Scrollbar for individual stack */
+.stack-wrapper::-webkit-scrollbar { width: 10px; }
+.stack-wrapper::-webkit-scrollbar-track { background: #111; }
+.stack-wrapper::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; border: 2px solid #111; }
+.stack-wrapper::-webkit-scrollbar-thumb:hover { background-color: #888; }
+
+.stack-wrapper.dimmed {
+    opacity: 0.25;
+    filter: grayscale(60%);
+}
+
+.stack-wrapper.visible-stack {
+    display: block;
+    position: absolute;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Glow on visible stack */
+.stack-wrapper.visible-stack::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    border: 3px solid transparent;
+    animation: rainbowGlow 4s linear infinite;
+    z-index: 0;
+}
+
+/* auto-size: scroll naturally */
+.stack-wrapper.auto-size {
+    height: auto;
+    min-height: 100%;
+}
+
+/* SINGLE FULL-WIDTH BOX */
+.stack-box {
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    background: #111;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.stack-box.auto-size {
+    height: auto;
+}
+
+/* TITLES */
+.problem-title.inline-title {
+    color: #28a745;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.problem-title.github-title {
+    color: #ff9900;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+/* QUESTION ROWS - inline with answer */
+.question-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 40px;
+    line-height: 2;
+    padding: 4px 0 4px 20px;
+    border-bottom: 1px solid #1e1e1e;
+}
+
+.question-letter {
+    width: 60px;
+    text-align: right;
+    margin-right: 20px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.question-text {
+    flex: 1;
+    min-width: 0;
+}
+
+/* word-problems question text wraps, answer goes below */
+.question-row.word-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: 12px;
+}
+
+.question-row.word-row .word-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    width: 100%;
+}
+
+.question-row.word-row .word-answer-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding-left: 80px;
+    font-size: 32px;
+}
+
+/* INLINE ANSWER */
+.inline-answer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 16px;
+    flex-shrink: 0;
+}
+
+.answer {
+    visibility: hidden;
+    color: #58D68D;
+    font-weight: bold;
+}
+
+.answer.show { visibility: visible; }
+
+.answer-input {
+    width: 110px;
+    height: 36px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 22px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.answer-input:focus {
+    border-color: #00c8ff;
+    box-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
+}
+
+/* FIXED BOTTOM NAV BAR */
+#bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 8px 20px;
+    background: #0f0f0f;
+    border-top: 1px solid #333;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+#bottom-nav button {
+    padding: 12px 32px;
+    font-size: 18px;
+    border-radius: 12px;
+}
+
+#bottom-qCounter {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 80px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* CHECKBOX COLORS */
+.inline-item { color: #28a745; }
+.github-item { color: #ff9900; }
+
+/* NUMBER NAMES - inline word answer */
+.num-word {
+    visibility: hidden;
+    color: #58D68D;
+    font-weight: bold;
+    font-size: 0.65em;
+    margin-left: 16px;
+    letter-spacing: 0.02em;
+}
+
+/* CONFETTI */
+@keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(420px) rotate(720deg) scale(0.4); opacity: 0; }
+}
+
+.confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall linear forwards;
+}
+
+/* ANIMAL RUN */
+@keyframes animalRunRight {
+    0%   { transform: translateX(-120px) scaleX(1); }
+    100% { transform: translateX(calc(100vw + 120px)) scaleX(1); }
+}
+
+@keyframes animalRunLeft {
+    0%   { transform: translateX(calc(100vw + 120px)) scaleX(-1); }
+    100% { transform: translateX(-120px) scaleX(-1); }
+}
+
+.animal-runner {
+    position: fixed;
+    bottom: 72px;
+    font-size: 52px;
+    pointer-events: none;
+    z-index: 9998;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+/* STEP-BY-STEP WORKING */
+.working-block {
+    display: none;
+    margin-top: 8px;
+    padding: 10px 14px;
+    background: #0d1a0d;
+    border-left: 3px solid #28a745;
+    border-radius: 4px;
+    font-size: 18px;
+    color: #aaa;
+    line-height: 1.9;
+}
+
+.working-block.show { display: block; }
+
+.working-block .w-step { color: #58D68D; font-weight: bold; }
+.working-block .w-label { color: #ff9900; font-size: 0.8em; margin-right: 6px; }
+.working-block .w-result { color: #00c8ff; font-weight: bold; }
+
+/* RAINBOW GLOW */
+@keyframes rainbowGlow {
+    0%   { outline-color: #ff004c; }
+    20%  { outline-color: #ff9900; }
+    40%  { outline-color: #ffee00; }
+    60%  { outline-color: #28a745; }
+    80%  { outline-color: #00c8ff; }
+    100% { outline-color: #ff004c; }
+}
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="control-container" class="shrink">
+        <div id="control-top-bar" style="margin:4px 8px;">
+            <button id="selectAllBtn">All Qs</button>
+            <label style="display:flex; align-items:center; gap:8px; font-size:16px;">
+                <input type="checkbox" id="control-toggle" />
+                Show Control Panel
+            </label>
+            <button id="toggleAll">Show</button>
+            <button id="timerBtn">Start Timer</button>
+            <button id="resetTimer">Reset</button>
+            <span id="timerDisplay">00:00</span>
+            <button id="goTopBtn" class="nav-btn">⬆ Top Q</button>
+            <button id="saveBtn">Save Answers</button>
+            <button id="saveQuestionsBtn">Save Questions</button>
+        </div>
+        <fieldset id="control">
+            <legend>Control Panel</legend>
+        </fieldset>
+    </div>
+
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+    </fieldset>
+</div>
+
+<!-- FIXED BOTTOM NAVIGATION -->
+<div id="bottom-nav">
+    <button id="prevBtn" class="nav-btn">&#8592; Prev</button>
+    <span id="bottom-qCounter">0 / 0</span>
+    <button id="nextBtn" class="nav-btn">Next &#8594;</button>
+</div>
+
+<script>
+const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+
+const options = [
+    ["number-names",         "1. Number Names",           "inline"],
+    ["ascending",            "2. Ascending Order",        "inline"],
+    ["descending",           "3. Descending Order",       "inline"],
+    ["neg-pos-numbers",      "4. +ve/-ve Numbers",        "inline"],
+    ["word-problems",        "5. Word Problems",          "github"],
+    ["addend-left-missing",  "9. Find Left Addend",       "github"],
+    ["addend-right-missing", "10. Find Right Addend",     "github"],
+    ["gen-sub-no-borrow",    "12. Subtract - No Borrow",  "inline"],
+    ["gen-sub-with-borrow",  "13. Subtract - With Borrow","inline"],
+    ["minuend-missing",      "14. Find Minuend",          "github"],
+    ["subtrahend-missing",   "15. Find Subtrahend",       "github"],
+    ["multiplication-tables","17. Write Table",           "inline"],
+    ["gen-mul-2-digit",      "19. Multiply 2 Digits",     "inline"],
+    ["factor-left-missing",  "20. Find Left Factor",      "github"],
+    ["factor-right-missing", "21. Find Right Factor",     "github"],
+    ["basic-divisions",      "22. Divisions",             "inline"],
+    ["dividend-missing",     "23. Find Dividend",         "github"],
+    ["divisor-missing",      "24. Find Divisor",          "github"],
+    ["bodmas",               "25. Solve BODMAS",          "github"],
+    ["pattern-completion",   "33. Pattern Completion",    "github"],
+    ["draw-clock",           "34. Draw Clock",            "inline"],
+    ["tell-time",            "35. Tell Time",             "inline"],
+    ["drawing-shapes",       "36. Drawing Shapes",        "github"],
+    ["geometric-shapes",     "37. Geometric Shapes",      "github"],
+    ["spell-the-word",       "38. Spell the Word",        "github"],
+    ["true-or-false",        "39. True or False",         "github"],
+    ["missing-number",       "40. Missing Number",        "github"],
+    ["simple-equations",     "41. Simple Equations",      "github"],
+    ["general-knowledge",    "42. General Knowledge",     "github"],
+    ["units-length",         "43. Units - Length",        "github"],
+    ["units-weight",         "44. Units - Weight",        "github"],
+    ["units-liquid",         "45. Units - Liquid",        "github"],
+    ["units-time",           "46. Units - Time",          "github"],
+    ["units-money",          "47. Units - Money",         "github"]
+];
+
+const control   = document.getElementById("control");
+const questions = document.getElementById("questions");
+const toggleAll = document.getElementById("toggleAll");
+let showAll = false;
+const stacks = {};
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function numberToWords(n) {
+    const ones  = ["","one","two","three","four","five","six","seven","eight","nine",
+                   "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen",
+                   "seventeen","eighteen","nineteen"];
+    const tens  = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+    if (n === 0) return "zero";
+    if (n < 20)  return ones[n];
+    if (n < 100) return tens[Math.floor(n/10)] + (n % 10 ? " " + ones[n % 10] : "");
+    if (n < 1000) {
+        const rest = n % 100;
+        return ones[Math.floor(n/100)] + " hundred" + (rest ? " " + numberToWords(rest) : "");
+    }
+    const rest = n % 1000;
+    return numberToWords(Math.floor(n/1000)) + " thousand" + (rest ? " " + numberToWords(rest) : "");
+}
+
+options.forEach(([val, label, type]) => {
+    const wrap = document.createElement("label");
+    wrap.className = "ctrl-item " + (type === "inline" ? "inline-item" : "github-item");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
+    wrap.append(cb, document.createTextNode(label));
+    control.appendChild(wrap);
+});
+
+const selectAllBtn = document.getElementById("selectAllBtn");
+const checkboxes   = Array.from(control.querySelectorAll("input[type='checkbox']"));
+
+selectAllBtn.onclick = async () => {
+    for (let cb of checkboxes) {
+        if (!cb.checked) {
+            cb.checked = true;
+            cb.onchange();
+            await new Promise(r => setTimeout(r, 500));
+        }
+    }
+};
+
+// Draw a simple analogue clock on a canvas element for a given "H:MM" time string
+function drawClock(canvas, timeStr) {
+    const size = canvas.width;
+    const cx   = size / 2;
+    const cy   = size / 2;
+    const r    = size / 2 - 6;
+    const ctx  = canvas.getContext("2d");
+    ctx.clearRect(0, 0, size, size);
+
+    // Face
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle   = "#1a1a2e";
+    ctx.fill();
+    ctx.strokeStyle = "#00c8ff";
+    ctx.lineWidth   = 3;
+    ctx.stroke();
+
+    // Hour markers & numbers
+    ctx.textAlign    = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle    = "#ffffff";
+    ctx.font         = `bold ${size * 0.09}px Arial`;
+    for (let h = 1; h <= 12; h++) {
+        const angle = (h / 6) * Math.PI - Math.PI / 2;
+        const nr    = r * 0.78;
+        ctx.fillText(h, cx + nr * Math.cos(angle), cy + nr * Math.sin(angle));
+        // Tick mark
+        const t1x = cx + r * 0.88 * Math.cos(angle);
+        const t1y = cy + r * 0.88 * Math.sin(angle);
+        const t2x = cx + r * 0.97 * Math.cos(angle);
+        const t2y = cy + r * 0.97 * Math.sin(angle);
+        ctx.beginPath();
+        ctx.moveTo(t1x, t1y);
+        ctx.lineTo(t2x, t2y);
+        ctx.strokeStyle = "#555";
+        ctx.lineWidth   = 2;
+        ctx.stroke();
+    }
+
+    // Parse time
+    const [hRaw, mRaw] = timeStr.split(":").map(Number);
+    const hours   = hRaw % 12;
+    const minutes = mRaw;
+
+    // Minute hand
+    const minAngle = (minutes / 60) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * 0.75 * Math.cos(minAngle), cy + r * 0.75 * Math.sin(minAngle));
+    ctx.strokeStyle = "#58D68D";
+    ctx.lineWidth   = size * 0.025;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+
+    // Hour hand
+    const hourAngle = ((hours + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r * 0.5 * Math.cos(hourAngle), cy + r * 0.5 * Math.sin(hourAngle));
+    ctx.strokeStyle = "#ff9900";
+    ctx.lineWidth   = size * 0.04;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+
+    // Centre dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.035, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+}
+
+// ── BODMAS STEP-BY-STEP ──────────────────────────────────────────────────────
+function bodmasSteps(expr) {
+    // Normalise
+    let e = expr.replace(/🧠\s*/,'').replace(/\s*\(Q\d+\)/,'').trim();
+    e = e.replace(/×/g,'*').replace(/÷/g,'/').replace(/x/gi,'*');
+
+    const steps = [];
+    let cur = e;
+
+    function fmt(s) {
+        return s.replace(/\*/g,'×').replace(/\//g,'÷');
+    }
+
+    // Step 1: Brackets — evaluate innermost first
+    let prev = cur;
+    let iter = 0;
+    while (/\(/.test(cur) && iter++ < 20) {
+        cur = cur.replace(/\(([^()]+)\)/g, (_, inner) => {
+            try { return String(eval(inner)); } catch(e) { return _; }
+        });
+        if (cur !== prev) steps.push({ label: "Brackets", expr: fmt(cur) });
+        prev = cur;
+    }
+
+    // Step 2: Division & Multiplication (left to right)
+    prev = cur;
+    iter = 0;
+    while (/[\d.]+\s*[*/]\s*[\d.]+/.test(cur) && iter++ < 20) {
+        cur = cur.replace(/([\d.]+)\s*([*/])\s*([\d.]+)/, (_, a, op, b) => {
+            const v = op === '*' ? parseFloat(a)*parseFloat(b) : parseFloat(a)/parseFloat(b);
+            return String(Number.isInteger(v) ? v : parseFloat(v.toFixed(4)));
+        });
+        if (cur !== prev) steps.push({ label: "× ÷", expr: fmt(cur) });
+        prev = cur;
+    }
+
+    // Step 3: Addition & Subtraction (left to right)
+    prev = cur;
+    iter = 0;
+    while (/([\d.]+)\s*([+\-])\s*([\d.]+)/.test(cur) && iter++ < 20) {
+        cur = cur.replace(/([\d.]+)\s*([+\-])\s*([\d.]+)/, (_, a, op, b) => {
+            const v = op === '+' ? parseFloat(a)+parseFloat(b) : parseFloat(a)-parseFloat(b);
+            return String(Number.isInteger(v) ? v : parseFloat(v.toFixed(4)));
+        });
+        if (cur !== prev) steps.push({ label: "+ −", expr: fmt(cur) });
+        prev = cur;
+    }
+
+    steps.push({ label: "Answer", expr: `<span class="w-result">${fmt(cur)}</span>` });
+    return steps;
+}
+
+// ── MISSING EQUATION WORKING ─────────────────────────────────────────────────
+function missingWorking(qText) {
+    // Patterns: __ + b = c  |  a + __ = c  |  __ - b = c  |  a - __ = c
+    //           __ × b = c  |  a × __ = c  |  __ ÷ b = c  |  a ÷ __ = c
+    const clean = qText.replace(/🔍\s*/,'').replace(/\s*\(Q\d+\)/,'').replace(/\s*=\s*/,' = ').trim();
+
+    let m;
+    // __ + b = c  → c - b
+    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/))) {
+        const [,b,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} − ${b} = <span class="w-step">${parseFloat(c)-parseFloat(b)}</span>`];
+    }
+    // a + __ = c  → c - a
+    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/))) {
+        const [,a,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} − ${a} = <span class="w-step">${parseFloat(c)-parseFloat(a)}</span>`];
+    }
+    // __ - b = c  → c + b
+    if ((m = clean.match(/^__\s*[-−]\s*([\d.]+)\s*=\s*([\d.]+)/))) {
+        const [,b,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} + ${b} = <span class="w-step">${parseFloat(c)+parseFloat(b)}</span>`];
+    }
+    // a - __ = c  → a - c
+    if ((m = clean.match(/^([\d.]+)\s*[-−]\s*__\s*=\s*([\d.]+)/))) {
+        const [,a,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${a} − ${c} = <span class="w-step">${parseFloat(a)-parseFloat(c)}</span>`];
+    }
+    // __ × b = c  → c ÷ b
+    if ((m = clean.match(/^__\s*[×x\*]\s*([\d.]+)\s*=\s*([\d.]+)/i))) {
+        const [,b,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} ÷ ${b} = <span class="w-step">${parseFloat(c)/parseFloat(b)}</span>`];
+    }
+    // a × __ = c  → c ÷ a
+    if ((m = clean.match(/^([\d.]+)\s*[×x\*]\s*__\s*=\s*([\d.]+)/i))) {
+        const [,a,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} ÷ ${a} = <span class="w-step">${parseFloat(c)/parseFloat(a)}</span>`];
+    }
+    // __ ÷ b = c  → c × b
+    if ((m = clean.match(/^__\s*[÷\/]\s*([\d.]+)\s*=\s*([\d.]+)/))) {
+        const [,b,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${c} × ${b} = <span class="w-step">${parseFloat(c)*parseFloat(b)}</span>`];
+    }
+    // a ÷ __ = c  → a ÷ c
+    if ((m = clean.match(/^([\d.]+)\s*[÷\/]\s*__\s*=\s*([\d.]+)/))) {
+        const [,a,c] = m;
+        return [`<span class="w-label">Reverse:</span> ${a} ÷ ${c} = <span class="w-step">${parseFloat(a)/parseFloat(c)}</span>`];
+    }
+    return [];
+}
+
+// ── MISSING-NUMBER SEQUENCE WORKING ──────────────────────────────────────────
+function sequenceWorking(qText) {
+    const clean = qText.replace(/🔍\s*/,'').replace(/\s*\(Q\d+\)/,'').trim();
+    const parts = clean.split(',').map(s => s.trim());
+    const nums = parts.map(p => p === '__' ? null : parseFloat(p));
+    const known = nums.filter(n => n !== null);
+    if (known.length < 2) return [];
+
+    // Find the difference (common difference for arithmetic)
+    const diffs = [];
+    for (let i = 1; i < known.length; i++) diffs.push(known[i] - known[i-1]);
+    const allSame = diffs.every(d => d === diffs[0]);
+
+    if (allSame) {
+        return [`<span class="w-label">Pattern:</span> each number ${diffs[0] >= 0 ? '+' : ''}${diffs[0]} → <span class="w-step">${clean.replace('__', '<span class="w-result">?</span>')}</span>`];
+    }
+    return [`<span class="w-label">Look at the pattern in:</span> <span class="w-step">${clean}</span>`];
+}
+
+// MISSING QUESTION TYPES that get working blocks
+const MISSING_TYPES = new Set([
+    "addend-left-missing","addend-right-missing",
+    "minuend-missing","subtrahend-missing",
+    "factor-left-missing","factor-right-missing",
+    "dividend-missing","divisor-missing"
+]);
+
+toggleAll.onclick = () => {
+    if (!showAll) {
+        if (prompt("Enter PIN") !== "0000") return;
+    }
+    showAll = !showAll;
+    document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
+    document.querySelectorAll("#questions .question-row img").forEach(img => {
+        img.style.display = showAll ? "block" : "none";
+    });
+    document.querySelectorAll(".num-word").forEach(el => {
+        el.style.visibility = showAll ? "visible" : "hidden";
+    });
+    document.querySelectorAll("canvas.clock-answer").forEach(canvas => {
+        if (showAll) {
+            canvas.style.display = "block";
+            drawClock(canvas, canvas.dataset.time);
+        } else {
+            canvas.style.display = "none";
+            canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        }
+    });
+
+    // Show/hide working blocks for BODMAS, missing equations, sequences
+    document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
+
+    // Generate BODMAS steps if not yet generated
+    if (showAll) {
+        document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
+            if (row.querySelector(".working-block")) return; // already done
+            const qSpan = row.querySelector(".question-text");
+            if (!qSpan) return;
+            const rawText = qSpan.innerText || "";
+            const steps = bodmasSteps(rawText);
+            if (!steps.length) return;
+            const wb = document.createElement("div");
+            wb.className = "working-block show";
+            wb.innerHTML = steps.map((s,i) =>
+                `<div><span class="w-label">Step ${i+1} (${s.label}):</span> ${s.expr}</div>`
+            ).join("");
+            row.appendChild(wb);
+        });
+
+        // Generate missing-equation working
+        document.querySelectorAll(".question-row[data-type='missing']").forEach(row => {
+            if (row.querySelector(".working-block")) return;
+            const qSpan = row.querySelector(".question-text");
+            if (!qSpan) return;
+            const lines = missingWorking(qSpan.innerText || "");
+            if (!lines.length) return;
+            const wb = document.createElement("div");
+            wb.className = "working-block show";
+            wb.innerHTML = lines.map(l => `<div>${l}</div>`).join("");
+            row.appendChild(wb);
+        });
+
+        // Generate sequence working for missing-number
+        document.querySelectorAll(".question-row[data-type='sequence']").forEach(row => {
+            if (row.querySelector(".working-block")) return;
+            const qSpan = row.querySelector(".question-text");
+            if (!qSpan) return;
+            const lines = sequenceWorking(qSpan.innerText || "");
+            if (!lines.length) return;
+            const wb = document.createElement("div");
+            wb.className = "working-block show";
+            wb.innerHTML = lines.map(l => `<div>${l}</div>`).join("");
+            row.appendChild(wb);
+        });
+    }
+
+    toggleAll.textContent = showAll ? "Hide" : "Show";
+};
+
+// Inline row: question + input + answer all on one line
+function renderInlineRow(letter, question, answer, dataType) {
+    const dt = dataType ? ` data-type="${dataType}"` : "";
+    return `<div class="question-row"${dt}>
+        <span class="question-letter">(${letter})</span>
+        <span class="question-text">${question}</span>
+        <span class="inline-answer-wrap">
+            <input type="text" class="answer-input" />
+            <span class="answer">${answer}</span>
+        </span>
+    </div>`;
+}
+
+// Word problem row: question wraps, input+answer on separate indented line below
+function renderWordRow(letter, question, answer) {
+    return `<div class="question-row word-row">
+        <div class="word-top">
+            <span class="question-letter">(${letter})</span>
+            <span class="question-text">${question}</span>
+        </div>
+        <div class="word-answer-line">
+            <span style="color:#aaa; font-size:0.8em;">Answer:</span>
+            <input type="text" class="answer-input" style="width:160px;" />
+            <span class="answer">${answer}</span>
+        </div>
+    </div>`;
+}
+
+function addStack(val) {
+    if (stacks[val]) return;
+    const wrapper = document.createElement("div");
+    const autoSize = ["word-problems", "bodmas", "multiplication-tables",
+                      "units-length","units-weight","units-liquid","units-time","units-money"];
+    wrapper.className = "stack-wrapper" + (autoSize.includes(val) ? " auto-size" : "");
+    const questionsBox = document.createElement("div");
+    const isGithub = options.find(o => o[0] === val)?.[2] === "github";
+    questionsBox.className = "stack-box" + (isGithub ? " github-box" : "");
+    wrapper.appendChild(questionsBox);
+    stacks[val] = wrapper;
+    stackOrder.push(val);
+    questions.appendChild(wrapper);
+    generate(questionsBox, null, val);
+    navigateTo(stackOrder.length - 1, "next");
+}
+
+function removeStack(val) {
+    stacks[val]?.remove();
+    delete stacks[val];
+    const idx = stackOrder.indexOf(val);
+    if (idx !== -1) stackOrder.splice(idx, 1);
+    if (stackOrder.length === 0) {
+        currentIndex = 0;
+        updateCounter();
+    } else {
+        const newIdx = Math.min(currentIndex, stackOrder.length - 1);
+        // Show without animation when unchecking
+        stackOrder.forEach((v, i) => {
+            stacks[v]?.classList.toggle("visible-stack", i === newIdx);
+        });
+        currentIndex = newIdx;
+        updateCounter();
+    }
+}
+
+// ── SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────────
+
+// Mulberry32 — fast, good-quality 32-bit PRNG from a single uint seed
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+// Turn a string into a stable uint32 hash (djb2)
+function hashStr(str) {
+    let h = 5381;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+    return h >>> 0;
+}
+
+// Build today's numeric seed: date string + question type name → unique per type per day
+function dailySeed(val) {
+    const d = new Date();
+    const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+    return hashStr(dateStr + val);
+}
+
+// Fisher-Yates shuffle using a seeded PRNG
+function seededShuffle(arr, rng) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+// Pick `n` questions from total `count` using date+type seed.
+// Guarantees full coverage cycle: all questions seen before repeating.
+// Handles any count — future-proof if JSON grows or shrinks.
+function pickDailyIndices(val, total, n) {
+    // Edge case: fewer questions than needed → return all shuffled
+    if (total <= n) {
+        const rng = mulberry32(dailySeed(val));
+        return seededShuffle([...Array(total).keys()], rng).slice(0, total);
+    }
+
+    const seed    = dailySeed(val);
+    const rng     = mulberry32(seed);
+    const shuffled = seededShuffle([...Array(total).keys()], rng);
+
+    // How many full pages of n fit in total?
+    const pagesInCycle = Math.floor(total / n);
+    // Remaining questions that don't fill a full page
+    const remainder    = total % n;
+
+    // Which day-of-year are we? (0-based)
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - start) / 86400000); // 1–366
+
+    // Which page within this cycle?
+    const page = dayOfYear % pagesInCycle;
+    const sliceStart = page * n;
+
+    let indices = shuffled.slice(sliceStart, sliceStart + n);
+
+    // Safety: if we somehow got fewer than n (shouldn't happen but guard it),
+    // top up from the remainder pool at end of shuffled array
+    if (indices.length < n && remainder > 0) {
+        const topUp = shuffled.slice(pagesInCycle * n);
+        indices = indices.concat(topUp).slice(0, n);
+    }
+
+    return indices;
+}
+
+// ── END SEEDED DAILY QUESTION PICKER ──────────────────────────────────────────
+
+function generate(questionsBox, _unused, val) {
+    questionsBox.innerHTML = "";
+
+    const option     = options.find(o => o[0] === val);
+    const isGithub   = option?.[2] === "github";
+    const titleClass = isGithub ? "github-title" : "inline-title";
+    const borderCol  = isGithub ? "#ff9900" : "#28a745";
+
+    if (option) {
+        questionsBox.innerHTML = `<div class="problem-title ${titleClass}">${option[1]}</div>`;
+        questionsBox.style.borderLeft = `4px solid ${borderCol}`;
+    }
+
+    if (val === "gen-sub-no-borrow") {
+        for (let i = 0; i < 2; i++) {
+            let a  = rand(100, 999);
+            let aD = String(a).split('').map(Number);
+            let bD = String(rand(100, 999)).split('').map((d, j) => Math.min(d, aD[j]));
+            let b  = parseInt(bD.join(''));
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} - ${b} =`, a - b);
+        }
+    }
+    else if (val === "gen-sub-with-borrow") {
+        for (let i = 0; i < 2; i++) {
+            let a = rand(100, 999), b = rand(100, 999);
+            if (b > a) [a, b] = [b, a];
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} - ${b} =`, a - b);
+        }
+    }
+    else if (val === "gen-mul-2-digit") {
+        for (let i = 0; i < 2; i++) {
+            let a = rand(10, 99), b = rand(10, 99);
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} × ${b} =`, a * b);
+        }
+    }
+    else if (val === "number-names") {
+        const letters = ["a","b","c","d"];
+        [rand(100,999), rand(100,999), rand(1000,9999), rand(1000,9999)].forEach((n, i) => {
+            const word = numberToWords(n);
+            questionsBox.innerHTML += renderInlineRow(letters[i],
+                `${n} <span class="num-word">${word}</span>`, "");
+        });
+    }
+    else if (val === "basic-divisions") {
+        for (let i = 0; i < 4; i++) {
+            let b = rand(2,9), a = b * rand(2,9);
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), `${a} ÷ ${b} =`, a / b);
+        }
+    }
+    else if (val === "ascending" || val === "descending") {
+        for (let i = 0; i < 2; i++) {
+            let arr = [...Array(6)].map(() => rand(10,99));
+            let s   = [...arr].sort((a,b) => val === "ascending" ? a-b : b-a);
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), arr.join(", "), s.join(", "));
+        }
+    }
+    else if (val === "draw-clock") {
+        for (let i = 0; i < 2; i++) {
+            const h    = rand(1, 12);
+            const m    = rand(0, 59);
+            const time = `${h}:${String(m).padStart(2, "0")}`;
+            const letter = String.fromCharCode(97 + i);
+
+            const row = document.createElement("div");
+            row.className = "question-row";
+            row.style.cssText = "align-items:center; gap:20px; padding:12px 0 12px 20px; flex-wrap:wrap;";
+
+            row.innerHTML = `
+                <span class="question-letter">(${letter})</span>
+                <span class="question-text" style="font-size:44px; font-weight:bold; color:#fff; min-width:100px;">${time}</span>
+                <span style="color:#aaa; font-size:22px;">← Draw this on paper</span>
+            `;
+
+            // Hidden canvas — shown when answers revealed
+            const canvas = document.createElement("canvas");
+            canvas.className    = "clock-answer";
+            canvas.width        = 180;
+            canvas.height       = 180;
+            canvas.dataset.time = time;
+            canvas.style.cssText = "display:none; border-radius:50%; margin-left:20px;";
+            row.appendChild(canvas);
+
+            questionsBox.appendChild(row);
+        }
+    }
+    else if (val === "tell-time") {
+        fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/clocks")
+            .then(res => res.json())
+            .then(files => {
+                // Accept any png with the new naming format: clockN-H:MM.png
+                // Also falls back gracefully to old format (no time in name)
+                const pngs = Array.isArray(files)
+                    ? files.filter(f => f.name.endsWith(".png"))
+                    : [];
+
+                if (pngs.length === 0) {
+                    questionsBox.innerHTML += `<div style="color:#aaa;padding:20px;">No clock images found.</div>`;
+                    return;
+                }
+
+                // Use date-seeded daily picker — works for any count, future-proof
+                const total   = pngs.length;
+                const n       = 2;
+                const indices = pickDailyIndices("tell-time", total, n);
+                const picked  = indices.map(i => pngs[i]);
+
+                const letters   = ["a","b"];
+                const container = document.createElement("div");
+                container.style.cssText = "display:flex; gap:60px; flex-wrap:wrap; padding:12px 0;";
+
+                picked.forEach((file, i) => {
+                    // Extract time from filename: clock1-5-47.png → "5:47"
+                    const parts   = file.name.replace(".png","").split("-");
+                    const timeStr = parts.length >= 3 ? `${parts[1]}:${parts[2]}` : "?";
+
+                    const block = document.createElement("div");
+                    block.style.cssText = "display:flex; flex-direction:column; align-items:center; gap:10px;";
+
+                    const lbl = document.createElement("span");
+                    lbl.textContent = `(${letters[i]})`;
+                    lbl.style.cssText = "font-size:22px; color:#aaa; font-weight:bold;";
+
+                    const img = document.createElement("img");
+                    img.src = file.download_url;
+                    img.alt = timeStr;
+                    img.style.cssText = "width:220px; height:220px; border-radius:8px;";
+
+                    // DEBUG: always visible — shows raw filename + split parts + extracted time
+                    const debugLbl = document.createElement("div");
+                    debugLbl.style.cssText = "font-size:12px; color:#ff9900; word-break:break-all; max-width:240px; text-align:center; background:#1a1a0a; padding:4px 8px; border-radius:4px;";
+                    debugLbl.textContent = `📁 ${file.name} | parts[${parts.length}]: [${parts.join("|")}] → "${timeStr}"`;
+
+                    const ansRow = document.createElement("div");
+                    ansRow.style.cssText = "display:flex; align-items:center; gap:10px; font-size:24px;";
+
+                    const ansLabel = document.createElement("span");
+                    ansLabel.textContent = "Time:";
+                    ansLabel.style.cssText = "color:#aaa; font-size:20px;";
+
+                    const input = document.createElement("input");
+                    input.type      = "text";
+                    input.className = "answer-input";
+                    input.style.width = "120px";
+                    input.placeholder = "h:mm";
+
+                    const ansSpan = document.createElement("span");
+                    ansSpan.className   = "answer";
+                    ansSpan.textContent = timeStr;
+
+                    ansRow.appendChild(ansLabel);
+                    ansRow.appendChild(input);
+                    ansRow.appendChild(ansSpan);
+
+                    block.appendChild(lbl);
+                    block.appendChild(img);
+                    block.appendChild(debugLbl);
+                    block.appendChild(ansRow);
+                    container.appendChild(block);
+                });
+
+                questionsBox.appendChild(container);
+            })
+            .catch(err => {
+                console.error("tell-time fetch error:", err);
+                questionsBox.innerHTML += `<div style="color:#f66;padding:20px;">Could not load clock images.</div>`;
+            });
+    }
+    else if (val === "geometric-shapes") {
+        fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
+            .then(res => res.json())
+            .then(files => {
+                const pngs = files.filter(f => f.name.endsWith(".png"));
+                const picked = [];
+                while (picked.length < 4) {
+                    const f = pngs[rand(0, pngs.length-1)];
+                    if (!picked.includes(f)) picked.push(f);
+                }
+                const letters = ["a","b","c","d"];
+                const container = document.createElement("div");
+                container.style.cssText = "display:flex; gap:40px; flex-wrap:wrap; padding:8px 0;";
+                picked.forEach((file, i) => {
+                    const block = document.createElement("div");
+                    block.style.cssText = "display:flex; flex-direction:column; align-items:center; gap:8px;";
+                    const img = document.createElement("img");
+                    img.src = file.download_url;
+                    img.style.cssText = "width:160px; height:160px;";
+                    const lbl = document.createElement("span");
+                    lbl.textContent = `(${letters[i]})`;
+                    lbl.style.cssText = "font-size:20px; color:#aaa;";
+                    const ansRow = document.createElement("div");
+                    ansRow.style.cssText = "display:flex; align-items:center; gap:8px; font-size:22px;";
+                    ansRow.innerHTML = `<input type="text" class="answer-input" style="width:130px;" />
+                        <span class="answer">${file.name.replace(".png","")}</span>`;
+                    block.appendChild(img);
+                    block.appendChild(lbl);
+                    block.appendChild(ansRow);
+                    container.appendChild(block);
+                });
+                questionsBox.appendChild(container);
+            });
+    }
+    else if (val === "drawing-shapes") {
+        fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
+            .then(res => res.json())
+            .then(files => {
+                const pngs = files.filter(f => f.name.endsWith(".png"));
+                const picked = [];
+                while (picked.length < 4 && picked.length < pngs.length) {
+                    const f = pngs[rand(0, pngs.length-1)];
+                    if (!picked.includes(f)) picked.push(f);
+                }
+                const letters = ["a","b","c","d"];
+                picked.forEach((file, i) => {
+                    const row = document.createElement("div");
+                    row.className = "question-row";
+                    row.innerHTML = `
+                        <span class="question-letter">(${letters[i]})</span>
+                        <span class="question-text">${file.name.replace(".png","")}</span>
+                        <img src="${file.download_url}" style="width:180px;height:180px;display:none;margin-left:16px;" />
+                        <span class="inline-answer-wrap">
+                            <span class="answer">${file.name.replace(".png","")}</span>
+                        </span>`;
+                    questionsBox.appendChild(row);
+                });
+            })
+            .catch(err => console.error("Error:", err));
+    }
+    else if (val === "neg-pos-numbers") {
+        for (let i = 0; i < 2; i++) {
+            let start = rand(1,95), end = start + rand(3,5);
+            let qText, aText;
+            if (rand(1,2) === 1) {
+                qText = `Write negative numbers from ${start} to ${end}`;
+                let nums = []; for (let n = end; n >= start; n--) nums.push(`-${n}`);
+                aText = nums.join(", ");
+            } else {
+                let a = rand(1,5), b = rand(1,5);
+                qText = `Write numbers from -${a} to ${b}`;
+                let nums = []; for (let n = -a; n <= b; n++) nums.push(n);
+                aText = nums.join(", ");
+            }
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(97+i), qText, aText);
+        }
+    }
+    else if (val === "multiplication-tables") {
+        const table = rand(12,19);
+        questionsBox.innerHTML += `<div class="question-row" style="font-size:36px; padding-left:20px; border-bottom:none;">Write table of ${table}</div>`;
+        for (let i = 1; i <= 10; i++) {
+            questionsBox.innerHTML += renderInlineRow(String.fromCharCode(96+i),
+                `${table} × ${i} =`, table * i);
+        }
+    }
+    else {
+        // GitHub-fetched
+        const wordRowTypes = ["word-problems", "spell-the-word", "simple-equations",
+                              "units-length","units-weight","units-liquid","units-time","units-money"];
+        const numMap = {
+            "word-problems":     4,
+            "spell-the-word":    3,
+            "simple-equations":  2,
+            "general-knowledge": 4,
+            "units-length":      2,
+            "units-weight":      2,
+            "units-liquid":      2,
+            "units-time":        2,
+            "units-money":       2
+        };
+        const numQuestions = numMap[val] || 2;
+
+        fetch(BASE_URL + val + ".json")
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status} for ${val}.json`);
+                return r.json();
+            })
+            .then(d => {
+                if (!d.questions || !d.answers) throw new Error(`Invalid JSON structure in ${val}.json`);
+                const total = d.questions.length;
+                const idx   = pickDailyIndices(val, total, numQuestions);
+
+                idx.forEach((qi, j) => {
+                    const letter = String.fromCharCode(97 + j);
+
+                    let qText = String(d.questions[qi] ?? "").replace(/\t\(Q\d+\)$/, "").trim();
+
+                    const rawAnswer  = String(d.answers[qi] ?? "");
+                    const qCodeMatch = rawAnswer.match(/\(Q\d+\)$/);
+                    const qCode      = qCodeMatch ? qCodeMatch[0] : "";
+                    const aText      = rawAnswer.replace(/\s*\(Q\d+\)$/, "").trim();
+                    const aDisplay   = qCode
+                        ? `${aText} <span style="color:#555;font-size:0.7em;margin-left:6px;">${qCode}</span>`
+                        : aText;
+
+                    // Determine data-type for working block
+                    let dataType = null;
+                    if (val === "bodmas")              dataType = "bodmas";
+                    else if (MISSING_TYPES.has(val))   dataType = "missing";
+                    else if (val === "missing-number" || val === "pattern-completion") dataType = "sequence";
+
+                    if (val === "bodmas") {
+                        qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
+                        qText = `<span style="font-size:1.3em;letter-spacing:0.12em;">${qText}</span>`;
+                    }
+
+                    if (wordRowTypes.includes(val)) {
+                        questionsBox.innerHTML += renderWordRow(letter, qText, aDisplay);
+                    } else {
+                        questionsBox.innerHTML += renderInlineRow(letter, qText, aDisplay, dataType);
+                    }
+                });
+            })
+            .catch(err => {
+                console.error(`Fetch error for ${val}:`, err);
+                questionsBox.innerHTML += `<div style="color:#f66;padding:12px;font-size:18px;">⚠️ Could not load: ${val}.json<br><small>${err.message}</small></div>`;
+            });
+    }
+}
+
+const controlContainer = document.getElementById("control-container");
+const controlToggle    = document.getElementById("control-toggle");
+controlToggle.checked  = false;
+controlToggle.onchange = () => controlContainer.classList.toggle("shrink", !controlToggle.checked);
+
+// TIMER
+let timer = null, seconds = 0;
+const timerBtn     = document.getElementById("timerBtn");
+const resetTimer   = document.getElementById("resetTimer");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function updateTimerDisplay() {
+    timerDisplay.textContent = `${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(seconds%60).padStart(2,"0")}`;
+}
+
+timerBtn.onclick = () => {
+    if (!timer) {
+        timer = setInterval(() => { seconds++; updateTimerDisplay(); }, 1000);
+        timerBtn.textContent = "Pause";
+        timerBtn.style.background  = "#cc3300";
+        timerBtn.style.boxShadow   = "0 0 12px rgba(204,51,0,0.8)";
+    } else {
+        clearInterval(timer); timer = null;
+        timerBtn.textContent = "Start Timer";
+        timerBtn.style.background  = "#28a745";
+        timerBtn.style.boxShadow   = "0 0 8px rgba(40,167,69,0.5)";
+    }
+};
+
+resetTimer.onclick = () => {
+    clearInterval(timer); timer = null; seconds = 0;
+    updateTimerDisplay();
+    timerBtn.textContent = "Start Timer";
+    timerBtn.style.background = "#28a745";
+    timerBtn.style.boxShadow  = "0 0 8px rgba(40,167,69,0.5)";
+};
+
+// CONFETTI
+const CONFETTI_COLORS = ["#ff004c","#ff9900","#ffee00","#28a745","#00c8ff","#cc44ff","#ff66aa","#ffffff"];
+
+function launchConfetti() {
+    const count   = 38;
+    const half    = Math.floor(count / 2);
+    const vpW     = window.innerWidth;
+
+    for (let i = 0; i < count; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+
+        // Left burst or right burst
+        const isLeft  = i < half;
+        const originX = isLeft
+            ? rand(0, 60)                   // left edge band
+            : rand(vpW - 60, vpW - 4);      // right edge band
+
+        const spreadX = isLeft
+            ? rand(-10, 90)                 // fans right from left
+            : rand(-90, 10);                // fans left from right
+
+        const duration = rand(700, 1300);
+        const delay    = rand(0, 220);
+        const size     = rand(7, 13);
+        const color    = CONFETTI_COLORS[rand(0, CONFETTI_COLORS.length - 1)];
+        const isCircle = rand(0, 1) === 0;
+
+        piece.style.cssText = `
+            left: ${originX + spreadX}px;
+            top: ${rand(-30, 40)}px;
+            width: ${size}px;
+            height: ${size * rand(1,2)}px;
+            background: ${color};
+            border-radius: ${isCircle ? "50%" : "2px"};
+            animation-duration: ${duration}ms;
+            animation-delay: ${delay}ms;
+        `;
+
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), duration + delay + 100);
+    }
+}
+
+// ANIMAL RUN
+const ANIMALS = ["🐢","🐇","🦁","🐘","🦊","🐸","🐧","🦄","🐯","🦋"];
+let lastAnimalIdx = -1;
+
+function runAnimal(direction) {
+    // Pick a different animal each time
+    let idx;
+    do { idx = Math.floor(Math.random() * ANIMALS.length); } while (idx === lastAnimalIdx);
+    lastAnimalIdx = idx;
+
+    const el = document.createElement("div");
+    el.className   = "animal-runner";
+    el.textContent = ANIMALS[idx];
+
+    const goingRight = direction === "next";
+    const duration   = rand(900, 1400); // ms — faster animals feel snappier
+
+    el.style.animationName     = goingRight ? "animalRunRight" : "animalRunLeft";
+    el.style.animationDuration = `${duration}ms`;
+    el.style.animationTimingFunction = "linear";
+    el.style.animationFillMode = "forwards";
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), duration + 100);
+}
+
+// CONFETTI on question block click
+let activeStack = null;
+
+questions.addEventListener("click", e => {
+    const stack = e.target.closest(".stack-wrapper");
+    if (!stack) return;
+    if (activeStack === stack) { activeStack = null; return; }
+    activeStack = stack;
+    launchConfetti();
+});
+
+// CAROUSEL NAVIGATION
+const stackOrder   = [];
+let   currentIndex = 0;
+let   isAnimating  = false;
+
+function updateCounter() {
+    const total = stackOrder.length;
+    const txt   = total === 0 ? "0 / 0" : `${currentIndex + 1} / ${total}`;
+    document.getElementById("bottom-qCounter").textContent = txt;
+}
+
+// Slide animation navigation
+function navigateTo(newIdx, direction) {
+    if (stackOrder.length === 0) { updateCounter(); return; }
+    if (isAnimating) return;
+    if (newIdx === currentIndex) return;
+
+    isAnimating = true;
+    const oldEl = stacks[stackOrder[currentIndex]];
+    const newEl = stacks[stackOrder[newIdx]];
+
+    currentIndex = newIdx;
+
+    // Animate old out
+    if (oldEl) {
+        oldEl.style.transition = "transform 0.38s ease, opacity 0.38s ease";
+        oldEl.style.transform  = direction === "next" ? "translateX(-100%)" : "translateX(100%)";
+        oldEl.style.opacity    = "0";
+        setTimeout(() => {
+            oldEl.classList.remove("visible-stack");
+            oldEl.style.transform  = "";
+            oldEl.style.opacity    = "";
+            oldEl.style.transition = "";
+        }, 390);
+    }
+
+    // Prepare new one just off screen
+    if (newEl) {
+        newEl.style.transition = "none";
+        newEl.style.transform  = direction === "next" ? "translateX(100%)" : "translateX(-100%)";
+        newEl.style.opacity    = "0";
+        newEl.classList.add("visible-stack");
+        // Scroll to top
+        newEl.scrollTop = 0;
+        // Animate in on next frame
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                newEl.style.transition = "transform 0.38s ease, opacity 0.38s ease";
+                newEl.style.transform  = "translateX(0)";
+                newEl.style.opacity    = "1";
+                setTimeout(() => {
+                    newEl.style.transition = "";
+                    newEl.style.transform  = "";
+                    newEl.style.opacity    = "";
+                    isAnimating = false;
+                }, 400);
+            });
+        });
+    }
+
+    updateCounter();
+}
+
+document.getElementById("prevBtn").onclick = () => {
+    if (stackOrder.length === 0) return;
+    const idx = (currentIndex - 1 + stackOrder.length) % stackOrder.length;
+    navigateTo(idx, "prev");
+    launchConfetti();
+    runAnimal("prev");
+};
+
+document.getElementById("nextBtn").onclick = () => {
+    if (stackOrder.length === 0) return;
+    const idx = (currentIndex + 1) % stackOrder.length;
+    navigateTo(idx, "next");
+    launchConfetti();
+    runAnimal("next");
+};
+
+document.getElementById("goTopBtn").onclick = () => {
+    if (stackOrder.length === 0) return;
+    navigateTo(0, "prev");
+    launchConfetti();
+    runAnimal("prev");
+};
+
+// SAVE ANSWERS
+document.getElementById("saveBtn").onclick = () => {
+    const all = document.querySelectorAll(".stack-wrapper");
+    let output = [];
+    all.forEach(stack => {
+        const title = stack.querySelector(".problem-title")?.innerText;
+        if (title) output.push(`\n=== ${title} ===`);
+        const qs     = stack.querySelectorAll(".question-row");
+        const inputs = stack.querySelectorAll(".answer-input");
+        qs.forEach((q, i) => {
+            const qText = q.querySelector(".question-text")?.innerText
+                       || q.querySelector(".word-top")?.innerText
+                       || q.innerText;
+            output.push(`${qText.replace(/\s+/g," ").trim()}  =>  ${inputs[i]?.value || ""}`);
+        });
+    });
+    Object.assign(document.createElement("a"), {
+        href: URL.createObjectURL(new Blob([output.join("\n")], { type: "text/plain" })),
+        download: "answers.txt"
+    }).click();
+};
+
+// SAVE QUESTIONS
+document.getElementById("saveQuestionsBtn").onclick = () => {
+    const all = document.querySelectorAll(".stack-wrapper");
+    let output = [];
+    all.forEach(stack => {
+        const title = stack.querySelector(".problem-title")?.innerText;
+        if (title) output.push(`\n=== ${title} ===`);
+        stack.querySelectorAll(".question-row").forEach(q => {
+            const qText = q.querySelector(".question-text")?.innerText
+                       || q.querySelector(".word-top .question-text")?.innerText
+                       || q.innerText;
+            output.push(qText.replace(/\s+/g, " ").trim());
+        });
+    });
+    const ts = new Date().toISOString().replace(/[:.]/g, "-");
+    Object.assign(document.createElement("a"), {
+        href: URL.createObjectURL(new Blob([output.join("\n")], { type: "text/plain" })),
+        download: `questions-only-${ts}.txt`
+    }).click();
+};
+
+// SCREEN WAKE LOCK
+let wakeLock = null;
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {});
+        }
+    } catch (err) {}
+}
+document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock();
+});
+requestWakeLock();
+</script>
+
+</body>
+</html>
