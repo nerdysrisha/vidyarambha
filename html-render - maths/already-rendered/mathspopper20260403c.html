@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
+
+<!--v54 Sequencing corrected -->
 <style>
 html, body {
     margin: 0;
@@ -459,19 +461,18 @@ const options = [
     ["pattern-completion",   "19. Pattern Completion"],
     ["draw-clock",           "20. Draw Clock"],
     ["tell-time",            "21. Tell Time"],
-    ["identify-time",        "22. Identify Time"],
-    ["drawing-shapes",       "23. Drawing Shapes"],
-    ["geometric-shapes",     "24. Geometric Shapes"],
-    ["spell-the-word",       "25. Spell the Word"],
-    ["true-or-false",        "26. True or False"],
-    ["missing-number",       "27. Missing Number"],
-    ["simple-equations",     "28. Simple Equations"],
-    ["general-knowledge",    "29. General Knowledge"],
-    ["units-length",         "30. Units - Length"],
-    ["units-weight",         "31. Units - Weight"],
-    ["units-liquid",         "32. Units - Liquid"],
-    ["units-time",           "33. Units - Time"],
-    ["units-money",          "34. Units - Money"]
+    ["drawing-shapes",       "22. Drawing Shapes"],
+    ["geometric-shapes",     "23. Geometric Shapes"],
+    ["spell-the-word",       "24. Spell the Word"],
+    ["true-or-false",        "25. True or False"],
+    ["missing-number",       "26. Missing Number"],
+    ["simple-equations",     "27. Simple Equations"],
+    ["general-knowledge",    "28. General Knowledge"],
+    ["units-length",         "29. Units - Length"],
+    ["units-weight",         "30. Units - Weight"],
+    ["units-liquid",         "31. Units - Liquid"],
+    ["units-time",           "32. Units - Time"],
+    ["units-money",          "33. Units - Money"]
 ];
 
 const control   = document.getElementById("control");
@@ -593,61 +594,34 @@ const MISSING_TYPES = new Set([
 
 // ── DRAW CLOCK ────────────────────────────────────────────────────────────────
 function drawClock(canvas, timeStr) {
-    const size = canvas.width, cx = size/2, cy = size/2, r = size/2 - 6;
-    const ctx  = canvas.getContext("2d");
-    ctx.clearRect(0, 0, size, size);
-
-    // Face
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
-    ctx.fillStyle = "#1a1a2e"; ctx.fill();
-    ctx.strokeStyle = "#00c8ff"; ctx.lineWidth = 3; ctx.stroke();
-
-    // All 60 minute marks — 3 tiers of length/weight
-    for (let m = 0; m < 60; m++) {
-        const angle   = (m / 30) * Math.PI - Math.PI/2;
-        const isHour  = m % 5  === 0;   // 12 hour marks
-        const isQuart = m % 15 === 0;   // 4 quarter marks
-
-        const innerR  = isQuart ? r*0.78 : isHour ? r*0.82 : r*0.89;
-        const outerR  = r * 0.97;
-
-        ctx.beginPath();
-        ctx.moveTo(cx + innerR*Math.cos(angle), cy + innerR*Math.sin(angle));
-        ctx.lineTo(cx + outerR*Math.cos(angle), cy + outerR*Math.sin(angle));
-        ctx.strokeStyle = isQuart ? "#dddddd" : isHour ? "#888888" : "#4a4a4a";
-        ctx.lineWidth   = isQuart ? 3 : isHour ? 2 : 1;
-        ctx.stroke();
+    const size = canvas.width, cx = size/2, cy = size/2, r = size/2-6;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,size,size);
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI);
+    ctx.fillStyle="#1a1a2e"; ctx.fill();
+    ctx.strokeStyle="#00c8ff"; ctx.lineWidth=3; ctx.stroke();
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillStyle="#ffffff"; ctx.font=`bold ${size*0.09}px Arial`;
+    for (let h=1;h<=12;h++) {
+        const angle=(h/6)*Math.PI-Math.PI/2, nr=r*0.78;
+        ctx.fillText(h, cx+nr*Math.cos(angle), cy+nr*Math.sin(angle));
+        const t1x=cx+r*0.88*Math.cos(angle),t1y=cy+r*0.88*Math.sin(angle);
+        const t2x=cx+r*0.97*Math.cos(angle),t2y=cy+r*0.97*Math.sin(angle);
+        ctx.beginPath(); ctx.moveTo(t1x,t1y); ctx.lineTo(t2x,t2y);
+        ctx.strokeStyle="#555"; ctx.lineWidth=2; ctx.stroke();
     }
-
-    // Hour numbers — placed inside the hour marks
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffffff"; ctx.font = `bold ${size*0.09}px Arial`;
-    for (let h = 1; h <= 12; h++) {
-        const angle = (h/6)*Math.PI - Math.PI/2;
-        const nr = r * 0.68;
-        ctx.fillText(h, cx + nr*Math.cos(angle), cy + nr*Math.sin(angle));
-    }
-
-    // Parse time
-    const parts   = timeStr.split(":").map(Number);
-    const hours   = parts[0] % 12;
-    const minutes = parts[1] || 0;
-
-    // Minute hand — green, long, thin
-    const minAngle = (minutes/60)*2*Math.PI - Math.PI/2;
-    ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + r*0.80*Math.cos(minAngle), cy + r*0.80*Math.sin(minAngle));
-    ctx.strokeStyle = "#58D68D"; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
-
-    // Hour hand — amber, short, thick
-    const hourAngle = ((hours + minutes/60)/12)*2*Math.PI - Math.PI/2;
-    ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + r*0.50*Math.cos(hourAngle), cy + r*0.50*Math.sin(hourAngle));
-    ctx.strokeStyle = "#ff9900"; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
-
-    // Centre dot
-    ctx.beginPath(); ctx.arc(cx, cy, size*0.03, 0, 2*Math.PI);
-    ctx.fillStyle = "#ffffff"; ctx.fill();
+    const [hRaw,mRaw]=timeStr.split(":").map(Number);
+    const hours=hRaw%12, minutes=mRaw;
+    const minAngle=(minutes/60)*2*Math.PI-Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*0.75*Math.cos(minAngle),cy+r*0.75*Math.sin(minAngle));
+    ctx.strokeStyle="#58D68D"; ctx.lineWidth=size*0.025; ctx.lineCap="round"; ctx.stroke();
+    const hourAngle=((hours+minutes/60)/12)*2*Math.PI-Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+r*0.5*Math.cos(hourAngle),cy+r*0.5*Math.sin(hourAngle));
+    ctx.strokeStyle="#ff9900"; ctx.lineWidth=size*0.04; ctx.lineCap="round"; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,size*0.035,0,2*Math.PI);
+    ctx.fillStyle="#ffffff"; ctx.fill();
 }
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
@@ -736,7 +710,7 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","tell-time","identify-time"]);
+    "number-names","draw-clock"]);
 
 function addStack(val) {
     if (stacks[val]) return;
@@ -834,77 +808,41 @@ function generate(box, val) {
         box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
     }
 
-    // tell-time: PNG images from GitHub — kid reads clock image, writes the time
+    // tell-time: GitHub API image listing
     if (val === "tell-time") {
         fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/clocks")
-            .then(res => res.json())
-            .then(files => {
-                const pngs = Array.isArray(files) ? files.filter(f => f.name.endsWith(".png")) : [];
+            .then(res=>res.json())
+            .then(files=>{
+                const pngs = Array.isArray(files) ? files.filter(f=>f.name.endsWith(".png")) : [];
                 if (!pngs.length) { box.innerHTML += `<div style="color:#aaa;padding:20px;">No clock images found.</div>`; return; }
                 const idx = pickDailyIndices("tell-time", pngs.length, 2);
                 const letters = ["a","b"];
                 const container = document.createElement("div");
                 container.style.cssText = "display:flex;gap:60px;flex-wrap:wrap;padding:12px 0;";
-                idx.map(i => pngs[i]).forEach((file, i) => {
-                    const parts   = file.name.replace(".png","").split("-");
+                idx.map(i=>pngs[i]).forEach((file,i)=>{
+                    const parts = file.name.replace(".png","").split("-");
                     const timeStr = parts.length >= 3 ? `${parts[1]}:${parts[2]}` : "?";
                     const block = document.createElement("div");
                     block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;";
                     const lbl = document.createElement("span");
                     lbl.textContent = `(${letters[i]})`; lbl.style.cssText = "font-size:22px;color:#aaa;font-weight:bold;";
                     const img = document.createElement("img");
-                    img.src = file.download_url;
-                    img.style.cssText = "width:220px;height:220px;border-radius:8px;";
+                    img.src = file.download_url; img.style.cssText = "width:220px;height:220px;border-radius:8px;";
                     const debugLbl = document.createElement("div");
                     debugLbl.style.cssText = "font-size:12px;color:#888;text-align:center;max-width:220px;";
                     debugLbl.textContent = `${file.name} → ${timeStr}`;
                     const ansRow = document.createElement("div");
                     ansRow.style.cssText = "display:flex;align-items:center;gap:10px;font-size:24px;";
-                    const ansLabel = document.createElement("span"); ansLabel.textContent = "Time:"; ansLabel.style.cssText = "color:#aaa;font-size:20px;";
-                    const input = document.createElement("input"); input.type = "text"; input.className = "answer-input"; input.style.width = "120px"; input.placeholder = "h:mm";
-                    const ansSpan = document.createElement("span"); ansSpan.className = "answer"; ansSpan.textContent = timeStr;
+                    const ansLabel = document.createElement("span"); ansLabel.textContent="Time:"; ansLabel.style.cssText="color:#aaa;font-size:20px;";
+                    const input = document.createElement("input"); input.type="text"; input.className="answer-input"; input.style.width="120px"; input.placeholder="h:mm";
+                    const ansSpan = document.createElement("span"); ansSpan.className="answer"; ansSpan.textContent=timeStr;
                     ansRow.appendChild(ansLabel); ansRow.appendChild(input); ansRow.appendChild(ansSpan);
                     block.appendChild(lbl); block.appendChild(img); block.appendChild(debugLbl); block.appendChild(ansRow);
                     container.appendChild(block);
                 });
                 box.appendChild(container);
             })
-            .catch(err => { box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`; });
-        return;
-    }
-
-    // identify-time: JS-drawn clock from identify-time.json — kid reads drawn clock, writes time
-    if (val === "identify-time") {
-        fetch(BASE_URL + "identify-time.json")
-            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-            .then(d => {
-                const idx = pickDailyIndices("identify-time", d.questions.length, 2);
-                const container = document.createElement("div");
-                container.style.cssText = "display:flex;gap:60px;flex-wrap:wrap;padding:12px 0;";
-                idx.forEach((qi, i) => {
-                    const letter  = String.fromCharCode(97 + i);
-                    const rawAns  = String(d.answers[qi] ?? "");
-                    const timeStr = rawAns.replace(/\s*\(Q\d+\)$/, "").trim();
-                    const block = document.createElement("div");
-                    block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;";
-                    const lbl = document.createElement("span");
-                    lbl.textContent = `(${letter})`; lbl.style.cssText = "font-size:22px;color:#aaa;font-weight:bold;";
-                    const canvas = document.createElement("canvas");
-                    canvas.width = 240; canvas.height = 240;
-                    canvas.style.cssText = "border-radius:50%;";
-                    setTimeout(() => drawClock(canvas, timeStr), 50);
-                    const ansRow = document.createElement("div");
-                    ansRow.style.cssText = "display:flex;align-items:center;gap:10px;font-size:24px;";
-                    const ansLabel = document.createElement("span"); ansLabel.textContent = "Time:"; ansLabel.style.cssText = "color:#aaa;font-size:20px;";
-                    const input = document.createElement("input"); input.type = "text"; input.className = "answer-input"; input.style.width = "120px"; input.placeholder = "h:mm";
-                    const ansSpan = document.createElement("span"); ansSpan.className = "answer"; ansSpan.textContent = timeStr;
-                    ansRow.appendChild(ansLabel); ansRow.appendChild(input); ansRow.appendChild(ansSpan);
-                    block.appendChild(lbl); block.appendChild(canvas); block.appendChild(ansRow);
-                    container.appendChild(block);
-                });
-                box.appendChild(container);
-            })
-            .catch(err => { box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`; });
+            .catch(err=>{ box.innerHTML += `<div style="color:#f66;padding:20px;">Error: ${err.message}</div>`; });
         return;
     }
 
