@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v56 Added Amazing Universe MCQ section with image reveal-->
+<!--v55 Removed Tell Time PNG images coming from Github -->
 <style>
 html, body {
     margin: 0;
@@ -46,10 +46,6 @@ html, body {
     font-size: 20px;
     padding: 6px 0;
     color: #28a745;
-}
-
-.ctrl-item.universe-item {
-    color: #a78bfa;
 }
 
 .ctrl-item input[type="checkbox"] { width: 22px; height: 22px; }
@@ -194,26 +190,12 @@ button:active { transform: scale(0.97); }
 
 .stack-box.auto-size { height: auto; }
 
-/* Universe box special styling */
-.stack-box.universe-box {
-    border-left: 4px solid #a78bfa;
-    background: linear-gradient(160deg, #0f0f1a 0%, #111 100%);
-}
-
 /* TITLES */
 .problem-title {
     color: #28a745;
     font-weight: bold;
     margin-bottom: 8px;
     font-size: 24px;
-}
-
-.problem-title.universe-title {
-    color: #a78bfa;
-    background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 /* QUESTION ROWS */
@@ -321,135 +303,6 @@ button:active { transform: scale(0.97); }
 .working-block .w-step   { color: #58D68D; font-weight: bold; }
 .working-block .w-label  { color: #ff9900; font-size: 0.8em; margin-right: 6px; }
 .working-block .w-result { color: #00c8ff; font-weight: bold; }
-
-/* ── UNIVERSE MCQ STYLES ─────────────────────────────────────────────── */
-.universe-question-block {
-    border-bottom: 1px solid #1e1e1e;
-    padding: 16px 20px 20px 20px;
-}
-
-.universe-q-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 10px;
-}
-
-.universe-q-letter {
-    font-size: 26px;
-    font-weight: bold;
-    color: #a78bfa;
-    flex-shrink: 0;
-    min-width: 40px;
-    text-align: right;
-}
-
-.universe-q-category {
-    font-size: 12px;
-    font-weight: bold;
-    color: #60a5fa;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: rgba(96,165,250,0.1);
-    border: 1px solid rgba(96,165,250,0.3);
-    border-radius: 4px;
-    padding: 2px 8px;
-    margin-top: 4px;
-    flex-shrink: 0;
-}
-
-.universe-q-text {
-    font-size: 26px;
-    line-height: 1.4;
-    color: #eee;
-    flex: 1;
-}
-
-.universe-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-left: 54px;
-    margin-top: 4px;
-}
-
-.universe-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #181828;
-    border: 1px solid #2a2a3e;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 20px;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-}
-
-.universe-option:hover {
-    border-color: #a78bfa;
-    background: #1e1e35;
-}
-
-.universe-option-letter {
-    font-size: 16px;
-    font-weight: bold;
-    color: #a78bfa;
-    width: 22px;
-    flex-shrink: 0;
-}
-
-.universe-option-text {
-    color: #ccc;
-}
-
-/* Answer reveal area */
-.universe-answer-row {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-left: 54px;
-    margin-top: 14px;
-    flex-wrap: wrap;
-}
-
-.universe-answer-badge {
-    visibility: hidden;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(88,214,141,0.12);
-    border: 1px solid #58D68D;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #58D68D;
-}
-
-.universe-answer-badge.show { visibility: visible; }
-
-.universe-answer-img {
-    display: none;
-    width: 140px;
-    height: 140px;
-    object-fit: contain;
-    border-radius: 10px;
-    border: 2px solid #a78bfa;
-    background: #0f0f1a;
-}
-
-.universe-answer-img.show { display: block; }
-
-.universe-img-404 {
-    display: none;
-    font-size: 13px;
-    color: #555;
-    font-style: italic;
-}
-
-.universe-img-404.show { display: inline; }
-/* ────────────────────────────────────────────────────────────────────── */
 
 /* BOTTOM NAV */
 #bottom-nav {
@@ -570,17 +423,6 @@ button:active { transform: scale(0.97); }
 
 <script>
 const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
-const UNIVERSE_IMG_BASE = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/";
-
-// Universe source files — 1 question picked per file = 6 total, we pick 4 of the 6 categories daily
-const UNIVERSE_FILES = [
-    { file: "science-world.json", label: "Science & World" },
-    { file: "animals.json",       label: "Animals" },
-    { file: "body.json",          label: "Body" },
-    { file: "concepts.json",      label: "Concepts" },
-    { file: "plants.json",        label: "Plants" },
-    { file: "space.json",         label: "Space" }
-];
 
 // Date/time box
 function updateDateBox() {
@@ -629,8 +471,7 @@ const options = [
     ["units-weight",         "30. Units - Weight"],
     ["units-liquid",         "31. Units - Liquid"],
     ["units-time",           "32. Units - Time"],
-    ["units-money",          "33. Units - Money"],
-    ["amazing-universe",     "34. 🌌 Amazing Universe"]
+    ["units-money",          "33. Units - Money"]
 ];
 
 const control   = document.getElementById("control");
@@ -659,7 +500,7 @@ function numberToWords(n) {
 
 options.forEach(([val, label]) => {
     const wrap = document.createElement("label");
-    wrap.className = "ctrl-item" + (val === "amazing-universe" ? " universe-item" : "");
+    wrap.className = "ctrl-item";
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -756,16 +597,20 @@ function drawClock(canvas, timeStr) {
     const ctx  = canvas.getContext("2d");
     ctx.clearRect(0, 0, size, size);
 
+    // Face
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
     ctx.fillStyle = "#1a1a2e"; ctx.fill();
     ctx.strokeStyle = "#00c8ff"; ctx.lineWidth = 3; ctx.stroke();
 
+    // All 60 minute marks — 3 tiers of length/weight
     for (let m = 0; m < 60; m++) {
         const angle   = (m / 30) * Math.PI - Math.PI/2;
-        const isHour  = m % 5  === 0;
-        const isQuart = m % 15 === 0;
+        const isHour  = m % 5  === 0;   // 12 hour marks
+        const isQuart = m % 15 === 0;   // 4 quarter marks
+
         const innerR  = isQuart ? r*0.78 : isHour ? r*0.82 : r*0.89;
         const outerR  = r * 0.97;
+
         ctx.beginPath();
         ctx.moveTo(cx + innerR*Math.cos(angle), cy + innerR*Math.sin(angle));
         ctx.lineTo(cx + outerR*Math.cos(angle), cy + outerR*Math.sin(angle));
@@ -774,6 +619,7 @@ function drawClock(canvas, timeStr) {
         ctx.stroke();
     }
 
+    // Hour numbers — placed inside the hour marks
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff"; ctx.font = `bold ${size*0.09}px Arial`;
     for (let h = 1; h <= 12; h++) {
@@ -782,20 +628,24 @@ function drawClock(canvas, timeStr) {
         ctx.fillText(h, cx + nr*Math.cos(angle), cy + nr*Math.sin(angle));
     }
 
+    // Parse time
     const parts   = timeStr.split(":").map(Number);
     const hours   = parts[0] % 12;
     const minutes = parts[1] || 0;
 
+    // Minute hand — green, long, thin
     const minAngle = (minutes/60)*2*Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.80*Math.cos(minAngle), cy + r*0.80*Math.sin(minAngle));
     ctx.strokeStyle = "#58D68D"; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
 
+    // Hour hand — amber, short, thick
     const hourAngle = ((hours + minutes/60)/12)*2*Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.50*Math.cos(hourAngle), cy + r*0.50*Math.sin(hourAngle));
     ctx.strokeStyle = "#ff9900"; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
 
+    // Centre dot
     ctx.beginPath(); ctx.arc(cx, cy, size*0.03, 0, 2*Math.PI);
     ctx.fillStyle = "#ffffff"; ctx.fill();
 }
@@ -814,17 +664,6 @@ toggleAll.onclick = () => {
         else { canvas.style.display="none"; canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height); }
     });
     document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
-
-    // Universe answer reveal
-    document.querySelectorAll(".universe-answer-badge").forEach(b => b.classList.toggle("show", showAll));
-    document.querySelectorAll(".universe-answer-img").forEach(img => {
-        if (showAll) {
-            img.classList.add("show");
-        } else {
-            img.classList.remove("show");
-        }
-    });
-    document.querySelectorAll(".universe-img-404").forEach(el => el.classList.toggle("show", showAll && el.dataset.haserror === "1"));
 
     if (showAll) {
         document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
@@ -892,49 +731,19 @@ function renderWordRow(letter, question, answer) {
     </div>`;
 }
 
-// ── AMAZING UNIVERSE RENDER ───────────────────────────────────────────────────
-function renderUniverseQuestion(letter, q) {
-    const optionLetters = ["A","B","C","D"];
-    const optionsHTML = q.options.map((opt, i) => `
-        <div class="universe-option">
-            <span class="universe-option-letter">${optionLetters[i]}.</span>
-            <span class="universe-option-text">${opt}</span>
-        </div>`).join("");
-
-    const imgUrl = `${UNIVERSE_IMG_BASE}${q.id}.png`;
-
-    return `
-    <div class="universe-question-block">
-        <div class="universe-q-header">
-            <span class="universe-q-letter">(${letter})</span>
-            <span class="universe-q-category">${q.category}</span>
-            <span class="universe-q-text">${q.question}</span>
-        </div>
-        <div class="universe-options">${optionsHTML}</div>
-        <div class="universe-answer-row">
-            <span class="universe-answer-badge">✅ ${q.answer}</span>
-            <img class="universe-answer-img"
-                 src="${imgUrl}"
-                 alt="${q.answer}"
-                 onerror="this.style.display='none';this.nextElementSibling.dataset.haserror='1';if(window._showAll){this.nextElementSibling.classList.add('show');}" />
-            <span class="universe-img-404">📷 404</span>
-        </div>
-    </div>`;
-}
-
 // ── STACK MANAGEMENT ──────────────────────────────────────────────────────────
 const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time","amazing-universe"]);
+    "number-names","draw-clock","identify-time"]);
 
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
     const box = document.createElement("div");
-    box.className = "stack-box" + (val === "amazing-universe" ? " universe-box" : "");
+    box.className = "stack-box";
     wrapper.appendChild(box);
     stacks[val] = wrapper;
     stackOrder.push(val);
@@ -1008,49 +817,6 @@ function pickDailyIndices(val, total, n) {
     return indices;
 }
 
-// ── AMAZING UNIVERSE GENERATOR ────────────────────────────────────────────────
-async function generateUniverse(box) {
-    box.innerHTML = `<div class="problem-title universe-title">34. 🌌 Amazing Universe</div>
-        <div style="color:#555;font-size:16px;padding:8px 0 16px 0;">Loading questions from across the universe…</div>`;
-
-    // Pick 4 out of 6 files using daily seed — consistent each day
-    const fileRng = mulberry32(dailySeed("amazing-universe-files"));
-    const fileOrder = seededShuffle([...Array(UNIVERSE_FILES.length).keys()], fileRng);
-    const pickedFileIndices = fileOrder.slice(0, 4); // 4 categories
-
-    const promises = pickedFileIndices.map(fi => {
-        const { file } = UNIVERSE_FILES[fi];
-        return fetch(BASE_URL + file)
-            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status} for ${file}`); return r.json(); })
-            .then(data => ({ fi, data }))
-            .catch(() => ({ fi, data: null }));
-    });
-
-    const results = await Promise.all(promises);
-    box.innerHTML = `<div class="problem-title universe-title">34. 🌌 Amazing Universe</div>`;
-
-    let letterIdx = 0;
-    results.forEach(({ fi, data }) => {
-        if (!data || !data.questions || data.questions.length === 0) return;
-        const [pickedQIdx] = pickDailyIndices(UNIVERSE_FILES[fi].file, data.questions.length, 1);
-        const q = data.questions[pickedQIdx];
-        if (!q) return;
-        const letter = String.fromCharCode(97 + letterIdx);
-        box.innerHTML += renderUniverseQuestion(letter, q);
-        letterIdx++;
-    });
-
-    if (letterIdx === 0) {
-        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ Could not load universe questions.</div>`;
-    }
-
-    // Re-apply showAll state if answers are currently visible
-    if (showAll) {
-        box.querySelectorAll(".universe-answer-badge").forEach(b => b.classList.add("show"));
-        box.querySelectorAll(".universe-answer-img").forEach(img => img.classList.add("show"));
-    }
-}
-
 // ── GENERATE ──────────────────────────────────────────────────────────────────
 const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money"]);
@@ -1062,19 +828,13 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    // Amazing Universe — special handler
-    if (val === "amazing-universe") {
-        generateUniverse(box);
-        return;
-    }
-
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
     if (opt) {
         box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
     }
 
-    // identify-time
+    // identify-time: JS-drawn clock from identify-time.json — kid reads drawn clock, writes time
     if (val === "identify-time") {
         fetch(BASE_URL + "identify-time.json")
             .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
@@ -1109,7 +869,7 @@ function generate(box, val) {
         return;
     }
 
-    // geometric-shapes / drawing-shapes
+    // geometric-shapes: GitHub API image listing
     if (val === "geometric-shapes" || val === "drawing-shapes") {
         fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
             .then(res=>res.json())
@@ -1145,7 +905,7 @@ function generate(box, val) {
         return;
     }
 
-    // draw-clock
+    // draw-clock: special canvas rendering
     if (val === "draw-clock") {
         fetch(BASE_URL + "draw-clock.json")
             .then(r=>{ if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
@@ -1155,6 +915,7 @@ function generate(box, val) {
                 idx.forEach((qi,j)=>{
                     const letter = String.fromCharCode(97+j);
                     let qText = String(d.questions[qi]??"").replace(/\t\(Q\d+\)$/,"").trim();
+                    // extract time from question text
                     const timeMatch = qText.match(/(\d{1,2}:\d{2})/);
                     const time = timeMatch ? timeMatch[1] : "12:00";
                     const row = document.createElement("div");
@@ -1190,6 +951,7 @@ function generate(box, val) {
                 const aText      = rawAnswer.replace(/\s*\(Q\d+\)$/,"").trim();
                 const aDisplay   = qCode ? `${aText} <span style="color:#555;font-size:0.7em;margin-left:6px;">${qCode}</span>` : aText;
 
+                // number-names: add hidden word span
                 if (val === "number-names") {
                     const numMatch = qText.match(/\d+/);
                     if (numMatch) {
@@ -1350,7 +1112,7 @@ document.getElementById("goTopBtn").onclick = () => { navigateTo(0,"prev"); laun
 
 // ── KEYBOARD ARROW KEYS ───────────────────────────────────────────────────────
 document.addEventListener("keydown", e => {
-    if (e.target.tagName === "INPUT") return;
+    if (e.target.tagName === "INPUT") return; // don't hijack typing
     if (e.key === "ArrowRight") { e.preventDefault(); navigate("next"); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); navigate("prev"); }
 });
