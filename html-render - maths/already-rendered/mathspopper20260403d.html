@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v55 Removed Tell Time PNG images coming from Github -->
 <style>
 html, body {
     margin: 0;
@@ -459,19 +458,20 @@ const options = [
     ["bodmas",               "18. Solve BODMAS"],
     ["pattern-completion",   "19. Pattern Completion"],
     ["draw-clock",           "20. Draw Clock"],
-    ["identify-time",        "21. Identify Time"],
-    ["drawing-shapes",       "22. Drawing Shapes"],
-    ["geometric-shapes",     "23. Geometric Shapes"],
-    ["spell-the-word",       "24. Spell the Word"],
-    ["true-or-false",        "25. True or False"],
-    ["missing-number",       "26. Missing Number"],
-    ["simple-equations",     "27. Simple Equations"],
-    ["general-knowledge",    "28. General Knowledge"],
-    ["units-length",         "29. Units - Length"],
-    ["units-weight",         "30. Units - Weight"],
-    ["units-liquid",         "31. Units - Liquid"],
-    ["units-time",           "32. Units - Time"],
-    ["units-money",          "33. Units - Money"]
+    ["tell-time",            "21. Tell Time"],
+    ["identify-time",        "22. Identify Time"],
+    ["drawing-shapes",       "23. Drawing Shapes"],
+    ["geometric-shapes",     "24. Geometric Shapes"],
+    ["spell-the-word",       "25. Spell the Word"],
+    ["true-or-false",        "26. True or False"],
+    ["missing-number",       "27. Missing Number"],
+    ["simple-equations",     "28. Simple Equations"],
+    ["general-knowledge",    "29. General Knowledge"],
+    ["units-length",         "30. Units - Length"],
+    ["units-weight",         "31. Units - Weight"],
+    ["units-liquid",         "32. Units - Liquid"],
+    ["units-time",           "33. Units - Time"],
+    ["units-money",          "34. Units - Money"]
 ];
 
 const control   = document.getElementById("control");
@@ -736,7 +736,7 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time"]);
+    "number-names","draw-clock","tell-time","identify-time"]);
 
 function addStack(val) {
     if (stacks[val]) return;
@@ -832,6 +832,45 @@ function generate(box, val) {
     const opt = options.find(o=>o[0]===val);
     if (opt) {
         box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
+    }
+
+    // tell-time: PNG images from GitHub — kid reads clock image, writes the time
+    if (val === "tell-time") {
+        fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/clocks")
+            .then(res => res.json())
+            .then(files => {
+                const pngs = Array.isArray(files) ? files.filter(f => f.name.endsWith(".png")) : [];
+                if (!pngs.length) { box.innerHTML += `<div style="color:#aaa;padding:20px;">No clock images found.</div>`; return; }
+                const idx = pickDailyIndices("tell-time", pngs.length, 2);
+                const letters = ["a","b"];
+                const container = document.createElement("div");
+                container.style.cssText = "display:flex;gap:60px;flex-wrap:wrap;padding:12px 0;";
+                idx.map(i => pngs[i]).forEach((file, i) => {
+                    const parts   = file.name.replace(".png","").split("-");
+                    const timeStr = parts.length >= 3 ? `${parts[1]}:${parts[2]}` : "?";
+                    const block = document.createElement("div");
+                    block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;";
+                    const lbl = document.createElement("span");
+                    lbl.textContent = `(${letters[i]})`; lbl.style.cssText = "font-size:22px;color:#aaa;font-weight:bold;";
+                    const img = document.createElement("img");
+                    img.src = file.download_url;
+                    img.style.cssText = "width:220px;height:220px;border-radius:8px;";
+                    const debugLbl = document.createElement("div");
+                    debugLbl.style.cssText = "font-size:12px;color:#888;text-align:center;max-width:220px;";
+                    debugLbl.textContent = `${file.name} → ${timeStr}`;
+                    const ansRow = document.createElement("div");
+                    ansRow.style.cssText = "display:flex;align-items:center;gap:10px;font-size:24px;";
+                    const ansLabel = document.createElement("span"); ansLabel.textContent = "Time:"; ansLabel.style.cssText = "color:#aaa;font-size:20px;";
+                    const input = document.createElement("input"); input.type = "text"; input.className = "answer-input"; input.style.width = "120px"; input.placeholder = "h:mm";
+                    const ansSpan = document.createElement("span"); ansSpan.className = "answer"; ansSpan.textContent = timeStr;
+                    ansRow.appendChild(ansLabel); ansRow.appendChild(input); ansRow.appendChild(ansSpan);
+                    block.appendChild(lbl); block.appendChild(img); block.appendChild(debugLbl); block.appendChild(ansRow);
+                    container.appendChild(block);
+                });
+                box.appendChild(container);
+            })
+            .catch(err => { box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`; });
+        return;
     }
 
     // identify-time: JS-drawn clock from identify-time.json — kid reads drawn clock, writes time
