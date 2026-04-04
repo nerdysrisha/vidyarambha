@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v61 carryforward etc representation in answers-->
+<!--v60 Fixed: date, universe 30/70 panel, stacked options, large images -->
 <style>
 html, body {
     margin: 0;
@@ -50,6 +50,7 @@ html, body {
 
 /* Universe colour */
 .ctrl-item.universe-main { color: #a78bfa; }
+.ctrl-item.shapes-main    { color: #34d399; }
 
 .ctrl-item input[type="checkbox"] { width: 22px; height: 22px; }
 
@@ -677,6 +678,11 @@ button:active { transform: scale(0.97); }
 }
 
 /* RAINBOW GLOW */
+@keyframes answersBlink {
+    0%,100% { opacity:1; }
+    50%     { opacity:0.45; }
+}
+
 @keyframes rainbowGlow {
     0%   { outline-color: #ff004c; }
     20%  { outline-color: #ff9900; }
@@ -708,6 +714,7 @@ button:active { transform: scale(0.97); }
                 Show Control Panel
             </label>
             <button id="toggleAll">Show</button>
+            <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128274; ANSWERS SHOWN</span>
             <button id="timerBtn">Start Timer</button>
             <button id="resetTimer">Reset</button>
             <span id="timerDisplay">00:00</span>
@@ -779,7 +786,6 @@ function updateDateBox() {
     const h = String(now.getHours()).padStart(2,"0");
     const m = String(now.getMinutes()).padStart(2,"0");
     const s = String(now.getSeconds()).padStart(2,"0");
-    // Use actual Unicode emoji characters directly in the string
     document.getElementById("dateBox").textContent = "\uD83D\uDCC5 " + d + "  \uD83D\uDD54 " + h + ":" + m + ":" + s;
 }
 updateDateBox();
@@ -819,7 +825,9 @@ const options = [
     ["units-liquid",         "31. Units - Liquid"],
     ["units-time",           "32. Units - Time"],
     ["units-money",          "33. Units - Money"],
-    ["universe",             "34. \uD83C\uDF0C Universe"]
+    ["universe",             "34. \uD83C\uDF0C Universe"],
+    ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
+    ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"]
 ];
 
 const control   = document.getElementById("control");
@@ -846,9 +854,14 @@ function numberToWords(n) {
     return numberToWords(Math.floor(n/1000)) + " thousand" + (r ? " "+numberToWords(r) : "");
 }
 
+// ── CAPITALISE helper ─────────────────────────────────────────────────────────
+function capitalise(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 options.forEach(([val, label]) => {
     const wrap = document.createElement("label");
-    wrap.className = "ctrl-item" + (val === "universe" ? " universe-main" : "");
+    wrap.className = "ctrl-item" + (val === "universe" ? " universe-main" : val.startsWith("shapes-") ? " shapes-main" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -862,7 +875,6 @@ options.forEach(([val, label]) => {
 // ── BODMAS STEP-BY-STEP ───────────────────────────────────────────────────────
 function bodmasSteps(expr) {
     let e = expr.replace(/🧠\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
-    // Normalise Unicode math symbols → ASCII for eval, also handle HTML entities
     e = e.replace(/×/g,"*").replace(/÷/g,"/").replace(/&#215;/g,"*").replace(/&#247;/g,"/").replace(/x/gi,"*");
     const steps = [];
     let cur = e, prev, iter;
@@ -895,35 +907,26 @@ function bodmasSteps(expr) {
 }
 
 function missingWorking(qText) {
-    // Strip emoji prefixes (both Unicode and entity forms) and question codes
     const clean = qText
         .replace(/🔍\s*/,"").replace(/&#128269;\s*/,"")
         .replace(/\s*\(Q\d+\)/,"")
         .replace(/\s*=\s*/," = ")
         .trim();
     let m;
-    // Addition — find left addend:  __ + b = c  →  c − b
     if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' − ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
-    // Addition — find right addend:  a + __ = c  →  c − a
     if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' − ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
-    // Subtraction — find minuend:  __ − b = c  →  c + b  (Unicode − or ASCII -)
     if ((m = clean.match(/^__\s*[-−]\s*([\d.]+)\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' + ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])+parseFloat(m[1])) + '</span>'];
-    // Subtraction — find subtrahend:  a − __ = c  →  a − c
     if ((m = clean.match(/^([\d.]+)\s*[-−]\s*__\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[1] + ' − ' + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])-parseFloat(m[2])) + '</span>'];
-    // Multiplication — find left factor:  __ × b = c  →  c ÷ b
     if ((m = clean.match(/^__\s*[×x\*]\s*([\d.]+)\s*=\s*([\d.]+)/i)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' ÷ ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
-    // Multiplication — find right factor:  a × __ = c  →  c ÷ a
     if ((m = clean.match(/^([\d.]+)\s*[×x\*]\s*__\s*=\s*([\d.]+)/i)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' ÷ ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
-    // Division — find dividend:  __ ÷ b = c  →  c × b
     if ((m = clean.match(/^__\s*[÷\/]\s*([\d.]+)\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[2] + ' × ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])*parseFloat(m[1])) + '</span>'];
-    // Division — find divisor:  a ÷ __ = c  →  a ÷ c
     if ((m = clean.match(/^([\d.]+)\s*[÷\/]\s*__\s*=\s*([\d.]+)/)))
         return ['<span class="w-label">Reverse:</span> ' + m[1] + ' ÷ ' + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])/parseFloat(m[2])) + '</span>'];
     return [];
@@ -944,7 +947,6 @@ function sequenceWorking(qText) {
 
 // ── SUBTRACT WITH BORROW ──────────────────────────────────────────────────────
 function subtractBorrowWorking(qText) {
-    // Parse "A − B" or "A - B" from question text
     const clean = qText.replace(/\s*\(Q\d+\)/,"").trim();
     const m = clean.match(/([\d,]+)\s*[-\u2212]\s*([\d,]+)/);
     if (!m) return "";
@@ -952,68 +954,74 @@ function subtractBorrowWorking(qText) {
     const B = parseInt(m[2].replace(/,/g,""), 10);
     if (isNaN(A) || isNaN(B) || A < B) return "";
 
-    const aDigits = String(A).split("").map(Number);
-    const bDigits = String(B).split("").map(Number);
-    const len = Math.max(aDigits.length, bDigits.length);
-    while (aDigits.length < len) aDigits.unshift(0);
-    while (bDigits.length < len) bDigits.unshift(0);
+    const aD = String(A).split("").map(Number);
+    const bD = String(B).split("").map(Number);
+    const len = Math.max(aD.length, bD.length);
+    while (aD.length < len) aD.unshift(0);
+    while (bD.length < len) bD.unshift(0);
 
-    // work[] = adjusted top digits after borrows applied
-    // lostOne[i] = true if position i had 1 subtracted because right neighbour borrowed from it
-    const work    = aDigits.slice();
-    const lostOne = new Array(len).fill(false);
-    const resultDigs = new Array(len);
-    const annotations = [];
+    const work   = aD.slice();
+    const sup    = new Array(len).fill(null);
+    const result = new Array(len);
     const colNames = ["ones","tens","hundreds","thousands","ten-thousands"];
+    const annotations = [];
 
     for (let i = len - 1; i >= 0; i--) {
         const colName = colNames[len - 1 - i] || ("col-" + (len - i));
         let top = work[i];
-        const bot = bDigits[i];
+        const bot = bD[i];
 
         if (top < bot) {
-            // borrow from the nearest non-zero left neighbour
             let j = i - 1;
             while (j >= 0 && work[j] === 0) {
-                work[j] = 9;          // was 0, becomes 9 after chain borrow
-                lostOne[j] = true;
+                work[j] = 9;
+                sup[j]  = 9;
                 j--;
             }
             if (j >= 0) {
-                work[j]--;            // this neighbour loses 1
-                lostOne[j] = true;
+                work[j]--;
+                sup[j] = work[j];
             }
-            top += 10;               // current column gains 10
-            work[i] = top;           // update so subsequent borrows see adjusted value
+            top += 10;
+            work[i] = top;
+            sup[i]  = top;
+
             annotations.push(
-                '<span class="ca-col">' + colName + ':</span> ' +
-                'borrow \u2192 <span class="ca-borrow">' + top + '</span> \u2212 ' + bot +
-                ' = <span class="ca-ans">' + (top - bot) + '</span>'
+                '<span class="ca-col">' + colName + ':</span> '
+                + 'borrow \u2192 <span class="ca-borrow">' + top + '</span>'
+                + ' \u2212 ' + bot
+                + ' = <span class="ca-ans">' + (top - bot) + '</span>'
             );
         } else {
             annotations.push(
-                '<span class="ca-col">' + colName + ':</span> ' +
-                top + ' \u2212 ' + bot + ' = <span class="ca-ans">' + (top - bot) + '</span>'
+                '<span class="ca-col">' + colName + ':</span> '
+                + top + ' \u2212 ' + bot
+                + ' = <span class="ca-ans">' + (top - bot) + '</span>'
             );
         }
-        resultDigs[i] = top - bot;
+        result[i] = top - bot;
     }
 
-    // ── Visual column layout ──────────────────────────────────────────────
-    // Top row: show adjusted digits + pink "-1" above digits that gave away 1
-    const topHTML = work.map((d, i) => (
-        '<span class="col-digit-wrap">' +
-            '<span class="col-borrow">' + (lostOne[i] ? '\u22121' : '\u00a0') + '</span>' +
-            '<span class="col-digit">' + d + '</span>' +
-        '</span>'
-    )).join("");
+    const topHTML = aD.map((origD, i) => {
+        const supVal = sup[i];
+        const supStr = (supVal !== null) ? String(supVal) : '\u00a0';
+        const digStr = (supVal !== null)
+            ? '<span style="text-decoration:line-through;color:#555;">' + origD + '</span>'
+            : String(origD);
+        return (
+            '<span class="col-digit-wrap">' +
+                '<span class="col-borrow">' + supStr + '</span>' +
+                '<span class="col-digit">' + digStr + '</span>' +
+            '</span>'
+        );
+    }).join("");
 
-    const botHTML = bDigits.map(d =>
+    const botHTML = bD.map(d =>
         '<span class="col-digit">' + d + '</span>'
     ).join("");
 
-    const resHTML = resultDigs.map((d, i) => {
-        if (i === 0 && d === 0 && resultDigs.length > 1)
+    const resHTML = result.map((d, i) => {
+        if (i === 0 && d === 0 && result.length > 1)
             return '<span class="col-result-digit">\u00a0</span>';
         return '<span class="col-result-digit">' + d + '</span>';
     }).join("");
@@ -1045,13 +1053,12 @@ function multiplyCarryWorking(qText) {
     const bDigits = String(B).split("").map(Number);
     const colNames = ["ones","tens","hundreds","thousands","ten-thousands"];
 
-    // Compute partial products (one per digit of B, right-to-left)
     const partials = [];
     const annotations = [];
 
     for (let bi = bDigits.length - 1; bi >= 0; bi--) {
         const bDig   = bDigits[bi];
-        const shift  = bDigits.length - 1 - bi;  // number of trailing zeros
+        const shift  = bDigits.length - 1 - bi;
         const bColName = colNames[shift] || ("col-" + (shift+1));
         let carry    = 0;
         const rowDigs = [];
@@ -1073,16 +1080,13 @@ function multiplyCarryWorking(qText) {
             }
         }
         if (carry > 0) rowDigs.unshift(carry);
-        // Append trailing zeros for shift
         for (let s = 0; s < shift; s++) rowDigs.push(0);
         partials.push(rowDigs);
     }
 
-    // Sum partials
     const result = A * B;
     const resultDigs = String(result).split("").map(Number);
 
-    // ── Build visual column ───────────────────────────────────────────────
     const maxLen = Math.max(aDigits.length, bDigits.length, ...partials.map(p=>p.length), resultDigs.length);
 
     function padLeft(arr, len) {
@@ -1106,11 +1110,9 @@ function multiplyCarryWorking(qText) {
     html += rowHTML(bDigits, "col-digit", "×");
 
     if (partials.length === 1) {
-        // Single-digit multiplier — just show one line
         html += '<hr class="col-line">';
         html += rowHTML(resultDigs, "col-result-digit", "");
     } else {
-        // Multi-digit multiplier — show partials then sum
         html += '<hr class="col-line">';
         partials.forEach((p, i) => {
             html += rowHTML(p, "col-digit col-partial", i === 0 ? "" : "+");
@@ -1178,11 +1180,8 @@ function drawClock(canvas, timeStr) {
 }
 
 // ── UNIVERSE MCQ RENDERER (30/70 two-panel) ───────────────────────────────────
-// isFirst = true  => Q1 (guess-image): image always visible in right panel
-// isFirst = false => Q2-Q4: placeholder in right panel, replaced on Show
 function renderUniverseQuestion(letter, q, cfg, isFirst) {
     const optLetters = ["A","B","C","D"];
-    // Stacked options (vertical, full-width)
     const optionsHTML = q.options.map((opt, i) =>
         '<div class="univ-option">' +
             '<span class="univ-option-letter ' + cfg.cClass + '">' + optLetters[i] + '.</span>' +
@@ -1193,7 +1192,6 @@ function renderUniverseQuestion(letter, q, cfg, isFirst) {
     const imgUrl = UNIVERSE_IMG_BASE + q.id + ".png";
 
     if (isFirst) {
-        // Q1: image is the puzzle — always shown large in right panel
         return (
             '<div class="univ-block">' +
                 '<div class="univ-block-inner">' +
@@ -1218,7 +1216,6 @@ function renderUniverseQuestion(letter, q, cfg, isFirst) {
             '</div>'
         );
     } else {
-        // Q2-Q4: placeholder in right, answer image hidden until Show
         return (
             '<div class="univ-block">' +
                 '<div class="univ-block-inner">' +
@@ -1251,16 +1248,24 @@ function renderUniverseQuestion(letter, q, cfg, isFirst) {
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
 toggleAll.onclick = () => {
-    if (!showAll) {
-        if (prompt("Enter PIN") !== "0000") return;
-    }
     showAll = !showAll;
+    const badge = document.getElementById("answersShownBadge");
+    if (badge && showAll) badge.style.display = "inline-block";
     document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
     document.querySelectorAll(".num-word").forEach(el => { el.style.visibility = showAll ? "visible" : "hidden"; });
     document.querySelectorAll("#questions .question-row img").forEach(img => { img.style.display = showAll ? "block" : "none"; });
     document.querySelectorAll("canvas.clock-answer").forEach(canvas => {
         if (showAll) { canvas.style.display="block"; drawClock(canvas, canvas.dataset.time); }
         else { canvas.style.display="none"; canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height); }
+    });
+    document.querySelectorAll("canvas.shape-answer-canvas").forEach(canvas => {
+        if (showAll) {
+            canvas.style.display="block";
+            if (window._drawShape) window._drawShape(canvas, canvas.dataset.shapeName);
+        } else {
+            canvas.style.display="none";
+            canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
+        }
     });
     document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
 
@@ -1334,7 +1339,9 @@ toggleAll.onclick = () => {
             row.appendChild(wb);
         });
     }
-    toggleAll.textContent = showAll ? "Hide" : "Show";
+    toggleAll.textContent = showAll ? "Hide Answers" : "Show";
+    toggleAll.style.background = showAll ? "#cc3300" : "#28a745";
+    toggleAll.style.boxShadow  = showAll ? "0 0 12px rgba(204,51,0,0.7)" : "0 0 8px rgba(40,167,69,0.5)";
 };
 
 // ── RENDER HELPERS ────────────────────────────────────────────────────────────
@@ -1369,7 +1376,7 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time","universe"]);
+    "number-names","draw-clock","identify-time","universe","shapes-draw","shapes-identify"]);
 
 function addStack(val) {
     if (stacks[val]) return;
@@ -1541,6 +1548,210 @@ function generate(box, val) {
                 box.appendChild(container);
             })
             .catch(err => { box.innerHTML += '<div style="color:#f66;padding:20px;">' + err.message + '</div>'; });
+        return;
+    }
+
+
+    // ── SHAPES-DRAW & SHAPES-IDENTIFY ─────────────────────────────────────────
+    if (val === "shapes-draw" || val === "shapes-identify") {
+        const SHAPES_DATA = [
+            { name:"circle",        type:"2d" }, { name:"oval",          type:"2d" },
+            { name:"semicircle",    type:"2d" }, { name:"square",        type:"2d" },
+            { name:"rectangle",     type:"2d" }, { name:"triangle",      type:"2d" },
+            { name:"pentagon",      type:"2d" }, { name:"hexagon",       type:"2d" },
+            { name:"heptagon",      type:"2d" }, { name:"octagon",       type:"2d" },
+            { name:"nonagon",       type:"2d" }, { name:"decagon",       type:"2d" },
+            { name:"parallelogram", type:"2d" }, { name:"rhombus",       type:"2d" },
+            { name:"trapezoid",     type:"2d" }, { name:"kite",          type:"2d" },
+            { name:"cube",          type:"3d" }, { name:"cuboid",        type:"3d" },
+            { name:"sphere",        type:"3d" }, { name:"cylinder",      type:"3d" },
+            { name:"cone",          type:"3d" }, { name:"pyramid",       type:"3d" }
+        ];
+
+        function drawShape(canvas, name) {
+            const W = canvas.width, H = canvas.height;
+            const cx = W/2, cy = H/2;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,W,H);
+            const FILL2D="#1a3a5c", STROKE2D="#00c8ff";
+            const FILL3D_F="#1a3a2a", FILL3D_T="#0d2a1a", FILL3D_S="#0a1f14", STROKE3D="#34d399";
+            function solidPath(pathFn, fill, stroke, lw) {
+                ctx.beginPath(); pathFn();
+                ctx.fillStyle=fill; ctx.fill();
+                ctx.strokeStyle=stroke; ctx.lineWidth=lw||3; ctx.stroke();
+            }
+            function regularPolygon(n, r) {
+                const a0=-Math.PI/2;
+                ctx.moveTo(cx+r*Math.cos(a0), cy+r*Math.sin(a0));
+                for (let i=1;i<=n;i++) { const a=a0+(2*Math.PI*i/n); ctx.lineTo(cx+r*Math.cos(a), cy+r*Math.sin(a)); }
+                ctx.closePath();
+            }
+            const R=Math.min(W,H)*0.38;
+            switch(name) {
+                case "circle":        solidPath(()=>{ ctx.arc(cx,cy,R,0,2*Math.PI); }, FILL2D, STROKE2D); break;
+                case "oval":          solidPath(()=>{ ctx.ellipse(cx,cy,R,R*0.6,0,0,2*Math.PI); }, FILL2D, STROKE2D); break;
+                case "semicircle":    solidPath(()=>{ ctx.arc(cx,cy+R*0.2,R,Math.PI,0); ctx.lineTo(cx-R,cy+R*0.2); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "square":        { const s=R*1.35; solidPath(()=>{ ctx.rect(cx-s/2,cy-s/2,s,s); }, FILL2D, STROKE2D); break; }
+                case "rectangle":     { const rw=R*1.7,rh=R*1.0; solidPath(()=>{ ctx.rect(cx-rw/2,cy-rh/2,rw,rh); }, FILL2D, STROKE2D); break; }
+                case "triangle":      solidPath(()=>{ ctx.moveTo(cx,cy-R); ctx.lineTo(cx+R*0.95,cy+R*0.7); ctx.lineTo(cx-R*0.95,cy+R*0.7); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "parallelogram": solidPath(()=>{ const sk=R*0.4,w=R*1.4,h=R*0.8; ctx.moveTo(cx-w/2+sk,cy-h/2); ctx.lineTo(cx+w/2+sk,cy-h/2); ctx.lineTo(cx+w/2-sk,cy+h/2); ctx.lineTo(cx-w/2-sk,cy+h/2); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "rhombus":       solidPath(()=>{ ctx.moveTo(cx,cy-R); ctx.lineTo(cx+R*0.7,cy); ctx.lineTo(cx,cy+R); ctx.lineTo(cx-R*0.7,cy); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "trapezoid":     solidPath(()=>{ const tw=R*0.9,bw=R*1.6,h=R*0.85; ctx.moveTo(cx-tw,cy-h/2); ctx.lineTo(cx+tw,cy-h/2); ctx.lineTo(cx+bw,cy+h/2); ctx.lineTo(cx-bw,cy+h/2); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "kite":          solidPath(()=>{ ctx.moveTo(cx,cy-R); ctx.lineTo(cx+R*0.65,cy); ctx.lineTo(cx,cy+R*0.85); ctx.lineTo(cx-R*0.65,cy); ctx.closePath(); }, FILL2D, STROKE2D); break;
+                case "pentagon":      solidPath(()=>regularPolygon(5,R),  FILL2D, STROKE2D); break;
+                case "hexagon":       solidPath(()=>regularPolygon(6,R),  FILL2D, STROKE2D); break;
+                case "heptagon":      solidPath(()=>regularPolygon(7,R),  FILL2D, STROKE2D); break;
+                case "octagon":       solidPath(()=>regularPolygon(8,R),  FILL2D, STROKE2D); break;
+                case "nonagon":       solidPath(()=>regularPolygon(9,R),  FILL2D, STROKE2D); break;
+                case "decagon":       solidPath(()=>regularPolygon(10,R), FILL2D, STROKE2D); break;
+                case "cube": {
+                    const s=R*1.1, ex=s*0.55, ey=s*0.32;
+                    solidPath(()=>{ ctx.moveTo(cx-s/2,cy-s/2+ey); ctx.lineTo(cx+s/2,cy-s/2+ey); ctx.lineTo(cx+s/2,cy+s/2+ey); ctx.lineTo(cx-s/2,cy+s/2+ey); ctx.closePath(); }, FILL3D_F, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx-s/2,cy-s/2+ey); ctx.lineTo(cx-s/2+ex,cy-s/2); ctx.lineTo(cx+s/2+ex,cy-s/2); ctx.lineTo(cx+s/2,cy-s/2+ey); ctx.closePath(); }, FILL3D_T, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx+s/2,cy-s/2+ey); ctx.lineTo(cx+s/2+ex,cy-s/2); ctx.lineTo(cx+s/2+ex,cy+s/2); ctx.lineTo(cx+s/2,cy+s/2+ey); ctx.closePath(); }, FILL3D_S, STROKE3D);
+                    break;
+                }
+                case "cuboid": {
+                    const w=R*1.5,h=R*0.9,ex=R*0.5,ey=R*0.28;
+                    solidPath(()=>{ ctx.moveTo(cx-w/2,cy-h/2+ey); ctx.lineTo(cx+w/2,cy-h/2+ey); ctx.lineTo(cx+w/2,cy+h/2+ey); ctx.lineTo(cx-w/2,cy+h/2+ey); ctx.closePath(); }, FILL3D_F, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx-w/2,cy-h/2+ey); ctx.lineTo(cx-w/2+ex,cy-h/2); ctx.lineTo(cx+w/2+ex,cy-h/2); ctx.lineTo(cx+w/2,cy-h/2+ey); ctx.closePath(); }, FILL3D_T, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx+w/2,cy-h/2+ey); ctx.lineTo(cx+w/2+ex,cy-h/2); ctx.lineTo(cx+w/2+ex,cy+h/2); ctx.lineTo(cx+w/2,cy+h/2+ey); ctx.closePath(); }, FILL3D_S, STROKE3D);
+                    break;
+                }
+                case "sphere": {
+                    const grad=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.1,cx,cy,R);
+                    grad.addColorStop(0,"#7dd3fc"); grad.addColorStop(0.4,"#1a3a5c"); grad.addColorStop(1,"#0a1520");
+                    ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.fillStyle=grad; ctx.fill();
+                    ctx.strokeStyle=STROKE2D; ctx.lineWidth=2; ctx.stroke();
+                    ctx.beginPath(); ctx.ellipse(cx,cy,R,R*0.28,0,0,2*Math.PI);
+                    ctx.strokeStyle="rgba(0,200,255,0.3)"; ctx.lineWidth=1.5; ctx.stroke();
+                    break;
+                }
+                case "cylinder": {
+                    const cr=R*0.75,ch=R*1.1,ey2=cr*0.32;
+                    solidPath(()=>{ ctx.moveTo(cx-cr,cy-ch/2+ey2); ctx.lineTo(cx+cr,cy-ch/2+ey2); ctx.lineTo(cx+cr,cy+ch/2); ctx.lineTo(cx-cr,cy+ch/2); ctx.closePath(); }, FILL3D_F, STROKE3D);
+                    solidPath(()=>{ ctx.ellipse(cx,cy-ch/2+ey2,cr,ey2,0,0,2*Math.PI); }, FILL3D_T, STROKE3D);
+                    ctx.beginPath(); ctx.ellipse(cx,cy+ch/2,cr,ey2,0,0,Math.PI);
+                    ctx.strokeStyle=STROKE3D; ctx.lineWidth=2; ctx.stroke();
+                    break;
+                }
+                case "cone": {
+                    const br=R*0.85,bey=br*0.32,tip=cy-R*1.05;
+                    solidPath(()=>{ ctx.moveTo(cx,tip); ctx.lineTo(cx+br,cy+bey); ctx.lineTo(cx-br,cy+bey); ctx.closePath(); }, FILL3D_F, STROKE3D);
+                    solidPath(()=>{ ctx.ellipse(cx,cy+bey,br,bey,0,0,2*Math.PI); }, FILL3D_T, STROKE3D);
+                    break;
+                }
+                case "pyramid": {
+                    const ps=R*1.1,ex2=ps*0.38,ey3=ps*0.22,tipY=cy-R*0.9;
+                    const bl=cx-ps/2,br2=cx+ps/2,bot=cy+ps*0.4;
+                    solidPath(()=>{ ctx.moveTo(cx,tipY); ctx.lineTo(bl,bot+ey3); ctx.lineTo(bl+ex2,bot); ctx.closePath(); }, FILL3D_S, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx,tipY); ctx.lineTo(br2+ex2,bot); ctx.lineTo(br2,bot+ey3); ctx.closePath(); }, FILL3D_T, STROKE3D);
+                    solidPath(()=>{ ctx.moveTo(cx,tipY); ctx.lineTo(bl,bot+ey3); ctx.lineTo(br2,bot+ey3); ctx.closePath(); }, FILL3D_F, STROKE3D);
+                    ctx.beginPath(); ctx.moveTo(bl+ex2,bot); ctx.lineTo(br2+ex2,bot); ctx.lineTo(br2,bot+ey3); ctx.lineTo(bl,bot+ey3); ctx.closePath();
+                    ctx.fillStyle="#0a1a10"; ctx.fill(); ctx.strokeStyle=STROKE3D; ctx.lineWidth=1.5; ctx.stroke();
+                    break;
+                }
+            }
+        }
+
+        window._drawShape = drawShape;
+
+        const idx = pickDailyIndices(val, SHAPES_DATA.length, 4);
+        const picked = idx.map(i => SHAPES_DATA[i]);
+        const letters = ["a","b","c","d"];
+        const SIZE = 180;
+
+        if (val === "shapes-identify") {
+            // ── 36. Shapes - Identify: show drawn shape, kid types the name ──────
+            // Answer span uses shape.name (was incorrectly shape.label)
+            const container = document.createElement("div");
+            container.style.cssText = "display:flex;gap:36px;flex-wrap:wrap;padding:8px 0 16px 0;align-items:flex-start;";
+            picked.forEach((shape, i) => {
+                const block = document.createElement("div");
+                block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;";
+                const badge = document.createElement("div");
+                badge.style.cssText = "font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:4px;"
+                    + (shape.type==="3d" ? "color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);"
+                                        : "color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);");
+                badge.textContent = shape.type.toUpperCase();
+                const canvas = document.createElement("canvas");
+                canvas.width = SIZE; canvas.height = SIZE;
+                canvas.style.cssText = "border-radius:10px;background:#0d1a0d;border:1px solid #1e3a1e;display:block;";
+                setTimeout(() => drawShape(canvas, shape.name), 30);
+                const lbl = document.createElement("span");
+                lbl.textContent = "(" + letters[i] + ")"; lbl.style.cssText = "font-size:20px;color:#aaa;font-weight:bold;";
+                const ansRow = document.createElement("div");
+                ansRow.style.cssText = "display:flex;align-items:center;gap:8px;font-size:20px;";
+                const inp = document.createElement("input"); inp.type="text"; inp.className="answer-input"; inp.style.width="140px";
+                // FIX: use shape.name (capitalised) instead of shape.label (undefined)
+                const ans = document.createElement("span"); ans.className="answer"; ans.textContent = capitalise(shape.name);
+                ansRow.appendChild(inp); ansRow.appendChild(ans);
+                block.appendChild(badge); block.appendChild(canvas); block.appendChild(lbl); block.appendChild(ansRow);
+                container.appendChild(block);
+            });
+            box.appendChild(container);
+        } else {
+            // ── 35. Shapes - Draw: show shape name, canvas revealed on Show ──────
+            // nameSpan now uses shape.name (was incorrectly shape.label)
+            picked.forEach((shape, i) => {
+                const row = document.createElement("div");
+                row.style.cssText = [
+                    "display:flex",
+                    "align-items:center",
+                    "gap:16px",
+                    "padding:14px 20px",
+                    "border-bottom:1px solid #1e1e1e",
+                    "flex-wrap:nowrap",
+                    "box-sizing:border-box",
+                    "width:100%",
+                    "min-height:70px"
+                ].join(";");
+
+                const letter = document.createElement("span");
+                letter.style.cssText = "font-size:36px;font-weight:bold;color:#fff;flex-shrink:0;width:60px;text-align:right;";
+                letter.textContent = "(" + letters[i] + ")";
+
+                const badge = document.createElement("span");
+                badge.style.cssText = "font-size:12px;font-weight:bold;text-transform:uppercase;"
+                    + "letter-spacing:1px;padding:3px 10px;border-radius:4px;flex-shrink:0;"
+                    + (shape.type==="3d"
+                        ? "color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);"
+                        : "color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);");
+                badge.textContent = shape.type.toUpperCase();
+
+                // FIX: use shape.name (capitalised) instead of shape.label (undefined)
+                const nameSpan = document.createElement("span");
+                nameSpan.style.cssText = [
+                    "font-size:40px",
+                    "font-weight:bold",
+                    "color:#ffffff",
+                    "flex:1",
+                    "min-width:0",
+                    "white-space:nowrap",
+                    "overflow:hidden",
+                    "text-overflow:ellipsis"
+                ].join(";");
+                nameSpan.textContent = capitalise(shape.name);
+
+                const hint = document.createElement("span");
+                hint.style.cssText = "color:#555;font-size:16px;flex-shrink:0;white-space:nowrap;";
+                hint.textContent = "\u2190 draw on paper";
+
+                const canvas = document.createElement("canvas");
+                canvas.width = SIZE; canvas.height = SIZE;
+                canvas.className = "shape-answer-canvas";
+                canvas.dataset.shapeName = shape.name;
+                canvas.style.cssText = "display:none;border-radius:10px;background:#0d1a0d;"
+                    + "border:2px solid #1e3a1e;flex-shrink:0;";
+
+                row.appendChild(letter);
+                row.appendChild(badge);
+                row.appendChild(nameSpan);
+                row.appendChild(hint);
+                row.appendChild(canvas);
+                box.appendChild(row);
+            });
+        }
         return;
     }
 
