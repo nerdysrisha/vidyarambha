@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v59 Image panelling -->
+<!--v58 Universe: single entry, 1 question per JSON file, 4 total daily-->
 <style>
 html, body {
     margin: 0;
@@ -313,38 +313,11 @@ button:active { transform: scale(0.97); }
     padding: 16px 20px 20px 20px;
 }
 
-/* Two-column layout wrapper */
-.univ-block-inner {
-    display: flex;
-    align-items: flex-start;
-    gap: 24px;
-}
-
-/* Left column: question header + options + answer badge */
-.univ-left-col {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Right column: image panel */
-.univ-right-col {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    width: 260px;
-}
-
 .univ-q-header {
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    margin-bottom: 4px;
+    margin-bottom: 10px;
 }
 
 .univ-q-letter {
@@ -373,16 +346,16 @@ button:active { transform: scale(0.97); }
     flex: 1;
 }
 
-/* Q1 question image — bigger, always visible, in right column */
+/* Question image (for "guess the image" type) */
 .univ-q-image {
     display: block;
-    width: 240px;
-    height: 220px;
+    width: 200px;
+    height: 160px;
     object-fit: contain;
-    border-radius: 14px;
-    border: 2px solid #f59e0b;
+    border-radius: 10px;
+    border: 2px solid #444;
     background: #0a0a0a;
-    box-shadow: 0 0 24px rgba(245,158,11,0.30), 0 4px 16px rgba(0,0,0,0.6);
+    margin: 0 0 10px 54px;
 }
 
 .univ-options {
@@ -439,40 +412,22 @@ button:active { transform: scale(0.97); }
 
 .univ-badge.show { visibility: visible; }
 
-/* Answer image in right column (Q2-Q4, revealed on Show) */
 .univ-ans-img {
     display: none;
-    width: 220px;
-    height: 220px;
+    width: 140px;
+    height: 140px;
     object-fit: contain;
-    border-radius: 14px;
+    border-radius: 10px;
     background: #0a0a0a;
 }
 
 .univ-ans-img.show { display: block; }
 
-/* Per-type border + glow for answer images */
-.guess-img    { border: 2px solid #f59e0b; box-shadow: 0 0 20px rgba(245,158,11,0.30), 0 4px 16px rgba(0,0,0,0.5); }
-.science-img  { border: 2px solid #34d399; box-shadow: 0 0 20px rgba(52,211,153,0.30), 0 4px 16px rgba(0,0,0,0.5); }
-.geo-img      { border: 2px solid #60a5fa; box-shadow: 0 0 20px rgba(96,165,250,0.30), 0 4px 16px rgba(0,0,0,0.5); }
-.machines-img { border: 2px solid #f472b6; box-shadow: 0 0 20px rgba(244,114,182,0.30), 0 4px 16px rgba(0,0,0,0.5); }
-
-/* Placeholder shown in right column before answer reveal */
-.univ-img-placeholder {
-    width: 220px;
-    height: 220px;
-    border-radius: 14px;
-    background: #111;
-    border: 2px dashed #2a2a2a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #2a2a2a;
-    font-size: 40px;
-    flex-shrink: 0;
-}
-
-.univ-img-placeholder.hide { display: none; }
+/* Per-type border colours for answer image */
+.guess-img    { border: 2px solid #f59e0b; }
+.science-img  { border: 2px solid #34d399; }
+.geo-img      { border: 2px solid #60a5fa; }
+.machines-img { border: 2px solid #f472b6; }
 
 .univ-img-404 {
     display: none;
@@ -592,7 +547,7 @@ button:active { transform: scale(0.97); }
             <button id="timerBtn">Start Timer</button>
             <button id="resetTimer">Reset</button>
             <span id="timerDisplay">00:00</span>
-            <button id="goTopBtn" class="nav-btn">&#11014; Top Q</button>
+            <button id="goTopBtn" class="nav-btn">⬆ Top Q</button>
             <span id="dateBox"></span>
         </div>
         <fieldset id="control">
@@ -612,14 +567,16 @@ button:active { transform: scale(0.97); }
 </div>
 
 <script>
-const BASE_URL          = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+const BASE_URL         = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 const UNIVERSE_IMG_BASE = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/";
 
 // ── UNIVERSE CONFIG ───────────────────────────────────────────────────────────
+// One question is picked daily from each source; together they form the single
+// "Universe" card (4 questions total, one per JSON file).
 const UNIVERSE_SOURCES = [
     {
         file:       "universe-guess-image.json",
-        showQImage: true,
+        showQImage: true,   // question image IS the puzzle
         accent:     "#f59e0b",
         catClass:   "cat-guess",
         imgClass:   "guess-img",
@@ -660,7 +617,7 @@ function updateDateBox() {
     const h = String(now.getHours()).padStart(2,"0");
     const m = String(now.getMinutes()).padStart(2,"0");
     const s = String(now.getSeconds()).padStart(2,"0");
-    document.getElementById("dateBox").textContent = `&#128197; ${d}  &#128336; ${h}:${m}:${s}`;
+    document.getElementById("dateBox").textContent = `📅 ${d}  🕐 ${h}:${m}:${s}`;
 }
 updateDateBox();
 setInterval(updateDateBox, 1000);
@@ -699,7 +656,8 @@ const options = [
     ["units-liquid",         "31. Units - Liquid"],
     ["units-time",           "32. Units - Time"],
     ["units-money",          "33. Units - Money"],
-    ["universe",             "34. &#127756; Universe"]
+    // Universe
+    ["universe",  "34. 🌌 Universe"]
 ];
 
 const control   = document.getElementById("control");
@@ -727,22 +685,20 @@ function numberToWords(n) {
 }
 
 options.forEach(([val, label]) => {
+    const cfg = UNIVERSE_SOURCES.find(s => s.file); // just to check type
     const wrap = document.createElement("label");
     wrap.className = "ctrl-item" + (val === "universe" ? " universe-main" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
-    wrap.append(cb);
-    const span = document.createElement("span");
-    span.innerHTML = label;
-    wrap.append(span);
+    wrap.append(cb, document.createTextNode(label));
     control.appendChild(wrap);
 });
 
 // ── BODMAS STEP-BY-STEP ───────────────────────────────────────────────────────
 function bodmasSteps(expr) {
-    let e = expr.replace(/&#129504;\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
-    e = e.replace(/&#215;/g,"*").replace(/&#247;/g,"/").replace(/x/gi,"*");
+    let e = expr.replace(/🧠\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
+    e = e.replace(/×/g,"*").replace(/÷/g,"/").replace(/x/gi,"*");
     const steps = [];
     let cur = e, prev, iter;
     prev = cur; iter = 0;
@@ -757,7 +713,7 @@ function bodmasSteps(expr) {
             const v = op==="*" ? parseFloat(a)*parseFloat(b) : parseFloat(a)/parseFloat(b);
             return String(Number.isInteger(v)?v:parseFloat(v.toFixed(4)));
         });
-        if (cur !== prev) steps.push({label:"x div", expr:cur});
+        if (cur !== prev) steps.push({label:"× ÷", expr:cur});
         prev = cur;
     }
     prev = cur; iter = 0;
@@ -766,29 +722,29 @@ function bodmasSteps(expr) {
             const v = op==="+" ? parseFloat(a)+parseFloat(b) : parseFloat(a)-parseFloat(b);
             return String(Number.isInteger(v)?v:parseFloat(v.toFixed(4)));
         });
-        if (cur !== prev) steps.push({label:"+ -", expr:cur});
+        if (cur !== prev) steps.push({label:"+ −", expr:cur});
         prev = cur;
     }
-    steps.push({label:"Answer", expr:`<span class="w-result">${cur.replace(/\*/g,"x").replace(/\//g,"/")}</span>`});
+    steps.push({label:"Answer", expr:`<span class="w-result">${cur.replace(/\*/g,"×").replace(/\//g,"÷")}</span>`});
     return steps;
 }
 
 function missingWorking(qText) {
-    const clean = qText.replace(/&#128269;\s*/,"").replace(/\s*\(Q\d+\)/,"").replace(/\s*=\s*/," = ").trim();
+    const clean = qText.replace(/🔍\s*/,"").replace(/\s*\(Q\d+\)/,"").replace(/\s*=\s*/," = ").trim();
     let m;
-    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} - ${m[1]} = <span class="w-step">${parseFloat(m[2])-parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} - ${m[1]} = <span class="w-step">${parseFloat(m[2])-parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^__\s*[-]\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} + ${m[1]} = <span class="w-step">${parseFloat(m[2])+parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^([\d.]+)\s*[-]\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[1]} - ${m[2]} = <span class="w-step">${parseFloat(m[1])-parseFloat(m[2])}</span>`];
-    if ((m = clean.match(/^__\s*[x*]\s*([\d.]+)\s*=\s*([\d.]+)/i))) return [`<span class="w-label">Reverse:</span> ${m[2]} / ${m[1]} = <span class="w-step">${parseFloat(m[2])/parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^([\d.]+)\s*[x*]\s*__\s*=\s*([\d.]+)/i))) return [`<span class="w-label">Reverse:</span> ${m[2]} / ${m[1]} = <span class="w-step">${parseFloat(m[2])/parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^__\s*[/]\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} x ${m[1]} = <span class="w-step">${parseFloat(m[2])*parseFloat(m[1])}</span>`];
-    if ((m = clean.match(/^([\d.]+)\s*[/]\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[1]} / ${m[2]} = <span class="w-step">${parseFloat(m[1])/parseFloat(m[2])}</span>`];
+    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} − ${m[1]} = <span class="w-step">${parseFloat(m[2])-parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} − ${m[1]} = <span class="w-step">${parseFloat(m[2])-parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^__\s*[-−]\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} + ${m[1]} = <span class="w-step">${parseFloat(m[2])+parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^([\d.]+)\s*[-−]\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[1]} − ${m[2]} = <span class="w-step">${parseFloat(m[1])-parseFloat(m[2])}</span>`];
+    if ((m = clean.match(/^__\s*[×x\*]\s*([\d.]+)\s*=\s*([\d.]+)/i))) return [`<span class="w-label">Reverse:</span> ${m[2]} ÷ ${m[1]} = <span class="w-step">${parseFloat(m[2])/parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^([\d.]+)\s*[×x\*]\s*__\s*=\s*([\d.]+)/i))) return [`<span class="w-label">Reverse:</span> ${m[2]} ÷ ${m[1]} = <span class="w-step">${parseFloat(m[2])/parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^__\s*[÷\/]\s*([\d.]+)\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[2]} × ${m[1]} = <span class="w-step">${parseFloat(m[2])*parseFloat(m[1])}</span>`];
+    if ((m = clean.match(/^([\d.]+)\s*[÷\/]\s*__\s*=\s*([\d.]+)/))) return [`<span class="w-label">Reverse:</span> ${m[1]} ÷ ${m[2]} = <span class="w-step">${parseFloat(m[1])/parseFloat(m[2])}</span>`];
     return [];
 }
 
 function sequenceWorking(qText) {
-    const clean = qText.replace(/&#128269;\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
+    const clean = qText.replace(/🔍\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
     const parts = clean.split(",").map(s=>s.trim());
     const nums  = parts.map(p => p==="__" ? null : parseFloat(p));
     const known = nums.filter(n=>n!==null);
@@ -850,9 +806,7 @@ function drawClock(canvas, timeStr) {
 }
 
 // ── UNIVERSE MCQ RENDERER ─────────────────────────────────────────────────────
-// isFirst = true  => Q1 (guess-image): image always visible, bigger, in right col
-// isFirst = false => Q2-Q4: answer image hidden until Show, placeholder shown
-function renderUniverseQuestion(letter, q, cfg, isFirst) {
+function renderUniverseQuestion(letter, q, cfg) {
     const optLetters = ["A","B","C","D"];
     const optionsHTML = q.options.map((opt, i) => `
         <div class="univ-option">
@@ -862,55 +816,35 @@ function renderUniverseQuestion(letter, q, cfg, isFirst) {
 
     const imgUrl = `${UNIVERSE_IMG_BASE}${q.id}.png`;
 
-    if (isFirst) {
-        // Q1: image is the puzzle — always shown, larger, in right column
-        return `
-        <div class="univ-block">
-            <div class="univ-block-inner">
-                <div class="univ-left-col">
-                    <div class="univ-q-header">
-                        <span class="univ-q-letter ${cfg.cClass}">(${letter})</span>
-                        <span class="univ-q-category ${cfg.catClass}">${q.category}</span>
-                        <span class="univ-q-text">${q.question}</span>
-                    </div>
-                    <div class="univ-options">${optionsHTML}</div>
-                    <div class="univ-answer-row">
-                        <span class="univ-badge">&#9989; ${q.answer}</span>
-                    </div>
-                </div>
-                <div class="univ-right-col">
-                    <img class="univ-q-image" src="${imgUrl}" alt="Guess this image"
-                         onerror="this.style.opacity='0.15';this.alt='Image not found';" />
-                </div>
-            </div>
-        </div>`;
-    } else {
-        // Q2-Q4: right col shows placeholder, replaced by answer image on reveal
-        return `
-        <div class="univ-block">
-            <div class="univ-block-inner">
-                <div class="univ-left-col">
-                    <div class="univ-q-header">
-                        <span class="univ-q-letter ${cfg.cClass}">(${letter})</span>
-                        <span class="univ-q-category ${cfg.catClass}">${q.category}</span>
-                        <span class="univ-q-text">${q.question}</span>
-                    </div>
-                    <div class="univ-options">${optionsHTML}</div>
-                    <div class="univ-answer-row">
-                        <span class="univ-badge">&#9989; ${q.answer}</span>
-                    </div>
-                </div>
-                <div class="univ-right-col">
-                    <div class="univ-img-placeholder">&#128247;</div>
-                    <img class="univ-ans-img ${cfg.imgClass}"
-                         src="${imgUrl}"
-                         alt="${q.answer}"
-                         onerror="this.style.display='none';this.nextElementSibling.dataset.haserror='1';" />
-                    <span class="univ-img-404">&#128247; 404</span>
-                </div>
-            </div>
-        </div>`;
-    }
+    // For "guess the image" type, show the question image above the options
+    const qImageHTML = cfg.showQImage
+        ? `<img class="univ-q-image" src="${imgUrl}" alt="Question image"
+               onerror="this.style.opacity='0.2';this.alt='Image not found';" />`
+        : "";
+
+    // Answer image (shown on reveal) — for guess-image type this is same image (confirmation),
+    // for others it illustrates the answer
+    const ansImgHTML = `
+        <img class="univ-ans-img ${cfg.imgClass}"
+             src="${imgUrl}"
+             alt="${q.answer}"
+             onerror="this.style.display='none';this.nextElementSibling.dataset.haserror='1';" />
+        <span class="univ-img-404">📷 404</span>`;
+
+    return `
+    <div class="univ-block">
+        <div class="univ-q-header">
+            <span class="univ-q-letter ${cfg.cClass}">(${letter})</span>
+            <span class="univ-q-category ${cfg.catClass}">${q.category}</span>
+            <span class="univ-q-text">${q.question}</span>
+        </div>
+        ${qImageHTML}
+        <div class="univ-options">${optionsHTML}</div>
+        <div class="univ-answer-row">
+            <span class="univ-badge">✅ ${q.answer}</span>
+            ${ansImgHTML}
+        </div>
+    </div>`;
 }
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
@@ -928,13 +862,9 @@ toggleAll.onclick = () => {
     });
     document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
 
-    // Universe: answer badges
+    // Universe answer badges + images
     document.querySelectorAll(".univ-badge").forEach(b => b.classList.toggle("show", showAll));
-
-    // Universe Q2-Q4: toggle answer image + placeholder
     document.querySelectorAll(".univ-ans-img").forEach(img => img.classList.toggle("show", showAll));
-    document.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.toggle("hide", showAll));
-
     document.querySelectorAll(".univ-img-404").forEach(el => {
         if (showAll && el.dataset.haserror === "1") el.classList.add("show");
         else el.classList.remove("show");
@@ -949,7 +879,7 @@ toggleAll.onclick = () => {
             if (!steps.length) return;
             const wb = document.createElement("div");
             wb.className = "working-block show";
-            const displayExpr = e => e.replace(/\*/g,"x").replace(/\//g,"/");
+            const displayExpr = e => e.replace(/\*/g,"×").replace(/\//g,"÷");
             wb.innerHTML = steps.map((s,i) => `<div><span class="w-label">Step ${i+1} (${s.label}):</span> ${s.expr.includes("w-result")?s.expr:displayExpr(s.expr)}</div>`).join("");
             row.appendChild(wb);
         });
@@ -1094,45 +1024,44 @@ function pickDailyIndices(val, total, n) {
 }
 
 // ── UNIVERSE GENERATOR ────────────────────────────────────────────────────────
+// Fetches all 4 source files in parallel, picks 1 question per file using the
+// daily seed, then renders them as a single card of 4 questions.
 async function generateUniverse(box) {
-    box.innerHTML = `<div class="problem-title" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">34. Universe</div>
-        <div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions from across the universe...</div>`;
+    box.innerHTML = `<div class="problem-title title-guess" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">34. 🌌 Universe</div>
+        <div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions from across the universe…</div>`;
 
     const results = await Promise.all(
         UNIVERSE_SOURCES.map((src, si) =>
             fetch(BASE_URL + src.file)
                 .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-                .then(data => ({ src, data, si }))
-                .catch(err => ({ src, data: null, err, si }))
+                .then(data => ({ src, data }))
+                .catch(err => ({ src, data: null, err }))
         )
     );
 
-    box.innerHTML = `<div class="problem-title" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">34. Universe</div>`;
+    box.innerHTML = `<div class="problem-title" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">34. 🌌 Universe</div>`;
 
     let letterIdx = 0;
-    results.forEach(({ src, data, err, si }) => {
+    results.forEach(({ src, data, err }) => {
         if (!data || !data.questions || data.questions.length === 0) {
-            box.innerHTML += `<div style="color:#f66;padding:8px 20px;">Could not load ${src.file}</div>`;
+            box.innerHTML += `<div style="color:#f66;padding:8px 20px;">⚠️ Could not load ${src.file}</div>`;
             return;
         }
         const [qi] = pickDailyIndices(src.file, data.questions.length, 1);
         const q    = data.questions[qi];
         if (!q) return;
-        const letter  = String.fromCharCode(97 + letterIdx);
-        const isFirst = (si === 0); // first source = guess-image, always shown
-        box.innerHTML += renderUniverseQuestion(letter, q, src, isFirst);
+        const letter = String.fromCharCode(97 + letterIdx);
+        box.innerHTML += renderUniverseQuestion(letter, q, src);
         letterIdx++;
     });
 
     if (letterIdx === 0) {
-        box.innerHTML += `<div style="color:#f66;padding:20px;">No questions loaded.</div>`;
+        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ No questions loaded.</div>`;
     }
 
-    // If already in show-all mode when universe loads, apply visibility
     if (showAll) {
         box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
         box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
-        box.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.add("hide"));
     }
 }
 
@@ -1147,11 +1076,15 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    if (val === "universe") { generateUniverse(box); return; }
+    // Universe
+    if (val === "universe") {
+        generateUniverse(box);
+        return;
+    }
 
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
-    if (opt) { const t = document.createElement("div"); t.className="problem-title"; t.innerHTML=opt[1]; box.appendChild(t); }
+    if (opt) box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
 
     if (val === "identify-time") {
         fetch(BASE_URL + "identify-time.json")
@@ -1183,7 +1116,7 @@ function generate(box, val) {
                 });
                 box.appendChild(container);
             })
-            .catch(err => { box.innerHTML += `<div style="color:#f66;padding:20px;">${err.message}</div>`; });
+            .catch(err => { box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`; });
         return;
     }
 
@@ -1237,14 +1170,14 @@ function generate(box, val) {
                     row.style.cssText = "align-items:center;gap:20px;padding:12px 0 12px 20px;flex-wrap:wrap;";
                     row.innerHTML = `<span class="question-letter">(${letter})</span>
                         <span class="question-text" style="font-size:44px;font-weight:bold;">${time}</span>
-                        <span style="color:#aaa;font-size:22px;">Draw this on paper</span>`;
+                        <span style="color:#aaa;font-size:22px;">← Draw this on paper</span>`;
                     const canvas = document.createElement("canvas");
                     canvas.className="clock-answer"; canvas.width=180; canvas.height=180;
                     canvas.dataset.time=time; canvas.style.cssText="display:none;border-radius:50%;margin-left:20px;";
                     row.appendChild(canvas);
                     box.appendChild(row);
                 });
-            }).catch(err=>{ box.innerHTML+=`<div style="color:#f66;padding:12px;">${err.message}</div>`; });
+            }).catch(err=>{ box.innerHTML+=`<div style="color:#f66;padding:12px;">⚠️ ${err.message}</div>`; });
         return;
     }
 
@@ -1278,7 +1211,7 @@ function generate(box, val) {
                 else if (val === "missing-number" || val === "pattern-completion") dataType = "sequence";
 
                 if (val === "bodmas") {
-                    qText = qText.replace(/([+\-xX*/])/g," $1 ").replace(/\s+/g," ");
+                    qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
                     qText = `<span style="font-size:1.3em;letter-spacing:0.12em;">${qText}</span>`;
                 }
 
@@ -1290,7 +1223,7 @@ function generate(box, val) {
             });
         })
         .catch(err=>{
-            box.innerHTML += `<div style="color:#f66;padding:12px;font-size:18px;">${err.message}</div>`;
+            box.innerHTML += `<div style="color:#f66;padding:12px;font-size:18px;">⚠️ ${err.message}</div>`;
         });
 }
 
@@ -1303,7 +1236,7 @@ controlToggle.onchange = () => controlContainer.classList.toggle("shrink", !cont
 // ── TIMER ─────────────────────────────────────────────────────────────────────
 let timer = null, seconds = 0;
 const timerBtn     = document.getElementById("timerBtn");
-const resetTimerBtn= document.getElementById("resetTimer");
+const resetTimer   = document.getElementById("resetTimer");
 const timerDisplay = document.getElementById("timerDisplay");
 
 function updateTimerDisplay() {
@@ -1320,7 +1253,7 @@ timerBtn.onclick = () => {
     }
 };
 
-resetTimerBtn.onclick = () => {
+resetTimer.onclick = () => {
     clearInterval(timer); timer=null; seconds=0; updateTimerDisplay();
     timerBtn.textContent="Start Timer"; timerBtn.style.background="#28a745"; timerBtn.style.boxShadow="0 0 8px rgba(40,167,69,0.5)";
 };
@@ -1345,7 +1278,7 @@ function launchConfetti() {
 }
 
 // ── ANIMAL RUN ────────────────────────────────────────────────────────────────
-const ANIMALS = ["&#128034;","&#128007;","&#129409;","&#128024;","&#129418;","&#128056;","&#128039;","&#129412;","&#128047;","&#129419;"];
+const ANIMALS = ["🐢","🐇","🦁","🐘","🦊","🐸","🐧","🦄","🐯","🦋"];
 let lastAnimalIdx = -1;
 
 function runAnimal(direction) {
@@ -1353,7 +1286,7 @@ function runAnimal(direction) {
     do { idx=Math.floor(Math.random()*ANIMALS.length); } while (idx===lastAnimalIdx);
     lastAnimalIdx = idx;
     const el=document.createElement("div"); el.className="animal-runner";
-    el.innerHTML=ANIMALS[idx];
+    el.textContent=ANIMALS[idx];
     const duration=rand(6800,9800);
     el.style.animationName=direction==="next"?"animalRunRight":"animalRunLeft";
     el.style.animationDuration=`${duration}ms`;
