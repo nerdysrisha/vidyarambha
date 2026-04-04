@@ -757,8 +757,9 @@ options.forEach(([val, label]) => {
 
 // ── BODMAS STEP-BY-STEP ───────────────────────────────────────────────────────
 function bodmasSteps(expr) {
-    let e = expr.replace(/&#129504;\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
-    e = e.replace(/&#215;/g,"*").replace(/&#247;/g,"/").replace(/x/gi,"*");
+    let e = expr.replace(/🧠\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
+    // Normalise Unicode math symbols → ASCII for eval, also handle HTML entities
+    e = e.replace(/×/g,"*").replace(/÷/g,"/").replace(/&#215;/g,"*").replace(/&#247;/g,"/").replace(/x/gi,"*");
     const steps = [];
     let cur = e, prev, iter;
     prev = cur; iter = 0;
@@ -773,7 +774,7 @@ function bodmasSteps(expr) {
             const v = op==="*" ? parseFloat(a)*parseFloat(b) : parseFloat(a)/parseFloat(b);
             return String(Number.isInteger(v)?v:parseFloat(v.toFixed(4)));
         });
-        if (cur !== prev) steps.push({label:"x div", expr:cur});
+        if (cur !== prev) steps.push({label:"× ÷", expr:cur});
         prev = cur;
     }
     prev = cur; iter = 0;
@@ -782,29 +783,50 @@ function bodmasSteps(expr) {
             const v = op==="+" ? parseFloat(a)+parseFloat(b) : parseFloat(a)-parseFloat(b);
             return String(Number.isInteger(v)?v:parseFloat(v.toFixed(4)));
         });
-        if (cur !== prev) steps.push({label:"+ -", expr:cur});
+        if (cur !== prev) steps.push({label:"+ −", expr:cur});
         prev = cur;
     }
-    steps.push({label:"Answer", expr:'<span class="w-result">' + cur.replace(/\*/g,"x").replace(/\//g,"/") + '</span>'});
+    steps.push({label:"Answer", expr:'<span class="w-result">' + cur.replace(/\*/g,"×").replace(/\//g,"÷") + '</span>'});
     return steps;
 }
 
 function missingWorking(qText) {
-    const clean = qText.replace(/&#128269;\s*/,"").replace(/\s*\(Q\d+\)/,"").replace(/\s*=\s*/," = ").trim();
+    // Strip emoji prefixes (both Unicode and entity forms) and question codes
+    const clean = qText
+        .replace(/🔍\s*/,"").replace(/&#128269;\s*/,"")
+        .replace(/\s*\(Q\d+\)/,"")
+        .replace(/\s*=\s*/," = ")
+        .trim();
     let m;
-    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " - " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " - " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^__\s*[-]\s*([\d.]+)\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " + " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])+parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^([\d.]+)\s*[-]\s*__\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[1] + " - " + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])-parseFloat(m[2])) + '</span>'];
-    if ((m = clean.match(/^__\s*[x*]\s*([\d.]+)\s*=\s*([\d.]+)/i))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " / " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^([\d.]+)\s*[x*]\s*__\s*=\s*([\d.]+)/i))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " / " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^__\s*[/]\s*([\d.]+)\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[2] + " x " + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])*parseFloat(m[1])) + '</span>'];
-    if ((m = clean.match(/^([\d.]+)\s*[/]\s*__\s*=\s*([\d.]+)/))) return ['<span class="w-label">Reverse:</span> ' + m[1] + " / " + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])/parseFloat(m[2])) + '</span>'];
+    // Addition — find left addend:  __ + b = c  →  c − b
+    if ((m = clean.match(/^__\s*\+\s*([\d.]+)\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' − ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
+    // Addition — find right addend:  a + __ = c  →  c − a
+    if ((m = clean.match(/^([\d.]+)\s*\+\s*__\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' − ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])-parseFloat(m[1])) + '</span>'];
+    // Subtraction — find minuend:  __ − b = c  →  c + b  (Unicode − or ASCII -)
+    if ((m = clean.match(/^__\s*[-−]\s*([\d.]+)\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' + ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])+parseFloat(m[1])) + '</span>'];
+    // Subtraction — find subtrahend:  a − __ = c  →  a − c
+    if ((m = clean.match(/^([\d.]+)\s*[-−]\s*__\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[1] + ' − ' + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])-parseFloat(m[2])) + '</span>'];
+    // Multiplication — find left factor:  __ × b = c  →  c ÷ b
+    if ((m = clean.match(/^__\s*[×x\*]\s*([\d.]+)\s*=\s*([\d.]+)/i)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' ÷ ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
+    // Multiplication — find right factor:  a × __ = c  →  c ÷ a
+    if ((m = clean.match(/^([\d.]+)\s*[×x\*]\s*__\s*=\s*([\d.]+)/i)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' ÷ ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])/parseFloat(m[1])) + '</span>'];
+    // Division — find dividend:  __ ÷ b = c  →  c × b
+    if ((m = clean.match(/^__\s*[÷\/]\s*([\d.]+)\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[2] + ' × ' + m[1] + ' = <span class="w-step">' + (parseFloat(m[2])*parseFloat(m[1])) + '</span>'];
+    // Division — find divisor:  a ÷ __ = c  →  a ÷ c
+    if ((m = clean.match(/^([\d.]+)\s*[÷\/]\s*__\s*=\s*([\d.]+)/)))
+        return ['<span class="w-label">Reverse:</span> ' + m[1] + ' ÷ ' + m[2] + ' = <span class="w-step">' + (parseFloat(m[1])/parseFloat(m[2])) + '</span>'];
     return [];
 }
 
 function sequenceWorking(qText) {
-    const clean = qText.replace(/&#128269;\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
+    const clean = qText.replace(/🔍\s*/,"").replace(/&#128269;\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
     const parts = clean.split(",").map(s=>s.trim());
     const nums  = parts.map(p => p==="__" ? null : parseFloat(p));
     const known = nums.filter(n=>n!==null);
@@ -973,7 +995,7 @@ toggleAll.onclick = () => {
             if (!steps.length) return;
             const wb = document.createElement("div");
             wb.className = "working-block show";
-            const displayExpr = e => e.replace(/\*/g,"x").replace(/\//g,"/");
+            const displayExpr = e => e.replace(/\*/g,"×").replace(/\//g,"÷");
             wb.innerHTML = steps.map((s,i) => '<div><span class="w-label">Step ' + (i+1) + ' (' + s.label + '):</span> ' + (s.expr.includes("w-result")?s.expr:displayExpr(s.expr)) + '</div>').join("");
             row.appendChild(wb);
         });
@@ -1301,7 +1323,7 @@ function generate(box, val) {
                 else if (val === "missing-number" || val === "pattern-completion") dataType = "sequence";
 
                 if (val === "bodmas") {
-                    qText = qText.replace(/([+\-xX*/])/g," $1 ").replace(/\s+/g," ");
+                    qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
                     qText = '<span style="font-size:1.3em;letter-spacing:0.12em;">' + qText + '</span>';
                 }
 
