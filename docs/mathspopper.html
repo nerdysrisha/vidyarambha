@@ -291,15 +291,17 @@ button:active { transform: scale(0.97); }
 
 .working-block {
     display: none;
-    margin: 6px 0 6px 80px;
-    padding: 8px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px 14px 10px 80px;
     background: #0d1a0d;
     border-left: 3px solid #28a745;
-    border-radius: 4px;
+    border-top: 1px solid #1a2e1a;
+    border-radius: 0 0 4px 4px;
     font-size: 17px;
     color: #aaa;
     line-height: 1.9;
-    max-width: 600px;
 }
 
 .working-block.show { display: block; }
@@ -944,87 +946,91 @@ function sequenceWorking(qText) {
 function subtractBorrowWorking(qText) {
     // Parse "A − B" or "A - B" from question text
     const clean = qText.replace(/\s*\(Q\d+\)/,"").trim();
-    const m = clean.match(/([\d,]+)\s*[-−]\s*([\d,]+)/);
+    const m = clean.match(/([\d,]+)\s*[-\u2212]\s*([\d,]+)/);
     if (!m) return "";
     const A = parseInt(m[1].replace(/,/g,""), 10);
     const B = parseInt(m[2].replace(/,/g,""), 10);
     if (isNaN(A) || isNaN(B) || A < B) return "";
 
-    // Work column-by-column right-to-left
     const aDigits = String(A).split("").map(Number);
     const bDigits = String(B).split("").map(Number);
     const len = Math.max(aDigits.length, bDigits.length);
-    // Pad left with zeros
     while (aDigits.length < len) aDigits.unshift(0);
     while (bDigits.length < len) bDigits.unshift(0);
 
-    // Track borrows and result digits
-    const borrows    = new Array(len).fill(0); // borrow applied TO this position
-    const aAdjusted  = aDigits.slice();
+    // work[] = adjusted top digits after borrows applied
+    // lostOne[i] = true if position i had 1 subtracted because right neighbour borrowed from it
+    const work    = aDigits.slice();
+    const lostOne = new Array(len).fill(false);
     const resultDigs = new Array(len);
     const annotations = [];
     const colNames = ["ones","tens","hundreds","thousands","ten-thousands"];
 
-    for (let i = len-1; i >= 0; i--) {
-        const colName = colNames[len-1-i] || ("col-" + (len-1-i+1));
-        let top = aAdjusted[i];
+    for (let i = len - 1; i >= 0; i--) {
+        const colName = colNames[len - 1 - i] || ("col-" + (len - i));
+        let top = work[i];
         const bot = bDigits[i];
 
         if (top < bot) {
-            // Need to borrow from left neighbour
+            // borrow from the nearest non-zero left neighbour
             let j = i - 1;
-            while (j >= 0 && aAdjusted[j] === 0) { aAdjusted[j] = 9; borrows[j+1] = 1; j--; }
-            if (j >= 0) { aAdjusted[j]--; borrows[i] = 1; }
-            top += 10;
+            while (j >= 0 && work[j] === 0) {
+                work[j] = 9;          // was 0, becomes 9 after chain borrow
+                lostOne[j] = true;
+                j--;
+            }
+            if (j >= 0) {
+                work[j]--;            // this neighbour loses 1
+                lostOne[j] = true;
+            }
+            top += 10;               // current column gains 10
+            work[i] = top;           // update so subsequent borrows see adjusted value
             annotations.push(
                 '<span class="ca-col">' + colName + ':</span> ' +
-                'borrow → <span class="ca-borrow">' + top + '</span> − ' + bot +
+                'borrow \u2192 <span class="ca-borrow">' + top + '</span> \u2212 ' + bot +
                 ' = <span class="ca-ans">' + (top - bot) + '</span>'
             );
         } else {
             annotations.push(
                 '<span class="ca-col">' + colName + ':</span> ' +
-                top + ' − ' + bot + ' = <span class="ca-ans">' + (top - bot) + '</span>'
+                top + ' \u2212 ' + bot + ' = <span class="ca-ans">' + (top - bot) + '</span>'
             );
         }
         resultDigs[i] = top - bot;
     }
 
-    // ── Build visual column layout ────────────────────────────────────────
-    function digitsHTML(digits, cls, borrowArr, showBorrow) {
-        return digits.map((d, i) => {
-            const bLabel = (showBorrow && borrowArr && borrowArr[i]) ? '−1' : '&nbsp;';
-            return (
-                '<span class="col-digit-wrap">' +
-                    '<span class="col-borrow">' + (showBorrow ? bLabel : '&nbsp;') + '</span>' +
-                    '<span class="' + cls + '">' + (d === 0 && i === 0 && digits.length > 1 ? '&nbsp;' : d) + '</span>' +
-                '</span>'
-            );
-        }).join("");
-    }
+    // ── Visual column layout ──────────────────────────────────────────────
+    // Top row: show adjusted digits + pink "-1" above digits that gave away 1
+    const topHTML = work.map((d, i) => (
+        '<span class="col-digit-wrap">' +
+            '<span class="col-borrow">' + (lostOne[i] ? '\u22121' : '\u00a0') + '</span>' +
+            '<span class="col-digit">' + d + '</span>' +
+        '</span>'
+    )).join("");
 
-    // Adjusted top row (with borrows subtracted) and borrow labels
-    const topHTML = digitsHTML(aAdjusted, "col-digit", borrows, true);
-    const botHTML = bDigits.map(d => '<span class="col-digit">' + d + '</span>').join("");
-    const resHTML = resultDigs.map((d,i) => {
-        // Strip leading zeros
-        if (i === 0 && d === 0 && resultDigs.length > 1) return '<span class="col-result-digit">&nbsp;</span>';
+    const botHTML = bDigits.map(d =>
+        '<span class="col-digit">' + d + '</span>'
+    ).join("");
+
+    const resHTML = resultDigs.map((d, i) => {
+        if (i === 0 && d === 0 && resultDigs.length > 1)
+            return '<span class="col-result-digit">\u00a0</span>';
         return '<span class="col-result-digit">' + d + '</span>';
     }).join("");
 
-    const html =
+    return (
         '<div class="col-work">' +
             '<div class="col-row">' + topHTML + '</div>' +
-            '<div class="col-row"><span class="col-op">−</span>' + botHTML + '</div>' +
+            '<div class="col-row"><span class="col-op">\u2212</span>' + botHTML + '</div>' +
             '<hr class="col-line">' +
             '<div class="col-row">' + resHTML + '</div>' +
         '</div>' +
         '<div class="col-annotation">' +
             annotations.map(a => '<div>' + a + '</div>').join("") +
-        '</div>';
-
-    return html;
+        '</div>'
+    );
 }
+
 
 // ── MULTIPLY WITH CARRY ───────────────────────────────────────────────────────
 function multiplyCarryWorking(qText) {
