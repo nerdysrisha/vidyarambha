@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v59 Image panelling - SamAl modified this-->
+<!--v59 Image panelling -->
 <style>
 html, body {
     margin: 0;
@@ -576,50 +576,6 @@ button:active { transform: scale(0.97); }
     animation: rainbowGlow 4s linear infinite;
     z-index: 0;
 }
-
-
-/* Sam Al changed this */ 
-
-/* 🔥 Bigger Universe Layout (STACKED) */
-.univ-block-inner {
-    flex-direction: column; /* stack instead of side-by-side */
-}
-
-.univ-right-col {
-    width: 100%;
-    align-items: center;
-}
-
-/* Bigger images */
-.univ-q-image,
-.univ-ans-img {
-    width: 360px;
-    height: 320px;
-    cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-/* 🔍 Zoomed state */
-.univ-q-image.zoomed,
-.univ-ans-img.zoomed {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1.6);
-    z-index: 9999;
-    box-shadow: 0 0 40px rgba(0,0,0,0.9);
-    background: #000;
-}
-
-/* Background dim when zoomed */
-.image-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 9998;
-}
-
-
 </style>
 </head>
 <body>
@@ -700,14 +656,11 @@ function updateDateBox() {
     const now = new Date();
     const days   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
     const d = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     const h = String(now.getHours()).padStart(2,"0");
     const m = String(now.getMinutes()).padStart(2,"0");
     const s = String(now.getSeconds()).padStart(2,"0");
-
-    document.getElementById("dateBox").innerHTML =
-        `📅 ${d} &nbsp;&nbsp; 🕒 ${h}:${m}:${s}`;
+    document.getElementById("dateBox").textContent = `&#128197; ${d}  &#128336; ${h}:${m}:${s}`;
 }
 updateDateBox();
 setInterval(updateDateBox, 1000);
@@ -1506,40 +1459,6 @@ document.addEventListener("visibilitychange", ()=>{
     if (wakeLock!==null && document.visibilityState==="visible") requestWakeLock();
 });
 requestWakeLock();
-
-
-//Sam Al modified this 
-
-// 🔍 IMAGE ZOOM FEATURE
-document.addEventListener("click", function(e) {
-    const img = e.target.closest(".univ-q-image, .univ-ans-img");
-
-    // CLICK ON IMAGE → ZOOM
-    if (img) {
-        if (img.classList.contains("zoomed")) return;
-
-        img.classList.add("zoomed");
-
-        const overlay = document.createElement("div");
-        overlay.className = "image-overlay";
-        document.body.appendChild(overlay);
-
-        // Click anywhere to close
-        overlay.onclick = () => {
-            img.classList.remove("zoomed");
-            overlay.remove();
-        };
-
-        return;
-    }
-
-    // Click outside → close any zoomed image
-    const zoomed = document.querySelector(".zoomed");
-    const overlay = document.querySelector(".image-overlay");
-
-    if (zoomed) zoomed.classList.remove("zoomed");
-    if (overlay) overlay.remove();
-});
 </script>
 </body>
 </html>
