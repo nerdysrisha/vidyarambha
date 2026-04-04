@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v61 carryforward etc representation in answers-->
+<!--v60 Fixed: date, universe 30/70 panel, stacked options, large images -->
 <style>
 html, body {
     margin: 0;
@@ -306,108 +306,6 @@ button:active { transform: scale(0.97); }
 .working-block .w-step   { color: #58D68D; font-weight: bold; }
 .working-block .w-label  { color: #ff9900; font-size: 0.8em; margin-right: 6px; }
 .working-block .w-result { color: #00c8ff; font-weight: bold; }
-
-/* ── COLUMN ARITHMETIC (subtract-borrow, multiply-carry) ───────────── */
-.col-work {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-family: 'Courier New', monospace;
-    font-size: 22px;
-    background: #0a120a;
-    border: 1px solid #1e3a1e;
-    border-radius: 8px;
-    padding: 10px 18px 10px 14px;
-    margin: 6px 0 4px 0;
-    gap: 1px;
-    min-width: 120px;
-}
-
-/* A single row inside .col-work */
-.col-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0;
-    position: relative;
-    white-space: nowrap;
-}
-
-/* The operator prefix (−, ×) on the left of the second number */
-.col-op {
-    color: #ff9900;
-    font-weight: bold;
-    margin-right: 4px;
-    min-width: 18px;
-    text-align: right;
-}
-
-/* Digits in column layout */
-.col-digit {
-    display: inline-block;
-    width: 28px;
-    text-align: center;
-    color: #eee;
-}
-
-/* Borrow annotation sits above a digit */
-.col-digit-wrap {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    width: 28px;
-}
-
-.col-borrow {
-    font-size: 11px;
-    color: #f472b6;
-    font-weight: bold;
-    height: 14px;
-    line-height: 14px;
-}
-
-.col-carry {
-    font-size: 11px;
-    color: #60a5fa;
-    font-weight: bold;
-    height: 14px;
-    line-height: 14px;
-}
-
-/* Divider line between operands and result */
-.col-line {
-    width: 100%;
-    border: none;
-    border-top: 2px solid #28a745;
-    margin: 4px 0;
-}
-
-/* Result row digits */
-.col-result-digit {
-    display: inline-block;
-    width: 28px;
-    text-align: center;
-    color: #58D68D;
-    font-weight: bold;
-}
-
-/* Partial product rows in multiplication */
-.col-partial {
-    color: #a78bfa;
-}
-
-/* Step-by-step annotation lines below the column work */
-.col-annotation {
-    font-size: 14px;
-    color: #777;
-    font-family: Arial, sans-serif;
-    margin-top: 4px;
-    line-height: 1.8;
-}
-.col-annotation .ca-col   { color: #ff9900; font-weight: bold; }
-.col-annotation .ca-borrow{ color: #f472b6; font-weight: bold; }
-.col-annotation .ca-carry { color: #60a5fa; font-weight: bold; }
-.col-annotation .ca-ans   { color: #58D68D; font-weight: bold; }
 
 /* ── UNIVERSE MCQ: 30/70 two-panel layout ────────────────────────────── */
 .univ-block {
@@ -940,188 +838,6 @@ function sequenceWorking(qText) {
     return ['<span class="w-label">Look at the pattern carefully</span>'];
 }
 
-// ── SUBTRACT WITH BORROW ──────────────────────────────────────────────────────
-function subtractBorrowWorking(qText) {
-    // Parse "A − B" or "A - B" from question text
-    const clean = qText.replace(/\s*\(Q\d+\)/,"").trim();
-    const m = clean.match(/([\d,]+)\s*[-−]\s*([\d,]+)/);
-    if (!m) return "";
-    const A = parseInt(m[1].replace(/,/g,""), 10);
-    const B = parseInt(m[2].replace(/,/g,""), 10);
-    if (isNaN(A) || isNaN(B) || A < B) return "";
-
-    // Work column-by-column right-to-left
-    const aDigits = String(A).split("").map(Number);
-    const bDigits = String(B).split("").map(Number);
-    const len = Math.max(aDigits.length, bDigits.length);
-    // Pad left with zeros
-    while (aDigits.length < len) aDigits.unshift(0);
-    while (bDigits.length < len) bDigits.unshift(0);
-
-    // Track borrows and result digits
-    const borrows    = new Array(len).fill(0); // borrow applied TO this position
-    const aAdjusted  = aDigits.slice();
-    const resultDigs = new Array(len);
-    const annotations = [];
-    const colNames = ["ones","tens","hundreds","thousands","ten-thousands"];
-
-    for (let i = len-1; i >= 0; i--) {
-        const colName = colNames[len-1-i] || ("col-" + (len-1-i+1));
-        let top = aAdjusted[i];
-        const bot = bDigits[i];
-
-        if (top < bot) {
-            // Need to borrow from left neighbour
-            let j = i - 1;
-            while (j >= 0 && aAdjusted[j] === 0) { aAdjusted[j] = 9; borrows[j+1] = 1; j--; }
-            if (j >= 0) { aAdjusted[j]--; borrows[i] = 1; }
-            top += 10;
-            annotations.push(
-                '<span class="ca-col">' + colName + ':</span> ' +
-                'borrow → <span class="ca-borrow">' + top + '</span> − ' + bot +
-                ' = <span class="ca-ans">' + (top - bot) + '</span>'
-            );
-        } else {
-            annotations.push(
-                '<span class="ca-col">' + colName + ':</span> ' +
-                top + ' − ' + bot + ' = <span class="ca-ans">' + (top - bot) + '</span>'
-            );
-        }
-        resultDigs[i] = top - bot;
-    }
-
-    // ── Build visual column layout ────────────────────────────────────────
-    function digitsHTML(digits, cls, borrowArr, showBorrow) {
-        return digits.map((d, i) => {
-            const bLabel = (showBorrow && borrowArr && borrowArr[i]) ? '−1' : '&nbsp;';
-            return (
-                '<span class="col-digit-wrap">' +
-                    '<span class="col-borrow">' + (showBorrow ? bLabel : '&nbsp;') + '</span>' +
-                    '<span class="' + cls + '">' + (d === 0 && i === 0 && digits.length > 1 ? '&nbsp;' : d) + '</span>' +
-                '</span>'
-            );
-        }).join("");
-    }
-
-    // Adjusted top row (with borrows subtracted) and borrow labels
-    const topHTML = digitsHTML(aAdjusted, "col-digit", borrows, true);
-    const botHTML = bDigits.map(d => '<span class="col-digit">' + d + '</span>').join("");
-    const resHTML = resultDigs.map((d,i) => {
-        // Strip leading zeros
-        if (i === 0 && d === 0 && resultDigs.length > 1) return '<span class="col-result-digit">&nbsp;</span>';
-        return '<span class="col-result-digit">' + d + '</span>';
-    }).join("");
-
-    const html =
-        '<div class="col-work">' +
-            '<div class="col-row">' + topHTML + '</div>' +
-            '<div class="col-row"><span class="col-op">−</span>' + botHTML + '</div>' +
-            '<hr class="col-line">' +
-            '<div class="col-row">' + resHTML + '</div>' +
-        '</div>' +
-        '<div class="col-annotation">' +
-            annotations.map(a => '<div>' + a + '</div>').join("") +
-        '</div>';
-
-    return html;
-}
-
-// ── MULTIPLY WITH CARRY ───────────────────────────────────────────────────────
-function multiplyCarryWorking(qText) {
-    const clean = qText.replace(/\s*\(Q\d+\)/,"").trim();
-    const m = clean.match(/([\d,]+)\s*[×x\*]\s*([\d,]+)/i);
-    if (!m) return "";
-    const A = parseInt(m[1].replace(/,/g,""), 10);
-    const B = parseInt(m[2].replace(/,/g,""), 10);
-    if (isNaN(A) || isNaN(B)) return "";
-
-    const aDigits = String(A).split("").map(Number);
-    const bDigits = String(B).split("").map(Number);
-    const colNames = ["ones","tens","hundreds","thousands","ten-thousands"];
-
-    // Compute partial products (one per digit of B, right-to-left)
-    const partials = [];
-    const annotations = [];
-
-    for (let bi = bDigits.length - 1; bi >= 0; bi--) {
-        const bDig   = bDigits[bi];
-        const shift  = bDigits.length - 1 - bi;  // number of trailing zeros
-        const bColName = colNames[shift] || ("col-" + (shift+1));
-        let carry    = 0;
-        const rowDigs = [];
-        annotations.push('<span class="ca-col">× ' + bDig + ' (' + bColName + ' digit):</span>');
-
-        for (let ai = aDigits.length - 1; ai >= 0; ai--) {
-            const prod = aDigits[ai] * bDig + carry;
-            carry = Math.floor(prod / 10);
-            const digit = prod % 10;
-            rowDigs.unshift(digit);
-            const aColName = colNames[aDigits.length - 1 - ai] || ("col-" + (aDigits.length - ai));
-            if (carry > 0 || bDig > 1) {
-                annotations.push(
-                    '&nbsp;&nbsp;' + aColName + ': ' + aDigits[ai] + '×' + bDig +
-                    (carry > 0 && prod >= 10 ? ' + carry ' + Math.floor((prod - digit)/10) : '') +
-                    ' = <span class="ca-ans">' + prod + '</span>' +
-                    (carry > 0 ? ' → write <span class="ca-ans">' + digit + '</span>, carry <span class="ca-carry">' + carry + '</span>' : '')
-                );
-            }
-        }
-        if (carry > 0) rowDigs.unshift(carry);
-        // Append trailing zeros for shift
-        for (let s = 0; s < shift; s++) rowDigs.push(0);
-        partials.push(rowDigs);
-    }
-
-    // Sum partials
-    const result = A * B;
-    const resultDigs = String(result).split("").map(Number);
-
-    // ── Build visual column ───────────────────────────────────────────────
-    const maxLen = Math.max(aDigits.length, bDigits.length, ...partials.map(p=>p.length), resultDigs.length);
-
-    function padLeft(arr, len) {
-        const out = arr.slice();
-        while (out.length < len) out.unshift(null);
-        return out;
-    }
-
-    function rowHTML(digits, cls, op) {
-        const padded = padLeft(digits, maxLen);
-        const cells = padded.map((d,i) => {
-            if (d === null) return '<span class="' + cls + '">&nbsp;</span>';
-            return '<span class="' + cls + '">' + d + '</span>';
-        }).join("");
-        const opSpan = op ? '<span class="col-op">' + op + '</span>' : '<span class="col-op">&nbsp;</span>';
-        return '<div class="col-row">' + opSpan + cells + '</div>';
-    }
-
-    let html = '<div class="col-work">';
-    html += rowHTML(aDigits, "col-digit", "");
-    html += rowHTML(bDigits, "col-digit", "×");
-
-    if (partials.length === 1) {
-        // Single-digit multiplier — just show one line
-        html += '<hr class="col-line">';
-        html += rowHTML(resultDigs, "col-result-digit", "");
-    } else {
-        // Multi-digit multiplier — show partials then sum
-        html += '<hr class="col-line">';
-        partials.forEach((p, i) => {
-            html += rowHTML(p, "col-digit col-partial", i === 0 ? "" : "+");
-        });
-        html += '<hr class="col-line">';
-        html += rowHTML(resultDigs, "col-result-digit", "");
-    }
-
-    html += '</div>';
-    html += '<div class="col-annotation">' +
-        annotations.map(a => '<div>' + a + '</div>').join("") +
-        '<div><span class="ca-col">Final answer:</span> <span class="ca-ans">' + result + '</span></div>' +
-    '</div>';
-
-    return html;
-}
-
 const MISSING_TYPES = new Set([
     "addend-left-missing","addend-right-missing",
     "minuend-missing","subtrahend-missing",
@@ -1303,28 +1019,6 @@ toggleAll.onclick = () => {
             const wb = document.createElement("div");
             wb.className = "working-block show";
             wb.innerHTML = lines.map(l=>"<div>"+l+"</div>").join("");
-            row.appendChild(wb);
-        });
-        document.querySelectorAll(".question-row[data-type='subtract-borrow']").forEach(row => {
-            if (row.querySelector(".working-block")) return;
-            const qSpan = row.querySelector(".question-text");
-            if (!qSpan) return;
-            const html = subtractBorrowWorking(qSpan.innerText||"");
-            if (!html) return;
-            const wb = document.createElement("div");
-            wb.className = "working-block show";
-            wb.innerHTML = html;
-            row.appendChild(wb);
-        });
-        document.querySelectorAll(".question-row[data-type='multiply-carry']").forEach(row => {
-            if (row.querySelector(".working-block")) return;
-            const qSpan = row.querySelector(".question-text");
-            if (!qSpan) return;
-            const html = multiplyCarryWorking(qSpan.innerText||"");
-            if (!html) return;
-            const wb = document.createElement("div");
-            wb.className = "working-block show";
-            wb.innerHTML = html;
             row.appendChild(wb);
         });
     }
@@ -1624,11 +1318,9 @@ function generate(box, val) {
                 }
 
                 let dataType = null;
-                if (val === "bodmas")                         dataType = "bodmas";
-                else if (MISSING_TYPES.has(val))              dataType = "missing";
+                if (val === "bodmas")             dataType = "bodmas";
+                else if (MISSING_TYPES.has(val))  dataType = "missing";
                 else if (val === "missing-number" || val === "pattern-completion") dataType = "sequence";
-                else if (val === "subtract-with-borrow")      dataType = "subtract-borrow";
-                else if (val === "multiply-2-digit")          dataType = "multiply-carry";
 
                 if (val === "bodmas") {
                     qText = qText.replace(/([+\-×÷*/x])/gi," $1 ").replace(/\s+/g," ");
