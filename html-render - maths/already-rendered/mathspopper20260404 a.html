@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v57 Amazing Universe: 4 dedicated JSON question sets with image reveal-->
+<!--v56 Added Amazing Universe MCQ section with image reveal-->
 <style>
 html, body {
     margin: 0;
@@ -48,11 +48,9 @@ html, body {
     color: #28a745;
 }
 
-/* Universe colour variants */
-.ctrl-item.universe-guess   { color: #f59e0b; }
-.ctrl-item.universe-science { color: #34d399; }
-.ctrl-item.universe-geo     { color: #60a5fa; }
-.ctrl-item.universe-machines{ color: #f472b6; }
+.ctrl-item.universe-item {
+    color: #a78bfa;
+}
 
 .ctrl-item input[type="checkbox"] { width: 22px; height: 22px; }
 
@@ -101,6 +99,7 @@ button {
 button:hover  { transform: scale(1.06); filter: brightness(1.2); }
 button:active { transform: scale(0.97); }
 
+/* Green buttons */
 #selectAllBtn, #toggleAll {
     background: #28a745;
     color: #fff;
@@ -108,6 +107,7 @@ button:active { transform: scale(0.97); }
 }
 #selectAllBtn:hover, #toggleAll:hover { box-shadow: 0 0 16px rgba(40,167,69,0.9); }
 
+/* Blue nav buttons */
 .nav-btn {
     background: #0077cc;
     color: #fff;
@@ -116,6 +116,7 @@ button:active { transform: scale(0.97); }
 }
 .nav-btn:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
 
+/* Timer */
 #timerBtn { background: #28a745; color: #fff; box-shadow: 0 0 8px rgba(40,167,69,0.5); }
 #resetTimer { background: #555; color: #fff; }
 #timerDisplay {
@@ -126,6 +127,7 @@ button:active { transform: scale(0.97); }
     letter-spacing: 2px;
 }
 
+/* DATE-TIME BOX */
 #dateBox {
     font-size: 14px;
     font-weight: bold;
@@ -152,6 +154,7 @@ button:active { transform: scale(0.97); }
 
 #questions legend { padding: 0 10px; font-size: 16px; color: #aaa; }
 
+/* STACK WRAPPER - carousel */
 .stack-wrapper {
     display: none;
     position: absolute;
@@ -172,8 +175,10 @@ button:active { transform: scale(0.97); }
 .stack-wrapper::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; border: 2px solid #111; }
 .stack-wrapper::-webkit-scrollbar-thumb:hover { background-color: #888; }
 
+/* auto-size for long content types */
 .stack-wrapper.auto-size { height: auto; min-height: 100%; }
 
+/* SINGLE FULL-WIDTH BOX */
 .stack-box {
     border: 1px solid #2a2a2a;
     border-left: 4px solid #28a745;
@@ -189,11 +194,11 @@ button:active { transform: scale(0.97); }
 
 .stack-box.auto-size { height: auto; }
 
-/* Universe box colour variants */
-.stack-box.box-guess    { border-left-color: #f59e0b; background: linear-gradient(160deg,#1a1200,#111); }
-.stack-box.box-science  { border-left-color: #34d399; background: linear-gradient(160deg,#001a0d,#111); }
-.stack-box.box-geo      { border-left-color: #60a5fa; background: linear-gradient(160deg,#00101a,#111); }
-.stack-box.box-machines { border-left-color: #f472b6; background: linear-gradient(160deg,#1a0010,#111); }
+/* Universe box special styling */
+.stack-box.universe-box {
+    border-left: 4px solid #a78bfa;
+    background: linear-gradient(160deg, #0f0f1a 0%, #111 100%);
+}
 
 /* TITLES */
 .problem-title {
@@ -203,10 +208,13 @@ button:active { transform: scale(0.97); }
     font-size: 24px;
 }
 
-.title-guess    { color: #f59e0b; }
-.title-science  { color: #34d399; }
-.title-geo      { color: #60a5fa; }
-.title-machines { color: #f472b6; }
+.problem-title.universe-title {
+    color: #a78bfa;
+    background: linear-gradient(90deg, #a78bfa, #60a5fa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
 /* QUESTION ROWS */
 .question-row {
@@ -229,6 +237,7 @@ button:active { transform: scale(0.97); }
 
 .question-text { flex: 1; min-width: 0; }
 
+/* WORD ROW layout */
 .question-row.word-row {
     flex-direction: column;
     align-items: flex-start;
@@ -250,6 +259,7 @@ button:active { transform: scale(0.97); }
     font-size: 30px;
 }
 
+/* INLINE ANSWER */
 .inline-answer-wrap {
     display: flex;
     align-items: center;
@@ -284,6 +294,7 @@ button:active { transform: scale(0.97); }
     box-shadow: 0 0 8px rgba(0,200,255,0.6);
 }
 
+/* NUMBER NAMES word reveal */
 .num-word {
     visibility: hidden;
     color: #58D68D;
@@ -292,6 +303,7 @@ button:active { transform: scale(0.97); }
     margin-left: 16px;
 }
 
+/* STEP-BY-STEP WORKING */
 .working-block {
     display: none;
     margin: 6px 0 6px 80px;
@@ -310,58 +322,50 @@ button:active { transform: scale(0.97); }
 .working-block .w-label  { color: #ff9900; font-size: 0.8em; margin-right: 6px; }
 .working-block .w-result { color: #00c8ff; font-weight: bold; }
 
-/* ── UNIVERSE MCQ SHARED STYLES ──────────────────────────────────────── */
-.univ-block {
+/* ── UNIVERSE MCQ STYLES ─────────────────────────────────────────────── */
+.universe-question-block {
     border-bottom: 1px solid #1e1e1e;
     padding: 16px 20px 20px 20px;
 }
 
-.univ-q-header {
+.universe-q-header {
     display: flex;
     align-items: flex-start;
     gap: 14px;
     margin-bottom: 10px;
 }
 
-.univ-q-letter {
+.universe-q-letter {
     font-size: 26px;
     font-weight: bold;
+    color: #a78bfa;
     flex-shrink: 0;
     min-width: 40px;
     text-align: right;
 }
 
-.univ-q-category {
+.universe-q-category {
     font-size: 12px;
     font-weight: bold;
+    color: #60a5fa;
     text-transform: uppercase;
     letter-spacing: 1px;
+    background: rgba(96,165,250,0.1);
+    border: 1px solid rgba(96,165,250,0.3);
     border-radius: 4px;
     padding: 2px 8px;
     margin-top: 4px;
     flex-shrink: 0;
 }
 
-.univ-q-text {
+.universe-q-text {
     font-size: 26px;
     line-height: 1.4;
     color: #eee;
     flex: 1;
 }
 
-/* Question image (for "guess the image" type) */
-.univ-q-image {
-    display: block;
-    width: 200px;
-    height: 160px;
-    object-fit: contain;
-    border-radius: 10px;
-    border: 2px solid #444;
-    background: #0a0a0a;
-    margin: 0 0 10px 54px;
-}
-
-.univ-options {
+.universe-options {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -369,7 +373,7 @@ button:active { transform: scale(0.97); }
     margin-top: 4px;
 }
 
-.univ-option {
+.universe-option {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -378,19 +382,29 @@ button:active { transform: scale(0.97); }
     border-radius: 8px;
     padding: 10px 14px;
     font-size: 20px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
 }
 
-.univ-option-letter {
+.universe-option:hover {
+    border-color: #a78bfa;
+    background: #1e1e35;
+}
+
+.universe-option-letter {
     font-size: 16px;
     font-weight: bold;
+    color: #a78bfa;
     width: 22px;
     flex-shrink: 0;
 }
 
-.univ-option-text { color: #ccc; }
+.universe-option-text {
+    color: #ccc;
+}
 
-/* Answer row */
-.univ-answer-row {
+/* Answer reveal area */
+.universe-answer-row {
     display: flex;
     align-items: center;
     gap: 20px;
@@ -399,7 +413,7 @@ button:active { transform: scale(0.97); }
     flex-wrap: wrap;
 }
 
-.univ-badge {
+.universe-answer-badge {
     visibility: hidden;
     display: inline-flex;
     align-items: center;
@@ -413,43 +427,28 @@ button:active { transform: scale(0.97); }
     color: #58D68D;
 }
 
-.univ-badge.show { visibility: visible; }
+.universe-answer-badge.show { visibility: visible; }
 
-.univ-ans-img {
+.universe-answer-img {
     display: none;
     width: 140px;
     height: 140px;
     object-fit: contain;
     border-radius: 10px;
-    background: #0a0a0a;
+    border: 2px solid #a78bfa;
+    background: #0f0f1a;
 }
 
-.univ-ans-img.show { display: block; }
+.universe-answer-img.show { display: block; }
 
-/* Per-type border colours for answer image */
-.guess-img    { border: 2px solid #f59e0b; }
-.science-img  { border: 2px solid #34d399; }
-.geo-img      { border: 2px solid #60a5fa; }
-.machines-img { border: 2px solid #f472b6; }
-
-.univ-img-404 {
+.universe-img-404 {
     display: none;
     font-size: 13px;
     color: #555;
     font-style: italic;
 }
-.univ-img-404.show { display: inline; }
 
-/* Colour helpers */
-.c-guess    { color: #f59e0b; }
-.c-science  { color: #34d399; }
-.c-geo      { color: #60a5fa; }
-.c-machines { color: #f472b6; }
-
-.cat-guess    { color: #f59e0b; background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
-.cat-science  { color: #34d399; background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.3); }
-.cat-geo      { color: #60a5fa; background: rgba(96,165,250,0.10); border: 1px solid rgba(96,165,250,0.3); }
-.cat-machines { color: #f472b6; background: rgba(244,114,182,0.10); border: 1px solid rgba(244,114,182,0.3); }
+.universe-img-404.show { display: inline; }
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* BOTTOM NAV */
@@ -570,73 +569,23 @@ button:active { transform: scale(0.97); }
 </div>
 
 <script>
-const BASE_URL         = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
+const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 const UNIVERSE_IMG_BASE = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/";
 
-// ── UNIVERSE CONFIG ───────────────────────────────────────────────────────────
-const UNIVERSE_SETS = {
-    "universe-guess": {
-        file:       "universe-guess-image.json",
-        label:      "34. 🔍 Guess the Image",
-        title:      "34. 🔍 Guess the Image",
-        accent:     "#f59e0b",
-        ctrlClass:  "universe-guess",
-        boxClass:   "box-guess",
-        titleClass: "title-guess",
-        catClass:   "cat-guess",
-        imgClass:   "guess-img",
-        cClass:     "c-guess",
-        showQImage: true,   // show question image (it IS the question)
-        count:      4
-    },
-    "universe-science": {
-        file:       "universe-science.json",
-        label:      "35. 🔬 Science",
-        title:      "35. 🔬 Science Questions",
-        accent:     "#34d399",
-        ctrlClass:  "universe-science",
-        boxClass:   "box-science",
-        titleClass: "title-science",
-        catClass:   "cat-science",
-        imgClass:   "science-img",
-        cClass:     "c-science",
-        showQImage: false,
-        count:      4
-    },
-    "universe-geo": {
-        file:       "universe-geography.json",
-        label:      "36. 🌍 Geography",
-        title:      "36. 🌍 Geography Questions",
-        accent:     "#60a5fa",
-        ctrlClass:  "universe-geo",
-        boxClass:   "box-geo",
-        titleClass: "title-geo",
-        catClass:   "cat-geo",
-        imgClass:   "geo-img",
-        cClass:     "c-geo",
-        showQImage: false,
-        count:      4
-    },
-    "universe-machines": {
-        file:       "universe-machines.json",
-        label:      "37. ⚙️ Science Concepts",
-        title:      "37. ⚙️ Science Concepts",
-        accent:     "#f472b6",
-        ctrlClass:  "universe-machines",
-        boxClass:   "box-machines",
-        titleClass: "title-machines",
-        catClass:   "cat-machines",
-        imgClass:   "machines-img",
-        cClass:     "c-machines",
-        showQImage: false,
-        count:      4
-    }
-};
+// Universe source files — 1 question picked per file = 6 total, we pick 4 of the 6 categories daily
+const UNIVERSE_FILES = [
+    { file: "science-world.json", label: "Science & World" },
+    { file: "science-animals.json",       label: "Animals" },
+    { file: "science-body.json",          label: "Body" },
+    { file: "science-concepts.json",      label: "Concepts" },
+    { file: "science-plants.json",        label: "Plants" },
+    { file: "science-space.json",         label: "Space" }
+];
 
 // Date/time box
 function updateDateBox() {
     const now = new Date();
-    const days   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const d = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     const h = String(now.getHours()).padStart(2,"0");
@@ -681,11 +630,7 @@ const options = [
     ["units-liquid",         "31. Units - Liquid"],
     ["units-time",           "32. Units - Time"],
     ["units-money",          "33. Units - Money"],
-    // Universe sets
-    ["universe-guess",    "34. 🔍 Guess the Image"],
-    ["universe-science",  "35. 🔬 Science"],
-    ["universe-geo",      "36. 🌍 Geography"],
-    ["universe-machines", "37. ⚙️ Science Concepts"]
+    ["amazing-universe",     "34. 🌌 Amazing Universe"]
 ];
 
 const control   = document.getElementById("control");
@@ -713,9 +658,8 @@ function numberToWords(n) {
 }
 
 options.forEach(([val, label]) => {
-    const cfg = UNIVERSE_SETS[val];
     const wrap = document.createElement("label");
-    wrap.className = "ctrl-item" + (cfg ? " " + cfg.ctrlClass : "");
+    wrap.className = "ctrl-item" + (val === "amazing-universe" ? " universe-item" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -723,12 +667,26 @@ options.forEach(([val, label]) => {
     control.appendChild(wrap);
 });
 
+const selectAllBtn = document.getElementById("selectAllBtn");
+const checkboxes   = Array.from(control.querySelectorAll("input[type='checkbox']"));
+
+selectAllBtn.onclick = async () => {
+    for (let cb of checkboxes) {
+        if (!cb.checked) {
+            cb.checked = true;
+            cb.onchange();
+            await new Promise(r => setTimeout(r, 500));
+        }
+    }
+};
+
 // ── BODMAS STEP-BY-STEP ───────────────────────────────────────────────────────
 function bodmasSteps(expr) {
     let e = expr.replace(/🧠\s*/,"").replace(/\s*\(Q\d+\)/,"").trim();
     e = e.replace(/×/g,"*").replace(/÷/g,"/").replace(/x/gi,"*");
     const steps = [];
     let cur = e, prev, iter;
+
     prev = cur; iter = 0;
     while (/\(/.test(cur) && iter++ < 20) {
         cur = cur.replace(/\(([^()]+)\)/g, (_,inner) => { try { return String(eval(inner)); } catch(e) { return _; } });
@@ -757,6 +715,7 @@ function bodmasSteps(expr) {
     return steps;
 }
 
+// ── MISSING EQUATION WORKING ──────────────────────────────────────────────────
 function missingWorking(qText) {
     const clean = qText.replace(/🔍\s*/,"").replace(/\s*\(Q\d+\)/,"").replace(/\s*=\s*/," = ").trim();
     let m;
@@ -796,21 +755,25 @@ function drawClock(canvas, timeStr) {
     const size = canvas.width, cx = size/2, cy = size/2, r = size/2 - 6;
     const ctx  = canvas.getContext("2d");
     ctx.clearRect(0, 0, size, size);
+
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
     ctx.fillStyle = "#1a1a2e"; ctx.fill();
     ctx.strokeStyle = "#00c8ff"; ctx.lineWidth = 3; ctx.stroke();
+
     for (let m = 0; m < 60; m++) {
         const angle   = (m / 30) * Math.PI - Math.PI/2;
         const isHour  = m % 5  === 0;
         const isQuart = m % 15 === 0;
         const innerR  = isQuart ? r*0.78 : isHour ? r*0.82 : r*0.89;
+        const outerR  = r * 0.97;
         ctx.beginPath();
         ctx.moveTo(cx + innerR*Math.cos(angle), cy + innerR*Math.sin(angle));
-        ctx.lineTo(cx + r*0.97*Math.cos(angle), cy + r*0.97*Math.sin(angle));
+        ctx.lineTo(cx + outerR*Math.cos(angle), cy + outerR*Math.sin(angle));
         ctx.strokeStyle = isQuart ? "#dddddd" : isHour ? "#888888" : "#4a4a4a";
         ctx.lineWidth   = isQuart ? 3 : isHour ? 2 : 1;
         ctx.stroke();
     }
+
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = "#ffffff"; ctx.font = `bold ${size*0.09}px Arial`;
     for (let h = 1; h <= 12; h++) {
@@ -818,61 +781,23 @@ function drawClock(canvas, timeStr) {
         const nr = r * 0.68;
         ctx.fillText(h, cx + nr*Math.cos(angle), cy + nr*Math.sin(angle));
     }
+
     const parts   = timeStr.split(":").map(Number);
     const hours   = parts[0] % 12;
     const minutes = parts[1] || 0;
+
     const minAngle = (minutes/60)*2*Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.80*Math.cos(minAngle), cy + r*0.80*Math.sin(minAngle));
     ctx.strokeStyle = "#58D68D"; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
+
     const hourAngle = ((hours + minutes/60)/12)*2*Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.50*Math.cos(hourAngle), cy + r*0.50*Math.sin(hourAngle));
     ctx.strokeStyle = "#ff9900"; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
+
     ctx.beginPath(); ctx.arc(cx, cy, size*0.03, 0, 2*Math.PI);
     ctx.fillStyle = "#ffffff"; ctx.fill();
-}
-
-// ── UNIVERSE MCQ RENDERER ─────────────────────────────────────────────────────
-function renderUniverseQuestion(letter, q, cfg) {
-    const optLetters = ["A","B","C","D"];
-    const optionsHTML = q.options.map((opt, i) => `
-        <div class="univ-option">
-            <span class="univ-option-letter ${cfg.cClass}">${optLetters[i]}.</span>
-            <span class="univ-option-text">${opt}</span>
-        </div>`).join("");
-
-    const imgUrl = `${UNIVERSE_IMG_BASE}${q.id}.png`;
-
-    // For "guess the image" type, show the question image above the options
-    const qImageHTML = cfg.showQImage
-        ? `<img class="univ-q-image" src="${imgUrl}" alt="Question image"
-               onerror="this.style.opacity='0.2';this.alt='Image not found';" />`
-        : "";
-
-    // Answer image (shown on reveal) — for guess-image type this is same image (confirmation),
-    // for others it illustrates the answer
-    const ansImgHTML = `
-        <img class="univ-ans-img ${cfg.imgClass}"
-             src="${imgUrl}"
-             alt="${q.answer}"
-             onerror="this.style.display='none';this.nextElementSibling.dataset.haserror='1';" />
-        <span class="univ-img-404">📷 404</span>`;
-
-    return `
-    <div class="univ-block">
-        <div class="univ-q-header">
-            <span class="univ-q-letter ${cfg.cClass}">(${letter})</span>
-            <span class="univ-q-category ${cfg.catClass}">${q.category}</span>
-            <span class="univ-q-text">${q.question}</span>
-        </div>
-        ${qImageHTML}
-        <div class="univ-options">${optionsHTML}</div>
-        <div class="univ-answer-row">
-            <span class="univ-badge">✅ ${q.answer}</span>
-            ${ansImgHTML}
-        </div>
-    </div>`;
 }
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
@@ -890,13 +815,16 @@ toggleAll.onclick = () => {
     });
     document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
 
-    // Universe answer badges + images
-    document.querySelectorAll(".univ-badge").forEach(b => b.classList.toggle("show", showAll));
-    document.querySelectorAll(".univ-ans-img").forEach(img => img.classList.toggle("show", showAll));
-    document.querySelectorAll(".univ-img-404").forEach(el => {
-        if (showAll && el.dataset.haserror === "1") el.classList.add("show");
-        else el.classList.remove("show");
+    // Universe answer reveal
+    document.querySelectorAll(".universe-answer-badge").forEach(b => b.classList.toggle("show", showAll));
+    document.querySelectorAll(".universe-answer-img").forEach(img => {
+        if (showAll) {
+            img.classList.add("show");
+        } else {
+            img.classList.remove("show");
+        }
     });
+    document.querySelectorAll(".universe-img-404").forEach(el => el.classList.toggle("show", showAll && el.dataset.haserror === "1"));
 
     if (showAll) {
         document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
@@ -964,21 +892,49 @@ function renderWordRow(letter, question, answer) {
     </div>`;
 }
 
+// ── AMAZING UNIVERSE RENDER ───────────────────────────────────────────────────
+function renderUniverseQuestion(letter, q) {
+    const optionLetters = ["A","B","C","D"];
+    const optionsHTML = q.options.map((opt, i) => `
+        <div class="universe-option">
+            <span class="universe-option-letter">${optionLetters[i]}.</span>
+            <span class="universe-option-text">${opt}</span>
+        </div>`).join("");
+
+    const imgUrl = `${UNIVERSE_IMG_BASE}${q.id}.png`;
+
+    return `
+    <div class="universe-question-block">
+        <div class="universe-q-header">
+            <span class="universe-q-letter">(${letter})</span>
+            <span class="universe-q-category">${q.category}</span>
+            <span class="universe-q-text">${q.question}</span>
+        </div>
+        <div class="universe-options">${optionsHTML}</div>
+        <div class="universe-answer-row">
+            <span class="universe-answer-badge">✅ ${q.answer}</span>
+            <img class="universe-answer-img"
+                 src="${imgUrl}"
+                 alt="${q.answer}"
+                 onerror="this.style.display='none';this.nextElementSibling.dataset.haserror='1';if(window._showAll){this.nextElementSibling.classList.add('show');}" />
+            <span class="universe-img-404">📷 404</span>
+        </div>
+    </div>`;
+}
+
 // ── STACK MANAGEMENT ──────────────────────────────────────────────────────────
 const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time",
-    "universe-guess","universe-science","universe-geo","universe-machines"]);
+    "number-names","draw-clock","identify-time","amazing-universe"]);
 
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
-    const cfg = UNIVERSE_SETS[val];
     const box = document.createElement("div");
-    box.className = "stack-box" + (cfg ? " " + cfg.boxClass : "");
+    box.className = "stack-box" + (val === "amazing-universe" ? " universe-box" : "");
     wrapper.appendChild(box);
     stacks[val] = wrapper;
     stackOrder.push(val);
@@ -1052,32 +1008,46 @@ function pickDailyIndices(val, total, n) {
     return indices;
 }
 
-// ── UNIVERSE GENERATOR ────────────────────────────────────────────────────────
-async function generateUniverse(box, val) {
-    const cfg = UNIVERSE_SETS[val];
-    box.innerHTML = `<div class="problem-title ${cfg.titleClass}">${cfg.title}</div>
-        <div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions…</div>`;
+// ── AMAZING UNIVERSE GENERATOR ────────────────────────────────────────────────
+async function generateUniverse(box) {
+    box.innerHTML = `<div class="problem-title universe-title">34. 🌌 Amazing Universe</div>
+        <div style="color:#555;font-size:16px;padding:8px 0 16px 0;">Loading questions from across the universe…</div>`;
 
-    try {
-        const r = await fetch(BASE_URL + cfg.file);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const data = await r.json();
-        const qs = data.questions;
-        const indices = pickDailyIndices(val, qs.length, cfg.count);
+    // Pick 4 out of 6 files using daily seed — consistent each day
+    const fileRng = mulberry32(dailySeed("amazing-universe-files"));
+    const fileOrder = seededShuffle([...Array(UNIVERSE_FILES.length).keys()], fileRng);
+    const pickedFileIndices = fileOrder.slice(0, 4); // 4 categories
 
-        box.innerHTML = `<div class="problem-title ${cfg.titleClass}">${cfg.title}</div>`;
-        indices.forEach((qi, j) => {
-            const letter = String.fromCharCode(97 + j);
-            box.innerHTML += renderUniverseQuestion(letter, qs[qi], cfg);
-        });
+    const promises = pickedFileIndices.map(fi => {
+        const { file } = UNIVERSE_FILES[fi];
+        return fetch(BASE_URL + file)
+            .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status} for ${file}`); return r.json(); })
+            .then(data => ({ fi, data }))
+            .catch(() => ({ fi, data: null }));
+    });
 
-        // Re-apply answer visibility if already shown
-        if (showAll) {
-            box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
-            box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
-        }
-    } catch(err) {
-        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`;
+    const results = await Promise.all(promises);
+    box.innerHTML = `<div class="problem-title universe-title">34. 🌌 Amazing Universe</div>`;
+
+    let letterIdx = 0;
+    results.forEach(({ fi, data }) => {
+        if (!data || !data.questions || data.questions.length === 0) return;
+        const [pickedQIdx] = pickDailyIndices(UNIVERSE_FILES[fi].file, data.questions.length, 1);
+        const q = data.questions[pickedQIdx];
+        if (!q) return;
+        const letter = String.fromCharCode(97 + letterIdx);
+        box.innerHTML += renderUniverseQuestion(letter, q);
+        letterIdx++;
+    });
+
+    if (letterIdx === 0) {
+        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ Could not load universe questions.</div>`;
+    }
+
+    // Re-apply showAll state if answers are currently visible
+    if (showAll) {
+        box.querySelectorAll(".universe-answer-badge").forEach(b => b.classList.add("show"));
+        box.querySelectorAll(".universe-answer-img").forEach(img => img.classList.add("show"));
     }
 }
 
@@ -1092,16 +1062,19 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    // Universe sets
-    if (UNIVERSE_SETS[val]) {
-        generateUniverse(box, val);
+    // Amazing Universe — special handler
+    if (val === "amazing-universe") {
+        generateUniverse(box);
         return;
     }
 
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
-    if (opt) box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
+    if (opt) {
+        box.innerHTML = `<div class="problem-title">${opt[1]}</div>`;
+    }
 
+    // identify-time
     if (val === "identify-time") {
         fetch(BASE_URL + "identify-time.json")
             .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
@@ -1136,6 +1109,7 @@ function generate(box, val) {
         return;
     }
 
+    // geometric-shapes / drawing-shapes
     if (val === "geometric-shapes" || val === "drawing-shapes") {
         fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/geometric-shapes")
             .then(res=>res.json())
@@ -1171,11 +1145,13 @@ function generate(box, val) {
         return;
     }
 
+    // draw-clock
     if (val === "draw-clock") {
         fetch(BASE_URL + "draw-clock.json")
             .then(r=>{ if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
             .then(d=>{
-                const idx = pickDailyIndices("draw-clock", d.questions.length, 2);
+                const total = d.questions.length;
+                const idx   = pickDailyIndices("draw-clock", total, 2);
                 idx.forEach((qi,j)=>{
                     const letter = String.fromCharCode(97+j);
                     let qText = String(d.questions[qi]??"").replace(/\t\(Q\d+\)$/,"").trim();
@@ -1197,6 +1173,7 @@ function generate(box, val) {
         return;
     }
 
+    // All other types: fetch from GitHub
     const numQuestions = NUM_MAP[val] || 2;
     fetch(BASE_URL + val + ".json")
         .then(r=>{ if(!r.ok) throw new Error(`HTTP ${r.status} for ${val}.json`); return r.json(); })
@@ -1371,12 +1348,14 @@ document.getElementById("prevBtn").onclick  = () => navigate("prev");
 document.getElementById("nextBtn").onclick  = () => navigate("next");
 document.getElementById("goTopBtn").onclick = () => { navigateTo(0,"prev"); launchConfetti(); runAnimal("prev"); };
 
+// ── KEYBOARD ARROW KEYS ───────────────────────────────────────────────────────
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT") return;
     if (e.key === "ArrowRight") { e.preventDefault(); navigate("next"); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); navigate("prev"); }
 });
 
+// ── SELECT ALL ────────────────────────────────────────────────────────────────
 const allCheckboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
 document.getElementById("selectAllBtn").onclick = async () => {
     for (let cb of allCheckboxes) {
@@ -1388,6 +1367,7 @@ document.getElementById("selectAllBtn").onclick = async () => {
     }
 };
 
+// ── CLICK ON QUESTION BLOCK ───────────────────────────────────────────────────
 questions.addEventListener("click", e => {
     const stack = e.target.closest(".stack-wrapper");
     if (!stack) return;
