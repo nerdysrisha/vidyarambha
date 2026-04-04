@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v57 Amazing Universe: 4 dedicated JSON question sets with image reveal-->
+<!--v58 Universe: single entry, 1 question per JSON file, 4 total daily-->
 <style>
 html, body {
     margin: 0;
@@ -48,11 +48,8 @@ html, body {
     color: #28a745;
 }
 
-/* Universe colour variants */
-.ctrl-item.universe-guess   { color: #f59e0b; }
-.ctrl-item.universe-science { color: #34d399; }
-.ctrl-item.universe-geo     { color: #60a5fa; }
-.ctrl-item.universe-machines{ color: #f472b6; }
+/* Universe colour */
+.ctrl-item.universe-main { color: #a78bfa; }
 
 .ctrl-item input[type="checkbox"] { width: 22px; height: 22px; }
 
@@ -574,64 +571,42 @@ const BASE_URL         = "https://raw.githubusercontent.com/nerdysrisha/vidyaram
 const UNIVERSE_IMG_BASE = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/";
 
 // ── UNIVERSE CONFIG ───────────────────────────────────────────────────────────
-const UNIVERSE_SETS = {
-    "universe-guess": {
+// One question is picked daily from each source; together they form the single
+// "Universe" card (4 questions total, one per JSON file).
+const UNIVERSE_SOURCES = [
+    {
         file:       "universe-guess-image.json",
-        label:      "34. 🔍 Guess the Image",
-        title:      "34. 🔍 Guess the Image",
+        showQImage: true,   // question image IS the puzzle
         accent:     "#f59e0b",
-        ctrlClass:  "universe-guess",
-        boxClass:   "box-guess",
-        titleClass: "title-guess",
         catClass:   "cat-guess",
         imgClass:   "guess-img",
-        cClass:     "c-guess",
-        showQImage: true,   // show question image (it IS the question)
-        count:      4
+        cClass:     "c-guess"
     },
-    "universe-science": {
+    {
         file:       "universe-science.json",
-        label:      "35. 🔬 Science",
-        title:      "35. 🔬 Science Questions",
+        showQImage: false,
         accent:     "#34d399",
-        ctrlClass:  "universe-science",
-        boxClass:   "box-science",
-        titleClass: "title-science",
         catClass:   "cat-science",
         imgClass:   "science-img",
-        cClass:     "c-science",
-        showQImage: false,
-        count:      4
+        cClass:     "c-science"
     },
-    "universe-geo": {
+    {
         file:       "universe-geography.json",
-        label:      "36. 🌍 Geography",
-        title:      "36. 🌍 Geography Questions",
+        showQImage: false,
         accent:     "#60a5fa",
-        ctrlClass:  "universe-geo",
-        boxClass:   "box-geo",
-        titleClass: "title-geo",
         catClass:   "cat-geo",
         imgClass:   "geo-img",
-        cClass:     "c-geo",
-        showQImage: false,
-        count:      4
+        cClass:     "c-geo"
     },
-    "universe-machines": {
+    {
         file:       "universe-machines.json",
-        label:      "37. ⚙️ Science Concepts",
-        title:      "37. ⚙️ Science Concepts",
+        showQImage: false,
         accent:     "#f472b6",
-        ctrlClass:  "universe-machines",
-        boxClass:   "box-machines",
-        titleClass: "title-machines",
         catClass:   "cat-machines",
         imgClass:   "machines-img",
-        cClass:     "c-machines",
-        showQImage: false,
-        count:      4
+        cClass:     "c-machines"
     }
-};
+];
 
 // Date/time box
 function updateDateBox() {
@@ -681,11 +656,8 @@ const options = [
     ["units-liquid",         "31. Units - Liquid"],
     ["units-time",           "32. Units - Time"],
     ["units-money",          "33. Units - Money"],
-    // Universe sets
-    ["universe-guess",    "34. 🔍 Guess the Image"],
-    ["universe-science",  "35. 🔬 Science"],
-    ["universe-geo",      "36. 🌍 Geography"],
-    ["universe-machines", "37. ⚙️ Science Concepts"]
+    // Universe
+    ["universe",  "34. 🌌 Universe"]
 ];
 
 const control   = document.getElementById("control");
@@ -713,9 +685,9 @@ function numberToWords(n) {
 }
 
 options.forEach(([val, label]) => {
-    const cfg = UNIVERSE_SETS[val];
+    const cfg = UNIVERSE_SOURCES.find(s => s.file); // just to check type
     const wrap = document.createElement("label");
-    wrap.className = "ctrl-item" + (cfg ? " " + cfg.ctrlClass : "");
+    wrap.className = "ctrl-item" + (val === "universe" ? " universe-main" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -969,16 +941,15 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time",
-    "universe-guess","universe-science","universe-geo","universe-machines"]);
+    "number-names","draw-clock","identify-time","universe"]);
 
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
-    const cfg = UNIVERSE_SETS[val];
+    const isUniverse = val === "universe";
     const box = document.createElement("div");
-    box.className = "stack-box" + (cfg ? " " + cfg.boxClass : "");
+    box.className = "stack-box" + (isUniverse ? " box-guess" : "");
     wrapper.appendChild(box);
     stacks[val] = wrapper;
     stackOrder.push(val);
@@ -1053,31 +1024,44 @@ function pickDailyIndices(val, total, n) {
 }
 
 // ── UNIVERSE GENERATOR ────────────────────────────────────────────────────────
-async function generateUniverse(box, val) {
-    const cfg = UNIVERSE_SETS[val];
-    box.innerHTML = `<div class="problem-title ${cfg.titleClass}">${cfg.title}</div>
-        <div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions…</div>`;
+// Fetches all 4 source files in parallel, picks 1 question per file using the
+// daily seed, then renders them as a single card of 4 questions.
+async function generateUniverse(box) {
+    box.innerHTML = `<div class="problem-title title-guess" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">34. 🌌 Universe</div>
+        <div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions from across the universe…</div>`;
 
-    try {
-        const r = await fetch(BASE_URL + cfg.file);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const data = await r.json();
-        const qs = data.questions;
-        const indices = pickDailyIndices(val, qs.length, cfg.count);
+    const results = await Promise.all(
+        UNIVERSE_SOURCES.map((src, si) =>
+            fetch(BASE_URL + src.file)
+                .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+                .then(data => ({ src, data }))
+                .catch(err => ({ src, data: null, err }))
+        )
+    );
 
-        box.innerHTML = `<div class="problem-title ${cfg.titleClass}">${cfg.title}</div>`;
-        indices.forEach((qi, j) => {
-            const letter = String.fromCharCode(97 + j);
-            box.innerHTML += renderUniverseQuestion(letter, qs[qi], cfg);
-        });
+    box.innerHTML = `<div class="problem-title" style="background:linear-gradient(90deg,#f59e0b,#34d399,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">34. 🌌 Universe</div>`;
 
-        // Re-apply answer visibility if already shown
-        if (showAll) {
-            box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
-            box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
+    let letterIdx = 0;
+    results.forEach(({ src, data, err }) => {
+        if (!data || !data.questions || data.questions.length === 0) {
+            box.innerHTML += `<div style="color:#f66;padding:8px 20px;">⚠️ Could not load ${src.file}</div>`;
+            return;
         }
-    } catch(err) {
-        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ ${err.message}</div>`;
+        const [qi] = pickDailyIndices(src.file, data.questions.length, 1);
+        const q    = data.questions[qi];
+        if (!q) return;
+        const letter = String.fromCharCode(97 + letterIdx);
+        box.innerHTML += renderUniverseQuestion(letter, q, src);
+        letterIdx++;
+    });
+
+    if (letterIdx === 0) {
+        box.innerHTML += `<div style="color:#f66;padding:20px;">⚠️ No questions loaded.</div>`;
+    }
+
+    if (showAll) {
+        box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
+        box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
     }
 }
 
@@ -1092,9 +1076,9 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    // Universe sets
-    if (UNIVERSE_SETS[val]) {
-        generateUniverse(box, val);
+    // Universe
+    if (val === "universe") {
+        generateUniverse(box);
         return;
     }
 
