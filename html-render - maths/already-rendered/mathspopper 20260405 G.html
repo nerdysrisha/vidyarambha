@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v74 Added Comprehension (45) — reads warriors[] from english/comprehension/comprehension.json-->
+<!--v73 Adding a chime when answers shown. Extended the tune-->
 <style>
 html, body {
     margin: 0;
@@ -52,7 +52,6 @@ html, body {
 .ctrl-item.universe-main  { color: #a78bfa; }
 .ctrl-item.shapes-main    { color: #34d399; }
 .ctrl-item.spiritual-main { color: #fb923c; }
-.ctrl-item.comprehension-main { color: #5eead4; }
 
 .ctrl-item input[type="checkbox"] { width: 15px; height: 15px; }
 
@@ -225,12 +224,6 @@ button:active { transform: scale(0.97); }
 .stack-box.box-science  { border-left-color: #34d399; background: linear-gradient(160deg,#001a0d,#111); }
 .stack-box.box-geo      { border-left-color: #60a5fa; background: linear-gradient(160deg,#00101a,#111); }
 .stack-box.box-machines { border-left-color: #f472b6; background: linear-gradient(160deg,#1a0010,#111); }
-
-/* ── COMPREHENSION BOX ── */
-.stack-box.box-comprehension {
-    border-left-color: #5eead4;
-    background: linear-gradient(160deg, #020f0d, #0a0f0e, #111);
-}
 
 /* TITLES */
 .problem-title {
@@ -700,195 +693,14 @@ button:active { transform: scale(0.97); }
 .c-geo      { color: #60a5fa; }
 .c-machines { color: #f472b6; }
 .c-spiritual { color: #fb923c; }
-.c-comprehension { color: #5eead4; }
 
 .cat-guess    { color: #f59e0b; background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
 .cat-science  { color: #34d399; background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.3); }
 .cat-geo      { color: #60a5fa; background: rgba(96,165,250,0.10); border: 1px solid rgba(96,165,250,0.3); }
 .cat-machines { color: #f472b6; background: rgba(244,114,182,0.10); border: 1px solid rgba(244,114,182,0.3); }
 .cat-spiritual{ color: #fb923c; background: rgba(249,115,22,0.10);  border: 1px solid rgba(249,115,22,0.3);  }
-.cat-comprehension { color: #5eead4; background: rgba(94,234,212,0.10); border: 1px solid rgba(94,234,212,0.3); }
 
 .spiritual-img { border: 2px solid #f97316; box-shadow: 0 0 28px rgba(249,115,22,0.35), 0 4px 20px rgba(0,0,0,0.6); }
-
-/* ── COMPREHENSION LAYOUT ────────────────────────────────────────────── */
-.comp-outer {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 10px 0 32px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-/* Title row */
-.comp-title-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-}
-
-.comp-main-title {
-    font-size: 22px;
-    font-weight: bold;
-    color: #5eead4;
-    letter-spacing: 0.5px;
-}
-
-.comp-subject-badge {
-    font-size: 13px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: #5eead4;
-    background: rgba(94,234,212,0.10);
-    border: 1px solid rgba(94,234,212,0.35);
-    border-radius: 6px;
-    padding: 4px 14px;
-}
-
-/* Passage block */
-.comp-passage-wrap {
-    background: #0d1510;
-    border: 1px solid rgba(94,234,212,0.18);
-    border-left: 4px solid #5eead4;
-    border-radius: 10px;
-    padding: 26px 34px 26px 30px;
-    margin-bottom: 28px;
-    box-shadow: 0 0 28px rgba(94,234,212,0.06), inset 0 0 40px rgba(0,0,0,0.3);
-}
-
-.comp-passage-label {
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #5eead4;
-    opacity: 0.6;
-    margin-bottom: 14px;
-}
-
-.comp-passage-text {
-    font-size: 19px;
-    line-height: 1.95;
-    color: #d4e8e4;
-    font-family: Georgia, 'Times New Roman', serif;
-    word-spacing: 0.04em;
-    letter-spacing: 0.01em;
-}
-
-/* Questions section */
-.comp-questions-label {
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #5eead4;
-    opacity: 0.55;
-    margin-bottom: 16px;
-}
-
-/* Each MCQ card */
-.comp-mcq-card {
-    background: #0b1512;
-    border: 1px solid rgba(94,234,212,0.14);
-    border-radius: 10px;
-    padding: 20px 24px 16px 24px;
-    margin-bottom: 14px;
-    transition: border-color 0.2s;
-}
-
-.comp-mcq-card:last-child { margin-bottom: 0; }
-.comp-mcq-card:hover { border-color: rgba(94,234,212,0.30); }
-
-.comp-mcq-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 14px;
-}
-
-.comp-mcq-num {
-    font-size: 13px;
-    font-weight: bold;
-    color: #5eead4;
-    background: rgba(94,234,212,0.12);
-    border: 1px solid rgba(94,234,212,0.28);
-    border-radius: 50%;
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-.comp-mcq-question {
-    font-size: 18px;
-    color: #e0eeec;
-    line-height: 1.5;
-    flex: 1;
-}
-
-/* Options grid: 2×2 */
-.comp-options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 14px;
-    padding-left: 38px;
-}
-
-.comp-option {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(94,234,212,0.10);
-    border-radius: 7px;
-    padding: 9px 13px;
-    font-size: 16px;
-    color: #b8d4cf;
-    transition: background 0.15s, border-color 0.15s;
-}
-
-.comp-option:hover { background: rgba(94,234,212,0.05); border-color: rgba(94,234,212,0.22); }
-
-.comp-option-letter {
-    font-size: 13px;
-    font-weight: bold;
-    color: #5eead4;
-    flex-shrink: 0;
-    width: 18px;
-}
-
-/* Answer badge */
-.comp-answer-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 14px;
-    padding-left: 38px;
-}
-
-.comp-badge {
-    visibility: hidden;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(94,234,212,0.10);
-    border: 1px solid #5eead4;
-    border-radius: 7px;
-    padding: 5px 14px;
-    font-size: 15px;
-    font-weight: bold;
-    color: #5eead4;
-}
-
-.comp-badge.show { visibility: visible; }
-
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* BOTTOM NAV */
@@ -1039,7 +851,6 @@ button:active { transform: scale(0.97); }
 <script>
 const BASE_URL          = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 const UNIVERSE_IMG_BASE = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/";
-const ENGLISH_ROOT      = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/";
 
 // ── UNIVERSE CONFIG ───────────────────────────────────────────────────────────
 const UNIVERSE_SOURCES = [
@@ -1131,8 +942,7 @@ const options = [
     ["sp-mahabharatam",      "41. \uD83D\uDE4F Mahabharatam"],
     ["sp-ramayana",          "42. \uD83D\uDE4F Ramayana"],
     ["sp-rishisandsaints",   "43. \uD83D\uDE4F Rishis & Saints"],
-    ["sp-temples",           "44. \uD83D\uDE4F Temples"],
-    ["eng-comprehension",    "45. \uD83D\uDCD6 Comprehension"]
+    ["sp-temples",           "44. \uD83D\uDE4F Temples"]
 ];
 
 const control   = document.getElementById("control");
@@ -1167,10 +977,9 @@ function capitalise(str) {
 options.forEach(([val, label]) => {
     const wrap = document.createElement("label");
     wrap.className = "ctrl-item" +
-        (val === "universe"              ? " universe-main"      :
-         val.startsWith("shapes-")      ? " shapes-main"        :
-         val.startsWith("sp-")          ? " spiritual-main"     :
-         val.startsWith("eng-")         ? " comprehension-main" : "");
+        (val === "universe"         ? " universe-main"  :
+         val.startsWith("shapes-") ? " shapes-main"    :
+         val.startsWith("sp-")     ? " spiritual-main" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -1447,6 +1256,7 @@ const MISSING_TYPES = new Set([
 ]);
 
 // ── DRAW CLOCK ────────────────────────────────────────────────────────────────
+// Draws the static clock face (tick marks + numbers) — reused by animation loop
 function drawClockFace(ctx, cx, cy, r, size, scheme) {
     scheme = scheme || { face:"#1a1a2e", rim:"#00c8ff", tick:"#dddddd", num:"#ffffff" };
     ctx.clearRect(0, 0, size, size);
@@ -1474,40 +1284,48 @@ function drawClockFace(ctx, cx, cy, r, size, scheme) {
     }
 }
 
+// Draws hands at a given progress (0 = both at 12, 1 = target time)
 function drawClockAt(canvas, targetMinFrac, targetHourFrac, progress, scheme) {
     scheme = scheme || { face:"#1a1a2e", rim:"#00c8ff", tick:"#dddddd", num:"#ffffff", min:"#58D68D", hour:"#ff9900", dot:"#ffffff" };
     const size = canvas.width, cx = size/2, cy = size/2, r = size/2 - 6;
     const ctx  = canvas.getContext("2d");
     drawClockFace(ctx, cx, cy, r, size, scheme);
 
+    // Ease-out cubic for smooth deceleration
     const t = 1 - Math.pow(1 - progress, 3);
 
+    // Minute hand: sweeps clockwise from 0 to targetMinFrac full turns
     const minFrac  = targetMinFrac * t;
     const minAngle = minFrac * 2 * Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.80*Math.cos(minAngle), cy + r*0.80*Math.sin(minAngle));
     ctx.strokeStyle = scheme.min; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
 
+    // Hour hand: sweeps from 0 to targetHourFrac of a full turn
     const hourFrac  = targetHourFrac * t;
     const hourAngle = hourFrac * 2 * Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.50*Math.cos(hourAngle), cy + r*0.50*Math.sin(hourAngle));
     ctx.strokeStyle = scheme.hour; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
 
+    // Centre dot
     ctx.beginPath(); ctx.arc(cx, cy, size*0.03, 0, 2*Math.PI);
     ctx.fillStyle = scheme.dot; ctx.fill();
 }
 
+// Animated entry — hands sweep from 12 to target over ~900 ms
 function animateClock(canvas, timeStr, scheme) {
     const parts   = timeStr.split(":").map(Number);
     const hours   = parts[0] % 12;
     const minutes = parts[1] || 0;
+    // Fraction of full circle for each hand (starting at 12 = 0)
     const targetMinFrac  = minutes / 60;
     const targetHourFrac = (hours + minutes / 60) / 12;
 
-    const DURATION = 900;
+    const DURATION = 900; // ms
     const startTime = performance.now();
 
+    // Cancel any previous animation on this canvas
     if (canvas._clockRaf) cancelAnimationFrame(canvas._clockRaf);
 
     function step(now) {
@@ -1522,6 +1340,7 @@ function animateClock(canvas, timeStr, scheme) {
     canvas._clockRaf = requestAnimationFrame(step);
 }
 
+// Keep drawClock as a static (non-animated) fallback used by identify-time
 function drawClock(canvas, timeStr) {
     const parts   = timeStr.split(":").map(Number);
     const hours   = parts[0] % 12;
@@ -1529,6 +1348,7 @@ function drawClock(canvas, timeStr) {
     drawClockAt(canvas, minutes/60, (hours + minutes/60)/12, 1);
 }
 
+// ── CLOCK COLOUR SCHEMES (one chosen per day) ─────────────────────────────────
 const CLOCK_SCHEMES = [
     { face:"#0d0d2b", rim:"#7c3aed", tick:"#a78bfa", num:"#e9d5ff", min:"#f0abfc", hour:"#c026d3", dot:"#ffffff", name:"Cosmic Purple" },
     { face:"#001a0d", rim:"#10b981", tick:"#34d399", num:"#d1fae5", min:"#6ee7b7", hour:"#059669", dot:"#ffffff", name:"Emerald Forest" },
@@ -1614,10 +1434,12 @@ function renderUniverseQuestion(letter, q, cfg, isFirst) {
 }
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
+// ── REVEAL CHIME (Web Audio API — no files needed) ────────────────────────────
 function playRevealChime() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
+        // Helper: create a single bell-like tone
         function playNote(freq, startTime, duration, gainPeak, type) {
             const osc  = ctx.createOscillator();
             const gain = ctx.createGain();
@@ -1632,49 +1454,60 @@ function playRevealChime() {
             osc.stop(ctx.currentTime + startTime + duration + 0.05);
         }
 
+        // ── Melody: ascending pentatonic, two full sweeps, then a resolve ──
         const melody = [
-            { freq: 261.63, t: 0.00, dur: 0.9  },
-            { freq: 329.63, t: 0.35, dur: 0.9  },
-            { freq: 392.00, t: 0.70, dur: 0.9  },
-            { freq: 440.00, t: 1.05, dur: 0.9  },
-            { freq: 523.25, t: 1.40, dur: 1.2  },
-            { freq: 523.25, t: 2.30, dur: 0.8  },
-            { freq: 659.25, t: 2.65, dur: 0.8  },
-            { freq: 783.99, t: 3.00, dur: 0.8  },
-            { freq: 880.00, t: 3.35, dur: 0.8  },
-            { freq: 1046.5, t: 3.70, dur: 1.5  },
-            { freq: 880.00, t: 5.50, dur: 0.9  },
-            { freq: 783.99, t: 6.00, dur: 0.9  },
-            { freq: 659.25, t: 6.50, dur: 1.0  },
-            { freq: 523.25, t: 7.10, dur: 1.2  },
-            { freq: 523.25, t: 8.60, dur: 3.2  },
-            { freq: 392.00, t: 8.60, dur: 3.2  },
-            { freq: 261.63, t: 8.60, dur: 4.0  },
+            // First sweep up (C4 → C5)
+            { freq: 261.63, t: 0.00, dur: 0.9  },  // C4
+            { freq: 329.63, t: 0.35, dur: 0.9  },  // E4
+            { freq: 392.00, t: 0.70, dur: 0.9  },  // G4
+            { freq: 440.00, t: 1.05, dur: 0.9  },  // A4
+            { freq: 523.25, t: 1.40, dur: 1.2  },  // C5
+
+            // Second sweep up (C5 → C6) — brighter
+            { freq: 523.25, t: 2.30, dur: 0.8  },  // C5
+            { freq: 659.25, t: 2.65, dur: 0.8  },  // E5
+            { freq: 783.99, t: 3.00, dur: 0.8  },  // G5
+            { freq: 880.00, t: 3.35, dur: 0.8  },  // A5
+            { freq: 1046.5, t: 3.70, dur: 1.5  },  // C6
+
+            // Resolve: gentle descending phrase
+            { freq: 880.00, t: 5.50, dur: 0.9  },  // A5
+            { freq: 783.99, t: 6.00, dur: 0.9  },  // G5
+            { freq: 659.25, t: 6.50, dur: 1.0  },  // E5
+            { freq: 523.25, t: 7.10, dur: 1.2  },  // C5
+
+            // Final chord: root + fifth ring out long
+            { freq: 523.25, t: 8.60, dur: 3.2  },  // C5
+            { freq: 392.00, t: 8.60, dur: 3.2  },  // G4 (fifth)
+            { freq: 261.63, t: 8.60, dur: 4.0  },  // C4 (root, longest)
         ];
 
+        // ── Harmony layer: quiet thirds running alongside the melody ──
         const harmony = [
-            { freq: 329.63, t: 0.00, dur: 1.4  },
-            { freq: 415.30, t: 0.70, dur: 1.4  },
-            { freq: 523.25, t: 1.40, dur: 1.6  },
-            { freq: 659.25, t: 2.30, dur: 1.2  },
-            { freq: 830.61, t: 3.00, dur: 1.4  },
-            { freq: 1046.5, t: 3.70, dur: 1.8  },
+            { freq: 329.63, t: 0.00, dur: 1.4  },  // E4
+            { freq: 415.30, t: 0.70, dur: 1.4  },  // Ab4
+            { freq: 523.25, t: 1.40, dur: 1.6  },  // C5
+            { freq: 659.25, t: 2.30, dur: 1.2  },  // E5
+            { freq: 830.61, t: 3.00, dur: 1.4  },  // Ab5
+            { freq: 1046.5, t: 3.70, dur: 1.8  },  // C6
         ];
 
+        // ── Shimmer: high triangle-wave sparkles ──
         const shimmer = [
-            { freq: 2093.0, t: 1.40, dur: 0.5  },
-            { freq: 2349.3, t: 2.30, dur: 0.5  },
-            { freq: 2093.0, t: 3.70, dur: 0.6  },
-            { freq: 2637.0, t: 5.50, dur: 0.5  },
-            { freq: 2093.0, t: 8.60, dur: 1.2  },
+            { freq: 2093.0, t: 1.40, dur: 0.5  },  // C7
+            { freq: 2349.3, t: 2.30, dur: 0.5  },  // D7
+            { freq: 2093.0, t: 3.70, dur: 0.6  },  // C7
+            { freq: 2637.0, t: 5.50, dur: 0.5  },  // E7
+            { freq: 2093.0, t: 8.60, dur: 1.2  },  // C7
         ];
 
         melody .forEach(n => playNote(n.freq, n.t, n.dur, 0.18, "sine"));
         harmony.forEach(n => playNote(n.freq, n.t, n.dur, 0.07, "sine"));
         shimmer.forEach(n => playNote(n.freq, n.t, n.dur, 0.05, "triangle"));
 
+        // Auto-close after everything has faded
         setTimeout(() => ctx.close(), 13500);
-    } catch(e) {}
+    } catch(e) { /* silently ignore if audio not supported */ }
 }
 
 toggleAll.onclick = () => {
@@ -1715,9 +1548,6 @@ toggleAll.onclick = () => {
         if (showAll && el.dataset.haserror === "1") el.classList.add("show");
         else el.classList.remove("show");
     });
-
-    // Comprehension answer badges
-    document.querySelectorAll(".comp-badge").forEach(b => b.classList.toggle("show", showAll));
 
     if (showAll) {
         document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
@@ -1809,6 +1639,7 @@ function renderWordRow(letter, question, answer) {
     '</div>';
 }
 
+// Stacked layout: hint label on top, numbers on their own big line, answer below
 function renderStackedRow(letter, question, answer, val) {
     const hint = val === "neg-pos-numbers"  ? "  Fill in the missing numbers:" :
                  val === "ascending-order"  ? "  Arrange in ascending order:" :
@@ -1834,11 +1665,11 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
     "number-names","draw-clock","identify-time","universe","shapes-draw","shapes-identify",
     "sp-avatars","sp-bhagavadgita","sp-festivalsandrituals","sp-hindudieties",
-    "sp-mahabharatam","sp-ramayana","sp-rishisandsaints","sp-temples",
-    "eng-comprehension"]);
+    "sp-mahabharatam","sp-ramayana","sp-rishisandsaints","sp-temples"]);
 
 function refreshStack(val) {
     if (!stacks[val]) return;
+    // Generate a new random seed that differs from daily seed
     let newSeed;
     do { newSeed = (Math.random() * 0xFFFFFFFF) >>> 0; }
     while (newSeed === dailySeed(val));
@@ -1850,13 +1681,13 @@ function refreshStack(val) {
     oldBox.innerHTML = "";
     generate(oldBox, val);
 
+    // After a short delay (for async fetches), ensure answer visibility matches global showAll
     setTimeout(() => {
         oldBox.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
         oldBox.querySelectorAll(".num-word").forEach(el => { el.style.visibility = showAll ? "visible" : "hidden"; });
         oldBox.querySelectorAll(".univ-badge").forEach(b => b.classList.toggle("show", showAll));
         oldBox.querySelectorAll(".univ-ans-img").forEach(img => img.classList.toggle("show", showAll));
         oldBox.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.toggle("hide", showAll));
-        oldBox.querySelectorAll(".comp-badge").forEach(b => b.classList.toggle("show", showAll));
     }, 900);
 }
 
@@ -1864,16 +1695,13 @@ function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
-    const isUniverse      = val === "universe";
-    const isSpiritual     = val.startsWith("sp-");
-    const isComprehension = val.startsWith("eng-");
+    const isUniverse  = val === "universe";
+    const isSpiritual = val.startsWith("sp-");
     const box = document.createElement("div");
-    box.className = "stack-box" +
-        (isUniverse      ? " box-guess"          :
-         isSpiritual     ? " box-spiritual"      :
-         isComprehension ? " box-comprehension"  : "");
+    box.className = "stack-box" + (isUniverse ? " box-guess" : isSpiritual ? " box-spiritual" : "");
     wrapper.appendChild(box);
 
+    // Add refresh button
     const refreshBtn = document.createElement("button");
     refreshBtn.className = "refresh-btn";
     refreshBtn.title = "Load a fresh set of questions";
@@ -1913,6 +1741,7 @@ function removeStack(val) {
 const jumpSelect = document.getElementById("jumpSelect");
 
 function syncJumpDropdown() {
+    // Rebuild options from current stackOrder, using label text from options array
     const labelMap = {};
     options.forEach(([val, label]) => { labelMap[val] = label; });
 
@@ -1923,6 +1752,7 @@ function syncJumpDropdown() {
         opt.textContent = labelMap[val] || val;
         jumpSelect.appendChild(opt);
     });
+    // Keep selection in sync with currentIndex
     jumpSelect.value = stackOrder[currentIndex] || "";
 }
 
@@ -1930,8 +1760,11 @@ jumpSelect.addEventListener("change", () => {
     const val = jumpSelect.value;
     const idx = stackOrder.indexOf(val);
     if (idx === -1) return;
+    // Determine slide direction based on position
     const dir = idx >= currentIndex ? "next" : "prev";
     navigateTo(idx, dir);
+    // Reset to placeholder so it's always "ready" for next pick
+    // (we keep the value set so it shows the current question name)
 });
 
 // ── SEEDED DAILY PICKER ───────────────────────────────────────────────────────
@@ -1965,9 +1798,11 @@ function seededShuffle(arr, rng) {
     return a;
 }
 
+// refreshSeeds: per-stack random offset; 0 = use daily seed (default)
 const refreshSeeds = {};
 
 function pickDailyIndices(val, total, n) {
+    // If a manual refresh seed is set for this val, use fully random pick
     if (refreshSeeds[val]) {
         const rng = mulberry32(refreshSeeds[val]);
         const shuffled = seededShuffle([...Array(total).keys()], rng);
@@ -2014,11 +1849,12 @@ async function generateUniverse(box) {
             box.innerHTML += '<div style="color:#f66;padding:8px 20px;">Could not load ' + src.file + '</div>';
             return;
         }
+        // Use the universe-level refresh seed for sub-sources too
         const univSeed = refreshSeeds["universe"];
         if (univSeed) {
             const rng = mulberry32(univSeed ^ hashStr(src.file));
             const shuffled = seededShuffle([...Array(data.questions.length).keys()], rng);
-            refreshSeeds[src.file] = rng() * 0xFFFFFFFF >>> 0;
+            refreshSeeds[src.file] = rng() * 0xFFFFFFFF >>> 0; // keep sub-key in sync
             const qi = shuffled[0];
             const q    = data.questions[qi];
             if (!q) return;
@@ -2049,6 +1885,7 @@ async function generateUniverse(box) {
 }
 
 // ── SPIRITUAL GENERATOR ───────────────────────────────────────────────────────
+// ── SPIRITUAL TOPICS ──────────────────────────────────────────────────────────
 const SPIRITUAL_ROOT     = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/";
 const SPIRITUAL_TOPIC_MAP = {
     "sp-avatars":            { file: "avatars.json",             folder: "avatars",             label: "37. \uD83D\uDE4F Avatars" },
@@ -2102,6 +1939,7 @@ async function generateSpiritualTopic(box, val) {
             '</div>'
         ).join("");
 
+        // Extract QCode from question or answer (e.g. "(Q101)" or "(Q 202)")
         const rawQ      = String(q.question || "");
         const rawA      = String(q.answer   || "");
         const qCodeMatch = rawQ.match(/\(Q\s*[\w\s]*\d+\)\s*$/) || rawA.match(/\(Q\s*[\w\s]*\d+\)\s*$/);
@@ -2157,92 +1995,6 @@ async function generateSpiritualTopic(box, val) {
         box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
     }
 }
-
-// ── COMPREHENSION GENERATOR ───────────────────────────────────────────────────
-const COMP_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/comprehension/comprehension.json";
-
-async function generateComprehension(box) {
-    const TITLE_HTML =
-        '<div class="problem-title" style="background:linear-gradient(90deg,#5eead4,#99f6e4,#5eead4);' +
-        '-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;' +
-        'font-size:24px;font-weight:bold;margin-bottom:8px;">45. \uD83D\uDCCF Comprehension</div>';
-
-    box.innerHTML = TITLE_HTML +
-        '<div style="color:#3a6b65;font-size:15px;padding:4px 0 16px 0;">Loading passage...</div>';
-
-    let data;
-    try {
-        const r = await fetch(COMP_URL);
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        data = await r.json();
-    } catch(err) {
-        box.innerHTML = TITLE_HTML +
-            '<div style="color:#f66;padding:20px;">Could not load comprehension.json: ' + err.message + '</div>';
-        return;
-    }
-
-    // Top-level key is "warriors"
-    const passages = data.warriors || data.passages || data.entries || [];
-    if (!passages.length) {
-        box.innerHTML = TITLE_HTML + '<div style="color:#f66;padding:20px;">No passages found in JSON.</div>';
-        return;
-    }
-
-    // Pick one passage per day (or random on refresh)
-    const [pi] = pickDailyIndices("eng-comprehension", passages.length, 1);
-    const passage = passages[pi];
-    if (!passage) {
-        box.innerHTML = TITLE_HTML + '<div style="color:#f66;padding:20px;">Could not load passage.</div>';
-        return;
-    }
-
-    const qs = passage.questions || [];
-    const optLetters = ["A","B","C","D"];
-
-    // Build MCQ cards HTML
-    const mcqCardsHTML = qs.map((q, idx) => {
-        const optionsHTML = (q.options || []).map((opt, i) =>
-            '<div class="comp-option">' +
-                '<span class="comp-option-letter">' + optLetters[i] + '.</span>' +
-                '<span>' + opt + '</span>' +
-            '</div>'
-        ).join("");
-
-        return (
-            '<div class="comp-mcq-card">' +
-                '<div class="comp-mcq-header">' +
-                    '<span class="comp-mcq-num">' + (idx + 1) + '</span>' +
-                    '<span class="comp-mcq-question">' + q.question + '</span>' +
-                '</div>' +
-                '<div class="comp-options-grid">' + optionsHTML + '</div>' +
-                '<div class="comp-answer-row">' +
-                    '<span class="comp-badge">\u2705 ' + (q.correct || q.answer || "") + '</span>' +
-                '</div>' +
-            '</div>'
-        );
-    }).join("");
-
-    box.innerHTML =
-        TITLE_HTML +
-        '<div class="comp-outer">' +
-            '<div class="comp-title-row">' +
-                '<span class="comp-main-title">📖 Read the Passage</span>' +
-                '<span class="comp-subject-badge">' + (passage.subject || "Passage " + passage.id) + '</span>' +
-            '</div>' +
-            '<div class="comp-passage-wrap">' +
-                '<div class="comp-passage-label">Passage</div>' +
-                '<div class="comp-passage-text">' + (passage.text || "") + '</div>' +
-            '</div>' +
-            '<div class="comp-questions-label">Questions — answer after reading</div>' +
-            mcqCardsHTML +
-        '</div>';
-
-    // Sync with global show state
-    if (showAll) {
-        box.querySelectorAll(".comp-badge").forEach(b => b.classList.add("show"));
-    }
-}
-
 const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money"]);
 
@@ -2257,7 +2009,6 @@ const NUM_MAP = {
 function generate(box, val) {
     if (val === "universe")          { generateUniverse(box);              return; }
     if (val.startsWith("sp-"))       { generateSpiritualTopic(box, val);   return; }
-    if (val === "eng-comprehension") { generateComprehension(box);         return; }
 
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
@@ -2272,6 +2023,7 @@ function generate(box, val) {
                 const rawAns  = String(d.answers[qi] ?? "");
                 const timeStr = rawAns.replace(/\s*\(Q\d+\)$/, "").trim();
 
+                // Scheme badge
                 const schemeBadge = document.createElement("div");
                 schemeBadge.style.cssText = "font-size:13px;color:" + scheme.rim + ";background:rgba(0,0,0,0.3);border:1px solid " + scheme.rim + "44;border-radius:6px;padding:3px 10px;margin-bottom:12px;display:inline-block;";
                 schemeBadge.textContent = "🎨 Today's theme: " + scheme.name;
@@ -2284,16 +2036,19 @@ function generate(box, val) {
                 canvas.width = 280; canvas.height = 280;
                 canvas.style.cssText = "border-radius:50%;box-shadow:0 0 32px " + scheme.rim + "66;";
 
+                // Draw static clock initially (hands at 12)
                 const parts = timeStr.split(":").map(Number);
                 const h = parts[0] % 12, m = parts[1] || 0;
                 setTimeout(() => drawClockAt(canvas, 0, 0, 1, scheme), 30);
 
+                // Play button
                 const playBtn = document.createElement("button");
                 playBtn.style.cssText = "background:" + scheme.rim + ";color:#000;font-size:18px;font-weight:bold;padding:10px 32px;border-radius:30px;border:none;cursor:pointer;box-shadow:0 0 18px " + scheme.rim + "99;letter-spacing:1px;";
                 playBtn.textContent = "▶ Animate";
                 playBtn.onclick = () => {
                     playBtn.disabled = true;
                     playBtn.textContent = "⏳ Playing…";
+                    // Phase 1: sweep to target over 1.6s
                     const startTime = performance.now();
                     const DURATION  = 1600;
                     if (canvas._clockRaf) cancelAnimationFrame(canvas._clockRaf);
@@ -2327,6 +2082,7 @@ function generate(box, val) {
             .catch(err => { box.innerHTML += '<div style="color:#f66;padding:20px;">' + err.message + '</div>'; });
         return;
     }
+
 
     // ── SHAPES-DRAW & SHAPES-IDENTIFY ─────────────────────────────────────────
     if (val === "shapes-draw" || val === "shapes-identify") {
@@ -2438,6 +2194,8 @@ function generate(box, val) {
         const SIZE = 180;
 
         if (val === "shapes-identify") {
+            // ── 36. Shapes - Identify: show drawn shape, kid types the name ──────
+            // Answer span uses shape.name (was incorrectly shape.label)
             const container = document.createElement("div");
             container.style.cssText = "display:flex;gap:36px;flex-wrap:wrap;padding:8px 0 16px 0;align-items:flex-start;";
             picked.forEach((shape, i) => {
@@ -2457,6 +2215,7 @@ function generate(box, val) {
                 const ansRow = document.createElement("div");
                 ansRow.style.cssText = "display:flex;align-items:center;gap:8px;font-size:20px;";
                 const inp = document.createElement("input"); inp.type="text"; inp.className="answer-input"; inp.style.width="140px";
+                // FIX: use shape.name (capitalised) instead of shape.label (undefined)
                 const ans = document.createElement("span"); ans.className="answer"; ans.textContent = capitalise(shape.name);
                 ansRow.appendChild(inp); ansRow.appendChild(ans);
                 block.appendChild(badge); block.appendChild(canvas); block.appendChild(lbl); block.appendChild(ansRow);
@@ -2464,12 +2223,20 @@ function generate(box, val) {
             });
             box.appendChild(container);
         } else {
+            // ── 35. Shapes - Draw: show shape name, canvas revealed on Show ──────
+            // nameSpan now uses shape.name (was incorrectly shape.label)
             picked.forEach((shape, i) => {
                 const row = document.createElement("div");
                 row.style.cssText = [
-                    "display:flex","align-items:center","gap:16px","padding:14px 20px",
-                    "border-bottom:1px solid #1e1e1e","flex-wrap:nowrap",
-                    "box-sizing:border-box","width:100%","min-height:70px"
+                    "display:flex",
+                    "align-items:center",
+                    "gap:16px",
+                    "padding:14px 20px",
+                    "border-bottom:1px solid #1e1e1e",
+                    "flex-wrap:nowrap",
+                    "box-sizing:border-box",
+                    "width:100%",
+                    "min-height:70px"
                 ].join(";");
 
                 const letter = document.createElement("span");
@@ -2484,10 +2251,17 @@ function generate(box, val) {
                         : "color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);");
                 badge.textContent = shape.type.toUpperCase();
 
+                // FIX: use shape.name (capitalised) instead of shape.label (undefined)
                 const nameSpan = document.createElement("span");
                 nameSpan.style.cssText = [
-                    "font-size:40px","font-weight:bold","color:#ffffff","flex:1",
-                    "min-width:0","white-space:nowrap","overflow:hidden","text-overflow:ellipsis"
+                    "font-size:40px",
+                    "font-weight:bold",
+                    "color:#ffffff",
+                    "flex:1",
+                    "min-width:0",
+                    "white-space:nowrap",
+                    "overflow:hidden",
+                    "text-overflow:ellipsis"
                 ].join(";");
                 nameSpan.textContent = capitalise(shape.name);
 
@@ -2596,6 +2370,7 @@ function generate(box, val) {
                         const word = numberToWords(parseInt(numMatch[0]));
                         qText = qText + ' <span class="num-word">' + word + '</span>';
                     }
+                    // num-word IS the answer — render without a separate answer span
                     box.innerHTML += '<div class="question-row">' +
                         '<span class="question-letter">(' + letter + ')</span>' +
                         '<span class="question-text">' + qText + '</span>' +
@@ -2706,6 +2481,7 @@ let   isAnimating  = false;
 function updateCounter() {
     const total = stackOrder.length;
     document.getElementById("bottom-qCounter").textContent = total===0 ? "0 / 0" : (currentIndex+1) + " / " + total;
+    // Keep dropdown in sync with current carousel position
     if (jumpSelect && stackOrder[currentIndex]) jumpSelect.value = stackOrder[currentIndex];
 }
 
