@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v70 Going to specific question type.  -->
+<!--v69 Removed duplicated items.  -->
 <style>
 html, body {
     margin: 0;
@@ -780,33 +780,14 @@ button:active { transform: scale(0.97); }
     100% { outline-color: #ff004c; }
 }
 
-/* JUMP DROPDOWN */
-#jumpSelect {
-    background: #111;
-    color: #00c8ff;
-    border: 1px solid #00c8ff44;
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    outline: none;
-    min-width: 190px;
-    max-width: 260px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-#jumpSelect:hover, #jumpSelect:focus {
-    border-color: #00c8ff;
-    box-shadow: 0 0 10px rgba(0,200,255,0.4);
-}
-#jumpSelect option {
-    background: #111;
-    color: #eee;
-    font-weight: normal;
-}
-#jumpSelect option:disabled {
-    color: #555;
-    font-style: italic;
+.stack-wrapper.visible-stack::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    border: 3px solid transparent;
+    animation: rainbowGlow 4s linear infinite;
+    z-index: 0;
 }
 </style>
 </head>
@@ -820,9 +801,6 @@ button:active { transform: scale(0.97); }
                 <input type="checkbox" id="control-toggle" />
                 Show Control Panel
             </label>
-            <select id="jumpSelect" title="Jump to question">
-                <option value="" disabled selected>⬇ Jump to…</option>
-            </select>
             <button id="toggleAll">Show</button>
             <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128274; ANSWERS SHOWN</span>
             <button id="timerBtn">Start Timer</button>
@@ -1638,7 +1616,6 @@ function addStack(val) {
     questions.appendChild(wrapper);
     generate(box, val);
     navigateTo(stackOrder.length - 1, "next");
-    syncJumpDropdown();
 }
 
 function removeStack(val) {
@@ -1653,38 +1630,7 @@ function removeStack(val) {
         currentIndex = newIdx;
         updateCounter();
     }
-    syncJumpDropdown();
 }
-
-// ── JUMP DROPDOWN ─────────────────────────────────────────────────────────────
-const jumpSelect = document.getElementById("jumpSelect");
-
-function syncJumpDropdown() {
-    // Rebuild options from current stackOrder, using label text from options array
-    const labelMap = {};
-    options.forEach(([val, label]) => { labelMap[val] = label; });
-
-    jumpSelect.innerHTML = '<option value="" disabled>⬇ Jump to…</option>';
-    stackOrder.forEach(val => {
-        const opt = document.createElement("option");
-        opt.value = val;
-        opt.textContent = labelMap[val] || val;
-        jumpSelect.appendChild(opt);
-    });
-    // Keep selection in sync with currentIndex
-    jumpSelect.value = stackOrder[currentIndex] || "";
-}
-
-jumpSelect.addEventListener("change", () => {
-    const val = jumpSelect.value;
-    const idx = stackOrder.indexOf(val);
-    if (idx === -1) return;
-    // Determine slide direction based on position
-    const dir = idx >= currentIndex ? "next" : "prev";
-    navigateTo(idx, dir);
-    // Reset to placeholder so it's always "ready" for next pick
-    // (we keep the value set so it shows the current question name)
-});
 
 // ── SEEDED DAILY PICKER ───────────────────────────────────────────────────────
 function mulberry32(seed) {
@@ -2397,8 +2343,6 @@ let   isAnimating  = false;
 function updateCounter() {
     const total = stackOrder.length;
     document.getElementById("bottom-qCounter").textContent = total===0 ? "0 / 0" : (currentIndex+1) + " / " + total;
-    // Keep dropdown in sync with current carousel position
-    if (jumpSelect && stackOrder[currentIndex]) jumpSelect.value = stackOrder[currentIndex];
 }
 
 function navigateTo(newIdx, direction) {
