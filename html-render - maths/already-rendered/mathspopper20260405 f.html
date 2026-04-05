@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v72 All images show -->
+<!--v71 question codes -->
 <style>
 html, body {
     margin: 0;
@@ -29,31 +29,30 @@ html, body {
     top: 0;
     z-index: 10;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 4px 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px 16px;
     background: #0a0a0a;
     border: 1px solid #444;
-    padding: 10px 14px;
+    padding: 16px;
 }
 
-#control legend { padding: 0 10px; font-size: 14px; color: #aaa; }
+#control legend { padding: 0 10px; font-size: 18px; color: #aaa; }
 
 .ctrl-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     white-space: nowrap;
-    font-size: 13px;
-    padding: 3px 0;
+    font-size: 20px;
+    padding: 6px 0;
     color: #28a745;
 }
 
 /* Universe colour */
-.ctrl-item.universe-main  { color: #a78bfa; }
+.ctrl-item.universe-main { color: #a78bfa; }
 .ctrl-item.shapes-main    { color: #34d399; }
-.ctrl-item.spiritual-main { color: #fb923c; }
 
-.ctrl-item input[type="checkbox"] { width: 15px; height: 15px; }
+.ctrl-item input[type="checkbox"] { width: 22px; height: 22px; }
 
 /* CONTROL PANEL WRAPPER */
 #control-container {
@@ -932,17 +931,17 @@ const options = [
     ["units-liquid",         "27. Units - Liquid"],
     ["units-time",           "28. Units - Time"],
     ["units-money",          "29. Units - Money"],
-    ["universe",             "34. \uD83C\uDF0C Universe"],
-    ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
-    ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"],
-    ["sp-avatars",           "37. \uD83D\uDE4F Avatars"],
-    ["sp-bhagavadgita",      "38. \uD83D\uDE4F Bhagavad Gita"],
-    ["sp-festivalsandrituals","39. \uD83D\uDE4F Festivals & Rituals"],
-    ["sp-hindudieties",      "40. \uD83D\uDE4F Hindu Dieties"],
-    ["sp-mahabharatam",      "41. \uD83D\uDE4F Mahabharatam"],
-    ["sp-ramayana",          "42. \uD83D\uDE4F Ramayana"],
-    ["sp-rishisandsaints",   "43. \uD83D\uDE4F Rishis & Saints"],
-    ["sp-temples",           "44. \uD83D\uDE4F Temples"]
+    ["universe",             "30. \uD83C\uDF0C Universe"],
+    ["shapes-draw",          "31. \uD83D\uDCCF Shapes - Draw"],
+    ["shapes-identify",      "32. \uD83D\uDD2E Shapes - Identify"],
+    ["sp-avatars",           "33. \uD83D\uDE4F Avatars"],
+    ["sp-bhagavadgita",      "34. \uD83D\uDE4F Bhagavad Gita"],
+    ["sp-festivalsandrituals","35. \uD83D\uDE4F Festivals & Rituals"],
+    ["sp-hindudieties",      "36. \uD83D\uDE4F Hindu Dieties"],
+    ["sp-mahabharatam",      "37. \uD83D\uDE4F Mahabharatam"],
+    ["sp-ramayana",          "38. \uD83D\uDE4F Ramayana"],
+    ["sp-rishisandsaints",   "39. \uD83D\uDE4F Rishis & Saints"],
+    ["sp-temples",           "40. \uD83D\uDE4F Temples"]
 ];
 
 const control   = document.getElementById("control");
@@ -976,10 +975,7 @@ function capitalise(str) {
 
 options.forEach(([val, label]) => {
     const wrap = document.createElement("label");
-    wrap.className = "ctrl-item" +
-        (val === "universe"         ? " universe-main"  :
-         val.startsWith("shapes-") ? " shapes-main"    :
-         val.startsWith("sp-")     ? " spiritual-main" : "");
+    wrap.className = "ctrl-item" + (val === "universe" ? " universe-main" : val.startsWith("shapes-") ? " shapes-main" : "");
     const cb = document.createElement("input");
     cb.type = "checkbox";
     cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
@@ -1887,7 +1883,7 @@ async function generateSpiritualTopic(box, val) {
                         '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + ' <span style="color:#f97316;font-size:0.75em;margin-left:6px;">' + qCode + '</span></span></div>' +
                     '</div>' +
                     '<div class="univ-right-col">' +
-                        '<img class="univ-q-image spiritual-img" src="' + imgUrl + '" alt="' + cfg.folder + '" ' +
+                        '<img class="univ-q-image" src="' + imgUrl + '" alt="' + cfg.folder + '" ' +
                             'style="border-color:#f97316;box-shadow:0 0 32px rgba(249,115,22,0.35),0 4px 20px rgba(0,0,0,0.7);" ' +
                             'onerror="this.style.opacity=\'0.15\';" />' +
                     '</div>' +
@@ -1906,9 +1902,10 @@ async function generateSpiritualTopic(box, val) {
                         '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + ' <span style="color:#f97316;font-size:0.75em;margin-left:6px;">' + qCode + '</span></span></div>' +
                     '</div>' +
                     '<div class="univ-right-col">' +
-                        '<img class="univ-q-image spiritual-img" src="' + imgUrl + '" alt="' + cfg.folder + '" ' +
-                            'style="border-color:#f97316;box-shadow:0 0 32px rgba(249,115,22,0.35),0 4px 20px rgba(0,0,0,0.7);" ' +
-                            'onerror="this.style.opacity=\'0.15\';" />' +
+                        '<div class="univ-img-placeholder">\uD83D\uDE4F</div>' +
+                        '<img class="univ-ans-img spiritual-img" src="' + imgUrl + '" alt="' + ansDisplay + '" ' +
+                            'onerror="this.style.display=\'none\';this.nextElementSibling.dataset.haserror=\'1\';" />' +
+                        '<span class="univ-img-404">\uD83D\uDE4F 404</span>' +
                     '</div>' +
                 '</div></div>';
         }
@@ -1916,8 +1913,13 @@ async function generateSpiritualTopic(box, val) {
 
     if (showAll) {
         box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
+        box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
+        box.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.add("hide"));
     }
 }
+
+
+// ── GENERATE ──────────────────────────────────────────────────────────────────
 const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money"]);
 
