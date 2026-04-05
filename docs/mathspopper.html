@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v68 spiritual -->
+<!--v68 Spirtual stacks-->
 <style>
 html, body {
     margin: 0;
@@ -916,7 +916,14 @@ const options = [
     ["universe",             "34. \uD83C\uDF0C Universe"],
     ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
     ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"],
-    ["spiritual",            "37. \uD83D\uDE4F Spiritual"]
+    ["sp-avatars",           "37. \uD83D\uDE4F Avatars"],
+    ["sp-bhagavadgita",      "38. \uD83D\uDE4F Bhagavad Gita"],
+    ["sp-festivalsandrituals","39. \uD83D\uDE4F Festivals & Rituals"],
+    ["sp-hindudieties",      "40. \uD83D\uDE4F Hindu Dieties"],
+    ["sp-mahabharatam",      "41. \uD83D\uDE4F Mahabharatam"],
+    ["sp-ramayana",          "42. \uD83D\uDE4F Ramayana"],
+    ["sp-rishisandsaints",   "43. \uD83D\uDE4F Rishis & Saints"],
+    ["sp-temples",           "44. \uD83D\uDE4F Temples"]
 ];
 
 const control   = document.getElementById("control");
@@ -1538,7 +1545,8 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
     "number-names","draw-clock","identify-time","universe","shapes-draw","shapes-identify",
-    "spiritual"]);
+    "sp-avatars","sp-bhagavadgita","sp-festivalsandrituals","sp-hindudieties",
+    "sp-mahabharatam","sp-ramayana","sp-rishisandsaints","sp-temples"]);
 
 function refreshStack(val) {
     if (!stacks[val]) return;
@@ -1569,7 +1577,7 @@ function addStack(val) {
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
     const isUniverse  = val === "universe";
-    const isSpiritual = val === "spiritual";
+    const isSpiritual = val.startsWith("sp-");
     const box = document.createElement("div");
     box.className = "stack-box" + (isUniverse ? " box-guess" : isSpiritual ? " box-spiritual" : "");
     wrapper.appendChild(box);
@@ -1726,72 +1734,52 @@ async function generateUniverse(box) {
 }
 
 // ── SPIRITUAL GENERATOR ───────────────────────────────────────────────────────
-// ── SPIRITUAL CONFIG ──────────────────────────────────────────────────────────
-// 8 source files under spiritual/questions/
-// Images live at spiritual/{folder}/{id}.png
-const SPIRITUAL_BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/questions/";
-const SPIRITUAL_IMG_ROOT = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/";
+// ── SPIRITUAL TOPICS ──────────────────────────────────────────────────────────
+const SPIRITUAL_ROOT     = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/";
+const SPIRITUAL_TOPIC_MAP = {
+    "sp-avatars":            { file: "avatars.json",             folder: "avatars",             label: "37. \uD83D\uDE4F Avatars" },
+    "sp-bhagavadgita":       { file: "bhagavadgita.json",        folder: "bhagavadgita",        label: "38. \uD83D\uDE4F Bhagavad Gita" },
+    "sp-festivalsandrituals":{ file: "festivalsandrituals.json", folder: "festivalsandrituals", label: "39. \uD83D\uDE4F Festivals & Rituals" },
+    "sp-hindudieties":       { file: "hindudieties.json",        folder: "hindudieties",        label: "40. \uD83D\uDE4F Hindu Dieties" },
+    "sp-mahabharatam":       { file: "mahabharatam.json",        folder: "mahabharatam",        label: "41. \uD83D\uDE4F Mahabharatam" },
+    "sp-ramayana":           { file: "ramayana.json",            folder: "ramayana",            label: "42. \uD83D\uDE4F Ramayana" },
+    "sp-rishisandsaints":    { file: "rishisandsaints.json",     folder: "rishisandsaints",     label: "43. \uD83D\uDE4F Rishis & Saints" },
+    "sp-temples":            { file: "temples.json",             folder: "temples",             label: "44. \uD83D\uDE4F Temples" }
+};
 
-const SPIRITUAL_SOURCES = [
-    { file: "avatars.json",             folder: "avatars" },
-    { file: "bhagavadgita.json",        folder: "bhagavadgita" },
-    { file: "festivalsandrituals.json", folder: "festivalsandrituals" },
-    { file: "hindudieties.json",        folder: "hindudieties" },
-    { file: "mahabharatam.json",        folder: "mahabharatam" },
-    { file: "ramayana.json",            folder: "ramayana" },
-    { file: "rishisandsaints.json",     folder: "rishisandsaints" },
-    { file: "temples.json",             folder: "temples" }
-];
+async function generateSpiritualTopic(box, val) {
+    const cfg = SPIRITUAL_TOPIC_MAP[val];
+    if (!cfg) return;
 
-async function generateSpiritual(box) {
-    const TITLE_HTML = '<div class="problem-title" style="background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">37. \uD83D\uDE4F Spiritual</div>';
+    const TITLE_HTML = '<div class="problem-title" style="background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">' + cfg.label + '</div>';
 
-    box.innerHTML = TITLE_HTML +
-        '<div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading spiritual questions...</div>';
+    box.innerHTML = TITLE_HTML + '<div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading questions...</div>';
 
-    // ── Step 1: pick 4 of the 7 sources for today using the date seed ─────────
-    const srcIndices = pickDailyIndices("spiritual-sources", SPIRITUAL_SOURCES.length, 4);
-    const todaySrcs  = srcIndices.map(i => SPIRITUAL_SOURCES[i]);
-
-    // ── Step 2: fetch all 4 chosen JSONs in parallel ──────────────────────────
-    const results = await Promise.all(
-        todaySrcs.map((src, si) =>
-            fetch(SPIRITUAL_BASE_URL + src.file)
-                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-                .then(data => ({ src, data, si }))
-                .catch(err => ({ src, data: null, err, si }))
-        )
-    );
+    let data;
+    try {
+        const r = await fetch(SPIRITUAL_ROOT + "questions/" + cfg.file);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        data = await r.json();
+    } catch(err) {
+        box.innerHTML = TITLE_HTML + '<div style="color:#f66;padding:20px;">Could not load ' + cfg.file + ': ' + err.message + '</div>';
+        return;
+    }
 
     box.innerHTML = TITLE_HTML;
 
+    if (!data.questions || data.questions.length === 0) {
+        box.innerHTML += '<div style="color:#f66;padding:20px;">No questions found in ' + cfg.file + '</div>';
+        return;
+    }
+
+    const indices    = pickDailyIndices(val, data.questions.length, 4);
     const optLetters = ["A","B","C","D"];
-    let letterIdx = 0;
 
-    results.forEach(({ src, data, err, si }) => {
-        if (!data || !data.questions || data.questions.length === 0) {
-            box.innerHTML += '<div style="color:#f66;padding:8px 20px;">Could not load ' + src.file + '</div>';
-            return;
-        }
-
-        // Pick 1 question from this source using its own daily seed key
-        const seedKey = "spiritual-" + src.file;
-        let qi;
-        if (refreshSeeds["spiritual"]) {
-            // Refresh mode: derive a per-source seed from the stack-level refresh seed
-            const rng = mulberry32(refreshSeeds["spiritual"] ^ hashStr(src.file));
-            const shuffled = seededShuffle([...Array(data.questions.length).keys()], rng);
-            qi = shuffled[0];
-        } else {
-            [qi] = pickDailyIndices(seedKey, data.questions.length, 1);
-        }
-
-        const q = data.questions[qi];
+    indices.forEach((qi, j) => {
+        const q      = data.questions[qi];
         if (!q) return;
-
-        const letter  = String.fromCharCode(97 + letterIdx);
-        const isFirst = (letterIdx === 0);
-        letterIdx++;
+        const letter  = String.fromCharCode(97 + j);
+        const isFirst = (j === 0);
 
         const optionsHTML = (q.options || []).map((opt, i) =>
             '<div class="univ-option">' +
@@ -1800,67 +1788,49 @@ async function generateSpiritual(box) {
             '</div>'
         ).join("");
 
-        const qText      = String(q.question || "").replace(/\s*\(Q\s*[\w\s]*\d+\)\s*$/, "").trim();
-        const ansDisplay = String(q.answer   || "").replace(/\s*\(Q\s*[\w\s]*\d+\)\s*$/, "").trim();
-        const imgUrl     = SPIRITUAL_IMG_ROOT + src.folder + "/" + q.id + ".png";
+        const qText      = String(q.question || "").replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
+        const ansDisplay = String(q.answer   || "").replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
+        const imgUrl     = SPIRITUAL_ROOT + cfg.folder + "/" + q.id + ".png";
 
         if (isFirst) {
             box.innerHTML +=
-                '<div class="univ-block">' +
-                    '<div class="univ-block-inner">' +
-                        '<div class="univ-left-col">' +
-                            '<div class="univ-q-header">' +
-                                '<div class="univ-q-header-top">' +
-                                    '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
-                                    '<span class="univ-q-category cat-spiritual">' + (q.category || src.folder) + '</span>' +
-                                '</div>' +
-                                '<span class="univ-q-text">' + qText + '</span>' +
-                            '</div>' +
-                            '<div class="univ-options">' + optionsHTML + '</div>' +
-                            '<div class="univ-answer-row">' +
-                                '<span class="univ-badge">\u2705 ' + ansDisplay + '</span>' +
-                            '</div>' +
+                '<div class="univ-block"><div class="univ-block-inner">' +
+                    '<div class="univ-left-col">' +
+                        '<div class="univ-q-header"><div class="univ-q-header-top">' +
+                            '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
+                            '<span class="univ-q-category cat-spiritual">' + (q.category || cfg.folder) + '</span>' +
                         '</div>' +
-                        '<div class="univ-right-col">' +
-                            '<img class="univ-q-image" src="' + imgUrl + '" alt="Spiritual image" ' +
-                                 'style="border-color:#f97316;box-shadow:0 0 32px rgba(249,115,22,0.35),0 4px 20px rgba(0,0,0,0.7);" ' +
-                                 'onerror="this.style.opacity=\'0.15\';this.alt=\'Image not found\';" />' +
-                        '</div>' +
+                        '<span class="univ-q-text">' + qText + '</span></div>' +
+                        '<div class="univ-options">' + optionsHTML + '</div>' +
+                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + '</span></div>' +
                     '</div>' +
-                '</div>';
+                    '<div class="univ-right-col">' +
+                        '<img class="univ-q-image" src="' + imgUrl + '" alt="' + cfg.folder + '" ' +
+                            'style="border-color:#f97316;box-shadow:0 0 32px rgba(249,115,22,0.35),0 4px 20px rgba(0,0,0,0.7);" ' +
+                            'onerror="this.style.opacity=\'0.15\';" />' +
+                    '</div>' +
+                '</div></div>';
         } else {
             box.innerHTML +=
-                '<div class="univ-block">' +
-                    '<div class="univ-block-inner">' +
-                        '<div class="univ-left-col">' +
-                            '<div class="univ-q-header">' +
-                                '<div class="univ-q-header-top">' +
-                                    '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
-                                    '<span class="univ-q-category cat-spiritual">' + (q.category || src.folder) + '</span>' +
-                                '</div>' +
-                                '<span class="univ-q-text">' + qText + '</span>' +
-                            '</div>' +
-                            '<div class="univ-options">' + optionsHTML + '</div>' +
-                            '<div class="univ-answer-row">' +
-                                '<span class="univ-badge">\u2705 ' + ansDisplay + '</span>' +
-                            '</div>' +
+                '<div class="univ-block"><div class="univ-block-inner">' +
+                    '<div class="univ-left-col">' +
+                        '<div class="univ-q-header"><div class="univ-q-header-top">' +
+                            '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
+                            '<span class="univ-q-category cat-spiritual">' + (q.category || cfg.folder) + '</span>' +
                         '</div>' +
-                        '<div class="univ-right-col">' +
-                            '<div class="univ-img-placeholder">\uD83D\uDE4F</div>' +
-                            '<img class="univ-ans-img spiritual-img" ' +
-                                 'src="' + imgUrl + '" ' +
-                                 'alt="' + ansDisplay + '" ' +
-                                 'onerror="this.style.display=\'none\';this.nextElementSibling.dataset.haserror=\'1\';" />' +
-                            '<span class="univ-img-404">\uD83D\uDE4F 404</span>' +
-                        '</div>' +
+                        '<span class="univ-q-text">' + qText + '</span></div>' +
+                        '<div class="univ-options">' + optionsHTML + '</div>' +
+                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + '</span></div>' +
                     '</div>' +
-                '</div>';
+                    '<div class="univ-right-col">' +
+                        '<div class="univ-img-placeholder">\uD83D\uDE4F</div>' +
+                        '<img class="univ-ans-img spiritual-img" src="' + imgUrl + '" alt="' + ansDisplay + '" ' +
+                            'onerror="this.style.display=\'none\';this.nextElementSibling.dataset.haserror=\'1\';" />' +
+                        '<span class="univ-img-404">\uD83D\uDE4F 404</span>' +
+                    '</div>' +
+                '</div></div>';
         }
     });
-
-    if (letterIdx === 0) {
-        box.innerHTML += '<div style="color:#f66;padding:20px;">No spiritual questions could be loaded.</div>';
-    }
 
     if (showAll) {
         box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
@@ -1868,6 +1838,7 @@ async function generateSpiritual(box) {
         box.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.add("hide"));
     }
 }
+
 
 // ── GENERATE ──────────────────────────────────────────────────────────────────
 const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equations",
@@ -1882,8 +1853,8 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    if (val === "universe")  { generateUniverse(box);  return; }
-    if (val === "spiritual") { generateSpiritual(box); return; }
+    if (val === "universe")          { generateUniverse(box);              return; }
+    if (val.startsWith("sp-"))       { generateSpiritualTopic(box, val);   return; }
 
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
