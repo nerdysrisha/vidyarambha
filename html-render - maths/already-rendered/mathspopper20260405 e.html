@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v64 Animated clock -->
+<!--v70 Going to specific question type.  -->
 <style>
 html, body {
     margin: 0;
@@ -1858,15 +1858,8 @@ async function generateSpiritualTopic(box, val) {
             '</div>'
         ).join("");
 
-        // Extract QCode from question or answer (e.g. "(Q101)" or "(Q 202)")
-        const rawQ      = String(q.question || "");
-        const rawA      = String(q.answer   || "");
-        const qCodeMatch = rawQ.match(/\(Q\s*[\w\s]*\d+\)\s*$/) || rawA.match(/\(Q\s*[\w\s]*\d+\)\s*$/);
-        const qCode      = qCodeMatch ? qCodeMatch[0].replace(/\s+/g," ").trim() : ("Q" + q.id);
-        const qCodeTag   = '<span style="display:inline-block;font-size:11px;font-weight:bold;color:#f97316;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.35);border-radius:4px;padding:1px 7px;margin-left:8px;letter-spacing:0.5px;vertical-align:middle;">' + qCode + '</span>';
-
-        const qText      = rawQ.replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
-        const ansDisplay = rawA.replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
+        const qText      = String(q.question || "").replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
+        const ansDisplay = String(q.answer   || "").replace(/\s*\(Q[\w\s]*\d+\)\s*$/, "").trim();
         const imgUrl     = SPIRITUAL_ROOT + cfg.folder + "/" + q.id + ".png";
 
         if (isFirst) {
@@ -1876,11 +1869,10 @@ async function generateSpiritualTopic(box, val) {
                         '<div class="univ-q-header"><div class="univ-q-header-top">' +
                             '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
                             '<span class="univ-q-category cat-spiritual">' + (q.category || cfg.folder) + '</span>' +
-                            qCodeTag +
                         '</div>' +
                         '<span class="univ-q-text">' + qText + '</span></div>' +
                         '<div class="univ-options">' + optionsHTML + '</div>' +
-                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + ' <span style="color:#f97316;font-size:0.75em;margin-left:6px;">' + qCode + '</span></span></div>' +
+                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + '</span></div>' +
                     '</div>' +
                     '<div class="univ-right-col">' +
                         '<img class="univ-q-image" src="' + imgUrl + '" alt="' + cfg.folder + '" ' +
@@ -1895,11 +1887,10 @@ async function generateSpiritualTopic(box, val) {
                         '<div class="univ-q-header"><div class="univ-q-header-top">' +
                             '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
                             '<span class="univ-q-category cat-spiritual">' + (q.category || cfg.folder) + '</span>' +
-                            qCodeTag +
                         '</div>' +
                         '<span class="univ-q-text">' + qText + '</span></div>' +
                         '<div class="univ-options">' + optionsHTML + '</div>' +
-                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + ' <span style="color:#f97316;font-size:0.75em;margin-left:6px;">' + qCode + '</span></span></div>' +
+                        '<div class="univ-answer-row"><span class="univ-badge">\u2705 ' + ansDisplay + '</span></div>' +
                     '</div>' +
                     '<div class="univ-right-col">' +
                         '<div class="univ-img-placeholder">\uD83D\uDE4F</div>' +
