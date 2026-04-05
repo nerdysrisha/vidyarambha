@@ -825,7 +825,7 @@ button:active { transform: scale(0.97); }
                 <option value="" disabled selected>⬇ Jump to…</option>
             </select>
             <button id="toggleAll">Show</button>
-            <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128274; ANSWERS SHOWN</span>
+            <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128275; ANSWERS SHOWN</span>
             <button id="timerBtn">Start Timer</button>
             <button id="resetTimer">Reset</button>
             <span id="timerDisplay">00:00</span>
@@ -1439,36 +1439,74 @@ function playRevealChime() {
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Soothing ascending pentatonic: C5 E5 G5 A5 C6  then a soft fade chord
-        const notes = [
-            { freq: 523.25, start: 0.00, dur: 0.55 },   // C5
-            { freq: 659.25, start: 0.30, dur: 0.55 },   // E5
-            { freq: 783.99, start: 0.60, dur: 0.55 },   // G5
-            { freq: 880.00, start: 0.90, dur: 0.55 },   // A5
-            { freq: 1046.5, start: 1.20, dur: 1.20 },   // C6  (longer, rings out)
-        ];
-
-        notes.forEach(({ freq, start, dur }) => {
+        // Helper: create a single bell-like tone
+        function playNote(freq, startTime, duration, gainPeak, type) {
             const osc  = ctx.createOscillator();
             const gain = ctx.createGain();
-
             osc.connect(gain);
             gain.connect(ctx.destination);
+            osc.type = type || "sine";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+            gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+            gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.025);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+            osc.start(ctx.currentTime + startTime);
+            osc.stop(ctx.currentTime + startTime + duration + 0.05);
+        }
 
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        // ── Melody: ascending pentatonic, two full sweeps, then a resolve ──
+        const melody = [
+            // First sweep up (C4 → C5)
+            { freq: 261.63, t: 0.00, dur: 0.9  },  // C4
+            { freq: 329.63, t: 0.35, dur: 0.9  },  // E4
+            { freq: 392.00, t: 0.70, dur: 0.9  },  // G4
+            { freq: 440.00, t: 1.05, dur: 0.9  },  // A4
+            { freq: 523.25, t: 1.40, dur: 1.2  },  // C5
 
-            // Soft attack + smooth exponential decay (bell-like)
-            gain.gain.setValueAtTime(0, ctx.currentTime + start);
-            gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + start + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+            // Second sweep up (C5 → C6) — brighter
+            { freq: 523.25, t: 2.30, dur: 0.8  },  // C5
+            { freq: 659.25, t: 2.65, dur: 0.8  },  // E5
+            { freq: 783.99, t: 3.00, dur: 0.8  },  // G5
+            { freq: 880.00, t: 3.35, dur: 0.8  },  // A5
+            { freq: 1046.5, t: 3.70, dur: 1.5  },  // C6
 
-            osc.start(ctx.currentTime + start);
-            osc.stop(ctx.currentTime + start + dur + 0.05);
-        });
+            // Resolve: gentle descending phrase
+            { freq: 880.00, t: 5.50, dur: 0.9  },  // A5
+            { freq: 783.99, t: 6.00, dur: 0.9  },  // G5
+            { freq: 659.25, t: 6.50, dur: 1.0  },  // E5
+            { freq: 523.25, t: 7.10, dur: 1.2  },  // C5
 
-        // Auto-close context after last note finishes
-        setTimeout(() => ctx.close(), 2800);
+            // Final chord: root + fifth ring out long
+            { freq: 523.25, t: 8.60, dur: 3.2  },  // C5
+            { freq: 392.00, t: 8.60, dur: 3.2  },  // G4 (fifth)
+            { freq: 261.63, t: 8.60, dur: 4.0  },  // C4 (root, longest)
+        ];
+
+        // ── Harmony layer: quiet thirds running alongside the melody ──
+        const harmony = [
+            { freq: 329.63, t: 0.00, dur: 1.4  },  // E4
+            { freq: 415.30, t: 0.70, dur: 1.4  },  // Ab4
+            { freq: 523.25, t: 1.40, dur: 1.6  },  // C5
+            { freq: 659.25, t: 2.30, dur: 1.2  },  // E5
+            { freq: 830.61, t: 3.00, dur: 1.4  },  // Ab5
+            { freq: 1046.5, t: 3.70, dur: 1.8  },  // C6
+        ];
+
+        // ── Shimmer: high triangle-wave sparkles ──
+        const shimmer = [
+            { freq: 2093.0, t: 1.40, dur: 0.5  },  // C7
+            { freq: 2349.3, t: 2.30, dur: 0.5  },  // D7
+            { freq: 2093.0, t: 3.70, dur: 0.6  },  // C7
+            { freq: 2637.0, t: 5.50, dur: 0.5  },  // E7
+            { freq: 2093.0, t: 8.60, dur: 1.2  },  // C7
+        ];
+
+        melody .forEach(n => playNote(n.freq, n.t, n.dur, 0.18, "sine"));
+        harmony.forEach(n => playNote(n.freq, n.t, n.dur, 0.07, "sine"));
+        shimmer.forEach(n => playNote(n.freq, n.t, n.dur, 0.05, "triangle"));
+
+        // Auto-close after everything has faded
+        setTimeout(() => ctx.close(), 13500);
     } catch(e) { /* silently ignore if audio not supported */ }
 }
 
@@ -1603,9 +1641,9 @@ function renderWordRow(letter, question, answer) {
 
 // Stacked layout: hint label on top, numbers on their own big line, answer below
 function renderStackedRow(letter, question, answer, val) {
-    const hint = val === "neg-pos-numbers"  ? "\uD83D\uDD22 Fill in the missing numbers:" :
-                 val === "ascending-order"  ? "\uD83D\uDCC8 Arrange in ascending order:" :
-                 val === "descending-order" ? "\uD83D\uDCC9 Arrange in descending order:" : "";
+    const hint = val === "neg-pos-numbers"  ? "  Fill in the missing numbers:" :
+                 val === "ascending-order"  ? "  Arrange in ascending order:" :
+                 val === "descending-order" ? "  Arrange in descending order:" : "";
     return '<div class="question-row stacked-row">' +
         '<div class="stacked-top">' +
             '<span class="question-letter">(' + letter + ')</span>' +
