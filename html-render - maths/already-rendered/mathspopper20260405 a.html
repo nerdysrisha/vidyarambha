@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v68 spiritual -->
+<!--v64 Animated clock -->
 <style>
 html, body {
     margin: 0;
@@ -187,39 +187,8 @@ button:active { transform: scale(0.97); }
 
 .stack-box.auto-size { height: auto; }
 
-/* ── REFRESH BUTTON ──────────────────────────────────────────────── */
-.refresh-btn {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-    z-index: 5;
-    background: rgba(0,119,204,0.18);
-    color: #00c8ff;
-    border: 1px solid rgba(0,200,255,0.35);
-    border-radius: 7px;
-    padding: 4px 11px;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-    box-shadow: none;
-}
-.refresh-btn:hover {
-    background: rgba(0,150,255,0.32);
-    box-shadow: 0 0 10px rgba(0,200,255,0.5);
-    transform: scale(1.07);
-    filter: none;
-}
-.refresh-btn:active { transform: scale(0.96); }
-.refresh-btn.spinning { pointer-events: none; opacity: 0.6; }
-@keyframes spin1 { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.refresh-icon { display:inline-block; }
-.spinning .refresh-icon { animation: spin1 0.5s linear; }
-
 /* Universe box colour variants */
 .stack-box.box-guess    { border-left-color: #f59e0b; background: linear-gradient(160deg,#1a1200,#111); }
-.stack-box.box-spiritual{ border-left-color: #f97316; background: linear-gradient(160deg,#1a0900,#111); }
 .stack-box.box-science  { border-left-color: #34d399; background: linear-gradient(160deg,#001a0d,#111); }
 .stack-box.box-geo      { border-left-color: #60a5fa; background: linear-gradient(160deg,#00101a,#111); }
 .stack-box.box-machines { border-left-color: #f472b6; background: linear-gradient(160deg,#1a0010,#111); }
@@ -262,59 +231,6 @@ button:active { transform: scale(0.97); }
     flex-direction: column;
     align-items: flex-start;
     padding-bottom: 12px;
-}
-
-/* Stacked layout: (a) label + numbers on next line + answer below */
-.question-row.stacked-row {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 14px 20px 16px 20px;
-    gap: 0;
-    border-bottom: 1px solid #1e1e1e;
-}
-
-.stacked-row .stacked-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 10px;
-}
-
-.stacked-row .stacked-top .question-letter {
-    width: auto;
-    text-align: left;
-    font-size: 28px;
-    color: #aaa;
-    font-weight: bold;
-    flex-shrink: 0;
-    margin-right: 0;
-}
-
-.stacked-row .stacked-hint {
-    font-size: 20px;
-    color: #888;
-    font-style: italic;
-}
-
-.stacked-row .stacked-numbers {
-    font-size: 46px;
-    font-weight: bold;
-    color: #ffffff;
-    letter-spacing: 0.06em;
-    line-height: 1.4;
-    padding: 0 0 14px 4px;
-    word-break: break-word;
-}
-
-.stacked-row .stacked-answer-line {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 26px;
-}
-
-.stacked-row .stacked-answer-line .answer {
-    font-size: 26px;
 }
 
 .question-row.word-row .word-top {
@@ -691,15 +607,11 @@ button:active { transform: scale(0.97); }
 .c-science  { color: #34d399; }
 .c-geo      { color: #60a5fa; }
 .c-machines { color: #f472b6; }
-.c-spiritual { color: #fb923c; }
 
 .cat-guess    { color: #f59e0b; background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
 .cat-science  { color: #34d399; background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.3); }
 .cat-geo      { color: #60a5fa; background: rgba(96,165,250,0.10); border: 1px solid rgba(96,165,250,0.3); }
 .cat-machines { color: #f472b6; background: rgba(244,114,182,0.10); border: 1px solid rgba(244,114,182,0.3); }
-.cat-spiritual{ color: #fb923c; background: rgba(249,115,22,0.10);  border: 1px solid rgba(249,115,22,0.3);  }
-
-.spiritual-img { border: 2px solid #f97316; box-shadow: 0 0 28px rgba(249,115,22,0.35), 0 4px 20px rgba(0,0,0,0.6); }
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* BOTTOM NAV */
@@ -915,8 +827,7 @@ const options = [
     ["units-money",          "33. Units - Money"],
     ["universe",             "34. \uD83C\uDF0C Universe"],
     ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
-    ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"],
-    ["spiritual",            "37. \uD83D\uDE4F Spiritual"]
+    ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"]
 ];
 
 const control   = document.getElementById("control");
@@ -1513,80 +1424,21 @@ function renderWordRow(letter, question, answer) {
     '</div>';
 }
 
-// Stacked layout: hint label on top, numbers on their own big line, answer below
-function renderStackedRow(letter, question, answer, val) {
-    const hint = val === "neg-pos-numbers"  ? "\uD83D\uDD22 Fill in the missing numbers:" :
-                 val === "ascending-order"  ? "\uD83D\uDCC8 Arrange in ascending order:" :
-                 val === "descending-order" ? "\uD83D\uDCC9 Arrange in descending order:" : "";
-    return '<div class="question-row stacked-row">' +
-        '<div class="stacked-top">' +
-            '<span class="question-letter">(' + letter + ')</span>' +
-            (hint ? '<span class="stacked-hint">' + hint + '</span>' : '') +
-        '</div>' +
-        '<div class="stacked-numbers">' + question + '</div>' +
-        '<div class="stacked-answer-line">' +
-            '<span style="color:#aaa;font-size:0.75em;white-space:nowrap;">Answer:</span>' +
-            '<input type="text" class="answer-input" style="width:220px;" />' +
-            '<span class="answer">' + answer + '</span>' +
-        '</div>' +
-    '</div>';
-}
-
 // ── STACK MANAGEMENT ──────────────────────────────────────────────────────────
 const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time","universe","shapes-draw","shapes-identify",
-    "spiritual"]);
-
-function refreshStack(val) {
-    if (!stacks[val]) return;
-    // Generate a new random seed that differs from daily seed
-    let newSeed;
-    do { newSeed = (Math.random() * 0xFFFFFFFF) >>> 0; }
-    while (newSeed === dailySeed(val));
-    refreshSeeds[val] = newSeed;
-
-    const wrapper = stacks[val];
-    const oldBox = wrapper.querySelector(".stack-box");
-    if (!oldBox) return;
-    oldBox.innerHTML = "";
-    generate(oldBox, val);
-
-    // After a short delay (for async fetches), ensure answer visibility matches global showAll
-    setTimeout(() => {
-        oldBox.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
-        oldBox.querySelectorAll(".num-word").forEach(el => { el.style.visibility = showAll ? "visible" : "hidden"; });
-        oldBox.querySelectorAll(".univ-badge").forEach(b => b.classList.toggle("show", showAll));
-        oldBox.querySelectorAll(".univ-ans-img").forEach(img => img.classList.toggle("show", showAll));
-        oldBox.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.toggle("hide", showAll));
-    }, 900);
-}
+    "number-names","draw-clock","identify-time","universe","shapes-draw","shapes-identify"]);
 
 function addStack(val) {
     if (stacks[val]) return;
     const wrapper = document.createElement("div");
     wrapper.className = "stack-wrapper" + (AUTO_SIZE.has(val) ? " auto-size" : "");
-    const isUniverse  = val === "universe";
-    const isSpiritual = val === "spiritual";
+    const isUniverse = val === "universe";
     const box = document.createElement("div");
-    box.className = "stack-box" + (isUniverse ? " box-guess" : isSpiritual ? " box-spiritual" : "");
+    box.className = "stack-box" + (isUniverse ? " box-guess" : "");
     wrapper.appendChild(box);
-
-    // Add refresh button
-    const refreshBtn = document.createElement("button");
-    refreshBtn.className = "refresh-btn";
-    refreshBtn.title = "Load a fresh set of questions";
-    refreshBtn.innerHTML = '<span class="refresh-icon">🔀</span> New Questions';
-    refreshBtn.onclick = (e) => {
-        e.stopPropagation();
-        refreshBtn.classList.add("spinning");
-        setTimeout(() => refreshBtn.classList.remove("spinning"), 550);
-        refreshStack(val);
-    };
-    wrapper.appendChild(refreshBtn);
-
     stacks[val] = wrapper;
     stackOrder.push(val);
     questions.appendChild(wrapper);
@@ -1639,16 +1491,7 @@ function seededShuffle(arr, rng) {
     return a;
 }
 
-// refreshSeeds: per-stack random offset; 0 = use daily seed (default)
-const refreshSeeds = {};
-
 function pickDailyIndices(val, total, n) {
-    // If a manual refresh seed is set for this val, use fully random pick
-    if (refreshSeeds[val]) {
-        const rng = mulberry32(refreshSeeds[val]);
-        const shuffled = seededShuffle([...Array(total).keys()], rng);
-        return shuffled.slice(0, Math.min(n, total));
-    }
     if (total <= n) {
         const rng = mulberry32(dailySeed(val));
         return seededShuffle([...Array(total).keys()], rng).slice(0, total);
@@ -1690,21 +1533,6 @@ async function generateUniverse(box) {
             box.innerHTML += '<div style="color:#f66;padding:8px 20px;">Could not load ' + src.file + '</div>';
             return;
         }
-        // Use the universe-level refresh seed for sub-sources too
-        const univSeed = refreshSeeds["universe"];
-        if (univSeed) {
-            const rng = mulberry32(univSeed ^ hashStr(src.file));
-            const shuffled = seededShuffle([...Array(data.questions.length).keys()], rng);
-            refreshSeeds[src.file] = rng() * 0xFFFFFFFF >>> 0; // keep sub-key in sync
-            const qi = shuffled[0];
-            const q    = data.questions[qi];
-            if (!q) return;
-            const letter  = String.fromCharCode(97 + letterIdx);
-            const isFirst = (si === 0);
-            box.innerHTML += renderUniverseQuestion(letter, q, src, isFirst);
-            letterIdx++;
-            return;
-        }
         const [qi] = pickDailyIndices(src.file, data.questions.length, 1);
         const q    = data.questions[qi];
         if (!q) return;
@@ -1725,155 +1553,9 @@ async function generateUniverse(box) {
     }
 }
 
-// ── SPIRITUAL GENERATOR ───────────────────────────────────────────────────────
-// ── SPIRITUAL CONFIG ──────────────────────────────────────────────────────────
-// 8 source files under spiritual/questions/
-// Images live at spiritual/{folder}/{id}.png
-const SPIRITUAL_BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/questions/";
-const SPIRITUAL_IMG_ROOT = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/spiritual/";
-
-const SPIRITUAL_SOURCES = [
-    { file: "avatars.json",             folder: "avatars" },
-    { file: "bhagavadgita.json",        folder: "bhagavadgita" },
-    { file: "festivalsandrituals.json", folder: "festivalsandrituals" },
-    { file: "hindudieties.json",        folder: "hindudieties" },
-    { file: "mahabharatam.json",        folder: "mahabharatam" },
-    { file: "ramayana.json",            folder: "ramayana" },
-    { file: "rishisandsaints.json",     folder: "rishisandsaints" },
-    { file: "temples.json",             folder: "temples" }
-];
-
-async function generateSpiritual(box) {
-    const TITLE_HTML = '<div class="problem-title" style="background:linear-gradient(90deg,#f97316,#fb923c,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:24px;font-weight:bold;margin-bottom:8px;">37. \uD83D\uDE4F Spiritual</div>';
-
-    box.innerHTML = TITLE_HTML +
-        '<div style="color:#555;font-size:15px;padding:4px 0 16px 0;">Loading spiritual questions...</div>';
-
-    // ── Step 1: pick 4 of the 7 sources for today using the date seed ─────────
-    const srcIndices = pickDailyIndices("spiritual-sources", SPIRITUAL_SOURCES.length, 4);
-    const todaySrcs  = srcIndices.map(i => SPIRITUAL_SOURCES[i]);
-
-    // ── Step 2: fetch all 4 chosen JSONs in parallel ──────────────────────────
-    const results = await Promise.all(
-        todaySrcs.map((src, si) =>
-            fetch(SPIRITUAL_BASE_URL + src.file)
-                .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-                .then(data => ({ src, data, si }))
-                .catch(err => ({ src, data: null, err, si }))
-        )
-    );
-
-    box.innerHTML = TITLE_HTML;
-
-    const optLetters = ["A","B","C","D"];
-    let letterIdx = 0;
-
-    results.forEach(({ src, data, err, si }) => {
-        if (!data || !data.questions || data.questions.length === 0) {
-            box.innerHTML += '<div style="color:#f66;padding:8px 20px;">Could not load ' + src.file + '</div>';
-            return;
-        }
-
-        // Pick 1 question from this source using its own daily seed key
-        const seedKey = "spiritual-" + src.file;
-        let qi;
-        if (refreshSeeds["spiritual"]) {
-            // Refresh mode: derive a per-source seed from the stack-level refresh seed
-            const rng = mulberry32(refreshSeeds["spiritual"] ^ hashStr(src.file));
-            const shuffled = seededShuffle([...Array(data.questions.length).keys()], rng);
-            qi = shuffled[0];
-        } else {
-            [qi] = pickDailyIndices(seedKey, data.questions.length, 1);
-        }
-
-        const q = data.questions[qi];
-        if (!q) return;
-
-        const letter  = String.fromCharCode(97 + letterIdx);
-        const isFirst = (letterIdx === 0);
-        letterIdx++;
-
-        const optionsHTML = (q.options || []).map((opt, i) =>
-            '<div class="univ-option">' +
-                '<span class="univ-option-letter c-spiritual">' + optLetters[i] + '.</span>' +
-                '<span class="univ-option-text">' + opt + '</span>' +
-            '</div>'
-        ).join("");
-
-        const qText      = String(q.question || "").replace(/\s*\(Q\s*[\w\s]*\d+\)\s*$/, "").trim();
-        const ansDisplay = String(q.answer   || "").replace(/\s*\(Q\s*[\w\s]*\d+\)\s*$/, "").trim();
-        const imgUrl     = SPIRITUAL_IMG_ROOT + src.folder + "/" + q.id + ".png";
-
-        if (isFirst) {
-            box.innerHTML +=
-                '<div class="univ-block">' +
-                    '<div class="univ-block-inner">' +
-                        '<div class="univ-left-col">' +
-                            '<div class="univ-q-header">' +
-                                '<div class="univ-q-header-top">' +
-                                    '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
-                                    '<span class="univ-q-category cat-spiritual">' + (q.category || src.folder) + '</span>' +
-                                '</div>' +
-                                '<span class="univ-q-text">' + qText + '</span>' +
-                            '</div>' +
-                            '<div class="univ-options">' + optionsHTML + '</div>' +
-                            '<div class="univ-answer-row">' +
-                                '<span class="univ-badge">\u2705 ' + ansDisplay + '</span>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="univ-right-col">' +
-                            '<img class="univ-q-image" src="' + imgUrl + '" alt="Spiritual image" ' +
-                                 'style="border-color:#f97316;box-shadow:0 0 32px rgba(249,115,22,0.35),0 4px 20px rgba(0,0,0,0.7);" ' +
-                                 'onerror="this.style.opacity=\'0.15\';this.alt=\'Image not found\';" />' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-        } else {
-            box.innerHTML +=
-                '<div class="univ-block">' +
-                    '<div class="univ-block-inner">' +
-                        '<div class="univ-left-col">' +
-                            '<div class="univ-q-header">' +
-                                '<div class="univ-q-header-top">' +
-                                    '<span class="univ-q-letter c-spiritual">(' + letter + ')</span>' +
-                                    '<span class="univ-q-category cat-spiritual">' + (q.category || src.folder) + '</span>' +
-                                '</div>' +
-                                '<span class="univ-q-text">' + qText + '</span>' +
-                            '</div>' +
-                            '<div class="univ-options">' + optionsHTML + '</div>' +
-                            '<div class="univ-answer-row">' +
-                                '<span class="univ-badge">\u2705 ' + ansDisplay + '</span>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="univ-right-col">' +
-                            '<div class="univ-img-placeholder">\uD83D\uDE4F</div>' +
-                            '<img class="univ-ans-img spiritual-img" ' +
-                                 'src="' + imgUrl + '" ' +
-                                 'alt="' + ansDisplay + '" ' +
-                                 'onerror="this.style.display=\'none\';this.nextElementSibling.dataset.haserror=\'1\';" />' +
-                            '<span class="univ-img-404">\uD83D\uDE4F 404</span>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-        }
-    });
-
-    if (letterIdx === 0) {
-        box.innerHTML += '<div style="color:#f66;padding:20px;">No spiritual questions could be loaded.</div>';
-    }
-
-    if (showAll) {
-        box.querySelectorAll(".univ-badge").forEach(b => b.classList.add("show"));
-        box.querySelectorAll(".univ-ans-img").forEach(img => img.classList.add("show"));
-        box.querySelectorAll(".univ-img-placeholder").forEach(ph => ph.classList.add("hide"));
-    }
-}
-
 // ── GENERATE ──────────────────────────────────────────────────────────────────
 const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money"]);
-
-const STACKED_ROW_TYPES = new Set(["ascending-order","descending-order","neg-pos-numbers"]);
 
 const NUM_MAP = {
     "word-problems":4, "spell-the-word":3, "simple-equations":2,
@@ -1882,8 +1564,7 @@ const NUM_MAP = {
 };
 
 function generate(box, val) {
-    if (val === "universe")  { generateUniverse(box);  return; }
-    if (val === "spiritual") { generateSpiritual(box); return; }
+    if (val === "universe") { generateUniverse(box); return; }
 
     box.innerHTML = "";
     const opt = options.find(o=>o[0]===val);
@@ -2226,8 +1907,6 @@ function generate(box, val) {
 
                 if (WORD_ROW_TYPES.has(val)) {
                     box.innerHTML += renderWordRow(letter, qText, aDisplay);
-                } else if (STACKED_ROW_TYPES.has(val)) {
-                    box.innerHTML += renderStackedRow(letter, qText, aDisplay, val);
                 } else {
                     box.innerHTML += renderInlineRow(letter, qText, aDisplay, dataType);
                 }
