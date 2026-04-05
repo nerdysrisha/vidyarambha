@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v69 Removed duplicated items.  -->
+<!--v68 Spirtual stacks-->
 <style>
 html, body {
     margin: 0;
@@ -901,25 +901,29 @@ const options = [
     ["pattern-completion",   "19. Pattern Completion"],
     ["draw-clock",           "20. Draw Clock"],
     ["identify-time",        "21. Identify Time"],
-    ["spell-the-word",       "22. Spell the Word"],
-    ["true-or-false",        "23. True or False"],
-    ["general-knowledge",    "24. General Knowledge"],
-    ["units-length",         "25. Units - Length"],
-    ["units-weight",         "26. Units - Weight"],
-    ["units-liquid",         "27. Units - Liquid"],
-    ["units-time",           "28. Units - Time"],
-    ["units-money",          "29. Units - Money"],
-    ["universe",             "30. \uD83C\uDF0C Universe"],
-    ["shapes-draw",          "31. \uD83D\uDCCF Shapes - Draw"],
-    ["shapes-identify",      "32. \uD83D\uDD2E Shapes - Identify"],
-    ["sp-avatars",           "33. \uD83D\uDE4F Avatars"],
-    ["sp-bhagavadgita",      "34. \uD83D\uDE4F Bhagavad Gita"],
-    ["sp-festivalsandrituals","35. \uD83D\uDE4F Festivals & Rituals"],
-    ["sp-hindudieties",      "36. \uD83D\uDE4F Hindu Dieties"],
-    ["sp-mahabharatam",      "37. \uD83D\uDE4F Mahabharatam"],
-    ["sp-ramayana",          "38. \uD83D\uDE4F Ramayana"],
-    ["sp-rishisandsaints",   "39. \uD83D\uDE4F Rishis & Saints"],
-    ["sp-temples",           "40. \uD83D\uDE4F Temples"]
+    ["drawing-shapes",       "22. Drawing Shapes"],
+    ["geometric-shapes",     "23. Geometric Shapes"],
+    ["spell-the-word",       "24. Spell the Word"],
+    ["true-or-false",        "25. True or False"],
+    ["missing-number",       "26. Missing Number"],
+    ["simple-equations",     "27. Simple Equations"],
+    ["general-knowledge",    "28. General Knowledge"],
+    ["units-length",         "29. Units - Length"],
+    ["units-weight",         "30. Units - Weight"],
+    ["units-liquid",         "31. Units - Liquid"],
+    ["units-time",           "32. Units - Time"],
+    ["units-money",          "33. Units - Money"],
+    ["universe",             "34. \uD83C\uDF0C Universe"],
+    ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
+    ["shapes-identify",      "36. \uD83D\uDD2E Shapes - Identify"],
+    ["sp-avatars",           "37. \uD83D\uDE4F Avatars"],
+    ["sp-bhagavadgita",      "38. \uD83D\uDE4F Bhagavad Gita"],
+    ["sp-festivalsandrituals","39. \uD83D\uDE4F Festivals & Rituals"],
+    ["sp-hindudieties",      "40. \uD83D\uDE4F Hindu Dieties"],
+    ["sp-mahabharatam",      "41. \uD83D\uDE4F Mahabharatam"],
+    ["sp-ramayana",          "42. \uD83D\uDE4F Ramayana"],
+    ["sp-rishisandsaints",   "43. \uD83D\uDE4F Rishis & Saints"],
+    ["sp-temples",           "44. \uD83D\uDE4F Temples"]
 ];
 
 const control   = document.getElementById("control");
@@ -1231,12 +1235,11 @@ const MISSING_TYPES = new Set([
 
 // ── DRAW CLOCK ────────────────────────────────────────────────────────────────
 // Draws the static clock face (tick marks + numbers) — reused by animation loop
-function drawClockFace(ctx, cx, cy, r, size, scheme) {
-    scheme = scheme || { face:"#1a1a2e", rim:"#00c8ff", tick:"#dddddd", num:"#ffffff" };
+function drawClockFace(ctx, cx, cy, r, size) {
     ctx.clearRect(0, 0, size, size);
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI);
-    ctx.fillStyle = scheme.face; ctx.fill();
-    ctx.strokeStyle = scheme.rim; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = "#1a1a2e"; ctx.fill();
+    ctx.strokeStyle = "#00c8ff"; ctx.lineWidth = 3; ctx.stroke();
     for (let m = 0; m < 60; m++) {
         const angle   = (m / 30) * Math.PI - Math.PI/2;
         const isHour  = m % 5  === 0;
@@ -1245,12 +1248,12 @@ function drawClockFace(ctx, cx, cy, r, size, scheme) {
         ctx.beginPath();
         ctx.moveTo(cx + innerR*Math.cos(angle), cy + innerR*Math.sin(angle));
         ctx.lineTo(cx + r*0.97*Math.cos(angle), cy + r*0.97*Math.sin(angle));
-        ctx.strokeStyle = isQuart ? scheme.tick : isHour ? scheme.tick+"99" : scheme.tick+"44";
+        ctx.strokeStyle = isQuart ? "#dddddd" : isHour ? "#888888" : "#4a4a4a";
         ctx.lineWidth   = isQuart ? 3 : isHour ? 2 : 1;
         ctx.stroke();
     }
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillStyle = scheme.num; ctx.font = "bold " + (size*0.09) + "px Arial";
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold " + (size*0.09) + "px Arial";
     for (let h = 1; h <= 12; h++) {
         const angle = (h/6)*Math.PI - Math.PI/2;
         const nr = r * 0.68;
@@ -1259,11 +1262,10 @@ function drawClockFace(ctx, cx, cy, r, size, scheme) {
 }
 
 // Draws hands at a given progress (0 = both at 12, 1 = target time)
-function drawClockAt(canvas, targetMinFrac, targetHourFrac, progress, scheme) {
-    scheme = scheme || { face:"#1a1a2e", rim:"#00c8ff", tick:"#dddddd", num:"#ffffff", min:"#58D68D", hour:"#ff9900", dot:"#ffffff" };
+function drawClockAt(canvas, targetMinFrac, targetHourFrac, progress) {
     const size = canvas.width, cx = size/2, cy = size/2, r = size/2 - 6;
     const ctx  = canvas.getContext("2d");
-    drawClockFace(ctx, cx, cy, r, size, scheme);
+    drawClockFace(ctx, cx, cy, r, size);
 
     // Ease-out cubic for smooth deceleration
     const t = 1 - Math.pow(1 - progress, 3);
@@ -1273,22 +1275,22 @@ function drawClockAt(canvas, targetMinFrac, targetHourFrac, progress, scheme) {
     const minAngle = minFrac * 2 * Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.80*Math.cos(minAngle), cy + r*0.80*Math.sin(minAngle));
-    ctx.strokeStyle = scheme.min; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
+    ctx.strokeStyle = "#58D68D"; ctx.lineWidth = size*0.020; ctx.lineCap = "round"; ctx.stroke();
 
     // Hour hand: sweeps from 0 to targetHourFrac of a full turn
     const hourFrac  = targetHourFrac * t;
     const hourAngle = hourFrac * 2 * Math.PI - Math.PI/2;
     ctx.beginPath(); ctx.moveTo(cx, cy);
     ctx.lineTo(cx + r*0.50*Math.cos(hourAngle), cy + r*0.50*Math.sin(hourAngle));
-    ctx.strokeStyle = scheme.hour; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
+    ctx.strokeStyle = "#ff9900"; ctx.lineWidth = size*0.038; ctx.lineCap = "round"; ctx.stroke();
 
     // Centre dot
     ctx.beginPath(); ctx.arc(cx, cy, size*0.03, 0, 2*Math.PI);
-    ctx.fillStyle = scheme.dot; ctx.fill();
+    ctx.fillStyle = "#ffffff"; ctx.fill();
 }
 
 // Animated entry — hands sweep from 12 to target over ~900 ms
-function animateClock(canvas, timeStr, scheme) {
+function animateClock(canvas, timeStr) {
     const parts   = timeStr.split(":").map(Number);
     const hours   = parts[0] % 12;
     const minutes = parts[1] || 0;
@@ -1304,7 +1306,7 @@ function animateClock(canvas, timeStr, scheme) {
 
     function step(now) {
         const progress = Math.min((now - startTime) / DURATION, 1);
-        drawClockAt(canvas, targetMinFrac, targetHourFrac, progress, scheme);
+        drawClockAt(canvas, targetMinFrac, targetHourFrac, progress);
         if (progress < 1) {
             canvas._clockRaf = requestAnimationFrame(step);
         } else {
@@ -1320,24 +1322,6 @@ function drawClock(canvas, timeStr) {
     const hours   = parts[0] % 12;
     const minutes = parts[1] || 0;
     drawClockAt(canvas, minutes/60, (hours + minutes/60)/12, 1);
-}
-
-// ── CLOCK COLOUR SCHEMES (one chosen per day) ─────────────────────────────────
-const CLOCK_SCHEMES = [
-    { face:"#0d0d2b", rim:"#7c3aed", tick:"#a78bfa", num:"#e9d5ff", min:"#f0abfc", hour:"#c026d3", dot:"#ffffff", name:"Cosmic Purple" },
-    { face:"#001a0d", rim:"#10b981", tick:"#34d399", num:"#d1fae5", min:"#6ee7b7", hour:"#059669", dot:"#ffffff", name:"Emerald Forest" },
-    { face:"#1a0a00", rim:"#f97316", tick:"#fb923c", num:"#ffedd5", min:"#fcd34d", hour:"#ef4444", dot:"#ffffff", name:"Sunset Blaze" },
-    { face:"#00101a", rim:"#0ea5e9", tick:"#38bdf8", num:"#e0f2fe", min:"#7dd3fc", hour:"#0369a1", dot:"#ffffff", name:"Ocean Blue" },
-    { face:"#1a0010", rim:"#ec4899", tick:"#f472b6", num:"#fce7f3", min:"#fbcfe8", hour:"#be185d", dot:"#ffffff", name:"Cherry Blossom" },
-    { face:"#0a1a00", rim:"#84cc16", tick:"#bef264", num:"#ecfccb", min:"#d9f99d", hour:"#4d7c0f", dot:"#ffffff", name:"Lime Zest" },
-    { face:"#10001a", rim:"#8b5cf6", tick:"#c4b5fd", num:"#ede9fe", min:"#f0abfc", hour:"#6d28d9", dot:"#ffff00", name:"Galaxy Violet" },
-];
-
-function getDailyClockScheme() {
-    const now   = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const day   = Math.floor((now - start) / 86400000);
-    return CLOCK_SCHEMES[day % CLOCK_SCHEMES.length];
 }
 
 // ── UNIVERSE MCQ RENDERER (30/70 two-panel) ───────────────────────────────────
@@ -1863,9 +1847,9 @@ const WORD_ROW_TYPES = new Set(["word-problems","spell-the-word","simple-equatio
 const STACKED_ROW_TYPES = new Set(["ascending-order","descending-order","neg-pos-numbers"]);
 
 const NUM_MAP = {
-    "word-problems":4, "spell-the-word":3,
+    "word-problems":4, "spell-the-word":3, "simple-equations":2,
     "general-knowledge":4,
-    "units-length":1,"units-weight":1,"units-liquid":1,"units-time":1,"units-money":1
+    "units-length":2,"units-weight":2,"units-liquid":2,"units-time":2,"units-money":2
 };
 
 function generate(box, val) {
@@ -1877,69 +1861,34 @@ function generate(box, val) {
     if (opt) { const t = document.createElement("div"); t.className="problem-title"; t.textContent=opt[1]; box.appendChild(t); }
 
     if (val === "identify-time") {
-        const scheme = getDailyClockScheme();
         fetch(BASE_URL + "identify-time.json")
             .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
             .then(d => {
-                const [qi] = pickDailyIndices("identify-time", d.questions.length, 1);
-                const rawAns  = String(d.answers[qi] ?? "");
-                const timeStr = rawAns.replace(/\s*\(Q\d+\)$/, "").trim();
-
-                // Scheme badge
-                const schemeBadge = document.createElement("div");
-                schemeBadge.style.cssText = "font-size:13px;color:" + scheme.rim + ";background:rgba(0,0,0,0.3);border:1px solid " + scheme.rim + "44;border-radius:6px;padding:3px 10px;margin-bottom:12px;display:inline-block;";
-                schemeBadge.textContent = "🎨 Today's theme: " + scheme.name;
-                box.appendChild(schemeBadge);
-
-                const block = document.createElement("div");
-                block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0;";
-
-                const canvas = document.createElement("canvas");
-                canvas.width = 280; canvas.height = 280;
-                canvas.style.cssText = "border-radius:50%;box-shadow:0 0 32px " + scheme.rim + "66;";
-
-                // Draw static clock initially (hands at 12)
-                const parts = timeStr.split(":").map(Number);
-                const h = parts[0] % 12, m = parts[1] || 0;
-                setTimeout(() => drawClockAt(canvas, 0, 0, 1, scheme), 30);
-
-                // Play button
-                const playBtn = document.createElement("button");
-                playBtn.style.cssText = "background:" + scheme.rim + ";color:#000;font-size:18px;font-weight:bold;padding:10px 32px;border-radius:30px;border:none;cursor:pointer;box-shadow:0 0 18px " + scheme.rim + "99;letter-spacing:1px;";
-                playBtn.textContent = "▶ Animate";
-                playBtn.onclick = () => {
-                    playBtn.disabled = true;
-                    playBtn.textContent = "⏳ Playing…";
-                    // Phase 1: sweep to target over 1.6s
-                    const startTime = performance.now();
-                    const DURATION  = 1600;
-                    if (canvas._clockRaf) cancelAnimationFrame(canvas._clockRaf);
-                    function step(now) {
-                        const progress = Math.min((now - startTime) / DURATION, 1);
-                        const t = 1 - Math.pow(1 - progress, 3);
-                        drawClockAt(canvas, (m/60)*t, ((h + m/60)/12)*t, 1, scheme);
-                        if (progress < 1) {
-                            canvas._clockRaf = requestAnimationFrame(step);
-                        } else {
-                            canvas._clockRaf = null;
-                            playBtn.disabled = false;
-                            playBtn.textContent = "▶ Again";
-                        }
-                    }
-                    canvas._clockRaf = requestAnimationFrame(step);
-                };
-
-                const ansRow = document.createElement("div");
-                ansRow.style.cssText = "display:flex;align-items:center;gap:12px;font-size:24px;";
-                const ansLabel = document.createElement("span"); ansLabel.textContent = "What time is it?"; ansLabel.style.cssText = "color:#aaa;font-size:18px;";
-                const input = document.createElement("input"); input.type = "text"; input.className = "answer-input"; input.style.width = "120px"; input.placeholder = "h:mm";
-                const ansSpan = document.createElement("span"); ansSpan.className = "answer"; ansSpan.textContent = timeStr;
-                ansRow.appendChild(ansLabel); ansRow.appendChild(input); ansRow.appendChild(ansSpan);
-
-                block.appendChild(canvas);
-                block.appendChild(playBtn);
-                block.appendChild(ansRow);
-                box.appendChild(block);
+                const idx = pickDailyIndices("identify-time", d.questions.length, 2);
+                const container = document.createElement("div");
+                container.style.cssText = "display:flex;gap:60px;flex-wrap:wrap;padding:12px 0;";
+                idx.forEach((qi, i) => {
+                    const letter  = String.fromCharCode(97 + i);
+                    const rawAns  = String(d.answers[qi] ?? "");
+                    const timeStr = rawAns.replace(/\s*\(Q\d+\)$/, "").trim();
+                    const block = document.createElement("div");
+                    block.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:10px;";
+                    const lbl = document.createElement("span");
+                    lbl.textContent = "(" + letter + ")"; lbl.style.cssText = "font-size:22px;color:#aaa;font-weight:bold;";
+                    const canvas = document.createElement("canvas");
+                    canvas.width = 240; canvas.height = 240;
+                    canvas.style.cssText = "border-radius:50%;";
+                    setTimeout(() => drawClock(canvas, timeStr), 50);
+                    const ansRow = document.createElement("div");
+                    ansRow.style.cssText = "display:flex;align-items:center;gap:10px;font-size:24px;";
+                    const ansLabel = document.createElement("span"); ansLabel.textContent = "Time:"; ansLabel.style.cssText = "color:#aaa;font-size:20px;";
+                    const input = document.createElement("input"); input.type = "text"; input.className = "answer-input"; input.style.width = "120px"; input.placeholder = "h:mm";
+                    const ansSpan = document.createElement("span"); ansSpan.className = "answer"; ansSpan.textContent = timeStr;
+                    ansRow.appendChild(ansLabel); ansRow.appendChild(input); ansRow.appendChild(ansSpan);
+                    block.appendChild(lbl); block.appendChild(canvas); block.appendChild(ansRow);
+                    container.appendChild(block);
+                });
+                box.appendChild(container);
             })
             .catch(err => { box.innerHTML += '<div style="color:#f66;padding:20px;">' + err.message + '</div>'; });
         return;
@@ -2232,12 +2181,6 @@ function generate(box, val) {
                         const word = numberToWords(parseInt(numMatch[0]));
                         qText = qText + ' <span class="num-word">' + word + '</span>';
                     }
-                    // num-word IS the answer — render without a separate answer span
-                    box.innerHTML += '<div class="question-row">' +
-                        '<span class="question-letter">(' + letter + ')</span>' +
-                        '<span class="question-text">' + qText + '</span>' +
-                    '</div>';
-                    return;
                 }
 
                 let dataType = null;
