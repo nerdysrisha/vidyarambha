@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper</title>
-<!--v75 Comprehension (45) — passage left-aligned (60%) + image right (40%) side-by-side panel, questions below-->
+<!--v74 Added Comprehension (45) — reads warriors[] from english/comprehension/comprehension.json-->
 <style>
 html, body {
     margin: 0;
@@ -713,7 +713,7 @@ button:active { transform: scale(0.97); }
 
 /* ── COMPREHENSION LAYOUT ────────────────────────────────────────────── */
 .comp-outer {
-    max-width: 960px;
+    max-width: 860px;
     margin: 0 auto;
     padding: 10px 0 32px 0;
     display: flex;
@@ -749,27 +749,15 @@ button:active { transform: scale(0.97); }
     padding: 4px 14px;
 }
 
-/* Side-by-side passage + image panel */
-.comp-top-panel {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    margin-bottom: 28px;
-    border: 1px solid rgba(94,234,212,0.18);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 28px rgba(94,234,212,0.06);
-}
-
-/* Passage block — 60% */
+/* Passage block */
 .comp-passage-wrap {
-    flex: 0 0 60%;
-    width: 60%;
     background: #0d1510;
+    border: 1px solid rgba(94,234,212,0.18);
     border-left: 4px solid #5eead4;
-    border-right: 1px solid rgba(94,234,212,0.14);
-    padding: 26px 30px 26px 26px;
-    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 26px 34px 26px 30px;
+    margin-bottom: 28px;
+    box-shadow: 0 0 28px rgba(94,234,212,0.06), inset 0 0 40px rgba(0,0,0,0.3);
 }
 
 .comp-passage-label {
@@ -783,50 +771,12 @@ button:active { transform: scale(0.97); }
 }
 
 .comp-passage-text {
-    font-size: 18px;
-    line-height: 1.9;
+    font-size: 19px;
+    line-height: 1.95;
     color: #d4e8e4;
     font-family: Georgia, 'Times New Roman', serif;
     word-spacing: 0.04em;
     letter-spacing: 0.01em;
-    text-align: left;
-}
-
-/* Image panel — 40% */
-.comp-image-panel {
-    flex: 0 0 40%;
-    width: 40%;
-    background: rgba(0,0,0,0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    box-sizing: border-box;
-}
-
-.comp-hero-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-height: 420px;
-    object-fit: contain;
-    border-radius: 10px;
-    border: 2px solid rgba(94,234,212,0.35);
-    box-shadow: 0 0 24px rgba(94,234,212,0.18), 0 4px 20px rgba(0,0,0,0.6);
-    background: #0a0a0a;
-}
-
-.comp-img-missing {
-    width: 100%;
-    height: 100%;
-    min-height: 180px;
-    border-radius: 10px;
-    border: 2px dashed rgba(94,234,212,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(94,234,212,0.15);
-    font-size: 52px;
 }
 
 /* Questions section */
@@ -2272,9 +2222,6 @@ async function generateComprehension(box) {
         );
     }).join("");
 
-    const imgRoot = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/comprehension/";
-    const imgUrl  = imgRoot + passage.id + ".png";
-
     box.innerHTML =
         TITLE_HTML +
         '<div class="comp-outer">' +
@@ -2282,16 +2229,9 @@ async function generateComprehension(box) {
                 '<span class="comp-main-title">📖 Read the Passage</span>' +
                 '<span class="comp-subject-badge">' + (passage.subject || "Passage " + passage.id) + '</span>' +
             '</div>' +
-            '<div class="comp-top-panel">' +
-                '<div class="comp-passage-wrap">' +
-                    '<div class="comp-passage-label">Passage</div>' +
-                    '<div class="comp-passage-text">' + (passage.text || "") + '</div>' +
-                '</div>' +
-                '<div class="comp-image-panel">' +
-                    '<img class="comp-hero-img" src="' + imgUrl + '" alt="' + (passage.subject || "") + '" ' +
-                        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';" />' +
-                    '<div class="comp-img-missing" style="display:none;">📖</div>' +
-                '</div>' +
+            '<div class="comp-passage-wrap">' +
+                '<div class="comp-passage-label">Passage</div>' +
+                '<div class="comp-passage-text">' + (passage.text || "") + '</div>' +
             '</div>' +
             '<div class="comp-questions-label">Questions — answer after reading</div>' +
             mcqCardsHTML +
