@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Math Popper — Universe & Spiritual</title>
-<!-- v2  Everyday One topic Added refresh button-->
+<!-- v1: Universe (Q34), Spiritual (Q37-44), Comprehension (Q45) Everyday One topic-->
 <style>
 html, body {
     margin: 0;
@@ -550,8 +550,8 @@ button:active { transform: scale(0.97); }
 }
 
 .comp-passage-text {
-    font-size: 26px;
-    line-height: 2.1;
+    font-size: 21px;
+    line-height: 2.0;
     color: #d4e8e4;
     font-family: Georgia, 'Times New Roman', serif;
     word-spacing: 0.04em;
@@ -641,7 +641,7 @@ button:active { transform: scale(0.97); }
 }
 
 .comp-mcq-question {
-    font-size: 20px;
+    font-size: 18px;
     color: #e0eeec;
     line-height: 1.5;
     flex: 1;
@@ -662,7 +662,7 @@ button:active { transform: scale(0.97); }
     border: 1px solid rgba(94,234,212,0.10);
     border-radius: 7px;
     padding: 9px 13px;
-    font-size: 20px;
+    font-size: 16px;
     color: #b8d4cf;
     transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
 }
@@ -891,8 +891,8 @@ button:active { transform: scale(0.97); }
 .tod-line {
     margin: 0;
     padding: 9px 0;
-    font-size: 22px;
-    line-height: 1.65;
+    font-size: 17px;
+    line-height: 1.55;
     color: #d4d4d4;
     border-bottom: 1px solid #1a1a1a;
     display: flex;
@@ -974,13 +974,17 @@ function buildOptions() {
 }
 
 // ── ID-BASED DAY-OF-MONTH PICKER ─────────────────────────────────────────────
+// Logic: find the item whose id === today's day-of-month (1–31).
+// If no exact match (topic has fewer items than the date), wrap around gracefully.
+// refreshSeeds[val] overrides with a random different item for the 🔀 button.
 function pickDailyIndex(val, items) {
     const total = items.length;
     if (total === 0) return 0;
 
-    const dayOfMonth = new Date().getDate();
+    const dayOfMonth = new Date().getDate(); // 1–31
 
     if (refreshSeeds[val] !== undefined) {
+        // 🔀 pick a random id slot different from today's
         const rng = mulberry32(refreshSeeds[val]);
         let candidate;
         do { candidate = Math.floor(rng() * total); }
@@ -988,11 +992,28 @@ function pickDailyIndex(val, items) {
         return candidate;
     }
 
+    // Exact match: find item whose id === day of month
     const exact = items.findIndex(i => i.id === dayOfMonth);
     if (exact !== -1) return exact;
 
+    // Fallback: wrap around using (dayOfMonth - 1) % total
     return (dayOfMonth - 1) % total;
 }
+
+// ── WEEK-OF-MONTH + DAY-OF-WEEK PICKER ───────────────────────────────────────
+//
+// Items are stored in a flat array. Each item carries week (1-4) and day (1-7).
+// If an item lacks those fields, they are auto-assigned by position:
+//   position 0  → week 1, day 1
+//   position 1  → week 1, day 2
+//   ...
+//   position 6  → week 1, day 7
+//   position 7  → week 2, day 1  ... and so on (28-slot cycle).
+//
+// Selection logic:
+//   weekOfMonth = which week are we in this month (1–4; week 5 wraps to week 1)
+//   dayOfWeek   = 1 (Mon) … 7 (Sun)
+//   Find the item whose week === weekOfMonth AND day === dayOfWeek.
 
 // ── Date/time box ─────────────────────────────────────────────────────────────
 function updateDateBox() {
@@ -1008,6 +1029,7 @@ function updateDateBox() {
 updateDateBox();
 setInterval(updateDateBox, 1000);
 
+// options is populated after fetch; declared here so all functions can reference it
 let options = [];
 
 const control   = document.getElementById("control");
@@ -1018,10 +1040,11 @@ const stacks = {};
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-// ── BUILD CONTROL PANEL ───────────────────────────────────────────────────────
+// ── BUILD CONTROL PANEL (called after TOPIC_DATA is loaded) ───────────────────
 function buildControlPanel() {
     options = buildOptions();
 
+    // Clear any previous items (safety)
     while (control.children.length > 1) control.removeChild(control.lastChild);
 
     options.forEach(([val, label]) => {
@@ -1039,11 +1062,13 @@ function buildControlPanel() {
         control.appendChild(wrap);
     });
 
+    // Sync jump dropdown now that options exist
     syncJumpDropdown();
 }
 
 // ── FETCH topics.json AND INITIALISE ─────────────────────────────────────────
 (async function initApp() {
+    // Show loading state in control panel
     const loadingMsg = document.createElement("span");
     loadingMsg.style.cssText = "color:#555;font-size:13px;padding:6px 4px;";
     loadingMsg.textContent = "⏳ Loading topics…";
@@ -1134,6 +1159,10 @@ toggleAll.onclick = () => {
     if (badge && showAll) badge.style.display = "inline-block";
     if (badge && !showAll) badge.style.display = "none";
 
+    // ── Only comprehension answers are toggled ────────────────────────────
+    // Universe and Spiritual are now topic-of-the-day cards (no MCQ answers)
+
+    // ── Only comprehension uses show/hide answer highlighting ──────────────
     Object.keys(stacks).forEach(val => {
         const wrapper = stacks[val];
         if (!wrapper) return;
@@ -1151,6 +1180,7 @@ toggleAll.onclick = () => {
         }
     });
 
+    // Comprehension answer badges (always hidden)
     document.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
 
     toggleAll.textContent = showAll ? "Hide Answers" : "Show";
@@ -1159,6 +1189,7 @@ toggleAll.onclick = () => {
 };
 
 // ── RENDER HELPERS ────────────────────────────────────────────────────────────
+// AUTO_SIZE is fully data-driven — all topic slides auto-size
 const AUTO_SIZE_PREFIXES = ["topic-", "eng-"];
 function isAutoSize(val) {
     return AUTO_SIZE_PREFIXES.some(p => val.startsWith(p));
@@ -1166,6 +1197,7 @@ function isAutoSize(val) {
 
 function refreshStack(val) {
     if (!stacks[val]) return;
+    // Pick a new random seed, ensuring it differs from current seed
     const currentSeed = refreshSeeds[val] !== undefined ? refreshSeeds[val] : 0;
     let newSeed;
     do { newSeed = (Math.random() * 0xFFFFFFFF) >>> 0; }
@@ -1326,16 +1358,20 @@ function removeCorrectCompHighlights(container) {
 }
 
 // ── WIKIPEDIA IMAGE FETCH ─────────────────────────────────────────────────────
+// Fetches the best image for a search term from Wikipedia (no API key needed, CORS-open).
+// Returns a URL string or null if nothing found.
 async function fetchWikiImage(query) {
     if (!query) return null;
+    // Clean up the query — strip Q-codes, parentheticals, extra punctuation
     const clean = query
         .replace(/\(Q[\w\s]*\d+\)/gi, "")
         .replace(/\s*\(.*?\)\s*/g, " ")
         .replace(/[^\w\s]/g, " ")
         .trim()
-        .split(/\s+/).slice(0, 5).join(" ");
+        .split(/\s+/).slice(0, 5).join(" "); // max 5 words for a tighter search
 
     try {
+        // Step 1: search for the best matching article title
         const searchUrl =
             "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
             encodeURIComponent(clean) +
@@ -1346,6 +1382,7 @@ async function fetchWikiImage(query) {
         if (!hits || hits.length === 0) return null;
         const title = hits[0].title;
 
+        // Step 2: get the page image for that title
         const imgUrl =
             "https://en.wikipedia.org/w/api.php?action=query&titles=" +
             encodeURIComponent(title) +
@@ -1361,7 +1398,9 @@ async function fetchWikiImage(query) {
     }
 }
 
+// Sets a wiki image on an <img> element asynchronously, with a loading shimmer
 function setWikiImage(imgEl, query, borderClass) {
+    // Show a subtle loading state
     imgEl.style.opacity = "0.3";
     imgEl.style.filter  = "grayscale(1)";
     fetchWikiImage(query).then(url => {
@@ -1371,6 +1410,7 @@ function setWikiImage(imgEl, query, borderClass) {
             imgEl.style.filter  = "";
             if (borderClass) imgEl.className = imgEl.className.replace(/\bwiki-img-loading\b/g, "") + " " + borderClass;
         } else {
+            // No result — fade to placeholder look
             imgEl.style.opacity = "0.15";
             imgEl.style.filter  = "";
             imgEl.alt = "No image found for: " + query;
@@ -1378,99 +1418,13 @@ function setWikiImage(imgEl, query, borderClass) {
     });
 }
 
-// ── IMAGE REFRESH — query variant suffixes ────────────────────────────────────
-// On each tap the button cycles to the next suffix, keeping results on-topic.
-const IMG_QUERY_SUFFIXES = [
-    "",                    // 0 — original name (first load)
-    " close up",           // 1
-    " illustration",       // 2
-    " nature",             // 3
-    " photograph",         // 4
-    " diagram",            // 5
-    " colourful",          // 6
-    " for children",       // 7
-];
-
-// Tracks which suffix index each image element is currently on.
-// Key = imgEl's id attribute.
-const imgSuffixCounters = {};
-
-function attachImageRefreshBtn(containerEl, imgEl, phEl, baseName) {
-    if (!containerEl || !imgEl) return;
-
-    // Give the img a stable id if it doesn't have one yet
-    if (!imgEl.id) imgEl.id = "img-" + Math.random().toString(36).slice(2, 8);
-    imgSuffixCounters[imgEl.id] = 0; // start at suffix 0 (already loaded)
-
-    const btn = document.createElement("button");
-    btn.title = "See a different image";
-    btn.style.cssText = [
-        "position:absolute",
-        "bottom:12px",
-        "right:12px",
-        "z-index:10",
-        "background:rgba(0,0,0,0.55)",
-        "color:#fff",
-        "border:1px solid rgba(255,255,255,0.25)",
-        "border-radius:50px",
-        "padding:6px 13px",
-        "font-size:20px",
-        "cursor:pointer",
-        "backdrop-filter:blur(4px)",
-        "transition:background 0.18s,transform 0.12s",
-        "line-height:1",
-    ].join(";");
-    btn.textContent = "🔄";
-
-    btn.onmouseenter = () => { btn.style.background = "rgba(0,0,0,0.8)"; };
-    btn.onmouseleave = () => { btn.style.background = "rgba(0,0,0,0.55)"; };
-
-    btn.onclick = (e) => {
-        e.stopPropagation();
-
-        // Advance to next suffix (cycle)
-        const current = imgSuffixCounters[imgEl.id] || 0;
-        const next = (current + 1) % IMG_QUERY_SUFFIXES.length;
-        imgSuffixCounters[imgEl.id] = next;
-
-        const query = baseName + IMG_QUERY_SUFFIXES[next];
-
-        // Spin animation
-        btn.style.transform = "rotate(360deg)";
-        btn.style.transition = "transform 0.4s ease";
-        setTimeout(() => { btn.style.transform = ""; btn.style.transition = "background 0.18s,transform 0.12s"; }, 420);
-
-        // Fade out, load new image, fade in
-        imgEl.style.transition = "opacity 0.25s";
-        imgEl.style.opacity = "0";
-        if (phEl) { phEl.style.display = "none"; }
-
-        fetchWikiImage(query).then(url => {
-            if (url) {
-                imgEl.src = url;
-                imgEl.style.display = "block";
-                imgEl.style.opacity = "";
-                imgEl.style.transition = "";
-            } else {
-                // No result — show placeholder, try next suffix automatically next tap
-                imgEl.style.display = "none";
-                imgEl.style.opacity = "";
-                if (phEl) phEl.style.display = "flex";
-            }
-        });
-    };
-
-    // Container needs position:relative for absolute button placement
-    const pos = window.getComputedStyle(containerEl).position;
-    if (pos === "static") containerEl.style.position = "relative";
-
-    containerEl.appendChild(btn);
-}
-
 // ── TOPIC-OF-THE-DAY CARD RENDERER ────────────────────────────────────────────
+// Shared layout: left 60% text, right 40% wiki image
+// Used by both Universe sub-topics and Spiritual topics
 function renderTopicCard(box, topicObj, item, accentColor, titleLabel) {
     const imgId = "tod-img-" + Math.random().toString(36).slice(2, 9);
 
+    // Split the 10-line text on newlines for display
     const lines = item.text.split("\n").filter(l => l.trim());
     const linesHTML = lines.map((l, i) =>
         '<p class="tod-line" style="animation-delay:' + (i * 0.07) + 's">' +
@@ -1492,14 +1446,14 @@ function renderTopicCard(box, topicObj, item, accentColor, titleLabel) {
                 '</div>' +
                 '<div class="tod-lines">' + linesHTML + '</div>' +
             '</div>' +
-            '<div class="tod-right" id="tod-right-' + imgId + '">' +
+            '<div class="tod-right">' +
                 '<img id="' + imgId + '" class="tod-hero-img" src="" alt="' + item.name + '" ' +
                     'style="border-color:' + accentColor + ';box-shadow:0 0 32px ' + accentColor + '55,0 4px 20px rgba(0,0,0,0.7);" />' +
                 '<div class="tod-img-placeholder" id="ph-' + imgId + '">🔍</div>' +
             '</div>' +
         '</div>';
 
-    // Wiki image fetch with per-image refresh support
+    // Wiki image fetch
     setTimeout(() => {
         const imgEl = document.getElementById(imgId);
         const phEl  = document.getElementById("ph-" + imgId);
@@ -1508,12 +1462,6 @@ function renderTopicCard(box, topicObj, item, accentColor, titleLabel) {
             imgEl.onload  = () => { imgEl.style.display = "block"; if (phEl) phEl.style.display = "none"; };
             imgEl.onerror = () => { imgEl.style.display = "none";  if (phEl) phEl.style.display = "flex"; };
             setWikiImage(imgEl, item.name, "");
-        }
-
-        // Attach per-image refresh button
-        const rightCol = document.getElementById("tod-right-" + imgId);
-        if (rightCol) {
-            attachImageRefreshBtn(rightCol, imgEl, phEl, item.name);
         }
     }, 0);
 }
@@ -1533,6 +1481,7 @@ function generate(box, val) {
 }
 
 function generateComprehension(box) {
+    // Find the label from options array for the title
     const compLabel = (options.find(([v]) => v === "eng-comprehension") || ["","📖 Comprehension"])[1];
     const TITLE_HTML =
         '<div class="problem-title" style="background:linear-gradient(90deg,#5eead4,#99f6e4,#5eead4);' +
@@ -1597,7 +1546,7 @@ function generateComprehension(box) {
                     '<div class="comp-passage-label">Passage</div>' +
                     '<div class="comp-passage-text">' + (passage.text || "") + '</div>' +
                 '</div>' +
-                '<div class="comp-image-panel" id="comp-img-panel-' + compImgId + '">' +
+                '<div class="comp-image-panel">' +
                     '<img id="' + compImgId + '" class="comp-hero-img" src="" alt="' + (passage.subject || "") + '" />' +
                     '<div class="comp-img-missing" style="display:none;">📖</div>' +
                 '</div>' +
@@ -1606,17 +1555,13 @@ function generateComprehension(box) {
             mcqCardsHTML +
         '</div>';
 
+    // Fetch wiki image for the passage topic
     setTimeout(() => {
         const imgEl = document.getElementById(compImgId);
         if (imgEl) setWikiImage(imgEl, wikiCompQuery, "comp-hero-img");
-
-        const imgPanel = document.getElementById("comp-img-panel-" + compImgId);
-        const phEl = imgPanel ? imgPanel.querySelector(".comp-img-missing") : null;
-        if (imgPanel && imgEl) {
-            attachImageRefreshBtn(imgPanel, imgEl, phEl, wikiCompQuery);
-        }
     }, 0);
 
+    // comp badges always hidden; highlight does the job
     box.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
 
     if (showAll) {
