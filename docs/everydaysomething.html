@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Popper — Universe & Spiritual</title>
+<!-- v1: Universe (Q34), Spiritual (Q37-44), Comprehension (Q45) Everyday One topic-->
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: hidden;
+}
+
+/* CONTROL PANEL */
+#control {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 4px 10px;
+    background: #0a0a0a;
+    border: 1px solid #444;
+    padding: 10px 14px;
+}
+
+#control legend { padding: 0 10px; font-size: 14px; color: #aaa; }
+
+.ctrl-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 3px 0;
+    color: #28a745;
+}
+
+/* Universe colour */
+.ctrl-item.universe-main  { color: #a78bfa; }
+.ctrl-item.spiritual-main { color: #fb923c; }
+.ctrl-item.comprehension-main { color: #5eead4; }
+
+.ctrl-item input[type="checkbox"] { width: 15px; height: 15px; }
+
+/* CONTROL PANEL WRAPPER */
+#control-container {
+    display: flex;
+    flex-direction: column;
+    transition: flex-basis 0.3s ease, min-height 0.3s ease;
+    min-height: 40px;
+    overflow: hidden;
+}
+
+#control-container.shrink {
+    flex-basis: auto;
+    min-height: 64px;
+    padding: 4px 8px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #111 0%, #1a1a2e 100%);
+}
+
+#control-container.shrink #control { display: none; }
+
+/* TOP BAR */
+#control-top-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-height: 52px;
+}
+
+#control-top-bar label, #control-top-bar span { font-size: 16px; }
+
+/* BUTTONS */
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover  { transform: scale(1.06); filter: brightness(1.2); }
+button:active { transform: scale(0.97); }
+
+#selectAllBtn, #toggleAll {
+    background: #28a745;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(40,167,69,0.5);
+}
+#selectAllBtn:hover, #toggleAll:hover { box-shadow: 0 0 16px rgba(40,167,69,0.9); }
+
+.nav-btn {
+    background: #0077cc;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(0,119,204,0.5);
+}
+.nav-btn:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
+
+#timerBtn { background: #28a745; color: #fff; box-shadow: 0 0 8px rgba(40,167,69,0.5); }
+#resetTimer { background: #555; color: #fff; }
+#timerDisplay {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 56px;
+    letter-spacing: 2px;
+}
+
+#dateBox {
+    font-size: 14px;
+    font-weight: bold;
+    color: #28a745;
+    background: #0d1a0d;
+    border: 1px solid #28a745;
+    border-radius: 6px;
+    padding: 4px 10px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* QUESTIONS PANEL */
+#questions {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+#questions legend { padding: 0 10px; font-size: 16px; color: #aaa; }
+
+.stack-wrapper {
+    display: none;
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.stack-wrapper.visible-stack {
+    display: block;
+    position: absolute;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.stack-wrapper::-webkit-scrollbar { width: 10px; }
+.stack-wrapper::-webkit-scrollbar-track { background: #111; }
+.stack-wrapper::-webkit-scrollbar-thumb { background-color: #555; border-radius: 6px; border: 2px solid #111; }
+.stack-wrapper::-webkit-scrollbar-thumb:hover { background-color: #888; }
+
+.stack-wrapper.auto-size { height: auto; min-height: 100%; }
+
+.stack-box {
+    border: 1px solid #2a2a2a;
+    border-left: 4px solid #28a745;
+    border-radius: 6px;
+    background: #111;
+    padding: 16px 20px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.stack-box.auto-size { height: auto; }
+
+/* ── REFRESH BUTTON ──────────────────────────────────────────────── */
+.refresh-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    z-index: 5;
+    background: rgba(0,119,204,0.18);
+    color: #00c8ff;
+    border: 1px solid rgba(0,200,255,0.35);
+    border-radius: 7px;
+    padding: 4px 11px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    box-shadow: none;
+}
+.refresh-btn:hover {
+    background: rgba(0,150,255,0.32);
+    box-shadow: 0 0 10px rgba(0,200,255,0.5);
+    transform: scale(1.07);
+    filter: none;
+}
+.refresh-btn:active { transform: scale(0.96); }
+.refresh-btn.spinning { pointer-events: none; opacity: 0.6; }
+@keyframes spin1 { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.refresh-icon { display:inline-block; }
+.spinning .refresh-icon { animation: spin1 0.5s linear; }
+
+/* Universe box colour variants */
+.stack-box.box-guess    { border-left-color: #f59e0b; background: linear-gradient(160deg,#1a1200,#111); }
+.stack-box.box-spiritual{ border-left-color: #f97316; background: linear-gradient(160deg,#1a0900,#111); }
+
+/* ── COMPREHENSION BOX ── */
+.stack-box.box-comprehension {
+    border-left-color: #5eead4;
+    background: linear-gradient(160deg, #020f0d, #0a0f0e, #111);
+}
+
+/* TITLES */
+.problem-title {
+    color: #28a745;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+/* ── UNIVERSE MCQ: 30/70 two-panel layout ────────────────────────── */
+.univ-block {
+    border-bottom: 1px solid #1e1e1e;
+    padding: 16px 0 20px 0;
+}
+
+.univ-block-inner {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-height: 420px;
+}
+
+.univ-left-col {
+    flex: 0 0 30%;
+    width: 30%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px 12px 20px;
+    border-right: 1px solid #2a2a2a;
+    box-sizing: border-box;
+}
+
+.univ-right-col {
+    flex: 0 0 70%;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    gap: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0 8px 8px 0;
+}
+
+.univ-q-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.univ-q-header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.univ-q-letter {
+    font-size: 22px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.univ-q-category {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+}
+
+.univ-q-text {
+    font-size: 20px;
+    line-height: 1.4;
+    color: #eee;
+}
+
+.univ-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.univ-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #181828;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background 0.25s, border-color 0.25s;
+}
+
+/* ── CORRECT OPTION HIGHLIGHT (Q34) ── */
+.univ-option.correct-highlight {
+    background: rgba(52, 211, 153, 0.15);
+    border-color: #34d399;
+    box-shadow: 0 0 12px rgba(52,211,153,0.25);
+}
+
+.univ-option.correct-highlight .univ-option-text {
+    color: #6ee7b7;
+    font-weight: bold;
+}
+
+.univ-option.correct-highlight .univ-option-letter {
+    color: #34d399;
+}
+
+/* Spiritual correct highlight */
+.univ-option.correct-highlight-spiritual {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: #4ade80;
+    box-shadow: 0 0 12px rgba(74,222,128,0.25);
+}
+
+.univ-option.correct-highlight-spiritual .univ-option-text {
+    color: #86efac;
+    font-weight: bold;
+}
+
+.univ-option.correct-highlight-spiritual .univ-option-letter {
+    color: #4ade80;
+}
+
+.univ-option-letter {
+    font-size: 15px;
+    font-weight: bold;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.univ-option-text { color: #ccc; }
+
+.univ-answer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.univ-badge {
+    visibility: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(88,214,141,0.12);
+    border: 1px solid #58D68D;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #58D68D;
+}
+
+.univ-badge.show { visibility: visible; }
+
+/* Q34 question image */
+.univ-q-image {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    height: 380px;
+    object-fit: contain;
+    border-radius: 16px;
+    border: 2px solid #f59e0b;
+    background: #0a0a0a;
+    box-shadow: 0 0 32px rgba(245,158,11,0.35), 0 4px 20px rgba(0,0,0,0.7);
+}
+
+.univ-ans-img {
+    display: none;
+    width: 100%;
+    max-width: 560px;
+    height: 380px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #0a0a0a;
+}
+
+.univ-ans-img.show { display: block; }
+
+.guess-img    { border: 2px solid #f59e0b; box-shadow: 0 0 28px rgba(245,158,11,0.35), 0 4px 20px rgba(0,0,0,0.6); }
+.science-img  { border: 2px solid #34d399; box-shadow: 0 0 28px rgba(52,211,153,0.35), 0 4px 20px rgba(0,0,0,0.6); }
+.geo-img      { border: 2px solid #60a5fa; box-shadow: 0 0 28px rgba(96,165,250,0.35), 0 4px 20px rgba(0,0,0,0.6); }
+.machines-img { border: 2px solid #f472b6; box-shadow: 0 0 28px rgba(244,114,182,0.35), 0 4px 20px rgba(0,0,0,0.6); }
+
+.univ-img-placeholder {
+    width: 100%;
+    max-width: 560px;
+    height: 380px;
+    border-radius: 16px;
+    background: #111;
+    border: 2px dashed #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2a2a2a;
+    font-size: 60px;
+    flex-shrink: 0;
+}
+
+.univ-img-placeholder.hide { display: none; }
+
+.univ-img-404 {
+    display: none;
+    font-size: 13px;
+    color: #555;
+    font-style: italic;
+}
+.univ-img-404.show { display: inline; }
+
+/* Colour helpers */
+.c-guess    { color: #f59e0b; }
+.c-science  { color: #34d399; }
+.c-geo      { color: #60a5fa; }
+.c-machines { color: #f472b6; }
+.c-spiritual { color: #fb923c; }
+.c-comprehension { color: #5eead4; }
+
+.cat-guess    { color: #f59e0b; background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3); }
+.cat-science  { color: #34d399; background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.3); }
+.cat-geo      { color: #60a5fa; background: rgba(96,165,250,0.10); border: 1px solid rgba(96,165,250,0.3); }
+.cat-machines { color: #f472b6; background: rgba(244,114,182,0.10); border: 1px solid rgba(244,114,182,0.3); }
+.cat-spiritual{ color: #fb923c; background: rgba(249,115,22,0.10);  border: 1px solid rgba(249,115,22,0.3);  }
+.cat-comprehension { color: #5eead4; background: rgba(94,234,212,0.10); border: 1px solid rgba(94,234,212,0.3); }
+
+.spiritual-img { border: 2px solid #f97316; box-shadow: 0 0 28px rgba(249,115,22,0.35), 0 4px 20px rgba(0,0,0,0.6); }
+
+/* ── COMPREHENSION LAYOUT — panels 20% larger ────────────────────── */
+.comp-outer {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 10px 0 38px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.comp-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+/* ── PASSAGE NUMBER BADGE ── */
+.comp-passage-num {
+    font-size: 13px;
+    font-weight: bold;
+    color: #94a3b8;
+    background: rgba(148,163,184,0.10);
+    border: 1px solid rgba(148,163,184,0.25);
+    border-radius: 6px;
+    padding: 4px 12px;
+    letter-spacing: 0.8px;
+    font-family: 'Courier New', monospace;
+}
+
+.comp-main-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #5eead4;
+    letter-spacing: 0.5px;
+}
+
+.comp-subject-badge {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #5eead4;
+    background: rgba(94,234,212,0.10);
+    border: 1px solid rgba(94,234,212,0.35);
+    border-radius: 6px;
+    padding: 4px 14px;
+}
+
+.comp-top-panel {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 34px;
+    border: 1px solid rgba(94,234,212,0.18);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 28px rgba(94,234,212,0.06);
+}
+
+.comp-passage-wrap {
+    flex: 0 0 60%;
+    width: 60%;
+    background: #0d1510;
+    border-left: 4px solid #5eead4;
+    border-right: 1px solid rgba(94,234,212,0.14);
+    padding: 31px 36px 31px 31px;
+    box-sizing: border-box;
+}
+
+.comp-passage-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #5eead4;
+    opacity: 0.6;
+    margin-bottom: 14px;
+}
+
+.comp-passage-text {
+    font-size: 21px;
+    line-height: 2.0;
+    color: #d4e8e4;
+    font-family: Georgia, 'Times New Roman', serif;
+    word-spacing: 0.04em;
+    letter-spacing: 0.01em;
+    text-align: left;
+}
+
+.comp-image-panel {
+    flex: 0 0 40%;
+    width: 40%;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 19px;
+    box-sizing: border-box;
+}
+
+.comp-hero-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 504px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 2px solid rgba(94,234,212,0.35);
+    box-shadow: 0 0 24px rgba(94,234,212,0.18), 0 4px 20px rgba(0,0,0,0.6);
+    background: #0a0a0a;
+}
+
+.comp-img-missing {
+    width: 100%;
+    height: 100%;
+    min-height: 216px;
+    border-radius: 10px;
+    border: 2px dashed rgba(94,234,212,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(94,234,212,0.15);
+    font-size: 52px;
+}
+
+.comp-questions-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #5eead4;
+    opacity: 0.55;
+    margin-bottom: 16px;
+}
+
+.comp-mcq-card {
+    background: #0b1512;
+    border: 1px solid rgba(94,234,212,0.14);
+    border-radius: 10px;
+    padding: 20px 24px 16px 24px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+}
+
+.comp-mcq-card:last-child { margin-bottom: 0; }
+.comp-mcq-card:hover { border-color: rgba(94,234,212,0.30); }
+
+.comp-mcq-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.comp-mcq-num {
+    font-size: 13px;
+    font-weight: bold;
+    color: #5eead4;
+    background: rgba(94,234,212,0.12);
+    border: 1px solid rgba(94,234,212,0.28);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.comp-mcq-question {
+    font-size: 18px;
+    color: #e0eeec;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.comp-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+    padding-left: 38px;
+}
+
+.comp-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(94,234,212,0.10);
+    border-radius: 7px;
+    padding: 9px 13px;
+    font-size: 16px;
+    color: #b8d4cf;
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.comp-option:hover { background: rgba(94,234,212,0.05); border-color: rgba(94,234,212,0.22); }
+
+/* ── COMPREHENSION CORRECT HIGHLIGHT ── */
+.comp-option.correct-highlight {
+    background: rgba(52, 211, 153, 0.15);
+    border-color: #34d399;
+    box-shadow: 0 0 10px rgba(52,211,153,0.22);
+}
+
+.comp-option.correct-highlight span:last-child {
+    color: #6ee7b7;
+    font-weight: bold;
+}
+
+.comp-option.correct-highlight .comp-option-letter {
+    color: #34d399;
+}
+
+.comp-option-letter {
+    font-size: 13px;
+    font-weight: bold;
+    color: #5eead4;
+    flex-shrink: 0;
+    width: 18px;
+}
+
+.comp-answer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    padding-left: 38px;
+}
+
+.comp-badge {
+    visibility: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(94,234,212,0.10);
+    border: 1px solid #5eead4;
+    border-radius: 7px;
+    padding: 5px 14px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #5eead4;
+}
+
+.comp-badge.show { visibility: visible; }
+
+/* ── BOTTOM NAV ── */
+#bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 8px 20px;
+    background: #0f0f0f;
+    border-top: 1px solid #333;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+#bottom-nav button { padding: 12px 32px; font-size: 18px; border-radius: 12px; }
+
+#bottom-qCounter {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 80px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* CONFETTI */
+@keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(420px) rotate(720deg) scale(0.4); opacity: 0; }
+}
+
+.confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall linear forwards;
+}
+
+/* ANIMAL RUN */
+@keyframes animalRunRight {
+    0%   { transform: translateX(-120px) scaleX(1); }
+    100% { transform: translateX(calc(100vw + 120px)) scaleX(1); }
+}
+@keyframes animalRunLeft {
+    0%   { transform: translateX(calc(100vw + 120px)) scaleX(-1); }
+    100% { transform: translateX(-120px) scaleX(-1); }
+}
+
+.animal-runner {
+    position: fixed;
+    bottom: 72px;
+    font-size: 52px;
+    pointer-events: none;
+    z-index: 9998;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+/* RAINBOW GLOW */
+@keyframes answersBlink {
+    0%,100% { opacity:1; }
+    50%     { opacity:0.45; }
+}
+
+@keyframes rainbowGlow {
+    0%   { outline-color: #ff004c; }
+    20%  { outline-color: #ff9900; }
+    40%  { outline-color: #ffee00; }
+    60%  { outline-color: #28a745; }
+    80%  { outline-color: #00c8ff; }
+    100% { outline-color: #ff004c; }
+}
+
+/* JUMP DROPDOWN */
+#jumpSelect {
+    background: #111;
+    color: #00c8ff;
+    border: 1px solid #00c8ff44;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    min-width: 190px;
+    max-width: 260px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+#jumpSelect:hover, #jumpSelect:focus {
+    border-color: #00c8ff;
+    box-shadow: 0 0 10px rgba(0,200,255,0.4);
+}
+#jumpSelect option {
+    background: #111;
+    color: #eee;
+    font-weight: normal;
+}
+/* ── TOPIC-OF-THE-DAY CARD ── */
+.tod-outer {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 440px;
+}
+
+.tod-left {
+    flex: 0 0 60%;
+    width: 60%;
+    padding: 24px 28px 24px 24px;
+    box-sizing: border-box;
+    background: #0d0d0d;
+    border-right: 1px solid #2a2a2a;
+    overflow-y: auto;
+}
+
+.tod-right {
+    flex: 0 0 40%;
+    width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    background: rgba(0,0,0,0.25);
+    position: relative;
+}
+
+.tod-hero-img {
+    display: none;
+    width: 100%;
+    height: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 2px solid #444;
+    background: #0a0a0a;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+}
+
+.tod-img-placeholder {
+    width: 100%;
+    height: 380px;
+    border-radius: 12px;
+    border: 2px dashed #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2a2a2a;
+    font-size: 60px;
+    background: #0a0a0a;
+}
+
+.tod-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+@keyframes fadeLine {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.tod-line {
+    margin: 0;
+    padding: 9px 0;
+    font-size: 17px;
+    line-height: 1.55;
+    color: #d4d4d4;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    animation: fadeLine 0.4s ease both;
+}
+
+.tod-line:last-child { border-bottom: none; }
+
+.tod-line-num {
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 18px;
+    margin-top: 4px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="control-container" class="shrink">
+        <div id="control-top-bar" style="margin:4px 8px;">
+            <button id="selectAllBtn">All Qs</button>
+            <label style="display:flex;align-items:center;gap:8px;font-size:16px;">
+                <input type="checkbox" id="control-toggle" />
+                Show Control Panel
+            </label>
+            <select id="jumpSelect" title="Jump to question">
+                <option value="" disabled selected>⬇ Jump to…</option>
+            </select>
+            <button id="toggleAll">Show</button>
+            <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128275; ANSWERS SHOWN</span>
+            <button id="timerBtn">Start Timer</button>
+            <button id="resetTimer">Reset</button>
+            <span id="timerDisplay">00:00</span>
+            <button id="goTopBtn" class="nav-btn">&#11014; Top Q</button>
+            <span id="dateBox"></span>
+        </div>
+        <fieldset id="control">
+            <legend>Control Panel</legend>
+        </fieldset>
+    </div>
+
+    <fieldset id="questions">
+        <legend>Questions Panel</legend>
+    </fieldset>
+</div>
+
+<div id="bottom-nav">
+    <button id="prevBtn" class="nav-btn">&#8592; Prev</button>
+    <span id="bottom-qCounter">0 / 0</span>
+    <button id="nextBtn" class="nav-btn">Next &#8594;</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const TOPICS_JSON_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/universe/universe-topics.json";
+
+// TOPIC_DATA is populated after fetch; everything waits until it is ready.
+let TOPIC_DATA = null;
+
+// ── BUILD OPTIONS ARRAY FROM TOPIC_DATA ───────────────────────────────────────
+// Every topic in TOPIC_DATA.universe gets its own slide  val = "topic-{index}"
+// Comprehension is a separate fixed entry                val = "eng-comprehension"
+function buildOptions() {
+    const opts = [];
+    let n = 1;
+    TOPIC_DATA.universe.forEach((t, i) => {
+        opts.push(["topic-" + i, n++ + ". " + t.emoji + " " + t.topic]);
+    });
+    opts.push(["eng-comprehension", n++ + ". 📖 Comprehension"]);
+    return opts;
+}
+
+// ── ID-BASED DAY-OF-MONTH PICKER ─────────────────────────────────────────────
+// Logic: find the item whose id === today's day-of-month (1–31).
+// If no exact match (topic has fewer items than the date), wrap around gracefully.
+// refreshSeeds[val] overrides with a random different item for the 🔀 button.
+function pickDailyIndex(val, items) {
+    const total = items.length;
+    if (total === 0) return 0;
+
+    const dayOfMonth = new Date().getDate(); // 1–31
+
+    if (refreshSeeds[val] !== undefined) {
+        // 🔀 pick a random id slot different from today's
+        const rng = mulberry32(refreshSeeds[val]);
+        let candidate;
+        do { candidate = Math.floor(rng() * total); }
+        while (total > 1 && items[candidate].id === dayOfMonth);
+        return candidate;
+    }
+
+    // Exact match: find item whose id === day of month
+    const exact = items.findIndex(i => i.id === dayOfMonth);
+    if (exact !== -1) return exact;
+
+    // Fallback: wrap around using (dayOfMonth - 1) % total
+    return (dayOfMonth - 1) % total;
+}
+
+// ── WEEK-OF-MONTH + DAY-OF-WEEK PICKER ───────────────────────────────────────
+//
+// Items are stored in a flat array. Each item carries week (1-4) and day (1-7).
+// If an item lacks those fields, they are auto-assigned by position:
+//   position 0  → week 1, day 1
+//   position 1  → week 1, day 2
+//   ...
+//   position 6  → week 1, day 7
+//   position 7  → week 2, day 1  ... and so on (28-slot cycle).
+//
+// Selection logic:
+//   weekOfMonth = which week are we in this month (1–4; week 5 wraps to week 1)
+//   dayOfWeek   = 1 (Mon) … 7 (Sun)
+//   Find the item whose week === weekOfMonth AND day === dayOfWeek.
+
+// ── Date/time box ─────────────────────────────────────────────────────────────
+function updateDateBox() {
+    const now = new Date();
+    const days   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const d = days[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
+    const h = String(now.getHours()).padStart(2,"0");
+    const m = String(now.getMinutes()).padStart(2,"0");
+    const s = String(now.getSeconds()).padStart(2,"0");
+    document.getElementById("dateBox").textContent = "\uD83D\uDCC5 " + d + "  \uD83D\uDD54 " + h + ":" + m + ":" + s;
+}
+updateDateBox();
+setInterval(updateDateBox, 1000);
+
+// options is populated after fetch; declared here so all functions can reference it
+let options = [];
+
+const control   = document.getElementById("control");
+const questions = document.getElementById("questions");
+const toggleAll = document.getElementById("toggleAll");
+let showAll = false;
+const stacks = {};
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+// ── BUILD CONTROL PANEL (called after TOPIC_DATA is loaded) ───────────────────
+function buildControlPanel() {
+    options = buildOptions();
+
+    // Clear any previous items (safety)
+    while (control.children.length > 1) control.removeChild(control.lastChild);
+
+    options.forEach(([val, label]) => {
+        const wrap = document.createElement("label");
+        wrap.className = "ctrl-item" +
+            (val.startsWith("topic-") ? " universe-main"      :
+             val.startsWith("eng-")   ? " comprehension-main" : "");
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.onchange = () => cb.checked ? addStack(val) : removeStack(val);
+        wrap.append(cb);
+        const span = document.createElement("span");
+        span.textContent = label;
+        wrap.append(span);
+        control.appendChild(wrap);
+    });
+
+    // Sync jump dropdown now that options exist
+    syncJumpDropdown();
+}
+
+// ── FETCH topics.json AND INITIALISE ─────────────────────────────────────────
+(async function initApp() {
+    // Show loading state in control panel
+    const loadingMsg = document.createElement("span");
+    loadingMsg.style.cssText = "color:#555;font-size:13px;padding:6px 4px;";
+    loadingMsg.textContent = "⏳ Loading topics…";
+    control.appendChild(loadingMsg);
+
+    try {
+        const r = await fetch(TOPICS_JSON_URL);
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        TOPIC_DATA = await r.json();
+    } catch (err) {
+        loadingMsg.style.color = "#f66";
+        loadingMsg.textContent = "⚠️ Could not load topics.json — check GitHub URL or network. (" + err.message + ")";
+        return;
+    }
+
+    loadingMsg.remove();
+    buildControlPanel();
+})();
+
+// ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
+function playRevealChime() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playNote(freq, startTime, duration, gainPeak, type) {
+            const osc  = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = type || "sine";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+            gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+            gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.025);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+            osc.start(ctx.currentTime + startTime);
+            osc.stop(ctx.currentTime + startTime + duration + 0.05);
+        }
+
+        const melody = [
+            { freq: 261.63, t: 0.00, dur: 0.9  },
+            { freq: 329.63, t: 0.35, dur: 0.9  },
+            { freq: 392.00, t: 0.70, dur: 0.9  },
+            { freq: 440.00, t: 1.05, dur: 0.9  },
+            { freq: 523.25, t: 1.40, dur: 1.2  },
+            { freq: 523.25, t: 2.30, dur: 0.8  },
+            { freq: 659.25, t: 2.65, dur: 0.8  },
+            { freq: 783.99, t: 3.00, dur: 0.8  },
+            { freq: 880.00, t: 3.35, dur: 0.8  },
+            { freq: 1046.5, t: 3.70, dur: 1.5  },
+            { freq: 880.00, t: 5.50, dur: 0.9  },
+            { freq: 783.99, t: 6.00, dur: 0.9  },
+            { freq: 659.25, t: 6.50, dur: 1.0  },
+            { freq: 523.25, t: 7.10, dur: 1.2  },
+            { freq: 523.25, t: 8.60, dur: 3.2  },
+            { freq: 392.00, t: 8.60, dur: 3.2  },
+            { freq: 261.63, t: 8.60, dur: 4.0  },
+        ];
+
+        const harmony = [
+            { freq: 329.63, t: 0.00, dur: 1.4  },
+            { freq: 415.30, t: 0.70, dur: 1.4  },
+            { freq: 523.25, t: 1.40, dur: 1.6  },
+            { freq: 659.25, t: 2.30, dur: 1.2  },
+            { freq: 830.61, t: 3.00, dur: 1.4  },
+            { freq: 1046.5, t: 3.70, dur: 1.8  },
+        ];
+
+        const shimmer = [
+            { freq: 2093.0, t: 1.40, dur: 0.5  },
+            { freq: 2349.3, t: 2.30, dur: 0.5  },
+            { freq: 2093.0, t: 3.70, dur: 0.6  },
+            { freq: 2637.0, t: 5.50, dur: 0.5  },
+            { freq: 2093.0, t: 8.60, dur: 1.2  },
+        ];
+
+        melody .forEach(n => playNote(n.freq, n.t, n.dur, 0.18, "sine"));
+        harmony.forEach(n => playNote(n.freq, n.t, n.dur, 0.07, "sine"));
+        shimmer.forEach(n => playNote(n.freq, n.t, n.dur, 0.05, "triangle"));
+
+        setTimeout(() => ctx.close(), 13500);
+    } catch(e) {}
+}
+
+toggleAll.onclick = () => {
+    showAll = !showAll;
+    if (showAll) playRevealChime();
+    const badge = document.getElementById("answersShownBadge");
+    if (badge && showAll) badge.style.display = "inline-block";
+    if (badge && !showAll) badge.style.display = "none";
+
+    // ── Only comprehension answers are toggled ────────────────────────────
+    // Universe and Spiritual are now topic-of-the-day cards (no MCQ answers)
+
+    // ── Only comprehension uses show/hide answer highlighting ──────────────
+    Object.keys(stacks).forEach(val => {
+        const wrapper = stacks[val];
+        if (!wrapper) return;
+        const box = wrapper.querySelector(".stack-box");
+        if (!box) return;
+
+        if (val === "eng-comprehension") {
+            if (showAll) {
+                highlightCorrectCompOptions(box);
+                box.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
+            } else {
+                removeCorrectCompHighlights(box);
+                box.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
+            }
+        }
+    });
+
+    // Comprehension answer badges (always hidden)
+    document.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
+
+    toggleAll.textContent = showAll ? "Hide Answers" : "Show";
+    toggleAll.style.background = showAll ? "#cc3300" : "#28a745";
+    toggleAll.style.boxShadow  = showAll ? "0 0 12px rgba(204,51,0,0.7)" : "0 0 8px rgba(40,167,69,0.5)";
+};
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+// AUTO_SIZE is fully data-driven — all topic slides auto-size
+const AUTO_SIZE_PREFIXES = ["topic-", "eng-"];
+function isAutoSize(val) {
+    return AUTO_SIZE_PREFIXES.some(p => val.startsWith(p));
+}
+
+function refreshStack(val) {
+    if (!stacks[val]) return;
+    // Pick a new random seed, ensuring it differs from current seed
+    const currentSeed = refreshSeeds[val] !== undefined ? refreshSeeds[val] : 0;
+    let newSeed;
+    do { newSeed = (Math.random() * 0xFFFFFFFF) >>> 0; }
+    while (newSeed === currentSeed);
+    refreshSeeds[val] = newSeed;
+
+    const wrapper = stacks[val];
+    const oldBox = wrapper.querySelector(".stack-box");
+    if (!oldBox) return;
+    oldBox.innerHTML = "";
+    generate(oldBox, val);
+
+    setTimeout(() => {
+        oldBox.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
+        if (showAll && val === "eng-comprehension") highlightCorrectCompOptions(oldBox);
+    }, 900);
+}
+
+function addStack(val) {
+    if (stacks[val]) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "stack-wrapper" + (isAutoSize(val) ? " auto-size" : "");
+    const isUniverse      = val.startsWith("topic-");
+    const isSpiritual     = false;
+    const isComprehension = val.startsWith("eng-");
+    const box = document.createElement("div");
+    box.className = "stack-box" +
+        (isUniverse      ? " box-guess"          :
+         isSpiritual     ? " box-spiritual"      :
+         isComprehension ? " box-comprehension"  : "");
+    box.classList.add("auto-size");
+    wrapper.appendChild(box);
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.className = "refresh-btn";
+    refreshBtn.title = "Load a different item for today";
+    refreshBtn.innerHTML = '<span class="refresh-icon">🔀</span> New Item';
+    refreshBtn.onclick = (e) => {
+        e.stopPropagation();
+        refreshBtn.classList.add("spinning");
+        setTimeout(() => refreshBtn.classList.remove("spinning"), 550);
+        refreshStack(val);
+    };
+    wrapper.appendChild(refreshBtn);
+
+    stacks[val] = wrapper;
+    stackOrder.push(val);
+    questions.appendChild(wrapper);
+    generate(box, val);
+    navigateTo(stackOrder.length - 1, "next");
+    syncJumpDropdown();
+}
+
+function removeStack(val) {
+    stacks[val]?.remove();
+    delete stacks[val];
+    const idx = stackOrder.indexOf(val);
+    if (idx !== -1) stackOrder.splice(idx, 1);
+    if (stackOrder.length === 0) { currentIndex = 0; updateCounter(); }
+    else {
+        const newIdx = Math.min(currentIndex, stackOrder.length - 1);
+        stackOrder.forEach((v, i) => { stacks[v]?.classList.toggle("visible-stack", i === newIdx); });
+        currentIndex = newIdx;
+        updateCounter();
+    }
+    syncJumpDropdown();
+}
+
+// ── JUMP DROPDOWN ─────────────────────────────────────────────────────────────
+const jumpSelect = document.getElementById("jumpSelect");
+
+function syncJumpDropdown() {
+    const labelMap = {};
+    options.forEach(([val, label]) => { labelMap[val] = label; });
+
+    jumpSelect.innerHTML = '<option value="" disabled>⬇ Jump to…</option>';
+    stackOrder.forEach(val => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = labelMap[val] || val;
+        jumpSelect.appendChild(opt);
+    });
+    jumpSelect.value = stackOrder[currentIndex] || "";
+}
+
+jumpSelect.addEventListener("change", () => {
+    const val = jumpSelect.value;
+    const idx = stackOrder.indexOf(val);
+    if (idx === -1) return;
+    const dir = idx >= currentIndex ? "next" : "prev";
+    navigateTo(idx, dir);
+});
+
+// ── SEEDED DAILY PICKER ───────────────────────────────────────────────────────
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+}
+
+function hashStr(str) {
+    let h = 5381;
+    for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
+    return h >>> 0;
+}
+
+const refreshSeeds = {};
+
+// ── HIGHLIGHT HELPERS ────────────────────────────────────────────────────────
+function highlightCorrectUnivOptions(container, highlightClass) {
+    container.querySelectorAll(".univ-block").forEach(block => {
+        const badge = block.querySelector(".univ-badge");
+        if (!badge) return;
+        let ansText = "";
+        badge.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) ansText += node.textContent;
+            else if (node.tagName === "SPAN" && !node.style.color) ansText += node.textContent;
+        });
+        ansText = ansText.replace(/^✅\s*/,"").trim().toLowerCase();
+
+        block.querySelectorAll(".univ-option").forEach(opt => {
+            const optText = (opt.querySelector(".univ-option-text")||{}).textContent || "";
+            if (optText.trim().toLowerCase() === ansText) {
+                opt.classList.add(highlightClass || "correct-highlight");
+            }
+        });
+    });
+}
+
+function removeCorrectUnivHighlights(container) {
+    container.querySelectorAll(".univ-option.correct-highlight, .univ-option.correct-highlight-spiritual").forEach(opt => {
+        opt.classList.remove("correct-highlight","correct-highlight-spiritual");
+    });
+}
+
+function highlightCorrectCompOptions(container) {
+    container.querySelectorAll(".comp-mcq-card").forEach(card => {
+        const badge = card.querySelector(".comp-badge");
+        if (!badge) return;
+        let ansText = badge.textContent.replace(/^✅\s*/,"").trim().toLowerCase();
+        card.querySelectorAll(".comp-option").forEach(opt => {
+            const spans = opt.querySelectorAll("span");
+            const optText = spans.length > 1 ? spans[spans.length-1].textContent.trim().toLowerCase() : opt.textContent.trim().toLowerCase();
+            if (optText === ansText) {
+                opt.classList.add("correct-highlight");
+            }
+        });
+    });
+}
+
+function removeCorrectCompHighlights(container) {
+    container.querySelectorAll(".comp-option.correct-highlight").forEach(opt => {
+        opt.classList.remove("correct-highlight");
+    });
+}
+
+// ── WIKIPEDIA IMAGE FETCH ─────────────────────────────────────────────────────
+// Fetches the best image for a search term from Wikipedia (no API key needed, CORS-open).
+// Returns a URL string or null if nothing found.
+async function fetchWikiImage(query) {
+    if (!query) return null;
+    // Clean up the query — strip Q-codes, parentheticals, extra punctuation
+    const clean = query
+        .replace(/\(Q[\w\s]*\d+\)/gi, "")
+        .replace(/\s*\(.*?\)\s*/g, " ")
+        .replace(/[^\w\s]/g, " ")
+        .trim()
+        .split(/\s+/).slice(0, 5).join(" "); // max 5 words for a tighter search
+
+    try {
+        // Step 1: search for the best matching article title
+        const searchUrl =
+            "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
+            encodeURIComponent(clean) +
+            "&srlimit=1&format=json&origin=*";
+        const searchRes  = await fetch(searchUrl);
+        const searchData = await searchRes.json();
+        const hits = searchData?.query?.search;
+        if (!hits || hits.length === 0) return null;
+        const title = hits[0].title;
+
+        // Step 2: get the page image for that title
+        const imgUrl =
+            "https://en.wikipedia.org/w/api.php?action=query&titles=" +
+            encodeURIComponent(title) +
+            "&prop=pageimages&pithumbsize=600&format=json&origin=*";
+        const imgRes  = await fetch(imgUrl);
+        const imgData = await imgRes.json();
+        const pages = imgData?.query?.pages;
+        if (!pages) return null;
+        const page = Object.values(pages)[0];
+        return page?.thumbnail?.source || null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Sets a wiki image on an <img> element asynchronously, with a loading shimmer
+function setWikiImage(imgEl, query, borderClass) {
+    // Show a subtle loading state
+    imgEl.style.opacity = "0.3";
+    imgEl.style.filter  = "grayscale(1)";
+    fetchWikiImage(query).then(url => {
+        if (url) {
+            imgEl.src = url;
+            imgEl.style.opacity = "";
+            imgEl.style.filter  = "";
+            if (borderClass) imgEl.className = imgEl.className.replace(/\bwiki-img-loading\b/g, "") + " " + borderClass;
+        } else {
+            // No result — fade to placeholder look
+            imgEl.style.opacity = "0.15";
+            imgEl.style.filter  = "";
+            imgEl.alt = "No image found for: " + query;
+        }
+    });
+}
+
+// ── TOPIC-OF-THE-DAY CARD RENDERER ────────────────────────────────────────────
+// Shared layout: left 60% text, right 40% wiki image
+// Used by both Universe sub-topics and Spiritual topics
+function renderTopicCard(box, topicObj, item, accentColor, titleLabel) {
+    const imgId = "tod-img-" + Math.random().toString(36).slice(2, 9);
+
+    // Split the 10-line text on newlines for display
+    const lines = item.text.split("\n").filter(l => l.trim());
+    const linesHTML = lines.map((l, i) =>
+        '<p class="tod-line" style="animation-delay:' + (i * 0.07) + 's">' +
+            '<span class="tod-line-num" style="color:' + accentColor + '">' + (i + 1) + '</span>' +
+            l +
+        '</p>'
+    ).join("");
+
+    box.innerHTML =
+        '<div class="problem-title" style="background:linear-gradient(90deg,' + accentColor + ',#fff8);' +
+            '-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;' +
+            'font-size:24px;font-weight:bold;margin-bottom:14px;">' + titleLabel + '</div>' +
+
+        '<div class="tod-outer">' +
+            '<div class="tod-left">' +
+                '<div class="tod-item-heading" style="border-left:4px solid ' + accentColor + ';padding-left:14px;margin-bottom:18px;">' +
+                    '<span class="tod-topic-badge" style="color:' + accentColor + ';background:rgba(255,255,255,0.06);border:1px solid ' + accentColor + '40;border-radius:6px;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1.2px;padding:3px 10px;display:inline-block;margin-bottom:8px;">' + topicObj.emoji + ' ' + topicObj.topic + '</span><br>' +
+                    '<span style="font-size:26px;font-weight:bold;color:#fff;letter-spacing:0.3px;">' + item.name + '</span>' +
+                '</div>' +
+                '<div class="tod-lines">' + linesHTML + '</div>' +
+            '</div>' +
+            '<div class="tod-right">' +
+                '<img id="' + imgId + '" class="tod-hero-img" src="" alt="' + item.name + '" ' +
+                    'style="border-color:' + accentColor + ';box-shadow:0 0 32px ' + accentColor + '55,0 4px 20px rgba(0,0,0,0.7);" />' +
+                '<div class="tod-img-placeholder" id="ph-' + imgId + '">🔍</div>' +
+            '</div>' +
+        '</div>';
+
+    // Wiki image fetch
+    setTimeout(() => {
+        const imgEl = document.getElementById(imgId);
+        const phEl  = document.getElementById("ph-" + imgId);
+        if (imgEl) {
+            imgEl.style.display = "none";
+            imgEl.onload  = () => { imgEl.style.display = "block"; if (phEl) phEl.style.display = "none"; };
+            imgEl.onerror = () => { imgEl.style.display = "none";  if (phEl) phEl.style.display = "flex"; };
+            setWikiImage(imgEl, item.name, "");
+        }
+    }, 0);
+}
+
+// ── MAIN GENERATE DISPATCHER ──────────────────────────────────────────────────
+function generate(box, val) {
+    if (val.startsWith("topic-")) {
+        const idx = parseInt(val.replace("topic-", ""), 10);
+        const topicObj = TOPIC_DATA.universe[idx];
+        if (!topicObj) { box.innerHTML = '<div style="color:#f66;padding:20px;">Topic not found.</div>'; return; }
+        const itemIdx = pickDailyIndex(val, topicObj.items);
+        const item = topicObj.items[itemIdx];
+        renderTopicCard(box, topicObj, item, "#a78bfa", topicObj.emoji + " " + topicObj.topic);
+        return;
+    }
+    if (val === "eng-comprehension") { generateComprehension(box); return; }
+}
+
+function generateComprehension(box) {
+    // Find the label from options array for the title
+    const compLabel = (options.find(([v]) => v === "eng-comprehension") || ["","📖 Comprehension"])[1];
+    const TITLE_HTML =
+        '<div class="problem-title" style="background:linear-gradient(90deg,#5eead4,#99f6e4,#5eead4);' +
+        '-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;' +
+        'font-size:24px;font-weight:bold;margin-bottom:8px;">' + compLabel + '</div>';
+
+    const passages = TOPIC_DATA.comprehension || [];
+    if (!passages.length) {
+        box.innerHTML = TITLE_HTML + '<div style="color:#f66;padding:20px;">No passages found.</div>';
+        return;
+    }
+
+    const pi = pickDailyIndex("eng-comprehension", passages);
+    const passage = passages[pi];
+    if (!passage) {
+        box.innerHTML = TITLE_HTML + '<div style="color:#f66;padding:20px;">Passage not found.</div>';
+        return;
+    }
+
+    const qs = passage.questions || [];
+    const optLetters = ["A","B","C","D"];
+
+    const passageNumHTML =
+        '<span class="comp-passage-num">Passage #' + (pi + 1) + '</span>';
+
+    const mcqCardsHTML = qs.map((q, idx) => {
+        const correctAns = String(q.correct || q.answer || "").trim();
+        const optionsHTML = (q.options || []).map((opt, i) =>
+            '<div class="comp-option">' +
+                '<span class="comp-option-letter">' + optLetters[i] + '.</span>' +
+                '<span>' + opt + '</span>' +
+            '</div>'
+        ).join("");
+
+        return (
+            '<div class="comp-mcq-card">' +
+                '<div class="comp-mcq-header">' +
+                    '<span class="comp-mcq-num">' + (idx + 1) + '</span>' +
+                    '<span class="comp-mcq-question">' + q.question + '</span>' +
+                '</div>' +
+                '<div class="comp-options-grid">' + optionsHTML + '</div>' +
+                '<div class="comp-answer-row">' +
+                    '<span class="comp-badge" data-correct-answer="' + correctAns.replace(/"/g,'&quot;') + '">\u2705 ' + correctAns + '</span>' +
+                '</div>' +
+            '</div>'
+        );
+    }).join("");
+
+    const compImgId = "comp-img-" + Math.random().toString(36).slice(2,9);
+    const wikiCompQuery = passage.subject || passage.id || "reading comprehension";
+
+    box.innerHTML =
+        TITLE_HTML +
+        '<div class="comp-outer">' +
+            '<div class="comp-title-row">' +
+                '<span class="comp-main-title">📖 Read the Passage</span>' +
+                passageNumHTML +
+                '<span class="comp-subject-badge">' + (passage.subject || "Passage " + passage.id) + '</span>' +
+            '</div>' +
+            '<div class="comp-top-panel">' +
+                '<div class="comp-passage-wrap">' +
+                    '<div class="comp-passage-label">Passage</div>' +
+                    '<div class="comp-passage-text">' + (passage.text || "") + '</div>' +
+                '</div>' +
+                '<div class="comp-image-panel">' +
+                    '<img id="' + compImgId + '" class="comp-hero-img" src="" alt="' + (passage.subject || "") + '" />' +
+                    '<div class="comp-img-missing" style="display:none;">📖</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="comp-questions-label">Questions — answer after reading</div>' +
+            mcqCardsHTML +
+        '</div>';
+
+    // Fetch wiki image for the passage topic
+    setTimeout(() => {
+        const imgEl = document.getElementById(compImgId);
+        if (imgEl) setWikiImage(imgEl, wikiCompQuery, "comp-hero-img");
+    }, 0);
+
+    // comp badges always hidden; highlight does the job
+    box.querySelectorAll(".comp-badge").forEach(b => b.style.visibility = "hidden");
+
+    if (showAll) {
+        highlightCorrectCompOptions(box);
+    }
+}
+
+// ── CONTROL TOGGLE ────────────────────────────────────────────────────────────
+const controlContainer = document.getElementById("control-container");
+const controlToggle    = document.getElementById("control-toggle");
+controlToggle.checked  = false;
+controlToggle.onchange = () => controlContainer.classList.toggle("shrink", !controlToggle.checked);
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+let timer = null, seconds = 0;
+const timerBtn     = document.getElementById("timerBtn");
+const resetTimerBtn= document.getElementById("resetTimer");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function updateTimerDisplay() {
+    timerDisplay.textContent = String(Math.floor(seconds/60)).padStart(2,"0") + ":" + String(seconds%60).padStart(2,"0");
+}
+
+timerBtn.onclick = () => {
+    if (!timer) {
+        timer = setInterval(()=>{seconds++;updateTimerDisplay();},1000);
+        timerBtn.textContent="Pause"; timerBtn.style.background="#cc3300"; timerBtn.style.boxShadow="0 0 12px rgba(204,51,0,0.8)";
+    } else {
+        clearInterval(timer); timer=null;
+        timerBtn.textContent="Start Timer"; timerBtn.style.background="#28a745"; timerBtn.style.boxShadow="0 0 8px rgba(40,167,69,0.5)";
+    }
+};
+
+resetTimerBtn.onclick = () => {
+    clearInterval(timer); timer=null; seconds=0; updateTimerDisplay();
+    timerBtn.textContent="Start Timer"; timerBtn.style.background="#28a745"; timerBtn.style.boxShadow="0 0 8px rgba(40,167,69,0.5)";
+};
+
+// ── CONFETTI ──────────────────────────────────────────────────────────────────
+const CONFETTI_COLORS = ["#ff004c","#ff9900","#ffee00","#28a745","#00c8ff","#cc44ff","#ff66aa","#ffffff"];
+
+function launchConfetti() {
+    const count=38, half=Math.floor(count/2), vpW=window.innerWidth;
+    for (let i=0;i<count;i++) {
+        const piece=document.createElement("div"); piece.className="confetti-piece";
+        const isLeft=i<half;
+        const originX=isLeft?rand(0,60):rand(vpW-60,vpW-4);
+        const spreadX=isLeft?rand(-10,90):rand(-90,10);
+        const duration=rand(700,1300), delay=rand(0,220), size=rand(7,13);
+        const color=CONFETTI_COLORS[rand(0,CONFETTI_COLORS.length-1)];
+        const isCircle=rand(0,1)===0;
+        piece.style.cssText="left:"+(originX+spreadX)+"px;top:"+rand(-30,40)+"px;width:"+size+"px;height:"+(size*rand(1,2))+"px;background:"+color+";border-radius:"+(isCircle?"50%":"2px")+";animation-duration:"+duration+"ms;animation-delay:"+delay+"ms;";
+        document.body.appendChild(piece);
+        setTimeout(()=>piece.remove(), duration+delay+100);
+    }
+}
+
+// ── ANIMAL RUN ────────────────────────────────────────────────────────────────
+const ANIMALS = ["\uD83D\uDC22","\uD83D\uDC07","\uD83E\uDD81","\uD83D\uDC18","\uD83E\uDD92","\uD83D\uDC38","\uD83D\uDC27","\uD83E\uDD94","\uD83D\uDC2F","\uD83E\uDD93"];
+let lastAnimalIdx = -1;
+
+function runAnimal(direction) {
+    let idx;
+    do { idx=Math.floor(Math.random()*ANIMALS.length); } while (idx===lastAnimalIdx);
+    lastAnimalIdx = idx;
+    const el=document.createElement("div"); el.className="animal-runner";
+    el.textContent=ANIMALS[idx];
+    const duration=rand(6800,9800);
+    el.style.animationName=direction==="next"?"animalRunRight":"animalRunLeft";
+    el.style.animationDuration=duration+"ms";
+    el.style.animationTimingFunction="linear";
+    el.style.animationFillMode="forwards";
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), duration+100);
+}
+
+// ── CAROUSEL NAVIGATION ───────────────────────────────────────────────────────
+const stackOrder   = [];
+let   currentIndex = 0;
+let   isAnimating  = false;
+
+function updateCounter() {
+    const total = stackOrder.length;
+    document.getElementById("bottom-qCounter").textContent = total===0 ? "0 / 0" : (currentIndex+1) + " / " + total;
+    if (jumpSelect && stackOrder[currentIndex]) jumpSelect.value = stackOrder[currentIndex];
+}
+
+function navigateTo(newIdx, direction) {
+    if (stackOrder.length===0) { updateCounter(); return; }
+    if (isAnimating) return;
+    if (newIdx===currentIndex && stackOrder.length>1) { updateCounter(); return; }
+    isAnimating = true;
+    const oldEl = stacks[stackOrder[currentIndex]];
+    const newEl = stacks[stackOrder[newIdx]];
+    currentIndex = newIdx;
+    if (oldEl && oldEl!==newEl) {
+        oldEl.style.transition="transform 0.38s ease,opacity 0.38s ease";
+        oldEl.style.transform=direction==="next"?"translateX(-100%)":"translateX(100%)";
+        oldEl.style.opacity="0";
+        setTimeout(()=>{
+            oldEl.classList.remove("visible-stack");
+            oldEl.style.transform=""; oldEl.style.opacity=""; oldEl.style.transition="";
+        }, 390);
+    }
+    if (newEl) {
+        newEl.style.transition="none";
+        newEl.style.transform=direction==="next"?"translateX(100%)":"translateX(-100%)";
+        newEl.style.opacity="0";
+        newEl.classList.add("visible-stack");
+        newEl.scrollTop=0;
+        requestAnimationFrame(()=>{
+            requestAnimationFrame(()=>{
+                newEl.style.transition="transform 0.38s ease,opacity 0.38s ease";
+                newEl.style.transform="translateX(0)";
+                newEl.style.opacity="1";
+                setTimeout(()=>{ newEl.style.transition=""; newEl.style.transform=""; newEl.style.opacity=""; isAnimating=false; }, 400);
+            });
+        });
+    }
+    updateCounter();
+}
+
+function navigate(direction) {
+    if (stackOrder.length===0) return;
+    const idx = direction==="next"
+        ? (currentIndex+1) % stackOrder.length
+        : (currentIndex-1+stackOrder.length) % stackOrder.length;
+    navigateTo(idx, direction);
+    launchConfetti();
+    runAnimal(direction);
+}
+
+document.getElementById("prevBtn").onclick  = () => navigate("prev");
+document.getElementById("nextBtn").onclick  = () => navigate("next");
+document.getElementById("goTopBtn").onclick = () => { navigateTo(0,"prev"); launchConfetti(); runAnimal("prev"); };
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); navigate("next"); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); navigate("prev"); }
+});
+
+document.getElementById("selectAllBtn").onclick = async () => {
+    const allCheckboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
+    for (let cb of allCheckboxes) {
+        if (!cb.checked) {
+            cb.checked = true;
+            cb.onchange();
+            await new Promise(r => setTimeout(r, 500));
+        }
+    }
+};
+
+questions.addEventListener("click", e => {
+    const stack = e.target.closest(".stack-wrapper");
+    if (!stack) return;
+    launchConfetti();
+});
+
+// ── SCREEN WAKE LOCK ──────────────────────────────────────────────────────────
+let wakeLock = null;
+async function requestWakeLock() {
+    try {
+        if ("wakeLock" in navigator) {
+            wakeLock = await navigator.wakeLock.request("screen");
+            wakeLock.addEventListener("release", ()=>{});
+        }
+    } catch(err) {}
+}
+document.addEventListener("visibilitychange", ()=>{
+    if (wakeLock!==null && document.visibilityState==="visible") requestWakeLock();
+});
+requestWakeLock();
+</script>
+</body>
+</html>
