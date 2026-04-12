@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>EveryDayMaths</title>
-<!--v12 removed scrollbar outside visibility as well  -->
+<!--v13 Perimeter fix: added missing `const wrap = document.createElement("div")` declaration-->
 <style>
 html, body {
     margin: 0;
@@ -654,7 +654,9 @@ const options = [
     ["units-liquid",         "27. Units - Liquid"],
     ["units-time",           "28. Units - Time"],
     ["units-money",          "29. Units - Money"],
-    ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"]
+    ["shapes-draw",          "35. \uD83D\uDCCF Shapes - Draw"],
+    ["perimeter-shapes",     "36. 📐 Perimeter"],
+    ["average-numbers",      "37. 📊 Average"]
 ];
 
 const control   = document.getElementById("control");
@@ -1233,7 +1235,6 @@ toggleAll.onclick = () => {
         badge.style.background = "#1a0000";
     }
     if (badge && !showAll) {
-        // Keep visible but dimmed so parent knows answers were peeked
         badge.style.animation = "none";
         badge.style.opacity = "0.65";
         badge.style.color = "#cc7700";
@@ -1263,6 +1264,11 @@ toggleAll.onclick = () => {
         }
     });
     document.querySelectorAll(".working-block").forEach(wb => wb.classList.toggle("show", showAll));
+
+    // Perimeter shape — redraw canvas with/without side labels
+    document.querySelectorAll("canvas.perim-canvas").forEach(canvas => {
+        if (canvas._showAnswers) canvas._showAnswers(showAll);
+    });
 
     if (showAll) {
         document.querySelectorAll(".question-row[data-type='bodmas']").forEach(row => {
@@ -1372,16 +1378,7 @@ function renderStackedRow(letter, question, answer, val) {
     '</div>';
 }
 
-// ── UNITS REFERENCE CARD (updated) ───────────────────────────────────────────
-// Changes:
-//   1. Removed "Example" column from left table
-//   2. Larger SVG dots; × and ÷ labels shown to right of dot chain
-//   3. Animate button removed
-//   4. Right-side table text size increased
-//   5. Grid proportions: 30% | 40% | 30%
-//   6. "Memory trick" tip removed from right table
-
-
+// ── UNITS REFERENCE CARD ──────────────────────────────────────────────────────
 const UNITS_CONFIG = {
     "units-length": {
         title: "Units of Length",
@@ -1494,7 +1491,6 @@ function buildUnitsRefCard(val) {
     const grid = document.createElement("div");
     grid.className = "urc-grid";
 
-    // ── LEFT: units list ──────────────────────────────────────────────────────
     const leftDiv = document.createElement("div");
     leftDiv.className = "urc-conv";
     leftDiv.innerHTML = '<div class="urc-conv-hdr">' + cfg.title + '</div>' +
@@ -1509,7 +1505,6 @@ function buildUnitsRefCard(val) {
         ).join("");
     grid.appendChild(leftDiv);
 
-    // ── CENTER: dot chain ─────────────────────────────────────────────────────
     const center = document.createElement("div");
     center.className = "urc-center";
 
@@ -1523,7 +1518,6 @@ function buildUnitsRefCard(val) {
 
     const yPos = cfg.units.map((_, i) => R + 10 + i * gap);
 
-    // vertical line
     const vline = document.createElementNS(svgNS, "line");
     vline.setAttribute("x1", CX); vline.setAttribute("y1", yPos[0] + R);
     vline.setAttribute("x2", CX); vline.setAttribute("y2", yPos[yPos.length - 1] - R);
@@ -1583,7 +1577,6 @@ function buildUnitsRefCard(val) {
     center.appendChild(svg);
     grid.appendChild(center);
 
-    // ── RIGHT: tips ───────────────────────────────────────────────────────────
     const rightDiv = document.createElement("div");
     rightDiv.className = "urc-conv";
     rightDiv.innerHTML = '<div class="urc-conv-hdr">Conversion tips</div>' +
@@ -1604,6 +1597,7 @@ function buildUnitsRefCard(val) {
 
 // ── STACK MANAGEMENT ──────────────────────────────────────────────────────────
 const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
+    "perimeter-shapes","average-numbers",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
@@ -2055,12 +2049,252 @@ function generate(box, val) {
         return;
     }
 
-    // ── UNITS REFERENCE CARD (injected before questions) ─────────────────────
- 
-	
-	if (val.startsWith("units-")) {
-    box.appendChild(buildUnitsRefCard(val));
-	}
+    // ── PERIMETER SHAPES ─────────────────────────────────────────────────────────
+    if (val === "perimeter-shapes") {
+        const SHAPES = [
+            { name:"Square",            sides:1, gen:(r)=>{ const s=r(3,12); return {vars:{s}, perimeter:4*s, formula:"4 × s", working:"4 × "+s+" = "+(4*s)+" cm", labels:[s,s,s,s], draw:"square"}; } },
+            { name:"Rectangle",         sides:2, gen:(r)=>{ const l=r(4,14),w=r(2,9); return {vars:{l,w}, perimeter:2*(l+w), formula:"2 × (l + w)", working:"2 × ("+l+" + "+w+") = 2 × "+(l+w)+" = "+(2*(l+w))+" cm", labels:[l,w,l,w], draw:"rectangle", l, w}; } },
+            { name:"Equilateral Triangle",sides:1,gen:(r)=>{ const s=r(3,12); return {vars:{s}, perimeter:3*s, formula:"3 × s", working:"3 × "+s+" = "+(3*s)+" cm", labels:[s,s,s], draw:"equitriangle"}; } },
+            { name:"Right Triangle",    sides:3, gen:(r)=>{ const pairs=[[3,4,5],[5,12,13],[6,8,10],[8,15,17],[9,12,15]]; const t=pairs[r(0,4)]; return {vars:{a:t[0],b:t[1],c:t[2]}, perimeter:t[0]+t[1]+t[2], formula:"a + b + c", working:t[0]+" + "+t[1]+" + "+t[2]+" = "+(t[0]+t[1]+t[2])+" cm", labels:[t[0],t[1],t[2]], draw:"righttriangle", a:t[0], b:t[1], c:t[2]}; } },
+            { name:"Parallelogram",     sides:2, gen:(r)=>{ const a=r(4,12),b=r(2,8); return {vars:{a,b}, perimeter:2*(a+b), formula:"2 × (a + b)", working:"2 × ("+a+" + "+b+") = 2 × "+(a+b)+" = "+(2*(a+b))+" cm", labels:[a,b,a,b], draw:"parallelogram", a, b}; } },
+            { name:"Rhombus",           sides:1, gen:(r)=>{ const s=r(3,12); return {vars:{s}, perimeter:4*s, formula:"4 × s", working:"4 × "+s+" = "+(4*s)+" cm", labels:[s,s,s,s], draw:"rhombus"}; } },
+            { name:"Trapezoid",         sides:4, gen:(r)=>{ const a=r(5,12),b=r(3,9),c=r(3,8),d=r(3,8); return {vars:{a,b,c,d}, perimeter:a+b+c+d, formula:"a + b + c + d", working:a+" + "+b+" + "+c+" + "+d+" = "+(a+b+c+d)+" cm", labels:[a,b,c,d], draw:"trapezoid", a, b, c, d}; } },
+            { name:"Regular Pentagon",  sides:1, gen:(r)=>{ const s=r(3,10); return {vars:{s}, perimeter:5*s, formula:"5 × s", working:"5 × "+s+" = "+(5*s)+" cm", labels:[s,s,s,s,s], draw:"pentagon"}; } },
+            { name:"Regular Hexagon",   sides:1, gen:(r)=>{ const s=r(3,9);  return {vars:{s}, perimeter:6*s, formula:"6 × s", working:"6 × "+s+" = "+(6*s)+" cm", labels:[s,s,s,s,s,s], draw:"hexagon"}; } },
+            { name:"Regular Octagon",   sides:1, gen:(r)=>{ const s=r(3,8);  return {vars:{s}, perimeter:8*s, formula:"8 × s", working:"8 × "+s+" = "+(8*s)+" cm", labels:[s,s,s,s,s,s,s,s], draw:"octagon"}; } },
+        ];
+
+        const rng = mulberry32(dailySeed("perimeter-shapes"));
+        function ri(a,b){ return a + Math.floor(rng()*(b-a+1)); }
+
+        const si  = Math.floor(rng() * SHAPES.length);
+        const sh  = SHAPES[si];
+        const q   = sh.gen(ri);
+
+        // ── canvas drawing ────────────────────────────────────────────
+        function drawPerimShape(canvas, type, q, showLabels) {
+            const W = canvas.width, H = canvas.height;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,W,H);
+            const cx = W/2, cy = H/2;
+            ctx.strokeStyle = "#00c8ff"; ctx.fillStyle = "#0a1a2a";
+            ctx.lineWidth = 2.5; ctx.font = "bold 15px Arial"; ctx.fillStyle = "#0a1a2a";
+
+            function label(x, y, txt) {
+                if (!showLabels) return;
+                ctx.save();
+                ctx.font = "bold 15px Arial";
+                ctx.fillStyle = "#fcd34d";
+                ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillText(txt + " cm", x, y);
+                ctx.restore();
+            }
+
+            function poly(pts) {
+                ctx.beginPath();
+                ctx.moveTo(pts[0][0], pts[0][1]);
+                pts.slice(1).forEach(p => ctx.lineTo(p[0],p[1]));
+                ctx.closePath();
+                ctx.fillStyle = "#0a1a2a"; ctx.fill();
+                ctx.strokeStyle = "#00c8ff"; ctx.stroke();
+            }
+
+            function midLabel(p1, p2, txt, offset) {
+                if (!showLabels) return;
+                const mx = (p1[0]+p2[0])/2 + (offset||[0,0])[0];
+                const my = (p1[1]+p2[1])/2 + (offset||[0,0])[1];
+                label(mx, my, txt);
+            }
+
+            const pad = 55;
+            if (type === "square") {
+                const s = Math.min(W,H) - pad*2;
+                const x0=cx-s/2, y0=cy-s/2, x1=cx+s/2, y1=cy+s/2;
+                poly([[x0,y0],[x1,y0],[x1,y1],[x0,y1]]);
+                midLabel([x0,y0],[x1,y0], q.labels[0], [0,-14]);
+                midLabel([x1,y0],[x1,y1], q.labels[1], [22,0]);
+                midLabel([x0,y1],[x1,y1], q.labels[2], [0,14]);
+                midLabel([x0,y0],[x0,y1], q.labels[3], [-22,0]);
+            } else if (type === "rectangle") {
+                const lp = Math.min(W,H)*0.75, wp = Math.min(W,H)*0.45;
+                const x0=cx-lp/2, y0=cy-wp/2, x1=cx+lp/2, y1=cy+wp/2;
+                poly([[x0,y0],[x1,y0],[x1,y1],[x0,y1]]);
+                midLabel([x0,y0],[x1,y0], q.labels[0], [0,-14]);
+                midLabel([x1,y0],[x1,y1], q.labels[1], [28,0]);
+                midLabel([x0,y1],[x1,y1], q.labels[2], [0,14]);
+                midLabel([x0,y0],[x0,y1], q.labels[3], [-28,0]);
+            } else if (type === "equitriangle") {
+                const r2 = Math.min(W,H)/2 - 30;
+                const pts = [0,1,2].map(i => { const a=(i*120-90)*Math.PI/180; return [cx+r2*Math.cos(a), cy+r2*Math.sin(a)]; });
+                poly(pts);
+                midLabel(pts[0],pts[1], q.labels[0], [18,-8]);
+                midLabel(pts[1],pts[2], q.labels[1], [0,16]);
+                midLabel(pts[2],pts[0], q.labels[2], [-18,-8]);
+            } else if (type === "righttriangle") {
+                const sz = Math.min(W,H) - pad*2;
+                const p0=[cx-sz/2, cy+sz/2], p1=[cx+sz/2, cy+sz/2], p2=[cx-sz/2, cy-sz/2];
+                poly([p0,p1,p2]);
+                ctx.save(); ctx.strokeStyle="#aaa"; ctx.lineWidth=1.5;
+                const rm=14;
+                ctx.strokeRect(p0[0], p0[1]-rm, rm, rm);
+                ctx.restore();
+                midLabel(p0,p1, q.labels[0], [0,16]);
+                midLabel(p0,p2, q.labels[1], [-28,0]);
+                midLabel(p1,p2, q.labels[2], [22,-12]);
+            } else if (type === "parallelogram") {
+                const pw=Math.min(W,H)*0.65, ph=Math.min(W,H)*0.38, sk=30;
+                const x0=cx-pw/2+sk, y0=cy-ph/2, x1=cx+pw/2+sk, y1=cy-ph/2;
+                const x2=cx+pw/2-sk, y2=cy+ph/2, x3=cx-pw/2-sk, y3=cy+ph/2;
+                poly([[x0,y0],[x1,y1],[x2,y2],[x3,y3]]);
+                midLabel([x0,y0],[x1,y1], q.labels[0], [0,-16]);
+                midLabel([x1,y1],[x2,y2], q.labels[1], [28,0]);
+                midLabel([x2,y2],[x3,y3], q.labels[2], [0,16]);
+                midLabel([x3,y3],[x0,y0], q.labels[3], [-28,0]);
+            } else if (type === "rhombus") {
+                const rw=Math.min(W,H)*0.42, rh=Math.min(W,H)*0.36;
+                const pts=[[cx,cy-rh],[cx+rw,cy],[cx,cy+rh],[cx-rw,cy]];
+                poly(pts);
+                midLabel(pts[0],pts[1], q.labels[0], [20,-12]);
+                midLabel(pts[1],pts[2], q.labels[1], [20,12]);
+                midLabel(pts[2],pts[3], q.labels[2], [-20,12]);
+                midLabel(pts[3],pts[0], q.labels[3], [-20,-12]);
+            } else if (type === "trapezoid") {
+                const bw=Math.min(W,H)*0.7, tw=Math.min(W,H)*0.4, ht=Math.min(W,H)*0.38;
+                const p0=[cx-bw/2,cy+ht/2],p1=[cx+bw/2,cy+ht/2],p2=[cx+tw/2,cy-ht/2],p3=[cx-tw/2,cy-ht/2];
+                poly([p0,p1,p2,p3]);
+                midLabel(p0,p1, q.labels[0], [0,16]);
+                midLabel(p1,p2, q.labels[1], [28,0]);
+                midLabel(p2,p3, q.labels[2], [0,-16]);
+                midLabel(p3,p0, q.labels[3], [-28,0]);
+            } else {
+                const nSides = type==="pentagon"?5:type==="hexagon"?6:8;
+                const r3 = Math.min(W,H)/2 - 28;
+                const pts = Array.from({length:nSides},(_,i)=>{ const a=(i*360/nSides-90)*Math.PI/180; return [cx+r3*Math.cos(a),cy+r3*Math.sin(a)]; });
+                poly(pts);
+                pts.forEach((p,i)=>{ const p2=pts[(i+1)%nSides]; midLabel(p,p2,q.labels[i]); });
+            }
+        }
+
+        // ── build the question UI ──────────────────────────────────────
+        // FIX: declare `wrap` here — it was missing in v12, causing a ReferenceError
+        const wrap = document.createElement("div");
+        wrap.className = "_perimWrap";
+        wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 8px;";
+
+        const qLabel = document.createElement("div");
+        qLabel.style.cssText = "font-size:26px;font-weight:bold;color:#fff;text-align:center;";
+        qLabel.textContent = "Find the perimeter of this " + sh.name + ":";
+        wrap.appendChild(qLabel);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 320; canvas.height = 260;
+        canvas.className = "perim-canvas";
+        canvas.style.cssText = "border-radius:10px;background:#060e18;border:1px solid #1a3a5c;";
+        wrap.appendChild(canvas);
+        setTimeout(() => drawPerimShape(canvas, q.draw, q, false), 30);
+
+        const ansRow = document.createElement("div");
+        ansRow.style.cssText = "display:flex;align-items:center;gap:14px;font-size:22px;flex-wrap:wrap;justify-content:center;";
+        const ansLabel = document.createElement("span");
+        ansLabel.textContent = "Perimeter ="; ansLabel.style.color = "#aaa";
+        const inp = document.createElement("input");
+        inp.type = "text"; inp.className = "answer-input"; inp.placeholder = "?";
+        inp.style.cssText = "width:90px;font-size:22px;text-align:center;";
+        const unitSpan = document.createElement("span");
+        unitSpan.textContent = "cm"; unitSpan.style.color = "#aaa";
+        ansRow.append(ansLabel, inp, unitSpan);
+        wrap.appendChild(ansRow);
+
+        const ansBlock = document.createElement("div");
+        ansBlock.className = "working-block";
+        ansBlock.style.textAlign = "center";
+        ansBlock.style.padding = "10px 14px";
+        ansBlock.innerHTML =
+            '<div><span class="w-label">Shape:</span> ' + sh.name + '</div>' +
+            '<div><span class="w-label">Formula:</span> <span class="w-step">' + q.formula + '</span></div>' +
+            '<div><span class="w-label">Working:</span> <span class="w-result">' + q.working + '</span></div>';
+        wrap.appendChild(ansBlock);
+
+        const ansSpan = document.createElement("span");
+        ansSpan.className = "answer";
+        ansSpan.style.cssText = "font-size:28px;font-weight:bold;margin-top:4px;";
+        ansSpan.textContent = q.perimeter + " cm";
+        wrap.appendChild(ansSpan);
+
+        canvas._showAnswers = (show) => {
+            drawPerimShape(canvas, q.draw, q, show);
+            if (show) ansBlock.classList.add("show");
+            else ansBlock.classList.remove("show");
+        };
+        wrap._perimeterQ = true;
+
+        box.appendChild(wrap);
+        return;
+    }
+
+    // ── AVERAGE ──────────────────────────────────────────────────────────────────
+    if (val === "average-numbers") {
+        const rng = mulberry32(dailySeed("average-numbers"));
+        function ri(a,b){ return a + Math.floor(rng()*(b-a+1)); }
+
+        const questions = [];
+        for (let q = 0; q < 1; q++) {
+            let nums, avg;
+            let tries = 0;
+            do {
+                nums = [ri(10,30), ri(10,30), ri(10,30), ri(10,30)];
+                const sum = nums.reduce((a,b)=>a+b,0);
+                avg = sum / 4;
+                tries++;
+            } while (avg !== Math.floor(avg) && tries < 200);
+            questions.push({ nums, sum: nums.reduce((a,b)=>a+b,0), avg });
+        }
+
+        questions.forEach((q, j) => {
+            const letter = String.fromCharCode(97+j);
+            const row = document.createElement("div");
+            row.className = "question-row";
+            row.style.cssText = "flex-direction:column;align-items:flex-start;padding:14px 20px 16px 20px;gap:6px;border-bottom:1px solid #1e1e1e;";
+
+            const top = document.createElement("div");
+            top.style.cssText = "display:flex;align-items:center;gap:16px;flex-wrap:wrap;";
+
+            const ltr = document.createElement("span");
+            ltr.className = "question-letter"; ltr.textContent = "(" + letter + ")";
+
+            const qText = document.createElement("span");
+            qText.style.cssText = "font-size:30px;font-weight:bold;color:#fff;";
+            qText.textContent = "Average of:  " + q.nums.join(",  ");
+
+            const inp = document.createElement("input");
+            inp.type = "text"; inp.className = "answer-input"; inp.placeholder = "?";
+            inp.style.cssText = "width:80px;font-size:22px;margin-left:16px;";
+
+            const ansSpan = document.createElement("span");
+            ansSpan.className = "answer";
+            ansSpan.style.cssText = "font-size:28px;font-weight:bold;";
+            ansSpan.textContent = String(q.avg);
+
+            top.append(ltr, qText, inp, ansSpan);
+
+            const wb = document.createElement("div");
+            wb.className = "working-block";
+            wb.style.paddingLeft = "80px";
+            wb.innerHTML =
+                '<div><span class="w-label">Step 1 — Add:</span> ' +
+                q.nums.join(" + ") + ' = <span class="w-step">' + q.sum + '</span></div>' +
+                '<div><span class="w-label">Step 2 — Divide by 4:</span> ' +
+                q.sum + ' ÷ 4 = <span class="w-result">' + q.avg + '</span></div>';
+
+            row.append(top, wb);
+            box.appendChild(row);
+        });
+        return;
+    }
+
+    if (val.startsWith("units-")) {
+        box.appendChild(buildUnitsRefCard(val));
+    }
 
     const numQuestions = NUM_MAP[val] || 2;
     fetch(BASE_URL + val + ".json")
