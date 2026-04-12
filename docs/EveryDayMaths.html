@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>EveryDayMaths</title>
-<!--v6 Units Measurements with reference card-->
+<!--v7 -->
 <style>
 html, body {
     margin: 0;
@@ -1243,321 +1243,222 @@ function renderStackedRow(letter, question, answer, val) {
 //   4. Right-side table text size increased
 //   5. Grid proportions: 30% | 40% | 30%
 //   6. "Memory trick" tip removed from right table
+
+
+const UNITS_CONFIG = {
+    "units-length": {
+        title: "Units of Length",
+        units: [
+            { sym: "km", label: "Kilo metre",  sub: "Largest unit",         color: "#a78bfa" },
+            { sym: "m",  label: "Metre",        sub: "Base unit",            color: "#38bdf8" },
+            { sym: "cm", label: "Centi metre",  sub: "100th of a metre",     color: "#34d399" },
+            { sym: "mm", label: "Milli metre",  sub: "1000th of a metre",    color: "#fbbf24" },
+        ],
+        conversions: ["× 1 000", "× 100", "× 10"],
+        tips: [
+            { icon: "🗺️", label: "km → m",        sub: "× 1 000  ·  1 km = 1 000 m" },
+            { icon: "🚪", label: "m → cm",         sub: "× 100  ·  1 m = 100 cm" },
+            { icon: "📏", label: "cm → mm",        sub: "× 10  ·  1 cm = 10 mm" },
+            { icon: "🔼", label: "Going bigger?",  sub: "Divide each step\nmm → cm → m → km" },
+            { icon: "🔽", label: "Going smaller?", sub: "Multiply each step\nkm → m → cm → mm" },
+        ]
+    },
+    "units-weight": {
+        title: "Units of Weight",
+        units: [
+            { sym: "kg", label: "Kilo gram", sub: "Largest unit",      color: "#a78bfa" },
+            { sym: "g",  label: "Gram",      sub: "Base unit",         color: "#34d399" },
+            { sym: "mg", label: "Milli gram", sub: "1000th of a gram", color: "#fbbf24" },
+        ],
+        conversions: ["× 1 000", "× 1 000"],
+        tips: [
+            { icon: "⚖️", label: "kg → g",         sub: "× 1 000  ·  1 kg = 1 000 g" },
+            { icon: "🔬", label: "g → mg",          sub: "× 1 000  ·  1 g = 1 000 mg" },
+            { icon: "🔼", label: "Going bigger?",   sub: "Divide each step\nmg → g → kg" },
+            { icon: "🔽", label: "Going smaller?",  sub: "Multiply each step\nkg → g → mg" },
+        ]
+    },
+    "units-liquid": {
+        title: "Units of Liquid",
+        units: [
+            { sym: "L",  label: "Litre",       sub: "Base unit",          color: "#38bdf8" },
+            { sym: "mL", label: "Milli litre",  sub: "1000th of a litre", color: "#34d399" },
+        ],
+        conversions: ["× 1 000"],
+        tips: [
+            { icon: "🪣", label: "L → mL",          sub: "× 1 000  ·  1 L = 1 000 mL" },
+            { icon: "🔼", label: "Going bigger?",    sub: "Divide\nmL → L" },
+            { icon: "🔽", label: "Going smaller?",   sub: "Multiply\nL → mL" },
+        ]
+    },
+    "units-time": {
+        title: "Units of Time",
+        units: [
+            { sym: "yr",  label: "Year",   sub: "365 days",       color: "#a78bfa" },
+            { sym: "mo",  label: "Month",  sub: "~30 days",       color: "#f87171" },
+            { sym: "wk",  label: "Week",   sub: "7 days",         color: "#fb923c" },
+            { sym: "d",   label: "Day",    sub: "24 hours",       color: "#fbbf24" },
+            { sym: "hr",  label: "Hour",   sub: "60 minutes",     color: "#34d399" },
+            { sym: "min", label: "Minute", sub: "60 seconds",     color: "#38bdf8" },
+            { sym: "s",   label: "Second", sub: "Smallest unit",  color: "#c084fc" },
+        ],
+        conversions: ["× 12", "× ~4", "× 7", "× 24", "× 60", "× 60"],
+        tips: [
+            { icon: "📅", label: "1 year",    sub: "= 12 months = 52 weeks = 365 days" },
+            { icon: "📆", label: "1 week",    sub: "= 7 days" },
+            { icon: "🕐", label: "1 day",     sub: "= 24 hours" },
+            { icon: "⏱️", label: "1 hour",    sub: "= 60 minutes" },
+            { icon: "⏲️", label: "1 minute",  sub: "= 60 seconds" },
+        ]
+    },
+    "units-money": {
+        title: "Units of Money",
+        units: [
+            { sym: "£",   label: "Pound",  sub: "Base unit",       color: "#fbbf24" },
+            { sym: "p",   label: "Pence",  sub: "100th of a pound", color: "#34d399" },
+        ],
+        conversions: ["× 100"],
+        tips: [
+            { icon: "💷", label: "£ → p",          sub: "× 100  ·  £1 = 100p" },
+            { icon: "🪙", label: "p → £",          sub: "÷ 100  ·  100p = £1" },
+            { icon: "🔽", label: "Going smaller?",  sub: "Multiply\n£ → p" },
+            { icon: "🔼", label: "Going bigger?",   sub: "Divide\np → £" },
+        ]
+    },
+};
+
 function buildUnitsRefCard(val) {
-    if (val !== "units-length") return document.createTextNode("");
+    const cfg = UNITS_CONFIG[val];
+    if (!cfg) return document.createTextNode("");
 
     const wrap = document.createElement("div");
-    //wrap.style.cssText = "margin-bottom:22px;";
-	wrap.style.cssText = "margin-bottom:22px; padding: 0 12px;";
+    wrap.style.cssText = "margin-bottom:22px; padding: 0 12px;";
+
     const style = document.createElement("style");
     style.textContent = `
-        .urc-grid {
-            display: grid;
-            grid-template-columns: 30% 40% 30%;
-            gap: 14px;
-            align-items: start;
-        }
-        .urc-table {
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-            border-collapse: collapse;
-        }
-		
-		
-		
-.urc-table thead th {
-    background: #141414;
-    color: #666;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 8px 12px;
-    text-align: left;
-    border-bottom: 1px solid #2a2a2a;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-}
-.urc-table tbody tr { border-bottom: 1px solid #1e1e1e; }
-.urc-table tbody tr:last-child { border-bottom: none; }
-.urc-table td { padding: 9px 12px; font-size: 15px; color: #ddd; vertical-align: middle; }
-.urc-table td.sym { font-weight: 700; font-size: 18px; }
-.urc-table th, .urc-table td { border-right: 1px solid #1e1e1e; }
-.urc-table th:last-child, .urc-table td:last-child { border-right: none; }
-		
-		
-		
-        .urc-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0;
-        }
-        .urc-conv {
-            border: 1px solid #2a2a2a;
-            border-radius: 8px;
-            overflow: hidden;
-            width: 100%;
-        }
-        .urc-conv-hdr {
-            background: #141414;
-            padding: 9px 14px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        .urc-conv-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 11px 14px;
-            border-bottom: 1px solid #1e1e1e;
-            font-size: 15px;
-        }
-        .urc-conv-row:last-child { border-bottom: none; }
-        .urc-conv-icon { font-size: 18px; flex-shrink: 0; line-height: 1.6; }
-        .urc-conv-label { color: #ddd; font-weight: 500; line-height: 1.5; font-size: 15px; }
-        .urc-conv-sub { color: #777; font-size: 13px; margin-top: 2px; line-height: 1.4; }
-        .urc-hdr {
-            font-size: 11px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
+        .urc-grid { display:grid; grid-template-columns:30% 40% 30%; gap:14px; align-items:start; }
+        .urc-center { display:flex; flex-direction:column; align-items:center; }
+        .urc-conv { border:1px solid #2a2a2a; border-radius:8px; overflow:hidden; width:100%; }
+        .urc-conv-hdr { background:#141414; padding:9px 14px; font-size:12px; font-weight:500; color:#666; text-transform:uppercase; letter-spacing:0.4px; border-bottom:1px solid #2a2a2a; }
+        .urc-conv-row { display:flex; align-items:flex-start; gap:10px; padding:11px 14px; border-bottom:1px solid #1e1e1e; font-size:15px; }
+        .urc-conv-row:last-child { border-bottom:none; }
+        .urc-conv-icon { font-size:18px; flex-shrink:0; line-height:1.6; }
+        .urc-conv-label { color:#ddd; font-weight:500; line-height:1.5; font-size:15px; }
+        .urc-conv-sub { color:#777; font-size:13px; margin-top:2px; line-height:1.4; }
+        .urc-hdr { font-size:13px; font-weight:600; color:#aaa; background:#141414; border:1px solid #2a2a2a; border-radius:8px; padding:8px 14px; margin-bottom:10px; display:inline-block; letter-spacing:0.4px; text-transform:uppercase; }
     `;
     wrap.appendChild(style);
 
     const hdr = document.createElement("div");
     hdr.className = "urc-hdr";
+    hdr.textContent = "📏 " + cfg.title;
     wrap.appendChild(hdr);
-	
- 
+
     const grid = document.createElement("div");
     grid.className = "urc-grid";
 
-    // ── LEFT: unit table (Symbol + Full name only, no Example column) ─────────
-	
-	
-const leftDiv = document.createElement("div");
-leftDiv.className = "urc-conv";
-leftDiv.innerHTML = `
-    <div class="urc-conv-hdr">Units of Length</div>
-    <div class="urc-conv-row">
-        <span class="urc-conv-icon" style="color:#a78bfa;font-weight:700;font-size:20px;min-width:44px;">km</span>
-        <div>
-            <div class="urc-conv-label">Kilo metre</div>
-            <div class="urc-conv-sub">Largest unit</div>
-        </div>
-    </div>
-    <div class="urc-conv-row">
-        <span class="urc-conv-icon" style="color:#38bdf8;font-weight:700;font-size:20px;min-width:44px;">m</span>
-        <div>
-            <div class="urc-conv-label">Metre</div>
-            <div class="urc-conv-sub">Base unit</div>
-        </div>
-    </div>
-    <div class="urc-conv-row">
-        <span class="urc-conv-icon" style="color:#34d399;font-weight:700;font-size:20px;min-width:44px;">cm</span>
-        <div>
-            <div class="urc-conv-label">Centi metre</div>
-            <div class="urc-conv-sub">100th of a metre</div>
-        </div>
-    </div>
-    <div class="urc-conv-row">
-        <span class="urc-conv-icon" style="color:#fbbf24;font-weight:700;font-size:20px;min-width:44px;">mm</span>
-        <div>
-            <div class="urc-conv-label">Milli metre</div>
-            <div class="urc-conv-sub">1000th of a metre</div>
-        </div>
-    </div>`;
-grid.appendChild(leftDiv);
-	
-	
-	
-	
+    // ── LEFT: units list ──────────────────────────────────────────────────────
+    const leftDiv = document.createElement("div");
+    leftDiv.className = "urc-conv";
+    leftDiv.innerHTML = '<div class="urc-conv-hdr">' + cfg.title + '</div>' +
+        cfg.units.map(u =>
+            '<div class="urc-conv-row">' +
+                '<span class="urc-conv-icon" style="color:' + u.color + ';font-weight:700;font-size:20px;min-width:44px;">' + u.sym + '</span>' +
+                '<div>' +
+                    '<div class="urc-conv-label">' + u.label + '</div>' +
+                    '<div class="urc-conv-sub">' + u.sub + '</div>' +
+                '</div>' +
+            '</div>'
+        ).join("");
+    grid.appendChild(leftDiv);
 
-    // ── CENTER: larger dot chain with × (left) and ÷ (right) labels ──────────
+    // ── CENTER: dot chain ─────────────────────────────────────────────────────
     const center = document.createElement("div");
     center.className = "urc-center";
 
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
-    // Wider viewBox to accommodate labels on both sides of the chain
+    const R = 32, CX = 130, gap = 120;
+    const totalH = (cfg.units.length - 1) * gap + R * 2 + 60;
     svg.setAttribute("width", "100%");
-    svg.setAttribute("viewBox", "0 0 260 400");
+    svg.setAttribute("viewBox", "0 0 260 " + totalH);
     svg.style.cssText = "overflow:visible; max-width:260px;";
 
-    // Unit data
-    const UNITS = [
-        { label:"km", color:"#a78bfa", y: 40  },
-        { label:"m",  color:"#38bdf8", y: 160 },
-        { label:"cm", color:"#34d399", y: 280 },
-        { label:"mm", color:"#fbbf24", y: 380 },
-    ];
-    const CX = 130; // centre x of the dot chain
-    const R  = 32;  // dot radius (larger than before)
+    const yPos = cfg.units.map((_, i) => R + 10 + i * gap);
 
-    // Vertical connecting line
+    // vertical line
     const vline = document.createElementNS(svgNS, "line");
-    vline.setAttribute("x1", CX); vline.setAttribute("y1", UNITS[0].y + R);
-    vline.setAttribute("x2", CX); vline.setAttribute("y2", UNITS[UNITS.length - 1].y - R);
+    vline.setAttribute("x1", CX); vline.setAttribute("y1", yPos[0] + R);
+    vline.setAttribute("x2", CX); vline.setAttribute("y2", yPos[yPos.length - 1] - R);
     vline.setAttribute("stroke", "#333"); vline.setAttribute("stroke-width", "3");
     svg.appendChild(vline);
 
-    const convData = [
-        { mult: "× 1 000", div: "÷ 1 000" },
-        { mult: "× 100",   div: "÷ 100"   },
-        { mult: "× 10",    div: "÷ 10"    },
-    ];
+    cfg.units.forEach((u, i) => {
+        if (i < cfg.units.length - 1) {
+            const midY = (yPos[i] + yPos[i + 1]) / 2;
 
-    UNITS.forEach((u, i) => {
-        // Labels between dots
-        if (i < UNITS.length - 1) {
-            const midY = (u.y + UNITS[i + 1].y) / 2;
-
-            // Multiply label — left of line (going down = bigger to smaller)
             const multText = document.createElementNS(svgNS, "text");
-            multText.setAttribute("x", CX - R - 8);
-            multText.setAttribute("y", midY + 5);
-            multText.setAttribute("text-anchor", "end");
-            multText.setAttribute("font-size", "13");
-            multText.setAttribute("fill", "#60a5fa");
-            multText.setAttribute("font-family", "Arial,sans-serif");
+            multText.setAttribute("x", CX - R - 8); multText.setAttribute("y", midY);
+            multText.setAttribute("text-anchor", "end"); multText.setAttribute("font-size", "13");
+            multText.setAttribute("fill", "#60a5fa"); multText.setAttribute("font-family", "Arial,sans-serif");
             multText.setAttribute("font-weight", "600");
-            multText.textContent = convData[i].mult;
+            multText.textContent = cfg.conversions[i];
             svg.appendChild(multText);
 
-            // Small arrow down on left side
             const arrowL = document.createElementNS(svgNS, "text");
-            arrowL.setAttribute("x", CX - R - 8);
-            arrowL.setAttribute("y", midY + 22);
-            arrowL.setAttribute("text-anchor", "end");
-            arrowL.setAttribute("font-size", "12");
-            arrowL.setAttribute("fill", "#60a5fa");
-            arrowL.setAttribute("font-family", "Arial,sans-serif");
+            arrowL.setAttribute("x", CX - R - 8); arrowL.setAttribute("y", midY + 16);
+            arrowL.setAttribute("text-anchor", "end"); arrowL.setAttribute("font-size", "12");
+            arrowL.setAttribute("fill", "#60a5fa"); arrowL.setAttribute("font-family", "Arial,sans-serif");
             arrowL.textContent = "↓ bigger";
             svg.appendChild(arrowL);
 
-            // Divide label — right of line (going up = smaller to bigger)
             const divText = document.createElementNS(svgNS, "text");
-            divText.setAttribute("x", CX + R + 8);
-            divText.setAttribute("y", midY + 5);
-            divText.setAttribute("text-anchor", "start");
-            divText.setAttribute("font-size", "13");
-            divText.setAttribute("fill", "#f87171");
-            divText.setAttribute("font-family", "Arial,sans-serif");
+            divText.setAttribute("x", CX + R + 8); divText.setAttribute("y", midY);
+            divText.setAttribute("text-anchor", "start"); divText.setAttribute("font-size", "13");
+            divText.setAttribute("fill", "#f87171"); divText.setAttribute("font-family", "Arial,sans-serif");
             divText.setAttribute("font-weight", "600");
-            divText.textContent = convData[i].div;
+            divText.textContent = cfg.conversions[i].replace("×", "÷");
             svg.appendChild(divText);
 
-            // Small arrow up on right side
             const arrowR = document.createElementNS(svgNS, "text");
-            arrowR.setAttribute("x", CX + R + 8);
-            arrowR.setAttribute("y", midY + 22);
-            arrowR.setAttribute("text-anchor", "start");
-            arrowR.setAttribute("font-size", "12");
-            arrowR.setAttribute("fill", "#f87171");
-            arrowR.setAttribute("font-family", "Arial,sans-serif");
+            arrowR.setAttribute("x", CX + R + 8); arrowR.setAttribute("y", midY + 16);
+            arrowR.setAttribute("text-anchor", "start"); arrowR.setAttribute("font-size", "12");
+            arrowR.setAttribute("fill", "#f87171"); arrowR.setAttribute("font-family", "Arial,sans-serif");
             arrowR.textContent = "↑ smaller";
             svg.appendChild(arrowR);
         }
 
-        // Dot circle
         const circle = document.createElementNS(svgNS, "circle");
-        circle.setAttribute("cx", CX);
-        circle.setAttribute("cy", u.y);
-        circle.setAttribute("r", R);
-        circle.setAttribute("fill", u.color);
+        circle.setAttribute("cx", CX); circle.setAttribute("cy", yPos[i]);
+        circle.setAttribute("r", R); circle.setAttribute("fill", u.color);
         circle.setAttribute("opacity", "0.9");
         svg.appendChild(circle);
 
-        // Dot label text
         const text = document.createElementNS(svgNS, "text");
-        text.setAttribute("x", CX);
-        text.setAttribute("y", u.y);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("dominant-baseline", "central");
-        text.setAttribute("font-size", "15");
-        text.setAttribute("font-weight", "700");
-        text.setAttribute("fill", "#fff");
-        text.setAttribute("font-family", "Arial,sans-serif");
-        text.textContent = u.label;
+        text.setAttribute("x", CX); text.setAttribute("y", yPos[i]);
+        text.setAttribute("text-anchor", "middle"); text.setAttribute("dominant-baseline", "central");
+        text.setAttribute("font-size", "14"); text.setAttribute("font-weight", "700");
+        text.setAttribute("fill", "#fff"); text.setAttribute("font-family", "Arial,sans-serif");
+        text.textContent = u.sym;
         svg.appendChild(text);
     });
-
-    // Legend strip below the chain
-    const legendY = UNITS[UNITS.length - 1].y + R + 18;
-    const legendBg = document.createElementNS(svgNS, "rect");
-    legendBg.setAttribute("x", "10"); legendBg.setAttribute("y", legendY);
-    legendBg.setAttribute("width", "240"); legendBg.setAttribute("height", "28");
-    legendBg.setAttribute("rx", "6"); legendBg.setAttribute("fill", "#1a1a1a");
-    svg.appendChild(legendBg);
-
-    const legendMult = document.createElementNS(svgNS, "text");
-    legendMult.setAttribute("x", "20"); legendMult.setAttribute("y", legendY + 18);
-    legendMult.setAttribute("font-size", "12"); legendMult.setAttribute("fill", "#60a5fa");
-    legendMult.setAttribute("font-family", "Arial,sans-serif");
-    legendMult.textContent = "Blue = multiply (going down)";
-    svg.appendChild(legendMult);
-
-    const legendDiv = document.createElementNS(svgNS, "text");
-    legendDiv.setAttribute("x", "20"); legendDiv.setAttribute("y", legendY + 52);
-    legendDiv.setAttribute("font-size", "12"); legendDiv.setAttribute("fill", "#f87171");
-    legendDiv.setAttribute("font-family", "Arial,sans-serif");
-    legendDiv.textContent = "Red = divide (going up)";
-    svg.appendChild(legendDiv);
-
-    // Adjust viewBox height to include legend
-    svg.setAttribute("viewBox", "0 0 260 " + (legendY + 58));
 
     center.appendChild(svg);
     grid.appendChild(center);
 
-    // ── RIGHT: conversion tips (no Memory trick row, larger text) ────────────
+    // ── RIGHT: tips ───────────────────────────────────────────────────────────
     const rightDiv = document.createElement("div");
     rightDiv.className = "urc-conv";
-    rightDiv.innerHTML = `
-        <div class="urc-conv-hdr">Conversion tips</div>
-        <div class="urc-conv-row">
-            <span class="urc-conv-icon">🗺️</span>
-            <div>
-                <div class="urc-conv-label">km → m</div>
-                <div class="urc-conv-sub">× 1 000 &nbsp;·&nbsp; 1 km = 1 000 m</div>
-            </div>
-        </div>
-        <div class="urc-conv-row">
-            <span class="urc-conv-icon">🚪</span>
-            <div>
-                <div class="urc-conv-label">m → cm</div>
-                <div class="urc-conv-sub">× 100 &nbsp;·&nbsp; 1 m = 100 cm</div>
-            </div>
-        </div>
-        <div class="urc-conv-row">
-            <span class="urc-conv-icon">📏</span>
-            <div>
-                <div class="urc-conv-label">cm → mm</div>
-                <div class="urc-conv-sub">× 10 &nbsp;·&nbsp; 1 cm = 10 mm</div>
-            </div>
-        </div>
-        <div class="urc-conv-row">
-            <span class="urc-conv-icon">🔼</span>
-            <div>
-                <div class="urc-conv-label">Going bigger?</div>
-                <div class="urc-conv-sub">Divide each step<br>mm → cm → m → km</div>
-            </div>
-        </div>
-        <div class="urc-conv-row">
-            <span class="urc-conv-icon">🔽</span>
-            <div>
-                <div class="urc-conv-label">Going smaller?</div>
-                <div class="urc-conv-sub">Multiply each step<br>km → m → cm → mm</div>
-            </div>
-        </div>`;
+    rightDiv.innerHTML = '<div class="urc-conv-hdr">Conversion tips</div>' +
+        cfg.tips.map(t =>
+            '<div class="urc-conv-row">' +
+                '<span class="urc-conv-icon">' + t.icon + '</span>' +
+                '<div>' +
+                    '<div class="urc-conv-label">' + t.label + '</div>' +
+                    '<div class="urc-conv-sub">' + t.sub.replace(/\n/g, "<br>") + '</div>' +
+                '</div>' +
+            '</div>'
+        ).join("");
     grid.appendChild(rightDiv);
 
     wrap.appendChild(grid);
@@ -2017,9 +1918,11 @@ function generate(box, val) {
     }
 
     // ── UNITS REFERENCE CARD (injected before questions) ─────────────────────
-    if (val === "units-length") {
-        box.appendChild(buildUnitsRefCard(val));
-    }
+ 
+	
+	if (val.startsWith("units-")) {
+    box.appendChild(buildUnitsRefCard(val));
+	}
 
     const numQuestions = NUM_MAP[val] || 2;
     fetch(BASE_URL + val + ".json")
