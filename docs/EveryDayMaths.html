@@ -554,6 +554,19 @@ button:active { transform: scale(0.97); }
     font-style: italic;
 }
 
+/* ── UNITS CARD EMOJI ANIMATIONS ────────────────────────────────── */
+@keyframes urc-stretch { 0%,100%{transform:scaleX(1)} 50%{transform:scaleX(1.22)} }
+@keyframes urc-sway    { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+@keyframes urc-drip    { 0%,100%{transform:translateY(0)} 40%{transform:translateY(5px)} 60%{transform:translateY(2px)} }
+@keyframes urc-tick    { 0%{transform:rotate(0deg)} 90%{transform:rotate(350deg)} 100%{transform:rotate(360deg)} }
+@keyframes urc-shimmer { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.18);opacity:0.75} }
+.urc-emoji { display:inline-block; font-size:32px; line-height:1; margin-right:10px; vertical-align:middle; }
+.urc-emoji-stretch { animation:urc-stretch 2.2s ease-in-out infinite; transform-origin:center; }
+.urc-emoji-sway    { animation:urc-sway 1.8s ease-in-out infinite; transform-origin:top center; }
+.urc-emoji-drip    { animation:urc-drip 1.6s ease-in-out infinite; }
+.urc-emoji-tick    { animation:urc-tick 3s linear infinite; }
+.urc-emoji-shimmer { animation:urc-shimmer 2s ease-in-out infinite; }
+
 /* ── FLOATING ANALOG CLOCK ───────────────────────────────────────── */
 #floatingClock {
     position: fixed;
@@ -1381,6 +1394,7 @@ function renderStackedRow(letter, question, answer, val) {
 // ── UNITS REFERENCE CARD ──────────────────────────────────────────────────────
 const UNITS_CONFIG = {
     "units-length": {
+        emoji: "📏", emojiAnim: "urc-emoji-stretch",
         title: "Units of Length",
         units: [
             { sym: "km", label: "Kilo metre",  sub: "Largest unit",         color: "#a78bfa" },
@@ -1398,6 +1412,7 @@ const UNITS_CONFIG = {
         ]
     },
     "units-weight": {
+        emoji: "⚖️", emojiAnim: "urc-emoji-sway",
         title: "Units of Weight",
         units: [
             { sym: "kg", label: "Kilo gram", sub: "Largest unit",      color: "#a78bfa" },
@@ -1413,6 +1428,7 @@ const UNITS_CONFIG = {
         ]
     },
     "units-liquid": {
+        emoji: "💧", emojiAnim: "urc-emoji-drip",
         title: "Units of Liquid",
         units: [
             { sym: "L",  label: "Litre",       sub: "Base unit",          color: "#38bdf8" },
@@ -1426,6 +1442,7 @@ const UNITS_CONFIG = {
         ]
     },
     "units-time": {
+        emoji: "⏰", emojiAnim: "urc-emoji-tick",
         title: "Units of Time",
         units: [
             { sym: "yr",  label: "Year",   sub: "365 days",       color: "#a78bfa" },
@@ -1446,6 +1463,7 @@ const UNITS_CONFIG = {
         ]
     },
     "units-money": {
+        emoji: "💷", emojiAnim: "urc-emoji-shimmer",
         title: "Units of Money",
         units: [
             { sym: "£",   label: "Pound",  sub: "Base unit",       color: "#fbbf24" },
@@ -1485,7 +1503,7 @@ function buildUnitsRefCard(val) {
 
     const hdr = document.createElement("div");
     hdr.className = "urc-hdr";
-    hdr.textContent = "📏 " + cfg.title;
+    hdr.innerHTML = '<span class="urc-emoji ' + (cfg.emojiAnim||"") + '">' + (cfg.emoji||"📏") + '</span>' + cfg.title;
     wrap.appendChild(hdr);
 
     const grid = document.createElement("div");
@@ -1592,6 +1610,105 @@ function buildUnitsRefCard(val) {
     grid.appendChild(rightDiv);
 
     wrap.appendChild(grid);
+
+    if (val === "units-time") {
+
+        const MONTHS = [
+            {s:"Jan",d:"31"},{s:"Feb",d:"28/29",feb:true},
+            {s:"Mar",d:"31"},{s:"Apr",d:"30"},
+            {s:"May",d:"31"},{s:"Jun",d:"30"},
+            {s:"Jul",d:"31"},{s:"Aug",d:"31"},
+            {s:"Sep",d:"30"},{s:"Oct",d:"31"},
+            {s:"Nov",d:"30"},{s:"Dec",d:"31"}
+        ];
+        const DAYS = [
+            {s:"Monday"},{s:"Tuesday"},{s:"Wednesday"},{s:"Thursday"},{s:"Friday"},
+            {s:"Saturday",w:true},{s:"Sunday",w:true}
+        ];
+        const ALL = [
+            ...MONTHS.map(m => ({ label: m.s + " · " + m.d, color: m.feb ? "#f87171" : "#58D68D" })),
+            { label: "———", color: "#444", sep: true },
+            ...DAYS.map(d => ({ label: d.s, color: d.w ? "#f87171" : "#a78bfa" }))
+        ];
+
+        const btn = document.createElement("button");
+        btn.style.cssText = "margin-top:16px;width:100%;padding:10px 16px;background:#0d1a0d;border:1px solid #28a745;border-radius:8px;color:#28a745;font-size:14px;font-weight:600;cursor:pointer;text-align:left;";
+        btn.textContent = "📅 Tap to reveal months & days";
+        wrap.appendChild(btn);
+
+        const area = document.createElement("div");
+        area.style.cssText = "margin-top:10px;display:none;";
+        wrap.appendChild(area);
+
+        const trackOuter = document.createElement("div");
+        trackOuter.style.cssText = "height:8px;background:#1a1a1a;border-radius:4px;margin-bottom:14px;overflow:hidden;";
+        const trackInner = document.createElement("div");
+        trackInner.style.cssText = "height:8px;width:0px;background:#28a745;border-radius:4px;";
+        trackOuter.appendChild(trackInner);
+        area.appendChild(trackOuter);
+
+        const pillBox = document.createElement("div");
+        pillBox.style.cssText = "display:flex;flex-wrap:wrap;gap:8px;";
+        area.appendChild(pillBox);
+
+        const note = document.createElement("div");
+        note.style.cssText = "margin-top:10px;font-size:12px;color:#555;display:none;";
+        note.textContent = "✓ Done! · Feb has 29 days in a leap year · Weekend days in red";
+        area.appendChild(note);
+
+        const replayBtn = document.createElement("button");
+        replayBtn.style.cssText = "display:none;margin-top:8px;padding:4px 12px;background:transparent;border:1px solid #333;border-radius:6px;color:#666;font-size:12px;cursor:pointer;";
+        replayBtn.textContent = "↺ Again";
+        area.appendChild(replayBtn);
+
+        function runReveal() {
+            pillBox.innerHTML = "";
+            note.style.display = "none";
+            replayBtn.style.display = "none";
+            trackInner.style.width = "0px";
+
+            const items = ALL.filter(x => !x.sep);
+            const total = items.length;
+            let i = 0;
+
+            function step() {
+                if (i < total) {
+                    const item = items[i];
+                    const pill = document.createElement("span");
+                    pill.style.cssText = "padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;background:#111;border:1px solid " + item.color + "55;color:" + item.color + ";";
+                    pill.textContent = item.label;
+
+                    if (i === MONTHS.length) {
+                        const sep = document.createElement("div");
+                        sep.style.cssText = "width:100%;height:1px;background:#222;margin:4px 0;";
+                        pillBox.appendChild(sep);
+                    }
+
+                    pillBox.appendChild(pill);
+                    const pct = Math.round((i + 1) / total * 100);
+                    trackInner.style.width = pct + "%";
+                    i++;
+                    setTimeout(step, 500);
+                } else {
+                    note.style.display = "block";
+                    replayBtn.style.display = "inline-block";
+                }
+            }
+
+            step();
+        }
+
+        btn.onclick = function() {
+            area.style.display = "block";
+            btn.style.display = "none";
+            runReveal();
+        };
+
+        replayBtn.onclick = function() {
+            runReveal();
+        };
+    }
+
     return wrap;
 }
 
