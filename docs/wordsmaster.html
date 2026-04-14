@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Word Master</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<!--
+  WORD MASTER - Merged v1
+  Mode A: READ (wordspopper) - word shown, kid reads/identifies it
+  Mode B: SPELL (wordsspeaker) - word spoken first, kid writes it, then revealed
+-->
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── ANIMATIONS ── */
+@keyframes rainbowBorder {
+    0%   { border-color: #ff4fcf; box-shadow: 0 0 16px 4px #ff4fcf88; }
+    16%  { border-color: #ff9a3c; box-shadow: 0 0 16px 4px #ff9a3c88; }
+    33%  { border-color: #ffe04b; box-shadow: 0 0 16px 4px #ffe04b88; }
+    50%  { border-color: #4bff91; box-shadow: 0 0 16px 4px #4bff9188; }
+    66%  { border-color: #4bcfff; box-shadow: 0 0 16px 4px #4bcfff88; }
+    83%  { border-color: #a64bff; box-shadow: 0 0 16px 4px #a64bff88; }
+    100% { border-color: #ff4fcf; box-shadow: 0 0 16px 4px #ff4fcf88; }
+}
+@keyframes rainbowText {
+    0%   { color: #ff4fcf; text-shadow: 0 0 24px #ff4fcf, 0 0 60px #ff4fcf88; }
+    16%  { color: #ff9a3c; text-shadow: 0 0 24px #ff9a3c, 0 0 60px #ff9a3c88; }
+    33%  { color: #ffe04b; text-shadow: 0 0 24px #ffe04b, 0 0 60px #ffe04b88; }
+    50%  { color: #4bff91; text-shadow: 0 0 24px #4bff91, 0 0 60px #4bff9188; }
+    66%  { color: #4bcfff; text-shadow: 0 0 24px #4bcfff, 0 0 60px #4bcfff88; }
+    83%  { color: #a64bff; text-shadow: 0 0 24px #a64bff, 0 0 60px #a64bff88; }
+    100% { color: #ff4fcf; text-shadow: 0 0 24px #ff4fcf, 0 0 60px #ff4fcf88; }
+}
+@keyframes progressRainbow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+@keyframes popIn {
+    0%   { transform: scale(0.5); opacity: 0; }
+    70%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+@keyframes celebrationBounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25%       { transform: scale(1.12) rotate(-3deg); }
+    75%       { transform: scale(1.12) rotate(3deg); }
+}
+@keyframes pulseQuestion {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(0.96); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BASE ── */
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a12;
+    color: white;
+    font-family: 'Nunito', Arial, sans-serif;
+    overflow: hidden;
+}
+
+#outer {
+    margin: 14px;
+    height: calc(100vh - 28px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── MODE TOGGLE BAR ── */
+#mode-toggle-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #10101e;
+    border: 2px solid #2a2a40;
+    border-radius: 50px;
+    padding: 4px;
+    width: fit-content;
+    align-self: center;
+    flex-shrink: 0;
+    position: relative;
+}
+.mode-pill {
+    padding: 7px 22px;
+    border-radius: 44px;
+    font-size: 13px;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #666;
+    transition: color 0.25s;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+}
+.mode-pill.active {
+    color: #0a0a12;
+}
+#mode-slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: calc(100% - 8px);
+    border-radius: 44px;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s cubic-bezier(.4,0,.2,1);
+    z-index: 0;
+    pointer-events: none;
+}
+/* Read mode = warm orange/yellow glow */
+body.mode-read  #mode-slider { background: linear-gradient(90deg, #ff9a3c, #ffe04b); box-shadow: 0 0 12px #ff9a3c99; }
+/* Spell mode = cool blue/purple glow */
+body.mode-spell #mode-slider { background: linear-gradient(90deg, #4bcfff, #a64bff); box-shadow: 0 0 12px #a64bff99; }
+
+/* ── CONTROL BAR (shared wrapper) ── */
+.control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border: 2px solid #2a2a40;
+    border-radius: 16px;
+    background: #10101e;
+    flex-shrink: 0;
+    animation: fadeIn 0.25s ease;
+}
+
+/* Read bar accent */
+#read-bar { border-color: #ff9a3c44; }
+body.mode-read  #read-bar  { border-color: #ff9a3c88; }
+/* Spell bar accent */
+#spell-bar { border-color: #a64bff44; }
+body.mode-spell #spell-bar { border-color: #a64bff88; }
+
+/* hide inactive bar */
+#read-bar  { display: none; }
+#spell-bar { display: none; }
+body.mode-read  #read-bar  { display: flex; }
+body.mode-spell #spell-bar { display: flex; }
+
+/* ── SELECT ── */
+.dark-select {
+    padding: 5px 10px;
+    font-size: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    background: #1a1a2e;
+    color: #fff;
+    border: 2px solid #444;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.dark-select:hover, .dark-select:focus { border-color: #a64bff; box-shadow: 0 0 8px #a64bff66; }
+
+/* ── SLIDER (Read mode) ── */
+#slider-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+#slider-block label { font-size: 13px; font-weight: 700; color: #aaa; white-space: nowrap; }
+#wordCountSlider {
+    -webkit-appearance: none; appearance: none;
+    width: 110px; height: 6px; border-radius: 4px;
+    background: linear-gradient(90deg, #ff4fcf, #ff9a3c, #ffe04b, #4bff91, #4bcfff, #a64bff);
+    outline: none; cursor: pointer;
+}
+#wordCountSlider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 10px #a64bffaa; cursor: pointer;
+    border: 2px solid #a64bff; transition: box-shadow 0.2s;
+}
+#wordCountSlider::-webkit-slider-thumb:hover { box-shadow: 0 0 16px #ff4fcf; }
+#sliderValue { font-size: 16px; font-weight: 900; color: #ffe04b; text-shadow: 0 0 10px #ffe04b; min-width: 26px; text-align: center; }
+
+/* ── DAY BADGE ── */
+#day-info {
+    font-size: 11px; font-weight: 700; color: #ccc;
+    background: #1a1a2e; border: 1px solid #444; border-radius: 20px;
+    padding: 3px 10px; white-space: nowrap; margin-left: auto;
+}
+
+/* ── SPELL MODE: step indicator ── */
+#spell-step-indicator {
+    font-size: 12px; font-weight: 900;
+    padding: 4px 12px; border-radius: 20px;
+    background: #1a1a2e; border: 1px solid #a64bff55;
+    color: #a64bff; margin-left: auto; white-space: nowrap;
+    letter-spacing: 0.04em;
+}
+
+/* ── PROGRESS BAR ── */
+#progress-wrap {
+    height: 7px; border-radius: 6px; background: #1a1a2e; overflow: hidden; flex-shrink: 0;
+}
+#progress-bar {
+    height: 100%; border-radius: 6px; width: 0%;
+    background: linear-gradient(90deg, #ff4fcf, #ff9a3c, #ffe04b, #4bff91, #4bcfff, #a64bff, #ff4fcf);
+    background-size: 200% 100%;
+    animation: progressRainbow 2s linear infinite;
+    transition: width 0.4s ease;
+}
+
+/* ── PANELS ── */
+#panels {
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ── CENTER BOX ── */
+#center {
+    border: 3px solid #333;
+    border-radius: 20px;
+    background: #0d0d1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: clamp(24px, 8vw, 110px);
+    overflow: hidden;
+    padding: 12px;
+    outline: none;
+    position: relative;
+}
+body.mode-read  #center { border-color: #ff9a3c55; }
+body.mode-spell #center { border-color: #a64bff55; }
+
+/* ── REPEAT BUTTON (spell mode only) ── */
+#repeatBtn {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: linear-gradient(135deg, #ffe04b, #ff9a3c);
+    border: none; border-radius: 50%;
+    width: 42px; height: 42px;
+    font-size: 20px; font-weight: bold;
+    cursor: pointer; z-index: 10;
+    box-shadow: 0 0 12px #ff9a3c88;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: none; /* shown only in spell mode */
+}
+#repeatBtn:hover { transform: scale(1.1); box-shadow: 0 0 20px #ffe04baa; }
+body.mode-spell #repeatBtn { display: flex; align-items: center; justify-content: center; }
+
+/* ── HISTORY BOX ── */
+#left {
+    border: 2px solid #2a2a40;
+    border-radius: 16px;
+    background: #0d0d1a;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    overflow-y: auto;
+}
+#left::-webkit-scrollbar { width: 6px; }
+#left::-webkit-scrollbar-track { background: transparent; }
+#left::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+/* ── HISTORY CHIP ── */
+.history-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 10px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    animation: popIn 0.3s ease;
+}
+.chip-index { font-size: 10px; opacity: 0.6; min-width: 14px; }
+.chip-sentence { font-size: 10px; opacity: 0.7; margin-top: 2px; font-weight: 700; }
+
+/* ── WORD + EMOJI (read mode reveal) ── */
+.word-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: popIn 0.35s ease;
+    text-align: center;
+}
+.word { animation: rainbowText 3s linear infinite; letter-spacing: 0.04em; }
+.emoji { width: 110px; height: 110px; margin-top: 10px; }
+.sentence-display {
+    font-size: 0.38em;
+    color: #ccc;
+    margin-top: 10px;
+    font-weight: 700;
+    max-width: 80%;
+    line-height: 1.4;
+    animation: fadeIn 0.4s ease;
+}
+
+/* ── SPELL MODE: waiting / question state ── */
+.spell-waiting {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: fadeIn 0.3s ease;
+}
+.spell-waiting .q-mark {
+    font-size: 1.2em;
+    animation: pulseQuestion 1.8s ease infinite;
+    filter: drop-shadow(0 0 30px #a64bff);
+}
+.spell-waiting .hint-text {
+    font-size: 0.3em;
+    color: #666;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── COMPLETION ── */
+.completion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: celebrationBounce 1s ease infinite;
+}
+.completion .big-emoji { font-size: 72px; line-height: 1; }
+.completion .done-text {
+    font-size: clamp(18px, 3vw, 32px);
+    font-weight: 900;
+    animation: rainbowText 2s linear infinite;
+}
+.completion .done-sub { font-size: 13px; color: #aaa; }
+
+/* ── KEYBOARD HINT ── */
+#kb-hint {
+    text-align: center;
+    font-size: 11px;
+    color: #333;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+}
+</style>
+</head>
+<body class="mode-read">
+
+<div id="outer">
+
+    <!-- MODE TOGGLE -->
+    <div id="mode-toggle-bar">
+        <div id="mode-slider"></div>
+        <button class="mode-pill active" id="btn-read" onclick="switchMode('read')">📖 Read Mode</button>
+        <button class="mode-pill"        id="btn-spell" onclick="switchMode('spell')">🎧 Spell Mode</button>
+    </div>
+
+    <!-- READ BAR -->
+    <div class="control-bar" id="read-bar">
+        <select id="readPatternSelector" class="dark-select">
+            <option value="2-letter">2 Letter Words</option>
+            <option value="3-letter" selected>3 Letter Words</option>
+            <option value="4-letter">4 Letter Words</option>
+            <option value="5-letter">5 Letter Words</option>
+            <option value="actionitems">Action Items</option>
+            <option value="animals">Animals</option>
+            <option value="body-actions">Body Actions</option>
+            <option value="bodyparts">Body Parts</option>
+            <option value="clothing">Clothing</option>
+            <option value="colors">Colors</option>
+            <option value="emotions">Emotions</option>
+            <option value="family">Family</option>
+            <option value="fooditems">Food Items</option>
+            <option value="fruits">Fruits</option>
+            <option value="houseitems">House Items</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="months-days-time">Months/Days/Time</option>
+            <option value="nature">Nature</option>
+            <option value="numbernames">Number Names</option>
+            <option value="opposite">Opposites</option>
+            <option value="playground">Playground</option>
+            <option value="professions">Professions</option>
+            <option value="school">School</option>
+            <option value="shapes">Shapes</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="vehicles">Vehicles</option>
+            <option value="weather">Weather</option>
+        </select>
+        <div id="slider-block">
+            <label>Words:</label>
+            <input type="range" id="wordCountSlider" min="1" max="20" value="5">
+            <span id="sliderValue">5</span>
+        </div>
+        <span id="day-info"></span>
+    </div>
+
+    <!-- SPELL BAR -->
+    <div class="control-bar" id="spell-bar">
+        <select id="spellPatternSelector" class="dark-select">
+            <option value="3-letter-words-speaking" selected>3 Letter Words</option>
+            <option value="4-letter-words-speaking">4 Letter Words</option>
+        </select>
+        <span id="spell-step-indicator">Step 1 of 3</span>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+
+    <!-- PANELS -->
+    <div id="panels">
+        <div id="center" tabindex="0">
+            <button id="repeatBtn" title="Repeat word &amp; sentence">⟳</button>
+        </div>
+        <div id="left"></div>
+    </div>
+
+    <div id="kb-hint">SPACE · ENTER · TAP to advance</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════
+function mulberry32(seed) {
+    return function() {
+        seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+        let z = Math.imul(seed ^ seed >>> 15, 1 | seed);
+        z = z + Math.imul(z ^ z >>> 7, 61 | z) ^ z;
+        return ((z ^ z >>> 14) >>> 0) / 4294967296;
+    };
+}
+function hashString(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return h >>> 0;
+}
+function seededShuffle(arr, rng) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+}
+function shuffleArray(arr) {
+    for (let i = arr.length-1; i > 0; i--) {
+        const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+}
+function getTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function getDayOfYear() {
+    const now = new Date(), start = new Date(now.getFullYear(),0,0);
+    return Math.floor((now-start)/86400000);
+}
+function getDailyWords(patternName, allWords, n) {
+    const total = allWords.length;
+    if (total <= n) return allWords.slice();
+    const seed = hashString(getTodayString()+'|'+patternName);
+    const rng  = mulberry32(seed);
+    const shuffled = seededShuffle(allWords, rng);
+    const totalPages = Math.floor(total/n);
+    const pageIndex  = getDayOfYear() % totalPages;
+    return shuffled.slice(pageIndex*n, pageIndex*n+n);
+}
+
+const EMOJI_COUNT = 55;
+function getRandomEmojiUrl() {
+    return `https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/emojis/emoji${Math.floor(Math.random()*EMOJI_COUNT)+1}.gif`;
+}
+
+const CHIP_COLORS = [
+    { bg:'#2d0a1f', text:'#ff4fcf', border:'#ff4fcf55' },
+    { bg:'#2d1a06', text:'#ff9a3c', border:'#ff9a3c55' },
+    { bg:'#2a2500', text:'#ffe04b', border:'#ffe04b55' },
+    { bg:'#062d18', text:'#4bff91', border:'#4bff9155' },
+    { bg:'#062228', text:'#4bcfff', border:'#4bcfff55' },
+    { bg:'#1a0a2e', text:'#a64bff', border:'#a64bff55' },
+];
+
+// ═══════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════
+const centerBox           = document.getElementById('center');
+const leftBox             = document.getElementById('left');
+const progressBar         = document.getElementById('progress-bar');
+const dayInfoEl           = document.getElementById('day-info');
+const readPatternSelector = document.getElementById('readPatternSelector');
+const spellPatternSelector= document.getElementById('spellPatternSelector');
+const slider              = document.getElementById('wordCountSlider');
+const sliderValueEl       = document.getElementById('sliderValue');
+const repeatBtn           = document.getElementById('repeatBtn');
+const spellStepIndicator  = document.getElementById('spell-step-indicator');
+const btnRead             = document.getElementById('btn-read');
+const btnSpell            = document.getElementById('btn-spell');
+const modeSlider          = document.getElementById('mode-slider');
+
+// ═══════════════════════════════════════════════
+//  MODE SWITCHER
+// ═══════════════════════════════════════════════
+let currentMode = 'read'; // 'read' | 'spell'
+
+function switchMode(mode) {
+    if (mode === currentMode) return;
+    currentMode = mode;
+    document.body.className = 'mode-' + mode;
+    btnRead.classList.toggle('active',  mode === 'read');
+    btnSpell.classList.toggle('active', mode === 'spell');
+    positionModeSlider();
+    resetCenter();
+    speechSynthesis.cancel();
+    if (mode === 'read')  loadReadWords(readPatternSelector.value);
+    if (mode === 'spell') loadSpellWords(spellPatternSelector.value);
+    setTimeout(() => centerBox.focus(), 50);
+}
+
+function positionModeSlider() {
+    const active = currentMode === 'read' ? btnRead : btnSpell;
+    modeSlider.style.width  = active.offsetWidth + 'px';
+    modeSlider.style.transform = `translateX(${active.offsetLeft - 4}px)`;
+}
+
+window.addEventListener('load', () => { positionModeSlider(); });
+window.addEventListener('resize', positionModeSlider);
+
+function resetCenter() {
+    centerBox.innerHTML = '<button id="repeatBtn" title="Repeat word &amp; sentence">⟳</button>';
+    document.getElementById('repeatBtn').addEventListener('click', repeatSpellCurrent);
+    leftBox.innerHTML = '';
+    progressBar.style.width = '0%';
+}
+
+// ═══════════════════════════════════════════════
+//  SPEECH
+// ═══════════════════════════════════════════════
+function speak(text, callback) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.6;
+    const voices = speechSynthesis.getVoices();
+    const fem = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
+    if (fem) u.voice = fem;
+    u.onend = callback || null;
+    speechSynthesis.speak(u);
+}
+function speakIndian(text, callback) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-IN'; u.rate = 0.6;
+    const voices = speechSynthesis.getVoices();
+    const fem = voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female'));
+    if (fem) u.voice = fem;
+    u.onend = callback || null;
+    speechSynthesis.speak(u);
+}
+function speakWord(word) {
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
+}
+
+// ═══════════════════════════════════════════════
+//  SHARED: HISTORY & PROGRESS
+// ═══════════════════════════════════════════════
+let historyWords = []; // { word, sentence? }
+
+function renderLeft() {
+    leftBox.innerHTML = '';
+    historyWords.forEach((item, idx) => {
+        const c = CHIP_COLORS[idx % CHIP_COLORS.length];
+        const chip = document.createElement('div');
+        chip.className = 'history-chip';
+        chip.style.cssText = `background:${c.bg};color:${c.text};border:1px solid ${c.border};flex-direction:column;align-items:flex-start;`;
+        chip.innerHTML = `<div style="display:flex;gap:6px;align-items:center;">
+            <span class="chip-index">${idx+1}</span>
+            <span>${item.word}</span>
+        </div>
+        ${item.sentence ? `<div class="chip-sentence" style="color:${c.text}99">${item.sentence}</div>` : ''}`;
+        leftBox.appendChild(chip);
+    });
+    leftBox.scrollTop = leftBox.scrollHeight;
+}
+
+function updateProgress(done, total) {
+    progressBar.style.width = total > 0 ? (done/total*100)+'%' : '0%';
+}
+
+// ═══════════════════════════════════════════════
+//  READ MODE
+// ═══════════════════════════════════════════════
+let readWords = [], readCenterWord = null, readTotal = 0;
+let readWordSpoken = false;
+let userN = 5;
+
+function loadReadWords(patternName) {
+    fetch(`https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${patternName}-words.json`)
+        .then(r => r.json())
+        .then(allWords => {
+            readWords      = getDailyWords(patternName, allWords, userN);
+            readTotal      = readWords.length;
+            readCenterWord = null;
+            readWordSpoken = false;
+            historyWords   = [];
+            renderLeft();
+            updateProgress(0, readTotal);
+            const totalPages = allWords.length <= userN ? 1 : Math.floor(allWords.length/userN);
+            dayInfoEl.textContent = `📅 ${getTodayString()} · Set ${(getDayOfYear()%totalPages)+1}/${totalPages}`;
+            showReadIdle();
+            readNextWord();
+            centerBox.focus();
+        })
+        .catch(err => console.error('Read load failed:', err));
+}
+
+function showReadIdle() {
+    const btn = centerBox.querySelector('#repeatBtn');
+    const btnHTML = btn ? btn.outerHTML : '';
+    centerBox.innerHTML = btnHTML + '😃';
+}
+
+function animateReadWord(word) {
+    const btn = centerBox.querySelector('#repeatBtn');
+    const btnHTML = btn ? btn.outerHTML : '<button id="repeatBtn" title="Repeat word">⟳</button>';
+    centerBox.innerHTML = `${btnHTML}
+        <div class="word-container">
+            <span class="word"></span>
+            <img class="emoji" src="${getRandomEmojiUrl()}">
+        </div>`;
+    centerBox.querySelector('#repeatBtn').addEventListener('click', repeatSpellCurrent);
+    const span = centerBox.querySelector('.word');
+    let i = 0;
+    const iv = setInterval(() => { span.textContent += word[i++]; if (i >= word.length) clearInterval(iv); }, 200);
+}
+
+function readNextWord() {
+    if (currentMode !== 'read') return;
+
+    if (readCenterWord && !readWordSpoken) {
+        speakWord(readCenterWord);
+        readWordSpoken = true;
+        return;
+    }
+    if (readCenterWord && readWordSpoken) {
+        historyWords.push({ word: readCenterWord });
+        updateProgress(historyWords.length, readTotal);
+        renderLeft();
+    }
+    if (readWords.length === 0) {
+        readCenterWord = null;
+        const label = readPatternSelector.options[readPatternSelector.selectedIndex].text;
+        centerBox.innerHTML = `
+            <div class="completion">
+                <div class="big-emoji">🎉</div>
+                <div class="done-text">All done!</div>
+                <div class="done-sub">${label} · ${readTotal} words · ${getTodayString()}</div>
+            </div>`;
+        return;
+    }
+    readCenterWord = readWords.splice(0,1)[0];
+    readWordSpoken = false;
+    animateReadWord(readCenterWord);
+}
+
+// ═══════════════════════════════════════════════
+//  SPELL MODE
+// ═══════════════════════════════════════════════
+let spellWords = [], spellSentences = [], spellIndex = 0, spellTotal = 0;
+let spellStep = 0; // 0=speak word, 1=speak sentence, 2=reveal
+
+function loadSpellWords(patternName) {
+    fetch(`https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/speaking/${patternName}.json`)
+        .then(r => r.json())
+        .then(d => {
+            const combined = d.words.map((w, i) => ({ word: w, sentence: d.sentences[i] }));
+            shuffleArray(combined);
+            spellWords     = combined.map(c => c.word);
+            spellSentences = combined.map(c => c.sentence);
+            spellTotal     = spellWords.length;
+            spellIndex     = 0;
+            spellStep      = 0;
+            historyWords   = [];
+            renderLeft();
+            updateProgress(0, spellTotal);
+            updateSpellStepUI(0);
+            showSpellWaiting();
+            spellNextStep();
+        })
+        .catch(err => console.error('Spell load failed:', err));
+}
+
+function updateSpellStepUI(step) {
+    const labels = ['Step 1 of 3 · Listen', 'Step 2 of 3 · Sentence', 'Step 3 of 3 · Check'];
+    spellStepIndicator.textContent = labels[step] || '';
+}
+
+function showSpellWaiting() {
+    const btn = centerBox.querySelector('#repeatBtn');
+    const btnHTML = btn ? btn.outerHTML : '<button id="repeatBtn" title="Repeat">⟳</button>';
+    centerBox.innerHTML = `${btnHTML}
+        <div class="spell-waiting">
+            <div class="q-mark">✏️</div>
+            <div class="hint-text">Listen &amp; write the word</div>
+        </div>`;
+    centerBox.querySelector('#repeatBtn').addEventListener('click', repeatSpellCurrent);
+}
+
+function animateSpellReveal(word, sentence) {
+    const btn = centerBox.querySelector('#repeatBtn');
+    const btnHTML = btn ? btn.outerHTML : '<button id="repeatBtn" title="Repeat">⟳</button>';
+    const color = randomColor();
+    centerBox.innerHTML = `${btnHTML}
+        <div class="word-container">
+            <span class="word" style="color:${color}"></span>
+            <img class="emoji" src="${getRandomEmojiUrl()}">
+            <div class="sentence-display">${sentence}</div>
+        </div>`;
+    centerBox.querySelector('#repeatBtn').addEventListener('click', repeatSpellCurrent);
+    const span = centerBox.querySelector('.word');
+    let i = 0;
+    const iv = setInterval(() => { span.textContent += word[i++]; if (i >= word.length) clearInterval(iv); }, 200);
+}
+
+function randomColor() {
+    return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
+}
+
+function spellNextStep() {
+    if (currentMode !== 'spell') return;
+    if (spellIndex >= spellTotal) {
+        centerBox.innerHTML = `
+            <div class="completion">
+                <div class="big-emoji">🎉</div>
+                <div class="done-text">All done!</div>
+                <div class="done-sub">${spellPatternSelector.options[spellPatternSelector.selectedIndex].text} · ${spellTotal} words</div>
+            </div>`;
+        return;
+    }
+
+    if (spellStep === 0) {
+        // Speak word (en-US then en-IN)
+        showSpellWaiting();
+        updateSpellStepUI(0);
+        speak(spellWords[spellIndex], () => {
+            speakIndian(spellWords[spellIndex], null);
+        });
+        spellStep = 1;
+    } else if (spellStep === 1) {
+        // Speak sentence (en-US then en-IN)
+        updateSpellStepUI(1);
+        speak(spellSentences[spellIndex], () => {
+            speakIndian(spellSentences[spellIndex], null);
+        });
+        spellStep = 2;
+    } else if (spellStep === 2) {
+        // Reveal word + sentence + add to history
+        updateSpellStepUI(2);
+        animateSpellReveal(spellWords[spellIndex], spellSentences[spellIndex]);
+        historyWords.push({ word: spellWords[spellIndex], sentence: spellSentences[spellIndex] });
+        renderLeft();
+        updateProgress(historyWords.length, spellTotal);
+        spellIndex++;
+        spellStep = 0;
+    }
+}
+
+function repeatSpellCurrent() {
+    if (currentMode !== 'spell') return;
+    if (spellIndex >= spellTotal) return;
+    speechSynthesis.cancel();
+    speak(spellWords[spellIndex], () => {
+        speakIndian(spellWords[spellIndex], () => {
+            speak(spellSentences[spellIndex], () => {
+                speakIndian(spellSentences[spellIndex], null);
+            });
+        });
+    });
+}
+
+// ═══════════════════════════════════════════════
+//  UNIFIED ADVANCE (Space / Enter / Tap)
+// ═══════════════════════════════════════════════
+function advance() {
+    if (currentMode === 'read')  readNextWord();
+    if (currentMode === 'spell') spellNextStep();
+}
+
+document.body.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') { e.preventDefault(); advance(); }
+});
+centerBox.addEventListener('click', e => {
+    if (e.target.id === 'repeatBtn') return; // don't advance on repeat click
+    advance();
+});
+
+// ═══════════════════════════════════════════════
+//  READ MODE CONTROLS
+// ═══════════════════════════════════════════════
+readPatternSelector.addEventListener('change', () => {
+    if (currentMode !== 'read') return;
+    historyWords = []; renderLeft();
+    loadReadWords(readPatternSelector.value);
+});
+slider.addEventListener('input', () => { userN = parseInt(slider.value); sliderValueEl.textContent = userN; });
+slider.addEventListener('change', () => {
+    userN = parseInt(slider.value);
+    if (currentMode === 'read') loadReadWords(readPatternSelector.value);
+});
+
+// ═══════════════════════════════════════════════
+//  SPELL MODE CONTROLS
+// ═══════════════════════════════════════════════
+spellPatternSelector.addEventListener('change', () => {
+    if (currentMode !== 'spell') return;
+    loadSpellWords(spellPatternSelector.value);
+});
+
+// ═══════════════════════════════════════════════
+//  REPEAT BUTTON (initial bind, re-bound after innerHTML changes)
+// ═══════════════════════════════════════════════
+repeatBtn.addEventListener('click', repeatSpellCurrent);
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+// Voices load async in some browsers
+speechSynthesis.onvoiceschanged = () => {};
+loadReadWords(readPatternSelector.value);
+setTimeout(positionModeSlider, 100);
+</script>
+</body>
+</html>
