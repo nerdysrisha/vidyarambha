@@ -162,25 +162,27 @@ body.mode-spell #spell-bar { display: flex; }
 }
 .dark-select:hover, .dark-select:focus { border-color: #a64bff; box-shadow: 0 0 8px #a64bff66; }
 
-/* ── DAILY WORD COUNT BADGE (Read mode) ── */
-#daily-count-badge {
+/* ── SLIDER (Read mode) ── */
+#slider-block {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #aaa;
-    white-space: nowrap;
+    gap: 8px;
     flex-shrink: 0;
 }
-#daily-count-badge .count-num {
-    font-size: 16px;
-    font-weight: 900;
-    color: #ffe04b;
-    text-shadow: 0 0 10px #ffe04b;
-    min-width: 26px;
-    text-align: center;
+#slider-block label { font-size: 13px; font-weight: 700; color: #aaa; white-space: nowrap; }
+#wordCountSlider {
+    -webkit-appearance: none; appearance: none;
+    width: 110px; height: 6px; border-radius: 4px;
+    background: linear-gradient(90deg, #ff4fcf, #ff9a3c, #ffe04b, #4bff91, #4bcfff, #a64bff);
+    outline: none; cursor: pointer;
 }
+#wordCountSlider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 10px #a64bffaa; cursor: pointer;
+    border: 2px solid #a64bff; transition: box-shadow 0.2s;
+}
+#wordCountSlider::-webkit-slider-thumb:hover { box-shadow: 0 0 16px #ff4fcf; }
+#sliderValue { font-size: 16px; font-weight: 900; color: #ffe04b; text-shadow: 0 0 10px #ffe04b; min-width: 26px; text-align: center; }
 
 /* ── DAY BADGE ── */
 #day-info {
@@ -393,8 +395,10 @@ body.mode-spell #repeatBtn { display: flex; align-items: center; justify-content
             <option value="vehicles">Vehicles</option>
             <option value="weather">Weather</option>
         </select>
-        <div id="daily-count-badge">
-            📚 Words today: <span class="count-num" id="dailyCountDisplay">5</span>
+        <div id="slider-block">
+            <label>Words:</label>
+            <input type="range" id="wordCountSlider" min="1" max="20" value="5">
+            <span id="sliderValue">5</span>
         </div>
         <span id="day-info"></span>
     </div>
@@ -491,7 +495,8 @@ const progressBar         = document.getElementById('progress-bar');
 const dayInfoEl           = document.getElementById('day-info');
 const readPatternSelector = document.getElementById('readPatternSelector');
 const spellPatternSelector= document.getElementById('spellPatternSelector');
-const dailyCountDisplay   = document.getElementById('dailyCountDisplay');
+const slider              = document.getElementById('wordCountSlider');
+const sliderValueEl       = document.getElementById('sliderValue');
 const repeatBtn           = document.getElementById('repeatBtn');
 const spellStepIndicator  = document.getElementById('spell-step-indicator');
 const btnRead             = document.getElementById('btn-read');
@@ -512,7 +517,6 @@ function switchMode(mode) {
     positionModeSlider();
     resetCenter();
     speechSynthesis.cancel();
-    spellSpeaking = false;
     if (mode === 'read')  loadReadWords(readPatternSelector.value);
     if (mode === 'spell') loadSpellWords(spellPatternSelector.value);
     setTimeout(() => centerBox.focus(), 50);
@@ -537,14 +541,9 @@ function resetCenter() {
 // ═══════════════════════════════════════════════
 //  SPEECH
 // ═══════════════════════════════════════════════
-// Appending a period stops TTS engines from treating short words as acronyms
-function w(text) {
-    const t = text.trim();
-    return /[.!?]$/.test(t) ? t : t + '.';
-}
 function speak(text, callback) {
-    const u = new SpeechSynthesisUtterance(w(text));
-    u.lang = 'en-US'; u.rate = 0.8;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.6;
     const voices = speechSynthesis.getVoices();
     const fem = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
     if (fem) u.voice = fem;
@@ -552,19 +551,17 @@ function speak(text, callback) {
     speechSynthesis.speak(u);
 }
 function speakIndian(text, callback) {
-    const u = new SpeechSynthesisUtterance(w(text));
-    u.lang = 'en-IN'; u.rate = 0.8;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-IN'; u.rate = 0.6;
     const voices = speechSynthesis.getVoices();
-    const indFem = voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female'));
-    const indAny = voices.find(v => v.lang === 'en-IN');
-    if (indFem) u.voice = indFem;
-    else if (indAny) u.voice = indAny;
+    const fem = voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female'));
+    if (fem) u.voice = fem;
     u.onend = callback || null;
     speechSynthesis.speak(u);
 }
 function speakWord(word) {
-    const u = new SpeechSynthesisUtterance(w(word));
-    u.lang = 'en-US'; u.rate = 0.8;
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
     speechSynthesis.speak(u);
 }
 
@@ -599,9 +596,7 @@ function updateProgress(done, total) {
 // ═══════════════════════════════════════════════
 let readWords = [], readCenterWord = null, readTotal = 0;
 let readWordSpoken = false;
-// Daily word count: cycles through 5, 7, 10 day-by-day so each day feels fresh
-const DAILY_COUNTS = [5, 7, 10, 5, 10, 7, 5];
-let userN = DAILY_COUNTS[getDayOfYear() % DAILY_COUNTS.length];
+let userN = 5;
 
 function loadReadWords(patternName) {
     fetch(`https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${patternName}-words.json`)
@@ -614,7 +609,6 @@ function loadReadWords(patternName) {
             historyWords   = [];
             renderLeft();
             updateProgress(0, readTotal);
-            dailyCountDisplay.textContent = userN;
             const totalPages = allWords.length <= userN ? 1 : Math.floor(allWords.length/userN);
             dayInfoEl.textContent = `📅 ${getTodayString()} · Set ${(getDayOfYear()%totalPages)+1}/${totalPages}`;
             showReadIdle();
@@ -690,7 +684,6 @@ function loadSpellWords(patternName) {
             spellTotal     = spellWords.length;
             spellIndex     = 0;
             spellStep      = 0;
-            spellSpeaking  = false;
             historyWords   = [];
             renderLeft();
             updateProgress(0, spellTotal);
@@ -737,41 +730,8 @@ function randomColor() {
     return `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
 }
 
-// Tracks whether we're mid-speech
-let spellSpeaking = false;
-
-function playSpellAudio(index) {
-    // Plays: word (US) → word (IN) → sentence (US) → sentence (IN)
-    // Each fires automatically via onend callbacks — no taps needed between them
-    spellSpeaking = true;
-    updateSpellStepUI(0);
-    speak(spellWords[index], () => {
-        if (currentMode !== 'spell') { spellSpeaking = false; return; }
-        speakIndian(spellWords[index], () => {
-            if (currentMode !== 'spell') { spellSpeaking = false; return; }
-            updateSpellStepUI(1);
-            speak(spellSentences[index], () => {
-                if (currentMode !== 'spell') { spellSpeaking = false; return; }
-                speakIndian(spellSentences[index], () => {
-                    spellSpeaking = false;
-                    spellStep = 1; // ready for reveal tap
-                });
-            });
-        });
-    });
-}
-
 function spellNextStep() {
     if (currentMode !== 'spell') return;
-
-    // If audio is playing, cancel it and mark ready for reveal
-    if (spellSpeaking) {
-        speechSynthesis.cancel();
-        spellSpeaking = false;
-        spellStep = 1;
-        return;
-    }
-
     if (spellIndex >= spellTotal) {
         centerBox.innerHTML = `
             <div class="completion">
@@ -783,12 +743,22 @@ function spellNextStep() {
     }
 
     if (spellStep === 0) {
-        // Start: play full audio chain automatically
+        // Speak word (en-US then en-IN)
         showSpellWaiting();
-        playSpellAudio(spellIndex);
-
+        updateSpellStepUI(0);
+        speak(spellWords[spellIndex], () => {
+            speakIndian(spellWords[spellIndex], null);
+        });
+        spellStep = 1;
     } else if (spellStep === 1) {
-        // Reveal word + sentence
+        // Speak sentence (en-US then en-IN)
+        updateSpellStepUI(1);
+        speak(spellSentences[spellIndex], () => {
+            speakIndian(spellSentences[spellIndex], null);
+        });
+        spellStep = 2;
+    } else if (spellStep === 2) {
+        // Reveal word + sentence + add to history
         updateSpellStepUI(2);
         animateSpellReveal(spellWords[spellIndex], spellSentences[spellIndex]);
         historyWords.push({ word: spellWords[spellIndex], sentence: spellSentences[spellIndex] });
@@ -796,12 +766,6 @@ function spellNextStep() {
         updateProgress(historyWords.length, spellTotal);
         spellIndex++;
         spellStep = 0;
-        // Auto-play next word after short pause
-        setTimeout(() => {
-            if (currentMode === 'spell' && spellIndex < spellTotal) {
-                spellNextStep();
-            }
-        }, 1800);
     }
 }
 
@@ -809,8 +773,13 @@ function repeatSpellCurrent() {
     if (currentMode !== 'spell') return;
     if (spellIndex >= spellTotal) return;
     speechSynthesis.cancel();
-    spellStep = 0;
-    playSpellAudio(spellIndex);
+    speak(spellWords[spellIndex], () => {
+        speakIndian(spellWords[spellIndex], () => {
+            speak(spellSentences[spellIndex], () => {
+                speakIndian(spellSentences[spellIndex], null);
+            });
+        });
+    });
 }
 
 // ═══════════════════════════════════════════════
@@ -836,6 +805,11 @@ readPatternSelector.addEventListener('change', () => {
     if (currentMode !== 'read') return;
     historyWords = []; renderLeft();
     loadReadWords(readPatternSelector.value);
+});
+slider.addEventListener('input', () => { userN = parseInt(slider.value); sliderValueEl.textContent = userN; });
+slider.addEventListener('change', () => {
+    userN = parseInt(slider.value);
+    if (currentMode === 'read') loadReadWords(readPatternSelector.value);
 });
 
 // ═══════════════════════════════════════════════
