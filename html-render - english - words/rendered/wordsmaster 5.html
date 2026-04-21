@@ -460,15 +460,12 @@ function getDayOfYear() {
 function getDailyWords(patternName, allWords, n) {
     const total = allWords.length;
     if (total <= n) return allWords.slice();
-    // Seed shuffle from pattern name only (stable ordering)
-    const shuffleSeed = hashString(patternName + '|shuffle');
-    const rng = mulberry32(shuffleSeed);
+    const seed = hashString(getTodayString()+'|'+patternName);
+    const rng  = mulberry32(seed);
     const shuffled = seededShuffle(allWords, rng);
-    // Pick page based on today's date (changes each day)
-    const totalPages = Math.floor(total / n);
-    const dateSeed = hashString(getTodayString() + '|' + patternName);
-    const pageIndex = dateSeed % totalPages;
-    return shuffled.slice(pageIndex * n, pageIndex * n + n);
+    const totalPages = Math.floor(total/n);
+    const pageIndex  = getDayOfYear() % totalPages;
+    return shuffled.slice(pageIndex*n, pageIndex*n+n);
 }
 
 const EMOJI_COUNT = 55;
@@ -540,14 +537,9 @@ function resetCenter() {
 // ═══════════════════════════════════════════════
 //  SPEECH
 // ═══════════════════════════════════════════════
-// Wrapping short text in a carrier phrase prevents TTS engines from
-// spelling it out letter-by-letter (e.g. "cat" → "C, A, T")
+// Appending a period stops TTS engines from treating short words as acronyms
 function w(text) {
     const t = text.trim();
-    // If it's a single word (no spaces), wrap it so TTS reads it as a word
-    if (!/\s/.test(t)) {
-        return t + '. ' + t + '.';
-    }
     return /[.!?]$/.test(t) ? t : t + '.';
 }
 function speak(text, callback) {
@@ -556,35 +548,18 @@ function speak(text, callback) {
     const voices = speechSynthesis.getVoices();
     const fem = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
     if (fem) u.voice = fem;
-    if (callback) {
-        let fired = false;
-        const guard = setTimeout(() => { if (!fired) { fired = true; callback(); } }, 5000);
-        u.onend = () => { if (!fired) { fired = true; clearTimeout(guard); callback(); } };
-        u.onerror = () => { if (!fired) { fired = true; clearTimeout(guard); callback(); } };
-    }
+    u.onend = callback || null;
     speechSynthesis.speak(u);
 }
 function speakIndian(text, callback) {
+    const u = new SpeechSynthesisUtterance(w(text));
+    u.lang = 'en-IN'; u.rate = 0.8;
     const voices = speechSynthesis.getVoices();
     const indFem = voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female'));
     const indAny = voices.find(v => v.lang === 'en-IN');
-    const chosenVoice = indFem || indAny || null;
-
-    // If no Indian voice available, skip this step and fire callback immediately
-    // so the sentence chain is never silently broken
-    if (!chosenVoice) {
-        if (callback) setTimeout(callback, 0);
-        return;
-    }
-
-    const u = new SpeechSynthesisUtterance(w(text));
-    u.lang = 'en-IN'; u.rate = 0.8;
-    u.voice = chosenVoice;
-    // Guard: if onend never fires (browser bug), fire callback after timeout
-    let fired = false;
-    const guard = setTimeout(() => { if (!fired) { fired = true; if (callback) callback(); } }, 5000);
-    u.onend = () => { if (!fired) { fired = true; clearTimeout(guard); if (callback) callback(); } };
-    u.onerror = () => { if (!fired) { fired = true; clearTimeout(guard); if (callback) callback(); } };
+    if (indFem) u.voice = indFem;
+    else if (indAny) u.voice = indAny;
+    u.onend = callback || null;
     speechSynthesis.speak(u);
 }
 function speakWord(word) {
@@ -624,9 +599,9 @@ function updateProgress(done, total) {
 // ═══════════════════════════════════════════════
 let readWords = [], readCenterWord = null, readTotal = 0;
 let readWordSpoken = false;
-// Daily word count: always 10 words per day
-const DAILY_N = 10;
-let userN = DAILY_N;
+// Daily word count: cycles through 5, 7, 10 day-by-day so each day feels fresh
+const DAILY_COUNTS = [5, 7, 10, 5, 10, 7, 5];
+let userN = DAILY_COUNTS[getDayOfYear() % DAILY_COUNTS.length];
 
 function loadReadWords(patternName) {
     fetch(`https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/english/${patternName}-words.json`)
@@ -709,13 +684,9 @@ function loadSpellWords(patternName) {
         .then(r => r.json())
         .then(d => {
             const combined = d.words.map((w, i) => ({ word: w, sentence: d.sentences[i] }));
-            // Use same daily seeding as read mode — stable per day, changes each day
-            const allWords = combined.map(c => c.word);
-            const dailyWords = getDailyWords(patternName, allWords, DAILY_N);
-            // Reconstruct combined in daily order
-            const dailyCombined = dailyWords.map(w => combined.find(c => c.word === w) || { word: w, sentence: '' });
-            spellWords     = dailyCombined.map(c => c.word);
-            spellSentences = dailyCombined.map(c => c.sentence);
+            shuffleArray(combined);
+            spellWords     = combined.map(c => c.word);
+            spellSentences = combined.map(c => c.sentence);
             spellTotal     = spellWords.length;
             spellIndex     = 0;
             spellStep      = 0;
