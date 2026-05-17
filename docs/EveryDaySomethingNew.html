@@ -743,43 +743,7 @@ button:active { transform: scale(0.97); }
     text-align: center;
     letter-spacing: 2px;
 }
-
-/* CONFETTI
-@keyframes confettiFall {
-    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(420px) rotate(720deg) scale(0.4); opacity: 0; }
-}
-
-.confetti-piece {
-    position: fixed;
-    width: 10px; height: 10px;
-    border-radius: 2px;
-    pointer-events: none;
-    z-index: 9999;
-    animation: confettiFall linear forwards;
-}
- */
-/* ANIMAL RUN 
-@keyframes animalRunRight {
-    0%   { transform: translateX(-120px) scaleX(1); }
-    100% { transform: translateX(calc(100vw + 120px)) scaleX(1); }
-}
-@keyframes animalRunLeft {
-    0%   { transform: translateX(calc(100vw + 120px)) scaleX(-1); }
-    100% { transform: translateX(-120px) scaleX(-1); }
-}
-
-.animal-runner {
-    position: fixed;
-    bottom: 72px;
-    font-size: 52px;
-    pointer-events: none;
-    z-index: 9998;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-}
-*/
+ 
 
 /* RAINBOW GLOW */
 @keyframes answersBlink {
@@ -1647,13 +1611,12 @@ function navigate(direction) {
         ? (currentIndex+1) % stackOrder.length
         : (currentIndex-1+stackOrder.length) % stackOrder.length;
     navigateTo(idx, direction);
-    launchConfetti();
-    runAnimal(direction);
+     
 }
 
 document.getElementById("prevBtn").onclick  = () => navigate("prev");
 document.getElementById("nextBtn").onclick  = () => navigate("next");
-document.getElementById("goTopBtn").onclick = () => { navigateTo(0,"prev"); launchConfetti(); runAnimal("prev"); };
+document.getElementById("goTopBtn").onclick = () => { navigateTo(0,"prev");  };
 
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT") return;
@@ -1675,7 +1638,7 @@ document.getElementById("selectAllBtn").onclick = async () => {
 questions.addEventListener("click", e => {
     const stack = e.target.closest(".stack-wrapper");
     if (!stack) return;
-    launchConfetti();
+     
 });
 
 // ── SCREEN WAKE LOCK ──────────────────────────────────────────────────────────
