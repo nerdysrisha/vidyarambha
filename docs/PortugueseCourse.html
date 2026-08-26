@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Portuguese Course</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 64px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* TOP BAR — dropdown only */
+#top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#jumpSelect {
+    flex: 1;
+    min-width: 260px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #0077cc;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 15px;
+    cursor: pointer;
+}
+#jumpSelect:hover, #jumpSelect:focus {
+    border-color: #00c8ff;
+    box-shadow: 0 0 10px rgba(0,200,255,0.4);
+    outline: none;
+}
+#jumpSelect option { background: #111; color: #fff; }
+
+/* CONTENT PANEL */
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+}
+
+#content-box {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 20px 26px;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    font-size: 17px;
+    line-height: 1.6;
+}
+#content-box::-webkit-scrollbar { width: 8px; }
+#content-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+/* default styling for whatever content gets dropped in */
+#content-box h1, #content-box h2, #content-box h3 {
+    color: #00c8ff;
+    margin-top: 0.2em;
+}
+#content-box table {
+    border-collapse: collapse;
+    margin: 14px 0;
+    width: 100%;
+}
+#content-box th, #content-box td {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    text-align: left;
+}
+#content-box th {
+    background: #131313;
+    color: #28a745;
+}
+#content-box tr:nth-child(even) td { background: #0e0e0e; }
+#content-box p { margin: 0.6em 0; }
+#content-box .pt { color: #fff; font-weight: bold; }
+#content-box .en { color: #999; font-style: italic; }
+
+/* BOTTOM NAV */
+#bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px 0;
+}
+button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    background: #0077cc;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0,119,204,0.5);
+}
+button:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
+button:active { transform: scale(0.97); }
+
+#counter {
+    font-size: 15px;
+    color: #aaa;
+    min-width: 60px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="top-bar">
+        <select id="jumpSelect" title="Jump to topic"></select>
+    </div>
+    <div id="content-panel">
+        <div id="content-box"></div>
+    </div>
+</div>
+
+<div id="bottom-nav">
+    <button id="prevBtn">&#8592; Prev</button>
+    <span id="counter">1 / 1</span>
+    <button id="nextBtn">Next &#8594;</button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+// Raw GitHub base URL for topic files. Each entry below fetches
+// BASE_URL + slug + ".html" and drops that HTML straight into the page.
+const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/";
+
+// ── TOPIC LIST (edit labels/slugs here as needed) ────────────────────────────
+const topics = [
+    ["00-introduction",                    "0. Introdução — Identificação pessoal"],
+    ["01-artigos",                         "1. Artigos"],
+    ["02-verbos-basicos",                  "2. Verbos básicos"],
+    ["03-ser-usos-principais",             "3. Ser — usos principais"],
+    ["04-estar-usos-principais",           "4. Estar — usos principais"],
+    ["05-ser-vs-estar",                    "5. Ser vs. estar"],
+    ["06-palavras-de-tempo",               "6. Palavras de tempo"],
+    ["07-antes-depois",                    "7. Antes / depois"],
+    ["08-expressoes",                      "8. Expressões"],
+    ["09-tipos-de-verbos",                 "9. Tipos de verbos"],
+    ["10-presente-indicativo",             "10. Presente do Indicativo"],
+    ["11-estar-a-infinitivo",              "11. Estar + a + infinitivo"],
+    ["12-forma-negativa-estar-a-infinitivo","12. Forma negativa — estar + a + infinitivo"],
+    ["13-demonstrativos",                  "13. Demonstrativos"],
+    ["14-contracoes-preposicao-artigo",    "14. Contrações — preposição + artigo"],
+    ["15-conversas-dia-a-dia",             "15. Conversas do dia a dia"],
+    ["16-apresentar-descrever-pessoa",     "16. Apresentar / descrever uma pessoa"],
+    ["17-verbos-expressoes-rotina",        "17. Verbos e expressões de rotina"],
+    ["18-revisao-nacionalidades",          "18. Revisão — Nacionalidades"]
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let currentIndex = 0;
+const jumpSelect  = document.getElementById("jumpSelect");
+const contentBox  = document.getElementById("content-box");
+const counterEl   = document.getElementById("counter");
+
+// build dropdown once, listing every topic
+topics.forEach(([slug, label], i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = label;
+    jumpSelect.appendChild(opt);
+});
+
+function loadTopic(i) {
+    currentIndex = ((i % topics.length) + topics.length) % topics.length;
+    const [slug] = topics[currentIndex];
+    jumpSelect.value = currentIndex;
+    counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
+    contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
+
+    fetch(BASE_URL + slug + ".html")
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
+        .then(html => { contentBox.innerHTML = html; contentBox.scrollTop = 0; })
+        .catch(err => {
+            contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
+        });
+}
+
+jumpSelect.addEventListener("change", () => loadTopic(parseInt(jumpSelect.value, 10)));
+document.getElementById("prevBtn").onclick = () => loadTopic(currentIndex - 1);
+document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "SELECT") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
+});
+
+// start on Topic 0
+loadTopic(0);
+</script>
+</body>
+</html>
