@@ -21,6 +21,18 @@
 .pt-servsestar .ser-tag { color: #2f6b52 !important; font-weight: 700; }
 .pt-servsestar .estar-tag { color: #2f6690 !important; font-weight: 700; }
 
+/* one-example-per-line list, indented one tab, with English equivalent */
+.pt-servsestar .example-list { margin: 0 0 12px 0; }
+.pt-servsestar .ex-line {
+  color: #2b2b2b !important;
+  line-height: 1.7;
+  margin: 0 0 6px 0;
+  padding-left: 2em;
+}
+.pt-servsestar .ex-line:last-child { margin-bottom: 0; }
+.pt-servsestar .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-servsestar .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
 .pt-servsestar .exercise-box {
   background: #f4f8f6 !important;
   border: 1px dashed #8fb9a8;
@@ -57,7 +69,11 @@
 .pt-servsestar .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
 .pt-servsestar .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
 .pt-servsestar .reveal::before { content: "→ "; color: #c9a15a !important; }
-.pt-servsestar .reveal-pair { display: block; margin-top: 4px; margin-left: 16px; }
+/* NOTE: display was removed here on purpose — see fix note below.
+   .reveal-pair only adds block-level spacing/margin now; visibility is governed
+   solely by .reveal's display:none, so the pair starts hidden and JS (which sets
+   an inline style) toggles it correctly on click. */
+.pt-servsestar .reveal-pair { margin-top: 4px; margin-left: 16px; }
 
 .pt-servsestar .check-btn {
   background: #2f6b52 !important;
@@ -79,13 +95,27 @@
   <p><span class="estar-tag">Estar</span> is generally used for location, a temporary condition/state, or a situation at a particular moment.</p>
 
   <h3>Ser + adjetivo</h3>
-  <p>Ela <span class="pt-word">é</span> loura, Ele <span class="pt-word">é</span> inteligente, O vestido <span class="pt-word">é</span> novo, A água do mar <span class="pt-word">é</span> salgada, O limão <span class="pt-word">é</span> azedo.</p>
+  <div class="example-list">
+    <p class="ex-line">Ela <span class="pt-word">é</span> loura.<span class="en-eq">She is blonde.</span></p>
+    <p class="ex-line">Ele <span class="pt-word">é</span> inteligente.<span class="en-eq">He is intelligent.</span></p>
+    <p class="ex-line">O vestido <span class="pt-word">é</span> novo.<span class="en-eq">The dress is new.</span></p>
+    <p class="ex-line">A água do mar <span class="pt-word">é</span> salgada.<span class="en-eq">Sea water is salty.</span></p>
+    <p class="ex-line">O limão <span class="pt-word">é</span> azedo.<span class="en-eq">The lemon is sour.</span></p>
+  </div>
 
   <h3>Estar + adjetivo</h3>
-  <p>Hoje <span class="pt-word">estou</span> cansado, A sopa <span class="pt-word">está</span> salgada, O leite não <span class="pt-word">está</span> bom, está azedo, O vestido <span class="pt-word">está</span> roto.</p>
+  <div class="example-list">
+    <p class="ex-line">Hoje <span class="pt-word">estou</span> cansado.<span class="en-eq">Today I am tired.</span></p>
+    <p class="ex-line">A sopa <span class="pt-word">está</span> salgada.<span class="en-eq">The soup is (too) salty.</span></p>
+    <p class="ex-line">O leite não <span class="pt-word">está</span> bom, está azedo.<span class="en-eq">The milk isn't good, it's sour.</span></p>
+    <p class="ex-line">O vestido <span class="pt-word">está</span> roto.<span class="en-eq">The dress is torn.</span></p>
+  </div>
 
   <h3>Contrasting examples</h3>
-  <p>Ele <span class="pt-word">é</span> de Lisboa, mas agora <span class="pt-word">está</span> no Porto. São 10 horas da manhã e já <span class="pt-word">está</span> tanto calor.</p>
+  <div class="example-list">
+    <p class="ex-line">Ele <span class="pt-word">é</span> de Lisboa, mas agora <span class="pt-word">está</span> no Porto.<span class="en-eq">He is from Lisbon, but now he's in Porto.</span></p>
+    <p class="ex-line">São 10 horas da manhã e já <span class="pt-word">está</span> tanto calor.<span class="en-eq">It's 10 in the morning and it's already so hot.</span></p>
+  </div>
 </div>
 
 <div class="exercise-box">
