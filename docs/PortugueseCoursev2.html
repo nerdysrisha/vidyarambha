@@ -21,66 +21,36 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     margin-bottom: 0;
     height: calc(100vh - 40px - 64px);
     display: flex;
-    flex-direction: row;
-    gap: 14px;
-    overflow: hidden;
-}
-
-/* SIDEBAR — full topic index */
-#sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #333 #0a0a0a;
-}
-#sidebar::-webkit-scrollbar { width: 8px; }
-#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-
-#sidebar-title {
-    padding: 14px 16px 10px 16px;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #666;
-    border-bottom: 1px solid #222;
-    position: sticky;
-    top: 0;
-    background: #111;
-}
-
-.topic-item {
-    padding: 10px 16px;
-    font-size: 14.5px;
-    line-height: 1.4;
-    color: #ccc;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-}
-.topic-item:hover {
-    background: #1a1a1a;
-    color: #fff;
-}
-.topic-item.active {
-    background: #0d1f2b;
-    color: #00c8ff;
-    border-left-color: #00c8ff;
-    font-weight: bold;
-}
-
-/* RIGHT COLUMN — content + nav stacked */
-#main-col {
-    flex: 1;
-    min-width: 0;
-    display: flex;
     flex-direction: column;
     gap: 14px;
     overflow: hidden;
 }
+
+/* TOP BAR — dropdown only */
+#top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#jumpSelect {
+    flex: 1;
+    min-width: 260px;
+    background: #111;
+    color: #fff;
+    border: 1px solid #0077cc;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 15px;
+    cursor: pointer;
+}
+#jumpSelect:hover, #jumpSelect:focus {
+    border-color: #00c8ff;
+    box-shadow: 0 0 10px rgba(0,200,255,0.4);
+    outline: none;
+}
+#jumpSelect option { background: #111; color: #fff; }
 
 /* CONTENT PANEL */
 #content-panel {
@@ -164,14 +134,11 @@ button:active { transform: scale(0.97); }
 <body>
 
 <div id="outer">
-    <div id="sidebar">
-        <div id="sidebar-title">Topics</div>
-        <div id="sidebar-list"></div>
+    <div id="top-bar">
+        <select id="jumpSelect" title="Jump to topic"></select>
     </div>
-    <div id="main-col">
-        <div id="content-panel">
-            <div id="content-box"></div>
-        </div>
+    <div id="content-panel">
+        <div id="content-box"></div>
     </div>
 </div>
 
@@ -215,28 +182,22 @@ const topics = [
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 let currentIndex = 0;
-const sidebarList = document.getElementById("sidebar-list");
+const jumpSelect  = document.getElementById("jumpSelect");
 const contentBox  = document.getElementById("content-box");
 const counterEl   = document.getElementById("counter");
 
-// build sidebar once, listing every topic
-const topicEls = topics.map(([slug, label], i) => {
-    const item = document.createElement("div");
-    item.className = "topic-item";
-    item.textContent = label;
-    item.dataset.index = i;
-    item.addEventListener("click", () => loadTopic(i));
-    sidebarList.appendChild(item);
-    return item;
+// build dropdown once, listing every topic
+topics.forEach(([slug, label], i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = label;
+    jumpSelect.appendChild(opt);
 });
 
 function loadTopic(i) {
     currentIndex = ((i % topics.length) + topics.length) % topics.length;
     const [slug] = topics[currentIndex];
-
-    topicEls.forEach((el, idx) => el.classList.toggle("active", idx === currentIndex));
-    topicEls[currentIndex].scrollIntoView({ block: "nearest" });
-
+    jumpSelect.value = currentIndex;
     counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
     contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
 
@@ -248,11 +209,12 @@ function loadTopic(i) {
         });
 }
 
+jumpSelect.addEventListener("change", () => loadTopic(parseInt(jumpSelect.value, 10)));
 document.getElementById("prevBtn").onclick = () => loadTopic(currentIndex - 1);
 document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
 
 document.addEventListener("keydown", e => {
-    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+    if (e.target.tagName === "SELECT") return;
     if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
 });
