@@ -186,22 +186,74 @@
 .pt-lesson-1 .check-btn:hover {
   background: #245640 !important;
 }
+
+/* ---------- Speak button ---------- */
+
+.pt-lesson-1 .spk-wrap {
+  position: relative;
+  padding-left: 1.6em;
+}
+
+.pt-lesson-1 .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.95em;
+  color: #a1521f;
+}
+
+.pt-lesson-1 .spk-wrap:hover .spk-btn,
+.pt-lesson-1 .spk-btn:focus-visible {
+  opacity: 1;
+}
+
+.pt-lesson-1 .spk-btn:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+.pt-lesson-1 .spk-btn.speaking {
+  opacity: 1;
+  color: #2f6b52;
+}
+
+.pt-lesson-1 .example-box .spk-btn {
+  color: #d8b46a;
+}
+
+.pt-lesson-1 .example-box .spk-btn.speaking {
+  color: #8fd6b0;
+}
+
+/* touch devices have no hover, so keep icons faintly visible */
+@media (hover: none) {
+  .pt-lesson-1 .spk-btn {
+    opacity: 0.4;
+  }
+}
 </style>
 
 <h2>1. Artigos <span class="en">(Articles)</span></h2>
 
 <div class="desc-box">
 	<h3>Artigos definidos <span class="en">(Definite articles)</span></h3>
-	<p class="pt"><span class="pt-word">o</span> <span class="en">(the)</span> <span class="hi">(वह)</span></p>
-	<p class="pt"><span class="pt-word">os</span> <span class="en">(the, pl.)</span> <span class="hi">(वे)</span></p>
-	<p class="pt"><span class="pt-word">a</span> <span class="en">(the)</span> <span class="hi">(वह)</span></p>
-	<p class="pt"><span class="pt-word">as</span> <span class="en">(the, pl.)</span> <span class="hi">(वे)</span></p>
+	<p class="pt spk-wrap" data-pt="o"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o</span> <span class="en">(the)</span> <span class="hi">(वह)</span></p>
+	<p class="pt spk-wrap" data-pt="os"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">os</span> <span class="en">(the, pl.)</span> <span class="hi">(वे)</span></p>
+	<p class="pt spk-wrap" data-pt="a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a</span> <span class="en">(the)</span> <span class="hi">(वह)</span></p>
+	<p class="pt spk-wrap" data-pt="as"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">as</span> <span class="en">(the, pl.)</span> <span class="hi">(वे)</span></p>
 
 	<h3>Artigos indefinidos <span class="en">(Indefinite articles)</span></h3>
-	<p class="pt"><span class="pt-word">um</span> <span class="en">(a/an)</span> <span class="hi">(एक)</span></p>
-	<p class="pt"><span class="pt-word">uns</span> <span class="en">(some)</span> <span class="hi">(कुछ)</span></p>
-	<p class="pt"><span class="pt-word">uma</span> <span class="en">(a/an)</span> <span class="hi">(एक)</span></p>
-	<p class="pt"><span class="pt-word">umas</span> <span class="en">(some)</span> <span class="hi">(कुछ)</span></p>
+	<p class="pt spk-wrap" data-pt="um"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">um</span> <span class="en">(a/an)</span> <span class="hi">(एक)</span></p>
+	<p class="pt spk-wrap" data-pt="uns"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">uns</span> <span class="en">(some)</span> <span class="hi">(कुछ)</span></p>
+	<p class="pt spk-wrap" data-pt="uma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">uma</span> <span class="en">(a/an)</span> <span class="hi">(एक)</span></p>
+	<p class="pt spk-wrap" data-pt="umas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">umas</span> <span class="en">(some)</span> <span class="hi">(कुछ)</span></p>
 
 	<p><em>Basic idea: The article changes according to gender and number.</em></p>
 </div>
@@ -218,13 +270,13 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>O carro <span class="en">(The car)</span></td><td>Os carros <span class="en">(The cars)</span></td><td>A casa <span class="en">(The house)</span></td><td>As casas <span class="en">(The houses)</span></td></tr>
-      <tr><td>O livro</td><td>Os livros</td><td>A escola</td><td>As escolas</td></tr>
-      <tr><td>O carro</td><td>Os carros</td><td>A casa</td><td>As casas</td></tr>
-      <tr><td>O gato</td><td>Os gatos</td><td>A gata</td><td>As gatas</td></tr>
-      <tr><td>O menino</td><td>Os meninos</td><td>A menina</td><td>As meninas</td></tr>
-      <tr><td>O amigo</td><td>Os amigos</td><td>A amiga</td><td>As amigas</td></tr>
-      <tr><td>O cão</td><td>Os cães</td><td>A cadela</td><td>As cadelas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O carro"><button class="spk-btn" aria-label="Ouvir">🔊</button>O carro <span class="en">(The car)</span></td><td class="spk-wrap" data-pt="Os carros"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os carros <span class="en">(The cars)</span></td><td class="spk-wrap" data-pt="A casa"><button class="spk-btn" aria-label="Ouvir">🔊</button>A casa <span class="en">(The house)</span></td><td class="spk-wrap" data-pt="As casas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As casas <span class="en">(The houses)</span></td></tr>
+      <tr><td class="spk-wrap" data-pt="O livro"><button class="spk-btn" aria-label="Ouvir">🔊</button>O livro</td><td class="spk-wrap" data-pt="Os livros"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os livros</td><td class="spk-wrap" data-pt="A escola"><button class="spk-btn" aria-label="Ouvir">🔊</button>A escola</td><td class="spk-wrap" data-pt="As escolas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As escolas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O carro"><button class="spk-btn" aria-label="Ouvir">🔊</button>O carro</td><td class="spk-wrap" data-pt="Os carros"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os carros</td><td class="spk-wrap" data-pt="A casa"><button class="spk-btn" aria-label="Ouvir">🔊</button>A casa</td><td class="spk-wrap" data-pt="As casas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As casas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O gato"><button class="spk-btn" aria-label="Ouvir">🔊</button>O gato</td><td class="spk-wrap" data-pt="Os gatos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os gatos</td><td class="spk-wrap" data-pt="A gata"><button class="spk-btn" aria-label="Ouvir">🔊</button>A gata</td><td class="spk-wrap" data-pt="As gatas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As gatas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O menino"><button class="spk-btn" aria-label="Ouvir">🔊</button>O menino</td><td class="spk-wrap" data-pt="Os meninos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os meninos</td><td class="spk-wrap" data-pt="A menina"><button class="spk-btn" aria-label="Ouvir">🔊</button>A menina</td><td class="spk-wrap" data-pt="As meninas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As meninas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O amigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>O amigo</td><td class="spk-wrap" data-pt="Os amigos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os amigos</td><td class="spk-wrap" data-pt="A amiga"><button class="spk-btn" aria-label="Ouvir">🔊</button>A amiga</td><td class="spk-wrap" data-pt="As amigas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As amigas</td></tr>
+      <tr><td class="spk-wrap" data-pt="O cão"><button class="spk-btn" aria-label="Ouvir">🔊</button>O cão</td><td class="spk-wrap" data-pt="Os cães"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os cães</td><td class="spk-wrap" data-pt="A cadela"><button class="spk-btn" aria-label="Ouvir">🔊</button>A cadela</td><td class="spk-wrap" data-pt="As cadelas"><button class="spk-btn" aria-label="Ouvir">🔊</button>As cadelas</td></tr>
     </tbody>
   </table>
 </div>
@@ -241,12 +293,12 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Um livro <span class="en">(A book)</span></td><td>Uns livros <span class="en">(Some books)</span></td><td>Uma escola <span class="en">(A school)</span></td><td>Umas escolas <span class="en">(Some schools)</span></td></tr>
-      <tr><td>Um carro</td><td>Uns carros</td><td>Uma casa</td><td>Umas casas</td></tr>
-      <tr><td>Um gato</td><td>Uns gatos</td><td>Uma gata</td><td>Umas gatas</td></tr>
-      <tr><td>Um menino</td><td>Uns meninos</td><td>Uma menina</td><td>Umas meninas</td></tr>
-      <tr><td>Um amigo</td><td>Uns amigos</td><td>Uma amiga</td><td>Umas amigas</td></tr>
-      <tr><td>Um cão</td><td>Uns cães</td><td>Uma cadela</td><td>Umas cadelas</td></tr>
+      <tr><td class="spk-wrap" data-pt="Um livro"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um livro <span class="en">(A book)</span></td><td class="spk-wrap" data-pt="Uns livros"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns livros <span class="en">(Some books)</span></td><td class="spk-wrap" data-pt="Uma escola"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma escola <span class="en">(A school)</span></td><td class="spk-wrap" data-pt="Umas escolas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas escolas <span class="en">(Some schools)</span></td></tr>
+      <tr><td class="spk-wrap" data-pt="Um carro"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um carro</td><td class="spk-wrap" data-pt="Uns carros"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns carros</td><td class="spk-wrap" data-pt="Uma casa"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma casa</td><td class="spk-wrap" data-pt="Umas casas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas casas</td></tr>
+      <tr><td class="spk-wrap" data-pt="Um gato"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um gato</td><td class="spk-wrap" data-pt="Uns gatos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns gatos</td><td class="spk-wrap" data-pt="Uma gata"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma gata</td><td class="spk-wrap" data-pt="Umas gatas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas gatas</td></tr>
+      <tr><td class="spk-wrap" data-pt="Um menino"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um menino</td><td class="spk-wrap" data-pt="Uns meninos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns meninos</td><td class="spk-wrap" data-pt="Uma menina"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma menina</td><td class="spk-wrap" data-pt="Umas meninas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas meninas</td></tr>
+      <tr><td class="spk-wrap" data-pt="Um amigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um amigo</td><td class="spk-wrap" data-pt="Uns amigos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns amigos</td><td class="spk-wrap" data-pt="Uma amiga"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma amiga</td><td class="spk-wrap" data-pt="Umas amigas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas amigas</td></tr>
+      <tr><td class="spk-wrap" data-pt="Um cão"><button class="spk-btn" aria-label="Ouvir">🔊</button>Um cão</td><td class="spk-wrap" data-pt="Uns cães"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uns cães</td><td class="spk-wrap" data-pt="Uma cadela"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uma cadela</td><td class="spk-wrap" data-pt="Umas cadelas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Umas cadelas</td></tr>
     </tbody>
   </table>
 </div>
@@ -296,3 +348,55 @@
 </div>
 
 </div>
+
+<script>
+(function () {
+  var root = document.currentScript.closest('.pt-lesson-1');
+  if (!root) return;
+
+  function pickVoice() {
+    var voices = window.speechSynthesis.getVoices();
+    return (
+      voices.find(function (v) { return v.lang === 'pt-PT'; }) ||
+      voices.find(function (v) { return v.lang && v.lang.indexOf('pt') === 0; }) ||
+      null
+    );
+  }
+
+  function speak(text, btn) {
+    if (!('speechSynthesis' in window)) {
+      alert('Speech is not supported in this browser.');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-PT';
+    var voice = pickVoice();
+    if (voice) utter.voice = voice;
+
+    root.querySelectorAll('.spk-btn.speaking').forEach(function (b) {
+      b.classList.remove('speaking');
+    });
+    btn.classList.add('speaking');
+    utter.onend = function () { btn.classList.remove('speaking'); };
+    utter.onerror = function () { btn.classList.remove('speaking'); };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  // Some browsers load voices asynchronously; warm the list up.
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = function () { window.speechSynthesis.getVoices(); };
+  }
+
+  root.addEventListener('click', function (e) {
+    var btn = e.target.closest('.spk-btn');
+    if (!btn) return;
+    var wrap = btn.closest('[data-pt]');
+    if (!wrap) return;
+    e.preventDefault();
+    speak(wrap.getAttribute('data-pt'), btn);
+  });
+})();
+</script>
