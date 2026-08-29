@@ -19,6 +19,49 @@
 .pt-estarusos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-estarusos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
+/* ---------- desc-box speech ---------- */
+.pt-estarusos .desc-box h3 { position: relative; padding-left: 1.9em; margin-bottom: 2px; }
+.pt-estarusos .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 14px 0; }
+.pt-estarusos .desc-box .desc-ex:last-of-type { margin-bottom: 0; }
+.pt-estarusos .desc-box .desc-ex .pt-word { font-size: 0.95em; }
+.pt-estarusos .desc-box h3 .spk-btn,
+.pt-estarusos .desc-box .desc-ex .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.45;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-estarusos .desc-box h3:hover .spk-btn,
+.pt-estarusos .desc-box .desc-ex:hover .spk-btn,
+.pt-estarusos .desc-box .spk-btn:focus-visible { opacity: 1; }
+.pt-estarusos .desc-box .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+
+.pt-estarusos .spk-inline {
+  display: inline-block;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  line-height: 1;
+  font-size: 0.82em;
+  color: #a1521f;
+  opacity: 0.5;
+  vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-estarusos .spk-inline:hover,
+.pt-estarusos .spk-inline:focus-visible,
+.pt-estarusos .spk-inline.speaking { opacity: 1; }
+
 .pt-estarusos .example-box {
   background: #1a1a1a !important;
   border: 1px solid #333;
@@ -47,11 +90,35 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-estarusos .ex-line:last-child { margin-bottom: 0; }
 .pt-estarusos .example-box .pt-word { color: #d8b46a !important; }
 .pt-estarusos .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-estarusos .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Speak button ---------- */
+.pt-estarusos .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #d8b46a;
+}
+.pt-estarusos .ex-line:hover .spk-btn,
+.pt-estarusos .spk-btn:focus-visible { opacity: 1; }
+.pt-estarusos .spk-btn.speaking { opacity: 1; color: #8fd6b0; }
+@media (hover: none) {
+  .pt-estarusos .spk-btn { opacity: 0.4; }
+}
 
 .pt-estarusos .exercise-box {
   background: #f4f8f6 !important;
@@ -106,16 +173,23 @@
 <h2>4. Estar — usos principais <span class="en">(Estar — main uses)</span></h2>
 
 <div class="desc-box">
-	<p><em>Estar</em> is used for things that are temporary, changeable, or tied to a specific moment — where something is right now, how it feels or looks currently, the weather, a mood.</p>
-	<p>Like <em>ser</em>, <em>estar</em> corresponds to Hindi's है / हैं (<em>hai / hain</em>), which doesn't separate a "permanent" from a "temporary" version of "to be" — Hindi (and English) just use one verb either way. So think of ser-vs-estar as an extra layer of choice you're adding on top of the "to be" you already know, not a direct translation of anything in Hindi.</p>
+	<p><em>Estar</em><button class="spk-inline" data-pt="Estar" aria-label="Ouvir">🔊</button> is used for things that are temporary, changeable, or tied to a specific moment — where something is right now, how it feels or looks currently, the weather, a mood.</p>
+	<p>Like <em>ser</em><button class="spk-inline" data-pt="ser" aria-label="Ouvir">🔊</button>, <em>estar</em><button class="spk-inline" data-pt="estar" aria-label="Ouvir">🔊</button> corresponds to Hindi's है / हैं (<em>hai / hain</em>), which doesn't separate a "permanent" from a "temporary" version of "to be" — Hindi (and English) just use one verb either way. So think of ser-vs-estar as an extra layer of choice you're adding on top of the "to be" you already know, not a direct translation of anything in Hindi.</p>
 
-	<h3>Localização <span class="en">(Location) — em casa, no trabalho</span></h3>
-	<h3>Situação temporária <span class="en">(Temporary state) — cansado, doente</span></h3>
-	<h3>Tempo meteorológico <span class="en">(Weather) — calor, frio</span></h3>
-	<h3>Estar com + nome <span class="en">(Estar com + noun — fome, sede, temporary conditions) — com fome, com sede</span></h3>
-	<h3>Estado / condição <span class="en">(State / condition) — aberta, quente</span></h3>
-	<h3>Cumprimentar / perguntar como alguém está <span class="en">(Greeting / asking how someone is) — como está?, estou bem</span></h3>
-	<h3>Já está? — situação concluída <span class="en">(Completed / current status) — já está, ainda não</span></h3>
+	<h3 data-pt="Localização"><button class="spk-btn" aria-label="Ouvir">🔊</button>Localização <span class="en">(Location)</span></h3>
+	<p class="desc-ex" data-pt="em casa, no trabalho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em casa, no trabalho</span></p>
+	<h3 data-pt="Situação temporária"><button class="spk-btn" aria-label="Ouvir">🔊</button>Situação temporária <span class="en">(Temporary state)</span></h3>
+	<p class="desc-ex" data-pt="cansado, doente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">cansado, doente</span></p>
+	<h3 data-pt="Tempo meteorológico"><button class="spk-btn" aria-label="Ouvir">🔊</button>Tempo meteorológico <span class="en">(Weather)</span></h3>
+	<p class="desc-ex" data-pt="calor, frio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">calor, frio</span></p>
+	<h3 data-pt="Estar com + nome"><button class="spk-btn" aria-label="Ouvir">🔊</button>Estar com + nome <span class="en">(Estar com + noun — fome, sede, temporary conditions)</span></h3>
+	<p class="desc-ex" data-pt="com fome, com sede"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">com fome, com sede</span></p>
+	<h3 data-pt="Estado / condição"><button class="spk-btn" aria-label="Ouvir">🔊</button>Estado / condição <span class="en">(State / condition)</span></h3>
+	<p class="desc-ex" data-pt="aberta, quente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aberta, quente</span></p>
+	<h3 data-pt="Cumprimentar / perguntar como alguém está"><button class="spk-btn" aria-label="Ouvir">🔊</button>Cumprimentar / perguntar como alguém está <span class="en">(Greeting / asking how someone is)</span></h3>
+	<p class="desc-ex" data-pt="como está?, estou bem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">como está?, estou bem</span></p>
+	<h3 data-pt="Já está? — situação concluída"><button class="spk-btn" aria-label="Ouvir">🔊</button>Já está? — situação concluída <span class="en">(Completed / current status)</span></h3>
+	<p class="desc-ex" data-pt="já está, ainda não"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">já está, ainda não</span></p>
 </div>
 
 <div class="example-box">
@@ -123,64 +197,64 @@
 
 	<div class="example-list">
 		<h5>Localização</h5>
-		<p class="ex-line">O dicionário <span class="pt-word">está</span> ali.<span class="en-eq">The dictionary is there. (third person)</span></p>
-		<p class="ex-line">Os meus amigos <span class="pt-word">estão</span> no estrangeiro.<span class="en-eq">My friends are abroad. (third person, plural)</span></p>
-		<p class="ex-line">O Ricardo não <span class="pt-word">está</span> em Lisboa.<span class="en-eq">Ricardo is not in Lisbon. (third person)</span></p>
-		<p class="ex-line">O livro <span class="pt-word">está</span> em cima da mesa.<span class="en-eq">The book is on top of the table. (third person)</span></p>
+		<p class="ex-line" data-pt="O dicionário está ali."><button class="spk-btn" aria-label="Ouvir">🔊</button>O dicionário <span class="pt-word">está</span> ali.<span class="en-eq">The dictionary is there. (third person)</span></p>
+		<p class="ex-line" data-pt="Os meus amigos estão no estrangeiro."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os meus amigos <span class="pt-word">estão</span> no estrangeiro.<span class="en-eq">My friends are abroad. (third person, plural)</span></p>
+		<p class="ex-line" data-pt="O Ricardo não está em Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button>O Ricardo não <span class="pt-word">está</span> em Lisboa.<span class="en-eq">Ricardo is not in Lisbon. (third person)</span></p>
+		<p class="ex-line" data-pt="O livro está em cima da mesa."><button class="spk-btn" aria-label="Ouvir">🔊</button>O livro <span class="pt-word">está</span> em cima da mesa.<span class="en-eq">The book is on top of the table. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Situação temporária</h5>
-		<p class="ex-line">Hoje <span class="pt-word">estou</span> cansado.<span class="en-eq">Today I am tired. (first person)</span></p>
-		<p class="ex-line">A sopa <span class="pt-word">está</span> quente.<span class="en-eq">The soup is hot. (third person)</span></p>
-		<p class="ex-line">Este bolo não <span class="pt-word">está</span> muito bom.<span class="en-eq">This cake isn't very good. (third person)</span></p>
-		<p class="ex-line">Eles <span class="pt-word">estão</span> sentados à mesa.<span class="en-eq">They are seated at the table. (third person, plural)</span></p>
+		<p class="ex-line" data-pt="Hoje estou cansado."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje <span class="pt-word">estou</span> cansado.<span class="en-eq">Today I am tired. (first person)</span></p>
+		<p class="ex-line" data-pt="A sopa está quente."><button class="spk-btn" aria-label="Ouvir">🔊</button>A sopa <span class="pt-word">está</span> quente.<span class="en-eq">The soup is hot. (third person)</span></p>
+		<p class="ex-line" data-pt="Este bolo não está muito bom."><button class="spk-btn" aria-label="Ouvir">🔊</button>Este bolo não <span class="pt-word">está</span> muito bom.<span class="en-eq">This cake isn't very good. (third person)</span></p>
+		<p class="ex-line" data-pt="Eles estão sentados à mesa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles <span class="pt-word">estão</span> sentados à mesa.<span class="en-eq">They are seated at the table. (third person, plural)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Tempo meteorológico</h5>
-		<p class="ex-line"><span class="pt-word">Está</span> muito calor lá fora.<span class="en-eq">It's very hot outside.</span></p>
-		<p class="ex-line">Hoje <span class="pt-word">está</span> calor.<span class="en-eq">Today it's hot.</span></p>
-		<p class="ex-line">Hoje <span class="pt-word">está</span> ameno.<span class="en-eq">Today it's mild.</span></p>
-		<p class="ex-line">Hoje <span class="pt-word">está</span> frio.<span class="en-eq">Today it's cold.</span></p>
-		<p class="ex-line">O tempo hoje <span class="pt-word">está</span> quente, mas ontem não estava.<span class="en-eq">The weather today is hot, but yesterday it wasn't.</span></p>
-		<p class="ex-line">A água <span class="pt-word">está</span> fria.<span class="en-eq">The water is cold. (third person)</span></p>
-		<p class="ex-line">O chá <span class="pt-word">está</span> quente.<span class="en-eq">The tea is hot. (third person)</span></p>
+		<p class="ex-line" data-pt="Está muito calor lá fora."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Está</span> muito calor lá fora.<span class="en-eq">It's very hot outside.</span></p>
+		<p class="ex-line" data-pt="Hoje está calor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje <span class="pt-word">está</span> calor.<span class="en-eq">Today it's hot.</span></p>
+		<p class="ex-line" data-pt="Hoje está ameno."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje <span class="pt-word">está</span> ameno.<span class="en-eq">Today it's mild.</span></p>
+		<p class="ex-line" data-pt="Hoje está frio."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje <span class="pt-word">está</span> frio.<span class="en-eq">Today it's cold.</span></p>
+		<p class="ex-line" data-pt="O tempo hoje está quente, mas ontem não estava."><button class="spk-btn" aria-label="Ouvir">🔊</button>O tempo hoje <span class="pt-word">está</span> quente, mas ontem não estava.<span class="en-eq">The weather today is hot, but yesterday it wasn't.</span></p>
+		<p class="ex-line" data-pt="A água está fria."><button class="spk-btn" aria-label="Ouvir">🔊</button>A água <span class="pt-word">está</span> fria.<span class="en-eq">The water is cold. (third person)</span></p>
+		<p class="ex-line" data-pt="O chá está quente."><button class="spk-btn" aria-label="Ouvir">🔊</button>O chá <span class="pt-word">está</span> quente.<span class="en-eq">The tea is hot. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Estar com + nome</h5>
-		<p class="ex-line"><span class="pt-word">Estou</span> com sede.<span class="en-eq">I am thirsty. (first person)</span></p>
-		<p class="ex-line">Não <span class="pt-word">estou</span> com fome.<span class="en-eq">I am not hungry. (first person)</span></p>
-		<p class="ex-line">Ela <span class="pt-word">está</span> com fome.<span class="en-eq">She is hungry. (third person)</span></p>
-		<p class="ex-line">Os meus cães <span class="pt-word">estão</span> com fome.<span class="en-eq">My dogs are hungry. (third person, plural)</span></p>
-		<p class="ex-line">A Carla <span class="pt-word">está</span> grávida de 10 semanas.<span class="en-eq">Carla is 10 weeks pregnant. (third person)</span></p>
-		<p class="ex-line"><span class="pt-word">Estou</span> atrasado.<span class="en-eq">I am late. (first person)</span></p>
-		<p class="ex-line"><span class="pt-word">Estou</span> ocupado.<span class="en-eq">I am busy. (first person)</span></p>
-		<p class="ex-line"><span class="pt-word">Estou</span> livre.<span class="en-eq">I am free. (first person)</span></p>
+		<p class="ex-line" data-pt="Estou com sede."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> com sede.<span class="en-eq">I am thirsty. (first person)</span></p>
+		<p class="ex-line" data-pt="Não estou com fome."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não <span class="pt-word">estou</span> com fome.<span class="en-eq">I am not hungry. (first person)</span></p>
+		<p class="ex-line" data-pt="Ela está com fome."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ela <span class="pt-word">está</span> com fome.<span class="en-eq">She is hungry. (third person)</span></p>
+		<p class="ex-line" data-pt="Os meus cães estão com fome."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os meus cães <span class="pt-word">estão</span> com fome.<span class="en-eq">My dogs are hungry. (third person, plural)</span></p>
+		<p class="ex-line" data-pt="A Carla está grávida de 10 semanas."><button class="spk-btn" aria-label="Ouvir">🔊</button>A Carla <span class="pt-word">está</span> grávida de 10 semanas.<span class="en-eq">Carla is 10 weeks pregnant. (third person)</span></p>
+		<p class="ex-line" data-pt="Estou atrasado."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> atrasado.<span class="en-eq">I am late. (first person)</span></p>
+		<p class="ex-line" data-pt="Estou ocupado."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> ocupado.<span class="en-eq">I am busy. (first person)</span></p>
+		<p class="ex-line" data-pt="Estou livre."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> livre.<span class="en-eq">I am free. (first person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Estado / condição</h5>
-		<p class="ex-line">A janela <span class="pt-word">está</span> aberta.<span class="en-eq">The window is open. (third person)</span></p>
-		<p class="ex-line">A sopa <span class="pt-word">está</span> salgada.<span class="en-eq">The soup is salty. (third person)</span></p>
-		<p class="ex-line">O vestido <span class="pt-word">está</span> roto.<span class="en-eq">The dress is torn. (third person)</span></p>
+		<p class="ex-line" data-pt="A janela está aberta."><button class="spk-btn" aria-label="Ouvir">🔊</button>A janela <span class="pt-word">está</span> aberta.<span class="en-eq">The window is open. (third person)</span></p>
+		<p class="ex-line" data-pt="A sopa está salgada."><button class="spk-btn" aria-label="Ouvir">🔊</button>A sopa <span class="pt-word">está</span> salgada.<span class="en-eq">The soup is salty. (third person)</span></p>
+		<p class="ex-line" data-pt="O vestido está roto."><button class="spk-btn" aria-label="Ouvir">🔊</button>O vestido <span class="pt-word">está</span> roto.<span class="en-eq">The dress is torn. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Cumprimentar / perguntar como alguém está</h5>
-		<p class="ex-line">Como <span class="pt-word">está</span>?<span class="en-eq">How are you? (second person, formal)</span></p>
-		<p class="ex-line"><span class="pt-word">Estou</span> bem, obrigado.<span class="en-eq">I am well, thank you. (first person)</span></p>
+		<p class="ex-line" data-pt="Como está?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Como <span class="pt-word">está</span>?<span class="en-eq">How are you? (second person, formal)</span></p>
+		<p class="ex-line" data-pt="Estou bem, obrigado."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> bem, obrigado.<span class="en-eq">I am well, thank you. (first person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Já está? — situação concluída</h5>
-		<p class="ex-line">Já <span class="pt-word">está</span>?<span class="en-eq">Is it done?</span></p>
-		<p class="ex-line">Já <span class="pt-word">estão</span>?<span class="en-eq">Are they done? (third person, plural)</span></p>
-		<p class="ex-line">Já <span class="pt-word">estou</span>.<span class="en-eq">I am ready. (first person)</span></p>
-		<p class="ex-line">Já <span class="pt-word">estamos</span>.<span class="en-eq">We are ready. (first person, plural)</span></p>
-		<p class="ex-line">Sim, já.<span class="en-eq">Yes, already.</span></p>
-		<p class="ex-line">Não, ainda não.<span class="en-eq">No, not yet.</span></p>
+		<p class="ex-line" data-pt="Já está?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Já <span class="pt-word">está</span>?<span class="en-eq">Is it done?</span></p>
+		<p class="ex-line" data-pt="Já estão?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Já <span class="pt-word">estão</span>?<span class="en-eq">Are they done? (third person, plural)</span></p>
+		<p class="ex-line" data-pt="Já estou."><button class="spk-btn" aria-label="Ouvir">🔊</button>Já <span class="pt-word">estou</span>.<span class="en-eq">I am ready. (first person)</span></p>
+		<p class="ex-line" data-pt="Já estamos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Já <span class="pt-word">estamos</span>.<span class="en-eq">We are ready. (first person, plural)</span></p>
+		<p class="ex-line" data-pt="Sim, já."><button class="spk-btn" aria-label="Ouvir">🔊</button>Sim, já.<span class="en-eq">Yes, already.</span></p>
+		<p class="ex-line" data-pt="Não, ainda não."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não, ainda não.<span class="en-eq">No, not yet.</span></p>
 	</div>
 </div>
 
