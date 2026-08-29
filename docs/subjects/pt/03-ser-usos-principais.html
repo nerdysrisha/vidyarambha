@@ -49,11 +49,35 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-serusos .ex-line:last-child { margin-bottom: 0; }
 .pt-serusos .example-box .pt-word { color: #d8b46a !important; }
 .pt-serusos .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-serusos .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Speak button ---------- */
+.pt-serusos .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #d8b46a;
+}
+.pt-serusos .ex-line:hover .spk-btn,
+.pt-serusos .spk-btn:focus-visible { opacity: 1; }
+.pt-serusos .spk-btn.speaking { opacity: 1; color: #8fd6b0; }
+@media (hover: none) {
+  .pt-serusos .spk-btn { opacity: 0.4; }
+}
 
 /* Exercise box shared pattern */
 .pt-serusos .exercise-box {
@@ -131,61 +155,61 @@
 
 	<div class="example-list">
 		<h5>Nacionalidade</h5>
-		<p class="ex-line">Eu <span class="pt-word">sou</span> português.<span class="en-eq">I am Portuguese. (first person)</span></p>
-		<p class="ex-line">Ele <span class="pt-word">é</span> timorense.<span class="en-eq">He is Timorese. (third person)</span></p>
-		<p class="ex-line">Vocês <span class="pt-word">são</span> portugueses?<span class="en-eq">Are you (pl.) Portuguese? (second person, plural)</span></p>
+		<p class="ex-line" data-pt="Eu sou português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">sou</span> português.<span class="en-eq">I am Portuguese. (first person)</span></p>
+		<p class="ex-line" data-pt="Ele é timorense."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ele <span class="pt-word">é</span> timorense.<span class="en-eq">He is Timorese. (third person)</span></p>
+		<p class="ex-line" data-pt="Vocês são portugueses?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Vocês <span class="pt-word">são</span> portugueses?<span class="en-eq">Are you (pl.) Portuguese? (second person, plural)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Profissão</h5>
-		<p class="ex-line"><span class="pt-word">Sou</span> professor.<span class="en-eq">I am a teacher. (first person)</span></p>
-		<p class="ex-line">O meu irmão <span class="pt-word">é</span> engenheiro.<span class="en-eq">My brother is an engineer. (third person)</span></p>
+		<p class="ex-line" data-pt="Sou professor."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou</span> professor.<span class="en-eq">I am a teacher. (first person)</span></p>
+		<p class="ex-line" data-pt="O meu irmão é engenheiro."><button class="spk-btn" aria-label="Ouvir">🔊</button>O meu irmão <span class="pt-word">é</span> engenheiro.<span class="en-eq">My brother is an engineer. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Estado civil</h5>
-		<p class="ex-line">Ela <span class="pt-word">é</span> casada.<span class="en-eq">She is married. (third person)</span></p>
+		<p class="ex-line" data-pt="Ela é casada."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ela <span class="pt-word">é</span> casada.<span class="en-eq">She is married. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Origem — ser de</h5>
-		<p class="ex-line"><span class="pt-word">És</span> de Lisboa?<span class="en-eq">Are you from Lisbon? (second person)</span></p>
-		<p class="ex-line">Não, não <span class="pt-word">sou</span> de Lisboa.<span class="en-eq">No, I'm not from Lisbon. (first person)</span></p>
-		<p class="ex-line"><span class="pt-word">Sou</span> de Faro.<span class="en-eq">I'm from Faro. (first person)</span></p>
+		<p class="ex-line" data-pt="És de Lisboa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">És</span> de Lisboa?<span class="en-eq">Are you from Lisbon? (second person)</span></p>
+		<p class="ex-line" data-pt="Não, não sou de Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não, não <span class="pt-word">sou</span> de Lisboa.<span class="en-eq">No, I'm not from Lisbon. (first person)</span></p>
+		<p class="ex-line" data-pt="Sou de Faro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou</span> de Faro.<span class="en-eq">I'm from Faro. (first person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Posse — ser de</h5>
-		<p class="ex-line">O dicionário <span class="pt-word">é</span> do professor.<span class="en-eq">The dictionary belongs to the teacher. (third person)</span></p>
+		<p class="ex-line" data-pt="O dicionário é do professor."><button class="spk-btn" aria-label="Ouvir">🔊</button>O dicionário <span class="pt-word">é</span> do professor.<span class="en-eq">The dictionary belongs to the teacher. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Tempo cronológico</h5>
-		<p class="ex-line">Que horas <span class="pt-word">são</span>?<span class="en-eq">What time is it?</span></p>
-		<p class="ex-line"><span class="pt-word">É</span> uma hora.<span class="en-eq">It's one o'clock.</span></p>
+		<p class="ex-line" data-pt="Que horas são?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Que horas <span class="pt-word">são</span>?<span class="en-eq">What time is it?</span></p>
+		<p class="ex-line" data-pt="É uma hora."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É</span> uma hora.<span class="en-eq">It's one o'clock.</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Matéria — ser de</h5>
-		<p class="ex-line">A mesa <span class="pt-word">é</span> de madeira.<span class="en-eq">The table is made of wood. (third person)</span></p>
+		<p class="ex-line" data-pt="A mesa é de madeira."><button class="spk-btn" aria-label="Ouvir">🔊</button>A mesa <span class="pt-word">é</span> de madeira.<span class="en-eq">The table is made of wood. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Localização geográfica</h5>
-		<p class="ex-line">Maputo <span class="pt-word">é</span> em Moçambique.<span class="en-eq">Maputo is in Mozambique. (third person)</span></p>
-		<p class="ex-line"><span class="pt-word">É</span> a capital de Moçambique.<span class="en-eq">It is the capital of Mozambique. (third person)</span></p>
+		<p class="ex-line" data-pt="Maputo é em Moçambique."><button class="spk-btn" aria-label="Ouvir">🔊</button>Maputo <span class="pt-word">é</span> em Moçambique.<span class="en-eq">Maputo is in Mozambique. (third person)</span></p>
+		<p class="ex-line" data-pt="É a capital de Moçambique."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É</span> a capital de Moçambique.<span class="en-eq">It is the capital of Mozambique. (third person)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Identidade / nome</h5>
-		<p class="ex-line">Eu e a Joana <span class="pt-word">somos</span> boas amigas.<span class="en-eq">Joana and I are good friends. (first person, plural)</span></p>
+		<p class="ex-line" data-pt="Eu e a Joana somos boas amigas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu e a Joana <span class="pt-word">somos</span> boas amigas.<span class="en-eq">Joana and I are good friends. (first person, plural)</span></p>
 	</div>
 
 	<div class="example-list">
 		<h5>Características</h5>
-		<p class="ex-line">O João <span class="pt-word">é</span> muito inteligente.<span class="en-eq">João is very intelligent. (third person)</span></p>
-		<p class="ex-line">A água do mar <span class="pt-word">é</span> salgada.<span class="en-eq">Sea water is salty. (third person)</span></p>
-		<p class="ex-line">O limão <span class="pt-word">é</span> azedo.<span class="en-eq">The lemon is sour. (third person)</span></p>
+		<p class="ex-line" data-pt="O João é muito inteligente."><button class="spk-btn" aria-label="Ouvir">🔊</button>O João <span class="pt-word">é</span> muito inteligente.<span class="en-eq">João is very intelligent. (third person)</span></p>
+		<p class="ex-line" data-pt="A água do mar é salgada."><button class="spk-btn" aria-label="Ouvir">🔊</button>A água do mar <span class="pt-word">é</span> salgada.<span class="en-eq">Sea water is salty. (third person)</span></p>
+		<p class="ex-line" data-pt="O limão é azedo."><button class="spk-btn" aria-label="Ouvir">🔊</button>O limão <span class="pt-word">é</span> azedo.<span class="en-eq">The lemon is sour. (third person)</span></p>
 	</div>
 </div>
 
