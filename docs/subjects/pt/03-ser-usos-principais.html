@@ -19,6 +19,55 @@
 .pt-serusos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-serusos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
+/* ---------- desc-box speech ---------- */
+.pt-serusos .desc-box h3 { position: relative; padding-left: 1.9em; margin-bottom: 2px; }
+.pt-serusos .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 14px 0; }
+.pt-serusos .desc-box .desc-ex:last-of-type { margin-bottom: 0; }
+.pt-serusos .desc-box .desc-ex .pt-word { font-size: 0.95em; }
+.pt-serusos .desc-box h3 .spk-btn,
+.pt-serusos .desc-box .desc-ex .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-serusos .desc-box h3:hover .spk-btn,
+.pt-serusos .desc-box .desc-ex:hover .spk-btn,
+.pt-serusos .desc-box .spk-btn:focus-visible { opacity: 1; }
+.pt-serusos .desc-box .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+  .pt-serusos .desc-box .spk-btn { opacity: 0.4; }
+}
+
+.pt-serusos .spk-inline {
+  display: inline-block;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  line-height: 1;
+  font-size: 0.82em;
+  color: #a1521f;
+  opacity: 0;
+  vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-serusos .desc-box p:hover .spk-inline,
+.pt-serusos .spk-inline:focus-visible,
+.pt-serusos .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-serusos .spk-inline { opacity: 0.4; }
+}
+
 /* Example box shared pattern */
 .pt-serusos .example-box {
   background: #1a1a1a !important;
@@ -135,19 +184,29 @@
 <h2>3. Ser — usos principais <span class="en">(Ser — main uses)</span></h2>
 
 <div class="desc-box">
-	<p><em>Ser</em> is used for things that are essentially permanent, defining, or part of what something fundamentally is — identity, origin, profession, characteristics — not tied to a specific moment in time.</p>
-	<p>Portuguese splits "to be" into two verbs, <em>ser</em> and <em>estar</em>, a distinction Hindi doesn't make at all: Hindi just uses है / हैं (<em>hai / hain</em>) for "to be" regardless of whether something is permanent or temporary. So the ser-vs-estar split isn't something you can map onto an existing Hindi habit — it's a genuinely new layer to build.</p>
+	<p><em>Ser</em><button class="spk-inline" data-pt="Ser" aria-label="Ouvir">🔊</button> is used for things that are essentially permanent, defining, or part of what something fundamentally is — identity, origin, profession, characteristics — not tied to a specific moment in time.</p>
+	<p>Portuguese splits "to be" into two verbs, <em>ser</em><button class="spk-inline" data-pt="ser" aria-label="Ouvir">🔊</button> and <em>estar</em><button class="spk-inline" data-pt="estar" aria-label="Ouvir">🔊</button>, a distinction Hindi doesn't make at all: Hindi just uses है / हैं (<em>hai / hain</em>) for "to be" regardless of whether something is permanent or temporary. So the ser-vs-estar split isn't something you can map onto an existing Hindi habit — it's a genuinely new layer to build.</p>
 
-	<h3>Nacionalidade <span class="en">(Nationality) — indiano, italiano</span></h3>
-	<h3>Profissão <span class="en">(Profession) — professor, médico</span></h3>
-	<h3>Estado civil <span class="en">(Marital status) — casado, solteiro</span></h3>
-	<h3>Origem — ser de <span class="en">(Origin — to be from) — sou de Faro, é de Lisboa</span></h3>
-	<h3>Posse — ser de <span class="en">(Possession — to belong to) — é do professor, é da Maria</span></h3>
-	<h3>Tempo cronológico <span class="en">(Clock/time) — uma hora, duas horas</span></h3>
-	<h3>Matéria — ser de <span class="en">(Material) — de madeira, de vidro</span></h3>
-	<h3>Localização geográfica <span class="en">(Geographical location) — em Portugal, em Moçambique</span></h3>
-	<h3>Identidade / nome <span class="en">(Identity / name) — o João, a Maria</span></h3>
-	<h3>Características <span class="en">(Characteristics) — inteligente, salgada</span></h3>
+	<h3 data-pt="Nacionalidade"><button class="spk-btn" aria-label="Ouvir">🔊</button>Nacionalidade <span class="en">(Nationality)</span></h3>
+	<p class="desc-ex" data-pt="indiano, italiano"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">indiano, italiano</span></p>
+	<h3 data-pt="Profissão"><button class="spk-btn" aria-label="Ouvir">🔊</button>Profissão <span class="en">(Profession)</span></h3>
+	<p class="desc-ex" data-pt="professor, médico"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">professor, médico</span></p>
+	<h3 data-pt="Estado civil"><button class="spk-btn" aria-label="Ouvir">🔊</button>Estado civil <span class="en">(Marital status)</span></h3>
+	<p class="desc-ex" data-pt="casado, solteiro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">casado, solteiro</span></p>
+	<h3 data-pt="Origem — ser de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Origem — ser de <span class="en">(Origin — to be from)</span></h3>
+	<p class="desc-ex" data-pt="sou de Faro, é de Lisboa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sou de Faro, é de Lisboa</span></p>
+	<h3 data-pt="Posse — ser de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Posse — ser de <span class="en">(Possession — to belong to)</span></h3>
+	<p class="desc-ex" data-pt="é do professor, é da Maria"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">é do professor, é da Maria</span></p>
+	<h3 data-pt="Tempo cronológico"><button class="spk-btn" aria-label="Ouvir">🔊</button>Tempo cronológico <span class="en">(Clock/time)</span></h3>
+	<p class="desc-ex" data-pt="uma hora, duas horas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">uma hora, duas horas</span></p>
+	<h3 data-pt="Matéria — ser de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Matéria — ser de <span class="en">(Material)</span></h3>
+	<p class="desc-ex" data-pt="de madeira, de vidro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de madeira, de vidro</span></p>
+	<h3 data-pt="Localização geográfica"><button class="spk-btn" aria-label="Ouvir">🔊</button>Localização geográfica <span class="en">(Geographical location)</span></h3>
+	<p class="desc-ex" data-pt="em Portugal, em Moçambique"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em Portugal, em Moçambique</span></p>
+	<h3 data-pt="Identidade / nome"><button class="spk-btn" aria-label="Ouvir">🔊</button>Identidade / nome <span class="en">(Identity / name)</span></h3>
+	<p class="desc-ex" data-pt="o João, a Maria"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o João, a Maria</span></p>
+	<h3 data-pt="Características"><button class="spk-btn" aria-label="Ouvir">🔊</button>Características <span class="en">(Characteristics)</span></h3>
+	<p class="desc-ex" data-pt="inteligente, salgada"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">inteligente, salgada</span></p>
 </div>
 
 <div class="example-box">
