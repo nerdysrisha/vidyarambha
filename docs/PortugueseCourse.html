@@ -240,6 +240,9 @@ function loadTopic(i) {
     counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
     contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
 
+    // stop any speech from the previous topic before swapping content
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+
     fetch(BASE_URL + slug + ".html")
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
         .then(html => { contentBox.innerHTML = html; contentBox.scrollTop = 0; })
@@ -257,8 +260,58 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
 });
 
+// ── TEXT-TO-SPEECH (Portuguese) ──────────────────────────────────────────────
+// Lesson HTML fetched into #content-box is inserted via innerHTML, so any
+// <script> tags embedded in those files never execute. This engine lives in
+// the shell instead — registered ONCE, delegated on #content-box, which
+// persists across topic swaps (only its innerHTML changes). Lesson files just
+// need the markup: a button.spk-btn inside an element carrying data-pt="...".
+function pickPortugueseVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return (
+        voices.find(v => v.lang === "pt-PT") ||
+        voices.find(v => v.lang && v.lang.indexOf("pt") === 0) ||
+        null
+    );
+}
+
+function speakPortuguese(text, btn) {
+    if (!("speechSynthesis" in window)) {
+        alert("Speech is not supported in this browser.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "pt-PT";
+    const voice = pickPortugueseVoice();
+    if (voice) utter.voice = voice;
+
+    document.querySelectorAll(".spk-btn.speaking").forEach(b => b.classList.remove("speaking"));
+    if (btn) {
+        btn.classList.add("speaking");
+        utter.onend = () => btn.classList.remove("speaking");
+        utter.onerror = () => btn.classList.remove("speaking");
+    }
+    window.speechSynthesis.speak(utter);
+}
+
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+contentBox.addEventListener("click", e => {
+    const btn = e.target.closest(".spk-btn");
+    if (!btn) return;
+    const wrap = btn.closest("[data-pt]");
+    if (!wrap) return;
+    e.preventDefault();
+    speakPortuguese(wrap.getAttribute("data-pt"), btn);
+});
+
 // start on Topic 0
 loadTopic(0);
 </script>
+
 </body>
 </html>
