@@ -19,16 +19,52 @@
 .pt-demonstrativos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-demonstrativos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
+.pt-demonstrativos .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
 .pt-demonstrativos .example-list { margin: 0 0 12px 0; }
 .pt-demonstrativos .ex-line {
 	color: #2b2b2b !important;
 	line-height: 1.7;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-demonstrativos .ex-line:last-child { margin-bottom: 0; }
 .pt-demonstrativos .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-demonstrativos .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-demonstrativos .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-demonstrativos .intro-text { position: relative; padding-left: 1.9em; }
+.pt-demonstrativos .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-demonstrativos .intro-text .spk-btn { top: 0.85em; }
+.pt-demonstrativos .desc-box h3:hover .spk-btn,
+.pt-demonstrativos .intro-text:hover .spk-btn,
+.pt-demonstrativos .ex-line:hover .spk-btn,
+.pt-demonstrativos .spk-btn:focus-visible { opacity: 1; }
+.pt-demonstrativos .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-demonstrativos .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-demonstrativos .spk-btn { opacity: 0.4; }
+}
 .pt-demonstrativos .hi-eq { color: #4f7d8c !important; font-size: 0.9em; font-style: normal; margin-left: 8px; }
 .pt-demonstrativos .hi-eq::before { content: "— "; color: #b9b9b9 !important; }
 .pt-demonstrativos .example-box .hi-eq { color: #7fadb8 !important; }
@@ -101,55 +137,55 @@
 <h2>14. Demonstrativos <span class="en">(Demonstratives)</span></h2>
 
 <div class="desc-box">
-	<p><em>Demonstratives show how close something is to the speaker or listener.</em></p>
+	<p class="intro-text" data-pt="Os demonstrativos mostram se algo está perto de mim, perto de ti, ou longe de nós dois."><button class="spk-btn" aria-label="Ouvir">🔊</button>Portuguese demonstratives point to how close something is — not just to the speaker, but relative to both speaker and listener. Where English and Hindi only make a two-way split ("this"/yah vs. "that"/vah), Portuguese uses three distance levels: close to the speaker (<em>este</em>), close to the listener (<em>esse</em>), and far from both (<em>aquele</em>). Each form also agrees in gender and number with the noun it describes, and there's a separate neutral form (<em>isto/isso/aquilo</em>) for unnamed things or ideas rather than a specific noun.</p>
 
-	<h3>Perto de mim <span class="en">(Close to me)</span></h3>
+	<h3 data-pt="Perto de mim"><button class="spk-btn" aria-label="Ouvir">🔊</button>Perto de mim <span class="en">(Close to me)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">este</span><span class="en-eq">this (masc. singular)</span><span class="hi-eq">यह (yah)</span></p>
-		<p class="ex-line"><span class="pt-word">esta</span><span class="en-eq">this (fem. singular)</span><span class="hi-eq">यह (yah)</span></p>
-		<p class="ex-line"><span class="pt-word">estes</span><span class="en-eq">these (masc. plural)</span><span class="hi-eq">ये (ye)</span></p>
-		<p class="ex-line"><span class="pt-word">estas</span><span class="en-eq">these (fem. plural)</span><span class="hi-eq">ये (ye)</span></p>
-		<p class="ex-line"><span class="pt-word">isto</span><span class="en-eq">this (neutral — unnamed thing/idea)</span><span class="hi-eq">यह (yah)</span></p>
+		<p class="ex-line" data-pt="este"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">este</span><span class="en-eq">this (masc. singular)</span><span class="hi-eq">यह (yah)</span></p>
+		<p class="ex-line" data-pt="esta"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esta</span><span class="en-eq">this (fem. singular)</span><span class="hi-eq">यह (yah)</span></p>
+		<p class="ex-line" data-pt="estes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estes</span><span class="en-eq">these (masc. plural)</span><span class="hi-eq">ये (ye)</span></p>
+		<p class="ex-line" data-pt="estas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estas</span><span class="en-eq">these (fem. plural)</span><span class="hi-eq">ये (ye)</span></p>
+		<p class="ex-line" data-pt="isto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">isto</span><span class="en-eq">this (neutral — unnamed thing/idea)</span><span class="hi-eq">यह (yah)</span></p>
 	</div>
 
-	<h3>Perto de ti / de você <span class="en">(Close to you)</span></h3>
+	<h3 data-pt="Perto de ti, de você"><button class="spk-btn" aria-label="Ouvir">🔊</button>Perto de ti / de você <span class="en">(Close to you)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">esse</span><span class="en-eq">that, near you (masc. singular)</span><span class="hi-eq">वह (vah)</span></p>
-		<p class="ex-line"><span class="pt-word">essa</span><span class="en-eq">that, near you (fem. singular)</span><span class="hi-eq">वह (vah)</span></p>
-		<p class="ex-line"><span class="pt-word">esses</span><span class="en-eq">those, near you (masc. plural)</span><span class="hi-eq">वे (ve)</span></p>
-		<p class="ex-line"><span class="pt-word">essas</span><span class="en-eq">those, near you (fem. plural)</span><span class="hi-eq">वे (ve)</span></p>
-		<p class="ex-line"><span class="pt-word">isso</span><span class="en-eq">that (neutral — unnamed thing/idea)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="esse"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esse</span><span class="en-eq">that, near you (masc. singular)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="essa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">essa</span><span class="en-eq">that, near you (fem. singular)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="esses"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esses</span><span class="en-eq">those, near you (masc. plural)</span><span class="hi-eq">वे (ve)</span></p>
+		<p class="ex-line" data-pt="essas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">essas</span><span class="en-eq">those, near you (fem. plural)</span><span class="hi-eq">वे (ve)</span></p>
+		<p class="ex-line" data-pt="isso"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">isso</span><span class="en-eq">that (neutral — unnamed thing/idea)</span><span class="hi-eq">वह (vah)</span></p>
 	</div>
 
-	<h3>Longe de ambos <span class="en">(Far from both)</span></h3>
+	<h3 data-pt="Longe de ambos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Longe de ambos <span class="en">(Far from both)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">aquele</span><span class="en-eq">that, over there (masc. singular)</span><span class="hi-eq">वह (vah)</span></p>
-		<p class="ex-line"><span class="pt-word">aquela</span><span class="en-eq">that, over there (fem. singular)</span><span class="hi-eq">वह (vah)</span></p>
-		<p class="ex-line"><span class="pt-word">aqueles</span><span class="en-eq">those, over there (masc. plural)</span><span class="hi-eq">वे (ve)</span></p>
-		<p class="ex-line"><span class="pt-word">aquelas</span><span class="en-eq">those, over there (fem. plural)</span><span class="hi-eq">वे (ve)</span></p>
-		<p class="ex-line"><span class="pt-word">aquilo</span><span class="en-eq">that (neutral — unnamed thing/idea)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="aquele"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aquele</span><span class="en-eq">that, over there (masc. singular)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="aquela"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aquela</span><span class="en-eq">that, over there (fem. singular)</span><span class="hi-eq">वह (vah)</span></p>
+		<p class="ex-line" data-pt="aqueles"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aqueles</span><span class="en-eq">those, over there (masc. plural)</span><span class="hi-eq">वे (ve)</span></p>
+		<p class="ex-line" data-pt="aquelas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aquelas</span><span class="en-eq">those, over there (fem. plural)</span><span class="hi-eq">वे (ve)</span></p>
+		<p class="ex-line" data-pt="aquilo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aquilo</span><span class="en-eq">that (neutral — unnamed thing/idea)</span><span class="hi-eq">वह (vah)</span></p>
 	</div>
 
 	<div class="note-box">
 		<strong>Note:</strong> Portuguese has three distance levels (near me / near you / far from both), but English and Hindi only have two ("this/yah" vs "that/vah"). So <span class="pt-word" style="font-size:0.95em;">esse</span> and <span class="pt-word" style="font-size:0.95em;">aquele</span> both translate simply as "that" in English and "वह (vah)" in Hindi — the near-you vs. far-from-both distinction gets lost in translation.
 	</div>
 
-	<h3>Advérbios de lugar correspondentes <span class="en">(Matching place adverbs)</span></h3>
+	<h3 data-pt="Advérbios de lugar correspondentes"><button class="spk-btn" aria-label="Ouvir">🔊</button>Advérbios de lugar correspondentes <span class="en">(Matching place adverbs)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">aqui</span> <span class="en">(here — with este)</span></p>
-		<p class="ex-line"><span class="pt-word">aí</span> <span class="en">(there, near you — with esse)</span></p>
-		<p class="ex-line"><span class="pt-word">ali / lá</span> <span class="en">(over there — with aquele)</span></p>
+		<p class="ex-line" data-pt="aqui"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aqui</span> <span class="en">(here — with este)</span></p>
+		<p class="ex-line" data-pt="aí"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aí</span> <span class="en">(there, near you — with esse)</span></p>
+		<p class="ex-line" data-pt="ali, lá"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ali / lá</span> <span class="en">(over there — with aquele)</span></p>
 	</div>
 
-	<h3>Contrações com preposições <span class="en">(Contractions with prepositions)</span></h3>
+	<h3 data-pt="Contrações com preposições"><button class="spk-btn" aria-label="Ouvir">🔊</button>Contrações com preposições <span class="en">(Contractions with prepositions)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">de + este → deste</span><span class="en-eq">of/from this</span><span class="hi-eq">इसका / इससे (iska / isse)</span></p>
-		<p class="ex-line"><span class="pt-word">de + esse → desse</span><span class="en-eq">of/from that</span><span class="hi-eq">उसका / उससे (uska / usse)</span></p>
-		<p class="ex-line"><span class="pt-word">de + aquele → daquele</span><span class="en-eq">of/from that (over there)</span><span class="hi-eq">उसका / उससे (uska / usse)</span></p>
-		<p class="ex-line"><span class="pt-word">em + este → neste</span><span class="en-eq">in/on this</span><span class="hi-eq">इसमें (isme)</span></p>
-		<p class="ex-line"><span class="pt-word">em + esse → nesse</span><span class="en-eq">in/on that</span><span class="hi-eq">उसमें (usme)</span></p>
-		<p class="ex-line"><span class="pt-word">em + aquele → naquele</span><span class="en-eq">in/on that (over there)</span><span class="hi-eq">उसमें (usme)</span></p>
-		<p class="ex-line"><span class="pt-word">a + aquele → àquele</span><span class="en-eq">to that (over there)</span><span class="hi-eq">उसको / उस तक (usko / us tak)</span></p>
+		<p class="ex-line" data-pt="de este, deste"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + este → deste</span><span class="en-eq">of/from this</span><span class="hi-eq">इसका / इससे (iska / isse)</span></p>
+		<p class="ex-line" data-pt="de esse, desse"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + esse → desse</span><span class="en-eq">of/from that</span><span class="hi-eq">उसका / उससे (uska / usse)</span></p>
+		<p class="ex-line" data-pt="de aquele, daquele"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + aquele → daquele</span><span class="en-eq">of/from that (over there)</span><span class="hi-eq">उसका / उससे (uska / usse)</span></p>
+		<p class="ex-line" data-pt="em este, neste"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + este → neste</span><span class="en-eq">in/on this</span><span class="hi-eq">इसमें (isme)</span></p>
+		<p class="ex-line" data-pt="em esse, nesse"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + esse → nesse</span><span class="en-eq">in/on that</span><span class="hi-eq">उसमें (usme)</span></p>
+		<p class="ex-line" data-pt="em aquele, naquele"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + aquele → naquele</span><span class="en-eq">in/on that (over there)</span><span class="hi-eq">उसमें (usme)</span></p>
+		<p class="ex-line" data-pt="a aquele, àquele"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + aquele → àquele</span><span class="en-eq">to that (over there)</span><span class="hi-eq">उसको / उस तक (usko / us tak)</span></p>
 	</div>
 	<div class="note-box">
 		<strong>Note:</strong> English doesn't contract prepositions with "this/that" (it just says "of this", "in that"), and Hindi doesn't have prepositions at all — it uses postpositions attached after the oblique form of the pronoun (इस/उस + का/में/को). So these Portuguese contractions are a purely Portuguese habit; there's no equivalent single-word contraction in either language.
@@ -159,15 +195,15 @@
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Este</span> livro é meu.<span class="en-eq">This book (near me) is mine.</span></p>
-		<p class="ex-line"><span class="pt-word">Essa</span> caneta é tua?<span class="en-eq">Is that pen (near you) yours?</span></p>
-		<p class="ex-line"><span class="pt-word">Aquela</span> casa é muito antiga.<span class="en-eq">That house (over there) is very old.</span></p>
-		<p class="ex-line">O que é <span class="pt-word">isto</span>?<span class="en-eq">What is this?</span></p>
-		<p class="ex-line"><span class="pt-word">Isso</span> que disseste não é verdade.<span class="en-eq">What you said (that) isn't true.</span></p>
-		<p class="ex-line"><span class="pt-word">Aquilo</span> ali é um museu.<span class="en-eq">That thing over there is a museum.</span></p>
-		<p class="ex-line">Gosto muito <span class="pt-word">deste</span> restaurante.<span class="en-eq">I really like this restaurant.</span></p>
-		<p class="ex-line">Não confio <span class="pt-word">naquele</span> homem.<span class="en-eq">I don't trust that man.</span></p>
-		<p class="ex-line">Vem <span class="pt-word">aqui</span>, por favor.<span class="en-eq">Come here, please.</span></p>
+		<p class="ex-line" data-pt="Este livro é meu."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Este</span> livro é meu.<span class="en-eq">This book (near me) is mine.</span></p>
+		<p class="ex-line" data-pt="Essa caneta é tua?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Essa</span> caneta é tua?<span class="en-eq">Is that pen (near you) yours?</span></p>
+		<p class="ex-line" data-pt="Aquela casa é muito antiga."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Aquela</span> casa é muito antiga.<span class="en-eq">That house (over there) is very old.</span></p>
+		<p class="ex-line" data-pt="O que é isto?"><button class="spk-btn" aria-label="Ouvir">🔊</button>O que é <span class="pt-word">isto</span>?<span class="en-eq">What is this?</span></p>
+		<p class="ex-line" data-pt="Isso que disseste não é verdade."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Isso</span> que disseste não é verdade.<span class="en-eq">What you said (that) isn't true.</span></p>
+		<p class="ex-line" data-pt="Aquilo ali é um museu."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Aquilo</span> ali é um museu.<span class="en-eq">That thing over there is a museum.</span></p>
+		<p class="ex-line" data-pt="Gosto muito deste restaurante."><button class="spk-btn" aria-label="Ouvir">🔊</button>Gosto muito <span class="pt-word">deste</span> restaurante.<span class="en-eq">I really like this restaurant.</span></p>
+		<p class="ex-line" data-pt="Não confio naquele homem."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não confio <span class="pt-word">naquele</span> homem.<span class="en-eq">I don't trust that man.</span></p>
+		<p class="ex-line" data-pt="Vem aqui, por favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vem <span class="pt-word">aqui</span>, por favor.<span class="en-eq">Come here, please.</span></p>
 	</div>
 </div>
 
