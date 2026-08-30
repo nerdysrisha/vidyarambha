@@ -19,16 +19,54 @@
 .pt-contracoes .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-contracoes .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
+.pt-contracoes .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+.pt-contracoes .intro-text p { margin: 0 0 12px 0; }
+.pt-contracoes .intro-text p:last-child { margin-bottom: 0; }
+
 .pt-contracoes .example-list { margin: 0 0 12px 0; }
 .pt-contracoes .ex-line {
 	color: #2b2b2b !important;
 	line-height: 1.7;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-contracoes .ex-line:last-child { margin-bottom: 0; }
 .pt-contracoes .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-contracoes .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-contracoes .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-contracoes .intro-text { position: relative; padding-left: 1.9em; }
+.pt-contracoes .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-contracoes .intro-text .spk-btn { top: 0.85em; }
+.pt-contracoes .desc-box h3:hover .spk-btn,
+.pt-contracoes .intro-text:hover .spk-btn,
+.pt-contracoes .ex-line:hover .spk-btn,
+.pt-contracoes .spk-btn:focus-visible { opacity: 1; }
+.pt-contracoes .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-contracoes .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-contracoes .spk-btn { opacity: 0.4; }
+}
 
 .pt-contracoes .example-box {
 	background: #1a1a1a !important;
@@ -96,8 +134,10 @@
 <h2>15. Contrações — preposição + artigo <span class="en">(Contractions — preposition + article)</span></h2>
 
 <div class="desc-box">
-	<p><em>Some prepositions merge with the article that follows them into a single word.</em></p>
-	<p>This happens because Portuguese articles (o, a, os, as, um, uma...) are small, unstressed words that sit right in front of the noun — over time, the preposition before them fused together with them into a single word. It only happens with the small set of prepositions below (em, de, a...); most Portuguese prepositions (para, com, sobre...) never contract.</p>
+	<div class="intro-text" data-pt="Algumas preposições fundem-se com o artigo que vem a seguir, formando uma só palavra."><button class="spk-btn" aria-label="Ouvir">🔊</button>
+		<p><em>Some prepositions merge with the article that follows them into a single word.</em></p>
+		<p>This happens because Portuguese articles (o, a, os, as, um, uma...) are small, unstressed words that sit right in front of the noun — over time, the preposition before them fused together with them into a single word. It only happens with the small set of prepositions below (em, de, a...); most Portuguese prepositions (para, com, sobre...) never contract.</p>
+	</div>
 
 	<h3>Existe algo parecido em hindi? <span class="en">(Is there anything similar in Hindi?)</span></h3>
 	<p>Hindi has no articles ("the"/"a") at all, so there's no direct match for preposição + artigo with nouns — you'd just say "स्कूल में" (<em>escola em</em>, "in school") with no fusion. But Hindi does fuse postpositions onto <strong>pronouns</strong> in a very similar spirit, welding two small words into one — the same instinct that produced "na", "do", "ao":</p>
@@ -110,77 +150,77 @@
 		<p class="ex-line"><span class="pt-word">us + se → usse</span><span class="en-eq">from/with that — उससे</span></p>
 	</div>
 
-	<h3>em + artigo <span class="en">(em + article)</span></h3>
+	<h3 data-pt="em mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>em + artigo <span class="en">(em + article)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">em + o = no</span></p>
-		<p class="ex-line"><span class="pt-word">em + os = nos</span></p>
-		<p class="ex-line"><span class="pt-word">em + a = na</span></p>
-		<p class="ex-line"><span class="pt-word">em + as = nas</span></p>
-		<p class="ex-line"><span class="pt-word">em + um = num</span></p>
-		<p class="ex-line"><span class="pt-word">em + uns = nuns</span></p>
-		<p class="ex-line"><span class="pt-word">em + uma = numa</span></p>
-		<p class="ex-line"><span class="pt-word">em + umas = numas</span></p>
+		<p class="ex-line" data-pt="em o, no"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + o = no</span></p>
+		<p class="ex-line" data-pt="em os, nos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + os = nos</span></p>
+		<p class="ex-line" data-pt="em a, na"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + a = na</span></p>
+		<p class="ex-line" data-pt="em as, nas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + as = nas</span></p>
+		<p class="ex-line" data-pt="em um, num"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + um = num</span></p>
+		<p class="ex-line" data-pt="em uns, nuns"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + uns = nuns</span></p>
+		<p class="ex-line" data-pt="em uma, numa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + uma = numa</span></p>
+		<p class="ex-line" data-pt="em umas, numas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + umas = numas</span></p>
 	</div>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Estou na paragem de autocarro.</span><span class="en-eq">I am at the bus stop.</span></p>
-		<p class="ex-line"><span class="pt-word">Estou na estação.</span><span class="en-eq">I am at the station.</span></p>
-		<p class="ex-line"><span class="pt-word">Nós estudamos numa escola.</span><span class="en-eq">We study at a school.</span></p>
-		<p class="ex-line"><span class="pt-word">Estou em Portugal.</span><span class="en-eq">I am in Portugal.</span></p>
-		<p class="ex-line"><span class="pt-word">Estou na Índia.</span><span class="en-eq">I am in India.</span></p>
-	</div>
-
-	<h3>de + artigo <span class="en">(de + article)</span></h3>
-	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">de + o = do</span></p>
-		<p class="ex-line"><span class="pt-word">de + os = dos</span></p>
-		<p class="ex-line"><span class="pt-word">de + a = da</span></p>
-		<p class="ex-line"><span class="pt-word">de + as = das</span></p>
-	</div>
-	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">O livro do rapaz.</span><span class="en-eq">The boy's book.</span></p>
-		<p class="ex-line"><span class="pt-word">O livro da Selda.</span><span class="en-eq">Selda's book.</span></p>
-		<p class="ex-line"><span class="pt-word">Os livros dos rapazes.</span><span class="en-eq">The boys' books.</span></p>
-		<p class="ex-line"><span class="pt-word">As canetas das raparigas.</span><span class="en-eq">The girls' pens.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é do João.</span><span class="en-eq">This pen is João's.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é da Carla.</span><span class="en-eq">This pen is Carla's.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é dos alunos.</span><span class="en-eq">This pen is the (male) students'.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é das alunas.</span><span class="en-eq">This pen is the (female) students'.</span></p>
+		<p class="ex-line" data-pt="Estou na paragem de autocarro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou na paragem de autocarro.</span><span class="en-eq">I am at the bus stop.</span></p>
+		<p class="ex-line" data-pt="Estou na estação."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou na estação.</span><span class="en-eq">I am at the station.</span></p>
+		<p class="ex-line" data-pt="Nós estudamos numa escola."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nós estudamos numa escola.</span><span class="en-eq">We study at a school.</span></p>
+		<p class="ex-line" data-pt="Estou em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou em Portugal.</span><span class="en-eq">I am in Portugal.</span></p>
+		<p class="ex-line" data-pt="Estou na Índia."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou na Índia.</span><span class="en-eq">I am in India.</span></p>
 	</div>
 
-	<h3>a + artigo <span class="en">(a + article)</span></h3>
+	<h3 data-pt="de mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>de + artigo <span class="en">(de + article)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">a + o = ao</span></p>
-		<p class="ex-line"><span class="pt-word">a + os = aos</span></p>
-		<p class="ex-line"><span class="pt-word">a + a = à</span></p>
-		<p class="ex-line"><span class="pt-word">a + as = às</span></p>
+		<p class="ex-line" data-pt="de o, do"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + o = do</span></p>
+		<p class="ex-line" data-pt="de os, dos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + os = dos</span></p>
+		<p class="ex-line" data-pt="de a, da"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + a = da</span></p>
+		<p class="ex-line" data-pt="de as, das"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + as = das</span></p>
 	</div>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Eu dou 20 euros ao João.</span><span class="en-eq">I give João 20 euros.</span></p>
-		<p class="ex-line"><span class="pt-word">Eu dou 20 euros à Michele.</span><span class="en-eq">I give Michele 20 euros.</span></p>
-		<p class="ex-line"><span class="pt-word">Vou às 10h.</span><span class="en-eq">I'm going at 10 o'clock.</span></p>
+		<p class="ex-line" data-pt="O livro do rapaz."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O livro do rapaz.</span><span class="en-eq">The boy's book.</span></p>
+		<p class="ex-line" data-pt="O livro da Selda."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O livro da Selda.</span><span class="en-eq">Selda's book.</span></p>
+		<p class="ex-line" data-pt="Os livros dos rapazes."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os livros dos rapazes.</span><span class="en-eq">The boys' books.</span></p>
+		<p class="ex-line" data-pt="As canetas das raparigas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">As canetas das raparigas.</span><span class="en-eq">The girls' pens.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é do João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é do João.</span><span class="en-eq">This pen is João's.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é da Carla."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é da Carla.</span><span class="en-eq">This pen is Carla's.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é dos alunos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é dos alunos.</span><span class="en-eq">This pen is the (male) students'.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é das alunas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é das alunas.</span><span class="en-eq">This pen is the (female) students'.</span></p>
 	</div>
 
-	<h3>Posse com de <span class="en">(Possession with de)</span></h3>
+	<h3 data-pt="a mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>a + artigo <span class="en">(a + article)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Esta caneta é do João.</span><span class="en-eq">This pen is João's.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é deles.</span><span class="en-eq">This pen is theirs.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é dos alunos.</span><span class="en-eq">This pen is the (male) students'.</span></p>
-		<p class="ex-line"><span class="pt-word">Esta caneta é das alunas.</span><span class="en-eq">This pen is the (female) students'.</span></p>
+		<p class="ex-line" data-pt="a o, ao"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + o = ao</span></p>
+		<p class="ex-line" data-pt="a os, aos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + os = aos</span></p>
+		<p class="ex-line" data-pt="a a, à"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + a = à</span></p>
+		<p class="ex-line" data-pt="a as, às"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + as = às</span></p>
+	</div>
+	<div class="example-list">
+		<p class="ex-line" data-pt="Eu dou 20 euros ao João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu dou 20 euros ao João.</span><span class="en-eq">I give João 20 euros.</span></p>
+		<p class="ex-line" data-pt="Eu dou 20 euros à Michele."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu dou 20 euros à Michele.</span><span class="en-eq">I give Michele 20 euros.</span></p>
+		<p class="ex-line" data-pt="Vou às 10h."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Vou às 10h.</span><span class="en-eq">I'm going at 10 o'clock.</span></p>
+	</div>
+
+	<h3 data-pt="Posse com de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Posse com de <span class="en">(Possession with de)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="Esta caneta é do João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é do João.</span><span class="en-eq">This pen is João's.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é deles."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é deles.</span><span class="en-eq">This pen is theirs.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é dos alunos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é dos alunos.</span><span class="en-eq">This pen is the (male) students'.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é das alunas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esta caneta é das alunas.</span><span class="en-eq">This pen is the (female) students'.</span></p>
 	</div>
 </div>
 
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line">Estou <span class="pt-word">na</span> estação.<span class="en-eq">I am at the station.</span></p>
-		<p class="ex-line">Nós estudamos <span class="pt-word">numa</span> escola.<span class="en-eq">We study at a school.</span></p>
-		<p class="ex-line">O livro <span class="pt-word">do</span> rapaz.<span class="en-eq">The boy's book.</span></p>
-		<p class="ex-line">Esta caneta é <span class="pt-word">da</span> Carla.<span class="en-eq">This pen is Carla's.</span></p>
-		<p class="ex-line">Os livros <span class="pt-word">dos</span> rapazes.<span class="en-eq">The boys' books.</span></p>
-		<p class="ex-line">Eu dou 20 euros <span class="pt-word">ao</span> João.<span class="en-eq">I give João 20 euros.</span></p>
-		<p class="ex-line">Eu dou 20 euros <span class="pt-word">à</span> Michele.<span class="en-eq">I give Michele 20 euros.</span></p>
-		<p class="ex-line">Vou <span class="pt-word">às</span> 10h.<span class="en-eq">I'm going at 10 o'clock.</span></p>
-		<p class="ex-line">Esta caneta é <span class="pt-word">deles</span>.<span class="en-eq">This pen is theirs.</span></p>
+		<p class="ex-line" data-pt="Estou na estação."><button class="spk-btn" aria-label="Ouvir">🔊</button>Estou <span class="pt-word">na</span> estação.<span class="en-eq">I am at the station.</span></p>
+		<p class="ex-line" data-pt="Nós estudamos numa escola."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós estudamos <span class="pt-word">numa</span> escola.<span class="en-eq">We study at a school.</span></p>
+		<p class="ex-line" data-pt="O livro do rapaz."><button class="spk-btn" aria-label="Ouvir">🔊</button>O livro <span class="pt-word">do</span> rapaz.<span class="en-eq">The boy's book.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é da Carla."><button class="spk-btn" aria-label="Ouvir">🔊</button>Esta caneta é <span class="pt-word">da</span> Carla.<span class="en-eq">This pen is Carla's.</span></p>
+		<p class="ex-line" data-pt="Os livros dos rapazes."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os livros <span class="pt-word">dos</span> rapazes.<span class="en-eq">The boys' books.</span></p>
+		<p class="ex-line" data-pt="Eu dou 20 euros ao João."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu dou 20 euros <span class="pt-word">ao</span> João.<span class="en-eq">I give João 20 euros.</span></p>
+		<p class="ex-line" data-pt="Eu dou 20 euros à Michele."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu dou 20 euros <span class="pt-word">à</span> Michele.<span class="en-eq">I give Michele 20 euros.</span></p>
+		<p class="ex-line" data-pt="Vou às 10h."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vou <span class="pt-word">às</span> 10h.<span class="en-eq">I'm going at 10 o'clock.</span></p>
+		<p class="ex-line" data-pt="Esta caneta é deles."><button class="spk-btn" aria-label="Ouvir">🔊</button>Esta caneta é <span class="pt-word">deles</span>.<span class="en-eq">This pen is theirs.</span></p>
 	</div>
 </div>
 
