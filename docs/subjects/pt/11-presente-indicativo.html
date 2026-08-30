@@ -25,10 +25,44 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-presente .ex-line:last-child { margin-bottom: 0; }
 .pt-presente .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-presente .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-presente .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-presente .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-presente .desc-box h3:hover .spk-btn,
+.pt-presente .ex-line:hover .spk-btn,
+.pt-presente .spk-btn:focus-visible { opacity: 1; }
+.pt-presente .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-presente .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-presente .spk-btn { opacity: 0.4; }
+}
+
+.pt-presente .person-tag {
+  color: #999 !important;
+  font-size: 0.82em;
+  font-style: italic;
+  margin-left: 6px;
+}
 
 .pt-presente .example-box {
   background: #1a1a1a !important;
@@ -96,94 +130,102 @@
 <h2>Presente do Indicativo <span class="en">(Present indicative)</span></h2>
 
 <div class="desc-box">
-  <p><em>Used for actions or situations in the present.</em></p>
+  <p>The <em>presente do indicativo</em> is Portuguese's basic, dictionary-form present tense — the one you get by conjugating the infinitive for each subject pronoun. It covers more ground than the English "simple present" might suggest: besides habitual actions ("I work every day"), it's also used for general facts and truths ("the Earth goes around the Sun"), and even for near-future events that are already planned or certain ("I'll call you tomorrow"). The sections below walk through the regular -ar conjugation pattern, then show each of these uses in context.</p>
 
-  <h3>Verbos regulares em -ar <span class="en">(Regular -ar verbs)</span></h3>
+  <h3 data-pt="Verbos regulares em -ar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos regulares em -ar <span class="en">(Regular -ar verbs)</span></h3>
   <div class="example-list">
-	<p class="ex-line"><span class="pt-word">falar</span> <span class="en">(to speak)</span></p>
-	<p class="ex-line">eu <span class="pt-word">falo</span> <span class="en">(I speak)</span></p>
-	<p class="ex-line">tu <span class="pt-word">falas</span> <span class="en">(you speak)</span></p>
-	<p class="ex-line">ele/ela/você <span class="pt-word">fala</span> <span class="en">(he/she/you speak(s))</span></p>
-	<p class="ex-line">nós <span class="pt-word">falamos</span> <span class="en">(we speak)</span></p>
-	<p class="ex-line">eles/elas/vocês <span class="pt-word">falam</span> <span class="en">(they/you speak)</span></p>
+	<p class="ex-line" data-pt="falar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falar</span> <span class="en">(to speak)</span></p>
+	<p class="ex-line" data-pt="eu falo"><button class="spk-btn" aria-label="Ouvir">🔊</button>eu <span class="pt-word">falo</span> <span class="en">(I speak)</span><span class="person-tag">(1st person singular)</span></p>
+	<p class="ex-line" data-pt="tu falas"><button class="spk-btn" aria-label="Ouvir">🔊</button>tu <span class="pt-word">falas</span> <span class="en">(you speak)</span><span class="person-tag">(2nd person singular)</span></p>
+	<p class="ex-line" data-pt="ele fala"><button class="spk-btn" aria-label="Ouvir">🔊</button>ele <span class="pt-word">fala</span> <span class="en">(he speaks)</span><span class="person-tag">(3rd person singular)</span></p>
+	<p class="ex-line" data-pt="ela fala"><button class="spk-btn" aria-label="Ouvir">🔊</button>ela <span class="pt-word">fala</span> <span class="en">(she speaks)</span><span class="person-tag">(3rd person singular)</span></p>
+	<p class="ex-line" data-pt="você fala"><button class="spk-btn" aria-label="Ouvir">🔊</button>você <span class="pt-word">fala</span> <span class="en">(you speak)</span><span class="person-tag">(3rd person singular, formal)</span></p>
+	<p class="ex-line" data-pt="nós falamos"><button class="spk-btn" aria-label="Ouvir">🔊</button>nós <span class="pt-word">falamos</span> <span class="en">(we speak)</span><span class="person-tag">(1st person plural)</span></p>
+	<p class="ex-line" data-pt="eles falam"><button class="spk-btn" aria-label="Ouvir">🔊</button>eles <span class="pt-word">falam</span> <span class="en">(they speak)</span><span class="person-tag">(3rd person plural)</span></p>
+	<p class="ex-line" data-pt="elas falam"><button class="spk-btn" aria-label="Ouvir">🔊</button>elas <span class="pt-word">falam</span> <span class="en">(they speak)</span><span class="person-tag">(3rd person plural)</span></p>
+	<p class="ex-line" data-pt="vocês falam"><button class="spk-btn" aria-label="Ouvir">🔊</button>vocês <span class="pt-word">falam</span> <span class="en">(you speak)</span><span class="person-tag">(3rd person plural, formal)</span></p>
   </div>
 
-  <h3>Ações habituais <span class="en">(Habitual actions)</span></h3>
+  <h3 data-pt="Ações habituais"><button class="spk-btn" aria-label="Ouvir">🔊</button>Ações habituais <span class="en">(Habitual actions)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Eu levanto-me sempre às 8h00.</span><span class="en-eq">I always get up at 8 a.m.</span></p>
-    <p class="ex-line"><span class="pt-word">Normalmente almoçamos às 13h00 e jantamos às 20h30.</span><span class="en-eq">We usually have lunch at 1 p.m. and dinner at 8:30 p.m.</span></p>
-    <p class="ex-line"><span class="pt-word">O Sr. Ramos compra o jornal todos os dias.</span><span class="en-eq">Mr. Ramos buys the newspaper every day.</span></p>
+    <p class="ex-line" data-pt="Eu levanto-me sempre às 8h00."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu levanto-me sempre às 8h00.</span><span class="en-eq">I always get up at 8 a.m.</span></p>
+    <p class="ex-line" data-pt="Normalmente almoçamos às 13h00 e jantamos às 20h30."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Normalmente almoçamos às 13h00 e jantamos às 20h30.</span><span class="en-eq">We usually have lunch at 1 p.m. and dinner at 8:30 p.m.</span></p>
+    <p class="ex-line" data-pt="O Sr. Ramos compra o jornal todos os dias."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Sr. Ramos compra o jornal todos os dias.</span><span class="en-eq">Mr. Ramos buys the newspaper every day.</span></p>
   </div>
 
-  <h3>Factos / verdades <span class="en">(Facts / statements of fact)</span></h3>
+  <h3 data-pt="Factos / verdades"><button class="spk-btn" aria-label="Ouvir">🔊</button>Factos / verdades <span class="en">(Facts / statements of fact)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">A Terra gira à volta do Sol.</span><span class="en-eq">The Earth revolves around the Sun.</span></p>
-    <p class="ex-line"><span class="pt-word">A Ana fala inglês muito bem.</span><span class="en-eq">Ana speaks English very well.</span></p>
-    <p class="ex-line"><span class="pt-word">As crianças gostam muito de chocolate.</span><span class="en-eq">Children like chocolate a lot.</span></p>
-    <p class="ex-line"><span class="pt-word">Em Lisboa as lojas fecham às 19h00.</span><span class="en-eq">In Lisbon, shops close at 7 p.m.</span></p>
-    <p class="ex-line"><span class="pt-word">Ele trabalha muito.</span><span class="en-eq">He works a lot.</span></p>
+    <p class="ex-line" data-pt="A Terra gira à volta do Sol."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Terra gira à volta do Sol.</span><span class="en-eq">The Earth revolves around the Sun.</span></p>
+    <p class="ex-line" data-pt="A Ana fala inglês muito bem."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Ana fala inglês muito bem.</span><span class="en-eq">Ana speaks English very well.</span></p>
+    <p class="ex-line" data-pt="As crianças gostam muito de chocolate."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">As crianças gostam muito de chocolate.</span><span class="en-eq">Children like chocolate a lot.</span></p>
+    <p class="ex-line" data-pt="Em Lisboa as lojas fecham às 19h00."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Em Lisboa as lojas fecham às 19h00.</span><span class="en-eq">In Lisbon, shops close at 7 p.m.</span></p>
+    <p class="ex-line" data-pt="Ele trabalha muito."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ele trabalha muito.</span><span class="en-eq">He works a lot.</span></p>
   </div>
 
-  <h3>Ações num futuro próximo <span class="en">(Actions in the near future)</span></h3>
+  <h3 data-pt="Ações num futuro próximo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Ações num futuro próximo <span class="en">(Actions in the near future)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Telefono-te amanhã.</span><span class="en-eq">I'll call you tomorrow.</span></p>
-    <p class="ex-line"><span class="pt-word">Os exames começam na próxima semana.</span><span class="en-eq">The exams start next week.</span></p>
+    <p class="ex-line" data-pt="Telefono-te amanhã."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Telefono-te amanhã.</span><span class="en-eq">I'll call you tomorrow.</span></p>
+    <p class="ex-line" data-pt="Os exames começam na próxima semana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os exames começam na próxima semana.</span><span class="en-eq">The exams start next week.</span></p>
   </div>
 
-  <h3>Padrão de conjugação — verbos em -ar <span class="en">(Conjugation pattern for -ar verbs)</span></h3>
+  <h3 data-pt="Padrão de conjugação — verbos em -ar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Padrão de conjugação — verbos em -ar <span class="en">(Conjugation pattern for -ar verbs)</span></h3>
   <p><em>Every regular -ar verb follows the same pattern: drop the -ar ending to get the stem, then add the ending below for each subject pronoun.</em></p>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">falar → fal-</span> <span class="en">(drop -ar to get the stem "fal-")</span></p>
-    <p class="ex-line"><span class="pt-word">eu → -o</span> <span class="en">(fal + o = falo, "I speak")</span></p>
-    <p class="ex-line"><span class="pt-word">tu → -as</span> <span class="en">(fal + as = falas, "you speak")</span></p>
-    <p class="ex-line"><span class="pt-word">ele/ela/você → -a</span> <span class="en">(fal + a = fala, "he/she/you speak(s)")</span></p>
-    <p class="ex-line"><span class="pt-word">nós → -amos</span> <span class="en">(fal + amos = falamos, "we speak")</span></p>
-    <p class="ex-line"><span class="pt-word">eles/elas/vocês → -am</span> <span class="en">(fal + am = falam, "they/you speak")</span></p>
+    <p class="ex-line" data-pt="falar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falar → fal-</span> <span class="en">(drop -ar to get the stem "fal-")</span></p>
+    <p class="ex-line" data-pt="falo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eu → -o</span> <span class="en">(fal + o = falo, "I speak")</span><span class="person-tag">(1st person singular)</span></p>
+    <p class="ex-line" data-pt="falas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tu → -as</span> <span class="en">(fal + as = falas, "you speak")</span><span class="person-tag">(2nd person singular)</span></p>
+    <p class="ex-line" data-pt="fala"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ele → -a</span> <span class="en">(fal + a = fala, "he speaks")</span><span class="person-tag">(3rd person singular)</span></p>
+    <p class="ex-line" data-pt="fala"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ela → -a</span> <span class="en">(fal + a = fala, "she speaks")</span><span class="person-tag">(3rd person singular)</span></p>
+    <p class="ex-line" data-pt="fala"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">você → -a</span> <span class="en">(fal + a = fala, "you speak")</span><span class="person-tag">(3rd person singular, formal)</span></p>
+    <p class="ex-line" data-pt="falamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nós → -amos</span> <span class="en">(fal + amos = falamos, "we speak")</span><span class="person-tag">(1st person plural)</span></p>
+    <p class="ex-line" data-pt="falam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eles → -am</span> <span class="en">(fal + am = falam, "they speak")</span><span class="person-tag">(3rd person plural)</span></p>
+    <p class="ex-line" data-pt="falam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">elas → -am</span> <span class="en">(fal + am = falam, "they speak")</span><span class="person-tag">(3rd person plural)</span></p>
+    <p class="ex-line" data-pt="falam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">vocês → -am</span> <span class="en">(fal + am = falam, "you speak")</span><span class="person-tag">(3rd person plural, formal)</span></p>
   </div>
 
-  <h3>Verbos em -ar úteis <span class="en">(Useful regular -ar verbs)</span></h3>
+  <h3 data-pt="Verbos em -ar úteis"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos em -ar úteis <span class="en">(Useful regular -ar verbs)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">falar</span> <span class="en">(to speak)</span></p>
-    <p class="ex-line"><span class="pt-word">trabalhar</span> <span class="en">(to work)</span></p>
-    <p class="ex-line"><span class="pt-word">brincar</span> <span class="en">(to play — children)</span></p>
-    <p class="ex-line"><span class="pt-word">morar</span> <span class="en">(to live / reside)</span></p>
-    <p class="ex-line"><span class="pt-word">estudar</span> <span class="en">(to study)</span></p>
-    <p class="ex-line"><span class="pt-word">gostar</span> <span class="en">(to like)</span></p>
-    <p class="ex-line"><span class="pt-word">dançar</span> <span class="en">(to dance)</span></p>
-    <p class="ex-line"><span class="pt-word">levantar-se</span> <span class="en">(to get up)</span></p>
-    <p class="ex-line"><span class="pt-word">acordar</span> <span class="en">(to wake up)</span></p>
+    <p class="ex-line" data-pt="falar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falar</span> <span class="en">(to speak)</span></p>
+    <p class="ex-line" data-pt="trabalhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhar</span> <span class="en">(to work)</span></p>
+    <p class="ex-line" data-pt="brincar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">brincar</span> <span class="en">(to play — children)</span></p>
+    <p class="ex-line" data-pt="morar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">morar</span> <span class="en">(to live / reside)</span></p>
+    <p class="ex-line" data-pt="estudar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudar</span> <span class="en">(to study)</span></p>
+    <p class="ex-line" data-pt="gostar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostar</span> <span class="en">(to like)</span></p>
+    <p class="ex-line" data-pt="dançar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dançar</span> <span class="en">(to dance)</span></p>
+    <p class="ex-line" data-pt="levantar-se"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">levantar-se</span> <span class="en">(to get up)</span></p>
+    <p class="ex-line" data-pt="acordar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">acordar</span> <span class="en">(to wake up)</span></p>
   </div>
 
-  <h3>Gostar de + infinitivo <span class="en">(To like + infinitive)</span></h3>
+  <h3 data-pt="Gostar de + infinitivo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Gostar de + infinitivo <span class="en">(To like + infinitive)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Eu gosto de comer banana.</span><span class="en-eq">I like eating bananas.</span></p>
-    <p class="ex-line"><span class="pt-word">Tu gostas de ver futebol no estádio.</span><span class="en-eq">You like watching football at the stadium.</span></p>
-    <p class="ex-line"><span class="pt-word">Nós gostamos de estudar português.</span><span class="en-eq">We like studying Portuguese.</span></p>
-    <p class="ex-line"><span class="pt-word">Ela não gosta de trabalhar à noite.</span><span class="en-eq">She doesn't like working at night.</span></p>
+    <p class="ex-line" data-pt="Eu gosto de comer banana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu gosto de comer banana.</span><span class="en-eq">I like eating bananas.</span></p>
+    <p class="ex-line" data-pt="Tu gostas de ver futebol no estádio."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tu gostas de ver futebol no estádio.</span><span class="en-eq">You like watching football at the stadium.</span></p>
+    <p class="ex-line" data-pt="Nós gostamos de estudar português."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nós gostamos de estudar português.</span><span class="en-eq">We like studying Portuguese.</span></p>
+    <p class="ex-line" data-pt="Ela não gosta de trabalhar à noite."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela não gosta de trabalhar à noite.</span><span class="en-eq">She doesn't like working at night.</span></p>
   </div>
 
-  <h3>Expressões de tempo com o presente <span class="en">(Time expressions with the present)</span></h3>
+  <h3 data-pt="Expressões de tempo com o presente"><button class="spk-btn" aria-label="Ouvir">🔊</button>Expressões de tempo com o presente <span class="en">(Time expressions with the present)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Trabalho de segunda-feira a sexta-feira.</span><span class="en-eq">I work from Monday to Friday.</span></p>
-    <p class="ex-line"><span class="pt-word">Trabalho desde as 10h.</span><span class="en-eq">I've been working since 10 a.m.</span></p>
-    <p class="ex-line"><span class="pt-word">Tu trabalhas aos fins de semana.</span><span class="en-eq">You work on weekends.</span></p>
-    <p class="ex-line"><span class="pt-word">Trabalhas das 10h às 18h.</span><span class="en-eq">You work from 10 a.m. to 6 p.m.</span></p>
-    <p class="ex-line"><span class="pt-word">Nós não trabalhamos aos fins de semana.</span><span class="en-eq">We don't work on weekends.</span></p>
+    <p class="ex-line" data-pt="Trabalho de segunda-feira a sexta-feira."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho de segunda-feira a sexta-feira.</span><span class="en-eq">I work from Monday to Friday.</span></p>
+    <p class="ex-line" data-pt="Trabalho desde as 10h."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho desde as 10h.</span><span class="en-eq">I've been working since 10 a.m.</span></p>
+    <p class="ex-line" data-pt="Tu trabalhas aos fins de semana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tu trabalhas aos fins de semana.</span><span class="en-eq">You work on weekends.</span></p>
+    <p class="ex-line" data-pt="Trabalhas das 10h às 18h."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalhas das 10h às 18h.</span><span class="en-eq">You work from 10 a.m. to 6 p.m.</span></p>
+    <p class="ex-line" data-pt="Nós não trabalhamos aos fins de semana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nós não trabalhamos aos fins de semana.</span><span class="en-eq">We don't work on weekends.</span></p>
   </div>
 </div>
 
 <div class="example-box">
   <h4>Exemplos</h4>
   <div class="example-list">
-    <p class="ex-line">Eu <span class="pt-word">falo</span> português.<span class="en-eq">I speak Portuguese.</span></p>
-    <p class="ex-line">Nós <span class="pt-word">almoçamos</span> às 13h00.<span class="en-eq">We have lunch at 1 p.m.</span></p>
-    <p class="ex-line">O Sr. Ramos <span class="pt-word">compra</span> o jornal todos os dias.<span class="en-eq">Mr. Ramos buys the newspaper every day.</span></p>
-    <p class="ex-line">A Terra <span class="pt-word">gira</span> à volta do Sol.<span class="en-eq">The Earth revolves around the Sun.</span></p>
-    <p class="ex-line">A Ana <span class="pt-word">fala</span> inglês muito bem.<span class="en-eq">Ana speaks English very well.</span></p>
-    <p class="ex-line">Telefono-te amanhã.<span class="en-eq">I will call you tomorrow.</span></p>
-    <p class="ex-line">Eu <span class="pt-word">gosto de comer</span> banana.<span class="en-eq">I like to eat bananas.</span></p>
-    <p class="ex-line">Nós <span class="pt-word">gostamos de estudar</span> português.<span class="en-eq">We like to study Portuguese.</span></p>
-    <p class="ex-line">Trabalho <span class="pt-word">de segunda-feira a sexta-feira</span>.<span class="en-eq">I work from Monday to Friday.</span></p>
+    <p class="ex-line" data-pt="Eu falo português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">falo</span> português.<span class="en-eq">I speak Portuguese.</span></p>
+    <p class="ex-line" data-pt="Nós almoçamos às 13h00."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">almoçamos</span> às 13h00.<span class="en-eq">We have lunch at 1 p.m.</span></p>
+    <p class="ex-line" data-pt="O Sr. Ramos compra o jornal todos os dias."><button class="spk-btn" aria-label="Ouvir">🔊</button>O Sr. Ramos <span class="pt-word">compra</span> o jornal todos os dias.<span class="en-eq">Mr. Ramos buys the newspaper every day.</span></p>
+    <p class="ex-line" data-pt="A Terra gira à volta do Sol."><button class="spk-btn" aria-label="Ouvir">🔊</button>A Terra <span class="pt-word">gira</span> à volta do Sol.<span class="en-eq">The Earth revolves around the Sun.</span></p>
+    <p class="ex-line" data-pt="A Ana fala inglês muito bem."><button class="spk-btn" aria-label="Ouvir">🔊</button>A Ana <span class="pt-word">fala</span> inglês muito bem.<span class="en-eq">Ana speaks English very well.</span></p>
+    <p class="ex-line" data-pt="Telefono-te amanhã."><button class="spk-btn" aria-label="Ouvir">🔊</button>Telefono-te amanhã.<span class="en-eq">I will call you tomorrow.</span></p>
+    <p class="ex-line" data-pt="Eu gosto de comer banana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">gosto de comer</span> banana.<span class="en-eq">I like to eat bananas.</span></p>
+    <p class="ex-line" data-pt="Nós gostamos de estudar português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">gostamos de estudar</span> português.<span class="en-eq">We like to study Portuguese.</span></p>
+    <p class="ex-line" data-pt="Trabalho de segunda-feira a sexta-feira."><button class="spk-btn" aria-label="Ouvir">🔊</button>Trabalho <span class="pt-word">de segunda-feira a sexta-feira</span>.<span class="en-eq">I work from Monday to Friday.</span></p>
   </div>
 </div>
 
