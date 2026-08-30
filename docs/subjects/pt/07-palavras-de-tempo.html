@@ -61,12 +61,12 @@
 .pt-tempo .spk-inline {
   display: inline-block;
   cursor: pointer;
-  background: none;
-  border: none;
+  background: none !important;
+  border: none !important;
   padding: 0 2px;
   line-height: 1;
   font-size: 0.82em;
-  color: #a1521f;
+  color: #a1521f !important;
   opacity: 0;
   vertical-align: middle;
   transition: opacity 0.15s ease;
@@ -75,23 +75,52 @@
 .pt-tempo .num-table tr:hover .spk-inline,
 .pt-tempo .desc-box p:hover .spk-inline,
 .pt-tempo .spk-inline:focus-visible,
-.pt-tempo .spk-inline.speaking { opacity: 1; }
+.pt-tempo .spk-inline.speaking { opacity: 1 !important; }
 @media (hover: none) {
-  .pt-tempo .spk-inline { opacity: 0.4; }
+  .pt-tempo .spk-inline { opacity: 0.4 !important; }
 }
 
 /* ---------- Plain numbers table ---------- */
-.pt-tempo .num-table { width: 100%; border-collapse: collapse; margin: 4px 0 4px 0; }
+.pt-tempo .num-table-wrap {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 4px 0 4px 0;
+}
+.pt-tempo .num-table-wrap > div { flex: 1 1 220px; }
+.pt-tempo .num-table-label {
+  color: #6b4f1d !important;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 6px 0;
+}
+.pt-tempo .num-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+.pt-tempo .num-table tr {
+  background: transparent !important;
+}
 .pt-tempo .num-table th,
 .pt-tempo .num-table td {
-  text-align: left;
-  padding: 5px 10px;
-  border-bottom: 1px solid #e5e0d8;
-  color: #2b2b2b;
-  font-weight: normal;
+  text-align: left !important;
+  padding: 5px 10px !important;
+  border: none !important;
+  border-bottom: 1px solid #e5e0d8 !important;
+  color: #2b2b2b !important;
+  background: transparent !important;
+  font-weight: normal !important;
+  font-family: inherit !important;
 }
-.pt-tempo .num-table th { font-weight: 600; }
-.pt-tempo .num-table tr:last-child td { border-bottom: none; }
+.pt-tempo .num-table th {
+  font-weight: 600 !important;
+  color: #6b4f1d !important;
+}
+.pt-tempo .num-table tr:last-child td { border-bottom: none !important; }
 
 .pt-tempo .example-box {
   background: #1a1a1a !important;
@@ -212,28 +241,41 @@
   </div>
 
   <h3 data-pt="Números cardinais"><button class="spk-btn" aria-label="Ouvir">🔊</button>Números cardinais <span class="en">(Cardinal numbers)</span></h3>
-  <table class="num-table">
-    <thead>
-      <tr><th>Número</th><th>Português</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>1</td><td>um<button class="spk-inline" data-pt="um" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>2</td><td>dois<button class="spk-inline" data-pt="dois" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>3</td><td>três<button class="spk-inline" data-pt="três" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>4</td><td>quatro<button class="spk-inline" data-pt="quatro" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>5</td><td>cinco<button class="spk-inline" data-pt="cinco" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>10</td><td>dez<button class="spk-inline" data-pt="dez" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>11</td><td>onze<button class="spk-inline" data-pt="onze" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>12</td><td>doze<button class="spk-inline" data-pt="doze" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>13</td><td>treze<button class="spk-inline" data-pt="treze" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>20</td><td>vinte<button class="spk-inline" data-pt="vinte" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>22</td><td>vinte e dois<button class="spk-inline" data-pt="vinte e dois" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>100</td><td>cem <span style="color:#999;">/ cento (before another number, e.g. cento e um)</span><button class="spk-inline" data-pt="cem, cento, cento e um" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>200</td><td>duzentos<button class="spk-inline" data-pt="duzentos" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>300</td><td>trezentos<button class="spk-inline" data-pt="trezentos" aria-label="Ouvir">🔊</button></td></tr>
-      <tr><td>1000</td><td>mil<button class="spk-inline" data-pt="mil" aria-label="Ouvir">🔊</button></td></tr>
-    </tbody>
-  </table>
+  <div class="num-table-wrap">
+    <div>
+      <table class="num-table">
+        <thead>
+          <tr><th>Número</th><th>Português</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>um<button class="spk-inline" data-pt="um" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>2</td><td>dois<button class="spk-inline" data-pt="dois" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>3</td><td>três<button class="spk-inline" data-pt="três" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>4</td><td>quatro<button class="spk-inline" data-pt="quatro" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>5</td><td>cinco<button class="spk-inline" data-pt="cinco" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>10</td><td>dez<button class="spk-inline" data-pt="dez" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>11</td><td>onze<button class="spk-inline" data-pt="onze" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>12</td><td>doze<button class="spk-inline" data-pt="doze" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>13</td><td>treze<button class="spk-inline" data-pt="treze" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>20</td><td>vinte<button class="spk-inline" data-pt="vinte" aria-label="Ouvir">🔊</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <p class="num-table-label">Números maiores</p>
+      <table class="num-table">
+        <thead>
+          <tr><th>Número</th><th>Português</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>100</td><td>cem <span style="color:#999;">/ cento</span><button class="spk-inline" data-pt="cem, cento, cento e um" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>200</td><td>duzentos<button class="spk-inline" data-pt="duzentos" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>300</td><td>trezentos<button class="spk-inline" data-pt="trezentos" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>1000</td><td>mil<button class="spk-inline" data-pt="mil" aria-label="Ouvir">🔊</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <div class="example-box">
