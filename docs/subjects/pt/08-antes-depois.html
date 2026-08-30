@@ -26,10 +26,37 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-antesdepois .ex-line:last-child { margin-bottom: 0; }
 .pt-antesdepois .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-antesdepois .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-antesdepois .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-antesdepois .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-antesdepois .desc-box h3:hover .spk-btn,
+.pt-antesdepois .ex-line:hover .spk-btn,
+.pt-antesdepois .spk-btn:focus-visible { opacity: 1; }
+.pt-antesdepois .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-antesdepois .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-antesdepois .spk-btn { opacity: 0.4; }
+}
 
 .pt-antesdepois .example-box {
   background: #1a1a1a !important;
@@ -104,22 +131,22 @@
 <h2>7. Antes / depois <span class="en">(Before / after)</span></h2>
 
 <div class="desc-box">
-  <h3>Antes de / depois de <span class="en">(Before / after — followed by a noun or verb)</span></h3>
+  <h3 data-pt="Antes de / depois de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Antes de / depois de <span class="en">(Before / after — followed by a noun or verb)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">antes de</span><span class="en-eq">before</span></p>
-    <p class="ex-line"><span class="pt-word">depois de</span><span class="en-eq">after</span></p>
+    <p class="ex-line" data-pt="antes de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">antes de</span><span class="en-eq">before</span></p>
+    <p class="ex-line" data-pt="depois de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">depois de</span><span class="en-eq">after</span></p>
   </div>
 </div>
 
 <div class="example-box">
   <h4>Exemplos com antes de / depois de</h4>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Antes de</span> sair, fecho a porta.<span class="en-eq">Before leaving, I close the door.</span></p>
-    <p class="ex-line"><span class="pt-word">Depois de</span> comer, lavo os dentes.<span class="en-eq">After eating, I brush my teeth.</span></p>
-    <p class="ex-line">Chegámos <span class="pt-word">antes das</span> nove.<span class="en-eq">We arrived before nine.</span></p>
-    <p class="ex-line">Ele saiu <span class="pt-word">depois de</span> mim.<span class="en-eq">He left after me.</span></p>
-    <p class="ex-line"><span class="pt-word">Antes do</span> trabalho, vou ao ginásio.<span class="en-eq">Before work, I go to the gym.</span></p>
-    <p class="ex-line"><span class="pt-word">Depois da</span> reunião, vamos almoçar.<span class="en-eq">After the meeting, we're going to lunch.</span></p>
+    <p class="ex-line" data-pt="Antes de sair, fecho a porta."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Antes de</span> sair, fecho a porta.<span class="en-eq">Before leaving, I close the door.</span></p>
+    <p class="ex-line" data-pt="Depois de comer, lavo os dentes."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Depois de</span> comer, lavo os dentes.<span class="en-eq">After eating, I brush my teeth.</span></p>
+    <p class="ex-line" data-pt="Chegámos antes das nove."><button class="spk-btn" aria-label="Ouvir">🔊</button>Chegámos <span class="pt-word">antes das</span> nove.<span class="en-eq">We arrived before nine.</span></p>
+    <p class="ex-line" data-pt="Ele saiu depois de mim."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ele saiu <span class="pt-word">depois de</span> mim.<span class="en-eq">He left after me.</span></p>
+    <p class="ex-line" data-pt="Antes do trabalho, vou ao ginásio."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Antes do</span> trabalho, vou ao ginásio.<span class="en-eq">Before work, I go to the gym.</span></p>
+    <p class="ex-line" data-pt="Depois da reunião, vamos almoçar."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Depois da</span> reunião, vamos almoçar.<span class="en-eq">After the meeting, we're going to lunch.</span></p>
   </div>
 </div>
 
@@ -127,7 +154,7 @@
   <h4>Exercícios — Antes / depois</h4>
 
   <div class="exercise-item">
-    <p class="ex-label">6.1. Traduza (uma ou duas palavras).</p>
+    <p class="ex-label">1. Traduza (uma ou duas palavras).</p>
     <ol class="cue-list">
       <li><span class="cue">before</span> <span class="reveal">antes de</span></li>
       <li><span class="cue">after</span> <span class="reveal">depois de</span></li>
@@ -138,7 +165,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">6.2. Complete com "antes de" ou "depois de".</p>
+    <p class="ex-label">2. Complete com "antes de" ou "depois de".</p>
     <p class="question">
       <span class="blank-word"><span class="underscore">___</span><span class="fill">Antes de</span></span> sair, fecho a porta.<br>
       <span class="blank-word"><span class="underscore">___</span><span class="fill">Depois de</span></span> comer, lavo os dentes.<br>
@@ -150,7 +177,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">6.3. Traduza as frases.</p>
+    <p class="ex-label">3. Traduza as frases.</p>
     <ol class="cue-list">
       <li><span class="cue">Before leaving, I close the door.</span> <span class="reveal">Antes de sair, fecho a porta.</span></li>
       <li><span class="cue">After eating, I brush my teeth.</span> <span class="reveal">Depois de comer, lavo os dentes.</span></li>
