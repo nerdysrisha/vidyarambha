@@ -26,10 +26,37 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-expressoes .ex-line:last-child { margin-bottom: 0; }
 .pt-expressoes .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-expressoes .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-expressoes .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-expressoes .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-expressoes .desc-box h3:hover .spk-btn,
+.pt-expressoes .ex-line:hover .spk-btn,
+.pt-expressoes .spk-btn:focus-visible { opacity: 1; }
+.pt-expressoes .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-expressoes .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-expressoes .spk-btn { opacity: 0.4; }
+}
 
 .pt-expressoes .example-box {
   background: #1a1a1a !important;
@@ -102,88 +129,88 @@
 </style>
 <h2>9. Expressões <span class="en">(Expressions)</span></h2>
 <div class="desc-box">
-  <h3>Saudações e despedidas <span class="en">(Greetings and farewells)</span></h3>
+  <h3 data-pt="Saudações e despedidas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Saudações e despedidas <span class="en">(Greetings and farewells)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Bom dia</span><span class="en-eq">Good morning</span></p>
-    <p class="ex-line"><span class="pt-word">Boa tarde</span><span class="en-eq">Good afternoon</span></p>
-    <p class="ex-line"><span class="pt-word">Boa noite</span><span class="en-eq">Good evening / Good night</span></p>
-    <p class="ex-line"><span class="pt-word">Olá</span><span class="en-eq">Hello</span></p>
-    <p class="ex-line"><span class="pt-word">Adeus</span><span class="en-eq">Goodbye</span></p>
-    <p class="ex-line"><span class="pt-word">Até logo</span><span class="en-eq">See you later</span></p>
-    <p class="ex-line"><span class="pt-word">Até amanhã</span><span class="en-eq">See you tomorrow</span></p>
-    <p class="ex-line"><span class="pt-word">Por favor</span><span class="en-eq">Please</span></p>
-    <p class="ex-line"><span class="pt-word">Obrigado/a</span><span class="en-eq">Thank you</span></p>
-    <p class="ex-line"><span class="pt-word">Desculpa</span><span class="en-eq">Sorry</span></p>
-    <p class="ex-line"><span class="pt-word">Com licença</span><span class="en-eq">Excuse me</span></p>
-    <p class="ex-line"><span class="pt-word">Muito prazer</span><span class="en-eq">Nice to meet you</span></p>
+    <p class="ex-line" data-pt="Bom dia"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom dia</span><span class="en-eq">Good morning</span></p>
+    <p class="ex-line" data-pt="Boa tarde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa tarde</span><span class="en-eq">Good afternoon</span></p>
+    <p class="ex-line" data-pt="Boa noite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa noite</span><span class="en-eq">Good evening / Good night</span></p>
+    <p class="ex-line" data-pt="Olá"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Olá</span><span class="en-eq">Hello</span></p>
+    <p class="ex-line" data-pt="Adeus"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Adeus</span><span class="en-eq">Goodbye</span></p>
+    <p class="ex-line" data-pt="Até logo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Até logo</span><span class="en-eq">See you later</span></p>
+    <p class="ex-line" data-pt="Até amanhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Até amanhã</span><span class="en-eq">See you tomorrow</span></p>
+    <p class="ex-line" data-pt="Por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Por favor</span><span class="en-eq">Please</span></p>
+    <p class="ex-line" data-pt="Obrigado/a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Obrigado/a</span><span class="en-eq">Thank you</span></p>
+    <p class="ex-line" data-pt="Desculpa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Desculpa</span><span class="en-eq">Sorry</span></p>
+    <p class="ex-line" data-pt="Com licença"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Com licença</span><span class="en-eq">Excuse me</span></p>
+    <p class="ex-line" data-pt="Muito prazer"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Muito prazer</span><span class="en-eq">Nice to meet you</span></p>
   </div>
-  <h3>Votos de boa sorte <span class="en">(Good wishes)</span></h3>
+  <h3 data-pt="Votos de boa sorte"><button class="spk-btn" aria-label="Ouvir">🔊</button>Votos de boa sorte <span class="en">(Good wishes)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Boa quinta-feira</span><span class="en-eq">Have a good Thursday</span></p>
-    <p class="ex-line"><span class="pt-word">Boa viagem</span><span class="en-eq">Have a good trip</span></p>
-    <p class="ex-line"><span class="pt-word">Boa sorte</span><span class="en-eq">Good luck</span></p>
-    <p class="ex-line"><span class="pt-word">Boa reunião</span><span class="en-eq">Have a good meeting</span></p>
-    <p class="ex-line"><span class="pt-word">Boa conversa</span><span class="en-eq">Have a good conversation</span></p>
-    <p class="ex-line"><span class="pt-word">Bom trabalho</span><span class="en-eq">Good work</span></p>
-    <p class="ex-line"><span class="pt-word">Bom almoço</span><span class="en-eq">Enjoy your lunch</span></p>
-    <p class="ex-line"><span class="pt-word">Bom sábado</span><span class="en-eq">Have a good Saturday</span></p>
-    <p class="ex-line"><span class="pt-word">Bom fim de semana</span><span class="en-eq">Have a good weekend</span></p>
-    <p class="ex-line"><span class="pt-word">Bom dia</span><span class="en-eq">Have a good day</span></p>
-    <p class="ex-line"><span class="pt-word">Bom sonho</span><span class="en-eq">Sweet dreams</span></p>
+    <p class="ex-line" data-pt="Boa quinta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa quinta-feira</span><span class="en-eq">Have a good Thursday</span></p>
+    <p class="ex-line" data-pt="Boa viagem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa viagem</span><span class="en-eq">Have a good trip</span></p>
+    <p class="ex-line" data-pt="Boa sorte"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa sorte</span><span class="en-eq">Good luck</span></p>
+    <p class="ex-line" data-pt="Boa reunião"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa reunião</span><span class="en-eq">Have a good meeting</span></p>
+    <p class="ex-line" data-pt="Boa conversa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boa conversa</span><span class="en-eq">Have a good conversation</span></p>
+    <p class="ex-line" data-pt="Bom trabalho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom trabalho</span><span class="en-eq">Good work</span></p>
+    <p class="ex-line" data-pt="Bom almoço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom almoço</span><span class="en-eq">Enjoy your lunch</span></p>
+    <p class="ex-line" data-pt="Bom sábado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom sábado</span><span class="en-eq">Have a good Saturday</span></p>
+    <p class="ex-line" data-pt="Bom fim de semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom fim de semana</span><span class="en-eq">Have a good weekend</span></p>
+    <p class="ex-line" data-pt="Bom dia"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom dia</span><span class="en-eq">Have a good day</span></p>
+    <p class="ex-line" data-pt="Bom sonho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom sonho</span><span class="en-eq">Sweet dreams</span></p>
   </div>
-  <h3>Pedidos educados <span class="en">(Polite requests)</span></h3>
+  <h3 data-pt="Pedidos educados"><button class="spk-btn" aria-label="Ouvir">🔊</button>Pedidos educados <span class="en">(Polite requests)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Abra a porta, por favor</span><span class="en-eq">Open the door, please</span></p>
-    <p class="ex-line"><span class="pt-word">Pode repetir, por favor</span><span class="en-eq">Can you repeat, please</span></p>
-    <p class="ex-line"><span class="pt-word">Pode repetir, se faz favor</span><span class="en-eq">Can you repeat, please</span></p>
+    <p class="ex-line" data-pt="Abra a porta, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Abra a porta, por favor</span><span class="en-eq">Open the door, please</span></p>
+    <p class="ex-line" data-pt="Pode repetir, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Pode repetir, por favor</span><span class="en-eq">Can you repeat, please</span></p>
+    <p class="ex-line" data-pt="Pode repetir, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Pode repetir, se faz favor</span><span class="en-eq">Can you repeat, please</span></p>
   </div>
-  <h3>Perguntar / responder como está <span class="en">(Asking / answering how someone is)</span></h3>
+  <h3 data-pt="Perguntar / responder como está"><button class="spk-btn" aria-label="Ouvir">🔊</button>Perguntar / responder como está <span class="en">(Asking / answering how someone is)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Como está?</span><span class="en-eq">How are you?</span></p>
-    <p class="ex-line"><span class="pt-word">Como estás?</span><span class="en-eq">How are you?</span></p>
-    <p class="ex-line"><span class="pt-word">Estou bem, obrigado/a</span><span class="en-eq">I'm well, thank you</span></p>
-    <p class="ex-line"><span class="pt-word">E consigo?</span><span class="en-eq">And you?</span></p>
-    <p class="ex-line"><span class="pt-word">E contigo?</span><span class="en-eq">And you?</span></p>
-    <p class="ex-line"><span class="pt-word">Tudo bem?</span><span class="en-eq">How are you? / Everything okay?</span></p>
-    <p class="ex-line"><span class="pt-word">Tudo bem, obrigado/a.</span><span class="en-eq">Fine, thank you.</span></p>
+    <p class="ex-line" data-pt="Como está?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como está?</span><span class="en-eq">How are you?</span></p>
+    <p class="ex-line" data-pt="Como estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como estás?</span><span class="en-eq">How are you?</span></p>
+    <p class="ex-line" data-pt="Estou bem, obrigado/a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou bem, obrigado/a</span><span class="en-eq">I'm well, thank you</span></p>
+    <p class="ex-line" data-pt="E consigo?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E consigo?</span><span class="en-eq">And you?</span></p>
+    <p class="ex-line" data-pt="E contigo?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E contigo?</span><span class="en-eq">And you?</span></p>
+    <p class="ex-line" data-pt="Tudo bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tudo bem?</span><span class="en-eq">How are you? / Everything okay?</span></p>
+    <p class="ex-line" data-pt="Tudo bem, obrigado/a."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tudo bem, obrigado/a.</span><span class="en-eq">Fine, thank you.</span></p>
   </div>
-  <h3>Conhecer alguém <span class="en">(Meeting someone)</span></h3>
+  <h3 data-pt="Conhecer alguém"><button class="spk-btn" aria-label="Ouvir">🔊</button>Conhecer alguém <span class="en">(Meeting someone)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Muito prazer</span><span class="en-eq">Nice to meet you</span></p>
-    <p class="ex-line"><span class="pt-word">Muito prazer em conhecê-lo</span><span class="en-eq">Nice to meet you (male)</span></p>
-    <p class="ex-line"><span class="pt-word">Muito prazer em conhecê-la</span><span class="en-eq">Nice to meet you (female)</span></p>
-    <p class="ex-line"><span class="pt-word">Igualmente</span><span class="en-eq">Likewise</span></p>
-    <p class="ex-line"><span class="pt-word">Para mim também</span><span class="en-eq">Me too</span></p>
+    <p class="ex-line" data-pt="Muito prazer"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Muito prazer</span><span class="en-eq">Nice to meet you</span></p>
+    <p class="ex-line" data-pt="Muito prazer em conhecê-lo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Muito prazer em conhecê-lo</span><span class="en-eq">Nice to meet you (male)</span></p>
+    <p class="ex-line" data-pt="Muito prazer em conhecê-la"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Muito prazer em conhecê-la</span><span class="en-eq">Nice to meet you (female)</span></p>
+    <p class="ex-line" data-pt="Igualmente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Igualmente</span><span class="en-eq">Likewise</span></p>
+    <p class="ex-line" data-pt="Para mim também"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Para mim também</span><span class="en-eq">Me too</span></p>
   </div>
-  <h3>Expressões úteis do dia a dia <span class="en">(Useful everyday expressions)</span></h3>
+  <h3 data-pt="Expressões úteis do dia a dia"><button class="spk-btn" aria-label="Ouvir">🔊</button>Expressões úteis do dia a dia <span class="en">(Useful everyday expressions)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Já está?</span><span class="en-eq">Is it done? / Is that it?</span></p>
-    <p class="ex-line"><span class="pt-word">Ainda não</span><span class="en-eq">Not yet</span></p>
-    <p class="ex-line"><span class="pt-word">É tudo?</span><span class="en-eq">Is that all?</span></p>
-    <p class="ex-line"><span class="pt-word">Ainda há mais</span><span class="en-eq">There is still more</span></p>
-    <p class="ex-line"><span class="pt-word">Porquê?</span><span class="en-eq">Why?</span></p>
-    <p class="ex-line"><span class="pt-word">Porque...</span><span class="en-eq">Because...</span></p>
-    <p class="ex-line"><span class="pt-word">Também</span><span class="en-eq">Also / Too</span></p>
-    <p class="ex-line"><span class="pt-word">Está bem</span><span class="en-eq">Okay</span></p>
-    <p class="ex-line"><span class="pt-word">Tá bem</span><span class="en-eq">Okay</span></p>
+    <p class="ex-line" data-pt="Já está?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Já está?</span><span class="en-eq">Is it done? / Is that it?</span></p>
+    <p class="ex-line" data-pt="Ainda não"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ainda não</span><span class="en-eq">Not yet</span></p>
+    <p class="ex-line" data-pt="É tudo?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É tudo?</span><span class="en-eq">Is that all?</span></p>
+    <p class="ex-line" data-pt="Ainda há mais"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ainda há mais</span><span class="en-eq">There is still more</span></p>
+    <p class="ex-line" data-pt="Porquê?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Porquê?</span><span class="en-eq">Why?</span></p>
+    <p class="ex-line" data-pt="Porque..."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Porque...</span><span class="en-eq">Because...</span></p>
+    <p class="ex-line" data-pt="Também"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Também</span><span class="en-eq">Also / Too</span></p>
+    <p class="ex-line" data-pt="Está bem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Está bem</span><span class="en-eq">Okay</span></p>
+    <p class="ex-line" data-pt="Tá bem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tá bem</span><span class="en-eq">Okay</span></p>
   </div>
 </div>
 <div class="example-box">
   <h4>Exemplos</h4>
   <div class="example-list">
-    <p class="ex-line">Bom dia! Como está?<span class="en-eq">Good morning! How are you?</span></p>
-    <p class="ex-line">Boa viagem!<span class="en-eq">Have a good trip!</span></p>
-    <p class="ex-line">Pode repetir, por favor?<span class="en-eq">Can you repeat, please?</span></p>
-    <p class="ex-line">Tudo bem, obrigado.<span class="en-eq">Fine, thank you.</span></p>
-    <p class="ex-line">Muito prazer em conhecê-la.<span class="en-eq">Nice to meet you.</span></p>
-    <p class="ex-line">Ainda não.<span class="en-eq">Not yet.</span></p>
-    <p class="ex-line">É tudo?<span class="en-eq">Is that all?</span></p>
+    <p class="ex-line" data-pt="Bom dia! Como está?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Bom dia! Como está?<span class="en-eq">Good morning! How are you?</span></p>
+    <p class="ex-line" data-pt="Boa viagem!"><button class="spk-btn" aria-label="Ouvir">🔊</button>Boa viagem!<span class="en-eq">Have a good trip!</span></p>
+    <p class="ex-line" data-pt="Pode repetir, por favor?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Pode repetir, por favor?<span class="en-eq">Can you repeat, please?</span></p>
+    <p class="ex-line" data-pt="Tudo bem, obrigado."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tudo bem, obrigado.<span class="en-eq">Fine, thank you.</span></p>
+    <p class="ex-line" data-pt="Muito prazer em conhecê-la."><button class="spk-btn" aria-label="Ouvir">🔊</button>Muito prazer em conhecê-la.<span class="en-eq">Nice to meet you.</span></p>
+    <p class="ex-line" data-pt="Ainda não."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ainda não.<span class="en-eq">Not yet.</span></p>
+    <p class="ex-line" data-pt="É tudo?"><button class="spk-btn" aria-label="Ouvir">🔊</button>É tudo?<span class="en-eq">Is that all?</span></p>
   </div>
 </div>
 <div class="exercise-box">
   <h4>Exercícios — Expressões</h4>
   <div class="exercise-item">
-    <p class="ex-label">9.1. Traduza.</p>
+    <p class="ex-label">1. Traduza.</p>
     <p class="ex-note">Perguntas curtas e frases simples.</p>
     <ol class="cue-list">
       <li><span class="cue">Bom dia</span> <span class="reveal">Good morning</span></li>
@@ -198,7 +225,7 @@
     <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
   </div>
   <div class="exercise-item">
-    <p class="ex-label">9.2. Complete as frases.</p>
+    <p class="ex-label">2. Complete as frases.</p>
     <p class="question">
       <span class="blank-word"><span class="underscore">___</span><span class="fill">Bom dia</span></span>Bom dia!<br>
       <span class="blank-word"><span class="underscore">___</span><span class="fill">Boa viagem</span></span>Boa viagem!<br>
@@ -210,7 +237,7 @@
     <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
   </div>
   <div class="exercise-item">
-    <p class="ex-label">9.3. Traduza as frases.</p>
+    <p class="ex-label">3. Traduza as frases.</p>
     <ol class="cue-list">
       <li><span class="cue">Good morning!</span> <span class="reveal">Bom dia!</span></li>
       <li><span class="cue">Have a good trip!</span> <span class="reveal">Boa viagem!</span></li>

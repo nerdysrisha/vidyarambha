@@ -25,10 +25,57 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-verbos .ex-line:last-child { margin-bottom: 0; }
 .pt-verbos .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-verbos .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-verbos .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-verbos .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-verbos .desc-box h3:hover .spk-btn,
+.pt-verbos .ex-line:hover .spk-btn,
+.pt-verbos .spk-btn:focus-visible { opacity: 1; }
+.pt-verbos .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-verbos .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-verbos .spk-btn { opacity: 0.4; }
+}
+
+.pt-verbos .spk-inline {
+  display: inline-block;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0 2px;
+  line-height: 1;
+  font-size: 0.82em;
+  color: #a1521f;
+  opacity: 0;
+  vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-verbos .desc-box > p:hover .spk-inline,
+.pt-verbos .spk-inline:focus-visible,
+.pt-verbos .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-verbos .spk-inline { opacity: 0.4; }
+}
 
 .pt-verbos .example-box {
   background: #1a1a1a !important;
@@ -95,57 +142,68 @@
 <h2>10. Tipos de verbos <span class="en">(Verb types)</span></h2>
 
 <div class="desc-box">
-  <p><em>Portuguese regular verbs are grouped according to their infinitive endings.</em></p>
-  <h3>Verbos em -ar <span class="en">(-ar verbs)</span></h3>
+  <p>Portuguese regular verbs are grouped by their infinitive ending — <span class="pt-word">-ar</span><button class="spk-inline" data-pt="ar" aria-label="Ouvir">🔊</button>, <span class="pt-word">-er</span><button class="spk-inline" data-pt="er" aria-label="Ouvir">🔊</button>, or <span class="pt-word">-ir</span><button class="spk-inline" data-pt="ir" aria-label="Ouvir">🔊</button> — because that ending decides which set of endings gets attached for every tense and person. There's also a tiny fourth group, <span class="pt-word">-or</span><button class="spk-inline" data-pt="or" aria-label="Ouvir">🔊</button>, but it's really just <span class="pt-word">pôr</span><button class="spk-inline" data-pt="pôr" aria-label="Ouvir">🔊</button> and its compounds (<span class="pt-word">repor</span><button class="spk-inline" data-pt="repor" aria-label="Ouvir">🔊</button>, <span class="pt-word">compor</span><button class="spk-inline" data-pt="compor" aria-label="Ouvir">🔊</button>, <span class="pt-word">opor</span><button class="spk-inline" data-pt="opor" aria-label="Ouvir">🔊</button>), and it doesn't follow a regular pattern at all — it's more something to recognize than to conjugate by rule. The overview below shows the shape of each group before we look at each one individually.</p>
+
+  <h3 data-pt="Padrão completo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Padrão completo <span class="en">(Full pattern at a glance)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">falar</span><span class="en-eq">to speak</span></p>
-    <p class="ex-line"><span class="pt-word">cantar</span><span class="en-eq">to sing</span></p>
-    <p class="ex-line"><span class="pt-word">jantar</span><span class="en-eq">to have dinner</span></p>
-    <p class="ex-line"><span class="pt-word">morar</span><span class="en-eq">to live</span></p>
-    <p class="ex-line"><span class="pt-word">trabalhar</span><span class="en-eq">to work</span></p>
-    <p class="ex-line"><span class="pt-word">comprar</span><span class="en-eq">to buy</span></p>
-    <p class="ex-line"><span class="pt-word">brincar</span><span class="en-eq">to play</span></p>
-    <p class="ex-line"><span class="pt-word">jogar</span><span class="en-eq">to play</span></p>
+    <p class="ex-line" data-pt="-ar: falar, brincar, trabalhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-ar: falar, brincar, trabalhar</span></p>
+    <p class="ex-line" data-pt="-er: beber, comer, escrever, fazer"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-er: beber, comer, escrever, fazer</span></p>
+    <p class="ex-line" data-pt="-ir: abrir, dormir, partir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-ir: abrir, dormir, partir</span></p>
+    <p class="ex-line" data-pt="-or: pôr"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-or: pôr</span></p>
   </div>
 
-  <h3>Verbos em -er <span class="en">(-er verbs)</span></h3>
+  <h3 data-pt="Verbos em -ar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos em -ar <span class="en">(-ar verbs)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">comer</span><span class="en-eq">to eat</span></p>
-    <p class="ex-line"><span class="pt-word">beber</span><span class="en-eq">to drink</span></p>
-    <p class="ex-line"><span class="pt-word">ler</span><span class="en-eq">to read</span></p>
+    <p class="ex-line" data-pt="falar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falar</span><span class="en-eq">to speak</span></p>
+    <p class="ex-line" data-pt="cantar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">cantar</span><span class="en-eq">to sing</span></p>
+    <p class="ex-line" data-pt="jantar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">jantar</span><span class="en-eq">to have dinner</span></p>
+    <p class="ex-line" data-pt="morar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">morar</span><span class="en-eq">to live</span></p>
+    <p class="ex-line" data-pt="trabalhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhar</span><span class="en-eq">to work</span></p>
+    <p class="ex-line" data-pt="comprar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">comprar</span><span class="en-eq">to buy</span></p>
+    <p class="ex-line" data-pt="brincar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">brincar</span><span class="en-eq">to play</span></p>
+    <p class="ex-line" data-pt="jogar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">jogar</span><span class="en-eq">to play</span></p>
   </div>
 
-  <h3>Verbos em -ir <span class="en">(-ir verbs)</span></h3>
+  <h3 data-pt="Verbos em -er"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos em -er <span class="en">(-er verbs)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">partir</span><span class="en-eq">to leave</span></p>
-    <p class="ex-line"><span class="pt-word">dormir</span><span class="en-eq">to sleep</span></p>
-    <p class="ex-line"><span class="pt-word">sair</span><span class="en-eq">to go out</span></p>
+    <p class="ex-line" data-pt="comer"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">comer</span><span class="en-eq">to eat</span></p>
+    <p class="ex-line" data-pt="beber"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">beber</span><span class="en-eq">to drink</span></p>
+    <p class="ex-line" data-pt="ler"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ler</span><span class="en-eq">to read</span></p>
+    <p class="ex-line" data-pt="escrever"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">escrever</span><span class="en-eq">to write</span></p>
+    <p class="ex-line" data-pt="vender"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">vender</span><span class="en-eq">to sell</span></p>
+    <p class="ex-line" data-pt="aprender"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aprender</span><span class="en-eq">to learn</span></p>
+    <p class="ex-line" data-pt="correr"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">correr</span><span class="en-eq">to run</span></p>
   </div>
 
-  <h3>Verbos em -or <span class="en">(Verbs ending in -or)</span></h3>
+  <h3 data-pt="Verbos em -ir"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos em -ir <span class="en">(-ir verbs)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">pôr</span><span class="en-eq">to put</span></p>
+    <p class="ex-line" data-pt="partir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">partir</span><span class="en-eq">to leave</span></p>
+    <p class="ex-line" data-pt="dormir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dormir</span><span class="en-eq">to sleep</span></p>
+    <p class="ex-line" data-pt="sair"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sair</span><span class="en-eq">to go out</span></p>
+    <p class="ex-line" data-pt="abrir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">abrir</span><span class="en-eq">to open</span></p>
+    <p class="ex-line" data-pt="assistir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">assistir</span><span class="en-eq">to watch / attend</span></p>
+    <p class="ex-line" data-pt="decidir"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">decidir</span><span class="en-eq">to decide</span></p>
   </div>
 
-  <h3>Padrão completo <span class="en">(Full pattern)</span></h3>
+  <h3 data-pt="Verbos em -or"><button class="spk-btn" aria-label="Ouvir">🔊</button>Verbos em -or <span class="en">(Verbs ending in -or)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">-ar: falar, brincar, trabalhar</span></p>
-    <p class="ex-line"><span class="pt-word">-er: beber, comer, escrever, fazer</span></p>
-    <p class="ex-line"><span class="pt-word">-ir: abrir, dormir, partir</span></p>
-    <p class="ex-line"><span class="pt-word">-or: pôr</span></p>
+    <p class="ex-line" data-pt="pôr"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pôr</span><span class="en-eq">to put</span></p>
+    <p class="ex-line" data-pt="repor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">repor</span><span class="en-eq">to replace / restock</span></p>
+    <p class="ex-line" data-pt="compor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">compor</span><span class="en-eq">to compose</span></p>
+    <p class="ex-line" data-pt="opor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">opor</span><span class="en-eq">to oppose</span></p>
   </div>
 </div>
 
 <div class="example-box">
   <h4>Exemplos</h4>
   <div class="example-list">
-    <p class="ex-line">Eu gosto de <span class="pt-word">falar</span> português.<span class="en-eq">I like to speak Portuguese.</span></p>
-    <p class="ex-line">Nós vamos <span class="pt-word">comer</span> agora.<span class="en-eq">We are going to eat now.</span></p>
-    <p class="ex-line">Eu quero <span class="pt-word">ler</span>.<span class="en-eq">I want to read.</span></p>
-    <p class="ex-line">Eles vão <span class="pt-word">partir</span> amanhã.<span class="en-eq">They are leaving tomorrow.</span></p>
-    <p class="ex-line">Eu preciso de <span class="pt-word">dormir</span>.<span class="en-eq">I need to sleep.</span></p>
-    <p class="ex-line">Vou <span class="pt-word">sair</span> agora.<span class="en-eq">I am going out now.</span></p>
-    <p class="ex-line">Vou <span class="pt-word">pôr</span> o livro aqui.<span class="en-eq">I will put the book here.</span></p>
+    <p class="ex-line" data-pt="Eu gosto de falar português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu gosto de <span class="pt-word">falar</span> português.<span class="en-eq">I like to speak Portuguese.</span></p>
+    <p class="ex-line" data-pt="Nós vamos comer agora."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós vamos <span class="pt-word">comer</span> agora.<span class="en-eq">We are going to eat now.</span></p>
+    <p class="ex-line" data-pt="Eu quero ler."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu quero <span class="pt-word">ler</span>.<span class="en-eq">I want to read.</span></p>
+    <p class="ex-line" data-pt="Eles vão partir amanhã."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles vão <span class="pt-word">partir</span> amanhã.<span class="en-eq">They are leaving tomorrow.</span></p>
+    <p class="ex-line" data-pt="Eu preciso de dormir."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu preciso de <span class="pt-word">dormir</span>.<span class="en-eq">I need to sleep.</span></p>
+    <p class="ex-line" data-pt="Vou sair agora."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vou <span class="pt-word">sair</span> agora.<span class="en-eq">I am going out now.</span></p>
+    <p class="ex-line" data-pt="Vou pôr o livro aqui."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vou <span class="pt-word">pôr</span> o livro aqui.<span class="en-eq">I will put the book here.</span></p>
   </div>
 </div>
 
@@ -153,7 +211,7 @@
   <h4>Exercícios — Tipos de verbos</h4>
 
   <div class="exercise-item">
-    <p class="ex-label">10.1. Qual é a terminação?</p>
+    <p class="ex-label">1. Qual é a terminação?</p>
     <p class="ex-note">Identifique a terminação do infinitivo.</p>
     <ol class="cue-list">
       <li><span class="cue">falar</span> <span class="reveal">-ar</span></li>
@@ -167,7 +225,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">10.2. Complete.</p>
+    <p class="ex-label">2. Complete.</p>
     <p class="ex-note">Complete com o verbo correto.</p>
     <ol class="cue-list">
       <li><span class="cue">Eu gosto de ___ português. (falar)</span> <span class="reveal">falar</span></li>
@@ -180,7 +238,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">10.3. Perguntas rápidas.</p>
+    <p class="ex-label">3. Perguntas rápidas.</p>
     <p class="ex-note">Perguntas de duas palavras e frases simples. As respostas ficam escondidas.</p>
     <ol class="cue-list">
       <li><span class="cue">Que terminação? — falar</span> <span class="reveal">-ar</span></li>
