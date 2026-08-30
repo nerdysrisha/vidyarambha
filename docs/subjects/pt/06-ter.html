@@ -28,10 +28,39 @@
   line-height: 1.7;
   margin: 0 0 6px 0;
   padding-left: 2em;
+  position: relative;
 }
 .pt-ter .ex-line:last-child { margin-bottom: 0; }
 .pt-ter .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-ter .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-ter .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-ter .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 12px 0; }
+.pt-ter .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-ter .desc-box h3:hover .spk-btn,
+.pt-ter .desc-box .desc-ex:hover .spk-btn,
+.pt-ter .ex-line:hover .spk-btn,
+.pt-ter .spk-btn:focus-visible { opacity: 1; }
+.pt-ter .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-ter .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-ter .spk-btn { opacity: 0.4; }
+}
 
 .pt-ter .example-box {
   background: #1a1a1a !important;
@@ -110,33 +139,33 @@
 <h2>6. Ter <span class="en">(+ Há)</span></h2>
 
 <div class="desc-box">
-  <h3><span class="pt-word">ter</span> <span class="en">(to have)</span></h3>
-  <p>eu <span class="pt-word">tenho</span>, tu <span class="pt-word">tens</span>, ele/ela/você <span class="pt-word">tem</span>, nós <span class="pt-word">temos</span>, eles/elas/vocês <span class="pt-word">têm</span></p>
+  <h3 data-pt="ter"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ter</span> <span class="en">(to have)</span></h3>
+  <p class="desc-ex" data-pt="tenho, tens, tem, temos, têm"><button class="spk-btn" aria-label="Ouvir">🔊</button>eu <span class="pt-word">tenho</span>, tu <span class="pt-word">tens</span>, ele/ela/você <span class="pt-word">tem</span>, nós <span class="pt-word">temos</span>, eles/elas/vocês <span class="pt-word">têm</span></p>
 
-  <h3>Ter fome / ter sede <span class="en">(To be hungry / thirsty)</span></h3>
+  <h3 data-pt="Ter fome / ter sede"><button class="spk-btn" aria-label="Ouvir">🔊</button>Ter fome / ter sede <span class="en">(To be hungry / thirsty)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="ter-tag">ter:</span> <span class="pt-word">Tenho</span> fome.<span class="en-eq">I'm hungry.</span></p>
-    <p class="ex-line"><span class="pt-word">Tenho</span> sede.<span class="en-eq">I'm thirsty.</span></p>
-    <p class="ex-line">Tu <span class="pt-word">tens</span> fome?<span class="en-eq">Are you hungry?</span></p>
-    <p class="ex-line">Ele <span class="pt-word">tem</span> sede.<span class="en-eq">He's thirsty.</span></p>
+    <p class="ex-line" data-pt="ter: Tenho fome."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="ter-tag">ter:</span> <span class="pt-word">Tenho</span> fome.<span class="en-eq">I'm hungry.</span></p>
+    <p class="ex-line" data-pt="Tenho sede."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho</span> sede.<span class="en-eq">I'm thirsty.</span></p>
+    <p class="ex-line" data-pt="Tu tens fome?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">tens</span> fome?<span class="en-eq">Are you hungry?</span></p>
+    <p class="ex-line" data-pt="Ele tem sede."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ele <span class="pt-word">tem</span> sede.<span class="en-eq">He's thirsty.</span></p>
   </div>
 
-  <h3>Contrast: estar com <span class="en">(same meaning, different construction)</span></h3>
+  <h3 data-pt="estar com"><button class="spk-btn" aria-label="Ouvir">🔊</button>Contrast: estar com <span class="en">(same meaning, different construction)</span></h3>
   <div class="example-list">
-    <p class="ex-line"><span class="estar-tag">estar com:</span> <span class="pt-word">Estou</span> com fome.<span class="en-eq">I'm hungry.</span></p>
-    <p class="ex-line"><span class="pt-word">Estou</span> com sede.<span class="en-eq">I'm thirsty.</span></p>
-    <p class="ex-line">Eles <span class="pt-word">estão</span> com fome.<span class="en-eq">They're hungry.</span></p>
+    <p class="ex-line" data-pt="estar com: Estou com fome."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="estar-tag">estar com:</span> <span class="pt-word">Estou</span> com fome.<span class="en-eq">I'm hungry.</span></p>
+    <p class="ex-line" data-pt="Estou com sede."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou</span> com sede.<span class="en-eq">I'm thirsty.</span></p>
+    <p class="ex-line" data-pt="Eles estão com fome."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles <span class="pt-word">estão</span> com fome.<span class="en-eq">They're hungry.</span></p>
   </div>
 </div>
 
 <div class="example-box">
   <h4>Há — there is / there are <span style="color:#9a9a9a; text-transform:none; font-weight:normal;">(from haver, invariable)</span></h4>
   <div class="example-list">
-    <p class="ex-line"><span class="pt-word">Há</span> um carro.<span class="en-eq">There is a car.</span></p>
-    <p class="ex-line"><span class="pt-word">Há</span> um rapaz na rua.<span class="en-eq">There is a boy in the street.</span></p>
-    <p class="ex-line"><span class="pt-word">Há</span> 20 rapazes na rua.<span class="en-eq">There are 20 boys in the street.</span></p>
-    <p class="ex-line"><span class="pt-word">Há</span> 13 pessoas na sala.<span class="en-eq">There are 13 people in the room.</span></p>
-    <p class="ex-line"><span class="pt-word">Há</span> dinheiro na carteira.<span class="en-eq">There's money in the wallet.</span></p>
+    <p class="ex-line" data-pt="Há um carro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há</span> um carro.<span class="en-eq">There is a car.</span></p>
+    <p class="ex-line" data-pt="Há um rapaz na rua."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há</span> um rapaz na rua.<span class="en-eq">There is a boy in the street.</span></p>
+    <p class="ex-line" data-pt="Há 20 rapazes na rua."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há</span> 20 rapazes na rua.<span class="en-eq">There are 20 boys in the street.</span></p>
+    <p class="ex-line" data-pt="Há 13 pessoas na sala."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há</span> 13 pessoas na sala.<span class="en-eq">There are 13 people in the room.</span></p>
+    <p class="ex-line" data-pt="Há dinheiro na carteira."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há</span> dinheiro na carteira.<span class="en-eq">There's money in the wallet.</span></p>
   </div>
 </div>
 
@@ -144,7 +173,7 @@
   <h4>Exercícios — Ter / Há</h4>
 
   <div class="exercise-item">
-    <p class="ex-label">4.1. Complete com a forma correta de "ter".</p>
+    <p class="ex-label">1. Complete com a forma correta de "ter".</p>
     <p class="question">
       Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">tenho</span></span> um carro novo.<br>
       Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">tens</span></span> dois irmãos?<br>
@@ -161,7 +190,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">4.2. Complete com "há".</p>
+    <p class="ex-label">2. Complete com "há".</p>
     <p class="ex-note">"Há" never changes form, regardless of what follows it.</p>
     <p class="question">
       <span class="blank-word"><span class="underscore">___</span><span class="fill">Há</span></span> um livro em cima da mesa.<br>
@@ -174,7 +203,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">4.3. Faça frases completas com "ter".</p>
+    <p class="ex-label">3. Faça frases completas com "ter".</p>
     <ol class="cue-list">
       <li><span class="cue">(eu / 25 anos)</span> <span class="reveal">Eu tenho 25 anos.</span></li>
       <li><span class="cue">(tu / dois filhos)</span> <span class="reveal">Tu tens dois filhos.</span></li>
@@ -187,7 +216,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">4.4. Faça frases completas com "ter" e "estar com" (pares contrastantes).</p>
+    <p class="ex-label">4. Faça frases completas com "ter" e "estar com" (pares contrastantes).</p>
     <p class="ex-note">Each cue needs two sentences with the same meaning: one with ter, one with estar com.</p>
     <ol class="cue-list">
       <li><span class="cue">(eu / fome)</span>
@@ -211,7 +240,7 @@
   </div>
 
   <div class="exercise-item">
-    <p class="ex-label">4.5. Traduza usando "há".</p>
+    <p class="ex-label">5. Traduza usando "há".</p>
     <ol class="cue-list">
       <li><span class="cue">There are three books on the table.</span> <span class="reveal">Há três livros na mesa.</span></li>
       <li><span class="cue">Is there a bank nearby?</span> <span class="reveal">Há um banco perto?</span></li>
