@@ -19,16 +19,52 @@
 .pt-identpessoal .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-identpessoal .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
+.pt-identpessoal .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
 .pt-identpessoal .example-list { margin: 0 0 12px 0; }
 .pt-identpessoal .ex-line {
 	color: #2b2b2b !important;
 	line-height: 1.7;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-identpessoal .ex-line:last-child { margin-bottom: 0; }
 .pt-identpessoal .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-identpessoal .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-identpessoal .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-identpessoal .intro-text { position: relative; padding-left: 1.9em; }
+.pt-identpessoal .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-identpessoal .intro-text .spk-btn { top: 0.85em; }
+.pt-identpessoal .desc-box h3:hover .spk-btn,
+.pt-identpessoal .intro-text:hover .spk-btn,
+.pt-identpessoal .ex-line:hover .spk-btn,
+.pt-identpessoal .spk-btn:focus-visible { opacity: 1; }
+.pt-identpessoal .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-identpessoal .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-identpessoal .spk-btn { opacity: 0.4; }
+}
 
 .pt-identpessoal .example-box {
 	background: #1a1a1a !important;
@@ -96,117 +132,117 @@
 <h2>16. Identificação e caracterização pessoal <span class="en">(Personal identification and description)</span></h2>
 
 <div class="desc-box">
-	<p><em>This topic covers basic information used to introduce and describe yourself or another person.</em></p>
+	<p class="intro-text" data-pt="Este tópico junta o vocabulário e as frases básicas para te apresentares e falares de ti e da tua família."><button class="spk-btn" aria-label="Ouvir">🔊</button>This topic covers the basic information used to introduce and describe yourself or another person — name, where you're from, where you live, your job, age, marital status, family, and likes. It also brings together two grammar points you'll need constantly for this: profession nouns that change form for gender (<em>professor/professora</em>) or stay the same (<em>jornalista</em>), and the <em>de + artigo</em> possession pattern (<em>o livro do rapaz</em>) applied specifically to talking about people.</p>
 
-	<h3>Nome / identificação <span class="en">(Name / identification)</span></h3>
+	<h3 data-pt="Nome, identificação"><button class="spk-btn" aria-label="Ouvir">🔊</button>Nome / identificação <span class="en">(Name / identification)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Chamo-me João Costa.</span><span class="en-eq">My name is João Costa.</span></p>
+		<p class="ex-line" data-pt="Chamo-me João Costa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Chamo-me João Costa.</span><span class="en-eq">My name is João Costa.</span></p>
 	</div>
 
-	<h3>Origem / nacionalidade <span class="en">(Origin / nationality)</span></h3>
+	<h3 data-pt="Origem, nacionalidade"><button class="spk-btn" aria-label="Ouvir">🔊</button>Origem / nacionalidade <span class="en">(Origin / nationality)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Sou da Inglaterra.</span><span class="en-eq">I am from England.</span></p>
-		<p class="ex-line"><span class="pt-word">Sou de Londres.</span><span class="en-eq">I am from London.</span></p>
-		<p class="ex-line"><span class="pt-word">Falo português um pouco.</span><span class="en-eq">I speak a little Portuguese.</span></p>
-		<p class="ex-line"><span class="pt-word">Falo inglês muito bem.</span><span class="en-eq">I speak English very well.</span></p>
+		<p class="ex-line" data-pt="Sou da Inglaterra."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou da Inglaterra.</span><span class="en-eq">I am from England.</span></p>
+		<p class="ex-line" data-pt="Sou de Londres."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou de Londres.</span><span class="en-eq">I am from London.</span></p>
+		<p class="ex-line" data-pt="Falo português um pouco."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Falo português um pouco.</span><span class="en-eq">I speak a little Portuguese.</span></p>
+		<p class="ex-line" data-pt="Falo inglês muito bem."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Falo inglês muito bem.</span><span class="en-eq">I speak English very well.</span></p>
 	</div>
 
-	<h3>Morada <span class="en">(Address)</span></h3>
+	<h3 data-pt="Morada"><button class="spk-btn" aria-label="Ouvir">🔊</button>Morada <span class="en">(Address)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Moro em Saldanha.</span><span class="en-eq">I live in Saldanha.</span></p>
-		<p class="ex-line"><span class="pt-word">Moro na rua Praia de Vitória, número 6, terceiro andar, direito.</span><span class="en-eq">I live on Praia de Vitória street, number 6, third floor, right side.</span></p>
+		<p class="ex-line" data-pt="Moro em Saldanha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Moro em Saldanha.</span><span class="en-eq">I live in Saldanha.</span></p>
+		<p class="ex-line" data-pt="Moro na rua Praia de Vitória, número 6, terceiro andar, direito."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Moro na rua Praia de Vitória, número 6, terceiro andar, direito.</span><span class="en-eq">I live on Praia de Vitória street, number 6, third floor, right side.</span></p>
 	</div>
 
-	<h3>Profissão / trabalho <span class="en">(Profession / work)</span></h3>
+	<h3 data-pt="Profissão, trabalho"><button class="spk-btn" aria-label="Ouvir">🔊</button>Profissão / trabalho <span class="en">(Profession / work)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Trabalho na agricultura.</span><span class="en-eq">I work in agriculture.</span></p>
-		<p class="ex-line"><span class="pt-word">Trabalho num restaurante em Saldanha.</span><span class="en-eq">I work in a restaurant in Saldanha.</span></p>
+		<p class="ex-line" data-pt="Trabalho na agricultura."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho na agricultura.</span><span class="en-eq">I work in agriculture.</span></p>
+		<p class="ex-line" data-pt="Trabalho num restaurante em Saldanha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho num restaurante em Saldanha.</span><span class="en-eq">I work in a restaurant in Saldanha.</span></p>
 	</div>
 
-	<h3>Idade <span class="en">(Age)</span></h3>
+	<h3 data-pt="Idade"><button class="spk-btn" aria-label="Ouvir">🔊</button>Idade <span class="en">(Age)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Tenho 30 anos.</span><span class="en-eq">I am 30 years old.</span></p>
+		<p class="ex-line" data-pt="Tenho 30 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho 30 anos.</span><span class="en-eq">I am 30 years old.</span></p>
 	</div>
 
-	<h3>Estado civil <span class="en">(Marital status)</span></h3>
+	<h3 data-pt="Estado civil"><button class="spk-btn" aria-label="Ouvir">🔊</button>Estado civil <span class="en">(Marital status)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Não sou casado.</span><span class="en-eq">I am not married.</span></p>
+		<p class="ex-line" data-pt="Não sou casado."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Não sou casado.</span><span class="en-eq">I am not married.</span></p>
 	</div>
 
-	<h3>Família <span class="en">(Family)</span></h3>
+	<h3 data-pt="Família"><button class="spk-btn" aria-label="Ouvir">🔊</button>Família <span class="en">(Family)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Os meus pais vivem na Índia.</span><span class="en-eq">My parents live in India.</span></p>
+		<p class="ex-line" data-pt="Os meus pais vivem na Índia."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os meus pais vivem na Índia.</span><span class="en-eq">My parents live in India.</span></p>
 	</div>
 
-	<h3>Gostos / preferências <span class="en">(Likes / preferences)</span></h3>
+	<h3 data-pt="Gostos, preferências"><button class="spk-btn" aria-label="Ouvir">🔊</button>Gostos / preferências <span class="en">(Likes / preferences)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">Gosto muito de ver futebol.</span><span class="en-eq">I really like watching football.</span></p>
-		<p class="ex-line"><span class="pt-word">Gosto de ouvir música indiana.</span><span class="en-eq">I like listening to Indian music.</span></p>
+		<p class="ex-line" data-pt="Gosto muito de ver futebol."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosto muito de ver futebol.</span><span class="en-eq">I really like watching football.</span></p>
+		<p class="ex-line" data-pt="Gosto de ouvir música indiana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosto de ouvir música indiana.</span><span class="en-eq">I like listening to Indian music.</span></p>
 	</div>
 
-	<h3>Família — relações familiares <span class="en">(Family — family relationships)</span></h3>
+	<h3 data-pt="Família, relações familiares"><button class="spk-btn" aria-label="Ouvir">🔊</button>Família — relações familiares <span class="en">(Family — family relationships)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">filho, filha, mulher, marido, mãe, pai</span><span class="en-eq">son, daughter, wife, husband, mother, father</span></p>
-		<p class="ex-line"><span class="pt-word">sogro, sogra, irmão, irmã, cunhado</span><span class="en-eq">father-in-law, mother-in-law, brother, sister, brother-in-law</span></p>
-		<p class="ex-line"><span class="pt-word">tia, avó, primo, prima</span><span class="en-eq">aunt, grandmother, cousin (m.), cousin (f.)</span></p>
-		<p class="ex-line"><span class="pt-word">madrinha, padrinho, sobrinho, sobrinha</span><span class="en-eq">godmother, godfather, nephew, niece</span></p>
+		<p class="ex-line" data-pt="filho, filha, mulher, marido, mãe, pai"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">filho, filha, mulher, marido, mãe, pai</span><span class="en-eq">son, daughter, wife, husband, mother, father</span></p>
+		<p class="ex-line" data-pt="sogro, sogra, irmão, irmã, cunhado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sogro, sogra, irmão, irmã, cunhado</span><span class="en-eq">father-in-law, mother-in-law, brother, sister, brother-in-law</span></p>
+		<p class="ex-line" data-pt="tia, avó, primo, prima"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tia, avó, primo, prima</span><span class="en-eq">aunt, grandmother, cousin (m.), cousin (f.)</span></p>
+		<p class="ex-line" data-pt="madrinha, padrinho, sobrinho, sobrinha"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">madrinha, padrinho, sobrinho, sobrinha</span><span class="en-eq">godmother, godfather, nephew, niece</span></p>
 	</div>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">O João tem dois filhos e uma filha.</span><span class="en-eq">João has two sons and one daughter.</span></p>
-		<p class="ex-line"><span class="pt-word">A mulher dele é desempregada.</span><span class="en-eq">His wife is unemployed.</span></p>
-		<p class="ex-line"><span class="pt-word">A mãe do João é professora.</span><span class="en-eq">João's mother is a teacher.</span></p>
-		<p class="ex-line"><span class="pt-word">O seu pai é taxista.</span><span class="en-eq">His father is a taxi driver.</span></p>
-		<p class="ex-line"><span class="pt-word">O sogro é motorista da TVDE.</span><span class="en-eq">The father-in-law is a ride-hailing (TVDE) driver.</span></p>
-		<p class="ex-line"><span class="pt-word">A sogra é assistente social.</span><span class="en-eq">The mother-in-law is a social worker.</span></p>
-		<p class="ex-line"><span class="pt-word">Ela tem um irmão e uma irmã.</span><span class="en-eq">She has one brother and one sister.</span></p>
-		<p class="ex-line"><span class="pt-word">A tia dele é advogada.</span><span class="en-eq">His aunt is a lawyer.</span></p>
-		<p class="ex-line"><span class="pt-word">A avó dele é viúva.</span><span class="en-eq">His grandmother is a widow.</span></p>
-		<p class="ex-line"><span class="pt-word">O Carlos é o primo dele.</span><span class="en-eq">Carlos is his cousin.</span></p>
-		<p class="ex-line"><span class="pt-word">A Joana é a prima.</span><span class="en-eq">Joana is the cousin.</span></p>
-		<p class="ex-line"><span class="pt-word">A madrinha e o padrinho do João são polícias.</span><span class="en-eq">João's godmother and godfather are police officers.</span></p>
-		<p class="ex-line"><span class="pt-word">Os sobrinhos do João são estudantes.</span><span class="en-eq">João's nephews are students.</span></p>
+		<p class="ex-line" data-pt="O João tem dois filhos e uma filha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O João tem dois filhos e uma filha.</span><span class="en-eq">João has two sons and one daughter.</span></p>
+		<p class="ex-line" data-pt="A mulher dele é desempregada."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A mulher dele é desempregada.</span><span class="en-eq">His wife is unemployed.</span></p>
+		<p class="ex-line" data-pt="A mãe do João é professora."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A mãe do João é professora.</span><span class="en-eq">João's mother is a teacher.</span></p>
+		<p class="ex-line" data-pt="O seu pai é taxista."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O seu pai é taxista.</span><span class="en-eq">His father is a taxi driver.</span></p>
+		<p class="ex-line" data-pt="O sogro é motorista da TVDE."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O sogro é motorista da TVDE.</span><span class="en-eq">The father-in-law is a ride-hailing (TVDE) driver.</span></p>
+		<p class="ex-line" data-pt="A sogra é assistente social."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A sogra é assistente social.</span><span class="en-eq">The mother-in-law is a social worker.</span></p>
+		<p class="ex-line" data-pt="Ela tem um irmão e uma irmã."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela tem um irmão e uma irmã.</span><span class="en-eq">She has one brother and one sister.</span></p>
+		<p class="ex-line" data-pt="A tia dele é advogada."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A tia dele é advogada.</span><span class="en-eq">His aunt is a lawyer.</span></p>
+		<p class="ex-line" data-pt="A avó dele é viúva."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A avó dele é viúva.</span><span class="en-eq">His grandmother is a widow.</span></p>
+		<p class="ex-line" data-pt="O Carlos é o primo dele."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Carlos é o primo dele.</span><span class="en-eq">Carlos is his cousin.</span></p>
+		<p class="ex-line" data-pt="A Joana é a prima."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Joana é a prima.</span><span class="en-eq">Joana is the cousin.</span></p>
+		<p class="ex-line" data-pt="A madrinha e o padrinho do João são polícias."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A madrinha e o padrinho do João são polícias.</span><span class="en-eq">João's godmother and godfather are police officers.</span></p>
+		<p class="ex-line" data-pt="Os sobrinhos do João são estudantes."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os sobrinhos do João são estudantes.</span><span class="en-eq">João's nephews are students.</span></p>
 	</div>
 	<p><em>Useful expression: <strong>não ter emprego</strong> = <strong>estar desempregado/a</strong> ("to not have a job" = "to be unemployed"). Example: <span class="pt-word" style="font-size:0.95em;">A mulher dele é desempregada.</span> = <span class="pt-word" style="font-size:0.95em;">A mulher dele não tem emprego.</span> — "His wife is unemployed." = "His wife doesn't have a job."</em></p>
 
-	<h3>Posse com de — exemplos com pessoas <span class="en">(Possession with de — examples with people)</span></h3>
+	<h3 data-pt="Posse com de, exemplos com pessoas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Posse com de — exemplos com pessoas <span class="en">(Possession with de — examples with people)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">O livro do menino.</span><span class="en-eq">The boy's book.</span></p>
-		<p class="ex-line"><span class="pt-word">Os livros dos meninos.</span><span class="en-eq">The boys' books.</span></p>
-		<p class="ex-line"><span class="pt-word">As roupas da menina.</span><span class="en-eq">The girl's clothes.</span></p>
-		<p class="ex-line"><span class="pt-word">Os sapatos das meninas.</span><span class="en-eq">The girls' shoes.</span></p>
-		<p class="ex-line"><span class="pt-word">O pai do rapaz.</span><span class="en-eq">The boy's father.</span></p>
-		<p class="ex-line"><span class="pt-word">A mãe dos rapazes.</span><span class="en-eq">The boys' mother.</span></p>
-		<p class="ex-line"><span class="pt-word">A situação da rapariga.</span><span class="en-eq">The girl's situation.</span></p>
-		<p class="ex-line"><span class="pt-word">A casa das raparigas.</span><span class="en-eq">The girls' house.</span></p>
-		<p class="ex-line"><span class="pt-word">As ruas da cidade.</span><span class="en-eq">The city's streets.</span></p>
-		<p class="ex-line"><span class="pt-word">O trabalho do João.</span><span class="en-eq">João's job.</span></p>
+		<p class="ex-line" data-pt="O livro do menino."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O livro do menino.</span><span class="en-eq">The boy's book.</span></p>
+		<p class="ex-line" data-pt="Os livros dos meninos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os livros dos meninos.</span><span class="en-eq">The boys' books.</span></p>
+		<p class="ex-line" data-pt="As roupas da menina."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">As roupas da menina.</span><span class="en-eq">The girl's clothes.</span></p>
+		<p class="ex-line" data-pt="Os sapatos das meninas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os sapatos das meninas.</span><span class="en-eq">The girls' shoes.</span></p>
+		<p class="ex-line" data-pt="O pai do rapaz."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O pai do rapaz.</span><span class="en-eq">The boy's father.</span></p>
+		<p class="ex-line" data-pt="A mãe dos rapazes."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A mãe dos rapazes.</span><span class="en-eq">The boys' mother.</span></p>
+		<p class="ex-line" data-pt="A situação da rapariga."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A situação da rapariga.</span><span class="en-eq">The girl's situation.</span></p>
+		<p class="ex-line" data-pt="A casa das raparigas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A casa das raparigas.</span><span class="en-eq">The girls' house.</span></p>
+		<p class="ex-line" data-pt="As ruas da cidade."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">As ruas da cidade.</span><span class="en-eq">The city's streets.</span></p>
+		<p class="ex-line" data-pt="O trabalho do João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O trabalho do João.</span><span class="en-eq">João's job.</span></p>
 	</div>
 
-	<h3>Profissões <span class="en">(Professions)</span></h3>
+	<h3 data-pt="Profissões"><button class="spk-btn" aria-label="Ouvir">🔊</button>Profissões <span class="en">(Professions)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">jornalista</span> — Franz<span class="en-eq">journalist</span></p>
-		<p class="ex-line"><span class="pt-word">professor</span> — Lu<span class="en-eq">teacher</span></p>
-		<p class="ex-line"><span class="pt-word">arquitecta</span> — Rita<span class="en-eq">architect</span></p>
-		<p class="ex-line"><span class="pt-word">secretária</span> — Sumiko<span class="en-eq">secretary</span></p>
-		<p class="ex-line"><span class="pt-word">advogado</span> — François<span class="en-eq">lawyer</span></p>
-		<p class="ex-line"><span class="pt-word">médica</span> — Carmen<span class="en-eq">doctor</span></p>
-		<p class="ex-line"><span class="pt-word">músico</span> — Jérôme<span class="en-eq">musician</span></p>
-		<p class="ex-line"><span class="pt-word">dentista</span> — Liedson<span class="en-eq">dentist</span></p>
+		<p class="ex-line" data-pt="jornalista, Franz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">jornalista</span> — Franz<span class="en-eq">journalist</span></p>
+		<p class="ex-line" data-pt="professor, Lu"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">professor</span> — Lu<span class="en-eq">teacher</span></p>
+		<p class="ex-line" data-pt="arquitecta, Rita"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">arquitecta</span> — Rita<span class="en-eq">architect</span></p>
+		<p class="ex-line" data-pt="secretária, Sumiko"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">secretária</span> — Sumiko<span class="en-eq">secretary</span></p>
+		<p class="ex-line" data-pt="advogado, François"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">advogado</span> — François<span class="en-eq">lawyer</span></p>
+		<p class="ex-line" data-pt="médica, Carmen"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">médica</span> — Carmen<span class="en-eq">doctor</span></p>
+		<p class="ex-line" data-pt="músico, Jérôme"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">músico</span> — Jérôme<span class="en-eq">musician</span></p>
+		<p class="ex-line" data-pt="dentista, Liedson"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dentista</span> — Liedson<span class="en-eq">dentist</span></p>
 	</div>
 </div>
 
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line">Chamo-me <span class="pt-word">João Costa</span>.<span class="en-eq">My name is João Costa.</span></p>
-		<p class="ex-line">Sou <span class="pt-word">da Inglaterra</span>.<span class="en-eq">I am from England.</span></p>
-		<p class="ex-line">Moro <span class="pt-word">em Saldanha</span>.<span class="en-eq">I live in Saldanha.</span></p>
-		<p class="ex-line">Trabalho <span class="pt-word">num restaurante</span> em Saldanha.<span class="en-eq">I work in a restaurant in Saldanha.</span></p>
-		<p class="ex-line">Tenho <span class="pt-word">30 anos</span>.<span class="en-eq">I am 30 years old.</span></p>
-		<p class="ex-line">Não sou <span class="pt-word">casado</span>.<span class="en-eq">I am not married.</span></p>
-		<p class="ex-line">A mulher dele é <span class="pt-word">desempregada</span>.<span class="en-eq">His wife is unemployed.</span></p>
-		<p class="ex-line">A tia dele é <span class="pt-word">advogada</span>.<span class="en-eq">His aunt is a lawyer.</span></p>
-		<p class="ex-line">Gosto de ouvir <span class="pt-word">música indiana</span>.<span class="en-eq">I like listening to Indian music.</span></p>
+		<p class="ex-line" data-pt="Chamo-me João Costa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Chamo-me <span class="pt-word">João Costa</span>.<span class="en-eq">My name is João Costa.</span></p>
+		<p class="ex-line" data-pt="Sou da Inglaterra."><button class="spk-btn" aria-label="Ouvir">🔊</button>Sou <span class="pt-word">da Inglaterra</span>.<span class="en-eq">I am from England.</span></p>
+		<p class="ex-line" data-pt="Moro em Saldanha."><button class="spk-btn" aria-label="Ouvir">🔊</button>Moro <span class="pt-word">em Saldanha</span>.<span class="en-eq">I live in Saldanha.</span></p>
+		<p class="ex-line" data-pt="Trabalho num restaurante em Saldanha."><button class="spk-btn" aria-label="Ouvir">🔊</button>Trabalho <span class="pt-word">num restaurante</span> em Saldanha.<span class="en-eq">I work in a restaurant in Saldanha.</span></p>
+		<p class="ex-line" data-pt="Tenho 30 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tenho <span class="pt-word">30 anos</span>.<span class="en-eq">I am 30 years old.</span></p>
+		<p class="ex-line" data-pt="Não sou casado."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não sou <span class="pt-word">casado</span>.<span class="en-eq">I am not married.</span></p>
+		<p class="ex-line" data-pt="A mulher dele é desempregada."><button class="spk-btn" aria-label="Ouvir">🔊</button>A mulher dele é <span class="pt-word">desempregada</span>.<span class="en-eq">His wife is unemployed.</span></p>
+		<p class="ex-line" data-pt="A tia dele é advogada."><button class="spk-btn" aria-label="Ouvir">🔊</button>A tia dele é <span class="pt-word">advogada</span>.<span class="en-eq">His aunt is a lawyer.</span></p>
+		<p class="ex-line" data-pt="Gosto de ouvir música indiana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Gosto de ouvir <span class="pt-word">música indiana</span>.<span class="en-eq">I like listening to Indian music.</span></p>
 	</div>
 </div>
 
