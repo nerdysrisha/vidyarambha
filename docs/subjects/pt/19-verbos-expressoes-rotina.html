@@ -25,6 +25,7 @@
 	line-height: 1.7;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-rotina .ex-line:last-child { margin-bottom: 0; }
 .pt-rotina .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
@@ -36,6 +37,7 @@
 	line-height: 1.8;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-rotina .conj-line:last-child { margin-bottom: 0; }
 .pt-rotina .conj-person {
@@ -112,6 +114,57 @@
 	margin-top: 4px;
 }
 .pt-rotina .check-btn:hover { background: #5f2f7d !important; }
+
+/* ---------- Speak button ---------- */
+.pt-rotina .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-rotina .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-rotina .desc-box h3:hover .spk-btn,
+.pt-rotina .ex-line:hover .spk-btn,
+.pt-rotina .spk-btn:focus-visible { opacity: 1; }
+.pt-rotina .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-rotina .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-rotina .spk-btn { opacity: 0.4; }
+}
+.pt-rotina .spk-btn-inline {
+	position: static;
+	left: auto;
+	top: auto;
+	transform: none;
+	display: inline-block;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 0 4px 0 0;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	vertical-align: middle;
+}
+.pt-rotina .ex-line:hover .spk-btn-inline,
+.pt-rotina .conj-line:hover .spk-btn-inline,
+.pt-rotina .spk-btn-inline:focus-visible { opacity: 1; }
+.pt-rotina .spk-btn-inline.speaking { opacity: 1; color: #2f6b52; }
+.pt-rotina .example-box .spk-btn-inline { color: #d8b46a; }
+@media (hover: none) {
+	.pt-rotina .spk-btn-inline { opacity: 0.4; }
+}
 </style>
 
 <h2>19. Verbos e expressões de rotina <span class="en">(Routine verbs and expressions)</span></h2>
@@ -119,89 +172,89 @@
 <div class="desc-box">
 	<p><em>Everyday verbs used to talk about daily routines and habits.</em></p>
 
-	<h3>Verbos <span class="en">(Verbs)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Verbos">🔊</button>Verbos <span class="en">(Verbs)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">cantar</span> <span class="en">(to sing)</span></p>
-		<p class="ex-line"><span class="pt-word">jantar</span> <span class="en">(to have dinner)</span></p>
-		<p class="ex-line"><span class="pt-word">limpar</span> <span class="en">(to clean)</span></p>
-		<p class="ex-line"><span class="pt-word">lavar</span> <span class="en">(to wash)</span></p>
-		<p class="ex-line"><span class="pt-word">descansar</span> <span class="en">(to rest)</span></p>
-		<p class="ex-line"><span class="pt-word">sonhar</span> <span class="en">(to dream)</span></p>
-		<p class="ex-line"><span class="pt-word">comprar</span> <span class="en">(to buy)</span></p>
-		<p class="ex-line"><span class="pt-word">brincar</span> <span class="en">(to play — children)</span></p>
-		<p class="ex-line"><span class="pt-word">jogar</span> <span class="en">(to play — games/sports)</span></p>
-		<p class="ex-line"><span class="pt-word">beber</span> <span class="en">(to drink)</span></p>
-		<p class="ex-line"><span class="pt-word">levar</span> <span class="en">(to take / carry)</span></p>
-		<p class="ex-line"><span class="pt-word">perguntar</span> <span class="en">(to ask)</span></p>
-		<p class="ex-line"><span class="pt-word">tomar banho</span> <span class="en">(to shower / bathe)</span></p>
-		<p class="ex-line"><span class="pt-word">nadar</span> <span class="en">(to swim)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="cantar">🔊</button><span class="pt-word">cantar</span> <span class="en">(to sing)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="jantar">🔊</button><span class="pt-word">jantar</span> <span class="en">(to have dinner)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="limpar">🔊</button><span class="pt-word">limpar</span> <span class="en">(to clean)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="lavar">🔊</button><span class="pt-word">lavar</span> <span class="en">(to wash)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="descansar">🔊</button><span class="pt-word">descansar</span> <span class="en">(to rest)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="sonhar">🔊</button><span class="pt-word">sonhar</span> <span class="en">(to dream)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="comprar">🔊</button><span class="pt-word">comprar</span> <span class="en">(to buy)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="brincar">🔊</button><span class="pt-word">brincar</span> <span class="en">(to play — children)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="jogar">🔊</button><span class="pt-word">jogar</span> <span class="en">(to play — games/sports)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="beber">🔊</button><span class="pt-word">beber</span> <span class="en">(to drink)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="levar">🔊</button><span class="pt-word">levar</span> <span class="en">(to take / carry)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="perguntar">🔊</button><span class="pt-word">perguntar</span> <span class="en">(to ask)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="tomar banho">🔊</button><span class="pt-word">tomar banho</span> <span class="en">(to shower / bathe)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="nadar">🔊</button><span class="pt-word">nadar</span> <span class="en">(to swim)</span></p>
 	</div>
 
-	<h3>Conjugação — verbos regulares em -ar <span class="en">(Conjugation pattern for -ar verbs)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Conjugação — verbos regulares em -ar">🔊</button>Conjugação — verbos regulares em -ar <span class="en">(Conjugation pattern for -ar verbs)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">cantar</span> <span class="en">(to sing)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="cantar">🔊</button><span class="pt-word">cantar</span> <span class="en">(to sing)</span></p>
 		<div class="conj-list">
-			<p class="conj-line"><span class="conj-person">1ª sing. — eu</span><span class="pt-word">canto</span><span class="en-eq">I sing</span><span class="hi-eq">मैं गाता/गाती हूँ (main gaata/gaati hoon)</span></p>
-			<p class="conj-line"><span class="conj-person">2ª sing. — tu</span><span class="pt-word">cantas</span><span class="en-eq">you sing (informal)</span><span class="hi-eq">तुम गाते/गाती हो (tum gaate/gaati ho)</span></p>
-			<p class="conj-line"><span class="conj-person">3ª sing. — ele/ela</span><span class="pt-word">canta</span><span class="en-eq">he/she sings</span><span class="hi-eq">वह गाता/गाती है (vah gaata/gaati hai)</span></p>
-			<p class="conj-line"><span class="conj-person">1ª plur. — nós</span><span class="pt-word">cantamos</span><span class="en-eq">we sing</span><span class="hi-eq">हम गाते/गाती हैं (hum gaate/gaati hain)</span></p>
-			<p class="conj-line"><span class="conj-person">3ª plur. — eles/elas</span><span class="pt-word">cantam</span><span class="en-eq">they sing</span><span class="hi-eq">वे गाते/गाती हैं (ve gaate/gaati hain)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="canto">🔊</button><span class="conj-person">1ª sing. — eu</span><span class="pt-word">canto</span><span class="en-eq">I sing</span><span class="hi-eq">मैं गाता/गाती हूँ (main gaata/gaati hoon)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cantas">🔊</button><span class="conj-person">2ª sing. — tu</span><span class="pt-word">cantas</span><span class="en-eq">you sing (informal)</span><span class="hi-eq">तुम गाते/गाती हो (tum gaate/gaati ho)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="canta">🔊</button><span class="conj-person">3ª sing. — ele/ela</span><span class="pt-word">canta</span><span class="en-eq">he/she sings</span><span class="hi-eq">वह गाता/गाती है (vah gaata/gaati hai)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cantamos">🔊</button><span class="conj-person">1ª plur. — nós</span><span class="pt-word">cantamos</span><span class="en-eq">we sing</span><span class="hi-eq">हम गाते/गाती हैं (hum gaate/gaati hain)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cantam">🔊</button><span class="conj-person">3ª plur. — eles/elas</span><span class="pt-word">cantam</span><span class="en-eq">they sing</span><span class="hi-eq">वे गाते/गाती हैं (ve gaate/gaati hain)</span></p>
 		</div>
 	</div>
 
-	<h3>Conjugação — verbo em -er <span class="en">(Conjugation for -er verbs)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Conjugação — verbo em -er">🔊</button>Conjugação — verbo em -er <span class="en">(Conjugation for -er verbs)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">beber</span> <span class="en">(to drink)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="beber">🔊</button><span class="pt-word">beber</span> <span class="en">(to drink)</span></p>
 		<div class="conj-list">
-			<p class="conj-line"><span class="conj-person">1ª sing. — eu</span><span class="pt-word">bebo</span><span class="en-eq">I drink</span><span class="hi-eq">मैं पीता/पीती हूँ (main peeta/peeti hoon)</span></p>
-			<p class="conj-line"><span class="conj-person">2ª sing. — tu</span><span class="pt-word">bebes</span><span class="en-eq">you drink (informal)</span><span class="hi-eq">तुम पीते/पीती हो (tum peete/peeti ho)</span></p>
-			<p class="conj-line"><span class="conj-person">3ª sing. — ele/ela</span><span class="pt-word">bebe</span><span class="en-eq">he/she drinks</span><span class="hi-eq">वह पीता/पीती है (vah peeta/peeti hai)</span></p>
-			<p class="conj-line"><span class="conj-person">1ª plur. — nós</span><span class="pt-word">bebemos</span><span class="en-eq">we drink</span><span class="hi-eq">हम पीते/पीती हैं (hum peete/peeti hain)</span></p>
-			<p class="conj-line"><span class="conj-person">3ª plur. — eles/elas</span><span class="pt-word">bebem</span><span class="en-eq">they drink</span><span class="hi-eq">वे पीते/पीती हैं (ve peete/peeti hain)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="bebo">🔊</button><span class="conj-person">1ª sing. — eu</span><span class="pt-word">bebo</span><span class="en-eq">I drink</span><span class="hi-eq">मैं पीता/पीती हूँ (main peeta/peeti hoon)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="bebes">🔊</button><span class="conj-person">2ª sing. — tu</span><span class="pt-word">bebes</span><span class="en-eq">you drink (informal)</span><span class="hi-eq">तुम पीते/पीती हो (tum peete/peeti ho)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="bebe">🔊</button><span class="conj-person">3ª sing. — ele/ela</span><span class="pt-word">bebe</span><span class="en-eq">he/she drinks</span><span class="hi-eq">वह पीता/पीती है (vah peeta/peeti hai)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="bebemos">🔊</button><span class="conj-person">1ª plur. — nós</span><span class="pt-word">bebemos</span><span class="en-eq">we drink</span><span class="hi-eq">हम पीते/पीती हैं (hum peete/peeti hain)</span></p>
+			<p class="conj-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="bebem">🔊</button><span class="conj-person">3ª plur. — eles/elas</span><span class="pt-word">bebem</span><span class="en-eq">they drink</span><span class="hi-eq">वे पीते/पीती हैं (ve peete/peeti hain)</span></p>
 		</div>
 	</div>
 
-	<h3>Expressões com "tomar" <span class="en">(Expressions with "tomar")</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Expressões com &quot;tomar&quot;">🔊</button>Expressões com "tomar" <span class="en">(Expressions with "tomar")</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">tomar banho</span> <span class="en">(to shower)</span></p>
-		<p class="ex-line"><span class="pt-word">tomar café</span> <span class="en">(to have coffee)</span></p>
-		<p class="ex-line"><span class="pt-word">tomar o pequeno-almoço</span> <span class="en">(to have breakfast)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="tomar banho">🔊</button><span class="pt-word">tomar banho</span> <span class="en">(to shower)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="tomar café">🔊</button><span class="pt-word">tomar café</span> <span class="en">(to have coffee)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="tomar o pequeno-almoço">🔊</button><span class="pt-word">tomar o pequeno-almoço</span> <span class="en">(to have breakfast)</span></p>
 	</div>
 
-	<h3>Expressões de tempo usadas na rotina <span class="en">(Time expressions used in a routine)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Expressões de tempo usadas na rotina">🔊</button>Expressões de tempo usadas na rotina <span class="en">(Time expressions used in a routine)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">de manhã</span> <span class="en">(in the morning)</span></p>
-		<p class="ex-line"><span class="pt-word">à tarde</span> <span class="en">(in the afternoon)</span></p>
-		<p class="ex-line"><span class="pt-word">à noite</span> <span class="en">(at night)</span></p>
-		<p class="ex-line"><span class="pt-word">todos os dias</span> <span class="en">(every day)</span></p>
-		<p class="ex-line"><span class="pt-word">ao fim de semana</span> <span class="en">(on the weekend)</span></p>
-		<p class="ex-line"><span class="pt-word">antes de</span> <span class="en">(before)</span></p>
-		<p class="ex-line"><span class="pt-word">depois de</span> <span class="en">(after)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="de manhã">🔊</button><span class="pt-word">de manhã</span> <span class="en">(in the morning)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="à tarde">🔊</button><span class="pt-word">à tarde</span> <span class="en">(in the afternoon)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="à noite">🔊</button><span class="pt-word">à noite</span> <span class="en">(at night)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="todos os dias">🔊</button><span class="pt-word">todos os dias</span> <span class="en">(every day)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="ao fim de semana">🔊</button><span class="pt-word">ao fim de semana</span> <span class="en">(on the weekend)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="antes de">🔊</button><span class="pt-word">antes de</span> <span class="en">(before)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="depois de">🔊</button><span class="pt-word">depois de</span> <span class="en">(after)</span></p>
 	</div>
 
-	<h3>Rotina diária <span class="en">(Daily routine)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Rotina diária">🔊</button>Rotina diária <span class="en">(Daily routine)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">De manhã, tomo banho e tomo o pequeno-almoço.</span><span class="en-eq">In the morning, I shower and have breakfast.</span></p>
-		<p class="ex-line"><span class="pt-word">Depois, vou trabalhar.</span><span class="en-eq">Then, I go to work.</span></p>
-		<p class="ex-line"><span class="pt-word">À tarde, descanso um pouco.</span><span class="en-eq">In the afternoon, I rest a little.</span></p>
-		<p class="ex-line"><span class="pt-word">À noite, janto com a família.</span><span class="en-eq">At night, I have dinner with the family.</span></p>
-		<p class="ex-line"><span class="pt-word">Depois do jantar, brinco com os filhos.</span><span class="en-eq">After dinner, I play with the children.</span></p>
-		<p class="ex-line"><span class="pt-word">Ao fim de semana, limpo a casa e lavo a roupa.</span><span class="en-eq">On the weekend, I clean the house and wash the clothes.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="De manhã, tomo banho e tomo o pequeno-almoço.">🔊</button><span class="pt-word">De manhã, tomo banho e tomo o pequeno-almoço.</span><span class="en-eq">In the morning, I shower and have breakfast.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Depois, vou trabalhar.">🔊</button><span class="pt-word">Depois, vou trabalhar.</span><span class="en-eq">Then, I go to work.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="À tarde, descanso um pouco.">🔊</button><span class="pt-word">À tarde, descanso um pouco.</span><span class="en-eq">In the afternoon, I rest a little.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="À noite, janto com a família.">🔊</button><span class="pt-word">À noite, janto com a família.</span><span class="en-eq">At night, I have dinner with the family.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Depois do jantar, brinco com os filhos.">🔊</button><span class="pt-word">Depois do jantar, brinco com os filhos.</span><span class="en-eq">After dinner, I play with the children.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Ao fim de semana, limpo a casa e lavo a roupa.">🔊</button><span class="pt-word">Ao fim de semana, limpo a casa e lavo a roupa.</span><span class="en-eq">On the weekend, I clean the house and wash the clothes.</span></p>
 	</div>
 </div>
 
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line">Eu <span class="pt-word">canto</span> no chuveiro.<span class="en-eq">I sing in the shower.</span></p>
-		<p class="ex-line">Nós <span class="pt-word">jantamos</span> às 20h00.<span class="en-eq">We have dinner at 8 p.m.</span></p>
-		<p class="ex-line">Ela <span class="pt-word">limpa</span> a casa todos os sábados.<span class="en-eq">She cleans the house every Saturday.</span></p>
-		<p class="ex-line">Eu <span class="pt-word">lavo</span> a roupa ao fim de semana.<span class="en-eq">I wash the clothes on the weekend.</span></p>
-		<p class="ex-line">Depois do trabalho, eu <span class="pt-word">descanso</span> um pouco.<span class="en-eq">After work, I rest a little.</span></p>
-		<p class="ex-line">As crianças <span class="pt-word">brincam</span> no jardim.<span class="en-eq">The children play in the garden.</span></p>
-		<p class="ex-line">Nós <span class="pt-word">jogamos</span> futebol aos domingos.<span class="en-eq">We play football on Sundays.</span></p>
-		<p class="ex-line">Eu <span class="pt-word">bebo</span> um café de manhã.<span class="en-eq">I drink a coffee in the morning.</span></p>
-		<p class="ex-line">Eu <span class="pt-word">tomo banho</span> antes de dormir.<span class="en-eq">I shower before sleeping.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu canto no chuveiro.">🔊</button>Eu <span class="pt-word">canto</span> no chuveiro.<span class="en-eq">I sing in the shower.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Nós jantamos às 20h00.">🔊</button>Nós <span class="pt-word">jantamos</span> às 20h00.<span class="en-eq">We have dinner at 8 p.m.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Ela limpa a casa todos os sábados.">🔊</button>Ela <span class="pt-word">limpa</span> a casa todos os sábados.<span class="en-eq">She cleans the house every Saturday.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu lavo a roupa ao fim de semana.">🔊</button>Eu <span class="pt-word">lavo</span> a roupa ao fim de semana.<span class="en-eq">I wash the clothes on the weekend.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Depois do trabalho, eu descanso um pouco.">🔊</button>Depois do trabalho, eu <span class="pt-word">descanso</span> um pouco.<span class="en-eq">After work, I rest a little.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="As crianças brincam no jardim.">🔊</button>As crianças <span class="pt-word">brincam</span> no jardim.<span class="en-eq">The children play in the garden.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Nós jogamos futebol aos domingos.">🔊</button>Nós <span class="pt-word">jogamos</span> futebol aos domingos.<span class="en-eq">We play football on Sundays.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu bebo um café de manhã.">🔊</button>Eu <span class="pt-word">bebo</span> um café de manhã.<span class="en-eq">I drink a coffee in the morning.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu tomo banho antes de dormir.">🔊</button>Eu <span class="pt-word">tomo banho</span> antes de dormir.<span class="en-eq">I shower before sleeping.</span></p>
 	</div>
 </div>
 

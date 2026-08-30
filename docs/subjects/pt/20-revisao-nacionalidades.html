@@ -25,6 +25,7 @@
 	line-height: 1.7;
 	margin: 0 0 6px 0;
 	padding-left: 2em;
+	position: relative;
 }
 .pt-nacionalidades .ex-line:last-child { margin-bottom: 0; }
 .pt-nacionalidades .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
@@ -109,6 +110,58 @@
 	margin-top: 4px;
 }
 .pt-nacionalidades .check-btn:hover { background: #5f2f7d !important; }
+
+/* ---------- Speak button ---------- */
+.pt-nacionalidades .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-nacionalidades .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-nacionalidades .desc-box h3:hover .spk-btn,
+.pt-nacionalidades .ex-line:hover .spk-btn,
+.pt-nacionalidades .spk-btn:focus-visible { opacity: 1; }
+.pt-nacionalidades .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-nacionalidades .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-nacionalidades .spk-btn { opacity: 0.4; }
+}
+.pt-nacionalidades .spk-btn-inline {
+	position: static;
+	left: auto;
+	top: auto;
+	transform: none;
+	display: inline-block;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 0 4px 0 0;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	vertical-align: middle;
+}
+.pt-nacionalidades .ex-line:hover .spk-btn-inline,
+.pt-nacionalidades .spk-btn-inline:focus-visible { opacity: 1; }
+.pt-nacionalidades .spk-btn-inline.speaking { opacity: 1; color: #2f6b52; }
+.pt-nacionalidades .example-box .spk-btn-inline { color: #d8b46a; }
+@media (hover: none) {
+	.pt-nacionalidades .spk-btn-inline { opacity: 0.4; }
+}
+.pt-nacionalidades .example-box td .spk-btn-inline { padding-right: 6px; }
+.pt-nacionalidades .example-box tr:hover .spk-btn-inline { opacity: 1; }
 </style>
 
 <h2>20. Revisão — Nacionalidades <span class="en">(Review — Nationalities)</span></h2>
@@ -116,13 +169,13 @@
 <div class="desc-box">
 	<p><em>Review exercise — Nationalities: countries, nationality adjectives, gender/plural forms (revisiting Topic 3, Ser — usos principais).</em></p>
 
-	<h3>Padrões de formação <span class="en">(Formation patterns)</span></h3>
+	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Padrões de formação">🔊</button>Padrões de formação <span class="en">(Formation patterns)</span></h3>
 	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">-ês → -esa</span> <span class="en">(português, chinês, francês, senegalês, norueguês...)</span></p>
-		<p class="ex-line"><span class="pt-word">-o → -a</span> <span class="en">(russo, angolano, cubano, marroquino, sueco, egípcio...)</span></p>
-		<p class="ex-line"><span class="pt-word">-ol → -ola</span> <span class="en">(espanhol → espanhola)</span></p>
-		<p class="ex-line"><span class="pt-word">-ão → -ã</span> <span class="en">(alemão → alemã, plural alemães/alemãs)</span></p>
-		<p class="ex-line"><span class="pt-word">invariável</span> <span class="en">(belga, guineense, são-tomense — same form for masc./fem.)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="português, chinês, francês, senegalês, norueguês">🔊</button><span class="pt-word">-ês → -esa</span> <span class="en">(português, chinês, francês, senegalês, norueguês...)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="russo, angolano, cubano, marroquino, sueco, egípcio">🔊</button><span class="pt-word">-o → -a</span> <span class="en">(russo, angolano, cubano, marroquino, sueco, egípcio...)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="espanhol, espanhola">🔊</button><span class="pt-word">-ol → -ola</span> <span class="en">(espanhol → espanhola)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="alemão, alemã, alemães, alemãs">🔊</button><span class="pt-word">-ão → -ã</span> <span class="en">(alemão → alemã, plural alemães/alemãs)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="belga, guineense, são-tomense">🔊</button><span class="pt-word">invariável</span> <span class="en">(belga, guineense, são-tomense — same form for masc./fem.)</span></p>
 	</div>
 </div>
 
@@ -139,18 +192,18 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr><td>Portugal <span class="en">(Portugal)</span></td><td>português</td><td>portuguesa</td><td>portugueses</td><td>portuguesas</td></tr>
-			<tr><td>China</td><td>chinês</td><td>chinesa</td><td>chineses</td><td>chinesas</td></tr>
-			<tr><td>Japão</td><td>japonês</td><td>japonesa</td><td>japoneses</td><td>japonesas</td></tr>
-			<tr><td>França</td><td>francês</td><td>francesa</td><td>franceses</td><td>francesas</td></tr>
-			<tr><td>Senegal</td><td>senegalês</td><td>senegalesa</td><td>senegaleses</td><td>senegalesas</td></tr>
-			<tr><td>Noruega</td><td>norueguês</td><td>norueguesa</td><td>noruegueses</td><td>norueguesas</td></tr>
-			<tr><td>Rússia</td><td>russo</td><td>russa</td><td>russos</td><td>russas</td></tr>
-			<tr><td>Angola</td><td>angolano</td><td>angolana</td><td>angolanos</td><td>angolanas</td></tr>
-			<tr><td>Cuba</td><td>cubano</td><td>cubana</td><td>cubanos</td><td>cubanas</td></tr>
-			<tr><td>Marrocos</td><td>marroquino</td><td>marroquina</td><td>marroquinos</td><td>marroquinas</td></tr>
-			<tr><td>Suécia</td><td>sueco</td><td>sueca</td><td>suecos</td><td>suecas</td></tr>
-			<tr><td>Egipto</td><td>egípcio</td><td>egípcia</td><td>egípcios</td><td>egípcias</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Portugal">🔊</button>Portugal <span class="en">(Portugal)</span></td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="português">🔊</button>português</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="portuguesa">🔊</button>portuguesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="portugueses">🔊</button>portugueses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="portuguesas">🔊</button>portuguesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="China">🔊</button>China</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="chinês">🔊</button>chinês</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="chinesa">🔊</button>chinesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="chineses">🔊</button>chineses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="chinesas">🔊</button>chinesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Japão">🔊</button>Japão</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="japonês">🔊</button>japonês</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="japonesa">🔊</button>japonesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="japoneses">🔊</button>japoneses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="japonesas">🔊</button>japonesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="França">🔊</button>França</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="francês">🔊</button>francês</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="francesa">🔊</button>francesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="franceses">🔊</button>franceses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="francesas">🔊</button>francesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Senegal">🔊</button>Senegal</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="senegalês">🔊</button>senegalês</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="senegalesa">🔊</button>senegalesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="senegaleses">🔊</button>senegaleses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="senegalesas">🔊</button>senegalesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Noruega">🔊</button>Noruega</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="norueguês">🔊</button>norueguês</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="norueguesa">🔊</button>norueguesa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="noruegueses">🔊</button>noruegueses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="norueguesas">🔊</button>norueguesas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Rússia">🔊</button>Rússia</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="russo">🔊</button>russo</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="russa">🔊</button>russa</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="russos">🔊</button>russos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="russas">🔊</button>russas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Angola">🔊</button>Angola</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="angolano">🔊</button>angolano</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="angolana">🔊</button>angolana</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="angolanos">🔊</button>angolanos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="angolanas">🔊</button>angolanas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Cuba">🔊</button>Cuba</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cubano">🔊</button>cubano</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cubana">🔊</button>cubana</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cubanos">🔊</button>cubanos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="cubanas">🔊</button>cubanas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Marrocos">🔊</button>Marrocos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="marroquino">🔊</button>marroquino</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="marroquina">🔊</button>marroquina</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="marroquinos">🔊</button>marroquinos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="marroquinas">🔊</button>marroquinas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Suécia">🔊</button>Suécia</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="sueco">🔊</button>sueco</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="sueca">🔊</button>sueca</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="suecos">🔊</button>suecos</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="suecas">🔊</button>suecas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Egipto">🔊</button>Egipto</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="egípcio">🔊</button>egípcio</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="egípcia">🔊</button>egípcia</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="egípcios">🔊</button>egípcios</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="egípcias">🔊</button>egípcias</td></tr>
 		</tbody>
 	</table>
 </div>
@@ -168,11 +221,11 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr><td>Alemanha <span class="en">(Germany)</span></td><td>alemão</td><td>alemã</td><td>alemães</td><td>alemãs</td></tr>
-			<tr><td>Espanha</td><td>espanhol</td><td>espanhola</td><td>espanhóis</td><td>espanholas</td></tr>
-			<tr><td>Bélgica</td><td>belga</td><td>belga</td><td>belgas</td><td>belgas</td></tr>
-			<tr><td>Guiné</td><td>guineense</td><td>guineense</td><td>guineenses</td><td>guineenses</td></tr>
-			<tr><td>São Tomé</td><td>são-tomense</td><td>são-tomense</td><td>são-tomenses</td><td>são-tomenses</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Alemanha">🔊</button>Alemanha <span class="en">(Germany)</span></td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="alemão">🔊</button>alemão</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="alemã">🔊</button>alemã</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="alemães">🔊</button>alemães</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="alemãs">🔊</button>alemãs</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Espanha">🔊</button>Espanha</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="espanhol">🔊</button>espanhol</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="espanhola">🔊</button>espanhola</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="espanhóis">🔊</button>espanhóis</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="espanholas">🔊</button>espanholas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Bélgica">🔊</button>Bélgica</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="belga">🔊</button>belga</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="belga">🔊</button>belga</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="belgas">🔊</button>belgas</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="belgas">🔊</button>belgas</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Guiné">🔊</button>Guiné</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="guineense">🔊</button>guineense</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="guineense">🔊</button>guineense</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="guineenses">🔊</button>guineenses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="guineenses">🔊</button>guineenses</td></tr>
+			<tr><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="São Tomé">🔊</button>São Tomé</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="são-tomense">🔊</button>são-tomense</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="são-tomense">🔊</button>são-tomense</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="são-tomenses">🔊</button>são-tomenses</td><td><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="são-tomenses">🔊</button>são-tomenses</td></tr>
 		</tbody>
 	</table>
 </div>
@@ -180,14 +233,14 @@
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line">Eu <span class="pt-word">sou</span> portuguesa.<span class="en-eq">I am Portuguese.</span></p>
-		<p class="ex-line">O Fritz <span class="pt-word">é</span> alemão e o Peter <span class="pt-word">é</span> inglês.<span class="en-eq">Fritz is German and Peter is English.</span></p>
-		<p class="ex-line">A Carmen <span class="pt-word">é</span> cubana.<span class="en-eq">Carmen is Cuban.</span></p>
-		<p class="ex-line">O Louis <span class="pt-word">é</span> belga.<span class="en-eq">Louis is Belgian.</span></p>
-		<p class="ex-line">A Paola <span class="pt-word">é</span> espanhola.<span class="en-eq">Paola is Spanish.</span></p>
-		<p class="ex-line">O Raul <span class="pt-word">é</span> são-tomense.<span class="en-eq">Raul is from São Tomé.</span></p>
-		<p class="ex-line">O Hans e o Peter <span class="pt-word">são</span> alemães.<span class="en-eq">Hans and Peter are German.</span></p>
-		<p class="ex-line">Nós <span class="pt-word">somos</span> senegaleses.<span class="en-eq">We are Senegalese.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu sou portuguesa.">🔊</button>Eu <span class="pt-word">sou</span> portuguesa.<span class="en-eq">I am Portuguese.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Fritz é alemão e o Peter é inglês.">🔊</button>O Fritz <span class="pt-word">é</span> alemão e o Peter <span class="pt-word">é</span> inglês.<span class="en-eq">Fritz is German and Peter is English.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Carmen é cubana.">🔊</button>A Carmen <span class="pt-word">é</span> cubana.<span class="en-eq">Carmen is Cuban.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Louis é belga.">🔊</button>O Louis <span class="pt-word">é</span> belga.<span class="en-eq">Louis is Belgian.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Paola é espanhola.">🔊</button>A Paola <span class="pt-word">é</span> espanhola.<span class="en-eq">Paola is Spanish.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Raul é são-tomense.">🔊</button>O Raul <span class="pt-word">é</span> são-tomense.<span class="en-eq">Raul is from São Tomé.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Hans e o Peter são alemães.">🔊</button>O Hans e o Peter <span class="pt-word">são</span> alemães.<span class="en-eq">Hans and Peter are German.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Nós somos senegaleses.">🔊</button>Nós <span class="pt-word">somos</span> senegaleses.<span class="en-eq">We are Senegalese.</span></p>
 	</div>
 </div>
 
