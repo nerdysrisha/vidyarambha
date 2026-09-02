@@ -1,0 +1,252 @@
+<div class="pt-chamarse">
+<style>
+.pt-chamarse { color: #2b2b2b; font-family: inherit; }
+.pt-chamarse h2, .pt-chamarse h3, .pt-chamarse h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-chamarse .desc-box {
+	background: #fbfaf7 !important;
+	color: #2b2b2b !important;
+	border-left: 4px solid #c9a15a;
+	border-radius: 6px;
+	padding: 16px 20px;
+	margin: 18px 0;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-chamarse .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-chamarse .desc-box h3:first-child { margin-top: 0; }
+.pt-chamarse .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-chamarse .desc-box p:last-child { margin-bottom: 0; }
+.pt-chamarse .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-chamarse .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+
+.pt-chamarse .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
+.pt-chamarse .example-list { margin: 0 0 12px 0; }
+.pt-chamarse .example-list:last-child { margin-bottom: 0; }
+.pt-chamarse .example-list h5 {
+	color: #8a6d3b !important;
+	background: none;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin: 0 0 6px 0;
+}
+.pt-chamarse .ex-line {
+	color: #2b2b2b !important;
+	line-height: 1.7;
+	margin: 0 0 6px 0;
+	padding-left: 2em;
+	position: relative;
+}
+.pt-chamarse .ex-line:last-child { margin-bottom: 0; }
+.pt-chamarse .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-chamarse .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-chamarse .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-chamarse .intro-text { position: relative; padding-left: 1.9em; }
+.pt-chamarse .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-chamarse .intro-text .spk-btn { top: 0.85em; }
+.pt-chamarse .desc-box h3:hover .spk-btn,
+.pt-chamarse .intro-text:hover .spk-btn,
+.pt-chamarse .ex-line:hover .spk-btn,
+.pt-chamarse .spk-btn:focus-visible { opacity: 1; }
+.pt-chamarse .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-chamarse .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-chamarse .spk-btn { opacity: 0.4; }
+}
+
+.pt-chamarse .example-box {
+	background: #1a1a1a !important;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 14px 18px;
+	margin: 18px 0;
+}
+.pt-chamarse .example-box h4 {
+	color: #d8b46a !important;
+	font-size: 0.95em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 10px;
+}
+.pt-chamarse .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-chamarse .example-box .pt-word { color: #d8b46a !important; }
+.pt-chamarse .example-box .ex-line { color: #eaeaea !important; }
+.pt-chamarse .example-box .en-eq { color: #9a9a9a !important; }
+.pt-chamarse .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-chamarse .exercise-box {
+	background: #f6f2fb !important;
+	border: 1px dashed #b79bd6;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin: 18px 0;
+}
+.pt-chamarse .exercise-box > h4 {
+	color: #7a3f9e !important;
+	font-size: 1em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 12px;
+}
+.pt-chamarse .exercise-item {
+	background: #ffffff !important;
+	border: 1px solid #e4d9f0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+}
+.pt-chamarse .exercise-item:last-child { margin-bottom: 0; }
+.pt-chamarse .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-chamarse .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+/* Type A: in-place blanks (matches 03-ser-usos-principais pattern) */
+.pt-chamarse .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-chamarse .blank-word { display: inline-block; }
+.pt-chamarse .underscore { color: #999 !important; }
+.pt-chamarse .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-chamarse .check-btn {
+	background: #7a3f9e !important;
+	color: #ffffff !important;
+	border: none;
+	border-radius: 5px;
+	padding: 6px 16px;
+	font-size: 0.85em;
+	cursor: pointer;
+	margin-top: 4px;
+}
+.pt-chamarse .check-btn:hover { background: #5f2f7d !important; }
+</style>
+
+<h2>16b. Verbo chamar-se (reflexivo) <span class="en">(The verb chamar-se — reflexive "to be called")</span></h2>
+
+<div class="desc-box">
+	<p class="intro-text" data-pt="Chamar-se é um verbo reflexo: o sujeito e o objeto são a mesma pessoa, por isso o verbo precisa de um pronome reflexo."><button class="spk-btn" aria-label="Ouvir">🔊</button><em>Chamar-se</em> is a reflexive verb — the subject and the object are the same person, so alongside the verb you also need a reflexive pronoun (<em>me, te, se</em>). This page also recaps <em>ser</em> and the definite article (<em>o/a</em>), since both get reused constantly in the exercises below.</p>
+
+	<h3 data-pt="Presente do Indicativo, chamar-se"><button class="spk-btn" aria-label="Ouvir">🔊</button>Presente do Indicativo — chamar-se <span class="en">(Present tense — to be called)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="eu chamo-me"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eu chamo-me</span><span class="en-eq">I am called... (first person)</span></p>
+		<p class="ex-line" data-pt="tu chamas-te"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tu chamas-te</span><span class="en-eq">you are called... (second person, informal)</span></p>
+		<p class="ex-line" data-pt="você, ele, ela, o senhor, a senhora chama-se"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">você / ele / ela / o senhor / a senhora chama-se</span><span class="en-eq">you/he/she/you (formal) are/is called... (third person)</span></p>
+	</div>
+
+	<h3 data-pt="Colocação do pronome reflexo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Colocação do pronome reflexo <span class="en">(Reflexive pronoun placement)</span></h3>
+	<p>The reflexive pronoun (<em>me, te, se</em>) goes right after the question word and before the verb: <span class="pt-word" style="font-size:0.95em;">Como se chama?</span> In a statement with no question word, the pronoun normally attaches to the end of the verb instead: <span class="pt-word" style="font-size:0.95em;">Chamo-me...</span> / <span class="pt-word" style="font-size:0.95em;">Chama-se...</span>. The subject pronoun (<em>eu, tu</em>, etc.) is usually left out, since the verb ending already shows who's speaking.</p>
+
+	<h3 data-pt="Formal vs informal"><button class="spk-btn" aria-label="Ouvir">🔊</button>Formal vs. informal <span class="en">(Formal vs. informal)</span></h3>
+	<p>The 2nd person (<em>tu</em>) is informal — <span class="pt-word" style="font-size:0.95em;">Como te chamas?</span> The 3rd person (<em>você / o senhor / a senhora</em>) is normally the formal way to ask someone's name — <span class="pt-word" style="font-size:0.95em;">Como se chama?</span></p>
+
+	<h3 data-pt="Presente do Indicativo, ser, revisão"><button class="spk-btn" aria-label="Ouvir">🔊</button>Presente do Indicativo — ser <span class="en">(Present tense of ser — recap, singular)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="eu sou"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eu sou</span><span class="en-eq">I am (first person)</span></p>
+		<p class="ex-line" data-pt="tu és"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tu és</span><span class="en-eq">you are (second person, informal)</span></p>
+		<p class="ex-line" data-pt="você, ele, ela, o senhor, a senhora é"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">você / ele / ela / o senhor / a senhora é</span><span class="en-eq">you/he/she/you (formal) are/is (third person)</span></p>
+	</div>
+
+	<h3 data-pt="Artigo definido, revisão"><button class="spk-btn" aria-label="Ouvir">🔊</button>Artigo definido <span class="en">(Definite article — recap, singular)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="masculino, o"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">masculino — o</span><span class="en-eq">masculine — the</span></p>
+		<p class="ex-line" data-pt="feminino, a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">feminino — a</span><span class="en-eq">feminine — the</span></p>
+	</div>
+	<p>In Portuguese, the definite article is frequently used before someone's first name: <span class="pt-word" style="font-size:0.95em;">o Filipe, a Joana</span>.</p>
+</div>
+
+<div class="example-box">
+	<h4>Exemplos</h4>
+
+	<div class="example-list">
+		<h5>Perguntas — chamar-se</h5>
+		<p class="ex-line" data-pt="Como se chama?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como se chama?</span><span class="en-eq">What is your name? (formal)</span></p>
+		<p class="ex-line" data-pt="Como te chamas?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como te chamas?</span><span class="en-eq">What is your name? (informal)</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Respostas — chamar-se</h5>
+		<p class="ex-line" data-pt="Chamo-me Ana Ribeiro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Chamo-me Ana Ribeiro.</span><span class="en-eq">My name is Ana Ribeiro.</span></p>
+		<p class="ex-line" data-pt="O Filipe chama-se Filipe Costa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Filipe chama-se Filipe Costa.</span><span class="en-eq">Filipe's name is Filipe Costa.</span></p>
+		<p class="ex-line" data-pt="A Joana chama-se Joana Alves."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Joana chama-se Joana Alves.</span><span class="en-eq">Joana's name is Joana Alves.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Ser e artigo definido — revisão</h5>
+		<p class="ex-line" data-pt="Sou o Pedro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou o Pedro.</span><span class="en-eq">I am Pedro.</span></p>
+		<p class="ex-line" data-pt="És a Teresa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">És a Teresa?</span><span class="en-eq">Are you Teresa?</span></p>
+	</div>
+</div>
+
+<div class="exercise-box">
+	<h4>Exercícios — Verbo chamar-se (reflexivo)</h4>
+
+	<div class="exercise-item">
+		<p class="ex-label">A. Complete as frases com a forma correta do verbo chamar-se.</p>
+		<p class="question">
+			1. Ele chama-se Eduardo Sousa. <em style="color:#999;">(exemplo)</em><br>
+			2. <span class="blank-word"><span class="underscore">___</span><span class="fill">Chamo-me</span></span> Jorge. (eu)<br>
+			3. O senhor <span class="blank-word"><span class="underscore">___</span><span class="fill">chama-se</span></span> Nuno Pires?<br>
+			4. <span class="blank-word"><span class="underscore">___</span><span class="fill">Chamas-te</span></span> Raquel? (tu)<br>
+			5. Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">chama-se</span></span> Mafalda Raposo.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">B. Complete as frases com me, te ou se antes ou depois do verbo.</p>
+		<p class="ex-note">Some blanks stay empty — the pronoun only fills one of the two positions, never both.</p>
+		<p class="question">
+			1. Ela chama-se Maria Lopes. <em style="color:#999;">(exemplo)</em><br>
+			2. Como <span class="blank-word"><span class="underscore">___</span><span class="fill">te</span></span> chamas<span class="blank-word"><span class="underscore">___</span><span class="fill">—</span></span>?<br>
+			3. <span class="blank-word"><span class="underscore">___</span><span class="fill">—</span></span> chamo <span class="blank-word"><span class="underscore">___</span><span class="fill">-me</span></span> Joaquim.<br>
+			4. Como <span class="blank-word"><span class="underscore">___</span><span class="fill">se</span></span> chama<span class="blank-word"><span class="underscore">___</span><span class="fill">—</span></span>?<br>
+			5. <span class="blank-word"><span class="underscore">___</span><span class="fill">—</span></span> chama<span class="blank-word"><span class="underscore">___</span><span class="fill">-se</span></span> Teresa Alves?
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">C. Complete as frases com a forma correta do verbo ser.</p>
+		<p class="question">
+			1. Sou o Pedro. (eu) <em style="color:#999;">(exemplo)</em><br>
+			2. <span class="blank-word"><span class="underscore">___</span><span class="fill">É</span></span> a Anabela? (você)<br>
+			3. <span class="blank-word"><span class="underscore">___</span><span class="fill">És</span></span> a Teresa? (tu)<br>
+			4. Quem <span class="blank-word"><span class="underscore">___</span><span class="fill">é</span></span> ele?<br>
+			5. Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">é</span></span> a Cristina.<br>
+			6. E tu, <span class="blank-word"><span class="underscore">___</span><span class="fill">és</span></span> quem?
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">D. Complete com o artigo definido.</p>
+		<p class="question">
+			1. Sou o João. <em style="color:#999;">(exemplo)</em><br>
+			2. É <span class="blank-word"><span class="underscore">___</span><span class="fill">a</span></span> Clara.<br>
+			3. És <span class="blank-word"><span class="underscore">___</span><span class="fill">a</span></span> Anabela?<br>
+			4. É <span class="blank-word"><span class="underscore">___</span><span class="fill">o</span></span> Francisco?<br>
+			5. Sou <span class="blank-word"><span class="underscore">___</span><span class="fill">a</span></span> Inês.<br>
+			6. Sou <span class="blank-word"><span class="underscore">___</span><span class="fill">o</span></span> Pedro.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+</div>
+</div>
