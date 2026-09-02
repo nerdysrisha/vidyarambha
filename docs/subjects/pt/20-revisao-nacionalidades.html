@@ -198,24 +198,31 @@
 	font-size: 0.9em;
 }
 
-/* ---------- Postcard cards (Section K) ---------- */
-.pt-nacionalidades .postcard {
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	background: #ffffff !important;
-	border: 1px solid #e4d9f0;
+
+/* ---------- Worksheet images (J, K) ---------- */
+.pt-nacionalidades .worksheet-img {
+	display: block;
 	border-radius: 8px;
-	padding: 12px 16px;
-	margin-bottom: 10px;
-	flex-wrap: wrap;
+	border: 1px solid #e4d9f0;
+	background: #fbfaf7;
 }
-.pt-nacionalidades .postcard .flag { font-size: 1.7em; line-height: 1; }
-.pt-nacionalidades .postcard .dest { font-size: 1.7em; line-height: 1; }
-.pt-nacionalidades .postcard .arrow { color: #c9a15a !important; font-size: 1.2em; }
-.pt-nacionalidades .postcard .addr { flex: 1; min-width: 170px; font-size: 0.88em; color: #555 !important; line-height: 1.4; }
-.pt-nacionalidades .postcard .addr strong { color: #2b2b2b !important; display: block; font-family: Georgia, "Times New Roman", serif; }
-.pt-nacionalidades .postcard-fill { margin-top: 6px; }
+.pt-nacionalidades .worksheet-photo { max-width: 320px; width: 100%; height: auto; margin: 10px 0; }
+.pt-nacionalidades .qa-block { margin-bottom: 18px; }
+.pt-nacionalidades .qa-block:last-child { margin-bottom: 0; }
+.pt-nacionalidades .qa-label {
+	color: #7a3f9e !important;
+	font-weight: 700;
+	font-size: 0.82em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin: 10px 0 6px 0;
+}
+.pt-nacionalidades .qa-block .qa-label:first-child { margin-top: 0; }
+.pt-nacionalidades .qa-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.pt-nacionalidades .qa-row .worksheet-img { width: 64px; height: 64px; object-fit: cover; flex-shrink: 0; }
+.pt-nacionalidades .qa-row .addr { flex: 1; min-width: 170px; font-size: 0.88em; color: #555 !important; line-height: 1.4; }
+.pt-nacionalidades .qa-row .addr strong { color: #2b2b2b !important; display: block; font-family: Georgia, "Times New Roman", serif; }
+.pt-nacionalidades .qa-answer { color: #2b2b2b !important; line-height: 1.7; margin: 0; }
 </style>
 
 <h2>20. Revisão — Nacionalidades <span class="en">(Review — Nationalities)</span></h2>
@@ -476,7 +483,6 @@
 
 <div class="desc-box">
 	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Onde estás agora?">🔊</button>Onde estás agora? <span class="en">(Where are you now? — putting it together)</span></h3>
-	<p><em>Fecha a revisão: combina nacionalidade, origem e localização atual numa única prática (secções I, J, K da ficha do professor).</em></p>
 
 	<div class="importante-box">
 		<span class="label">Importante</span>
@@ -493,56 +499,64 @@
 
 	<div class="exercise-item">
 		<p class="ex-label">J. Onde está a Francesca?</p>
-		<p class="ex-note">Fotografia: uma rapariga junto à Torre Eiffel, em Paris.</p>
-		<div class="postcard">
-			<span class="flag">📍</span>
-			<span class="addr"><strong>Francesca</strong><span class="en">Torre Eiffel — Paris</span></span>
-			<span class="dest">🇫🇷</span>
-		</div>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde está a Francesca?">🔊</button>Onde está a Francesca?<span class="en-eq">Where is Francesca?</span></p>
-		<ol class="cue-list">
-			<li><span class="cue">Onde está a Francesca?</span> <span class="reveal">Está em Paris. / Está em França.</span></li>
-		</ol>
-		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+		<img src="/pt/images/francesca-paris.png" alt="francesca-paris.png" class="worksheet-img worksheet-photo">
+		<p class="ex-line">Onde está a Francesca?<span class="en-eq">Where is Francesca?</span></p>
 	</div>
 
 	<div class="exercise-item">
 		<p class="ex-label">K. Olhe para as bandeiras, as moradas e os postais e complete as frases.</p>
 		<p class="ex-note">Padrão: [nacionalidade/origem] + mas mora em [morada] + Agora está em [postal]. Item 1 já está feito como exemplo.</p>
 
-		<div class="postcard">
-			<span class="flag">🇵🇹</span>
-			<span class="addr"><strong>Ana Rodrigues</strong>Calle Boca de Oro, 10 — 01902 Huelva, Espanha</span>
-			<span class="dest">🇨🇳</span>
+		<div class="qa-block">
+			<p class="qa-label">1. Pergunta</p>
+			<div class="qa-row">
+				<img src="/pt/images/portugal-flag.png" alt="portugal-flag.png" class="worksheet-img">
+				<span class="addr"><strong>Ana Rodrigues</strong>Calle Boca de Oro, 10 — 01902 Huelva, Espanha</span>
+				<img src="/pt/images/great-wall-china.png" alt="great-wall-china.png" class="worksheet-img">
+			</div>
+			<p class="qa-label">Resposta</p>
+			<p class="qa-answer"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Ana é de Portugal, mas mora em Espanha. Agora está na China.">🔊</button><span class="pt-word">A Ana é de Portugal</span>, mas <span class="pt-word">mora em Espanha</span>. Agora <span class="pt-word">está na China</span>.<span class="en-eq">Ana is from Portugal, but lives in Spain. Now she's in China.</span></p>
 		</div>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Ana é de Portugal, mas mora em Espanha. Agora está na China.">🔊</button>1. A Ana <span class="pt-word">é de Portugal</span>, mas <span class="pt-word">mora em Espanha</span>. Agora <span class="pt-word">está na China</span>.<span class="en-eq">Ana is from Portugal, but lives in Spain. Now she's in China.</span> <span class="en">(example)</span></p>
 
-		<div class="postcard">
-			<span class="flag">🇸🇪</span>
-			<span class="addr"><strong>Zoi Sotiriou</strong>Av. Juárez, 453 — 44100 Guadalajara, Jalisco, México</span>
-			<span class="dest">🇧🇷</span>
+		<div class="qa-block">
+			<p class="qa-label">2. Pergunta</p>
+			<div class="qa-row">
+				<img src="/pt/images/sweden-flag.png" alt="sweden-flag.png" class="worksheet-img">
+				<span class="addr"><strong>Zoi Sotiriou</strong>Av. Juárez, 453 — 44100 Guadalajara, Jalisco, México</span>
+				<img src="/pt/images/cristo-redentor-brazil.png" alt="cristo-redentor-brazil.png" class="worksheet-img">
+			</div>
+			<p class="qa-label">Resposta</p>
+			<ol class="cue-list">
+				<li><span class="cue">A Zoi é ______, mas ______. Agora ______.</span> <span class="reveal">A Zoi é da Suécia, mas mora no México. Agora está no Brasil.</span></li>
+			</ol>
 		</div>
-		<p class="ex-line postcard-fill">2. A Zoi é ______, mas ______. Agora ______. <span class="en">(postcard: Cristo Redentor, Brasil)</span></p>
 
-		<div class="postcard">
-			<span class="flag">🇯🇵</span>
-			<span class="addr"><strong>Yui Higashi</strong>Via Broletto 30 — 2807 Milano, Itália</span>
-			<span class="dest">🇮🇳</span>
+		<div class="qa-block">
+			<p class="qa-label">3. Pergunta</p>
+			<div class="qa-row">
+				<img src="/pt/images/japan-flag.png" alt="japan-flag.png" class="worksheet-img">
+				<span class="addr"><strong>Yui Higashi</strong>Via Broletto 30 — 2807 Milano, Itália</span>
+				<img src="/pt/images/ram-mandir-india.png" alt="ram-mandir-india.png" class="worksheet-img">
+			</div>
+			<p class="qa-label">Resposta</p>
+			<ol class="cue-list">
+				<li><span class="cue">A Yui é ______, mas ______. Agora ______.</span> <span class="reveal">A Yui é do Japão, mas mora em Itália. Agora está na Índia.</span></li>
+			</ol>
 		</div>
-		<p class="ex-line postcard-fill">3. A Yui é ______, mas ______. Agora ______. <span class="en">(postcard: Ram Mandir, Índia)</span></p>
 
-		<div class="postcard">
-			<span class="flag">🇷🇺</span>
-			<span class="addr"><strong>Luba Makarova</strong>Rua 17 de Setembro, 8 — 2379 Luanda, Angola</span>
-			<span class="dest">🇺🇸</span>
+		<div class="qa-block">
+			<p class="qa-label">4. Pergunta</p>
+			<div class="qa-row">
+				<img src="/pt/images/russia-flag.png" alt="russia-flag.png" class="worksheet-img">
+				<span class="addr"><strong>Luba Makarova</strong>Rua 17 de Setembro, 8 — 2379 Luanda, Angola</span>
+				<img src="/pt/images/statue-of-liberty-usa.png" alt="statue-of-liberty-usa.png" class="worksheet-img">
+			</div>
+			<p class="qa-label">Resposta</p>
+			<ol class="cue-list">
+				<li><span class="cue">A Luba é ______, mas ______. Agora ______.</span> <span class="reveal">A Luba é da Rússia, mas mora em Angola. Agora está nos Estados Unidos.</span></li>
+			</ol>
 		</div>
-		<p class="ex-line postcard-fill">4. A Luba é ______, mas ______. Agora ______. <span class="en">(postcard: Estátua da Liberdade, EUA)</span></p>
 
-		<ol class="cue-list">
-			<li><span class="cue">2. A Zoi...</span> <span class="reveal">A Zoi é da Suécia, mas mora no México. Agora está no Brasil.</span></li>
-			<li><span class="cue">3. A Yui...</span> <span class="reveal">A Yui é do Japão, mas mora em Itália. Agora está na Índia.</span></li>
-			<li><span class="cue">4. A Luba...</span> <span class="reveal">A Luba é da Rússia, mas mora em Angola. Agora está nos Estados Unidos.</span></li>
-		</ol>
 		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
 	</div>
 </div>
