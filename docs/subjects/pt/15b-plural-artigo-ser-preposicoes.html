@@ -1,0 +1,289 @@
+<div class="pt-serplural">
+<style>
+.pt-serplural { color: #2b2b2b; font-family: inherit; }
+.pt-serplural h2, .pt-serplural h3, .pt-serplural h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-serplural .desc-box {
+	background: #fbfaf7 !important;
+	color: #2b2b2b !important;
+	border-left: 4px solid #c9a15a;
+	border-radius: 6px;
+	padding: 16px 20px;
+	margin: 18px 0;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-serplural .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-serplural .desc-box h3:first-child { margin-top: 0; }
+.pt-serplural .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-serplural .desc-box p:last-child { margin-bottom: 0; }
+.pt-serplural .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-serplural .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-serplural .formula-line { font-family: "Courier New", monospace; color: #555 !important; line-height: 1.9; margin: 0 0 12px 0; }
+.pt-serplural .formula-line .pt-word { font-family: "Courier New", monospace; font-size: 1em; }
+
+.pt-serplural .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
+.pt-serplural .example-list { margin: 0 0 12px 0; }
+.pt-serplural .example-list:last-child { margin-bottom: 0; }
+.pt-serplural .example-list h5 {
+	color: #8a6d3b !important;
+	background: none;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin: 0 0 6px 0;
+}
+.pt-serplural .ex-line {
+	color: #2b2b2b !important;
+	line-height: 1.7;
+	margin: 0 0 6px 0;
+	padding-left: 2em;
+	position: relative;
+}
+.pt-serplural .ex-line:last-child { margin-bottom: 0; }
+.pt-serplural .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-serplural .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-serplural .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-serplural .intro-text { position: relative; padding-left: 1.9em; }
+.pt-serplural .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-serplural .intro-text .spk-btn { top: 0.85em; }
+.pt-serplural .desc-box h3:hover .spk-btn,
+.pt-serplural .intro-text:hover .spk-btn,
+.pt-serplural .ex-line:hover .spk-btn,
+.pt-serplural .spk-btn:focus-visible { opacity: 1; }
+.pt-serplural .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-serplural .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-serplural .spk-btn { opacity: 0.4; }
+}
+
+.pt-serplural .example-box {
+	background: #1a1a1a !important;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 14px 18px;
+	margin: 18px 0;
+}
+.pt-serplural .example-box h4 {
+	color: #d8b46a !important;
+	font-size: 0.95em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 10px;
+}
+.pt-serplural .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-serplural .example-box .pt-word { color: #d8b46a !important; }
+.pt-serplural .example-box .ex-line { color: #eaeaea !important; }
+.pt-serplural .example-box .en-eq { color: #9a9a9a !important; }
+.pt-serplural .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-serplural .exercise-box {
+	background: #f6f2fb !important;
+	border: 1px dashed #b79bd6;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin: 18px 0;
+}
+.pt-serplural .exercise-box > h4 {
+	color: #7a3f9e !important;
+	font-size: 1em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 12px;
+}
+.pt-serplural .exercise-item {
+	background: #ffffff !important;
+	border: 1px solid #e4d9f0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+}
+.pt-serplural .exercise-item:last-child { margin-bottom: 0; }
+.pt-serplural .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-serplural .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+/* Type A: in-place blanks (matches 03-ser-usos-principais pattern) */
+.pt-serplural .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-serplural .blank-word { display: inline-block; }
+.pt-serplural .underscore { color: #999 !important; }
+.pt-serplural .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-serplural .check-btn {
+	background: #7a3f9e !important;
+	color: #ffffff !important;
+	border: none;
+	border-radius: 5px;
+	padding: 6px 16px;
+	font-size: 0.85em;
+	cursor: pointer;
+	margin-top: 4px;
+}
+.pt-serplural .check-btn:hover { background: #5f2f7d !important; }
+</style>
+
+<h2>15b. Plural — artigo, ser e preposições (de/em) <span class="en">(Plural forms — article, ser, and the prepositions de/em)</span></h2>
+
+<div class="desc-box">
+	<p class="intro-text" data-pt="Esta página aplica ao plural o que já vimos no singular: o artigo definido, o verbo ser, e as contrações de e em."><button class="spk-btn" aria-label="Ouvir">🔊</button>This page takes the singular material from earlier lessons — the definite article, <em>ser</em>, and the <em>de/em</em> contractions — and applies it to the plural: plural articles, negation, plural pronouns and <em>ser</em>, and the plural forms of <em>do/da/dos/das</em> and <em>no/na/nos/nas</em>.</p>
+
+	<h3 data-pt="Artigo definido, plural"><button class="spk-btn" aria-label="Ouvir">🔊</button>Artigo definido (plural) <span class="en">(Definite article — plural)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="masculino, os"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">masculino — os</span><span class="en-eq">masculine — the</span></p>
+		<p class="ex-line" data-pt="feminino, as"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">feminino — as</span><span class="en-eq">feminine — the</span></p>
+	</div>
+	<p>• The article is obligatory before most country names. It's optional before <em>Espanha, Itália, França</em> and <em>Inglaterra</em>.</p>
+	<p>• Country names with no article: <em>Portugal, Marrocos, Angola, Moçambique, Cuba, Israel</em>.</p>
+	<p>• City names take no article. A few exceptions: <span class="pt-word" style="font-size:0.95em;">o Rio de Janeiro, o Porto</span>.</p>
+
+	<h3 data-pt="Preposição de"><button class="spk-btn" aria-label="Ouvir">🔊</button>Preposição de <span class="en">(Preposition de)</span></h3>
+	<p>The preposition <em>de</em> indicates origin: <span class="pt-word" style="font-size:0.95em;">Ele é de Lisboa.</span> When the place name takes an article, <em>de</em> contracts with it:</p>
+	<p class="formula-line">de + o = <span class="pt-word">do</span> &nbsp;&nbsp; de + a = <span class="pt-word">da</span> &nbsp;&nbsp; de + os = <span class="pt-word">dos</span> &nbsp;&nbsp; de + as = <span class="pt-word">das</span></p>
+
+	<h3 data-pt="Frases negativas"><button class="spk-btn" aria-label="Ouvir">🔊</button>Frases negativas <span class="en">(Negative sentences)</span></h3>
+	<p>To make a sentence negative, place <em>não</em> right before the verb — this works the same way in every person:</p>
+	<p class="formula-line">(eu) sou → (eu) <span class="pt-word">não sou</span> &nbsp;&nbsp; (tu) és → (tu) <span class="pt-word">não és</span> &nbsp;&nbsp; <span class="en">(etc.)</span></p>
+
+	<h3 data-pt="Pronomes pessoais e o verbo ser, plural"><button class="spk-btn" aria-label="Ouvir">🔊</button>Pronomes pessoais e o verbo ser (plural) <span class="en">(Personal pronouns and ser — plural)</span></h3>
+	<p class="formula-line">
+		eu → <span class="pt-word">nós</span> &nbsp;&nbsp; tu → <span class="pt-word">vocês</span> &nbsp;&nbsp; você → <span class="pt-word">vocês / as senhoras / os senhores</span><br>
+		o senhor → <span class="pt-word">os senhores</span> &nbsp;&nbsp; a senhora → <span class="pt-word">as senhoras</span><br>
+		ele → <span class="pt-word">eles</span> &nbsp;&nbsp; ela → <span class="pt-word">elas</span>
+	</p>
+	<div class="example-list">
+		<p class="ex-line" data-pt="nós somos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nós somos</span><span class="en-eq">we are (first person, plural)</span></p>
+		<p class="ex-line" data-pt="vocês, eles, elas, os senhores, as senhoras são"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">vocês / eles / elas / os senhores / as senhoras são</span><span class="en-eq">you/they/you (formal) are (second/third person, plural)</span></p>
+	</div>
+
+	<h3 data-pt="Preposição em"><button class="spk-btn" aria-label="Ouvir">🔊</button>Preposição em <span class="en">(Preposition em)</span></h3>
+	<p>The preposition <em>em</em> indicates location: <span class="pt-word" style="font-size:0.95em;">Lisboa é em Portugal.</span> It also contracts with the article:</p>
+	<p class="formula-line">em + o = <span class="pt-word">no</span> &nbsp;&nbsp; em + os = <span class="pt-word">nos</span> &nbsp;&nbsp; em + a = <span class="pt-word">na</span> &nbsp;&nbsp; em + as = <span class="pt-word">nas</span></p>
+	<p>For geographical location we use the verb <em>ser</em> or <em>ficar</em>.</p>
+</div>
+
+<div class="example-box">
+	<h4>Exemplos</h4>
+
+	<div class="example-list">
+		<h5>Artigo definido + países</h5>
+		<p class="ex-line" data-pt="A Alemanha é grande."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Alemanha é grande.</span><span class="en-eq">Germany is big.</span></p>
+		<p class="ex-line" data-pt="O Brasil é um país grande."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Brasil é um país grande.</span><span class="en-eq">Brazil is a big country.</span></p>
+		<p class="ex-line" data-pt="Portugal é pequeno."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Portugal é pequeno.</span><span class="en-eq">Portugal is small. (no article)</span></p>
+		<p class="ex-line" data-pt="As Filipinas são um arquipélago."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">As Filipinas são um arquipélago.</span><span class="en-eq">The Philippines is an archipelago.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Preposição de — origem</h5>
+		<p class="ex-line" data-pt="Ele é do Brasil."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ele é do Brasil.</span><span class="en-eq">He is from Brazil.</span></p>
+		<p class="ex-line" data-pt="Sou de Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou de Portugal.</span><span class="en-eq">I am from Portugal. (no article, so no contraction)</span></p>
+		<p class="ex-line" data-pt="A Samantha é das Filipinas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Samantha é das Filipinas.</span><span class="en-eq">Samantha is from the Philippines.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Frases negativas</h5>
+		<p class="ex-line" data-pt="Não sou do Japão."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Não sou do Japão.</span><span class="en-eq">I am not from Japan.</span></p>
+		<p class="ex-line" data-pt="Ela não é da China."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela não é da China.</span><span class="en-eq">She is not from China.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Ser no plural</h5>
+		<p class="ex-line" data-pt="Nós somos de Espanha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nós somos de Espanha.</span><span class="en-eq">We are from Spain.</span></p>
+		<p class="ex-line" data-pt="Vocês são do México?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Vocês são do México?</span><span class="en-eq">Are you (pl.) from Mexico?</span></p>
+		<p class="ex-line" data-pt="Eles são da Itália."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eles são da Itália.</span><span class="en-eq">They are from Italy.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Preposição em — localização</h5>
+		<p class="ex-line" data-pt="Sintra é em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sintra é em Portugal.</span><span class="en-eq">Sintra is in Portugal. (no article, so no contraction)</span></p>
+		<p class="ex-line" data-pt="Chicago é nos Estados Unidos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Chicago é nos Estados Unidos.</span><span class="en-eq">Chicago is in the United States.</span></p>
+		<p class="ex-line" data-pt="Manila é nas Filipinas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Manila é nas Filipinas.</span><span class="en-eq">Manila is in the Philippines.</span></p>
+	</div>
+</div>
+
+<div class="exercise-box">
+	<h4>Exercícios — Plural: artigo, ser e preposições</h4>
+
+	<div class="exercise-item">
+		<p class="ex-label">A. Complete com o artigo o, a, os ou as onde necessário.</p>
+		<p class="question">
+			1. a Alemanha <em style="color:#999;">(exemplo)</em><br>
+			2. <span class="blank-word"><span class="underscore">___</span><span class="fill">o</span></span> Brasil<br>
+			3. <span class="blank-word"><span class="underscore">___</span><span class="fill">—</span></span> Portugal<br>
+			4. <span class="blank-word"><span class="underscore">___</span><span class="fill">a</span></span> China<br>
+			5. <span class="blank-word"><span class="underscore">___</span><span class="fill">as</span></span> Filipinas<br>
+			6. <span class="blank-word"><span class="underscore">___</span><span class="fill">o</span></span> México<br>
+			7. <span class="blank-word"><span class="underscore">___</span><span class="fill">os</span></span> Estados Unidos<br>
+			8. <span class="blank-word"><span class="underscore">___</span><span class="fill">o</span></span> Japão
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">B. Complete com de, do, da, dos ou das.</p>
+		<p class="ex-note">Portugal takes no article, so the preposition before it stays uncontracted: de.</p>
+		<p class="question">
+			1. A Wilma é da Suécia. <em style="color:#999;">(exemplo)</em><br>
+			2. Ele é <span class="blank-word"><span class="underscore">___</span><span class="fill">do</span></span> Brasil.<br>
+			3. És <span class="blank-word"><span class="underscore">___</span><span class="fill">dos</span></span> Estados Unidos?<br>
+			4. Sou <span class="blank-word"><span class="underscore">___</span><span class="fill">de</span></span> Portugal.<br>
+			5. A Samantha é <span class="blank-word"><span class="underscore">___</span><span class="fill">das</span></span> Filipinas.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">C. Escreva as frases na negativa.</p>
+		<p class="question">
+			1. Ela é da China. <span class="blank-word"><span class="underscore">___</span><span class="fill">Ela não é da China.</span></span> <em style="color:#999;">(exemplo)</em><br>
+			2. Sou do Japão. <span class="blank-word"><span class="underscore">___________</span><span class="fill">Não sou do Japão.</span></span><br>
+			3. A Anita é da Suécia. <span class="blank-word"><span class="underscore">___________</span><span class="fill">A Anita não é da Suécia.</span></span><br>
+			4. És do Brasil. <span class="blank-word"><span class="underscore">___________</span><span class="fill">Não és do Brasil.</span></span>
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">D. Complete com o pronome e o verbo no plural.</p>
+		<p class="question">
+			1. Ela é de Espanha. <span class="blank-word"><span class="underscore">___</span><span class="fill">Elas são</span></span> de Espanha. <em style="color:#999;">(exemplo)</em><br>
+			2. Eu sou de Portugal. <span class="blank-word"><span class="underscore">___________</span><span class="fill">Nós somos</span></span> de Portugal.<br>
+			3. Tu és de Itália? <span class="blank-word"><span class="underscore">___________</span><span class="fill">Vocês são</span></span> de Itália?<br>
+			4. Você é da China? <span class="blank-word"><span class="underscore">___________</span><span class="fill">Vocês são</span></span> da China?<br>
+			5. Ele é do México. <span class="blank-word"><span class="underscore">___________</span><span class="fill">Eles são</span></span> do México.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">E. Complete com em, no, na, nos ou nas.</p>
+		<p class="ex-note">Portugal takes no article, so the preposition before it stays uncontracted: em.</p>
+		<p class="question">
+			1. Munique é na Alemanha. <em style="color:#999;">(exemplo)</em><br>
+			2. Sintra é <span class="blank-word"><span class="underscore">___</span><span class="fill">em</span></span> Portugal.<br>
+			3. Chicago é <span class="blank-word"><span class="underscore">___</span><span class="fill">nos</span></span> Estados Unidos.<br>
+			4. Manila é <span class="blank-word"><span class="underscore">___</span><span class="fill">nas</span></span> Filipinas.<br>
+			5. Guadalajara é <span class="blank-word"><span class="underscore">___</span><span class="fill">no</span></span> México.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+</div>
+</div>
