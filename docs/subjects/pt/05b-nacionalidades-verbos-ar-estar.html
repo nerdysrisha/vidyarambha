@@ -1,0 +1,284 @@
+<div class="pt-nacverbos">
+<style>
+.pt-nacverbos { color: #2b2b2b; font-family: inherit; }
+.pt-nacverbos h2, .pt-nacverbos h3, .pt-nacverbos h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-nacverbos .desc-box {
+	background: #fbfaf7 !important;
+	color: #2b2b2b !important;
+	border-left: 4px solid #c9a15a;
+	border-radius: 6px;
+	padding: 16px 20px;
+	margin: 18px 0;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-nacverbos .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-nacverbos .desc-box h3:first-child { margin-top: 0; }
+.pt-nacverbos .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-nacverbos .desc-box p:last-child { margin-bottom: 0; }
+.pt-nacverbos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-nacverbos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-nacverbos .formula-line { font-family: "Courier New", monospace; color: #555 !important; line-height: 1.9; margin: 0 0 12px 0; }
+.pt-nacverbos .formula-line .pt-word { font-family: "Courier New", monospace; font-size: 1em; }
+
+.pt-nacverbos .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
+.pt-nacverbos .example-list { margin: 0 0 12px 0; }
+.pt-nacverbos .example-list:last-child { margin-bottom: 0; }
+.pt-nacverbos .example-list h5 {
+	color: #8a6d3b !important;
+	background: none;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin: 0 0 6px 0;
+}
+.pt-nacverbos .ex-line {
+	color: #2b2b2b !important;
+	line-height: 1.7;
+	margin: 0 0 6px 0;
+	padding-left: 2em;
+	position: relative;
+}
+.pt-nacverbos .ex-line:last-child { margin-bottom: 0; }
+.pt-nacverbos .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-nacverbos .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-nacverbos .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-nacverbos .intro-text { position: relative; padding-left: 1.9em; }
+.pt-nacverbos .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-nacverbos .intro-text .spk-btn { top: 0.85em; }
+.pt-nacverbos .desc-box h3:hover .spk-btn,
+.pt-nacverbos .intro-text:hover .spk-btn,
+.pt-nacverbos .ex-line:hover .spk-btn,
+.pt-nacverbos .spk-btn:focus-visible { opacity: 1; }
+.pt-nacverbos .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-nacverbos .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-nacverbos .spk-btn { opacity: 0.4; }
+}
+
+.pt-nacverbos .example-box {
+	background: #1a1a1a !important;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 14px 18px;
+	margin: 18px 0;
+}
+.pt-nacverbos .example-box h4 {
+	color: #d8b46a !important;
+	font-size: 0.95em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 10px;
+}
+.pt-nacverbos .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-nacverbos .example-box .pt-word { color: #d8b46a !important; }
+.pt-nacverbos .example-box .ex-line { color: #eaeaea !important; }
+.pt-nacverbos .example-box .en-eq { color: #9a9a9a !important; }
+.pt-nacverbos .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-nacverbos .exercise-box {
+	background: #f6f2fb !important;
+	border: 1px dashed #b79bd6;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin: 18px 0;
+}
+.pt-nacverbos .exercise-box > h4 {
+	color: #7a3f9e !important;
+	font-size: 1em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 12px;
+}
+.pt-nacverbos .exercise-item {
+	background: #ffffff !important;
+	border: 1px solid #e4d9f0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+}
+.pt-nacverbos .exercise-item:last-child { margin-bottom: 0; }
+.pt-nacverbos .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-nacverbos .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+/* Type A: in-place blanks (matches 03-ser-usos-principais pattern) */
+.pt-nacverbos .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-nacverbos .blank-word { display: inline-block; }
+.pt-nacverbos .underscore { color: #999 !important; }
+.pt-nacverbos .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-nacverbos .check-btn {
+	background: #7a3f9e !important;
+	color: #ffffff !important;
+	border: none;
+	border-radius: 5px;
+	padding: 6px 16px;
+	font-size: 0.85em;
+	cursor: pointer;
+	margin-top: 4px;
+}
+.pt-nacverbos .check-btn:hover { background: #5f2f7d !important; }
+</style>
+
+<h2>5b. Nacionalidades, verbos -ar e estar <span class="en">(Nationalities, -ar verbs, and estar — review of ser vs. estar)</span></h2>
+
+<div class="desc-box">
+	<p class="intro-text" data-pt="Esta página junta o género e número das nacionalidades, os verbos regulares da 1.ª conjugação, o verbo estar, e a diferença entre ser e estar."><button class="spk-btn" aria-label="Ouvir">🔊</button>This page brings together nationality agreement (gender and number), regular <em>-ar</em> verbs like <em>falar</em>, the full conjugation of <em>estar</em>, and the core rule distinguishing <em>ser</em> from <em>estar</em>.</p>
+
+	<h3 data-pt="Género e número das nacionalidades"><button class="spk-btn" aria-label="Ouvir">🔊</button>Género e número das nacionalidades <span class="en">(Gender and number of nationalities)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="inglês, inglesa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">inglês / inglesa</span><span class="en-eq">English (m./f.)</span></p>
+		<p class="ex-line" data-pt="italiano, italiana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">italiano / italiana</span><span class="en-eq">Italian (m./f.)</span></p>
+		<p class="ex-line" data-pt="espanhol, espanhola"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">espanhol / espanhola</span><span class="en-eq">Spanish (m./f.)</span></p>
+		<p class="ex-line" data-pt="alemão, alemã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alemão / alemã</span><span class="en-eq">German (m./f.)</span></p>
+		<p class="ex-line" data-pt="belga, belga"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">belga / belga</span><span class="en-eq">Belgian (m./f. — invariable)</span></p>
+	</div>
+	<div class="example-list">
+		<p class="ex-line" data-pt="ingleses, inglesas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ingleses / inglesas</span><span class="en-eq">English (m. pl./f. pl.)</span></p>
+		<p class="ex-line" data-pt="italianos, italianas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">italianos / italianas</span><span class="en-eq">Italian (m. pl./f. pl.)</span></p>
+		<p class="ex-line" data-pt="espanhóis, espanholas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">espanhóis / espanholas</span><span class="en-eq">Spanish (m. pl./f. pl.)</span></p>
+		<p class="ex-line" data-pt="alemães, alemãs"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alemães / alemãs</span><span class="en-eq">German (m. pl./f. pl.)</span></p>
+		<p class="ex-line" data-pt="belgas, belgas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">belgas / belgas</span><span class="en-eq">Belgian (m. pl./f. pl. — invariable)</span></p>
+	</div>
+	<p>When a mixed-gender group is described, the masculine plural form is used — as in <span class="pt-word" style="font-size:0.95em;">O Hiroto e a Misaki são japoneses.</span></p>
+
+	<h3 data-pt="Presente do Indicativo, verbos -ar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Presente do Indicativo — verbos -ar <span class="en">(Present tense — regular -ar verbs)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="eu falo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eu falo</span><span class="en-eq">I speak (first person)</span></p>
+		<p class="ex-line" data-pt="tu falas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tu falas</span><span class="en-eq">you speak (second person, informal)</span></p>
+		<p class="ex-line" data-pt="você, ele, ela fala"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">você / ele / ela fala</span><span class="en-eq">you/he/she speak(s) (third person)</span></p>
+		<p class="ex-line" data-pt="nós falamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nós falamos</span><span class="en-eq">we speak (first person, plural)</span></p>
+		<p class="ex-line" data-pt="vocês, eles, elas falam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">vocês / eles / elas falam</span><span class="en-eq">you/they speak (second/third person, plural)</span></p>
+	</div>
+	<p>The verbs <em>ficar</em> and <em>morar</em> conjugate the same way as <em>falar</em>.</p>
+
+	<h3 data-pt="Presente do Indicativo, estar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Presente do Indicativo — estar <span class="en">(Present tense — estar)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="eu estou"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">eu estou</span><span class="en-eq">I am (first person)</span></p>
+		<p class="ex-line" data-pt="tu estás"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tu estás</span><span class="en-eq">you are (second person, informal)</span></p>
+		<p class="ex-line" data-pt="você, ele, ela está"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">você / ele / ela está</span><span class="en-eq">you/he/she are/is (third person)</span></p>
+		<p class="ex-line" data-pt="nós estamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nós estamos</span><span class="en-eq">we are (first person, plural)</span></p>
+		<p class="ex-line" data-pt="vocês, eles, elas estão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">vocês / eles / elas estão</span><span class="en-eq">you/they are (second/third person, plural)</span></p>
+	</div>
+
+	<h3 data-pt="Ser e Estar"><button class="spk-btn" aria-label="Ouvir">🔊</button>Ser e Estar <span class="en">(Ser and Estar)</span></h3>
+	<p>• The verb <em>estar</em> indicates location or a temporary state.</p>
+	<p>• The verb <em>ser</em> indicates location or a permanent state.</p>
+</div>
+
+<div class="example-box">
+	<h4>Exemplos</h4>
+
+	<div class="example-list">
+		<h5>Nacionalidades</h5>
+		<p class="ex-line" data-pt="Ela é inglesa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela é inglesa.</span><span class="en-eq">She is English.</span></p>
+		<p class="ex-line" data-pt="Eles são espanhóis."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eles são espanhóis.</span><span class="en-eq">They are Spanish.</span></p>
+		<p class="ex-line" data-pt="A Greta é alemã."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A Greta é alemã.</span><span class="en-eq">Greta is German.</span></p>
+		<p class="ex-line" data-pt="O Guy é belga."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Guy é belga.</span><span class="en-eq">Guy is Belgian.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Verbos -ar — falar, ficar, morar</h5>
+		<p class="ex-line" data-pt="Falo português."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Falo português.</span><span class="en-eq">I speak Portuguese.</span></p>
+		<p class="ex-line" data-pt="Ela fica em casa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela fica em casa.</span><span class="en-eq">She stays home.</span></p>
+		<p class="ex-line" data-pt="Nós moramos em Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nós moramos em Lisboa.</span><span class="en-eq">We live in Lisbon.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Estar</h5>
+		<p class="ex-line" data-pt="Estou bem."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou bem.</span><span class="en-eq">I am well.</span></p>
+		<p class="ex-line" data-pt="Onde estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde estás?</span><span class="en-eq">Where are you?</span></p>
+		<p class="ex-line" data-pt="Eles estão em Londres."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eles estão em Londres.</span><span class="en-eq">They are in London. (currently, temporary)</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Ser vs. estar</h5>
+		<p class="ex-line" data-pt="Ela é portuguesa, mas está em Espanha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ela é portuguesa, mas está em Espanha.</span><span class="en-eq">She is Portuguese, but she is (currently) in Spain.</span></p>
+		<p class="ex-line" data-pt="Hamburgo é na Alemanha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Hamburgo é na Alemanha.</span><span class="en-eq">Hamburg is in Germany. (permanent geographic fact)</span></p>
+	</div>
+</div>
+
+<div class="exercise-box">
+	<h4>Exercícios — Nacionalidades, verbos -ar e estar</h4>
+
+	<div class="exercise-item">
+		<p class="ex-label">A. Complete as frases.</p>
+		<p class="question">
+			1. O Hiroto é japonês.<br>
+			&nbsp;&nbsp;&nbsp;A Misaki é japonesa.<br>
+			&nbsp;&nbsp;&nbsp;O Hiroto e a Misaki são japoneses. <em style="color:#999;">(exemplo)</em><br>
+			2. O Maxim é <span class="blank-word"><span class="underscore">___</span><span class="fill">russo</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;A Olga é <span class="blank-word"><span class="underscore">___</span><span class="fill">russa</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;O Maxim e a Olga são russos.<br>
+			3. O Ioannis é grego.<br>
+			&nbsp;&nbsp;&nbsp;A Maria é <span class="blank-word"><span class="underscore">___</span><span class="fill">grega</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;O Ioannis e a Maria são <span class="blank-word"><span class="underscore">___</span><span class="fill">gregos</span></span>.<br>
+			4. O Jules é <span class="blank-word"><span class="underscore">___</span><span class="fill">francês</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;A Louise é <span class="blank-word"><span class="underscore">___</span><span class="fill">francesa</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;O Jules e a Louise são franceses.<br>
+			5. O Lucas é <span class="blank-word"><span class="underscore">___</span><span class="fill">sueco</span></span>.<br>
+			&nbsp;&nbsp;&nbsp;A Elsa é sueca.<br>
+			&nbsp;&nbsp;&nbsp;O Lucas e a Elsa são <span class="blank-word"><span class="underscore">___</span><span class="fill">suecos</span></span>.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">B. Complete com a forma correta do verbo falar.</p>
+		<p class="question">
+			1. Falo francês. (eu) <em style="color:#999;">(exemplo)</em><br>
+			2. Ele não <span class="blank-word"><span class="underscore">___</span><span class="fill">fala</span></span> chinês.<br>
+			3. Não <span class="blank-word"><span class="underscore">___</span><span class="fill">falamos</span></span> italiano. (nós)<br>
+			4. Vocês <span class="blank-word"><span class="underscore">___</span><span class="fill">falam</span></span> alemão?<br>
+			5. <span class="blank-word"><span class="underscore">___</span><span class="fill">Falas</span></span> espanhol? (tu)
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">C. Complete com a forma correta do verbo estar.</p>
+		<p class="question">
+			1. A Joana não está em Portugal. <em style="color:#999;">(exemplo)</em><br>
+			2. Como <span class="blank-word"><span class="underscore">___</span><span class="fill">estás</span></span>? (tu)<br>
+			3. Onde <span class="blank-word"><span class="underscore">___</span><span class="fill">estão</span></span>? (vocês)<br>
+			4. <span class="blank-word"><span class="underscore">___</span><span class="fill">Estamos</span></span> em Londres. (nós)<br>
+			5. Não <span class="blank-word"><span class="underscore">___</span><span class="fill">estou</span></span> muito bem. (eu)
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">D. Complete com a forma correta do verbo ser ou estar.</p>
+		<p class="ex-note">Ask: is this permanent/identity (ser) or temporary/current (estar)?</p>
+		<p class="question">
+			1. Onde está o John? <em style="color:#999;">(exemplo)</em><br>
+			2. Hamburgo <span class="blank-word"><span class="underscore">___</span><span class="fill">é</span></span> na Alemanha.<br>
+			3. A Ana e o Ricardo <span class="blank-word"><span class="underscore">___</span><span class="fill">estão</span></span> em Roma.<br>
+			4. O Christos e a Anna <span class="blank-word"><span class="underscore">___</span><span class="fill">são</span></span> gregos.<br>
+			5. Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">estou</span></span> bem.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+</div>
+</div>
