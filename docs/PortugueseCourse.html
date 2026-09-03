@@ -34,8 +34,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border: 1px solid #333;
     border-radius: 8px;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: thin;
     scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed {
+    width: 42px;
 }
 #sidebar::-webkit-scrollbar { width: 8px; }
 #sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -50,6 +55,47 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     position: sticky;
     top: 0;
     background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+}
+#sidebar.collapsed #sidebar-title {
+    padding: 14px 0;
+    justify-content: center;
+}
+#sidebar-title .title-text {
+    overflow: hidden;
+    transition: opacity 0.15s ease;
+}
+#sidebar.collapsed #sidebar-title .title-text {
+    display: none;
+}
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover {
+    background: #1a1a1a;
+    color: #00c8ff;
+    box-shadow: none;
+}
+#sidebar.collapsed #sidebar-list {
+    display: none;
 }
 
 .topic-item {
@@ -188,7 +234,10 @@ button:active { transform: scale(0.97); }
 
 <div id="outer">
     <div id="sidebar">
-        <div id="sidebar-title">Topics</div>
+        <div id="sidebar-title">
+            <span class="title-text">Topics</span>
+            <button id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">&#171;</button>
+        </div>
         <div id="sidebar-list"></div>
     </div>
     <div id="main-col">
@@ -322,6 +371,16 @@ function loadTopic(i) {
 
 document.getElementById("prevBtn").onclick = () => loadTopic(currentIndex - 1);
 document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
+
+// ── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────
+const sidebarEl   = document.getElementById("sidebar");
+const toggleBtn    = document.getElementById("sidebar-toggle");
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    tooltipEl.classList.remove("visible");
+});
 
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
