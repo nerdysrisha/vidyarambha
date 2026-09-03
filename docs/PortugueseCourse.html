@@ -116,7 +116,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     background: #0a0a0a;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 7px 10px;
+    padding: 7px 28px 7px 10px;
     color: #eee;
     font-size: 13px;
     font-family: inherit;
@@ -124,6 +124,68 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #topic-search::placeholder { color: #666; }
 #topic-search:focus { border-color: #00c8ff88; }
+#search-wrap {
+    position: relative;
+}
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: #777;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+}
+#search-clear:hover {
+    background: #222;
+    color: #fff;
+    box-shadow: none;
+}
+#search-wrap.has-text #search-clear {
+    display: flex;
+}
+#search-wrap {
+    position: relative;
+}
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: none;
+}
+#search-clear:hover {
+    background: #3a3a3a;
+    color: #fff;
+    box-shadow: none;
+}
+#search-clear.visible {
+    display: flex;
+}
 #search-count {
     font-size: 11px;
     color: #666;
@@ -281,7 +343,10 @@ button:active { transform: scale(0.97); }
             <button id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">&#171;</button>
         </div>
         <div id="sidebar-search-row">
-            <input type="text" id="topic-search" placeholder="Search e.g. esse, aquilo, tenho…" autocomplete="off">
+            <div id="search-wrap">
+                <input type="text" id="topic-search" placeholder="Search e.g. esse, aquilo, tenho…" autocomplete="off">
+                <button id="search-clear" aria-label="Clear search" title="Clear search">&#10005;</button>
+            </div>
             <div id="search-count"></div>
         </div>
         <div id="sidebar-list"></div>
@@ -453,9 +518,12 @@ document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
 // ── SEARCH ───────────────────────────────────────────────────────────────
 const searchInput = document.getElementById("topic-search");
 const searchCount = document.getElementById("search-count");
+const searchWrap  = document.getElementById("search-wrap");
+const searchClear = document.getElementById("search-clear");
 
-searchInput.addEventListener("input", () => {
+function runSearch() {
     const q = normalizeSearch(searchInput.value.trim());
+    searchWrap.classList.toggle("has-text", searchInput.value.length > 0);
 
     if (!q) {
         topicEls.forEach(el => el.classList.remove("search-match", "search-dim"));
@@ -474,6 +542,22 @@ searchInput.addEventListener("input", () => {
     searchCount.textContent = matches === 0
         ? "No topics found"
         : matches + " topic" + (matches === 1 ? "" : "s") + " found";
+}
+
+searchInput.addEventListener("input", runSearch);
+
+searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    runSearch();
+    searchInput.focus();
+});
+
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) {
+        e.stopPropagation();
+        searchInput.value = "";
+        runSearch();
+    }
 });
 
 // ── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────
