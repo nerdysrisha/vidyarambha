@@ -72,6 +72,29 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-weight: bold;
 }
 
+/* HOVER TOOLTIP — shows English gloss of the topic */
+#topic-tooltip {
+    position: fixed;
+    z-index: 50;
+    max-width: 260px;
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #00c8ff55;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+#topic-tooltip.visible {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
 /* RIGHT COLUMN — content + nav stacked */
 #main-col {
     flex: 1;
@@ -175,6 +198,8 @@ button:active { transform: scale(0.97); }
     </div>
 </div>
 
+<div id="topic-tooltip"></div>
+
 <div id="bottom-nav">
     <button id="prevBtn">&#8592; Prev</button>
     <span id="counter">1 / 1</span>
@@ -189,32 +214,58 @@ const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main
 
 // ── TOPIC LIST (edit labels/slugs here as needed) ────────────────────────────
 const topics = [
-	["00-credits",                         "Créditos / Credits"],
-    ["00-introduction",                    "0. Introdução — Identificação pessoal"],
-    ["01-artigos",                         "1. Artigos"],
-    ["01b-artigo-indefinido-genero-numero", "1b. Artigo indefinido, género, número, demonstrativos e cores"],
-    ["02-verbos-basicos",                  "2. Verbos básicos"],
-    ["03-ser-usos-principais",             "3. Ser — usos principais"],
-    ["04-estar-usos-principais",           "4. Estar — usos principais"],
-    ["05-ser-vs-estar",                    "5. Ser vs. estar"],
-    ["05b-nacionalidades-verbos-ar-estar",  "5b. Nacionalidades, verbos -ar e estar"],
-    ["06-ter",                             "6. Ter (+ Há)"],
-    ["07-palavras-de-tempo",               "7. Palavras de tempo"],
-    ["08-antes-depois",                    "8. Antes / depois"],
-    ["09-expressoes",                      "9. Expressões"],
-    ["10-tipos-de-verbos",                 "10. Tipos de verbos"],
-    ["11-presente-indicativo",             "11. Presente do Indicativo"],
-    ["12-estar-a-infinitivo",              "12. Estar + a + infinitivo"],
-    ["13-forma-negativa-estar-a-infinitivo","13. Forma negativa — estar + a + infinitivo"],
-    ["14-demonstrativos",                  "14. Demonstrativos"],
-    ["15-contracoes-preposicao-artigo",    "15. Contrações — preposição + artigo"],
-    ["15b-plural-artigo-ser-preposicoes",  "15b. Plural — artigo, ser e preposições"],
-    ["16-identificacao-pessoal",           "16. Identificação e caracterização pessoal"],
-    ["16b-verbo-chamar-se",                "16b. Verbo chamar-se (reflexivo)"],
-    ["17-conversas-dia-a-dia",             "17. Conversas do dia a dia"],
-    ["18-apresentar-descrever-pessoa",     "18. Apresentar / descrever uma pessoa"],
-    ["19-verbos-expressoes-rotina",        "19. Verbos e expressões de rotina"],
-    ["20-revisao-nacionalidades",          "20. Revisão — Nacionalidades"]
+	["00-credits",                         "Créditos / Credits",
+		"Course credits and acknowledgements."],
+    ["00-introduction",                    "Introdução — Identificação pessoal",
+        "Opening lesson: basic personal identification (name, greetings, first phrases)."],
+    ["01-artigos",                         "1. Artigos",
+        "Definite articles: o / a / os / as (\"the\")."],
+    ["01b-artigo-indefinido-genero-numero", "1b. Artigo indefinido, género, número, demonstrativos e cores",
+        "Indefinite articles (a/an), noun gender & number, intro to demonstratives, and colors."],
+    ["02-verbos-basicos",                  "2. Verbos básicos",
+        "A first set of essential everyday verbs."],
+    ["03-ser-usos-principais",             "3. Ser — usos principais",
+        "Main uses of \"ser\" (to be) — identity, origin, characteristics — permanent/inherent states."],
+    ["04-estar-usos-principais",           "4. Estar — usos principais",
+        "Main uses of \"estar\" (to be) — location, temporary states, feelings."],
+    ["05-ser-vs-estar",                    "5. Ser vs. estar",
+        "Direct comparison: when to use \"ser\" vs \"estar\" for \"to be\"."],
+    ["05b-nacionalidades-verbos-ar-estar",  "5b. Nacionalidades, verbos -ar e estar",
+        "Nationalities, regular -ar verb conjugation, more practice with estar."],
+    ["06-ter",                             "6. Ter (+ Há)",
+        "The verb \"ter\" (to have) and the impersonal \"há\" (there is/are)."],
+    ["07-palavras-de-tempo",               "7. Palavras de tempo",
+        "Time-related vocabulary: days, months, telling time, time expressions."],
+    ["08-antes-depois",                    "8. Antes / depois",
+        "\"Before\" and \"after\" — sequencing words and phrases."],
+    ["09-expressoes",                      "9. Expressões",
+        "Common everyday expressions and idioms."],
+    ["10-tipos-de-verbos",                 "10. Tipos de verbos",
+        "Verb categories/conjugation groups (-ar, -er, -ir) overview."],
+    ["11-presente-indicativo",             "11. Presente do Indicativo",
+        "Present indicative tense — regular conjugation patterns."],
+    ["12-estar-a-infinitivo",              "12. Estar + a + infinitivo",
+        "Present continuous equivalent: \"estar + a + infinitive\" (e.g., estou a falar = I am speaking)."],
+    ["13-forma-negativa-estar-a-infinitivo","13. Forma negativa — estar + a + infinitivo",
+        "Negating the \"estar + a + infinitive\" continuous construction."],
+    ["14-demonstrativos",                  "14. Demonstrativos",
+        "Demonstratives: this/that/these/those (este, esse, aquele...) and isto/isso/aquilo."],
+    ["15-contracoes-preposicao-artigo",    "15. Contrações — preposição + artigo",
+        "Contractions formed by preposition + article (de+o=do, em+a=na, etc.)."],
+    ["15b-plural-artigo-ser-preposicoes",  "15b. Plural — artigo, ser e preposições",
+        "Plural forms of articles, the verb ser, and prepositions."],
+    ["16-identificacao-pessoal",           "16. Identificação e caracterização pessoal",
+        "Personal identification and describing yourself (name, age, job, traits)."],
+    ["16b-verbo-chamar-se",                "16b. Verbo chamar-se (reflexivo)",
+        "The reflexive verb \"chamar-se\" (to be called/named)."],
+    ["17-conversas-dia-a-dia",             "17. Conversas do dia a dia",
+        "Everyday conversational phrases and small talk."],
+    ["18-apresentar-descrever-pessoa",     "18. Apresentar / descrever uma pessoa",
+        "Introducing and describing another person."],
+    ["19-verbos-expressoes-rotina",        "19. Verbos e expressões de rotina",
+        "Verbs and expressions for describing daily routine."],
+    ["20-revisao-nacionalidades",          "20. Revisão — Nacionalidades",
+        "Review lesson focused on nationalities."]
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────
@@ -222,14 +273,28 @@ let currentIndex = 0;
 const sidebarList = document.getElementById("sidebar-list");
 const contentBox  = document.getElementById("content-box");
 const counterEl   = document.getElementById("counter");
+const tooltipEl   = document.getElementById("topic-tooltip");
 
 // build sidebar once, listing every topic
-const topicEls = topics.map(([slug, label], i) => {
+const topicEls = topics.map(([slug, label, desc], i) => {
     const item = document.createElement("div");
     item.className = "topic-item";
     item.textContent = label;
     item.dataset.index = i;
     item.addEventListener("click", () => loadTopic(i));
+
+    item.addEventListener("mouseenter", () => {
+        tooltipEl.textContent = desc || "";
+        if (!desc) return;
+        const rect = item.getBoundingClientRect();
+        tooltipEl.style.left = (rect.right + 10) + "px";
+        tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+        tooltipEl.classList.add("visible");
+    });
+    item.addEventListener("mouseleave", () => {
+        tooltipEl.classList.remove("visible");
+    });
+
     sidebarList.appendChild(item);
     return item;
 });
