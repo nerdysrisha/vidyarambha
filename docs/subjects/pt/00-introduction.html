@@ -187,6 +187,53 @@
   margin-bottom: 10px;
 }
 
+.pt-lesson-2 .example-box h4.alpha-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pt-lesson-2 .alpha-speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #262626 !important;
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: #d8b46a !important;
+  font-size: 0.82em;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pt-lesson-2 .alpha-speak-btn:hover {
+  background: #333 !important;
+}
+
+.pt-lesson-2 .alpha-speak-btn .alpha-speak-icon {
+  font-size: 1em;
+}
+
+.pt-lesson-2 .alpha-speak-btn.speaking {
+  background: #2f6b52 !important;
+  border-color: #2f6b52;
+  color: #eafff3 !important;
+}
+
+.pt-lesson-2 .example-box tr.speaking-row td {
+  background: #33422f !important;
+  color: #ffffff !important;
+}
+
+.pt-lesson-2 .example-box tr.speaking-row td:first-child {
+  color: #f2d68a !important;
+}
+
 .pt-lesson-2 .example-box table {
   width: 100%;
   border-collapse: collapse;
@@ -226,7 +273,6 @@
 
 <h2>Introdução — Identificação e caracterização pessoal</h2>
 <p class="en">Personal identification and description</p>
-
  
 
 <div class="dialogue-box">
@@ -312,7 +358,12 @@
 </div>
 
 <div class="example-box">
-  <h4>Alfabeto português e pronúncia</h4>
+  <h4 class="alpha-heading">
+    <span>Alfabeto português e pronúncia</span>
+    <button class="alpha-speak-btn" id="alphaSpeakBtn" aria-label="Ouvir o alfabeto completo" type="button">
+      <span class="alpha-speak-icon">🔊</span><span class="alpha-speak-label">Ouvir tudo</span>
+    </button>
+  </h4>
   <table>
     <thead>
       <tr>
@@ -324,34 +375,98 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>a</td><td>आ</td><td>a</td><td>/a/</td><td>África</td></tr>
-      <tr><td>b</td><td>बे</td><td>bay</td><td>/b/</td><td>bem</td></tr>
-      <tr><td>c</td><td>से</td><td>say</td><td>/k/</td><td>cedo</td></tr>
-      <tr><td>d</td><td>दे</td><td>day</td><td>/d/</td><td>dente</td></tr>
-      <tr><td>e</td><td>ए</td><td>ay</td><td>/e/</td><td>elefante</td></tr>
-      <tr><td>f</td><td>एफ</td><td>eff</td><td>/f/</td><td>França</td></tr>
-      <tr><td>g</td><td>गे</td><td>gay</td><td>/g/</td><td>gato</td></tr>
-      <tr><td>h</td><td>अगा</td><td>aga</td><td>—</td><td>Holanda</td></tr>
-      <tr><td>i</td><td>इ</td><td>ee</td><td>/i/</td><td>Itália</td></tr>
-      <tr><td>j</td><td>जोता</td><td>jota</td><td>/ʒ/</td><td>jardim</td></tr>
-      <tr><td>k</td><td>कापा</td><td>kapa</td><td>/k/</td><td>koala</td></tr>
-      <tr><td>l</td><td>एले</td><td>ele</td><td>/l/</td><td>Lisboa</td></tr>
-      <tr><td>m</td><td>एम</td><td>eme</td><td>/m/</td><td>morada</td></tr>
-      <tr><td>n</td><td>एन</td><td>ene</td><td>/n/</td><td>não</td></tr>
-      <tr><td>o</td><td>ओ</td><td>o</td><td>/o/</td><td>ovo</td></tr>
-      <tr><td>p</td><td>पे</td><td>pe</td><td>/p/</td><td>porta</td></tr>
-      <tr><td>q</td><td>के</td><td>ke</td><td>/k/</td><td>quarto</td></tr>
-      <tr><td>r</td><td>एर्</td><td>erre</td><td>/r/, /R/</td><td>rua / carro</td></tr>
-      <tr><td>s</td><td>एस</td><td>esse</td><td>/s/</td><td>sopa</td></tr>
-      <tr><td>t</td><td>ते</td><td>te</td><td>/t/</td><td>torre</td></tr>
-      <tr><td>u</td><td>उ</td><td>u</td><td>/u/</td><td>união</td></tr>
-      <tr><td>v</td><td>भे</td><td>vhe</td><td>/v/</td><td>vinte</td></tr>
-      <tr><td>w</td><td>दाबल्यु / डबल्यू</td><td>dáblio / double-u</td><td>/w/</td><td>Wilson</td></tr>
-      <tr><td>x</td><td>शीश</td><td>shish</td><td>/ʃ/</td><td>xisto</td></tr>
-      <tr><td>y</td><td>ईप्सिलों / इग्गे</td><td>ípsilon / i grego</td><td>/j/</td><td>yoga</td></tr>
-      <tr><td>z</td><td>जे</td><td>ze</td><td>/z/</td><td>zebra</td></tr>
+      <tr data-say="a, como em África"><td>a</td><td>आ</td><td>a</td><td>/a/</td><td>África</td></tr>
+      <tr data-say="bê, como em bem"><td>b</td><td>बे</td><td>bay</td><td>/b/</td><td>bem</td></tr>
+      <tr data-say="cê, como em cedo"><td>c</td><td>से</td><td>say</td><td>/k/</td><td>cedo</td></tr>
+      <tr data-say="dê, como em dente"><td>d</td><td>दे</td><td>day</td><td>/d/</td><td>dente</td></tr>
+      <tr data-say="é, como em elefante"><td>e</td><td>ए</td><td>ay</td><td>/e/</td><td>elefante</td></tr>
+      <tr data-say="efe, como em França"><td>f</td><td>एफ</td><td>eff</td><td>/f/</td><td>França</td></tr>
+      <tr data-say="gê, como em gato"><td>g</td><td>गे</td><td>gay</td><td>/g/</td><td>gato</td></tr>
+      <tr data-say="agá, como em Holanda"><td>h</td><td>अगा</td><td>aga</td><td>—</td><td>Holanda</td></tr>
+      <tr data-say="i, como em Itália"><td>i</td><td>इ</td><td>ee</td><td>/i/</td><td>Itália</td></tr>
+      <tr data-say="jota, como em jardim"><td>j</td><td>जोता</td><td>jota</td><td>/ʒ/</td><td>jardim</td></tr>
+      <tr data-say="capa, como em koala"><td>k</td><td>कापा</td><td>kapa</td><td>/k/</td><td>koala</td></tr>
+      <tr data-say="ele, como em Lisboa"><td>l</td><td>एले</td><td>ele</td><td>/l/</td><td>Lisboa</td></tr>
+      <tr data-say="eme, como em morada"><td>m</td><td>एम</td><td>eme</td><td>/m/</td><td>morada</td></tr>
+      <tr data-say="ene, como em não"><td>n</td><td>एन</td><td>ene</td><td>/n/</td><td>não</td></tr>
+      <tr data-say="ó, como em ovo"><td>o</td><td>ओ</td><td>o</td><td>/o/</td><td>ovo</td></tr>
+      <tr data-say="pê, como em porta"><td>p</td><td>पे</td><td>pe</td><td>/p/</td><td>porta</td></tr>
+      <tr data-say="quê, como em quarto"><td>q</td><td>के</td><td>ke</td><td>/k/</td><td>quarto</td></tr>
+      <tr data-say="erre, como em rua"><td>r</td><td>एर्</td><td>erre</td><td>/r/, /R/</td><td>rua / carro</td></tr>
+      <tr data-say="esse, como em sopa"><td>s</td><td>एस</td><td>esse</td><td>/s/</td><td>sopa</td></tr>
+      <tr data-say="tê, como em torre"><td>t</td><td>ते</td><td>te</td><td>/t/</td><td>torre</td></tr>
+      <tr data-say="u, como em união"><td>u</td><td>उ</td><td>u</td><td>/u/</td><td>união</td></tr>
+      <tr data-say="vê, como em vinte"><td>v</td><td>भे</td><td>vhe</td><td>/v/</td><td>vinte</td></tr>
+      <tr data-say="dáblio, como em Wilson"><td>w</td><td>दाबल्यु / डबल्यू</td><td>dáblio / double-u</td><td>/w/</td><td>Wilson</td></tr>
+      <tr data-say="xis, como em xisto"><td>x</td><td>शीश</td><td>shish</td><td>/ʃ/</td><td>xisto</td></tr>
+      <tr data-say="ípsilon, como em yoga"><td>y</td><td>ईप्सिलों / इग्गे</td><td>ípsilon / i grego</td><td>/j/</td><td>yoga</td></tr>
+      <tr data-say="zê, como em zebra"><td>z</td><td>जे</td><td>ze</td><td>/z/</td><td>zebra</td></tr>
     </tbody>
   </table>
 </div>
+
+<script>
+(function () {
+  var container = document.currentScript.closest('.pt-lesson-2');
+  if (!container) return;
+  var btn = container.querySelector('#alphaSpeakBtn');
+  var rows = container.querySelectorAll('.example-box tbody tr');
+  if (!btn || !rows.length) return;
+
+  var speaking = false;
+  var index = 0;
+
+  function clearHighlight() {
+    rows.forEach(function (r) { r.classList.remove('speaking-row'); });
+  }
+
+  function setIdle() {
+    speaking = false;
+    index = 0;
+    clearHighlight();
+    btn.classList.remove('speaking');
+    btn.querySelector('.alpha-speak-label').textContent = 'Ouvir tudo';
+    btn.querySelector('.alpha-speak-icon').textContent = '🔊';
+  }
+
+  function speakNext() {
+    if (!speaking || index >= rows.length) {
+      window.speechSynthesis.cancel();
+      setIdle();
+      return;
+    }
+    clearHighlight();
+    var row = rows[index];
+    row.classList.add('speaking-row');
+    row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    var text = row.getAttribute('data-say') || row.cells[0].textContent;
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'pt-PT';
+    utter.rate = 0.9;
+    utter.onend = function () { index += 1; speakNext(); };
+    utter.onerror = function () { index += 1; speakNext(); };
+    window.speechSynthesis.speak(utter);
+  }
+
+  btn.addEventListener('click', function () {
+    if (!('speechSynthesis' in window)) {
+      alert('O seu navegador não suporta leitura de voz.');
+      return;
+    }
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setIdle();
+      return;
+    }
+    speaking = true;
+    index = 0;
+    btn.classList.add('speaking');
+    btn.querySelector('.alpha-speak-label').textContent = 'Parar';
+    btn.querySelector('.alpha-speak-icon').textContent = '⏹';
+    speakNext();
+  });
+})();
+</script>
 
 </div>
