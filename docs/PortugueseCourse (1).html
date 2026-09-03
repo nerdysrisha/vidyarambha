@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Portuguese Course</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 64px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR — full topic index */
+#sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed {
+    width: 42px;
+}
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+}
+#sidebar.collapsed #sidebar-title {
+    padding: 14px 0;
+    justify-content: center;
+}
+#sidebar-title .title-text {
+    overflow: hidden;
+    transition: opacity 0.15s ease;
+}
+#sidebar.collapsed #sidebar-title .title-text {
+    display: none;
+}
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover {
+    background: #1a1a1a;
+    color: #00c8ff;
+    box-shadow: none;
+}
+#sidebar.collapsed #sidebar-list {
+    display: none;
+}
+
+/* SEARCH BOX */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#sidebar.collapsed #sidebar-search-row {
+    display: none;
+}
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #00c8ff88; }
+#search-count {
+    font-size: 11px;
+    color: #666;
+    padding: 4px 2px 0 2px;
+}
+
+/* SEARCH MATCH / DIM STATES */
+.topic-item.search-match {
+    background: #0d1f2b;
+    border-left-color: #00c8ff;
+    color: #fff;
+}
+.topic-item.search-dim {
+    opacity: 0.28;
+}
+
+.topic-item {
+    padding: 10px 16px;
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: #ccc;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.topic-item:hover {
+    background: #1a1a1a;
+    color: #fff;
+}
+.topic-item.active {
+    background: #0d1f2b;
+    color: #00c8ff;
+    border-left-color: #00c8ff;
+    font-weight: bold;
+}
+
+/* HOVER TOOLTIP — shows English gloss of the topic */
+#topic-tooltip {
+    position: fixed;
+    z-index: 50;
+    max-width: 260px;
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #00c8ff55;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+#topic-tooltip.visible {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* RIGHT COLUMN — content + nav stacked */
+#main-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* CONTENT PANEL */
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+}
+
+#content-box {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 20px 26px;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    font-size: 17px;
+    line-height: 1.6;
+}
+#content-box::-webkit-scrollbar { width: 8px; }
+#content-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+/* default styling for whatever content gets dropped in */
+#content-box h1, #content-box h2, #content-box h3 {
+    color: #00c8ff;
+    margin-top: 0.2em;
+}
+#content-box table {
+    border-collapse: collapse;
+    margin: 14px 0;
+    width: 100%;
+}
+#content-box th, #content-box td {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    text-align: left;
+}
+#content-box th {
+    background: #131313;
+    color: #28a745;
+}
+#content-box tr:nth-child(even) td { background: #0e0e0e; }
+#content-box p { margin: 0.6em 0; }
+#content-box .pt { color: #fff; font-weight: bold; }
+#content-box .en { color: #999; font-style: italic; }
+
+/* BOTTOM NAV */
+#bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px 0;
+}
+button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    background: #0077cc;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0,119,204,0.5);
+}
+button:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
+button:active { transform: scale(0.97); }
+
+#counter {
+    font-size: 15px;
+    color: #aaa;
+    min-width: 60px;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">Topics</span>
+            <button id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <input type="text" id="topic-search" placeholder="Search e.g. esse, aquilo, tenho…" autocomplete="off">
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-list"></div>
+    </div>
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box"></div>
+        </div>
+    </div>
+</div>
+
+<div id="topic-tooltip"></div>
+
+<div id="bottom-nav">
+    <button id="prevBtn">&#8592; Prev</button>
+    <span id="counter">1 / 1</span>
+    <button id="nextBtn">Next &#8594;</button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+// Raw GitHub base URL for topic files. Each entry below fetches
+// BASE_URL + slug + ".html" and drops that HTML straight into the page.
+const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/";
+
+// ── TOPIC LIST (edit labels/slugs here as needed) ────────────────────────────
+const topics = [
+	["00-credits",                         "Créditos / Credits",
+		"Course credits and acknowledgements.",
+		"credits, créditos, curso de língua portuguesa, professor, shiv kumar singh, casa da índia, oriente, lisboa, sobre este curso, aviso, disclaimer"],
+    ["00-introduction",                    "Introdução — Identificação pessoal",
+        "Opening lesson: basic personal identification (name, greetings, first phrases).",
+        "chamo-me, sou da, sou de, falo português, falo inglês, moro em, trabalho na, trabalho num, tenho anos, não sou casado, os meus pais vivem, alfabeto português, pronúncia, letra, identificação pessoal"],
+    ["01-artigos",                         "1. Artigos",
+        "Definite articles: o / a / os / as (\"the\").",
+        "o, os, a, as, um, uns, uma, umas, artigos definidos, artigos indefinidos"],
+    ["01b-artigo-indefinido-genero-numero", "1b. Artigo indefinido, género, número, demonstrativos e cores",
+        "Indefinite articles (a/an), noun gender & number, intro to demonstratives, and colors.",
+        "isto, isso, aquilo, branco, branca, brancos, brancas, verde, verdes, azul, azuis, cor de rosa, de, da, do, artigo indefinido e género dos nomes, número dos nomes, demonstrativos invariáveis, cores, preposições e adjetivos, uso dos artigos"],
+    ["02-verbos-basicos",                  "2. Verbos básicos",
+        "A first set of essential everyday verbs.",
+        "ser, estar, ter, há, sou, és, é, somos, são, estou, estás, está, estamos, estão, tenho, tens, tem, temos, têm"],
+    ["03-ser-usos-principais",             "3. Ser — usos principais",
+        "Main uses of \"ser\" (to be) — identity, origin, characteristics — permanent/inherent states.",
+        "ser, indiano, italiano, professor, médico, casado, solteiro, sou de faro, é de lisboa, é do professor, é da maria, uma hora, duas horas, de madeira, de vidro, em portugal, em moçambique, o joão, a maria, inteligente, salgada, nacionalidade, profissão, estado civil, origem — ser de, posse — ser de, tempo cronológico, matéria — ser de, localização geográfica, identidade nome, características"],
+    ["04-estar-usos-principais",           "4. Estar — usos principais",
+        "Main uses of \"estar\" (to be) — location, temporary states, feelings.",
+        "estar, em casa, no trabalho, cansado, doente, calor, frio, com fome, com sede, aberta, quente, como está?, estou bem, já está, ainda não, localização, situação temporária, tempo meteorológico, estar com + nome, estado condição, cumprimentar perguntar como alguém está, já está? — situação concluída"],
+    ["05-ser-vs-estar",                    "5. Ser vs. estar",
+        "Direct comparison: when to use \"ser\" vs \"estar\" for \"to be\".",
+        "ser, estar, ela é loura, ele é inteligente, o vestido é novo, a água do mar é salgada, o limão é azedo, hoje estou cansado, a sopa está salgada, o leite não está bom está azedo, o vestido está roto, ele é de lisboa mas agora está no porto, são 10 horas da manhã e já está tanto calor"],
+    ["05b-nacionalidades-verbos-ar-estar",  "5b. Nacionalidades, verbos -ar e estar",
+        "Nationalities, regular -ar verb conjugation, more practice with estar.",
+        "inglês, inglesa, italiano, italiana, espanhol, espanhola, alemão, alemã, belga, ingleses, inglesas, italianos, italianas, espanhóis, espanholas, alemães, alemãs, belgas, eu falo, tu falas, você ele ela fala, nós falamos, vocês eles elas falam, eu estou, tu estás, você ele ela está, nós estamos, vocês eles elas estão, género e número das nacionalidades, presente do indicativo verbos -ar, presente do indicativo estar, ser e estar"],
+    ["06-ter",                             "6. Ter (+ Há)",
+        "The verb \"ter\" (to have) and the impersonal \"há\" (there is/are).",
+        "ter, tenho, tens, tem, temos, têm, tenho fome, tenho sede, tu tens fome?, ele tem sede, estou com fome, estou com sede, eles estão com fome, há, há um carro, há um rapaz na rua, há 20 rapazes na rua, há 13 pessoas na sala, há dinheiro na carteira"],
+    ["07-palavras-de-tempo",               "7. Palavras de tempo",
+        "Time-related vocabulary: days, months, telling time, time expressions.",
+        "manhã, tarde, noite, madrugada, de manhã, à tarde, à noite, segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado, domingo, hoje, amanhã, depois de amanhã, ontem, anteontem, fim de semana, férias, feriados, bom fim de semana, boas férias, bom feriado, zero, um, dois, três, quatro, cinco, seis, sete, oito, nove, dez, onze, doze, treze, catorze, quinze, dezasseis, dezassete, dezoito, dezanove, vinte, vinte e um, trinta, quarenta, cinquenta, sessenta, setenta, oitenta, noventa, cem, cento, duzentos, trezentos, mil, partes do dia, dias da semana, outros dias e referências de tempo, fim de semana férias feriados, números cardinais"],
+    ["08-antes-depois",                    "8. Antes / depois",
+        "\"Before\" and \"after\" — sequencing words and phrases.",
+        "antes de, depois de, antes de sair fecho a porta, depois de comer lavo os dentes, chegámos antes das nove, ele saiu depois de mim, antes do trabalho vou ao ginásio, depois da reunião vamos almoçar"],
+    ["09-expressoes",                      "9. Expressões",
+        "Common everyday expressions and idioms.",
+        "bom dia, boa tarde, boa noite, olá, adeus, até logo, até amanhã, por favor, obrigado/a, desculpa, com licença, muito prazer, boa quinta-feira, boa viagem, boa sorte, boa reunião, boa conversa, bom trabalho, bom almoço, bom sábado, bom fim de semana, bom sonho, abra a porta por favor, pode repetir por favor, pode repetir se faz favor, como está?, como estás?, estou bem obrigado/a, e consigo?, e contigo?, tudo bem?, tudo bem obrigado/a, muito prazer em conhecê-lo, muito prazer em conhecê-la, igualmente, para mim também, já está?, ainda não, é tudo?, ainda há mais, porquê?, porque..., também, está bem, tá bem, saudações e despedidas, votos de boa sorte, pedidos educados, perguntar responder como está, conhecer alguém, expressões úteis do dia a dia"],
+    ["10-tipos-de-verbos",                 "10. Tipos de verbos",
+        "Verb categories/conjugation groups (-ar, -er, -ir) overview.",
+        "-ar, -er, -ir, -or, falar, brincar, trabalhar, beber, comer, escrever, fazer, abrir, dormir, partir, pôr, cantar, jantar, morar, comprar, jogar, ler, vender, aprender, correr, sair, assistir, decidir, repor, compor, opor"],
+    ["11-presente-indicativo",             "11. Presente do Indicativo",
+        "Present indicative tense — regular conjugation patterns.",
+        "falar, eu falo, tu falas, ele fala, ela fala, você fala, nós falamos, eles falam, elas falam, vocês falam, eu levanto-me sempre às 8h00, normalmente almoçamos às 13h00 e jantamos às 20h30, o sr. ramos compra o jornal todos os dias, a terra gira à volta do sol, a ana fala inglês muito bem, as crianças gostam muito de chocolate, em lisboa as lojas fecham às 19h00, ele trabalha muito, telefono-te amanhã, os exames começam na próxima semana, trabalhar, brincar, morar, estudar, gostar, dançar, levantar-se, acordar, eu gosto de comer banana, tu gostas de ver futebol no estádio, nós gostamos de estudar português, ela não gosta de trabalhar à noite, trabalho de segunda-feira a sexta-feira, trabalho desde as 10h, tu trabalhas aos fins de semana, trabalhas das 10h às 18h, nós não trabalhamos aos fins de semana, verbos regulares em -ar, ações habituais, factos verdades, ações num futuro próximo, padrão de conjugação — verbos em -ar, verbos em -ar úteis, gostar de + infinitivo, expressões de tempo com o presente"],
+    ["12-estar-a-infinitivo",              "12. Estar + a + infinitivo",
+        "Present continuous equivalent: \"estar + a + infinitive\" (e.g., estou a falar = I am speaking).",
+        "estar + a + infinitivo, a aprender, a estudar, a ler, a trabalhar, a comer, a conversar, a fazer, a responder, eu estou a aprender, tu estás a aprender, ele está a aprender, nós estamos a conversar, eles estão a ler, ela está a ler, está a chover, eles estão a trabalhar, estou a estudar, o daniel está a responder aos emails, a vera está a fazer o almoço, estou a ver televisão há duas horas, estou em portugal há cinco anos, estamos a aprender português há quase um mês, estou a ver televisão desde as 12 horas, estou em portugal desde 2022, não estão a ir à cabeleireira desde julho, estou a conduzir uma mota, estou a estudar português, estou a descansar em casa, estou a escrever um texto em português, estou a fazer o jantar, estou a cozinhar, estou a jantar, estou a beber um café, estou a ler um texto no meu telemóvel, estou a viajar, estou a brincar com a minha filha, estou a comer uma barra de chocolate e estou a beber um chá, estou a beber a água → estou bebendo a água, estou a trabalhar na fábrica → estou trabalhando na fábrica, estou a abrir uma conta → estou abrindo uma conta num banco, estrutura, exemplos de infinitivos, conjugação, ações a acontecer agora, duração — há + período de tempo, desde + ponto de partida, mais exemplos de ações a acontecer agora, português europeu vs. português do brasil"],
+    ["13-forma-negativa-estar-a-infinitivo","13. Forma negativa — estar + a + infinitivo",
+        "Negating the \"estar + a + infinitive\" continuous construction.",
+        "não + estar + a + infinitivo, eu não estou a, tu não estás a, ele/ela/você não está a, nós não estamos a, eles/elas/vocês não estão a, eu não estou a brincar, tu não estás a jogar, ele não está a falar, ela não está a comer, não está a nevar, não estão a conversar"],
+    ["14-demonstrativos",                  "14. Demonstrativos",
+        "Demonstratives: this/that/these/those (este, esse, aquele...) and isto/isso/aquilo.",
+        "este, esta, estes, estas, isto, esse, essa, esses, essas, isso, aquele, aquela, aqueles, aquelas, aquilo, aqui, aí, ali, lá, deste, desse, daquele, neste, nesse, naquele, àquele, o que é isto?, é um livro, o que são isto?, são livros"],
+    ["15-contracoes-preposicao-artigo",    "15. Contrações — preposição + artigo",
+        "Contractions formed by preposition + article (de+o=do, em+a=na, etc.).",
+        "em + o = no, em + os = nos, em + a = na, em + as = nas, em + um = num, em + uns = nuns, em + uma = numa, em + umas = numas, de + o = do, de + os = dos, de + a = da, de + as = das, a + o = ao, a + os = aos, a + a = à, a + as = às, estou na paragem de autocarro, estou na estação, nós estudamos numa escola, estou em portugal, estou na índia, o livro do rapaz, o livro da selda, os livros dos rapazes, as canetas das raparigas, esta caneta é do joão, esta caneta é da carla, esta caneta é dos alunos, esta caneta é das alunas, eu dou 20 euros ao joão, eu dou 20 euros à michele, vou às 10h, esta caneta é deles"],
+    ["15b-plural-artigo-ser-preposicoes",  "15b. Plural — artigo, ser e preposições",
+        "Plural forms of articles, the verb ser, and prepositions.",
+        "masculino os, feminino as, do, da, dos, das, não sou, não és, nós somos, vocês eles elas os senhores as senhoras são, no, nos, na, nas, artigo definido plural, preposição de, frases negativas, pronomes pessoais e o verbo ser plural, preposição em"],
+    ["16-identificacao-pessoal",           "16. Identificação e caracterização pessoal",
+        "Personal identification and describing yourself (name, age, job, traits).",
+        "chamo-me joão costa, sou da inglaterra, sou de londres, falo português um pouco, falo inglês muito bem, moro em saldanha, moro na rua praia de vitória número 6 terceiro andar direito, trabalho na agricultura, trabalho num restaurante em saldanha, tenho 30 anos, não sou casado, os meus pais vivem na índia, gosto muito de ver futebol, gosto de ouvir música indiana, filho, filha, mulher, marido, mãe, pai, sogro, sogra, irmão, irmã, cunhado, tia, avó, primo, prima, madrinha, padrinho, sobrinho, sobrinha, o joão tem dois filhos e uma filha, a mulher dele é desempregada, a mãe do joão é professora, o seu pai é taxista, o sogro é motorista da tvde, a sogra é assistente social, ela tem um irmão e uma irmã, a tia dele é advogada, a avó dele é viúva, o carlos é o primo dele, a joana é a prima, a madrinha e o padrinho do joão são polícias, os sobrinhos do joão são estudantes, não ter emprego, estar desempregado/a, o livro do menino, os livros dos meninos, as roupas da menina, os sapatos das meninas, o pai do rapaz, a mãe dos rapazes, a situação da rapariga, a casa das raparigas, as ruas da cidade, o trabalho do joão, jornalista, professor, arquitecta, secretária, advogado, médica, músico, dentista, nome identificação, origem nacionalidade, morada, profissão trabalho, idade, estado civil, família, gostos preferências, família relações familiares, posse com de exemplos com pessoas, profissões"],
+    ["16b-verbo-chamar-se",                "16b. Verbo chamar-se (reflexivo)",
+        "The reflexive verb \"chamar-se\" (to be called/named).",
+        "eu chamo-me, tu chamas-te, você ele ela o senhor a senhora chama-se, como se chama?, como te chamas?, chamo-me ana ribeiro, o filipe chama-se filipe costa, a joana chama-se joana alves, sou o pedro, és a teresa?, presente do indicativo chamar-se, colocação do pronome reflexo, formal vs informal, presente do indicativo ser revisão, artigo definido revisão"],
+    ["17-conversas-dia-a-dia",             "17. Conversas do dia a dia",
+        "Everyday conversational phrases and small talk.",
+        "como está?, como estás?, estou bem obrigado/a, e o senhor?, e a senhora?, e você?, e consigo?, e contigo?, tudo bem?, onde está?, onde é que está?, onde está a sua mãe?, onde está o seu carro?, onde é a sua casa?, onde é que é a sua casa?, onde é o seu escritório?, onde é a sua empresa?, de onde é?, de onde é ele?, de onde vens?, sou da índia, sou indiano/indiana, sou de telangana, aonde vai?, aonde vais?, o que faz?, o que faz o senhor?, o que faz a senhora?, qual é a sua profissão?, sou informático, sou gerente da minha empresa, trabalho como analista na empresa, o que está a fazer?, o que estás a fazer?, agora estou a estudar português, estou a descansar, estou a ajudar o meu tio, quantos anos tem?, qual é a sua idade?, tenho 20 anos, tenho 50 anos, há quanto tempo está em portugal?, estou em portugal há cinco anos, estou em portugal desde 2022, qual é o seu livro?, qual é a sua nacionalidade?, qual é a língua que fala?, quais são as línguas que fala?, quem está com a camisa vermelha?, o pedro está com a camisa vermelha, quem tem a camisa vermelha?, o pedro tem a camisa vermelha, pode repetir por favor, pode repetir se faz favor, tem passaporte português ou indiano?, tenho passaporte indiano, tem residência?, tenho residência temporária, tem o número de contribuinte?, tem a carta de condução?, é casado?, sou casado, é mãe?, sim sou mãe, moro em arroios, vivo em portugal, estou a viver em portugal, a minha casa é em arroios, moro perto da estação do metro, onde trabalha?, trabalho numa fábrica, trabalho num hospital, trabalho como gerente, o meu marido trabalha com uma empresa norte-americana, o meu filho estuda numa escola pública/privada, gosta de portugal?, gosta de viver em portugal?, gosta de comer gelado?, gosto de estudar português"],
+    ["18-apresentar-descrever-pessoa",     "18. Apresentar / descrever uma pessoa",
+        "Introducing and describing another person.",
+        "ela chama-se prabh, ele chama-se rajesh, ela é da índia, ele é indiano, ela fala português um pouco, ele fala inglês muito bem, ela mora em sintra, ele mora em saldanha, ela trabalha num hospital, ele trabalha na agricultura, ela tem 30 anos, ele tem 45 anos, ela é casada, ele não é casado, os pais dela vivem na índia, ela tem dois filhos, alto, alta, baixo, baixa, magro, magra, forte, jovem, idoso, idosa, moreno, morena, loiro, loira, simpático, simpática, trabalhador, trabalhadora, inteligente, engraçado, engraçada, tímido, tímida, extrovertido, extrovertida, generoso, generosa, paciente, ela gosta muito de ver futebol, ele gosta de ouvir música indiana, nome identificação — terceira pessoa, origem nacionalidade — terceira pessoa, morada — terceira pessoa, profissão trabalho — terceira pessoa, idade — terceira pessoa, estado civil — terceira pessoa, família — terceira pessoa, descrição física, descrição de personalidade, gostos preferências — terceira pessoa"],
+    ["19-verbos-expressoes-rotina",        "19. Verbos e expressões de rotina",
+        "Verbs and expressions for describing daily routine.",
+        "cantar, jantar, limpar, lavar, descansar, sonhar, comprar, brincar, jogar, beber, levar, perguntar, tomar banho, nadar, canto, cantas, canta, cantamos, cantam, bebo, bebes, bebe, bebemos, bebem, tomar café, tomar o pequeno-almoço, de manhã, à tarde, à noite, todos os dias, ao fim de semana, antes de, depois de, de manhã tomo banho e tomo o pequeno-almoço, depois vou trabalhar, à tarde descanso um pouco, à noite janto com a família, depois do jantar brinco com os filhos, ao fim de semana limpo a casa e lavo a roupa, verbos, conjugação — verbos regulares em -ar, conjugação — verbo em -er, expressões com \\\"tomar\\\", expressões de tempo usadas na rotina, rotina diária"],
+    ["20-revisao-nacionalidades",          "20. Revisão — Nacionalidades",
+        "Review lesson focused on nationalities.",
+        "português, chinês, francês, senegalês, norueguês, -ês → -esa, -o → -a, -ol → -ola, -ão → -ã, invariável, alemão, árabe, espanhol, grego, inglês, italiano, russo, hindi, polaco, sueco, japonês, ucraniano, falo um pouco de, padrões de formação, línguas, portuguesa, portugueses, portuguesas, chinesa, chineses, chinesas, japonesa, japoneses, japonesas, francesa, franceses, francesas, senegalesa, senegaleses, senegalesas, norueguesa, noruegueses, norueguesas, russa, russos, russas, angolana, angolanos, angolanas, cubana, cubanos, cubanas, marroquina, marroquinos, marroquinas, sueca, suecos, suecas, egípcia, egípcios, egípcias, alemã, alemães, alemãs, espanhola, espanhóis, espanholas, belga, belgas, guineense, guineenses, são-tomense, são-tomenses, italiana, italianos, italianas, americana, americanos, americanas, polaca, polacos, polacas, mexicana, mexicanos, mexicanas, inglesa, ingleses, inglesas, brasileira, brasileiros, brasileiras, ucraniana, ucranianos, ucranianas, indiana, indianos, indianas, onde estás agora?"]
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let currentIndex = 0;
+const sidebarList = document.getElementById("sidebar-list");
+const contentBox  = document.getElementById("content-box");
+const counterEl   = document.getElementById("counter");
+const tooltipEl   = document.getElementById("topic-tooltip");
+
+// strip accents + lowercase, so "esse" also matches "essa", "és", etc.
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// build sidebar once, listing every topic
+const topicEls = topics.map(([slug, label, desc, keywords], i) => {
+    const item = document.createElement("div");
+    item.className = "topic-item";
+    item.textContent = label;
+    item.dataset.index = i;
+    item.dataset.search = normalizeSearch(label + " " + (keywords || ""));
+    item.addEventListener("click", () => loadTopic(i));
+
+    item.addEventListener("mouseenter", () => {
+        tooltipEl.textContent = desc || "";
+        if (!desc) return;
+        const rect = item.getBoundingClientRect();
+        tooltipEl.style.left = (rect.right + 10) + "px";
+        tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+        tooltipEl.classList.add("visible");
+    });
+    item.addEventListener("mouseleave", () => {
+        tooltipEl.classList.remove("visible");
+    });
+
+    sidebarList.appendChild(item);
+    return item;
+});
+
+function loadTopic(i) {
+    currentIndex = ((i % topics.length) + topics.length) % topics.length;
+    const [slug] = topics[currentIndex];
+
+    topicEls.forEach((el, idx) => el.classList.toggle("active", idx === currentIndex));
+    topicEls[currentIndex].scrollIntoView({ block: "nearest" });
+
+    counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
+    contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
+
+    // stop any speech from the previous topic before swapping content
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+
+    fetch(BASE_URL + slug + ".html")
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
+        .then(html => { contentBox.innerHTML = html; contentBox.scrollTop = 0; })
+        .catch(err => {
+            contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
+        });
+}
+
+document.getElementById("prevBtn").onclick = () => loadTopic(currentIndex - 1);
+document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
+
+// ── SEARCH ───────────────────────────────────────────────────────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+
+searchInput.addEventListener("input", () => {
+    const q = normalizeSearch(searchInput.value.trim());
+
+    if (!q) {
+        topicEls.forEach(el => el.classList.remove("search-match", "search-dim"));
+        searchCount.textContent = "";
+        return;
+    }
+
+    let matches = 0;
+    topicEls.forEach(el => {
+        const isMatch = el.dataset.search.includes(q);
+        el.classList.toggle("search-match", isMatch);
+        el.classList.toggle("search-dim", !isMatch);
+        if (isMatch) matches++;
+    });
+
+    searchCount.textContent = matches === 0
+        ? "No topics found"
+        : matches + " topic" + (matches === 1 ? "" : "s") + " found";
+});
+
+// ── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────
+const sidebarEl   = document.getElementById("sidebar");
+const toggleBtn    = document.getElementById("sidebar-toggle");
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    tooltipEl.classList.remove("visible");
+});
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
+});
+
+// ── TEXT-TO-SPEECH (Portuguese) ──────────────────────────────────────────────
+// Lesson HTML fetched into #content-box is inserted via innerHTML, so any
+// <script> tags embedded in those files never execute. This engine lives in
+// the shell instead — registered ONCE, delegated on #content-box, which
+// persists across topic swaps (only its innerHTML changes). Lesson files just
+// need the markup: a button.spk-btn inside an element carrying data-pt="...".
+function pickPortugueseVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return (
+        voices.find(v => v.lang === "pt-PT") ||
+        voices.find(v => v.lang && v.lang.indexOf("pt") === 0) ||
+        null
+    );
+}
+
+function speakPortuguese(text, btn) {
+    if (!("speechSynthesis" in window)) {
+        alert("Speech is not supported in this browser.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "pt-PT";
+    utter.rate = 0.6; // slower for clearer learning
+    const voice = pickPortugueseVoice();
+    if (voice) utter.voice = voice;
+
+    document.querySelectorAll(".spk-btn.speaking").forEach(b => b.classList.remove("speaking"));
+    if (btn) {
+        btn.classList.add("speaking");
+        utter.onend = () => btn.classList.remove("speaking");
+        utter.onerror = () => btn.classList.remove("speaking");
+    }
+    window.speechSynthesis.speak(utter);
+}
+
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+contentBox.addEventListener("click", e => {
+    const btn = e.target.closest(".spk-btn");
+    if (!btn) return;
+    const wrap = btn.closest("[data-pt]");
+    if (!wrap) return;
+    e.preventDefault();
+    speakPortuguese(wrap.getAttribute("data-pt"), btn);
+});
+
+// start on Topic 0
+loadTopic(0);
+</script>
+
+</body>
+</html>
