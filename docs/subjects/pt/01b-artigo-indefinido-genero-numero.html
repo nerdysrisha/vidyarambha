@@ -1,0 +1,319 @@
+<div class="pt-artigoindef">
+<style>
+.pt-artigoindef { color: #2b2b2b; font-family: inherit; }
+.pt-artigoindef h2, .pt-artigoindef h3, .pt-artigoindef h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-artigoindef .desc-box {
+	background: #fbfaf7 !important;
+	color: #2b2b2b !important;
+	border-left: 4px solid #c9a15a;
+	border-radius: 6px;
+	padding: 16px 20px;
+	margin: 18px 0;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-artigoindef .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-artigoindef .desc-box h3:first-child { margin-top: 0; }
+.pt-artigoindef .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-artigoindef .desc-box p:last-child { margin-bottom: 0; }
+.pt-artigoindef .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-artigoindef .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-artigoindef .formula-line { font-family: "Courier New", monospace; color: #555 !important; line-height: 1.9; margin: 0 0 12px 0; }
+.pt-artigoindef .formula-line .pt-word { font-family: "Courier New", monospace; font-size: 1em; }
+
+.pt-artigoindef .intro-text {
+	padding-bottom: 14px;
+	margin-bottom: 4px !important;
+	border-bottom: 1px solid #e6ddc9;
+}
+
+.pt-artigoindef .example-list { margin: 0 0 12px 0; }
+.pt-artigoindef .example-list:last-child { margin-bottom: 0; }
+.pt-artigoindef .example-list h5 {
+	color: #8a6d3b !important;
+	background: none;
+	font-size: 0.8em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin: 0 0 6px 0;
+}
+.pt-artigoindef .ex-line {
+	color: #2b2b2b !important;
+	line-height: 1.7;
+	margin: 0 0 6px 0;
+	padding-left: 2em;
+	position: relative;
+}
+.pt-artigoindef .ex-line:last-child { margin-bottom: 0; }
+.pt-artigoindef .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-artigoindef .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Color swatch ---------- */
+.pt-artigoindef .color-swatch {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	border-radius: 3px;
+	border: 1px solid rgba(0,0,0,0.35);
+	vertical-align: middle;
+	margin-right: 6px;
+}
+.pt-artigoindef .example-box .color-swatch { border-color: rgba(255,255,255,0.4); }
+.pt-artigoindef .fill .color-swatch { border-color: rgba(0,0,0,0.35); }
+
+/* ---------- Speak button ---------- */
+.pt-artigoindef .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-artigoindef .intro-text { position: relative; padding-left: 1.9em; }
+.pt-artigoindef .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-artigoindef .intro-text .spk-btn { top: 0.85em; }
+.pt-artigoindef .desc-box h3:hover .spk-btn,
+.pt-artigoindef .intro-text:hover .spk-btn,
+.pt-artigoindef .ex-line:hover .spk-btn,
+.pt-artigoindef .spk-btn:focus-visible { opacity: 1; }
+.pt-artigoindef .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-artigoindef .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+	.pt-artigoindef .spk-btn { opacity: 0.4; }
+}
+
+.pt-artigoindef .example-box {
+	background: #1a1a1a !important;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 14px 18px;
+	margin: 18px 0;
+}
+.pt-artigoindef .example-box h4 {
+	color: #d8b46a !important;
+	font-size: 0.95em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 10px;
+}
+.pt-artigoindef .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-artigoindef .example-box .pt-word { color: #d8b46a !important; }
+.pt-artigoindef .example-box .ex-line { color: #eaeaea !important; }
+.pt-artigoindef .example-box .en-eq { color: #9a9a9a !important; }
+.pt-artigoindef .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-artigoindef .exercise-box {
+	background: #f6f2fb !important;
+	border: 1px dashed #b79bd6;
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin: 18px 0;
+}
+.pt-artigoindef .exercise-box > h4 {
+	color: #7a3f9e !important;
+	font-size: 1em;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	margin-bottom: 12px;
+}
+.pt-artigoindef .exercise-item {
+	background: #ffffff !important;
+	border: 1px solid #e4d9f0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 12px;
+}
+.pt-artigoindef .exercise-item:last-child { margin-bottom: 0; }
+.pt-artigoindef .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-artigoindef .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+/* Type A: in-place blanks (matches 03-ser-usos-principais pattern) */
+.pt-artigoindef .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-artigoindef .blank-word { display: inline-block; }
+.pt-artigoindef .underscore { color: #999 !important; }
+.pt-artigoindef .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-artigoindef .check-btn {
+	background: #7a3f9e !important;
+	color: #ffffff !important;
+	border: none;
+	border-radius: 5px;
+	padding: 6px 16px;
+	font-size: 0.85em;
+	cursor: pointer;
+	margin-top: 4px;
+}
+.pt-artigoindef .check-btn:hover { background: #5f2f7d !important; }
+</style>
+
+<h2>1b. Artigo indefinido, género, número, demonstrativos e cores <span class="en">(Indefinite article, gender, number, invariable demonstratives, and colors)</span></h2>
+
+<div class="desc-box">
+	<p class="intro-text" data-pt="Esta página junta o artigo indefinido, o género e o número dos nomes, os demonstrativos invariáveis, as cores, e a preposição de para indicar posse."><button class="spk-btn" aria-label="Ouvir">🔊</button>This page brings together the indefinite article and noun gender, how nouns form the plural, the invariable demonstratives (<em>isto/isso/aquilo</em>), colors, and the preposition <em>de</em> used for possession.</p>
+
+	<h3 data-pt="Artigo indefinido e género dos nomes"><button class="spk-btn" aria-label="Ouvir">🔊</button>Artigo indefinido e género dos nomes <span class="en">(Indefinite article and noun gender)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="masculino, um"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">masculino — um</span><span class="en-eq">masculine — a/an</span></p>
+		<p class="ex-line" data-pt="feminino, uma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">feminino — uma</span><span class="en-eq">feminine — a/an</span></p>
+	</div>
+	<p>• Masculine nouns normally end in <em>-o, -l, -s, -ão, -r, -e, -z</em> or <em>-m</em>. Some masculine nouns also end in <em>-a</em>.</p>
+	<p>• Feminine nouns normally end in <em>-a, -ão, -r, -e, -z</em> or <em>-m</em>.</p>
+
+	<h3 data-pt="Número dos nomes"><button class="spk-btn" aria-label="Ouvir">🔊</button>Número dos nomes <span class="en">(Number of nouns — plural)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="mesa, mesas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mesa / mesas</span><span class="en-eq">table / tables</span></p>
+		<p class="ex-line" data-pt="livro, livros"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">livro / livros</span><span class="en-eq">book / books</span></p>
+		<p class="ex-line" data-pt="parede, paredes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parede / paredes</span><span class="en-eq">wall / walls</span></p>
+		<p class="ex-line" data-pt="computador, computadores"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">computador / computadores</span><span class="en-eq">computer / computers</span></p>
+		<p class="ex-line" data-pt="rapaz, rapazes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">rapaz / rapazes</span><span class="en-eq">boy / boys</span></p>
+		<p class="ex-line" data-pt="país, países"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">país / países</span><span class="en-eq">country / countries</span></p>
+		<p class="ex-line" data-pt="jornal, jornais"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">jornal / jornais</span><span class="en-eq">newspaper / newspapers</span></p>
+		<p class="ex-line" data-pt="viagem, viagens"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">viagem / viagens</span><span class="en-eq">trip / trips</span></p>
+		<p class="ex-line" data-pt="cão, cães"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">cão / cães</span><span class="en-eq">dog / dogs</span></p>
+		<p class="ex-line" data-pt="avião, aviões"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">avião / aviões</span><span class="en-eq">plane / planes</span></p>
+		<p class="ex-line" data-pt="mão, mãos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mão / mãos</span><span class="en-eq">hand / hands</span></p>
+		<p class="ex-line" data-pt="lápis, lápis"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">lápis / lápis</span><span class="en-eq">pencil / pencils (invariable)</span></p>
+	</div>
+	<p class="formula-line">o livro (sing.) → <span class="pt-word">os livros</span> (pl.) &nbsp;&nbsp; um livro (sing.) → <span class="pt-word">livros</span> (pl.)</p>
+
+	<h3 data-pt="Demonstrativos invariáveis"><button class="spk-btn" aria-label="Ouvir">🔊</button>Demonstrativos invariáveis <span class="en">(Invariable demonstratives)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="isto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">isto</span><span class="en-eq">this (near the speaker)</span></p>
+		<p class="ex-line" data-pt="isso"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">isso</span><span class="en-eq">that (near the listener)</span></p>
+		<p class="ex-line" data-pt="aquilo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aquilo</span><span class="en-eq">that (far from both speaker and listener)</span></p>
+	</div>
+
+	<h3 data-pt="Cores"><button class="spk-btn" aria-label="Ouvir">🔊</button>Cores <span class="en">(Colors)</span></h3>
+	<div class="example-list">
+		<p class="ex-line" data-pt="branco, branca, brancos, brancas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#ffffff;"></span><span class="pt-word">branco / branca / brancos / brancas</span><span class="en-eq">white (agrees in gender and number)</span></p>
+		<p class="ex-line" data-pt="verde, verdes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#2e8b57;"></span><span class="pt-word">verde / verdes</span><span class="en-eq">green (same form m./f., changes only for plural)</span></p>
+		<p class="ex-line" data-pt="azul, azuis"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#2563eb;"></span><span class="pt-word">azul / azuis</span><span class="en-eq">blue (same form m./f., changes only for plural)</span></p>
+		<p class="ex-line" data-pt="cor de rosa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#ff69b4;"></span><span class="pt-word">cor de rosa</span><span class="en-eq">pink (fully invariable)</span></p>
+	</div>
+
+	<h3 data-pt="Preposições e adjetivos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Preposições e adjetivos <span class="en">(Prepositions and adjectives)</span></h3>
+	<p>• We use the preposition <em>de</em> to indicate possession: <span class="pt-word" style="font-size:0.95em;">É o dicionário do João.</span></p>
+	<p>• Adjectives (colors, nationalities) come after the noun: <span class="pt-word" style="font-size:0.95em;">A bandeira azul e branca é da Grécia.</span></p>
+
+	<h3 data-pt="Uso dos artigos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Uso dos artigos <span class="en">(Use of the articles)</span></h3>
+	<p>• We use <em>um/uma</em> when talking about something indefinite, or mentioning it for the first time.</p>
+	<p>• We use <em>o/a</em> when talking about something definite, or something already known.</p>
+</div>
+
+<div class="example-box">
+	<h4>Exemplos</h4>
+
+	<div class="example-list">
+		<h5>Artigo indefinido</h5>
+		<p class="ex-line" data-pt="Tenho um livro novo."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho um livro novo.</span><span class="en-eq">I have a new book. (first mention)</span></p>
+		<p class="ex-line" data-pt="É uma janela grande."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É uma janela grande.</span><span class="en-eq">It's a big window.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Plural dos nomes</h5>
+		<p class="ex-line" data-pt="Os livros estão na mesa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Os livros estão na mesa.</span><span class="en-eq">The books are on the table.</span></p>
+		<p class="ex-line" data-pt="Há dois cães no jardim."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há dois cães no jardim.</span><span class="en-eq">There are two dogs in the garden.</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Demonstrativos invariáveis</h5>
+		<p class="ex-line" data-pt="Isto é um computador."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Isto é um computador.</span><span class="en-eq">This is a computer. (near me)</span></p>
+		<p class="ex-line" data-pt="Isso é teu?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Isso é teu?</span><span class="en-eq">Is that yours? (near you)</span></p>
+		<p class="ex-line" data-pt="Aquilo é a torre."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Aquilo é a torre.</span><span class="en-eq">That is the tower. (far from both of us)</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Cores</h5>
+		<p class="ex-line" data-pt="A porta é preta."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#1a1a1a;"></span><span class="pt-word">A porta é preta.</span><span class="en-eq">The door is black.</span></p>
+		<p class="ex-line" data-pt="Os livros são azuis."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="color-swatch" style="background:#2563eb;"></span><span class="pt-word">Os livros são azuis.</span><span class="en-eq">The books are blue.</span></p>
+		<p class="ex-line" data-pt="A bandeira azul e branca é da Grécia."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A bandeira azul e branca é da Grécia.</span><span class="en-eq">The blue and white flag is Greece's. (adjectives after the noun)</span></p>
+	</div>
+
+	<div class="example-list">
+		<h5>Posse com de</h5>
+		<p class="ex-line" data-pt="É o dicionário do João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É o dicionário do João.</span><span class="en-eq">It's João's dictionary.</span></p>
+		<p class="ex-line" data-pt="O computador do Rui é um Toshiba."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O computador do Rui é um Toshiba.</span><span class="en-eq">Rui's computer is a Toshiba.</span></p>
+	</div>
+</div>
+
+<div class="exercise-box">
+	<h4>Exercícios — Artigo indefinido, número, demonstrativos, cores e posse</h4>
+
+	<div class="exercise-item">
+		<p class="ex-label">A. Complete com um ou uma.</p>
+		<p class="question">
+			1. uma janela <em style="color:#999;">(exemplo)</em><br>
+			2. <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> dicionário<br>
+			3. <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> mapa<br>
+			4. <span class="blank-word"><span class="underscore">___</span><span class="fill">uma</span></span> parede<br>
+			5. <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> relógio<br>
+			6. <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> jornal<br>
+			7. <span class="blank-word"><span class="underscore">___</span><span class="fill">uma</span></span> mesa<br>
+			8. <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> computador
+		</p>
+		<p class="ex-note">Note: mapa is masculine even though it ends in -a — one of the exceptions mentioned above.</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">B. Escreva no plural.</p>
+		<p class="question">
+			1. o computador → os computadores <em style="color:#999;">(exemplo)</em><br>
+			2. um relógio → <span class="blank-word"><span class="underscore">___________</span><span class="fill">relógios</span></span><br>
+			3. a parede → <span class="blank-word"><span class="underscore">___________</span><span class="fill">as paredes</span></span><br>
+			4. um jornal → <span class="blank-word"><span class="underscore">___________</span><span class="fill">jornais</span></span><br>
+			5. o país → <span class="blank-word"><span class="underscore">___________</span><span class="fill">os países</span></span><br>
+			6. um quadro → <span class="blank-word"><span class="underscore">___________</span><span class="fill">quadros</span></span><br>
+			7. a cadeira → <span class="blank-word"><span class="underscore">___________</span><span class="fill">as cadeiras</span></span>
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">C. Complete com as cores na forma correta.</p>
+		<p class="question">
+			1. As cadeiras são verdes. <span class="en">[green]</span> <em style="color:#999;">(exemplo)</em><br>
+			2. A porta é <span class="blank-word"><span class="underscore">___</span><span class="fill"><span class="color-swatch" style="background:#1a1a1a;"></span>preta</span></span>. <span class="en">[black]</span><br>
+			3. Os livros são <span class="blank-word"><span class="underscore">___</span><span class="fill"><span class="color-swatch" style="background:#2563eb;"></span>azuis</span></span>. <span class="en">[blue]</span><br>
+			4. A parede é <span class="blank-word"><span class="underscore">___</span><span class="fill"><span class="color-swatch" style="background:#ff8c00;"></span>laranja</span></span>. <span class="en">[orange]</span><br>
+			5. As mesas são <span class="blank-word"><span class="underscore">___</span><span class="fill"><span class="color-swatch" style="background:#ffffff;"></span>brancas</span></span>. <span class="en">[white]</span><br>
+			6. Os relógios são <span class="blank-word"><span class="underscore">___</span><span class="fill"><span class="color-swatch" style="background:#f4c430;"></span>amarelos</span></span>. <span class="en">[yellow]</span>
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">D. Complete com de, da ou do.</p>
+		<p class="ex-note">Proper names without an article (like Portugal, Van Gogh) keep the plain preposition de — no contraction.</p>
+		<p class="question">
+			1. É um quadro de Van Gogh. <em style="color:#999;">(exemplo)</em><br>
+			2. O computador <span class="blank-word"><span class="underscore">___</span><span class="fill">do</span></span> Rui é um Toshiba.<br>
+			3. A secretária castanha é <span class="blank-word"><span class="underscore">___</span><span class="fill">da</span></span> Raquel.<br>
+			4. O relógio <span class="blank-word"><span class="underscore">___</span><span class="fill">da</span></span> Ana é branco.<br>
+			5. A cadeira <span class="blank-word"><span class="underscore">___</span><span class="fill">do</span></span> Pedro é castanha.<br>
+			6. É um mapa <span class="blank-word"><span class="underscore">___</span><span class="fill">de</span></span> Portugal.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+
+	<div class="exercise-item">
+		<p class="ex-label">E. Complete com o, a, um ou uma.</p>
+		<p class="question">
+			1. O jornal português é do João. <em style="color:#999;">(exemplo)</em><br>
+			2. Aquilo é <span class="blank-word"><span class="underscore">___</span><span class="fill">um</span></span> dicionário?<br>
+			3. <span class="blank-word"><span class="underscore">___</span><span class="fill">A</span></span> mesa da Raquel não é preta.<br>
+			4. Isto é <span class="blank-word"><span class="underscore">___</span><span class="fill">uma</span></span> parede?<br>
+			5. <span class="blank-word"><span class="underscore">___</span><span class="fill">O</span></span> livro é vermelho.
+		</p>
+		<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+	</div>
+</div>
+</div>
