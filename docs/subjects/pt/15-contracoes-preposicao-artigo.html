@@ -19,14 +19,6 @@
 .pt-contracoes .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
 .pt-contracoes .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
 
-.pt-contracoes .intro-text {
-	padding-bottom: 14px;
-	margin-bottom: 4px !important;
-	border-bottom: 1px solid #e6ddc9;
-}
-.pt-contracoes .intro-text p { margin: 0 0 12px 0; }
-.pt-contracoes .intro-text p:last-child { margin-bottom: 0; }
-
 .pt-contracoes .example-list { margin: 0 0 12px 0; }
 .pt-contracoes .ex-line {
 	color: #2b2b2b !important;
@@ -41,7 +33,7 @@
 
 /* ---------- Speak button ---------- */
 .pt-contracoes .desc-box h3 { position: relative; padding-left: 1.9em; }
-.pt-contracoes .intro-text { position: relative; padding-left: 1.9em; }
+.pt-contracoes .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 12px 0; }
 .pt-contracoes .spk-btn {
 	position: absolute;
 	left: 0;
@@ -57,9 +49,9 @@
 	font-size: 0.85em;
 	color: #a1521f;
 }
-.pt-contracoes .intro-text .spk-btn { top: 0.85em; }
+.pt-contracoes .desc-box .desc-ex .spk-btn { top: 0.85em; transform: none; }
 .pt-contracoes .desc-box h3:hover .spk-btn,
-.pt-contracoes .intro-text:hover .spk-btn,
+.pt-contracoes .desc-box .desc-ex:hover .spk-btn,
 .pt-contracoes .ex-line:hover .spk-btn,
 .pt-contracoes .spk-btn:focus-visible { opacity: 1; }
 .pt-contracoes .spk-btn.speaking { opacity: 1; color: #2f6b52; }
@@ -67,6 +59,75 @@
 @media (hover: none) {
 	.pt-contracoes .spk-btn { opacity: 0.4; }
 }
+.pt-contracoes .note-box { background: #f3f7f6 !important; border-left: 3px solid #7fadb8; border-radius: 4px; padding: 10px 14px; margin: 10px 0 14px 0; font-size: 0.92em; color: #3d5a5f !important; }
+.pt-contracoes .note-box p { margin: 0 0 10px 0; }
+.pt-contracoes .note-box p:last-child { margin-bottom: 0; }
+
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-contracoes .desc-box hr.desc-divider {
+	border: none;
+	border-top: 1px solid #e6ddc9;
+	margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables ---------- */
+.pt-contracoes .compare-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #ffffff !important;
+	margin: 4px 0 10px 0;
+}
+.pt-contracoes .compare-table th {
+	text-align: left;
+	padding: 8px 14px;
+	font-size: 0.92em;
+	color: #6b4f1d !important;
+	border-bottom: 2px solid #c9a15a;
+	background: #ffffff !important;
+}
+.pt-contracoes .compare-table td {
+	padding: 9px 14px;
+	border-bottom: 1px solid #e8e2d5;
+	background: #ffffff !important;
+	color: #2b2b2b !important;
+	vertical-align: top;
+}
+.pt-contracoes .compare-table tr:last-child td { border-bottom: none; }
+.pt-contracoes .compare-table .spk-wrap {
+	position: relative;
+	padding-left: 1.9em;
+}
+.pt-contracoes .compare-table .spk-wrap .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 4px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-contracoes .compare-table .spk-wrap:hover .spk-btn,
+.pt-contracoes .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-contracoes .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+	.pt-contracoes .compare-table .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Small note under a table ---------- */
+.pt-contracoes .table-note {
+	color: #6b6b6b !important;
+	font-size: 0.88em;
+	font-style: italic;
+	line-height: 1.6;
+	margin: 0 0 18px 0 !important;
+}
+.pt-contracoes .table-note:last-child { margin-bottom: 0 !important; }
+.pt-contracoes .table-note .pt-word { font-size: 1em; }
 
 .pt-contracoes .example-box {
 	background: #1a1a1a !important;
@@ -134,33 +195,39 @@
 <h2>15. Contrações — preposição + artigo <span class="en">(Contractions — preposition + article)</span></h2>
 
 <div class="desc-box">
-	<div class="intro-text" data-pt="Algumas preposições fundem-se com o artigo que vem a seguir, formando uma só palavra."><button class="spk-btn" aria-label="Ouvir">🔊</button>
-		<p><em>Some prepositions merge with the article that follows them into a single word.</em></p>
-		<p>This happens because Portuguese articles (o, a, os, as, um, uma...) are small, unstressed words that sit right in front of the noun — over time, the preposition before them fused together with them into a single word. It only happens with the small set of prepositions below (em, de, a...); most Portuguese prepositions (para, com, sobre...) never contract.</p>
-	</div>
+	<p class="desc-ex intro-text" data-pt="Algumas preposições fundem-se com o artigo que vem a seguir, formando uma só palavra."><button class="spk-btn" aria-label="Ouvir">🔊</button>Some prepositions fuse with the article that follows them into a single word — <span class="pt-word">em</span> + <span class="pt-word">o</span> becomes <span class="pt-word">no</span>, <span class="pt-word">de</span> + <span class="pt-word">a</span> becomes <span class="pt-word">da</span>, and so on.</p>
+	<p class="desc-ex intro-text" data-pt="Isto acontece porque os artigos portugueses são palavras curtas e átonas que ficam mesmo antes do nome. Só um pequeno grupo de preposições contrai desta forma."><button class="spk-btn" aria-label="Ouvir">🔊</button>This happens because Portuguese articles (o, a, os, as, um, uma...) are short, unstressed words that sit right in front of the noun, so over time they fused with the preposition before them. Only a small set of prepositions contracts this way — <span class="pt-word">em</span>, <span class="pt-word">de</span>, <span class="pt-word">a</span> — most others, like <span class="pt-word">para</span>, <span class="pt-word">com</span>, <span class="pt-word">sobre</span>, never do.</p>
 
-	<h3>Existe algo parecido em hindi? <span class="en">(Is there anything similar in Hindi?)</span></h3>
-	<p>Hindi has no articles ("the"/"a") at all, so there's no direct match for preposição + artigo with nouns — you'd just say "स्कूल में" (<em>escola em</em>, "in school") with no fusion. But Hindi does fuse postpositions onto <strong>pronouns</strong> in a very similar spirit, welding two small words into one — the same instinct that produced "na", "do", "ao":</p>
-	<div class="example-list">
-		<p class="ex-line"><span class="pt-word">is + mein → isme</span><span class="en-eq">in this — इसमें</span></p>
-		<p class="ex-line"><span class="pt-word">us + mein → usme</span><span class="en-eq">in that — उसमें</span></p>
-		<p class="ex-line"><span class="pt-word">is + ka → iska</span><span class="en-eq">of this/his/her — इसका</span></p>
-		<p class="ex-line"><span class="pt-word">us + ka → uska</span><span class="en-eq">of that/his/her — उसका</span></p>
-		<p class="ex-line"><span class="pt-word">is + se → isse</span><span class="en-eq">from/with this — इससे</span></p>
-		<p class="ex-line"><span class="pt-word">us + se → usse</span><span class="en-eq">from/with that — उससे</span></p>
-	</div>
+	<hr class="desc-divider">
+
+	<h3 data-pt="Existe algo parecido em hindi?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Existe algo parecido em hindi? <span class="en">(Is there anything similar in Hindi?)</span></h3>
+	<p>Hindi has no articles ("the"/"a") at all, so there's no direct match for preposição + artigo with nouns — you'd just say "स्कूल में" (<span class="pt-word" style="font-size:0.95em;">escola em</span>, "in school") with no fusion. But Hindi does fuse postpositions onto <strong>pronouns</strong> in a very similar spirit, welding two small words into one — the same instinct that produced <span class="pt-word" style="font-size:0.95em;">na</span>, <span class="pt-word" style="font-size:0.95em;">do</span>, <span class="pt-word" style="font-size:0.95em;">ao</span>:</p>
+	<table class="compare-table">
+		<thead><tr><th>Fusão</th><th>English</th><th>Devanagari</th></tr></thead>
+		<tbody>
+			<tr><td><span class="pt-word">is + mein → isme</span></td><td>in this</td><td>इसमें</td></tr>
+			<tr><td><span class="pt-word">us + mein → usme</span></td><td>in that</td><td>उसमें</td></tr>
+			<tr><td><span class="pt-word">is + ka → iska</span></td><td>of this/his/her</td><td>इसका</td></tr>
+			<tr><td><span class="pt-word">us + ka → uska</span></td><td>of that/his/her</td><td>उसका</td></tr>
+			<tr><td><span class="pt-word">is + se → isse</span></td><td>from/with this</td><td>इससे</td></tr>
+			<tr><td><span class="pt-word">us + se → usse</span></td><td>from/with that</td><td>उससे</td></tr>
+		</tbody>
+	</table>
 
 	<h3 data-pt="em mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>em + artigo <span class="en">(em + article)</span></h3>
-	<div class="example-list">
-		<p class="ex-line" data-pt="em o, no"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + o = no</span></p>
-		<p class="ex-line" data-pt="em os, nos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + os = nos</span></p>
-		<p class="ex-line" data-pt="em a, na"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + a = na</span></p>
-		<p class="ex-line" data-pt="em as, nas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + as = nas</span></p>
-		<p class="ex-line" data-pt="em um, num"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + um = num</span></p>
-		<p class="ex-line" data-pt="em uns, nuns"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + uns = nuns</span></p>
-		<p class="ex-line" data-pt="em uma, numa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + uma = numa</span></p>
-		<p class="ex-line" data-pt="em umas, numas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em + umas = numas</span></p>
-	</div>
+	<table class="compare-table">
+		<thead><tr><th>Artigo</th><th>English</th><th>em +</th></tr></thead>
+		<tbody>
+			<tr><td>o</td><td>the (m. sing.)</td><td class="spk-wrap" data-pt="em o, no"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">no</span></td></tr>
+			<tr><td>os</td><td>the (m. pl.)</td><td class="spk-wrap" data-pt="em os, nos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nos</span></td></tr>
+			<tr><td>a</td><td>the (f. sing.)</td><td class="spk-wrap" data-pt="em a, na"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">na</span></td></tr>
+			<tr><td>as</td><td>the (f. pl.)</td><td class="spk-wrap" data-pt="em as, nas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nas</span></td></tr>
+			<tr><td>um</td><td>a/an (m.)</td><td class="spk-wrap" data-pt="em um, num"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">num</span></td></tr>
+			<tr><td>uns</td><td>some (m. pl.)</td><td class="spk-wrap" data-pt="em uns, nuns"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nuns</span></td></tr>
+			<tr><td>uma</td><td>a/an (f.)</td><td class="spk-wrap" data-pt="em uma, numa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">numa</span></td></tr>
+			<tr><td>umas</td><td>some (f. pl.)</td><td class="spk-wrap" data-pt="em umas, numas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">numas</span></td></tr>
+		</tbody>
+	</table>
 	<div class="example-list">
 		<p class="ex-line" data-pt="Estou na paragem de autocarro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou na paragem de autocarro.</span><span class="en-eq">I am at the bus stop.</span></p>
 		<p class="ex-line" data-pt="Estou na estação."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou na estação.</span><span class="en-eq">I am at the station.</span></p>
@@ -170,12 +237,15 @@
 	</div>
 
 	<h3 data-pt="de mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>de + artigo <span class="en">(de + article)</span></h3>
-	<div class="example-list">
-		<p class="ex-line" data-pt="de o, do"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + o = do</span></p>
-		<p class="ex-line" data-pt="de os, dos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + os = dos</span></p>
-		<p class="ex-line" data-pt="de a, da"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + a = da</span></p>
-		<p class="ex-line" data-pt="de as, das"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de + as = das</span></p>
-	</div>
+	<table class="compare-table">
+		<thead><tr><th>Artigo</th><th>English</th><th>de +</th></tr></thead>
+		<tbody>
+			<tr><td>o</td><td>the (m. sing.)</td><td class="spk-wrap" data-pt="de o, do"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">do</span></td></tr>
+			<tr><td>os</td><td>the (m. pl.)</td><td class="spk-wrap" data-pt="de os, dos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dos</span></td></tr>
+			<tr><td>a</td><td>the (f. sing.)</td><td class="spk-wrap" data-pt="de a, da"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">da</span></td></tr>
+			<tr><td>as</td><td>the (f. pl.)</td><td class="spk-wrap" data-pt="de as, das"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">das</span></td></tr>
+		</tbody>
+	</table>
 	<div class="example-list">
 		<p class="ex-line" data-pt="O livro do rapaz."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O livro do rapaz.</span><span class="en-eq">The boy's book.</span></p>
 		<p class="ex-line" data-pt="O livro da Selda."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O livro da Selda.</span><span class="en-eq">Selda's book.</span></p>
@@ -188,12 +258,15 @@
 	</div>
 
 	<h3 data-pt="a mais artigo"><button class="spk-btn" aria-label="Ouvir">🔊</button>a + artigo <span class="en">(a + article)</span></h3>
-	<div class="example-list">
-		<p class="ex-line" data-pt="a o, ao"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + o = ao</span></p>
-		<p class="ex-line" data-pt="a os, aos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + os = aos</span></p>
-		<p class="ex-line" data-pt="a a, à"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + a = à</span></p>
-		<p class="ex-line" data-pt="a as, às"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a + as = às</span></p>
-	</div>
+	<table class="compare-table">
+		<thead><tr><th>Artigo</th><th>English</th><th>a +</th></tr></thead>
+		<tbody>
+			<tr><td>o</td><td>the (m. sing.)</td><td class="spk-wrap" data-pt="a o, ao"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ao</span></td></tr>
+			<tr><td>os</td><td>the (m. pl.)</td><td class="spk-wrap" data-pt="a os, aos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">aos</span></td></tr>
+			<tr><td>a</td><td>the (f. sing.)</td><td class="spk-wrap" data-pt="a a, à"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à</span></td></tr>
+			<tr><td>as</td><td>the (f. pl.)</td><td class="spk-wrap" data-pt="a as, às"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">às</span></td></tr>
+		</tbody>
+	</table>
 	<div class="example-list">
 		<p class="ex-line" data-pt="Eu dou 20 euros ao João."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu dou 20 euros ao João.</span><span class="en-eq">I give João 20 euros.</span></p>
 		<p class="ex-line" data-pt="Eu dou 20 euros à Michele."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Eu dou 20 euros à Michele.</span><span class="en-eq">I give Michele 20 euros.</span></p>
