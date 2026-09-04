@@ -88,6 +88,77 @@
 }
 
 
+/* ---------- Speak button on intro paragraph ---------- */
+.pt-tempo .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 12px 0; }
+.pt-tempo .desc-box .desc-ex .spk-btn { top: 0.85em; transform: none; }
+.pt-tempo .desc-box h3:hover .spk-btn,
+.pt-tempo .desc-box .desc-ex:hover .spk-btn { opacity: 1; }
+
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-tempo .desc-box hr.desc-divider {
+  border: none;
+  border-top: 1px solid #e6ddc9;
+  margin: 14px 0 18px 0;
+}
+
+/* ---------- Word / English reference tables ---------- */
+.pt-tempo .compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff !important;
+  margin: 4px 0 10px 0;
+}
+.pt-tempo .compare-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.92em;
+  color: #6b4f1d !important;
+  border-bottom: 2px solid #c9a15a;
+  background: #ffffff !important;
+}
+.pt-tempo .compare-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #e8e2d5;
+  background: #ffffff !important;
+  color: #2b2b2b !important;
+  vertical-align: top;
+}
+.pt-tempo .compare-table tr:last-child td { border-bottom: none; }
+.pt-tempo .compare-table .spk-wrap {
+  position: relative;
+  padding-left: 1.9em;
+}
+.pt-tempo .compare-table .spk-wrap .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-tempo .compare-table .spk-wrap:hover .spk-btn,
+.pt-tempo .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-tempo .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+  .pt-tempo .compare-table .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Small note under a table ---------- */
+.pt-tempo .table-note {
+  color: #6b6b6b !important;
+  font-size: 0.88em;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 8px 0 12px 0 !important;
+}
+.pt-tempo .table-note .pt-word { font-size: 1em; }
+
 /* ---------- Plain numbers table ---------- */
 .pt-tempo .grammar-note {
   background: #fdf6e3 !important;
@@ -215,52 +286,72 @@
 <h2>7. Palavras de tempo <span class="en">(Time words — parts of the day)</span></h2>
 
 <div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Esta página junta palavras e expressões de tempo — partes do dia, dias da semana, e referências como hoje e amanhã — com os números cardinais em português."><button class="spk-btn" aria-label="Ouvir">🔊</button>This page brings together two everyday building blocks. The first half covers <span class="pt-word">palavras de tempo</span> — words and expressions for parts of the day, days of the week, and common time references like "today" or "tomorrow" — plus weekend and holiday vocabulary. The second half covers Portuguese cardinal numbers, from zero through the hundreds and beyond, which you'll need constantly for telling your age, reading a phone number, or naming a price.</p>
+
+  <hr class="desc-divider">
+
   <h3 data-pt="Partes do dia"><button class="spk-btn" aria-label="Ouvir">🔊</button>Partes do dia <span class="en">(Parts of the day)</span></h3>
-  <div class="example-list">
-    <p class="ex-line" data-pt="manhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">manhã</span><span class="en-eq">morning</span></p>
-    <p class="ex-line" data-pt="tarde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tarde</span><span class="en-eq">afternoon</span></p>
-    <p class="ex-line" data-pt="noite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">noite</span><span class="en-eq">evening / night</span></p>
-    <p class="ex-line" data-pt="madrugada"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">madrugada</span><span class="en-eq">dawn / late night</span></p>
-  </div>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="manhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">manhã</span></td><td>morning</td></tr>
+      <tr><td class="spk-wrap" data-pt="tarde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tarde</span></td><td>afternoon</td></tr>
+      <tr><td class="spk-wrap" data-pt="noite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">noite</span></td><td>evening / night</td></tr>
+      <tr><td class="spk-wrap" data-pt="madrugada"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">madrugada</span></td><td>dawn / late night</td></tr>
+    </tbody>
+  </table>
 
   <h3 data-pt="Expressões"><button class="spk-btn" aria-label="Ouvir">🔊</button>Expressões <span class="en">(Expressions)</span></h3>
-  <div class="example-list">
-    <p class="ex-line" data-pt="de manhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de manhã</span><span class="en-eq">in the morning</span></p>
-    <p class="ex-line" data-pt="à tarde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à tarde</span><span class="en-eq">in the afternoon</span></p>
-    <p class="ex-line" data-pt="à noite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à noite</span><span class="en-eq">at night</span></p>
-  </div>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="de manhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de manhã</span></td><td>in the morning</td></tr>
+      <tr><td class="spk-wrap" data-pt="à tarde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à tarde</span></td><td>in the afternoon</td></tr>
+      <tr><td class="spk-wrap" data-pt="à noite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à noite</span></td><td>at night</td></tr>
+    </tbody>
+  </table>
 
   <h3 data-pt="Dias da semana"><button class="spk-btn" aria-label="Ouvir">🔊</button>Dias da semana <span class="en">(Days of the week)</span></h3>
-  <div class="example-list">
-    <p class="ex-line" data-pt="segunda-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">segunda-feira</span><span class="en-eq">Monday</span></p>
-    <p class="ex-line" data-pt="terça-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">terça-feira</span><span class="en-eq">Tuesday</span></p>
-    <p class="ex-line" data-pt="quarta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quarta-feira</span><span class="en-eq">Wednesday</span></p>
-    <p class="ex-line" data-pt="quinta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quinta-feira</span><span class="en-eq">Thursday</span></p>
-    <p class="ex-line" data-pt="sexta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sexta-feira</span><span class="en-eq">Friday</span></p>
-    <p class="ex-line" data-pt="sábado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sábado</span><span class="en-eq">Saturday</span></p>
-    <p class="ex-line" data-pt="domingo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">domingo</span><span class="en-eq">Sunday</span></p>
-  </div>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="segunda-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">segunda-feira</span></td><td>Monday</td></tr>
+      <tr><td class="spk-wrap" data-pt="terça-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">terça-feira</span></td><td>Tuesday</td></tr>
+      <tr><td class="spk-wrap" data-pt="quarta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quarta-feira</span></td><td>Wednesday</td></tr>
+      <tr><td class="spk-wrap" data-pt="quinta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quinta-feira</span></td><td>Thursday</td></tr>
+      <tr><td class="spk-wrap" data-pt="sexta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sexta-feira</span></td><td>Friday</td></tr>
+      <tr><td class="spk-wrap" data-pt="sábado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">sábado</span></td><td>Saturday</td></tr>
+      <tr><td class="spk-wrap" data-pt="domingo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">domingo</span></td><td>Sunday</td></tr>
+    </tbody>
+  </table>
 
   <h3 data-pt="Outros dias e referências de tempo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Outros dias e referências de tempo <span class="en">(Other time references)</span></h3>
-  <div class="example-list">
-    <p class="ex-line" data-pt="hoje"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">hoje</span><span class="en-eq">today</span></p>
-    <p class="ex-line" data-pt="amanhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">amanhã</span><span class="en-eq">tomorrow</span></p>
-    <p class="ex-line" data-pt="depois de amanhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">depois de amanhã</span><span class="en-eq">the day after tomorrow</span></p>
-    <p class="ex-line" data-pt="ontem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ontem</span><span class="en-eq">yesterday</span></p>
-    <p class="ex-line" data-pt="anteontem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">anteontem</span><span class="en-eq">the day before yesterday</span></p>
-  </div>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="hoje"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">hoje</span></td><td>today</td></tr>
+      <tr><td class="spk-wrap" data-pt="amanhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">amanhã</span></td><td>tomorrow</td></tr>
+      <tr><td class="spk-wrap" data-pt="depois de amanhã"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">depois de amanhã</span></td><td>the day after tomorrow</td></tr>
+      <tr><td class="spk-wrap" data-pt="ontem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ontem</span></td><td>yesterday</td></tr>
+      <tr><td class="spk-wrap" data-pt="anteontem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">anteontem</span></td><td>the day before yesterday</td></tr>
+    </tbody>
+  </table>
 
   <h3 data-pt="Fim de semana / férias / feriados"><button class="spk-btn" aria-label="Ouvir">🔊</button>Fim de semana / férias / feriados <span class="en">(Weekend / holidays / public holidays)</span></h3>
-  <div class="example-list">
-    <p class="ex-line" data-pt="fim de semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fim de semana</span><span class="en-eq">weekend</span></p>
-    <p class="ex-line" data-pt="férias"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">férias</span><span class="en-eq">vacation / holidays</span></p>
-    <p class="ex-line" data-pt="feriados"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">feriados</span><span class="en-eq">public holidays</span></p>
-    <p class="ex-line" data-pt="Bom fim de semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom fim de semana</span><span class="en-eq">Have a good weekend</span></p>
-    <p class="ex-line" data-pt="Boas férias"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boas férias</span><span class="en-eq">Have a good vacation</span></p>
-    <p class="ex-line" data-pt="Bom feriado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom feriado</span><span class="en-eq">Have a good holiday</span></p>
-  </div>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="fim de semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fim de semana</span></td><td>weekend</td></tr>
+      <tr><td class="spk-wrap" data-pt="férias"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">férias</span></td><td>vacation / holidays</td></tr>
+      <tr><td class="spk-wrap" data-pt="feriados"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">feriados</span></td><td>public holidays</td></tr>
+      <tr><td class="spk-wrap" data-pt="Bom fim de semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom fim de semana</span></td><td>Have a good weekend</td></tr>
+      <tr><td class="spk-wrap" data-pt="Boas férias"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Boas férias</span></td><td>Have a good vacation</td></tr>
+      <tr><td class="spk-wrap" data-pt="Bom feriado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Bom feriado</span></td><td>Have a good holiday</td></tr>
+    </tbody>
+  </table>
 
   <h3 data-pt="Números cardinais"><button class="spk-btn" aria-label="Ouvir">🔊</button>Números cardinais <span class="en">(Cardinal numbers)</span></h3>
+  <p><span class="pt-word">Números</span> in Portuguese are cardinal numbers — <em>one, two, three...</em> in English — used for counting, ages, prices, and phone numbers. From twenty onward, tens and units are joined with "e" ("and"), and from a hundred onward, hundreds are joined the same way, as shown below.</p>
   <p class="grammar-note"><strong>Importante!</strong> Nos números compostos (dezena + unidade), junte as duas partes com "e": <span class="pt-word">vinte e três</span> <span class="en-eq">(twenty-three)</span>, <span class="pt-word">oitenta e sete</span> <span class="en-eq">(eighty-seven)</span><button class="spk-btn spk-inline" data-pt="vinte e três, oitenta e sete" aria-label="Ouvir">🔊</button>.</p>
   <div class="num-table-wrap">
     <div>
@@ -323,10 +414,15 @@
           <tr><td>200</td><td>duzentos<button class="spk-btn spk-inline" data-pt="duzentos" aria-label="Ouvir">🔊</button></td></tr>
           <tr><td>300</td><td>trezentos<button class="spk-btn spk-inline" data-pt="trezentos" aria-label="Ouvir">🔊</button></td></tr>
           <tr><td>1000</td><td>mil<button class="spk-btn spk-inline" data-pt="mil" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>10 000</td><td>dez mil<button class="spk-btn spk-inline" data-pt="dez mil" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>100 000</td><td>cem mil<button class="spk-btn spk-inline" data-pt="cem mil" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>1 000 000</td><td>um milhão<button class="spk-btn spk-inline" data-pt="um milhão" aria-label="Ouvir">🔊</button></td></tr>
+          <tr><td>2 000 000</td><td>dois milhões<button class="spk-btn spk-inline" data-pt="dois milhões" aria-label="Ouvir">🔊</button></td></tr>
         </tbody>
       </table>
     </div>
   </div>
+  <p class="table-note">Note: from <em>milhão</em> upward, the number takes a plural (<em>dois milhões</em>) and is followed by "de" before a noun — e.g. <span class="pt-word">um milhão de euros</span> <span class="en-eq">(one million euros)</span>.</p>
 </div>
 
 <div class="example-box">
