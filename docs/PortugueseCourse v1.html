@@ -303,114 +303,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .pt { color: #fff; font-weight: bold; }
 #content-box .en { color: #999; font-style: italic; }
 
-/* SENTENCE CHECKER */
-#sentence-check-panel {
-    flex-shrink: 0;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 10px 16px;
-}
-#sc-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #999;
-    cursor: pointer;
-    user-select: none;
-    padding: 2px 0;
-}
-#sentence-check-panel.expanded #sc-header {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #222;
-}
-#sc-header:hover { color: #00c8ff; }
-#sc-toggle-icon {
-    color: #666;
-    font-size: 11px;
-    transition: transform 0.15s ease;
-}
-#sentence-check-panel.expanded #sc-toggle-icon {
-    transform: rotate(90deg);
-}
-#sc-body {
-    display: none;
-}
-#sentence-check-panel.expanded #sc-body {
-    display: block;
-}
-#sc-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-}
-#sc-input {
-    flex: 1;
-    resize: none;
-    box-sizing: border-box;
-    background: #0a0a0a;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 8px 10px;
-    color: #eee;
-    font-size: 14.5px;
-    font-family: inherit;
-    outline: none;
-    line-height: 1.4;
-}
-#sc-input::placeholder { color: #666; }
-#sc-input:focus { border-color: #00c8ff88; }
-#sc-check-btn {
-    flex-shrink: 0;
-    padding: 8px 16px;
-    font-size: 14px;
-}
-#sc-check-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-#sc-result {
-    margin-top: 10px;
-    font-size: 14px;
-    line-height: 1.5;
-}
-#sc-result:empty { margin-top: 0; }
-#sc-ok {
-    color: #28a745;
-}
-#sc-error-item {
-    border-left: 3px solid #ff4d4d;
-    background: #1a0e0e;
-    padding: 8px 10px;
-    border-radius: 4px;
-    margin-bottom: 6px;
-}
-#sc-result .sc-error-item {
-    border-left: 3px solid #ff4d4d;
-    background: #1a0e0e;
-    padding: 8px 10px;
-    border-radius: 4px;
-    margin-bottom: 6px;
-}
-#sc-result .sc-error-msg { color: #eee; }
-#sc-result .sc-error-suggest { color: #00c8ff; font-weight: bold; }
-#sc-result .sc-error-context { color: #888; font-size: 13px; margin-top: 2px; }
-#sc-result .sc-error-rule { margin-top: 4px; font-size: 12px; }
-#sc-result .sc-error-rule a { color: #888; text-decoration: none; border-bottom: 1px dotted #555; }
-#sc-result .sc-error-rule a:hover { color: #00c8ff; border-bottom-color: #00c8ff; }
-#sc-result .sc-fail { color: #ff8080; }
-#sc-corrected {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid #222;
-    color: #ccc;
-}
-#sc-corrected b { color: #28a745; }
-
 /* BOTTOM NAV */
 #bottom-nav {
     display: flex;
@@ -462,19 +354,6 @@ button:active { transform: scale(0.97); }
     <div id="main-col">
         <div id="content-panel">
             <div id="content-box"></div>
-        </div>
-        <div id="sentence-check-panel">
-            <div id="sc-header">
-                <span>&#9997;&#65039; Check a sentence (Portuguese)</span>
-                <span id="sc-toggle-icon">&#9656;</span>
-            </div>
-            <div id="sc-body">
-                <div id="sc-row">
-                    <textarea id="sc-input" rows="2" placeholder="Type a Portuguese sentence to check…"></textarea>
-                    <button id="sc-check-btn">Check</button>
-                </div>
-                <div id="sc-result"></div>
-            </div>
         </div>
     </div>
 </div>
@@ -692,7 +571,7 @@ toggleBtn.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", e => {
-    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT") return;
     if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
 });
@@ -745,109 +624,6 @@ contentBox.addEventListener("click", e => {
     if (!wrap) return;
     e.preventDefault();
     speakPortuguese(wrap.getAttribute("data-pt"), btn);
-});
-
-// ── SENTENCE CHECKER (LanguageTool free public API) ──────────────────────────
-// Free, no API key. Rate limit: 20 requests/min per IP. See:
-// https://languagetool.org/http-api
-const LT_ENDPOINT = "https://api.languagetool.org/v2/check";
-
-const scPanel   = document.getElementById("sentence-check-panel");
-const scHeader  = document.getElementById("sc-header");
-const scInput   = document.getElementById("sc-input");
-const scBtn     = document.getElementById("sc-check-btn");
-const scResult  = document.getElementById("sc-result");
-
-scHeader.addEventListener("click", () => {
-    const expanded = scPanel.classList.toggle("expanded");
-    if (expanded) scInput.focus();
-});
-
-function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, c => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[c]));
-}
-
-async function checkSentence() {
-    const text = scInput.value.trim();
-    if (!text) return;
-
-    scBtn.disabled = true;
-    scBtn.textContent = "Checking…";
-    scResult.innerHTML = "";
-
-    try {
-        const params = new URLSearchParams({
-            text: text,
-            language: "pt-PT"
-        });
-
-        const res = await fetch(LT_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: params.toString()
-        });
-
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        const matches = data.matches || [];
-
-        if (matches.length === 0) {
-            scResult.innerHTML = '<div id="sc-ok">&#10003; Looks correct!</div>';
-            return;
-        }
-
-        // Build the list of issues (in original order)
-        let html = "";
-        matches.forEach(m => {
-            const errFragment = text.substring(m.offset, m.offset + m.length);
-            const suggestions = (m.replacements || []).slice(0, 3).map(r => r.value).filter(Boolean);
-            html += '<div class="sc-error-item">';
-            html += '<div class="sc-error-msg">' + escapeHtml(m.message) + '</div>';
-            if (suggestions.length) {
-                html += '<div class="sc-error-suggest">&#8594; ' + suggestions.map(escapeHtml).join(", ") + '</div>';
-            }
-            html += '<div class="sc-error-context">"' + escapeHtml(errFragment) + '" in: ' + escapeHtml(m.context.text) + '</div>';
-            if (m.rule && m.rule.id) {
-                const ruleUrl = "https://community.languagetool.org/rule/show/" + encodeURIComponent(m.rule.id) + "?lang=pt-PT";
-                const categoryName = m.rule.category && m.rule.category.name ? m.rule.category.name : "Rule";
-                html += '<div class="sc-error-rule">' + escapeHtml(categoryName) +
-                    ' — <a href="' + ruleUrl + '" target="_blank" rel="noopener">' + escapeHtml(m.rule.id) + '</a></div>';
-            }
-            html += '</div>';
-        });
-
-        // Build a best-effort auto-corrected sentence (apply first suggestion
-        // for each match, working right-to-left so offsets stay valid)
-        let corrected = text;
-        const sortedByOffsetDesc = [...matches].sort((a, b) => b.offset - a.offset);
-        sortedByOffsetDesc.forEach(m => {
-            const rep = m.replacements && m.replacements[0] && m.replacements[0].value;
-            if (rep !== undefined) {
-                corrected = corrected.slice(0, m.offset) + rep + corrected.slice(m.offset + m.length);
-            }
-        });
-        if (corrected !== text) {
-            html += '<div id="sc-corrected">Suggested: <b>' + escapeHtml(corrected) + '</b></div>';
-        }
-
-        scResult.innerHTML = html;
-    } catch (err) {
-        scResult.innerHTML = '<div class="sc-fail">Could not check sentence (' + escapeHtml(err.message) +
-            '). The free LanguageTool API may be rate-limited — try again in a moment.</div>';
-    } finally {
-        scBtn.disabled = false;
-        scBtn.textContent = "Check";
-    }
-}
-
-scBtn.addEventListener("click", checkSentence);
-scInput.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        checkSentence();
-    }
 });
 
 // start on Topic 0
