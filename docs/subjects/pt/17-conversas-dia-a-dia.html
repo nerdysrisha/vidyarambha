@@ -96,6 +96,7 @@
 
 /* ---------- Speak button ---------- */
 .pt-conversas .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-conversas .intro-text { position: relative; padding-left: 1.9em; }
 .pt-conversas .spk-btn {
 	position: absolute;
 	left: 0;
@@ -111,7 +112,9 @@
 	font-size: 0.85em;
 	color: #a1521f;
 }
+.pt-conversas .intro-text .spk-btn { top: 0.85em; }
 .pt-conversas .desc-box h3:hover .spk-btn,
+.pt-conversas .intro-text:hover .spk-btn,
 .pt-conversas .ex-line:hover .spk-btn,
 .pt-conversas .spk-btn:focus-visible { opacity: 1; }
 .pt-conversas .spk-btn.speaking { opacity: 1; color: #2f6b52; }
@@ -143,136 +146,268 @@
 @media (hover: none) {
 	.pt-conversas .spk-btn-inline { opacity: 0.4; }
 }
+
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-conversas .desc-box hr.desc-divider {
+	border: none;
+	border-top: 1px solid #e6ddc9;
+	margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables ---------- */
+.pt-conversas .compare-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #ffffff !important;
+	margin: 4px 0 10px 0;
+}
+.pt-conversas .compare-table th {
+	text-align: left;
+	padding: 8px 14px;
+	font-size: 0.92em;
+	color: #6b4f1d !important;
+	border-bottom: 2px solid #c9a15a;
+	background: #ffffff !important;
+}
+.pt-conversas .compare-table td {
+	padding: 9px 14px;
+	border-bottom: 1px solid #e8e2d5;
+	background: #ffffff !important;
+	color: #2b2b2b !important;
+	vertical-align: top;
+}
+.pt-conversas .compare-table tr:last-child td { border-bottom: none; }
+.pt-conversas .compare-table .spk-wrap {
+	position: relative;
+	padding-left: 1.9em;
+}
+.pt-conversas .compare-table .spk-wrap .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 4px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-conversas .compare-table .spk-wrap:hover .spk-btn,
+.pt-conversas .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-conversas .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+	.pt-conversas .compare-table .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Small note under a table ---------- */
+.pt-conversas .table-note {
+	color: #6b6b6b !important;
+	font-size: 0.88em;
+	font-style: italic;
+	line-height: 1.6;
+	margin: 0 0 18px 0 !important;
+}
+.pt-conversas .table-note:last-child { margin-bottom: 0 !important; }
+.pt-conversas .table-note .pt-word { font-size: 1em; }
 </style>
+
 <h2>17. Conversas do dia a dia <span class="en">(Daily conversations)</span></h2>
+
 <div class="desc-box">
-<p><em>Common questions and phrases used in everyday conversation.</em></p>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Como está? / Como estás?">🔊</button>Como está? / Como estás? <span class="en">(How are you?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Como está?">🔊</button><span class="pt-word">Como está?</span><span class="en-eq">How are you? (formal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Como estás?">🔊</button><span class="pt-word">Como estás?</span><span class="en-eq">How are you? (informal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou bem, obrigado/a.">🔊</button><span class="pt-word">Estou bem, obrigado/a.</span><span class="en-eq">I'm well, thank you.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="E o Senhor?">🔊</button><span class="pt-word">E o Senhor?</span><span class="en-eq">And you, sir?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="E a Senhora?">🔊</button><span class="pt-word">E a Senhora?</span><span class="en-eq">And you, madam?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="E você?">🔊</button><span class="pt-word">E você?</span><span class="en-eq">And you?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="E consigo?">🔊</button><span class="pt-word">E consigo?</span><span class="en-eq">And you? (with you)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="E contigo?">🔊</button><span class="pt-word">E contigo?</span><span class="en-eq">And you? (informal, with you)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tudo bem?">🔊</button><span class="pt-word">Tudo bem?</span><span class="en-eq">Everything OK?</span></p>
+	<p class="intro-text" data-pt="Este tópico junta as perguntas e frases mais comuns nas conversas do dia a dia."><button class="spk-btn" aria-label="Ouvir">🔊</button>This topic gathers the questions and phrases I use most often in everyday conversation — greeting someone, saying where I am or where I'm from, my job, my age, and my daily routine.</p>
+	<p>Each heading below groups a question with its typical answers, usually in both the formal (<span class="pt-word">você / o senhor / a senhora</span>) and informal (<span class="pt-word">tu</span>) forms. The dialogue at the end puts many of them together in a natural back-and-forth.</p>
+
+	<hr class="desc-divider">
+
+	<h3 data-pt="Como está? / Como estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Como está? / Como estás? <span class="en">(How are you?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Como está?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como está?</span></td><td>How are you? (formal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Como estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como estás?</span></td><td>How are you? (informal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou bem, obrigado/a."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou bem, obrigado/a.</span></td><td>I'm well, thank you.</td></tr>
+			<tr><td class="spk-wrap" data-pt="E o Senhor?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E o Senhor?</span></td><td>And you, sir?</td></tr>
+			<tr><td class="spk-wrap" data-pt="E a Senhora?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E a Senhora?</span></td><td>And you, madam?</td></tr>
+			<tr><td class="spk-wrap" data-pt="E você?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E você?</span></td><td>And you?</td></tr>
+			<tr><td class="spk-wrap" data-pt="E consigo?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E consigo?</span></td><td>And you? (with you)</td></tr>
+			<tr><td class="spk-wrap" data-pt="E contigo?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E contigo?</span></td><td>And you? (informal, with you)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tudo bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tudo bem?</span></td><td>Everything OK?</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Onde está? / Onde é?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde está? / Onde é? <span class="en">(Where is...? / Where is ... located?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Onde está?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde está?</span></td><td>Where is it/he/she?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde é que está?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é que está?</span></td><td>Where is it, exactly?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde está a sua mãe?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde está a sua mãe?</span></td><td>Where is your mother?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde está o seu carro?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde está o seu carro?</span></td><td>Where is your car?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde é a sua casa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é a sua casa?</span></td><td>Where is your house?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde é que é a sua casa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é que é a sua casa?</span></td><td>Where is your house, exactly?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde é o seu escritório?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é o seu escritório?</span></td><td>Where is your office?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Onde é a sua empresa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é a sua empresa?</span></td><td>Where is your company?</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="De onde é? / De onde vens?"><button class="spk-btn" aria-label="Ouvir">🔊</button>De onde é? / De onde vens? <span class="en">(Where are you from? / Where do you come from?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="De onde é?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">De onde é?</span></td><td>Where are you from? (formal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="De onde é ele?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">De onde é ele?</span></td><td>Where is he from?</td></tr>
+			<tr><td class="spk-wrap" data-pt="De onde vens?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">De onde vens?</span></td><td>Where are you from? (informal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou da Índia."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou da Índia.</span></td><td>I am from India.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou indiano/indiana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou indiano/indiana.</span></td><td>I am Indian.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou de Telangana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou de Telangana.</span></td><td>I am from Telangana.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Aonde vai?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Aonde vai? <span class="en">(Where are you going to?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Aonde vai?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Aonde vai?</span></td><td>Where are you going? (formal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Aonde vais?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Aonde vais?</span></td><td>Where are you going? (informal)</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="O que faz? / Qual é a sua profissão?"><button class="spk-btn" aria-label="Ouvir">🔊</button>O que faz? / Qual é a sua profissão? <span class="en">(What do you do? / What is your profession?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="O que faz?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que faz?</span></td><td>What do you do?</td></tr>
+			<tr><td class="spk-wrap" data-pt="O que faz o Senhor?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que faz o Senhor?</span></td><td>What do you do, sir?</td></tr>
+			<tr><td class="spk-wrap" data-pt="O que faz a Senhora?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que faz a Senhora?</span></td><td>What do you do, madam?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Qual é a sua profissão?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua profissão?</span></td><td>What is your profession?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou informático."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou informático.</span></td><td>I am an IT professional.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou gerente da minha empresa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou gerente da minha empresa.</span></td><td>I am the manager of my company.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Trabalho como analista na empresa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho como analista na empresa.</span></td><td>I work as an analyst at the company.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="O que está a fazer?"><button class="spk-btn" aria-label="Ouvir">🔊</button>O que está a fazer? <span class="en">(What are you doing?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="O que está a fazer?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que está a fazer?</span></td><td>What are you doing? (formal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="O que estás a fazer?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que estás a fazer?</span></td><td>What are you doing? (informal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Agora estou a estudar português."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Agora estou a estudar português.</span></td><td>Right now I am studying Portuguese.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou a descansar."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou a descansar.</span></td><td>I am resting.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou a ajudar o meu tio."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou a ajudar o meu tio.</span></td><td>I am helping my uncle.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Quantos anos tem? / Qual é a sua idade?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Quantos anos tem? / Qual é a sua idade? <span class="en">(How old are you?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Quantos anos tem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos anos tem?</span></td><td>How old are you? (formal)</td></tr>
+			<tr><td class="spk-wrap" data-pt="Qual é a sua idade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua idade?</span></td><td>What is your age?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tenho 20 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho 20 anos.</span></td><td>I am 20 years old.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tenho 50 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho 50 anos.</span></td><td>I am 50 years old.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Há quanto tempo...?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Há quanto tempo...? <span class="en">(How long...?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Há quanto tempo está em Portugal?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Há quanto tempo está em Portugal?</span></td><td>How long have you been in Portugal?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou em Portugal há cinco anos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou em Portugal há cinco anos.</span></td><td>I have been in Portugal for five years.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou em Portugal desde 2022."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou em Portugal desde 2022.</span></td><td>I have been in Portugal since 2022.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Qual é...? / Quais são...?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é...? / Quais são...? <span class="en">(What is...? / Which are...?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Qual é o seu livro?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu livro?</span></td><td>Which is your book?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Qual é a sua idade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua idade?</span></td><td>What is your age?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Qual é a sua nacionalidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua nacionalidade?</span></td><td>What is your nationality?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Qual é a língua que fala?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a língua que fala?</span></td><td>What language do you speak?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Quais são as línguas que fala?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quais são as línguas que fala?</span></td><td>What languages do you speak?</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Quem...?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Quem...? <span class="en">(Who...?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Quem está com a camisa vermelha?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quem está com a camisa vermelha?</span></td><td>Who is wearing the red shirt?</td></tr>
+			<tr><td class="spk-wrap" data-pt="O Pedro está com a camisa vermelha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Pedro está com a camisa vermelha.</span></td><td>Pedro is wearing the red shirt.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Quem tem a camisa vermelha?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quem tem a camisa vermelha?</span></td><td>Who has the red shirt?</td></tr>
+			<tr><td class="spk-wrap" data-pt="O Pedro tem a camisa vermelha."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O Pedro tem a camisa vermelha.</span></td><td>Pedro has the red shirt.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Pode repetir, por favor?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Pode repetir, por favor? <span class="en">(Can you repeat, please?)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Pode repetir, por favor."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Pode repetir, por favor.</span></td><td>Can you repeat, please.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Pode repetir, se faz favor."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Pode repetir, se faz favor.</span></td><td>Can you repeat, please. (alternate phrasing)</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Informação pessoal básica"><button class="spk-btn" aria-label="Ouvir">🔊</button>Informação pessoal básica <span class="en">(Basic personal information)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Tem passaporte português ou indiano?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tem passaporte português ou indiano?</span></td><td>Do you have a Portuguese or Indian passport?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tenho passaporte indiano."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho passaporte indiano.</span></td><td>I have an Indian passport.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tem residência?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tem residência?</span></td><td>Do you have residency?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tenho residência temporária."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho residência temporária.</span></td><td>I have temporary residency.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tem o número de contribuinte?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tem o número de contribuinte?</span></td><td>Do you have a tax number?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Tem a carta de condução?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tem a carta de condução?</span></td><td>Do you have a driving licence?</td></tr>
+			<tr><td class="spk-wrap" data-pt="É casado?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É casado?</span></td><td>Are you married?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sou casado."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sou casado.</span></td><td>I am married.</td></tr>
+			<tr><td class="spk-wrap" data-pt="É mãe?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">É mãe?</span></td><td>Are you a mother?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Sim, sou mãe."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Sim, sou mãe.</span></td><td>Yes, I am a mother.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Morada e vivência"><button class="spk-btn" aria-label="Ouvir">🔊</button>Morada e vivência <span class="en">(Location and living)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Moro em Arroios."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Moro em Arroios.</span></td><td>I live in Arroios.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Vivo em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Vivo em Portugal.</span></td><td>I live in Portugal.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Estou a viver em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou a viver em Portugal.</span></td><td>I am living in Portugal.</td></tr>
+			<tr><td class="spk-wrap" data-pt="A minha casa é em Arroios."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A minha casa é em Arroios.</span></td><td>My house is in Arroios.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Moro perto da estação do metro."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Moro perto da estação do metro.</span></td><td>I live near the metro station.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Trabalho e estudos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Trabalho e estudos <span class="en">(Work and studies)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Onde trabalha?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde trabalha?</span></td><td>Where do you work?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Trabalho numa fábrica."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho numa fábrica.</span></td><td>I work in a factory.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Trabalho num hospital."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho num hospital.</span></td><td>I work in a hospital.</td></tr>
+			<tr><td class="spk-wrap" data-pt="Trabalho como gerente."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Trabalho como gerente.</span></td><td>I work as a manager.</td></tr>
+			<tr><td class="spk-wrap" data-pt="O meu marido trabalha com uma empresa norte-americana."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O meu marido trabalha com uma empresa norte-americana.</span></td><td>My husband works with an American company.</td></tr>
+			<tr><td class="spk-wrap" data-pt="O meu filho estuda numa escola pública/privada."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O meu filho estuda numa escola pública/privada.</span></td><td>My son studies at a public/private school.</td></tr>
+		</tbody>
+	</table>
+
+	<h3 data-pt="Gostos e preferências"><button class="spk-btn" aria-label="Ouvir">🔊</button>Gostos e preferências <span class="en">(Likes and preferences)</span></h3>
+	<table class="compare-table">
+		<thead><tr><th>Português</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="Gosta de Portugal?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosta de Portugal?</span></td><td>Do you like Portugal?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Gosta de viver em Portugal?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosta de viver em Portugal?</span></td><td>Do you like living in Portugal?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Gosta de comer gelado?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosta de comer gelado?</span></td><td>Do you like eating ice cream?</td></tr>
+			<tr><td class="spk-wrap" data-pt="Gosto de estudar português."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosto de estudar português.</span></td><td>I like studying Portuguese.</td></tr>
+		</tbody>
+	</table>
 </div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Onde está? / Onde é?">🔊</button>Onde está? / Onde é? <span class="en">(Where is...? / Where is ... located?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde está?">🔊</button><span class="pt-word">Onde está?</span><span class="en-eq">Where is it/he/she?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde é que está?">🔊</button><span class="pt-word">Onde é que está?</span><span class="en-eq">Where is it, exactly?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde está a sua mãe?">🔊</button><span class="pt-word">Onde está a sua mãe?</span><span class="en-eq">Where is your mother?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde está o seu carro?">🔊</button><span class="pt-word">Onde está o seu carro?</span><span class="en-eq">Where is your car?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde é a sua casa?">🔊</button><span class="pt-word">Onde é a sua casa?</span><span class="en-eq">Where is your house?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde é que é a sua casa?">🔊</button><span class="pt-word">Onde é que é a sua casa?</span><span class="en-eq">Where is your house, exactly?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde é o seu escritório?">🔊</button><span class="pt-word">Onde é o seu escritório?</span><span class="en-eq">Where is your office?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde é a sua empresa?">🔊</button><span class="pt-word">Onde é a sua empresa?</span><span class="en-eq">Where is your company?</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="De onde é? / De onde vens?">🔊</button>De onde é? / De onde vens? <span class="en">(Where are you from? / Where do you come from?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="De onde é?">🔊</button><span class="pt-word">De onde é?</span><span class="en-eq">Where are you from? (formal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="De onde é ele?">🔊</button><span class="pt-word">De onde é ele?</span><span class="en-eq">Where is he from?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="De onde vens?">🔊</button><span class="pt-word">De onde vens?</span><span class="en-eq">Where are you from? (informal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou da Índia.">🔊</button><span class="pt-word">Sou da Índia.</span><span class="en-eq">I am from India.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou indiano/indiana.">🔊</button><span class="pt-word">Sou indiano/indiana.</span><span class="en-eq">I am Indian.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou de Telangana.">🔊</button><span class="pt-word">Sou de Telangana.</span><span class="en-eq">I am from Telangana.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Aonde vai?">🔊</button>Aonde vai? <span class="en">(Where are you going to?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Aonde vai?">🔊</button><span class="pt-word">Aonde vai?</span><span class="en-eq">Where are you going? (formal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Aonde vais?">🔊</button><span class="pt-word">Aonde vais?</span><span class="en-eq">Where are you going? (informal)</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="O que faz? / Qual é a sua profissão?">🔊</button>O que faz? / Qual é a sua profissão? <span class="en">(What do you do? / What is your profession?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O que faz?">🔊</button><span class="pt-word">O que faz?</span><span class="en-eq">What do you do?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O que faz o Senhor?">🔊</button><span class="pt-word">O que faz o Senhor?</span><span class="en-eq">What do you do, sir?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O que faz a Senhora?">🔊</button><span class="pt-word">O que faz a Senhora?</span><span class="en-eq">What do you do, madam?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é a sua profissão?">🔊</button><span class="pt-word">Qual é a sua profissão?</span><span class="en-eq">What is your profession?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou informático.">🔊</button><span class="pt-word">Sou informático.</span><span class="en-eq">I am an IT professional.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou gerente da minha empresa.">🔊</button><span class="pt-word">Sou gerente da minha empresa.</span><span class="en-eq">I am the manager of my company.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Trabalho como analista na empresa.">🔊</button><span class="pt-word">Trabalho como analista na empresa.</span><span class="en-eq">I work as an analyst at the company.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="O que está a fazer?">🔊</button>O que está a fazer? <span class="en">(What are you doing?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O que está a fazer?">🔊</button><span class="pt-word">O que está a fazer?</span><span class="en-eq">What are you doing? (formal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O que estás a fazer?">🔊</button><span class="pt-word">O que estás a fazer?</span><span class="en-eq">What are you doing? (informal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Agora estou a estudar português.">🔊</button><span class="pt-word">Agora estou a estudar português.</span><span class="en-eq">Right now I am studying Portuguese.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou a descansar.">🔊</button><span class="pt-word">Estou a descansar.</span><span class="en-eq">I am resting.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou a ajudar o meu tio.">🔊</button><span class="pt-word">Estou a ajudar o meu tio.</span><span class="en-eq">I am helping my uncle.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Quantos anos tem? / Qual é a sua idade?">🔊</button>Quantos anos tem? / Qual é a sua idade? <span class="en">(How old are you?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Quantos anos tem?">🔊</button><span class="pt-word">Quantos anos tem?</span><span class="en-eq">How old are you? (formal)</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é a sua idade?">🔊</button><span class="pt-word">Qual é a sua idade?</span><span class="en-eq">What is your age?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tenho 20 anos.">🔊</button><span class="pt-word">Tenho 20 anos.</span><span class="en-eq">I am 20 years old.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tenho 50 anos.">🔊</button><span class="pt-word">Tenho 50 anos.</span><span class="en-eq">I am 50 years old.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Há quanto tempo...?">🔊</button>Há quanto tempo...? <span class="en">(How long...?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Há quanto tempo está em Portugal?">🔊</button><span class="pt-word">Há quanto tempo está em Portugal?</span><span class="en-eq">How long have you been in Portugal?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou em Portugal há cinco anos.">🔊</button><span class="pt-word">Estou em Portugal há cinco anos.</span><span class="en-eq">I have been in Portugal for five years.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou em Portugal desde 2022.">🔊</button><span class="pt-word">Estou em Portugal desde 2022.</span><span class="en-eq">I have been in Portugal since 2022.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é...? / Quais são...?">🔊</button>Qual é...? / Quais são...? <span class="en">(What is...? / Which are...?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é o seu livro?">🔊</button><span class="pt-word">Qual é o seu livro?</span><span class="en-eq">Which is your book?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é a sua idade?">🔊</button><span class="pt-word">Qual é a sua idade?</span><span class="en-eq">What is your age?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é a sua nacionalidade?">🔊</button><span class="pt-word">Qual é a sua nacionalidade?</span><span class="en-eq">What is your nationality?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Qual é a língua que fala?">🔊</button><span class="pt-word">Qual é a língua que fala?</span><span class="en-eq">What language do you speak?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Quais são as línguas que fala?">🔊</button><span class="pt-word">Quais são as línguas que fala?</span><span class="en-eq">What languages do you speak?</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Quem...?">🔊</button>Quem...? <span class="en">(Who...?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Quem está com a camisa vermelha?">🔊</button><span class="pt-word">Quem está com a camisa vermelha?</span><span class="en-eq">Who is wearing the red shirt?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O Pedro está com a camisa vermelha.">🔊</button><span class="pt-word">O Pedro está com a camisa vermelha.</span><span class="en-eq">Pedro is wearing the red shirt.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Quem tem a camisa vermelha?">🔊</button><span class="pt-word">Quem tem a camisa vermelha?</span><span class="en-eq">Who has the red shirt?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O Pedro tem a camisa vermelha.">🔊</button><span class="pt-word">O Pedro tem a camisa vermelha.</span><span class="en-eq">Pedro has the red shirt.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Pode repetir, por favor?">🔊</button>Pode repetir, por favor? <span class="en">(Can you repeat, please?)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Pode repetir, por favor.">🔊</button><span class="pt-word">Pode repetir, por favor.</span><span class="en-eq">Can you repeat, please.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Pode repetir, se faz favor.">🔊</button><span class="pt-word">Pode repetir, se faz favor.</span><span class="en-eq">Can you repeat, please. (alternate phrasing)</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Informação pessoal básica">🔊</button>Informação pessoal básica <span class="en">(Basic personal information)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tem passaporte português ou indiano?">🔊</button><span class="pt-word">Tem passaporte português ou indiano?</span><span class="en-eq">Do you have a Portuguese or Indian passport?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tenho passaporte indiano.">🔊</button><span class="pt-word">Tenho passaporte indiano.</span><span class="en-eq">I have an Indian passport.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tem residência?">🔊</button><span class="pt-word">Tem residência?</span><span class="en-eq">Do you have residency?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tenho residência temporária.">🔊</button><span class="pt-word">Tenho residência temporária.</span><span class="en-eq">I have temporary residency.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tem o número de contribuinte?">🔊</button><span class="pt-word">Tem o número de contribuinte?</span><span class="en-eq">Do you have a tax number?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Tem a carta de condução?">🔊</button><span class="pt-word">Tem a carta de condução?</span><span class="en-eq">Do you have a driving licence?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="É casado?">🔊</button><span class="pt-word">É casado?</span><span class="en-eq">Are you married?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sou casado.">🔊</button><span class="pt-word">Sou casado.</span><span class="en-eq">I am married.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="É mãe?">🔊</button><span class="pt-word">É mãe?</span><span class="en-eq">Are you a mother?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Sim, sou mãe.">🔊</button><span class="pt-word">Sim, sou mãe.</span><span class="en-eq">Yes, I am a mother.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Morada e vivência">🔊</button>Morada e vivência <span class="en">(Location and living)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Moro em Arroios.">🔊</button><span class="pt-word">Moro em Arroios.</span><span class="en-eq">I live in Arroios.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Vivo em Portugal.">🔊</button><span class="pt-word">Vivo em Portugal.</span><span class="en-eq">I live in Portugal.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Estou a viver em Portugal.">🔊</button><span class="pt-word">Estou a viver em Portugal.</span><span class="en-eq">I am living in Portugal.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="A minha casa é em Arroios.">🔊</button><span class="pt-word">A minha casa é em Arroios.</span><span class="en-eq">My house is in Arroios.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Moro perto da estação do metro.">🔊</button><span class="pt-word">Moro perto da estação do metro.</span><span class="en-eq">I live near the metro station.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Trabalho e estudos">🔊</button>Trabalho e estudos <span class="en">(Work and studies)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Onde trabalha?">🔊</button><span class="pt-word">Onde trabalha?</span><span class="en-eq">Where do you work?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Trabalho numa fábrica.">🔊</button><span class="pt-word">Trabalho numa fábrica.</span><span class="en-eq">I work in a factory.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Trabalho num hospital.">🔊</button><span class="pt-word">Trabalho num hospital.</span><span class="en-eq">I work in a hospital.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Trabalho como gerente.">🔊</button><span class="pt-word">Trabalho como gerente.</span><span class="en-eq">I work as a manager.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O meu marido trabalha com uma empresa norte-americana.">🔊</button><span class="pt-word">O meu marido trabalha com uma empresa norte-americana.</span><span class="en-eq">My husband works with an American company.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="O meu filho estuda numa escola pública/privada.">🔊</button><span class="pt-word">O meu filho estuda numa escola pública/privada.</span><span class="en-eq">My son studies at a public/private school.</span></p>
-</div>
-<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Gostos e preferências">🔊</button>Gostos e preferências <span class="en">(Likes and preferences)</span></h3>
-<div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Gosta de Portugal?">🔊</button><span class="pt-word">Gosta de Portugal?</span><span class="en-eq">Do you like Portugal?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Gosta de viver em Portugal?">🔊</button><span class="pt-word">Gosta de viver em Portugal?</span><span class="en-eq">Do you like living in Portugal?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Gosta de comer gelado?">🔊</button><span class="pt-word">Gosta de comer gelado?</span><span class="en-eq">Do you like eating ice cream?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="Gosto de estudar português.">🔊</button><span class="pt-word">Gosto de estudar português.</span><span class="en-eq">I like studying Portuguese.</span></p>
-</div>
-</div>
+
 <div class="example-box">
 <h4>Diálogo — perguntas e respostas</h4>
 <div class="example-list">
