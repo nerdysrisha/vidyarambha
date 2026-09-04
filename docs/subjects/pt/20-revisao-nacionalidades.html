@@ -31,6 +31,61 @@
 .pt-nacionalidades .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
 .pt-nacionalidades .en-eq::before { content: "— "; color: #b9b9b9 !important; }
 
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-nacionalidades .desc-box hr.desc-divider {
+	border: none;
+	border-top: 1px solid #e6ddc9;
+	margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables (light, inside desc-box) ---------- */
+.pt-nacionalidades .compare-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #ffffff !important;
+	margin: 4px 0 10px 0;
+}
+.pt-nacionalidades .compare-table th {
+	text-align: left;
+	padding: 8px 14px;
+	font-size: 0.92em;
+	color: #6b4f1d !important;
+	border-bottom: 2px solid #c9a15a;
+	background: #ffffff !important;
+}
+.pt-nacionalidades .compare-table td {
+	padding: 9px 14px;
+	border-bottom: 1px solid #e8e2d5;
+	background: #ffffff !important;
+	color: #2b2b2b !important;
+	vertical-align: top;
+}
+.pt-nacionalidades .compare-table tr:last-child td { border-bottom: none; }
+.pt-nacionalidades .compare-table .spk-wrap {
+	position: relative;
+	padding-left: 1.9em;
+}
+.pt-nacionalidades .compare-table .spk-wrap .spk-btn {
+	position: absolute;
+	left: 0;
+	top: 4px;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 2px;
+	line-height: 1;
+	font-size: 0.85em;
+	color: #a1521f;
+}
+.pt-nacionalidades .compare-table .spk-wrap:hover .spk-btn,
+.pt-nacionalidades .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-nacionalidades .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+	.pt-nacionalidades .compare-table .spk-btn { opacity: 0.4; }
+}
+
 .pt-nacionalidades .example-box {
 	background: #1a1a1a !important;
 	border: 1px solid #333;
@@ -228,16 +283,22 @@
 <h2>20. Revisão — Nacionalidades <span class="en">(Review — Nationalities)</span></h2>
 
 <div class="desc-box">
-	<p><em>Review exercise — Nationalities: countries, nationality adjectives, gender/plural forms (revisiting Topic 3, Ser — usos principais).</em></p>
+	<p>This page reviews nationalities — the words for countries, the adjectives that describe where someone is from, and how those adjectives change for gender and number (masculine/feminine, singular/plural).</p>
+	<p>It also revisits the verb <span class="pt-word">ser</span> from Topic 3 (<span class="en">Ser — usos principais</span>), since <span class="pt-word">ser</span> is the verb I use to state my nationality — e.g. <span class="pt-word">Sou português.</span></p>
+
+	<hr class="desc-divider">
 
 	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Padrões de formação">🔊</button>Padrões de formação <span class="en">(Formation patterns)</span></h3>
-	<div class="example-list">
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="português, chinês, francês, senegalês, norueguês">🔊</button><span class="pt-word">-ês → -esa</span> <span class="en">(português, chinês, francês, senegalês, norueguês...)</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="russo, angolano, cubano, marroquino, sueco, egípcio">🔊</button><span class="pt-word">-o → -a</span> <span class="en">(russo, angolano, cubano, marroquino, sueco, egípcio...)</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="espanhol, espanhola">🔊</button><span class="pt-word">-ol → -ola</span> <span class="en">(espanhol → espanhola)</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="alemão, alemã, alemães, alemãs">🔊</button><span class="pt-word">-ão → -ã</span> <span class="en">(alemão → alemã, plural alemães/alemãs)</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn" data-pt="belga, guineense, são-tomense">🔊</button><span class="pt-word">invariável</span> <span class="en">(belga, guineense, são-tomense — same form for masc./fem.)</span></p>
-	</div>
+	<table class="compare-table">
+		<thead><tr><th>Padrão</th><th>Exemplos</th><th>English</th></tr></thead>
+		<tbody>
+			<tr><td class="spk-wrap" data-pt="português, chinês, francês, senegalês, norueguês"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-ês → -esa</span></td><td>português, chinês, francês, senegalês, norueguês...</td><td>masc. ending -ês becomes -esa for feminine</td></tr>
+			<tr><td class="spk-wrap" data-pt="russo, angolano, cubano, marroquino, sueco, egípcio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-o → -a</span></td><td>russo, angolano, cubano, marroquino, sueco, egípcio...</td><td>masc. ending -o becomes -a for feminine</td></tr>
+			<tr><td class="spk-wrap" data-pt="espanhol, espanhola"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-ol → -ola</span></td><td>espanhol → espanhola</td><td>masc. ending -ol becomes -ola for feminine</td></tr>
+			<tr><td class="spk-wrap" data-pt="alemão, alemã, alemães, alemãs"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">-ão → -ã</span></td><td>alemão → alemã <span class="en">(plural: alemães / alemãs)</span></td><td>masc. ending -ão becomes -ã for feminine</td></tr>
+			<tr><td class="spk-wrap" data-pt="belga, guineense, são-tomense"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">invariável</span></td><td>belga, guineense, são-tomense</td><td>same form for masc. and fem.</td></tr>
+		</tbody>
+	</table>
 
 	<h3><button aria-label="Ouvir" class="spk-btn" data-pt="Línguas">🔊</button>Línguas <span class="en">(Languages)</span></h3>
 	<div class="word-bank">
@@ -329,14 +390,14 @@
 <div class="example-box">
 	<h4>Exemplos</h4>
 	<div class="example-list">
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu sou portuguesa.">🔊</button>Eu <span class="pt-word">sou</span> portuguesa.<span class="en-eq">I am Portuguese.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Fritz é alemão e o Peter é inglês.">🔊</button>O Fritz <span class="pt-word">é</span> alemão e o Peter <span class="pt-word">é</span> inglês.<span class="en-eq">Fritz is German and Peter is English.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Carmen é cubana.">🔊</button>A Carmen <span class="pt-word">é</span> cubana.<span class="en-eq">Carmen is Cuban.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Louis é belga.">🔊</button>O Louis <span class="pt-word">é</span> belga.<span class="en-eq">Louis is Belgian.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Paola é espanhola.">🔊</button>A Paola <span class="pt-word">é</span> espanhola.<span class="en-eq">Paola is Spanish.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Raul é são-tomense.">🔊</button>O Raul <span class="pt-word">é</span> são-tomense.<span class="en-eq">Raul is from São Tomé.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Hans e o Peter são alemães.">🔊</button>O Hans e o Peter <span class="pt-word">são</span> alemães.<span class="en-eq">Hans and Peter are German.</span></p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Nós somos senegaleses.">🔊</button>Nós <span class="pt-word">somos</span> senegaleses.<span class="en-eq">We are Senegalese.</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Eu sou portuguesa.">🔊</button>Eu <span class="pt-word">sou</span> portuguesa.<span class="en-eq">I am Portuguese. (first person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Fritz é alemão e o Peter é inglês.">🔊</button>O Fritz <span class="pt-word">é</span> alemão e o Peter <span class="pt-word">é</span> inglês.<span class="en-eq">Fritz is German and Peter is English. (third person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Carmen é cubana.">🔊</button>A Carmen <span class="pt-word">é</span> cubana.<span class="en-eq">Carmen is Cuban. (third person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Louis é belga.">🔊</button>O Louis <span class="pt-word">é</span> belga.<span class="en-eq">Louis is Belgian. (third person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A Paola é espanhola.">🔊</button>A Paola <span class="pt-word">é</span> espanhola.<span class="en-eq">Paola is Spanish. (third person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Raul é são-tomense.">🔊</button>O Raul <span class="pt-word">é</span> são-tomense.<span class="en-eq">Raul is from São Tomé. (third person)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O Hans e o Peter são alemães.">🔊</button>O Hans e o Peter <span class="pt-word">são</span> alemães.<span class="en-eq">Hans and Peter are German. (third person plural)</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Nós somos senegaleses.">🔊</button>Nós <span class="pt-word">somos</span> senegaleses.<span class="en-eq">We are Senegalese. (first person plural)</span></p>
 	</div>
 </div>
 
@@ -486,14 +547,14 @@
 
 	<div class="importante-box">
 		<span class="label">Importante</span>
-		<p><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou de Londres.">🔊</button><span class="pt-word">Sou de Londres.</span><span class="en-eq">I am from London. (origin — ser)</span></p>
-		<p><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou em Londres.">🔊</button><span class="pt-word">Estou em Londres.</span><span class="en-eq">I am in London (right now). (current location — estar)</span></p>
+		<p><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou de Londres.">🔊</button><span class="pt-word">Sou de Londres.</span><span class="en-eq">I am from London. (first person — origin, ser)</span></p>
+		<p><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou em Londres.">🔊</button><span class="pt-word">Estou em Londres.</span><span class="en-eq">I am in London right now. (first person — current location, estar)</span></p>
 	</div>
 
 	<div class="exercise-item" style="margin-top:14px;">
 		<p class="ex-label">Faça a pergunta ao seu colega.</p>
 		<p class="ex-note">Trabalho a pares — pergunte e responda onde mora.</p>
-		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><span class="pt-word">Onde moras?</span> <span class="en-eq">Where do you live?</span></p>
+		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><span class="pt-word">Onde moras?</span> <span class="en-eq">Where do you live? (second person, informal)</span></p>
 		<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Em Lisboa.">🔊</button>— Em Lisboa.<span class="en-eq">— In Lisbon.</span></p>
 	</div>
 
