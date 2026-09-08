@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#171933">
 <title>Signal Breach</title>
 <style>
   :root{
@@ -46,6 +50,18 @@
   #hud .value{
     font-size: 22px; font-weight: 700;
   }
+  .hud-right{
+    display:flex; align-items:center; gap:12px;
+  }
+  .icon-btn{
+    width:36px; height:36px;
+    border-radius:50%;
+    background: rgba(244,247,255,0.12);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    flex-shrink:0;
+  }
+  .icon-btn svg{ width:18px; height:18px; }
   #lives{ display:flex; gap:6px; }
   .life-dot{
     width:12px; height:12px; border-radius: 3px;
@@ -138,7 +154,17 @@
       <div class="label">SCORE</div>
       <div class="value" id="scoreVal">0</div>
     </div>
-    <div id="lives"></div>
+    <div class="hud-right">
+      <button id="fsBtn" class="icon-btn" aria-label="Toggle fullscreen">
+        <svg id="fsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+          <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+          <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+        </svg>
+      </button>
+      <div id="lives"></div>
+    </div>
   </div>
   <canvas id="game"></canvas>
 
@@ -146,9 +172,10 @@
     <h1>SIGNAL BREACH</h1>
     <p class="sub">an invasion, politely declined</p>
     <p class="howto">
-      <b>Drag</b> anywhere to steer your ship.<br>
-      <b>Hold</b> your finger down to fire.<br>
-      Clear every wave before they land.
+      <b>Drag</b> anywhere to steer &mdash; your finger doesn't need to touch the ship.<br>
+      <b>Hold</b> down to fire.<br>
+      Catch a falling gold capsule to nuke the front row.<br>
+      <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
     <button id="startBtn">START</button>
   </div>
@@ -171,6 +198,34 @@
   const finalScoreEl = document.getElementById('finalScore');
   const startBtn = document.getElementById('startBtn');
   const retryBtn = document.getElementById('retryBtn');
+  const fsBtn = document.getElementById('fsBtn');
+  const fsIcon = document.getElementById('fsIcon');
+
+  const EXPAND_PATH = '<path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>';
+  const COMPRESS_PATH = '<path d="M9 3v4a2 2 0 0 1-2 2H3"></path><path d="M15 3v4a2 2 0 0 0 2 2h4"></path><path d="M9 21v-4a2 2 0 0 0-2-2H3"></path><path d="M15 21v-4a2 2 0 0 1 2-2h4"></path>';
+
+  function isFullscreen(){
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+  function requestFS(){
+    const el = document.documentElement;
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if(fn) fn.call(el);
+  }
+  function exitFS(){
+    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if(fn) fn.call(document);
+  }
+  function toggleFullscreen(){
+    if(isFullscreen()) exitFS(); else requestFS();
+  }
+  function syncFsIcon(){
+    fsIcon.innerHTML = isFullscreen() ? COMPRESS_PATH : EXPAND_PATH;
+  }
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(evt=>{
+    document.addEventListener(evt, ()=>{ syncFsIcon(); setTimeout(resize, 100); });
+  });
+  fsBtn.addEventListener('click', toggleFullscreen);
 
   let W, H, DPR;
   function resize(){
@@ -193,10 +248,18 @@
   let alienSpeed = 0;
   let alienStepDown = 0;
   let fireTimer = 0;
-  let touchX = null;
+  let lastTouchX = null;
   let touching = false;
   let shakeT = 0;
   let waveNum = 1;
+  let waveEntering = false;
+  let entryTimer = 0;
+  const ENTRY_DURATION = 40;
+  let powerup = null;
+  let powerupTimer = 260;
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
 
   function initPlayer(){
     player = {
@@ -215,10 +278,12 @@
     const startY = 90;
     for(let r=0;r<rows;r++){
       for(let c=0;c<cols;c++){
+        const baseY = startY + r*46;
         aliens.push({
           x: startX + c*cellW,
-          y: startY + r*46,
-          baseY: startY + r*46,
+          y: -40 - r*34,
+          spawnY: -40 - r*34,
+          baseY: baseY,
           w: cellW*0.62, h: 28,
           row: r,
           alive: true,
@@ -230,11 +295,14 @@
     alienDir = 1;
     alienSpeed = 0.5 + (waveNum-1)*0.18;
     alienStepDown = 0;
+    waveEntering = true;
+    entryTimer = 0;
   }
 
   function resetGame(){
     score = 0; lives = 3; waveNum = 1;
     bullets = []; enemyBullets = []; particles = [];
+    powerup = null; powerupTimer = 260;
     initPlayer();
     buildWave();
     updateHud();
@@ -259,15 +327,19 @@
   function onDown(e){
     e.preventDefault();
     touching = true;
-    touchX = pointerPos(e);
+    lastTouchX = pointerPos(e);
   }
   function onMove(e){
     if(!touching) return;
     e.preventDefault();
-    touchX = pointerPos(e);
+    const x = pointerPos(e);
+    const dx = x - lastTouchX;
+    lastTouchX = x;
+    if(player) player.x = clamp(player.x + dx, player.w/2, W - player.w/2);
   }
   function onUp(e){
     touching = false;
+    lastTouchX = null;
   }
   canvas.addEventListener('touchstart', onDown, {passive:false});
   canvas.addEventListener('touchmove', onMove, {passive:false});
@@ -283,13 +355,31 @@
   }
 
   function maybeAlienFire(dt){
-    if(Math.random() < 0.012 + waveNum*0.002){
+    if(enemyBullets.length >= 2) return;
+    if(Math.random() < 0.0035 + waveNum*0.0006){
       const alive = aliens.filter(a=>a.alive);
       if(alive.length){
         const shooter = alive[Math.floor(Math.random()*alive.length)];
-        enemyBullets.push({x:shooter.x, y:shooter.y+14, r:4, vy: 4 + waveNum*0.3});
+        enemyBullets.push({x:shooter.x, y:shooter.y+14, r:4, vy: 4 + waveNum*0.25});
       }
     }
+  }
+
+  function spawnPowerup(){
+    powerup = {x: 34 + Math.random()*(W-68), y: -24, vy: 2.2, r: 15, spin: 0};
+  }
+
+  function triggerBomb(){
+    const alive = aliens.filter(a=>a.alive);
+    if(!alive.length) return;
+    const frontRow = Math.max(...alive.map(a=>a.row));
+    alive.filter(a=>a.row===frontRow).forEach(a=>{
+      a.alive = false;
+      explode(a.x, a.y, a.color);
+      score += 15;
+    });
+    updateHud();
+    shakeT = 18;
   }
 
   function rectHit(ax,ay,aw,ah,bx,by,br){
@@ -306,11 +396,6 @@
   }
 
   function update(dt){
-    // player follow touch
-    if(touching && touchX !== null){
-      const target = Math.max(player.w/2, Math.min(W - player.w/2, touchX));
-      player.x += (target - player.x) * 0.28;
-    }
     // fire
     if(touching){
       fireTimer -= dt;
@@ -326,23 +411,49 @@
     enemyBullets.forEach(b => b.y += b.vy);
     enemyBullets = enemyBullets.filter(b => b.y < H+20);
 
-    // aliens move
+    // wave entrance: aliens drop in from above before normal behavior starts
     const alive = aliens.filter(a=>a.alive);
-    let hitEdge = false;
-    alive.forEach(a=>{
-      a.x += alienSpeed * alienDir;
-      if(a.x < 26 || a.x > W-26) hitEdge = true;
-    });
-    if(hitEdge){
-      alienDir *= -1;
-      alive.forEach(a=> a.baseY += 18);
-    }
-    const t = Date.now()/300;
-    alive.forEach(a=>{
-      a.y = a.baseY + Math.sin(t + a.wob)*2;
-    });
+    if(waveEntering){
+      entryTimer += dt;
+      const p = easeOutCubic(Math.min(1, entryTimer/ENTRY_DURATION));
+      alive.forEach(a=>{ a.y = a.spawnY + (a.baseY - a.spawnY) * p; });
+      if(entryTimer >= ENTRY_DURATION) waveEntering = false;
+    } else {
+      // aliens move
+      let hitEdge = false;
+      alive.forEach(a=>{
+        a.x += alienSpeed * alienDir;
+        if(a.x < 26 || a.x > W-26) hitEdge = true;
+      });
+      if(hitEdge){
+        alienDir *= -1;
+        alive.forEach(a=> a.baseY += 18);
+      }
+      const t = Date.now()/300;
+      alive.forEach(a=>{
+        a.y = a.baseY + Math.sin(t + a.wob)*2;
+      });
 
-    maybeAlienFire(dt);
+      maybeAlienFire(dt);
+    }
+
+    // nuclear capsule: fall, catch, or miss
+    if(!powerup){
+      powerupTimer -= dt;
+      if(powerupTimer <= 0){
+        spawnPowerup();
+        powerupTimer = 480 + Math.random()*300;
+      }
+    } else {
+      powerup.y += powerup.vy;
+      powerup.spin += 0.06*dt;
+      if(rectHit(player.x, player.y, player.w+10, player.h+10, powerup.x, powerup.y, powerup.r)){
+        powerup = null;
+        triggerBomb();
+      } else if(powerup.y > H+30){
+        powerup = null;
+      }
+    }
 
     // collisions: player bullets vs aliens
     bullets.forEach(b=>{
@@ -457,6 +568,26 @@
     ctx.restore();
   }
 
+  function drawPowerup(p){
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.sin(p.spin)*0.25);
+    ctx.fillStyle = getCss('--row2');
+    ctx.shadowColor = getCss('--row2');
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(-p.r, -p.r, p.r*2, p.r*2, 5) : ctx.rect(-p.r,-p.r,p.r*2,p.r*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(23,25,51,0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-p.r, 0); ctx.lineTo(p.r, 0);
+    ctx.moveTo(0, -p.r); ctx.lineTo(0, p.r);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function draw(){
     ctx.clearRect(0,0,W,H);
     let ox=0, oy=0;
@@ -488,6 +619,8 @@
 
     aliens.forEach(a=>{ if(a.alive) drawAlien(a); });
 
+    if(powerup) drawPowerup(powerup);
+
     particles.forEach(p=>{
       ctx.globalAlpha = Math.max(0, p.life/24);
       ctx.fillStyle = p.color;
@@ -516,6 +649,7 @@
     state = 'playing';
     titleEl.classList.add('hidden');
     gameoverEl.style.display = 'none';
+    if(!isFullscreen()) requestFS();
   }
 
   startBtn.addEventListener('click', startGame);
