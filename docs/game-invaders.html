@@ -22,6 +22,9 @@
     --ink: #F4F7FF;
     --ink-dim: #9CA3D4;
     --accent: #FF6B6B;
+    --hull: #121320;
+    --blinker-l: #FFD93D;
+    --blinker-r: #6BCB77;
   }
   *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body{
@@ -145,6 +148,28 @@
   }
   #gameover .score-line span{ color: var(--row2); font-weight:700; }
   .hidden{ display:none !important; }
+  #waveBanner{
+    position:absolute; top:36%; left:50%;
+    transform:translate(-50%,-50%) scale(0.9);
+    color: var(--ink);
+    font-size: clamp(19px, 5.5vw, 27px);
+    font-weight: 800;
+    text-align:center;
+    letter-spacing: 0.01em;
+    opacity:0;
+    pointer-events:none;
+    z-index: 15;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.7);
+  }
+  #waveBanner.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  #waveBanner .tier{
+    display:block;
+    font-size: 0.5em;
+    color: var(--ship);
+    font-weight:700;
+    margin-top: 4px;
+  }
 </style>
 </head>
 <body>
@@ -167,6 +192,7 @@
     </div>
   </div>
   <canvas id="game"></canvas>
+  <div id="waveBanner"></div>
 
   <div id="title">
     <h1>SIGNAL BREACH</h1>
@@ -175,6 +201,7 @@
       <b>Drag</b> anywhere to steer &mdash; your finger doesn't need to touch the ship.<br>
       <b>Hold</b> down to fire.<br>
       Catch a falling gold capsule to nuke the front row.<br>
+      Watch for a lone alien flashing red &mdash; it's about to dive straight at you.<br>
       <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
     <button id="startBtn">START</button>
@@ -196,6 +223,7 @@
   const titleEl = document.getElementById('title');
   const gameoverEl = document.getElementById('gameover');
   const finalScoreEl = document.getElementById('finalScore');
+  const waveBannerEl = document.getElementById('waveBanner');
   const startBtn = document.getElementById('startBtn');
   const retryBtn = document.getElementById('retryBtn');
   const fsBtn = document.getElementById('fsBtn');
@@ -240,6 +268,20 @@
 
   // ---------- game state ----------
   const rowColors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#A78BFA'];
+  const ALIEN_VARIANTS = [
+    { name: 'The Gigglers', face: 'giggle' },
+    { name: 'The Blinkers', face: 'wink' },
+    { name: 'The Grumps', face: 'frown' },
+    { name: 'The Zappers', face: 'zap' }
+  ];
+  let waveVariant = ALIEN_VARIANTS[0];
+  let waveBannerTimeout = null;
+  function showWaveBanner(){
+    waveBannerEl.innerHTML = `WAVE ${waveNum}<span class="tier">${waveVariant.name}</span>`;
+    waveBannerEl.classList.add('show');
+    clearTimeout(waveBannerTimeout);
+    waveBannerTimeout = setTimeout(()=> waveBannerEl.classList.remove('show'), 1500);
+  }
   let state = 'title'; // title | playing | over
   let score = 0;
   let lives = 3;
@@ -271,6 +313,7 @@
 
   function buildWave(){
     aliens = [];
+    waveVariant = ALIEN_VARIANTS[(waveNum-1) % ALIEN_VARIANTS.length];
     const cols = Math.min(7, Math.floor((W - 40) / 50));
     const rows = 4;
     const cellW = Math.min(50, (W - 40) / cols);
@@ -288,7 +331,11 @@
           row: r,
           alive: true,
           color: rowColors[r % rowColors.length],
-          wob: Math.random()*Math.PI*2
+          wob: Math.random()*Math.PI*2,
+          diving: false,
+          diveTelegraph: 0,
+          diveVy: 0,
+          diveX: 0
         });
       }
     }
@@ -297,6 +344,7 @@
     alienStepDown = 0;
     waveEntering = true;
     entryTimer = 0;
+    showWaveBanner();
   }
 
   function resetGame(){
@@ -357,11 +405,28 @@
   function maybeAlienFire(dt){
     if(enemyBullets.length >= 2) return;
     if(Math.random() < 0.0035 + waveNum*0.0006){
-      const alive = aliens.filter(a=>a.alive);
+      const alive = aliens.filter(a=>a.alive && !a.diving);
       if(alive.length){
         const shooter = alive[Math.floor(Math.random()*alive.length)];
         enemyBullets.push({x:shooter.x, y:shooter.y+14, r:4, vy: 4 + waveNum*0.25});
       }
+    }
+  }
+
+  function maybeStartKamikaze(dt){
+    const alive = aliens.filter(a=>a.alive);
+    const divingCount = alive.filter(a=>a.diving).length;
+    if(divingCount >= 2) return;
+    if(Math.random() < 0.0012 + waveNum*0.0005){
+      const candidates = alive.filter(a=>!a.diving);
+      if(!candidates.length) return;
+      const maxRow = Math.max(...candidates.map(a=>a.row));
+      const front = candidates.filter(a=>a.row===maxRow);
+      const diver = front[Math.floor(Math.random()*front.length)];
+      diver.diving = true;
+      diver.diveTelegraph = 26;
+      diver.diveVy = 0;
+      diver.diveX = diver.x;
     }
   }
 
@@ -413,29 +478,55 @@
 
     // wave entrance: aliens drop in from above before normal behavior starts
     const alive = aliens.filter(a=>a.alive);
+    const formationAliens = alive.filter(a=>!a.diving);
+    const divingAliens = alive.filter(a=>a.diving);
+
     if(waveEntering){
       entryTimer += dt;
       const p = easeOutCubic(Math.min(1, entryTimer/ENTRY_DURATION));
-      alive.forEach(a=>{ a.y = a.spawnY + (a.baseY - a.spawnY) * p; });
+      formationAliens.forEach(a=>{ a.y = a.spawnY + (a.baseY - a.spawnY) * p; });
       if(entryTimer >= ENTRY_DURATION) waveEntering = false;
     } else {
       // aliens move
       let hitEdge = false;
-      alive.forEach(a=>{
+      formationAliens.forEach(a=>{
         a.x += alienSpeed * alienDir;
         if(a.x < 26 || a.x > W-26) hitEdge = true;
       });
       if(hitEdge){
         alienDir *= -1;
-        alive.forEach(a=> a.baseY += 18);
+        formationAliens.forEach(a=> a.baseY += 18);
       }
       const t = Date.now()/300;
-      alive.forEach(a=>{
+      formationAliens.forEach(a=>{
         a.y = a.baseY + Math.sin(t + a.wob)*2;
       });
 
       maybeAlienFire(dt);
+      maybeStartKamikaze(dt);
     }
+
+    // kamikaze divers: telegraph, then commit to a straight line down
+    divingAliens.forEach(a=>{
+      if(a.diveTelegraph > 0){
+        a.diveTelegraph -= dt;
+        a.x = a.diveX + Math.sin(Date.now()/45 + a.wob)*3;
+      } else {
+        a.diveVy = Math.min(a.diveVy + 0.15*dt, 5.5 + waveNum*0.15);
+        a.x = a.diveX;
+        a.y += a.diveVy * dt;
+        if(Math.random() < 0.55){
+          particles.push({x:a.x+(Math.random()-0.5)*6, y:a.y-a.h/2, vx:(Math.random()-0.5)*0.6, vy:-1-Math.random()*1.2, life:14, color:'#FFB84D'});
+        }
+        if(rectHit(player.x, player.y, player.w, player.h, a.x, a.y, Math.max(a.w,a.h)/2)){
+          a.alive = false;
+          explode(a.x, a.y, a.color);
+          loseLife();
+        } else if(a.y > H + 30){
+          a.alive = false;
+        }
+      }
+    });
 
     // nuclear capsule: fall, catch, or miss
     if(!powerup){
@@ -463,7 +554,7 @@
         if(rectHit(a.x,a.y,a.w,a.h,b.x,b.y,b.r)){
           a.alive = false;
           b.dead = true;
-          score += 10;
+          score += a.diving ? 25 : 10;
           explode(a.x,a.y,a.color);
           updateHud();
           break;
@@ -482,8 +573,8 @@
     });
     enemyBullets = enemyBullets.filter(b=>!b.dead);
 
-    // aliens reach player line
-    if(alive.some(a=> a.y > player.y - 40)){
+    // aliens reach player line (formation only — divers are handled above)
+    if(formationAliens.some(a=> a.y > player.y - 40)){
       loseLife(true);
     }
 
@@ -528,9 +619,12 @@
   function drawShip(p){
     ctx.save();
     ctx.translate(p.x, p.y);
-    ctx.fillStyle = getCss('--ship');
+
     ctx.shadowColor = getCss('--ship-glow');
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = getCss('--hull');
+    ctx.strokeStyle = getCss('--ship');
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, -p.h/2);
     ctx.lineTo(p.w/2, p.h/2);
@@ -540,6 +634,22 @@
     ctx.closePath();
     ctx.fill();
     ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // wingtip blinkers, alternating like a scanner
+    const phase = Math.floor(Date.now()/450) % 2 === 0;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = phase ? getCss('--blinker-l') : getCss('--blinker-r');
+    ctx.fillStyle = phase ? getCss('--blinker-l') : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.arc(-p.w/2, p.h/2 - 4, 3.2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = !phase ? getCss('--blinker-r') : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.arc(p.w/2, p.h/2 - 4, 3.2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
     ctx.restore();
   }
 
@@ -554,17 +664,71 @@
   function drawAlien(a){
     ctx.save();
     ctx.translate(a.x, a.y);
-    ctx.fillStyle = a.color;
-    const w=a.w,h=a.h;
+    const w=a.w, h=a.h;
+
+    let bodyColor = a.color;
+    if(a.diving && a.diveTelegraph > 0 && Math.floor(Date.now()/80)%2===0){
+      bodyColor = '#FF3B3B';
+    }
+    ctx.fillStyle = bodyColor;
     ctx.beginPath();
     ctx.roundRect ? ctx.roundRect(-w/2,-h/2,w,h,6) : ctx.rect(-w/2,-h/2,w,h);
     ctx.fill();
-    // eyes
+
     ctx.fillStyle = 'rgba(23,25,51,0.85)';
-    ctx.beginPath();
-    ctx.arc(-w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
-    ctx.arc(w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
-    ctx.fill();
+    ctx.strokeStyle = 'rgba(23,25,51,0.85)';
+    ctx.lineWidth = 2;
+
+    switch(waveVariant.face){
+      case 'wink': {
+        const blink = Math.sin(Date.now()/450 + a.wob*3) > 0.85;
+        ctx.beginPath();
+        if(blink){
+          ctx.fillRect(-w*0.18-w*0.09, -h*0.05-1, w*0.18, 2);
+        } else {
+          ctx.arc(-w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
+        }
+        ctx.arc(w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
+        ctx.fill();
+        break;
+      }
+      case 'frown': {
+        ctx.beginPath();
+        ctx.arc(-w*0.17, -h*0.02, w*0.08, 0, Math.PI*2);
+        ctx.arc(w*0.17, -h*0.02, w*0.08, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-w*0.28,-h*0.24); ctx.lineTo(-w*0.06,-h*0.14);
+        ctx.moveTo(w*0.28,-h*0.24); ctx.lineTo(w*0.06,-h*0.14);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, h*0.3, w*0.16, Math.PI*1.15, Math.PI*1.85);
+        ctx.stroke();
+        break;
+      }
+      case 'zap': {
+        ctx.beginPath();
+        ctx.arc(-w*0.18, -h*0.05, w*0.1, 0, Math.PI*2);
+        ctx.arc(w*0.18, -h*0.05, w*0.1, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        ctx.moveTo(-1,-h*0.4); ctx.lineTo(2,-h*0.26); ctx.lineTo(-1,-h*0.26); ctx.lineTo(3,-h*0.1);
+        ctx.lineTo(-2,-h*0.22); ctx.lineTo(1,-h*0.22); ctx.closePath();
+        ctx.fill();
+        break;
+      }
+      default: { // giggle
+        ctx.beginPath();
+        ctx.arc(-w*0.18, -h*0.08, w*0.09, 0, Math.PI*2);
+        ctx.arc(w*0.18, -h*0.08, w*0.09, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, h*0.06, w*0.16, 0.15*Math.PI, 0.85*Math.PI);
+        ctx.stroke();
+      }
+    }
+
     ctx.restore();
   }
 
