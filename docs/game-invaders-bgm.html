@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#171933">
+<title>Signal Breach</title>
+<style>
+  :root{
+    --bg-deep: #171933;
+    --bg-mid: #20234a;
+    --ship: #4ADEDE;
+    --ship-glow: #8BF1F1;
+    --bullet: #F4F7FF;
+    --row1: #FF6B6B;
+    --row2: #FFD93D;
+    --row3: #6BCB77;
+    --row4: #A78BFA;
+    --ink: #F4F7FF;
+    --ink-dim: #9CA3D4;
+    --accent: #FF6B6B;
+    --hull: #121320;
+    --blinker-l: #FFD93D;
+    --blinker-r: #6BCB77;
+  }
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{
+    margin:0; padding:0; height:100%; overflow:hidden;
+    background: var(--bg-deep);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+  #wrap{
+    position: fixed; inset:0;
+    display:flex; flex-direction:column;
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--bg-mid) 0%, var(--bg-deep) 70%);
+  }
+  #hud{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: max(14px, env(safe-area-inset-top)) 18px 10px 18px;
+    color: var(--ink);
+    z-index: 5;
+    font-variant-numeric: tabular-nums;
+  }
+  #hud .label{
+    font-size: 11px; letter-spacing: 0.06em; color: var(--ink-dim); margin-bottom:2px;
+  }
+  #hud .value{
+    font-size: 22px; font-weight: 700;
+  }
+  .hud-right{
+    display:flex; align-items:center; gap:12px;
+  }
+  .icon-btn{
+    width:36px; height:36px;
+    border-radius:50%;
+    background: rgba(244,247,255,0.12);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    flex-shrink:0;
+  }
+  .icon-btn svg{ width:18px; height:18px; }
+  #lives{ display:flex; gap:6px; }
+  .life-dot{
+    width:12px; height:12px; border-radius: 3px;
+    background: var(--accent);
+  }
+  canvas{
+    flex:1;
+    display:block;
+    width:100%;
+    touch-action: none;
+  }
+  #title{
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    background: var(--bg-deep);
+    z-index: 20;
+    padding: 24px;
+    gap: 6px;
+  }
+  #title h1{
+    font-size: clamp(32px, 9vw, 52px);
+    margin: 0;
+    color: var(--ink);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  #title .sub{
+    color: var(--ship);
+    font-size: 15px;
+    margin: 0 0 28px 0;
+    letter-spacing: 0.02em;
+  }
+  #title .howto{
+    color: var(--ink-dim);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 320px;
+    margin-bottom: 34px;
+  }
+  #title .howto b{ color: var(--ink); font-weight:600; }
+  button{
+    font-family: inherit;
+    border:none;
+    cursor:pointer;
+  }
+  #startBtn, #retryBtn{
+    background: var(--ship);
+    color: #10122A;
+    font-size: 17px;
+    font-weight: 700;
+    padding: 15px 38px;
+    border-radius: 30px;
+    box-shadow: 0 0 0 0 rgba(74,222,222,0.5);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(74,222,222,0.35); }
+    70%{ box-shadow: 0 0 0 14px rgba(74,222,222,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(74,222,222,0); }
+  }
+  #gameover{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    background: rgba(23,25,51,0.94);
+    z-index: 25;
+    text-align:center;
+    padding: 24px;
+    gap: 8px;
+  }
+  #gameover h2{
+    color: var(--accent);
+    font-size: 30px;
+    margin: 0 0 4px 0;
+  }
+  #gameover .score-line{
+    color: var(--ink);
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
+  #gameover .score-line span{ color: var(--row2); font-weight:700; }
+  .hidden{ display:none !important; }
+  #waveBanner{
+    position:absolute; top:36%; left:50%;
+    transform:translate(-50%,-50%) scale(0.9);
+    color: var(--ink);
+    font-size: clamp(19px, 5.5vw, 27px);
+    font-weight: 800;
+    text-align:center;
+    letter-spacing: 0.01em;
+    opacity:0;
+    pointer-events:none;
+    z-index: 15;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.7);
+  }
+  #waveBanner.show{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  #waveBanner .tier{
+    display:block;
+    font-size: 0.5em;
+    color: var(--ship);
+    font-weight:700;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud">
+    <div>
+      <div class="label">SCORE</div>
+      <div class="value" id="scoreVal">0</div>
+    </div>
+    <div class="hud-right">
+      <button id="muteBtn" class="icon-btn" aria-label="Toggle music">
+        <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+      <button id="fsBtn" class="icon-btn" aria-label="Toggle fullscreen">
+        <svg id="fsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+          <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+          <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+        </svg>
+      </button>
+      <div id="lives"></div>
+    </div>
+  </div>
+  <canvas id="game"></canvas>
+  <div id="waveBanner"></div>
+
+  <div id="title">
+    <h1>SIGNAL BREACH</h1>
+    <p class="sub">an invasion, politely declined</p>
+    <p class="howto">
+      <b>Drag</b> anywhere to steer &mdash; your finger doesn't need to touch the ship.<br>
+      <b>Hold</b> down to fire.<br>
+      Catch falling gift capsules &mdash; 5 colors, 5 surprises.<br>
+      Watch for a lone alien flashing red &mdash; it's about to dive straight at you.<br>
+      Friendly critters sometimes drift by &mdash; give 'em a friendly zap.<br>
+      <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
+    </p>
+    <button id="startBtn">START</button>
+  </div>
+
+  <div id="gameover">
+    <h2>SIGNAL LOST</h2>
+    <p class="score-line">Final score: <span id="finalScore">0</span></p>
+    <button id="retryBtn">TRY AGAIN</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const scoreValEl = document.getElementById('scoreVal');
+  const livesEl = document.getElementById('lives');
+  const titleEl = document.getElementById('title');
+  const gameoverEl = document.getElementById('gameover');
+  const finalScoreEl = document.getElementById('finalScore');
+  const waveBannerEl = document.getElementById('waveBanner');
+  const startBtn = document.getElementById('startBtn');
+  const retryBtn = document.getElementById('retryBtn');
+  const fsBtn = document.getElementById('fsBtn');
+  const fsIcon = document.getElementById('fsIcon');
+  const muteBtn = document.getElementById('muteBtn');
+  const muteIcon = document.getElementById('muteIcon');
+
+  const EXPAND_PATH = '<path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>';
+  const COMPRESS_PATH = '<path d="M9 3v4a2 2 0 0 1-2 2H3"></path><path d="M15 3v4a2 2 0 0 0 2 2h4"></path><path d="M9 21v-4a2 2 0 0 0-2-2H3"></path><path d="M15 21v-4a2 2 0 0 1 2-2h4"></path>';
+
+  function isFullscreen(){
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+  function requestFS(){
+    const el = document.documentElement;
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+    if(fn) fn.call(el);
+  }
+  function exitFS(){
+    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+    if(fn) fn.call(document);
+  }
+  function toggleFullscreen(){
+    if(isFullscreen()) exitFS(); else requestFS();
+  }
+  function syncFsIcon(){
+    fsIcon.innerHTML = isFullscreen() ? COMPRESS_PATH : EXPAND_PATH;
+  }
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(evt=>{
+    document.addEventListener(evt, ()=>{ syncFsIcon(); setTimeout(resize, 100); });
+  });
+  fsBtn.addEventListener('click', toggleFullscreen);
+
+  // ---------- ambient music (synthesized, no audio files) ----------
+  const MUTE_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+  const SOUND_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+
+  let audioCtx = null;
+  let masterGain = null;
+  let musicOn = true;
+  let musicStarted = false;
+  let musicTimer = null;
+  let melodyIndex = 0;
+
+  // slow, narrow-range, minor-feel loop — kept close together in pitch on purpose
+  const MELODY = [
+    {freq: 220.00, dur: 2.4}, // A3
+    {freq: 0,      dur: 1.1}, // rest
+    {freq: 261.63, dur: 1.9}, // C4
+    {freq: 293.66, dur: 2.6}, // D4
+    {freq: 0,      dur: 1.3}, // rest
+    {freq: 220.00, dur: 2.1}, // A3
+    {freq: 196.00, dur: 2.8}, // G3
+    {freq: 0,      dur: 1.7}  // rest
+  ];
+
+  function syncMuteIcon(){
+    muteIcon.innerHTML = musicOn ? SOUND_ICON : MUTE_ICON;
+  }
+  syncMuteIcon();
+
+  function initAudio(){
+    if(audioCtx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return; // very old browser, just skip audio silently
+    audioCtx = new AC();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0;
+    masterGain.connect(audioCtx.destination);
+  }
+
+  function startDrone(){
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const filter = audioCtx.createBiquadFilter();
+    const g = audioCtx.createGain();
+    osc1.type = 'sine'; osc1.frequency.value = 110.00;   // A2
+    osc2.type = 'sine'; osc2.frequency.value = 164.81;   // E3 (a calm fifth above)
+    filter.type = 'lowpass';
+    filter.frequency.value = 700;
+    const lfo = audioCtx.createOscillator();
+    const lfoGain = audioCtx.createGain();
+    lfo.frequency.value = 0.045; // very slow drift, no warble
+    lfoGain.gain.value = 150;
+    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
+    g.gain.value = 0.032;
+    osc1.connect(filter); osc2.connect(filter); filter.connect(g); g.connect(masterGain);
+    osc1.start(now); osc2.start(now); lfo.start(now);
+  }
+
+  function playNote(freq, time, duration, vol){
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, time);
+    g.gain.linearRampToValueAtTime(vol, time + 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.connect(g); g.connect(masterGain);
+    osc.start(time);
+    osc.stop(time + duration + 0.1);
+  }
+
+  function scheduleNextNote(){
+    clearTimeout(musicTimer);
+    if(!audioCtx){ musicTimer = setTimeout(scheduleNextNote, 500); return; }
+    const step = MELODY[melodyIndex % MELODY.length];
+    melodyIndex++;
+    if(step.freq > 0){
+      playNote(step.freq, audioCtx.currentTime + 0.05, step.dur, 0.05);
+    }
+    musicTimer = setTimeout(scheduleNextNote, step.dur * 1000);
+  }
+
+  function setMusicOn(on){
+    musicOn = on;
+    syncMuteIcon();
+    if(!audioCtx) return;
+    const now = audioCtx.currentTime;
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.linearRampToValueAtTime(on ? 0.06 : 0, now + 0.7);
+    if(on && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function ensureMusicRunning(){
+    if(!musicStarted){
+      initAudio();
+      if(audioCtx){
+        startDrone();
+        scheduleNextNote();
+        musicStarted = true;
+        setMusicOn(musicOn);
+      }
+    } else if(audioCtx && audioCtx.state === 'suspended' && musicOn){
+      audioCtx.resume();
+    }
+  }
+
+  muteBtn.addEventListener('click', ()=>{
+    ensureMusicRunning();
+    setMusicOn(!musicOn);
+  });
+
+  document.addEventListener('visibilitychange', ()=>{
+    if(!audioCtx) return;
+    if(document.hidden) audioCtx.suspend();
+    else if(musicOn) audioCtx.resume();
+  });
+
+  let W, H, DPR;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    W = rect.width; H = rect.height;
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+
+  // ---------- game state ----------
+  const rowColors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#A78BFA'];
+  const ALIEN_VARIANTS = [
+    { name: 'The Gigglers', face: 'giggle' },
+    { name: 'The Blinkers', face: 'wink' },
+    { name: 'The Grumps', face: 'frown' },
+    { name: 'The Zappers', face: 'zap' }
+  ];
+  let waveVariant = ALIEN_VARIANTS[0];
+  let waveBannerTimeout = null;
+  function showWaveBanner(){
+    waveBannerEl.innerHTML = `WAVE ${waveNum}<span class="tier">${waveVariant.name}</span>`;
+    waveBannerEl.classList.add('show');
+    clearTimeout(waveBannerTimeout);
+    waveBannerTimeout = setTimeout(()=> waveBannerEl.classList.remove('show'), 1500);
+  }
+  let state = 'title'; // title | playing | over
+  let score = 0;
+  let lives = 5;
+  let player, bullets, enemyBullets, aliens, particles;
+  let alienDir = 1;
+  let alienSpeed = 0;
+  let alienStepDown = 0;
+  let fireTimer = 0;
+  let lastTouchX = null;
+  let touching = false;
+  let shakeT = 0;
+  let waveNum = 1;
+  let waveEntering = false;
+  let entryTimer = 0;
+  const ENTRY_DURATION = 40;
+  let powerup = null;
+  let powerupTimer = 260;
+
+  // recharge-pause / invulnerability after a hit
+  let phase = 'normal'; // 'normal' | 'recharge'
+  let rechargeT = 0;
+  const RECHARGE_DURATION = 300; // ~5s total, in 10 half-second bar segments
+  const RECHARGE_SEGMENTS = 10;
+  const INVULN_DURATION = 95;
+
+  // floating critters (never die, just react)
+  let critters = [];
+  let critterTimer = 180;
+  const CRITTER_TYPES = ['🐱','🐶','🦄','🐭','🐹','🐰','🦊','🐼','🐸','🐷','🐹','🐨'];
+
+  // ally fighter (green gift)
+  let allyFighter = null;
+
+  // floating gift labels
+  let floatTexts = [];
+
+  // cosmetic critter-hit extras: falling letters + sparkle bursts (no damage, pure fun)
+  let fallingLetters = [];
+  let sparkles = [];
+  const LETTER_POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const SPARKLE_COLORS = ['#FFD93D', '#4ADEDE', '#FF9F40'];
+
+  const GIFT_TYPES = [
+    { type:'gold',   color:'#FFD84A', icon:'\u25AC', label:'NUKE FRONT ROW!' },
+    { type:'orange', color:'#FF9F40', icon:'\u2261', label:'TRIPLE ROW NUKE!' },
+    { type:'green',  color:'#6BCB77', icon:'\u2708', label:'ALLY INCOMING!' },
+    { type:'pink',   color:'#FF6FB0', icon:'\u2731', label:'MEGA WIPE!' },
+    { type:'cyan',   color:'#4ADEDE', icon:'\u2665', label:'+1 LIFE!' }
+  ];
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
+  // diminishing-growth ramp: climbs but levels off wave over wave
+  function diminish(base, gain, rate, wave){
+    return base + gain * (1 - Math.pow(rate, Math.max(0, wave-1)));
+  }
+
+  function initPlayer(){
+    player = {
+      x: W/2, y: H - 70,
+      w: Math.min(52, W*0.13), h: 34,
+      speed: 0,
+      invuln: 0
+    };
+  }
+
+  function buildWave(){
+    aliens = [];
+    waveVariant = ALIEN_VARIANTS[(waveNum-1) % ALIEN_VARIANTS.length];
+    const cols = Math.min(7, Math.floor((W - 40) / 50));
+    const rows = 4;
+    const cellW = Math.min(50, (W - 40) / cols);
+    const startX = (W - cellW*cols)/2 + cellW/2;
+    const startY = 90;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const baseY = startY + r*46;
+        aliens.push({
+          x: startX + c*cellW,
+          y: -40 - r*34,
+          spawnY: -40 - r*34,
+          baseY: baseY,
+          w: cellW*0.62, h: 28,
+          row: r,
+          alive: true,
+          color: rowColors[r % rowColors.length],
+          wob: Math.random()*Math.PI*2,
+          diving: false,
+          diveTelegraph: 0,
+          diveVy: 0,
+          diveX: 0
+        });
+      }
+    }
+    alienDir = 1;
+    alienSpeed = diminish(0.5, 1.1, 0.87, waveNum);
+    alienStepDown = 0;
+    waveEntering = true;
+    entryTimer = 0;
+    showWaveBanner();
+  }
+
+  function resetGame(){
+    score = 0; lives = 5; waveNum = 1;
+    bullets = []; enemyBullets = []; particles = [];
+    powerup = null; powerupTimer = 260;
+    phase = 'normal'; rechargeT = 0;
+    critters = []; critterTimer = 180;
+    allyFighter = null;
+    floatTexts = [];
+    fallingLetters = [];
+    sparkles = [];
+    initPlayer();
+    buildWave();
+    updateHud();
+  }
+
+  function updateHud(){
+    scoreValEl.textContent = score;
+    livesEl.innerHTML = '';
+    for(let i=0;i<lives;i++){
+      const d = document.createElement('div');
+      d.className = 'life-dot';
+      livesEl.appendChild(d);
+    }
+  }
+
+  // ---------- input ----------
+  function pointerPos(e){
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return t.clientX - rect.left;
+  }
+  function onDown(e){
+    e.preventDefault();
+    touching = true;
+    lastTouchX = pointerPos(e);
+  }
+  function onMove(e){
+    if(!touching) return;
+    e.preventDefault();
+    const x = pointerPos(e);
+    const dx = x - lastTouchX;
+    lastTouchX = x;
+    if(player) player.x = clamp(player.x + dx, player.w/2, W - player.w/2);
+  }
+  function onUp(e){
+    touching = false;
+    lastTouchX = null;
+  }
+  canvas.addEventListener('touchstart', onDown, {passive:false});
+  canvas.addEventListener('touchmove', onMove, {passive:false});
+  canvas.addEventListener('touchend', onUp);
+  canvas.addEventListener('touchcancel', onUp);
+  canvas.addEventListener('mousedown', onDown);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+
+  // ---------- gameplay ----------
+  function spawnBullet(){
+    bullets.push({x: player.x, y: player.y - player.h/2 - 4, r: 4, vy: -9});
+  }
+
+  function maybeAlienFire(dt){
+    if(enemyBullets.length >= 2) return;
+    if(Math.random() < diminish(0.0035, 0.0045, 0.87, waveNum)){
+      const alive = aliens.filter(a=>a.alive && !a.diving);
+      if(alive.length){
+        const shooter = alive[Math.floor(Math.random()*alive.length)];
+        enemyBullets.push({x:shooter.x, y:shooter.y+14, r:4, vy: diminish(4, 3, 0.87, waveNum)});
+      }
+    }
+  }
+
+  function maybeStartKamikaze(dt){
+    const alive = aliens.filter(a=>a.alive);
+    const divingCount = alive.filter(a=>a.diving).length;
+    if(divingCount >= 2) return;
+    if(Math.random() < diminish(0.0012, 0.0035, 0.87, waveNum)){
+      const candidates = alive.filter(a=>!a.diving);
+      if(!candidates.length) return;
+      const maxRow = Math.max(...candidates.map(a=>a.row));
+      const front = candidates.filter(a=>a.row===maxRow);
+      const diver = front[Math.floor(Math.random()*front.length)];
+      diver.diving = true;
+      diver.diveTelegraph = 26;
+      diver.diveVy = 0;
+      diver.diveX = diver.x;
+    }
+  }
+
+  function spawnPowerup(){
+    const gift = GIFT_TYPES[Math.floor(Math.random()*GIFT_TYPES.length)];
+    powerup = {x: 34 + Math.random()*(W-68), y: -24, vy: 2.2, r: 15, spin: 0, gift};
+  }
+
+  function addFloatText(x, y, text, color){
+    floatTexts.push({x, y, text, color, life: 55, vy: -0.55});
+  }
+
+  function nukeRows(n){
+    const alive = aliens.filter(a=>a.alive);
+    if(!alive.length) return;
+    const rows = [...new Set(alive.map(a=>a.row))].sort((a,b)=>b-a);
+    const targetRows = rows.slice(0, n);
+    alive.filter(a=>targetRows.includes(a.row)).forEach(a=>{
+      a.alive = false;
+      explode(a.x, a.y, a.color);
+      score += 15;
+    });
+    updateHud();
+    shakeT = 18;
+  }
+
+  function nukeAndRefresh(){
+    aliens.filter(a=>a.alive).forEach(a=>{
+      explode(a.x, a.y, a.color);
+      score += 15;
+    });
+    aliens.forEach(a=> a.alive = false);
+    updateHud();
+    shakeT = 24;
+    bullets = []; enemyBullets = [];
+    buildWave();
+  }
+
+  function spawnAlly(){
+    allyFighter = {
+      x: -30,
+      y: H*0.6,
+      state: 'approach',
+      shotsLeft: 16,
+      fireTimer: 8
+    };
+  }
+
+  function applyGift(gift){
+    switch(gift.type){
+      case 'gold':   nukeRows(1); break;
+      case 'orange': nukeRows(3); break;
+      case 'green':  spawnAlly(); break;
+      case 'pink':   nukeAndRefresh(); break;
+      case 'cyan':   lives++; updateHud(); break;
+    }
+    addFloatText(player.x, player.y - 54, gift.label, gift.color);
+  }
+
+  function spawnCritter(){
+    const fromLeft = Math.random() < 0.5;
+    const emoji = CRITTER_TYPES[Math.floor(Math.random()*CRITTER_TYPES.length)];
+    critters.push({
+      x: fromLeft ? -30 : W+30,
+      y: 60 + Math.random()*Math.min(H*0.45, H-220),
+      vx: (fromLeft ? 1 : -1) * (0.55 + Math.random()*0.6),
+      emoji,
+      wob: Math.random()*Math.PI*2,
+      ouch: 0,
+      ouchMax: 34,
+      bumpVx: 0,
+      bumpVy: 0
+    });
+  }
+
+  function spawnFallingLetter(x, y){
+    fallingLetters.push({
+      x, y,
+      vx: (Math.random()-0.5)*1.2,
+      vy: 1.3 + Math.random()*0.8,
+      rot: (Math.random()-0.5)*0.5,
+      vr: (Math.random()-0.5)*0.05,
+      char: LETTER_POOL[Math.floor(Math.random()*LETTER_POOL.length)],
+      color: rowColors[Math.floor(Math.random()*rowColors.length)],
+      life: 150
+    });
+  }
+
+  function spawnSparkleBurst(x, y){
+    const n = 5 + Math.floor(Math.random()*3);
+    for(let i=0;i<n;i++){
+      const ang = Math.random()*Math.PI*2;
+      const spd = 1 + Math.random()*2.2;
+      sparkles.push({
+        x, y,
+        vx: Math.cos(ang)*spd,
+        vy: Math.sin(ang)*spd - 1,
+        glyph: Math.random() < 0.5 ? '\u2726' : '\u25CF',
+        color: SPARKLE_COLORS[Math.floor(Math.random()*SPARKLE_COLORS.length)],
+        size: 10 + Math.random()*6,
+        life: 26 + Math.random()*10
+      });
+    }
+  }
+
+  function rectHit(ax,ay,aw,ah,bx,by,br){
+    return bx > ax-aw/2-br && bx < ax+aw/2+br && by > ay-ah/2-br && by < ay+ah/2+br;
+  }
+
+  function explode(x,y,color){
+    for(let i=0;i<10;i++){
+      particles.push({
+        x,y, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4,
+        life: 24, color
+      });
+    }
+  }
+
+  function update(dt){
+    // shield recharge pause: freeze the action while the bar fills
+    if(phase === 'recharge'){
+      rechargeT += dt;
+      if(shakeT>0) shakeT -= dt;
+      particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.life--; });
+      particles = particles.filter(p=>p.life>0);
+      floatTexts.forEach(f=>{ f.y += f.vy*dt; f.life -= dt; });
+      floatTexts = floatTexts.filter(f=>f.life>0);
+      fallingLetters.forEach(l=>{ l.x+=l.vx*dt; l.y+=l.vy*dt; l.rot+=l.vr*dt; l.life-=dt; });
+      fallingLetters = fallingLetters.filter(l=> l.life>0 && l.y < H+40);
+      sparkles.forEach(s=>{ s.x+=s.vx*dt; s.y+=s.vy*dt; s.vy+=0.05*dt; s.life-=dt; });
+      sparkles = sparkles.filter(s=>s.life>0);
+      if(rechargeT >= RECHARGE_DURATION){
+        phase = 'normal';
+        player.invuln = INVULN_DURATION;
+      }
+      return;
+    }
+    if(player.invuln > 0) player.invuln -= dt;
+
+    // fire
+    if(touching){
+      fireTimer -= dt;
+      if(fireTimer <= 0){
+        spawnBullet();
+        fireTimer = 12;
+      }
+    }
+
+    // bullets
+    bullets.forEach(b => b.y += b.vy);
+    bullets = bullets.filter(b => b.y > -20);
+    enemyBullets.forEach(b => b.y += b.vy);
+    enemyBullets = enemyBullets.filter(b => b.y < H+20);
+
+    // ally fighter (green gift): flies in, tucks in beside the ship, sprays bullets, leaves
+    if(allyFighter){
+      if(allyFighter.state === 'approach'){
+        const targetX = clamp(player.x - player.w*1.5, 34, W-34);
+        allyFighter.y = player.y - 58;
+        allyFighter.x += 4.4 * dt;
+        if(allyFighter.x >= targetX){
+          allyFighter.x = targetX;
+          allyFighter.state = 'spray';
+        }
+      } else if(allyFighter.state === 'spray'){
+        allyFighter.y = player.y - 58;
+        allyFighter.fireTimer -= dt;
+        if(allyFighter.fireTimer <= 0 && allyFighter.shotsLeft > 0){
+          bullets.push({x: allyFighter.x-4, y: allyFighter.y - 14, r: 4, vy: -10, ally: true});
+          bullets.push({x: allyFighter.x+4, y: allyFighter.y - 14, r: 4, vy: -10, ally: true});
+          allyFighter.shotsLeft -= 2;
+          allyFighter.fireTimer = 6;
+        }
+        if(allyFighter.shotsLeft <= 0) allyFighter.state = 'leave';
+      } else { // leave
+        allyFighter.y = player.y - 58;
+        allyFighter.x += 5 * dt;
+        if(allyFighter.x > W + 30) allyFighter = null;
+      }
+    }
+
+    // floating critters: occasional, harmless, fun
+    critterTimer -= dt;
+    if(critterTimer <= 0 && critters.length < 2){
+      spawnCritter();
+      critterTimer = 480 + Math.random()*540;
+    }
+    critters.forEach(c=>{
+      if(c.ouch > 0){
+        c.ouch -= dt;
+        c.bumpVx *= Math.pow(0.88, dt);
+        c.bumpVy = c.bumpVy*Math.pow(0.88, dt) + 0.22*dt;
+        c.x += (c.vx + c.bumpVx) * dt;
+        c.y += c.bumpVy * dt;
+      } else {
+        c.x += c.vx * dt;
+      }
+      c.wob += 0.06*dt;
+    });
+    critters = critters.filter(c => c.x > -50 && c.x < W+50);
+
+    // float-up gift labels
+    floatTexts.forEach(f=>{ f.y += f.vy*dt; f.life -= dt; });
+    floatTexts = floatTexts.filter(f=>f.life>0);
+
+    // cosmetic critter-hit extras: falling letters + sparkle bursts
+    fallingLetters.forEach(l=>{ l.x+=l.vx*dt; l.y+=l.vy*dt; l.rot+=l.vr*dt; l.life-=dt; });
+    fallingLetters = fallingLetters.filter(l=> l.life>0 && l.y < H+40);
+    sparkles.forEach(s=>{ s.x+=s.vx*dt; s.y+=s.vy*dt; s.vy+=0.05*dt; s.life-=dt; });
+    sparkles = sparkles.filter(s=>s.life>0);
+
+    // wave entrance: aliens drop in from above before normal behavior starts
+    const alive = aliens.filter(a=>a.alive);
+    const formationAliens = alive.filter(a=>!a.diving);
+    const divingAliens = alive.filter(a=>a.diving);
+
+    if(waveEntering){
+      entryTimer += dt;
+      const p = easeOutCubic(Math.min(1, entryTimer/ENTRY_DURATION));
+      formationAliens.forEach(a=>{ a.y = a.spawnY + (a.baseY - a.spawnY) * p; });
+      if(entryTimer >= ENTRY_DURATION) waveEntering = false;
+    } else {
+      // aliens move
+      let hitEdge = false;
+      formationAliens.forEach(a=>{
+        a.x += alienSpeed * alienDir;
+        if(a.x < 26 || a.x > W-26) hitEdge = true;
+      });
+      if(hitEdge){
+        alienDir *= -1;
+        formationAliens.forEach(a=> a.baseY += 18);
+      }
+      const t = Date.now()/300;
+      formationAliens.forEach(a=>{
+        a.y = a.baseY + Math.sin(t + a.wob)*2;
+      });
+
+      maybeAlienFire(dt);
+      maybeStartKamikaze(dt);
+    }
+
+    // kamikaze divers: telegraph, then commit to a straight line down
+    divingAliens.forEach(a=>{
+      if(a.diveTelegraph > 0){
+        a.diveTelegraph -= dt;
+        a.x = a.diveX + Math.sin(Date.now()/45 + a.wob)*3;
+      } else {
+        a.diveVy = Math.min(a.diveVy + 0.15*dt, diminish(5.5, 2.8, 0.87, waveNum));
+        a.x = a.diveX;
+        a.y += a.diveVy * dt;
+        if(Math.random() < 0.55){
+          particles.push({x:a.x+(Math.random()-0.5)*6, y:a.y-a.h/2, vx:(Math.random()-0.5)*0.6, vy:-1-Math.random()*1.2, life:14, color:'#FFB84D'});
+        }
+        if(player.invuln<=0 && rectHit(player.x, player.y, player.w, player.h, a.x, a.y, Math.max(a.w,a.h)/2)){
+          a.alive = false;
+          explode(a.x, a.y, a.color);
+          loseLife();
+        } else if(a.y > H + 30){
+          a.alive = false;
+        }
+      }
+    });
+
+    // nuclear capsule: fall, catch, or miss
+    if(!powerup){
+      powerupTimer -= dt;
+      if(powerupTimer <= 0){
+        spawnPowerup();
+        powerupTimer = 480 + Math.random()*300;
+      }
+    } else {
+      powerup.y += powerup.vy;
+      powerup.spin += 0.06*dt;
+      if(rectHit(player.x, player.y, player.w+10, player.h+10, powerup.x, powerup.y, powerup.r)){
+        const gift = powerup.gift;
+        powerup = null;
+        applyGift(gift);
+      } else if(powerup.y > H+30){
+        powerup = null;
+      }
+    }
+
+    // collisions: player/ally bullets vs aliens
+    bullets.forEach(b=>{
+      if(b.dead) return;
+      for(const a of alive){
+        if(!a.alive) continue;
+        if(rectHit(a.x,a.y,a.w,a.h,b.x,b.y,b.r)){
+          a.alive = false;
+          b.dead = true;
+          score += a.diving ? 25 : 10;
+          explode(a.x,a.y,a.color);
+          updateHud();
+          break;
+        }
+      }
+    });
+
+    // collisions: player/ally bullets vs floating critters (they just get bumped, never die)
+    bullets.forEach(b=>{
+      if(b.dead) return;
+      for(const c of critters){
+        if(c.ouch > 0) continue;
+        if(rectHit(c.x, c.y, 30, 30, b.x, b.y, b.r)){
+          b.dead = true;
+          c.ouch = c.ouchMax;
+          c.bumpVx = (c.vx > 0 ? -1 : 1) * (1.6 + Math.random()*1.2);
+          c.bumpVy = -3.2 - Math.random()*1.4;
+          explode(c.x, c.y, '#FFFFFF');
+          spawnFallingLetter(c.x, c.y);
+          spawnSparkleBurst(c.x, c.y);
+          break;
+        }
+      }
+    });
+    bullets = bullets.filter(b=>!b.dead);
+
+    // enemy bullets vs player
+    if(player.invuln<=0){
+      enemyBullets.forEach(b=>{
+        if(b.dead) return;
+        if(rectHit(player.x, player.y, player.w, player.h, b.x, b.y, b.r)){
+          b.dead = true;
+          loseLife();
+        }
+      });
+    }
+    enemyBullets = enemyBullets.filter(b=>!b.dead);
+
+    // aliens reach player line (formation only — divers are handled above)
+    if(player.invuln<=0 && formationAliens.some(a=> a.y > player.y - 40)){
+      loseLife(true);
+    }
+
+    // particles
+    particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.life--; });
+    particles = particles.filter(p=>p.life>0);
+
+    if(shakeT>0) shakeT -= dt;
+
+    // wave clear
+    if(alive.length === 0 && state === 'playing'){
+      waveNum++;
+      bullets = []; enemyBullets = [];
+      buildWave();
+    }
+  }
+
+  function loseLife(wipe){
+    if(state !== 'playing' || phase === 'recharge' || player.invuln > 0) return;
+    lives--;
+    shakeT = 10;
+    updateHud();
+    if(wipe){
+      aliens.forEach(a=>a.alive=false);
+    }
+    if(lives <= 0){
+      endGame();
+      return;
+    }
+    if(wipe){
+      waveNum = Math.max(1, waveNum);
+      bullets=[]; enemyBullets=[];
+      buildWave();
+    }
+    // freeze for a beat, fill the shield bar, then a brief flashing grace window
+    phase = 'recharge';
+    rechargeT = 0;
+  }
+
+  function endGame(){
+    state = 'over';
+    finalScoreEl.textContent = score;
+    gameoverEl.style.display = 'flex';
+  }
+
+  // ---------- drawing ----------
+  function drawShip(p){
+    // flashing invulnerability window after recharge
+    if(p.invuln > 0 && Math.floor(Date.now()/90)%2===0) return;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+
+    ctx.shadowColor = getCss('--ship-glow');
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = getCss('--hull');
+    ctx.strokeStyle = getCss('--ship');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -p.h/2);
+    ctx.lineTo(p.w/2, p.h/2);
+    ctx.lineTo(p.w*0.22, p.h/2 - 4);
+    ctx.lineTo(-p.w*0.22, p.h/2 - 4);
+    ctx.lineTo(-p.w/2, p.h/2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // wingtip blinkers, alternating like a scanner
+    const phase = Math.floor(Date.now()/450) % 2 === 0;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = phase ? getCss('--blinker-l') : getCss('--blinker-r');
+    ctx.fillStyle = phase ? getCss('--blinker-l') : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.arc(-p.w/2, p.h/2 - 4, 3.2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = !phase ? getCss('--blinker-r') : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.arc(p.w/2, p.h/2 - 4, 3.2, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.restore();
+  }
+
+  let cssCache = {};
+  function getCss(varName){
+    if(!cssCache[varName]){
+      cssCache[varName] = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    }
+    return cssCache[varName];
+  }
+
+  function drawAlien(a){
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    const w=a.w, h=a.h;
+
+    let bodyColor = a.color;
+    if(a.diving && a.diveTelegraph > 0 && Math.floor(Date.now()/80)%2===0){
+      bodyColor = '#FF3B3B';
+    }
+    ctx.fillStyle = bodyColor;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(-w/2,-h/2,w,h,6) : ctx.rect(-w/2,-h/2,w,h);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(23,25,51,0.85)';
+    ctx.strokeStyle = 'rgba(23,25,51,0.85)';
+    ctx.lineWidth = 2;
+
+    switch(waveVariant.face){
+      case 'wink': {
+        const blink = Math.sin(Date.now()/450 + a.wob*3) > 0.85;
+        ctx.beginPath();
+        if(blink){
+          ctx.fillRect(-w*0.18-w*0.09, -h*0.05-1, w*0.18, 2);
+        } else {
+          ctx.arc(-w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
+        }
+        ctx.arc(w*0.18, -h*0.05, w*0.09, 0, Math.PI*2);
+        ctx.fill();
+        break;
+      }
+      case 'frown': {
+        ctx.beginPath();
+        ctx.arc(-w*0.17, -h*0.02, w*0.08, 0, Math.PI*2);
+        ctx.arc(w*0.17, -h*0.02, w*0.08, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-w*0.28,-h*0.24); ctx.lineTo(-w*0.06,-h*0.14);
+        ctx.moveTo(w*0.28,-h*0.24); ctx.lineTo(w*0.06,-h*0.14);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, h*0.3, w*0.16, Math.PI*1.15, Math.PI*1.85);
+        ctx.stroke();
+        break;
+      }
+      case 'zap': {
+        ctx.beginPath();
+        ctx.arc(-w*0.18, -h*0.05, w*0.1, 0, Math.PI*2);
+        ctx.arc(w*0.18, -h*0.05, w*0.1, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        ctx.moveTo(-1,-h*0.4); ctx.lineTo(2,-h*0.26); ctx.lineTo(-1,-h*0.26); ctx.lineTo(3,-h*0.1);
+        ctx.lineTo(-2,-h*0.22); ctx.lineTo(1,-h*0.22); ctx.closePath();
+        ctx.fill();
+        break;
+      }
+      default: { // giggle
+        ctx.beginPath();
+        ctx.arc(-w*0.18, -h*0.08, w*0.09, 0, Math.PI*2);
+        ctx.arc(w*0.18, -h*0.08, w*0.09, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, h*0.06, w*0.16, 0.15*Math.PI, 0.85*Math.PI);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawPowerup(p){
+    const color = p.gift ? p.gift.color : getCss('--row2');
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(Math.sin(p.spin)*0.25);
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(-p.r, -p.r, p.r*2, p.r*2, 5) : ctx.rect(-p.r,-p.r,p.r*2,p.r*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.restore();
+    // icon drawn unrotated so it stays legible
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.fillStyle = 'rgba(18,19,32,0.85)';
+    ctx.font = '700 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.gift ? p.gift.icon : '?', 0, 1);
+    ctx.restore();
+  }
+
+  function drawRechargeShield(p, frac){
+    const rad = Math.max(p.w, p.h) * 0.9;
+    const segs = RECHARGE_SEGMENTS;
+    const gap = 0.055;
+    const segAngle = (Math.PI*2) / segs;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.lineCap = 'butt';
+    ctx.lineWidth = 6;
+    for(let i=0;i<segs;i++){
+      const start = -Math.PI/2 + i*segAngle + gap/2;
+      const end = start + segAngle - gap;
+      const segStart = i/segs;
+      const segFilled = clamp((frac - segStart) * segs, 0, 1);
+
+      ctx.strokeStyle = 'rgba(107,203,119,0.22)';
+      ctx.beginPath();
+      ctx.arc(0, 0, rad, start, end);
+      ctx.stroke();
+
+      if(segFilled > 0){
+        ctx.strokeStyle = '#6BCB77';
+        ctx.shadowColor = '#6BCB77';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(0, 0, rad, start, start + (end-start)*segFilled);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#6BCB77';
+    ctx.font = '700 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SHIELD CHARGING', p.x, p.y - rad - 14);
+    ctx.restore();
+  }
+
+  function drawAlly(a){
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.shadowColor = '#8BF1F1';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = getCss('--hull');
+    ctx.strokeStyle = '#6BCB77';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -15);
+    ctx.lineTo(10, 15);
+    ctx.lineTo(4, 11);
+    ctx.lineTo(-4, 11);
+    ctx.lineTo(-10, 15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+    if(a.state === 'spray'){
+      ctx.shadowColor = '#6BCB77';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = '#6BCB77';
+      ctx.beginPath();
+      ctx.arc(-6, 12, 2.2, 0, Math.PI*2);
+      ctx.arc(6, 12, 2.2, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    ctx.restore();
+  }
+
+  function drawCritter(c){
+    const dizzy = c.ouch > 0;
+    const bob = dizzy ? 0 : Math.sin(c.wob) * 4;
+    ctx.save();
+    ctx.translate(c.x, c.y + bob);
+    let sx = 1, sy = 1, rot = 0;
+    if(dizzy){
+      const t = 1 - c.ouch/c.ouchMax;
+      sx = 1 + Math.sin(t*Math.PI)*0.4;
+      sy = 1 - Math.sin(t*Math.PI)*0.3;
+      rot = Math.sin(c.wob*5) * 0.3 * Math.max(0, c.ouch/c.ouchMax);
+    }
+    ctx.rotate(rot);
+    ctx.scale((c.vx < 0 ? -1 : 1) * sx, sy);
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(c.emoji, 0, 0);
+    ctx.restore();
+
+    if(dizzy){
+      // little dizzy stars circling overhead — the "ouch" reaction
+      ctx.save();
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.globalAlpha = Math.max(0, Math.min(1, c.ouch/c.ouchMax));
+      for(let i=0;i<3;i++){
+        const ang = c.wob*4 + i*(Math.PI*2/3);
+        const sxp = c.x + Math.cos(ang)*13;
+        const syp = c.y + bob - 22 + Math.sin(ang)*4;
+        ctx.fillText('\u2726', sxp, syp);
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawFloatTexts(){
+    floatTexts.forEach(f=>{
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, f.life/20));
+      ctx.fillStyle = f.color;
+      ctx.font = '700 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
+    });
+  }
+
+  function drawFallingLetters(){
+    fallingLetters.forEach(l=>{
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, l.life/45));
+      ctx.translate(l.x, l.y);
+      ctx.rotate(l.rot);
+      ctx.fillStyle = l.color;
+      ctx.font = '700 17px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(l.char, 0, 0);
+      ctx.restore();
+    });
+  }
+
+  function drawSparkles(){
+    sparkles.forEach(s=>{
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, s.life/30));
+      ctx.fillStyle = s.color;
+      ctx.font = `${s.size}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s.glyph, s.x, s.y);
+      ctx.restore();
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    let ox=0, oy=0;
+    if(shakeT>0){
+      ox = (Math.random()-0.5)*6;
+      oy = (Math.random()-0.5)*6;
+    }
+    ctx.save();
+    ctx.translate(ox,oy);
+
+    // starfield-ish faint dots (static cheap version)
+    ctx.fillStyle = 'rgba(156,163,212,0.25)';
+    for(let i=0;i<40;i++){
+      const sx = (i*97) % W;
+      const sy = (i*53) % H;
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+
+    critters.forEach(drawCritter);
+
+    if(player) drawShip(player);
+    if(phase === 'recharge') drawRechargeShield(player, rechargeT / RECHARGE_DURATION);
+
+    if(allyFighter) drawAlly(allyFighter);
+
+    ctx.fillStyle = getCss('--bullet');
+    bullets.forEach(b=>{
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    });
+    ctx.fillStyle = getCss('--row1');
+    enemyBullets.forEach(b=>{
+      ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    });
+
+    aliens.forEach(a=>{ if(a.alive) drawAlien(a); });
+
+    if(powerup) drawPowerup(powerup);
+
+    particles.forEach(p=>{
+      ctx.globalAlpha = Math.max(0, p.life/24);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-2,p.y-2,4,4);
+      ctx.globalAlpha = 1;
+    });
+
+    drawFallingLetters();
+    drawSparkles();
+    drawFloatTexts();
+
+    ctx.restore();
+  }
+
+  // ---------- loop ----------
+  let last = 0;
+  function loop(ts){
+    const dt = last ? Math.min(2, (ts-last)/16.67) : 1;
+    last = ts;
+    if(state === 'playing'){
+      update(dt);
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function startGame(){
+    resize();
+    resetGame();
+    state = 'playing';
+    titleEl.classList.add('hidden');
+    gameoverEl.style.display = 'none';
+    if(!isFullscreen()) requestFS();
+    ensureMusicRunning();
+  }
+
+  startBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('click', startGame);
+
+  resize();
+  bullets = []; enemyBullets = []; particles = [];
+  initPlayer();
+  buildWave();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
