@@ -178,7 +178,7 @@
       <div class="value" id="scoreVal">0</div>
     </div>
     <div class="hud-right">
-      <div class="pill" id="masteredPill">0/380</div>
+      <div class="pill" id="masteredPill">0/190</div>
       <div class="pill" id="streakPill">&#128293;0</div>
       <button id="muteBtn" class="icon-btn" aria-label="Toggle music">
         <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -208,7 +208,7 @@
       <b>Hold</b> down to fire.<br>
       A question falls (like 7 &times; 8) with 4 possible answers drifting down beside it.<br>
       Shoot the <b>correct</b> answer before it lands. Wrong guesses just bounce off &mdash; no penalty, try again!<br>
-      Master all 380 facts (tables 2&ndash;20) to win.<br>
+      Master all 190 facts (tables 2&ndash;20, &times;1 to &times;10) to win.<br>
       <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
     <button id="startBtn">START</button>
@@ -433,7 +433,7 @@
   let streak = 0;
   let bestStreak = 0;
   let masteredCount = 0;
-  const TOTAL_FACTS = 19 * 20; // tables 2-20, multipliers 1-20
+  const TOTAL_FACTS = 19 * 10; // tables 2-20, multipliers 1-10 only
 
   let player, bullets, particles, sparkles, floatTexts;
   let fireTimer = 0;
@@ -471,7 +471,7 @@
   function buildPool(){
     const p = [];
     for(let a=2;a<=20;a++){
-      for(let b=1;b<=20;b++){
+      for(let b=1;b<=10;b++){
         p.push({a,b});
       }
     }
