@@ -265,33 +265,39 @@
   });
   fsBtn.addEventListener('click', toggleFullscreen);
 
-  // ---------- ambient music (synthesized, no audio files) ----------
+  // ---------- spy-theme music (synthesized, no audio files) ----------
   const MUTE_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
   const SOUND_ICON = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
 
   let audioCtx = null;
   let masterGain = null;
+  let noiseBuffer = null;
   let musicOn = true;
   let musicStarted = false;
   let musicTimer = null;
-  let melodyIndex = 0;
+  let stepIndex = 0;
+  let loopCount = 0;
 
-  // slow, narrow-range, minor-feel loop — kept close together in pitch on purpose
-  const MELODY = [
-    {freq: 220.00, dur: 2.4}, // A3
-    {freq: 0,      dur: 1.1}, // rest
-    {freq: 261.63, dur: 1.9}, // C4
-    {freq: 293.66, dur: 2.6}, // D4
-    {freq: 0,      dur: 1.3}, // rest
-    {freq: 220.00, dur: 2.1}, // A3
-    {freq: 196.00, dur: 2.8}, // G3
-    {freq: 0,      dur: 1.7}  // rest
-  ];
+  // driving E-minor walking bass, original riff (not the actual Bond/MI themes)
+  const STEP_DUR = 0.155; // seconds — punchy, up-tempo
+  const BASS_PATTERN = [
+    82.41,0,82.41,0, 98.00,0,92.50,0,
+    82.41,0,82.41,0, 110.00,0,98.00,0
+  ]; // E2, rest, E2, rest, G2, rest, F#2, rest x2 (second half climbs to A2/G2)
+  const STAB_CHORD = [164.81, 196.00, 246.94]; // E3 G3 B3 — E minor stab
 
   function syncMuteIcon(){
     muteIcon.innerHTML = musicOn ? SOUND_ICON : MUTE_ICON;
   }
   syncMuteIcon();
+
+  function createNoiseBuffer(){
+    const size = audioCtx.sampleRate * 0.3;
+    const buf = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let i=0;i<size;i++) data[i] = Math.random()*2 - 1;
+    return buf;
+  }
 
   function initAudio(){
     if(audioCtx) return;
@@ -301,51 +307,69 @@
     masterGain = audioCtx.createGain();
     masterGain.gain.value = 0;
     masterGain.connect(audioCtx.destination);
+    noiseBuffer = createNoiseBuffer();
   }
 
-  function startDrone(){
-    if(!audioCtx) return;
-    const now = audioCtx.currentTime;
-    const osc1 = audioCtx.createOscillator();
-    const osc2 = audioCtx.createOscillator();
+  function playBass(freq, time, dur, vol){
+    const osc = audioCtx.createOscillator();
     const filter = audioCtx.createBiquadFilter();
     const g = audioCtx.createGain();
-    osc1.type = 'sine'; osc1.frequency.value = 110.00;   // A2
-    osc2.type = 'sine'; osc2.frequency.value = 164.81;   // E3 (a calm fifth above)
-    filter.type = 'lowpass';
-    filter.frequency.value = 700;
-    const lfo = audioCtx.createOscillator();
-    const lfoGain = audioCtx.createGain();
-    lfo.frequency.value = 0.045; // very slow drift, no warble
-    lfoGain.gain.value = 150;
-    lfo.connect(lfoGain); lfoGain.connect(filter.frequency);
-    g.gain.value = 0.032;
-    osc1.connect(filter); osc2.connect(filter); filter.connect(g); g.connect(masterGain);
-    osc1.start(now); osc2.start(now); lfo.start(now);
-  }
-
-  function playNote(freq, time, duration, vol){
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = 'triangle';
+    osc.type = 'sawtooth';
     osc.frequency.value = freq;
+    filter.type = 'lowpass';
+    filter.frequency.value = 950;
+    filter.Q.value = 5;
     g.gain.setValueAtTime(0, time);
-    g.gain.linearRampToValueAtTime(vol, time + 0.5);
-    g.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-    osc.connect(g); g.connect(masterGain);
-    osc.start(time);
-    osc.stop(time + duration + 0.1);
+    g.gain.linearRampToValueAtTime(vol, time + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    osc.connect(filter); filter.connect(g); g.connect(masterGain);
+    osc.start(time); osc.stop(time + dur + 0.05);
   }
 
-  function scheduleNextNote(){
+  function playStab(freqs, time, dur, vol){
+    freqs.forEach(f=>{
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0, time);
+      g.gain.linearRampToValueAtTime(vol, time + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+      osc.connect(g); g.connect(masterGain);
+      osc.start(time); osc.stop(time + dur + 0.05);
+    });
+  }
+
+  function playHat(time, vol){
+    const src = audioCtx.createBufferSource();
+    src.buffer = noiseBuffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 6500;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol, time);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
+    src.connect(filter); filter.connect(g); g.connect(masterGain);
+    src.start(time); src.stop(time + 0.06);
+  }
+
+  function scheduleStep(){
     clearTimeout(musicTimer);
-    if(!audioCtx){ musicTimer = setTimeout(scheduleNextNote, 500); return; }
-    const step = MELODY[melodyIndex % MELODY.length];
-    melodyIndex++;
-    if(step.freq > 0){
-      playNote(step.freq, audioCtx.currentTime + 0.05, step.dur, 0.05);
+    if(!audioCtx){ musicTimer = setTimeout(scheduleStep, 300); return; }
+    const now = audioCtx.currentTime + 0.03;
+    const freq = BASS_PATTERN[stepIndex % BASS_PATTERN.length];
+    if(freq > 0) playBass(freq, now, STEP_DUR*0.85, 0.16);
+
+    const accent = (stepIndex % 4 === 0);
+    playHat(now, accent ? 0.08 : 0.035);
+
+    if(stepIndex === 0 && loopCount % 4 === 0){
+      playStab(STAB_CHORD, now, STEP_DUR*3, 0.075);
     }
-    musicTimer = setTimeout(scheduleNextNote, step.dur * 1000);
+
+    stepIndex++;
+    if(stepIndex % BASS_PATTERN.length === 0) loopCount++;
+    musicTimer = setTimeout(scheduleStep, STEP_DUR * 1000);
   }
 
   function setMusicOn(on){
@@ -354,7 +378,7 @@
     if(!audioCtx) return;
     const now = audioCtx.currentTime;
     masterGain.gain.cancelScheduledValues(now);
-    masterGain.gain.linearRampToValueAtTime(on ? 0.06 : 0, now + 0.7);
+    masterGain.gain.linearRampToValueAtTime(on ? 0.13 : 0, now + 0.4);
     if(on && audioCtx.state === 'suspended') audioCtx.resume();
   }
 
@@ -362,8 +386,7 @@
     if(!musicStarted){
       initAudio();
       if(audioCtx){
-        startDrone();
-        scheduleNextNote();
+        scheduleStep();
         musicStarted = true;
         setMusicOn(musicOn);
       }
