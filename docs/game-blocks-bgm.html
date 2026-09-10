@@ -384,7 +384,7 @@
   function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 
   // ---------- board / pieces ----------
-  const COLS = 28, ROWS = 40;
+  const COLS = 14, ROWS = 20;
   let cellSize=24, boardPxW=0, boardPxH=0, boardOffX=0, boardOffY=0;
 
   function parseShape(rows){
@@ -611,9 +611,7 @@
   }
 
   function dropInterval(lvl){
-    // halved vs. the original 20-row board, since rows are now half as tall
-    // (keeps the same real-world fall speed rather than feeling twice as slow)
-    return Math.max(60, 400 - (lvl-1)*30);
+    return Math.max(120, 800 - (lvl-1)*60);
   }
 
   function triggerGameOver(){
@@ -769,14 +767,14 @@
     if(by < 0) return;
     const [x,y,w,h] = cellRect(bx,by);
     ctx.save();
-    ctx.globalAlpha = 0.22;
+    ctx.globalAlpha = 0.08;
     ctx.fillStyle = color;
     roundRectPath(x,y,w,h,4);
     ctx.fill();
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 0.35;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([3,3]);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2,3]);
     roundRectPath(x,y,w,h,4);
     ctx.stroke();
     ctx.restore();
