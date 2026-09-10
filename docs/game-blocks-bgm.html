@@ -189,6 +189,7 @@
       <b>Tap</b> to rotate it.<br>
       <b>Swipe down</b> to drop it instantly.<br>
       <b>Double-tap</b> to speed it up for a moment.<br>
+      <span style="opacity:0.75; font-size:13px;">On keyboard: arrow keys to move/rotate/drop, Space to speed up.</span><br>
       Fill a full row to clear it. Clear 4 at once for a big bonus!<br>
       <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
@@ -726,6 +727,34 @@
   canvas.addEventListener('mousedown', onDown);
   window.addEventListener('mousemove', (e)=>{ if(e.buttons===1) onMoveTouch(e); });
   window.addEventListener('mouseup', onUpTouch);
+
+  // ---------- input: keyboard (laptop/desktop) ----------
+  window.addEventListener('keydown', (e)=>{
+    if(state !== 'playing') return;
+    switch(e.key){
+      case 'ArrowLeft':
+        e.preventDefault();
+        if(phase === 'drop' && tryMove(-1,0)) sfxMove();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        if(phase === 'drop' && tryMove(1,0)) sfxMove();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        if(!e.repeat) rotatePiece();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        if(!e.repeat) hardDrop();
+        break;
+      case ' ':
+      case 'Spacebar':
+        e.preventDefault();
+        if(!e.repeat) speedBoost();
+        break;
+    }
+  });
 
   // ---------- update / draw ----------
   function update(dt){
