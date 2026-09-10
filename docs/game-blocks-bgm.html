@@ -187,7 +187,8 @@
     <p class="howto">
       <b>Swipe left/right</b> to slide the falling piece.<br>
       <b>Tap</b> to rotate it.<br>
-      <b>Double-tap</b> to drop it instantly.<br>
+      <b>Swipe down</b> to drop it instantly.<br>
+      <b>Double-tap</b> to speed it up for a moment.<br>
       Fill a full row to clear it. Clear 4 at once for a big bonus!<br>
       <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
@@ -473,6 +474,9 @@
   let clearTimer = 0;
   const CLEAR_FLASH_DURATION = 22;
   let dropTimerMs = 0;
+  let boostMs = 0;
+  const BOOST_DURATION_MS = 650;
+  const BOOST_DIVISOR = 5;
 
   let score = 0, level = 1, lines = 0;
   let state = 'title'; // title | playing | over
@@ -545,6 +549,19 @@
     }
     score += dist*1;
     lockPiece();
+  }
+
+  function speedBoost(){
+    if(!current || phase !== 'drop') return;
+    boostMs = BOOST_DURATION_MS;
+    sfxMove();
+  }
+
+  function ghostRowY(){
+    if(!current) return null;
+    let gy = current.y;
+    while(!collides(current.type, current.rot, current.x, gy+1)) gy++;
+    return gy;
   }
 
   function lockPiece(){
@@ -632,14 +649,16 @@
     spawnNext();
   }
 
-  // ---------- input: swipe to move, tap to rotate, double-tap to hard-drop ----------
+  // ---------- input: swipe left/right to move, tap to rotate, swipe down to hard-drop, double-tap to boost ----------
   let touchStartX = 0, touchStartY = 0, touchMoved = false;
   let dragAccum = 0;
-  let lastX = 0;
+  let lastX = 0, lastY = 0;
   let pendingTapTimeout = null;
   let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
+  let swipeDownFired = false;
   const DOUBLE_TAP_WINDOW = 280;
   const SWIPE_THRESHOLD = 8;
+  const SWIPE_DOWN_THRESHOLD = 55;
 
   function pointerPos(e){
     const rect = canvas.getBoundingClientRect();
@@ -650,17 +669,30 @@
     e.preventDefault();
     const p = pointerPos(e);
     touchStartX = p.x; touchStartY = p.y;
-    lastX = p.x;
+    lastX = p.x; lastY = p.y;
     touchMoved = false;
     dragAccum = 0;
+    swipeDownFired = false;
   }
   function onMoveTouch(e){
     e.preventDefault();
     const p = pointerPos(e);
     const dx = p.x - lastX;
-    if(Math.abs(p.x - touchStartX) > SWIPE_THRESHOLD) touchMoved = true;
-    lastX = p.x;
-    if(!touchMoved || state !== 'playing' || phase !== 'drop') return;
+    const totalDX = p.x - touchStartX;
+    const totalDY = p.y - touchStartY;
+    if(Math.abs(totalDX) > SWIPE_THRESHOLD || Math.abs(totalDY) > SWIPE_THRESHOLD) touchMoved = true;
+    lastX = p.x; lastY = p.y;
+    if(state !== 'playing' || phase !== 'drop') return;
+    if(swipeDownFired) return;
+
+    // a mostly-downward swipe past the threshold hard-drops immediately
+    if(totalDY > SWIPE_DOWN_THRESHOLD && totalDY > Math.abs(totalDX) * 1.5){
+      swipeDownFired = true;
+      hardDrop();
+      return;
+    }
+
+    if(!touchMoved) return;
     dragAccum += dx;
     while(dragAccum >= cellSize){
       if(tryMove(1,0)) sfxMove();
@@ -672,13 +704,14 @@
     }
   }
   function onUpTouch(e){
+    if(swipeDownFired){ swipeDownFired = false; touchMoved = false; return; }
     if(touchMoved || state !== 'playing'){ touchMoved = false; return; }
     const now = performance.now();
     const dx = touchStartX - lastTapX, dy = touchStartY - lastTapY;
     const closeEnough = Math.hypot(dx,dy) < 46;
     if(now - lastTapTime < DOUBLE_TAP_WINDOW && closeEnough){
       clearTimeout(pendingTapTimeout);
-      hardDrop();
+      speedBoost();
       lastTapTime = 0;
     } else {
       lastTapTime = now;
@@ -704,8 +737,13 @@
       return;
     }
     if(!current) return;
+    if(boostMs > 0){
+      boostMs -= dt * 16.67;
+      if(boostMs < 0) boostMs = 0;
+    }
     dropTimerMs += dt * 16.67;
-    const interval = dropInterval(level);
+    let interval = dropInterval(level);
+    if(boostMs > 0) interval = Math.max(30, interval / BOOST_DIVISOR);
     if(dropTimerMs >= interval){
       dropTimerMs -= interval;
       if(!tryMove(0,1)) lockPiece();
@@ -725,6 +763,23 @@
 
   function cellRect(bx,by){
     return [boardOffX + bx*cellSize, boardOffY + by*cellSize, cellSize-2, cellSize-2];
+  }
+
+  function drawGhostCell(bx,by,color){
+    if(by < 0) return;
+    const [x,y,w,h] = cellRect(bx,by);
+    ctx.save();
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = color;
+    roundRectPath(x,y,w,h,4);
+    ctx.fill();
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3,3]);
+    roundRectPath(x,y,w,h,4);
+    ctx.stroke();
+    ctx.restore();
   }
 
   function drawCell(bx,by,color,opts){
@@ -770,6 +825,12 @@
 
     if(current && phase === 'drop'){
       const cells = PIECES[current.type].rotations[current.rot];
+      const gy = ghostRowY();
+      if(gy !== null && gy !== current.y){
+        cells.forEach(([cx,cy])=>{
+          drawGhostCell(current.x+cx, gy+cy, PIECES[current.type].color);
+        });
+      }
       cells.forEach(([cx,cy])=>{
         drawCell(current.x+cx, current.y+cy, PIECES[current.type].color, {});
       });
