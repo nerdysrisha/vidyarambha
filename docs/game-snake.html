@@ -64,9 +64,17 @@
   canvas#game{ display:block; touch-action:none; border-radius: 14px; }
   #dpad-row{
     flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
+    display:flex; align-items:center; justify-content:center; gap:16px;
     padding: 10px 14px max(12px, env(safe-area-inset-bottom)) 14px;
   }
+  #swipepad{
+    width:120px; height:174px; border-radius:18px; background: var(--panel);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    color: var(--ink-dim); touch-action:none;
+  }
+  #swipepad:active{ background: rgba(244,255,246,0.22); }
+  #swipepad svg{ width:26px; height:26px; opacity:0.85; }
+  #swipepad span{ font-size:11px; font-weight:700; letter-spacing:0.08em; }
   #dpad{
     display:grid; grid-template-columns: 54px 54px 54px; grid-template-rows: 54px 54px 54px;
     gap: 6px;
@@ -170,6 +178,17 @@
   </div>
 
   <div id="dpad-row">
+    <div id="swipepad" aria-label="Swipe to steer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="5 9 2 12 5 15"></polyline>
+        <polyline points="9 5 12 2 15 5"></polyline>
+        <polyline points="15 19 12 22 9 19"></polyline>
+        <polyline points="19 9 22 12 19 15"></polyline>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <line x1="12" y1="2" x2="12" y2="22"></line>
+      </svg>
+      <span>SWIPE</span>
+    </div>
     <div id="dpad">
       <button class="up" aria-label="Up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
       <button class="left" aria-label="Left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -183,7 +202,7 @@
     <h1>FRUITY SNAKE</h1>
     <p class="sub">munch, grow, glow &#127815;</p>
     <p class="howto">
-      <b>Swipe</b> anywhere on the board, or use the <b>arrow pad</b>, to steer the snake.<br>
+      Use the <b>swipe pad</b> or the <b>arrow pad</b> below the board to steer the snake.<br>
       Eat the falling fruit to <b>grow longer</b> and score points.<br>
       Watch for the <b>golden fruit</b> &mdash; it's worth way more and sparkles before it vanishes!<br>
       Every <b>100 points</b> your snake changes color &mdash; keep going to unlock new hues!<br>
@@ -491,14 +510,15 @@
   }
   dpad.querySelector('.pause').addEventListener('click', togglePause);
 
-  // ---------- input: swipe ----------
+  // ---------- input: swipe (dedicated pad next to the d-pad, not on the canvas) ----------
+  const swipepad = document.getElementById('swipepad');
   let touchStartX = 0, touchStartY = 0, touching = false;
-  canvas.addEventListener('touchstart', (e)=>{
+  swipepad.addEventListener('touchstart', (e)=>{
     if(state !== 'playing') return;
     const t = e.changedTouches[0];
     touchStartX = t.clientX; touchStartY = t.clientY; touching = true;
   }, {passive:true});
-  canvas.addEventListener('touchend', (e)=>{
+  swipepad.addEventListener('touchend', (e)=>{
     if(state !== 'playing' || !touching) return;
     touching = false;
     const t = e.changedTouches[0];
@@ -513,7 +533,7 @@
 
   // mouse drag support (desktop testing)
   let mouseDown = false, mx0=0, my0=0;
-  canvas.addEventListener('mousedown', (e)=>{ mouseDown = true; mx0=e.clientX; my0=e.clientY; });
+  swipepad.addEventListener('mousedown', (e)=>{ mouseDown = true; mx0=e.clientX; my0=e.clientY; });
   window.addEventListener('mouseup', (e)=>{
     if(!mouseDown) return;
     mouseDown = false;
