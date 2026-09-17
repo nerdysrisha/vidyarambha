@@ -72,6 +72,10 @@
     flex-shrink:0;
   }
   .icon-btn svg{ width:18px; height:18px; }
+  .icon-btn.active{
+    background: var(--accent);
+    color: #10122A;
+  }
   canvas#game{
     flex:1;
     display:block;
@@ -161,11 +165,17 @@
     <div class="hud-right">
       <div class="pill" id="statsPill">LV 1 &middot; 0 LN</div>
       <canvas id="nextCanvas" width="80" height="80"></canvas>
-      <button id="muteBtn" class="icon-btn" aria-label="Toggle music">
+      <button id="muteBtn" class="icon-btn" aria-label="Toggle sound">
         <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
           <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
           <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+      </button>
+      <button id="softDropBtn" class="icon-btn" aria-label="Hold to speed up fall">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="7 6 12 11 17 6"></polyline>
+          <polyline points="7 13 12 18 17 13"></polyline>
         </svg>
       </button>
       <button id="fsBtn" class="icon-btn" aria-label="Toggle fullscreen">
@@ -188,8 +198,8 @@
       <b>Swipe left/right</b> to slide the falling piece.<br>
       <b>Tap</b> to rotate it.<br>
       <b>Swipe down</b> to drop it instantly.<br>
-      <b>Double-tap</b> to speed it up for a moment.<br>
-      <span style="opacity:0.75; font-size:13px;">On keyboard: arrow keys to move/rotate/drop, Space to speed up.</span><br>
+      <b>Hold the &#9660; button</b> up top to speed up the fall.<br>
+      <span style="opacity:0.75; font-size:13px;">On keyboard: arrow keys to move/rotate/drop.</span><br>
       Fill a full row to clear it. Clear 4 at once for a big bonus!<br>
       <span style="opacity:0.75; font-size:13px;">On iPhone, use Share &rarr; Add to Home Screen for true fullscreen.</span>
     </p>
@@ -223,6 +233,7 @@
   const fsIcon = document.getElementById('fsIcon');
   const muteBtn = document.getElementById('muteBtn');
   const muteIcon = document.getElementById('muteIcon');
+  const softDropBtn = document.getElementById('softDropBtn');
 
   const EXPAND_PATH = '<path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>';
   const COMPRESS_PATH = '<path d="M9 3v4a2 2 0 0 1-2 2H3"></path><path d="M15 3v4a2 2 0 0 0 2 2h4"></path><path d="M9 21v-4a2 2 0 0 0-2-2H3"></path><path d="M15 21v-4a2 2 0 0 1 2-2h4"></path>';
@@ -313,6 +324,8 @@
     const now = audioCtx.currentTime;
     masterGain.gain.cancelScheduledValues(now);
     masterGain.gain.linearRampToValueAtTime(on ? 0.11 : 0, now + 0.4);
+    sfxGain.gain.cancelScheduledValues(now);
+    sfxGain.gain.linearRampToValueAtTime(on ? 0.22 : 0, now + 0.4);
     if(on && audioCtx.state === 'suspended') audioCtx.resume();
   }
 
@@ -333,6 +346,28 @@
     ensureMusicRunning();
     setMusicOn(!musicOn);
   });
+
+  // ---------- soft-drop button (hold to speed up the fall) ----------
+  function pressSoftDrop(e){
+    e.preventDefault();
+    e.stopPropagation();
+    softDropActive = true;
+    softDropBtn.classList.add('active');
+  }
+  function releaseSoftDrop(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    softDropActive = false;
+    softDropBtn.classList.remove('active');
+  }
+  softDropBtn.addEventListener('touchstart', pressSoftDrop, {passive:false});
+  softDropBtn.addEventListener('touchend', releaseSoftDrop);
+  softDropBtn.addEventListener('touchcancel', releaseSoftDrop);
+  softDropBtn.addEventListener('mousedown', pressSoftDrop);
+  softDropBtn.addEventListener('mouseup', releaseSoftDrop);
+  softDropBtn.addEventListener('mouseleave', ()=>{ if(softDropActive) releaseSoftDrop(); });
+  // safety net: release if the mouse button is let go anywhere off the element
+  window.addEventListener('mouseup', ()=>{ if(softDropActive) releaseSoftDrop(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) releaseSoftDrop(); });
 
   document.addEventListener('visibilitychange', ()=>{
     if(!audioCtx) return;
@@ -455,7 +490,9 @@
     });
   }
 
-  const TYPES = ['I','O','T','S','Z','J','L'];
+  // I appears twice per bag so straight pieces show up roughly twice as often
+  // as the other shapes, instead of once every 7-13 pieces.
+  const TYPES = ['I','I','O','T','S','Z','J','L'];
 
   function shuffle(arr){
     const a = arr.slice();
@@ -475,9 +512,8 @@
   let clearTimer = 0;
   const CLEAR_FLASH_DURATION = 22;
   let dropTimerMs = 0;
-  let boostMs = 0;
-  const BOOST_DURATION_MS = 650;
-  const BOOST_DIVISOR = 5;
+  let softDropActive = false;
+  const SOFT_DROP_DIVISOR = 5; // how much faster the piece falls while the button is held
 
   let score = 0, level = 1, lines = 0;
   let state = 'title'; // title | playing | over
@@ -552,12 +588,6 @@
     lockPiece();
   }
 
-  function speedBoost(){
-    if(!current || phase !== 'drop') return;
-    boostMs = BOOST_DURATION_MS;
-    sfxMove();
-  }
-
   function ghostRowY(){
     if(!current) return null;
     let gy = current.y;
@@ -611,8 +641,9 @@
     spawnNext();
   }
 
-  function dropInterval(lvl){
-    return Math.max(120, 800 - (lvl-1)*60);
+  const DROP_INTERVAL_MS = 1000; // constant fall speed, never increases with level/score
+  function dropInterval(){
+    return DROP_INTERVAL_MS;
   }
 
   function triggerGameOver(){
@@ -652,10 +683,7 @@
   let touchStartX = 0, touchStartY = 0, touchMoved = false;
   let dragAccum = 0;
   let lastX = 0, lastY = 0;
-  let pendingTapTimeout = null;
-  let lastTapTime = 0, lastTapX = 0, lastTapY = 0;
   let swipeDownFired = false;
-  const DOUBLE_TAP_WINDOW = 280;
   const SWIPE_THRESHOLD = 8;
   const SWIPE_DOWN_THRESHOLD = 55;
 
@@ -705,19 +733,7 @@
   function onUpTouch(e){
     if(swipeDownFired){ swipeDownFired = false; touchMoved = false; return; }
     if(touchMoved || state !== 'playing'){ touchMoved = false; return; }
-    const now = performance.now();
-    const dx = touchStartX - lastTapX, dy = touchStartY - lastTapY;
-    const closeEnough = Math.hypot(dx,dy) < 46;
-    if(now - lastTapTime < DOUBLE_TAP_WINDOW && closeEnough){
-      clearTimeout(pendingTapTimeout);
-      speedBoost();
-      lastTapTime = 0;
-    } else {
-      lastTapTime = now;
-      lastTapX = touchStartX; lastTapY = touchStartY;
-      clearTimeout(pendingTapTimeout);
-      pendingTapTimeout = setTimeout(rotatePiece, DOUBLE_TAP_WINDOW);
-    }
+    rotatePiece();
     touchMoved = false;
   }
   canvas.addEventListener('touchstart', onDown, {passive:false});
@@ -748,11 +764,6 @@
         e.preventDefault();
         if(!e.repeat) hardDrop();
         break;
-      case ' ':
-      case 'Spacebar':
-        e.preventDefault();
-        if(!e.repeat) speedBoost();
-        break;
     }
   });
 
@@ -764,13 +775,9 @@
       return;
     }
     if(!current) return;
-    if(boostMs > 0){
-      boostMs -= dt * 16.67;
-      if(boostMs < 0) boostMs = 0;
-    }
     dropTimerMs += dt * 16.67;
-    let interval = dropInterval(level);
-    if(boostMs > 0) interval = Math.max(30, interval / BOOST_DIVISOR);
+    let interval = dropInterval();
+    if(softDropActive) interval = Math.max(30, interval / SOFT_DROP_DIVISOR);
     if(dropTimerMs >= interval){
       dropTimerMs -= interval;
       if(!tryMove(0,1)) lockPiece();
