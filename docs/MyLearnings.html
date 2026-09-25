@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>My Tech Learnings</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
 html, body {
     margin: 0;
@@ -329,7 +330,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 const BASE_URL = "subjects/tech/";
 
 // ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
-// Each category: { name, slug, topics: [ [slug, label, desc, keywords], ... ] }
+// Each category: { name, slug, topics: [ [slug, label, desc, keywords, ext?], ... ] }
+// ext is optional, defaults to "html". Use "md" for a Markdown source file —
+// it'll be auto-rendered to HTML when loaded.
 // An empty topics array = placeholder category ("coming soon").
 const categories = [
     {
@@ -339,7 +342,8 @@ const categories = [
             ["attestation-process", "Attestation Process", "Custom attestation flow — how a workload proves it's running in a trusted TEE.", "attestation tee quote verification"],
             ["architecture-overview", "Architecture Overview", "Overall Confidential Computing architecture (generic + IBM Cloud specific).", "architecture diagram ibm cloud coco"],
             ["tdx-attestation-swimlane", "TDX Attestation Swimlane", "Step-by-step swimlane of Intel TDX attestation.", "tdx swimlane attestation intel"],
-            ["kata-remote-deployments", "Kata Remote Deployments", "Notes on custom Kata Containers remote deployment setup.", "kata containers remote deployment"]
+            ["kata-remote-deployments", "Kata Remote Deployments", "Notes on custom Kata Containers remote deployment setup.", "kata containers remote deployment"],
+            ["virsh-mem-dump", "Virsh Memory Dump", "Notes on capturing/inspecting virsh memory dumps.", "virsh memory dump libvirt", "md"]
         ]
     },
     {
@@ -394,15 +398,16 @@ categories.forEach((cat, catIdx) => {
         ph.textContent = "No topics yet";
         list.appendChild(ph);
     } else {
-        cat.topics.forEach(([slug, label, desc, keywords]) => {
+        cat.topics.forEach(([slug, label, desc, keywords, ext]) => {
             const item = document.createElement("div");
             item.className = "topic-item";
             item.textContent = label;
             item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
 
-            const path = BASE_URL + cat.slug + "/" + slug + ".html";
+            const fileExt = ext || "html";
+            const path = BASE_URL + cat.slug + "/" + slug + "." + fileExt;
             const flatIndex = flatTopics.length;
-            flatTopics.push({ path, label, catName: cat.name, el: item });
+            flatTopics.push({ path, label, catName: cat.name, ext: fileExt, el: item });
 
             item.addEventListener("click", () => loadTopic(flatIndex));
 
@@ -439,7 +444,8 @@ function loadTopic(flatIndex) {
 
     fetch(topic.path)
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
-        .then(html => {
+        .then(raw => {
+            const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             wireCopyButtons();
