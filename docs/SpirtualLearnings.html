@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spiritual Learnings</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 54px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+#sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed { width: 42px; }
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+    z-index: 2;
+}
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; }
+#sidebar-title .title-text { overflow: hidden; }
+#sidebar.collapsed #sidebar-title .title-text { display: none; }
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover { background: #1a1a1a; color: #d8b46a; }
+#sidebar.collapsed #sidebar-list { display: none; }
+
+/* SEARCH */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#sidebar.collapsed #sidebar-search-row { display: none; }
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 28px 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #d8b46a88; }
+#search-wrap { position: relative; }
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+#search-clear.visible { display: flex; }
+#search-clear:hover { background: #3a3a3a; color: #fff; }
+#search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
+
+/* CATEGORY */
+.category-block { border-bottom: 1px solid #1a1a1a; }
+.category-header {
+    padding: 11px 16px;
+    font-size: 13.5px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+.category-header:hover { background: #1a1a1a; color: #fff; }
+.category-header .chev {
+    font-size: 11px;
+    color: #555;
+    transition: transform 0.15s ease;
+}
+.category-block.collapsed .chev { transform: rotate(-90deg); }
+.category-header .count {
+    font-size: 11px;
+    color: #555;
+    font-weight: normal;
+    margin-left: auto;
+    margin-right: 8px;
+}
+.category-block.collapsed .topic-list { display: none; }
+
+.topic-item {
+    padding: 8px 16px 8px 30px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #bbb;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.topic-item:hover { background: #1a1a1a; color: #fff; }
+.topic-item.active {
+    background: #241a0d;
+    color: #d8b46a;
+    border-left-color: #d8b46a;
+    font-weight: bold;
+}
+.topic-item.placeholder {
+    color: #555;
+    font-style: italic;
+    cursor: default;
+}
+.topic-item.placeholder:hover { background: none; color: #555; }
+
+.topic-item.search-match { background: #241a0d; border-left-color: #d8b46a; color: #fff; }
+.topic-item.search-dim { opacity: 0.25; }
+.category-block.search-dim-all { opacity: 0.25; }
+
+/* TOOLTIP */
+#topic-tooltip {
+    position: fixed;
+    z-index: 50;
+    max-width: 280px;
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #d8b46a55;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+#topic-tooltip.visible { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* RIGHT COLUMN */
+#main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+    background: #fbf8f2;
+}
+#content-box {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 34px 40px 50px 40px;
+    background: #fbf8f2;
+    color: #2b2b2b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+#content-box::-webkit-scrollbar { width: 9px; }
+#content-box::-webkit-scrollbar-thumb { background: #e4dcc8; border-radius: 5px; }
+
+/* Title block for a topic */
+#content-box h1 {
+    text-align: center;
+    color: #7a1f1f;
+    font-size: 1.9em;
+    margin: 0 0 4px 0;
+    font-family: Georgia, "Times New Roman", serif;
+}
+#content-box .topic-tagline {
+    text-align: center;
+    color: #a1521f;
+    font-style: italic;
+    font-size: 1em;
+    margin: 0 0 6px 0;
+}
+#content-box .topic-invocation {
+    text-align: center;
+    color: #8a6d3b;
+    font-size: 0.95em;
+    margin: 0 0 26px 0;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e8e2d5;
+}
+#content-box h2 {
+    color: #6b4f1d;
+    font-size: 1.25em;
+    margin: 26px 0 12px 0;
+    text-align: center;
+}
+#content-box p { margin: 0 0 14px 0; }
+
+/* Verse cards — one per stanza, centered, generous spacing for recitation */
+#content-box .verse-block {
+    max-width: 620px;
+    margin: 0 auto 16px auto;
+    padding: 16px 26px;
+    background: #ffffff;
+    border: 1px solid #ecd9b8;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-align: center;
+    font-size: 1.12em;
+    line-height: 1.85;
+    color: #2b2b2b;
+}
+#content-box .verse-label {
+    display: inline-block;
+    font-size: 0.62em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a1521f;
+    background: #f4efe2;
+    border-radius: 12px;
+    padding: 2px 12px;
+    margin-bottom: 10px;
+}
+#content-box .verse-refrain {
+    max-width: 620px;
+    margin: 4px auto 18px auto;
+    padding: 12px 26px;
+    background: #fbf3e0;
+    border-left: 4px solid #c9a15a;
+    border-radius: 8px;
+    text-align: center;
+    font-style: italic;
+    color: #6b4f1d;
+    font-size: 1.05em;
+    line-height: 1.8;
+}
+#content-box hr.divider {
+    border: none;
+    text-align: center;
+    margin: 30px auto;
+    max-width: 100px;
+    border-top: 2px solid #e8d9ba;
+}
+#content-box .topic-note {
+    max-width: 620px;
+    margin: 24px auto 0 auto;
+    padding: 12px 18px;
+    background: #f4f8f6;
+    border: 1px dashed #8fb9a8;
+    border-radius: 8px;
+    color: #2f6b52;
+    font-size: 0.88em;
+    text-align: center;
+}
+
+.copy-code-btn { display: none; } /* not used for verse content, kept for engine compatibility */
+
+/* NAV BAR */
+#navbar {
+    height: 40px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 0 20px 20px 20px;
+}
+#navbar button {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+#navbar button:hover { background: #222; color: #d8b46a; }
+#counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">Spiritual Learnings</span>
+            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <div id="search-wrap">
+                <input id="topic-search" type="text" placeholder="Search...">
+                <button id="search-clear">&#10005;</button>
+            </div>
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-list"></div>
+    </div>
+
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box">
+                <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chalisa, stotra or aarti from the left to begin.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="navbar">
+    <button id="prevBtn">&#8592; Prev</button>
+    <span id="counter">–</span>
+    <button id="nextBtn">Next &#8594;</button>
+</div>
+
+<div id="topic-tooltip"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Base path where category folders live, relative to this file (adjust
+// if you place SpirtualLearnings.html somewhere other than docs/ root).
+const BASE_URL = "subjects/spiritual/";
+
+// ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
+// topics: [slug, label, desc, keywords, ext]
+//   ext "html" / "md"  -> a real file, clickable
+//   ext "todo"         -> not written yet, shown greyed out as "(coming soon)"
+const categories = [
+    {
+        name: "Chalisas, Stotras & Aartis",
+        slug: "chalisas-stotras",
+        topics: [
+            ["hanuman-chalisa", "Hanuman Chalisa", "Tulsidas's 40-verse hymn to Lord Hanuman.", "hanuman chalisa tulsidas", "html"],
+            ["ganesh-aarti-sukhakarta-dukhaharta", "Ganesh Aarti — Sukhakarta Dukhaharta", "Samarth Ramdas's classic Marathi aarti to Lord Ganesha.", "ganesh aarti sukhakarta dukhaharta ganpati", "html"],
+            ["vishnu-sahasranama", "Vishnu Sahasranama", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "todo"],
+            ["lalita-sahasranama", "Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "todo"],
+            ["shiv-chalisa", "Shiv Chalisa", "40-verse hymn to Lord Shiva.", "shiv chalisa shiva", "todo"],
+            ["durga-chalisa", "Durga Chalisa", "40-verse hymn to Goddess Durga.", "durga chalisa devi", "todo"],
+            ["aditya-hridayam", "Aditya Hridayam Stotram", "Hymn to Surya (the Sun), recited to Rama before his battle with Ravana.", "aditya hridayam surya sun stotram", "todo"],
+            ["rama-raksha-stotram", "Rama Raksha Stotram", "Protective hymn to Lord Rama.", "rama raksha stotram", "todo"],
+            ["om-jai-jagdish-hare", "Om Jai Jagdish Hare", "Popular Vishnu aarti sung across North India.", "om jai jagdish hare vishnu aarti", "todo"],
+            ["ganesh-chalisa", "Ganesh Chalisa", "40-verse hymn to Lord Ganesha.", "ganesh chalisa ganpati", "todo"]
+        ]
+    }
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────
+const sidebarList  = document.getElementById("sidebar-list");
+const contentBox   = document.getElementById("content-box");
+const counterEl     = document.getElementById("counter");
+const tooltipEl      = document.getElementById("topic-tooltip");
+
+const flatTopics = [];
+let currentFlatIndex = -1;
+
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// ── BUILD SIDEBAR ──────────────────────────────────────────────────────
+categories.forEach((cat) => {
+    const block = document.createElement("div");
+    block.className = "category-block";
+
+    const header = document.createElement("div");
+    header.className = "category-header";
+    header.innerHTML =
+        '<span>' + cat.name + '</span>' +
+        '<span class="count">' + (cat.topics.length || "") + '</span>' +
+        '<span class="chev">&#9662;</span>';
+    header.addEventListener("click", () => {
+        block.classList.toggle("collapsed");
+    });
+    block.appendChild(header);
+
+    const list = document.createElement("div");
+    list.className = "topic-list";
+
+    cat.topics.forEach(([slug, label, desc, keywords, ext]) => {
+        const item = document.createElement("div");
+
+        if (ext === "todo") {
+            item.className = "topic-item placeholder";
+            item.textContent = label + " (coming soon)";
+            list.appendChild(item);
+            return;
+        }
+
+        item.className = "topic-item";
+        item.textContent = label;
+        item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
+
+        const path = BASE_URL + slug + "." + ext;
+        const flatIndex = flatTopics.length;
+        flatTopics.push({ path, label, catName: cat.name, ext, el: item });
+
+        item.addEventListener("click", () => loadTopic(flatIndex));
+
+        item.addEventListener("mouseenter", () => {
+            tooltipEl.textContent = desc || "";
+            if (!desc) return;
+            const rect = item.getBoundingClientRect();
+            tooltipEl.style.left = (rect.right + 10) + "px";
+            tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+            tooltipEl.classList.add("visible");
+        });
+        item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
+
+        list.appendChild(item);
+    });
+
+    block.appendChild(list);
+    sidebarList.appendChild(block);
+});
+
+// ── LOAD TOPIC ──────────────────────────────────────────────────────────
+function loadTopic(flatIndex) {
+    if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
+    currentFlatIndex = flatIndex;
+    const topic = flatTopics[flatIndex];
+
+    flatTopics.forEach(t => t.el.classList.remove("active"));
+    topic.el.classList.add("active");
+    topic.el.scrollIntoView({ block: "nearest" });
+
+    counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
+    contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
+
+    fetch(topic.path)
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
+        .then(raw => {
+            const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
+            contentBox.innerHTML = html;
+            contentBox.scrollTop = 0;
+        })
+        .catch(err => {
+            contentBox.innerHTML =
+                '<div style="color:#b5432f;padding:12px 0;text-align:center;">' + err.message +
+                '<br><br>Make sure this page is served over http(s) (e.g. GitHub Pages or a local server) — ' +
+                'opening the file directly (file://) blocks fetch() for security reasons.</div>';
+        });
+}
+
+document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
+document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
+});
+
+// ── SEARCH ───────────────────────────────────────────────────────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+const searchClear = document.getElementById("search-clear");
+
+function runSearch() {
+    const q = normalizeSearch(searchInput.value.trim());
+    searchClear.classList.toggle("visible", searchInput.value.length > 0);
+
+    if (!q) {
+        flatTopics.forEach(t => t.el.classList.remove("search-match", "search-dim"));
+        document.querySelectorAll(".category-block").forEach(b => b.classList.remove("collapsed", "search-dim-all"));
+        searchCount.textContent = "";
+        return;
+    }
+
+    let matches = 0;
+    flatTopics.forEach(t => {
+        const isMatch = t.el.dataset.search.includes(q);
+        t.el.classList.toggle("search-match", isMatch);
+        t.el.classList.toggle("search-dim", !isMatch);
+        if (isMatch) matches++;
+    });
+
+    document.querySelectorAll(".category-block").forEach(block => {
+        const hasMatch = !!block.querySelector(".topic-item.search-match");
+        block.classList.remove("collapsed");
+        block.classList.toggle("search-dim-all", !hasMatch && block.querySelectorAll(".topic-item:not(.placeholder)").length > 0);
+    });
+
+    searchCount.textContent = matches === 0 ? "No topics found" : matches + " topic" + (matches === 1 ? "" : "s") + " found";
+}
+
+searchInput.addEventListener("input", runSearch);
+searchClear.addEventListener("click", () => { searchInput.value = ""; runSearch(); searchInput.focus(); });
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
+});
+
+// ── SIDEBAR COLLAPSE ──────────────────────────────────────────────────
+const sidebarEl = document.getElementById("sidebar");
+const toggleBtn  = document.getElementById("sidebar-toggle");
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    tooltipEl.classList.remove("visible");
+});
+
+counterEl.textContent = "– / " + flatTopics.length;
+</script>
+
+</body>
+</html>
