@@ -175,13 +175,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border-left-color: #d8b46a;
     font-weight: bold;
 }
-.topic-item.placeholder {
-    color: #555;
-    font-style: italic;
-    cursor: default;
-}
-.topic-item.placeholder:hover { background: none; color: #555; }
-
 .topic-item.search-match { background: #241a0d; border-left-color: #d8b46a; color: #fff; }
 .topic-item.search-dim { opacity: 0.25; }
 .category-block.search-dim-all { opacity: 0.25; }
@@ -391,8 +384,9 @@ const BASE_URL = "subjects/spiritual/";
 
 // ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
 // topics: [slug, label, desc, keywords, ext]
-//   ext "html" / "md"  -> a real file, clickable
-//   ext "todo"         -> not written yet, shown greyed out as "(coming soon)"
+//   ext "html" / "md"  -> file extension used to build the fetch path.
+//   All topics are active/clickable; if the file doesn't exist yet,
+//   the fetch will simply fail with a 404 shown in the content panel.
 const categories = [
     {
         name: "Chalisas, Stotras & Aartis",
@@ -400,14 +394,14 @@ const categories = [
         topics: [
             ["hanuman-chalisa", "Hanuman Chalisa", "Tulsidas's 40-verse hymn to Lord Hanuman.", "hanuman chalisa tulsidas", "html"],
             ["ganesh-aarti-sukhakarta-dukhaharta", "Ganesh Aarti — Sukhakarta Dukhaharta", "Samarth Ramdas's classic Marathi aarti to Lord Ganesha.", "ganesh aarti sukhakarta dukhaharta ganpati", "html"],
-            ["vishnu-sahasranama", "Vishnu Sahasranama", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "todo"],
-            ["lalita-sahasranama", "Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "todo"],
-            ["shiv-chalisa", "Shiv Chalisa", "40-verse hymn to Lord Shiva.", "shiv chalisa shiva", "todo"],
-            ["durga-chalisa", "Durga Chalisa", "40-verse hymn to Goddess Durga.", "durga chalisa devi", "todo"],
-            ["aditya-hridayam", "Aditya Hridayam Stotram", "Hymn to Surya (the Sun), recited to Rama before his battle with Ravana.", "aditya hridayam surya sun stotram", "todo"],
-            ["rama-raksha-stotram", "Rama Raksha Stotram", "Protective hymn to Lord Rama.", "rama raksha stotram", "todo"],
-            ["om-jai-jagdish-hare", "Om Jai Jagdish Hare", "Popular Vishnu aarti sung across North India.", "om jai jagdish hare vishnu aarti", "todo"],
-            ["ganesh-chalisa", "Ganesh Chalisa", "40-verse hymn to Lord Ganesha.", "ganesh chalisa ganpati", "todo"]
+            ["vishnu-sahasranama", "Vishnu Sahasranama", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],
+            ["lalita-sahasranama", "Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "html"],
+            ["shiv-chalisa", "Shiv Chalisa", "40-verse hymn to Lord Shiva.", "shiv chalisa shiva", "html"],
+            ["durga-chalisa", "Durga Chalisa", "40-verse hymn to Goddess Durga.", "durga chalisa devi", "html"],
+            ["aditya-hridayam", "Aditya Hridayam Stotram", "Hymn to Surya (the Sun), recited to Rama before his battle with Ravana.", "aditya hridayam surya sun stotram", "html"],
+            ["rama-raksha-stotram", "Rama Raksha Stotram", "Protective hymn to Lord Rama.", "rama raksha stotram", "html"],
+            ["om-jai-jagdish-hare", "Om Jai Jagdish Hare", "Popular Vishnu aarti sung across North India.", "om jai jagdish hare vishnu aarti", "html"],
+            ["ganesh-chalisa", "Ganesh Chalisa", "40-verse hymn to Lord Ganesha.", "ganesh chalisa ganpati", "html"]
         ]
     }
 ];
@@ -446,13 +440,6 @@ categories.forEach((cat) => {
 
     cat.topics.forEach(([slug, label, desc, keywords, ext]) => {
         const item = document.createElement("div");
-
-        if (ext === "todo") {
-            item.className = "topic-item placeholder";
-            item.textContent = label + " (coming soon)";
-            list.appendChild(item);
-            return;
-        }
 
         item.className = "topic-item";
         item.textContent = label;
@@ -545,7 +532,7 @@ function runSearch() {
     document.querySelectorAll(".category-block").forEach(block => {
         const hasMatch = !!block.querySelector(".topic-item.search-match");
         block.classList.remove("collapsed");
-        block.classList.toggle("search-dim-all", !hasMatch && block.querySelectorAll(".topic-item:not(.placeholder)").length > 0);
+        block.classList.toggle("search-dim-all", !hasMatch && block.querySelectorAll(".topic-item").length > 0);
     });
 
     searchCount.textContent = matches === 0 ? "No topics found" : matches + " topic" + (matches === 1 ? "" : "s") + " found";
