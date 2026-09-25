@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Tech Learnings</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 54px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+#sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed { width: 42px; }
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+    z-index: 2;
+}
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; }
+#sidebar-title .title-text { overflow: hidden; }
+#sidebar.collapsed #sidebar-title .title-text { display: none; }
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
+#sidebar.collapsed #sidebar-list { display: none; }
+
+/* SEARCH */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#sidebar.collapsed #sidebar-search-row { display: none; }
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 28px 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #00c8ff88; }
+#search-wrap { position: relative; }
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+#search-clear.visible { display: flex; }
+#search-clear:hover { background: #3a3a3a; color: #fff; }
+#search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
+
+/* CATEGORY */
+.category-block { border-bottom: 1px solid #1a1a1a; }
+.category-header {
+    padding: 11px 16px;
+    font-size: 13.5px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+.category-header:hover { background: #1a1a1a; color: #fff; }
+.category-header .chev {
+    font-size: 11px;
+    color: #555;
+    transition: transform 0.15s ease;
+}
+.category-block.collapsed .chev { transform: rotate(-90deg); }
+.category-header .count {
+    font-size: 11px;
+    color: #555;
+    font-weight: normal;
+    margin-left: auto;
+    margin-right: 8px;
+}
+.topic-list { }
+.category-block.collapsed .topic-list { display: none; }
+
+.topic-item {
+    padding: 8px 16px 8px 30px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #bbb;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.topic-item:hover { background: #1a1a1a; color: #fff; }
+.topic-item.active {
+    background: #0d1f2b;
+    color: #00c8ff;
+    border-left-color: #00c8ff;
+    font-weight: bold;
+}
+.topic-item.placeholder {
+    color: #555;
+    font-style: italic;
+    cursor: default;
+}
+.topic-item.placeholder:hover { background: none; color: #555; }
+
+/* SEARCH MATCH / DIM */
+.topic-item.search-match { background: #0d1f2b; border-left-color: #00c8ff; color: #fff; }
+.topic-item.search-dim { opacity: 0.25; }
+.category-block.search-dim-all { opacity: 0.25; }
+
+/* TOOLTIP */
+#topic-tooltip {
+    position: fixed;
+    z-index: 50;
+    max-width: 280px;
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #00c8ff55;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+#topic-tooltip.visible { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+/* RIGHT COLUMN */
+#main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+}
+#content-box {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 28px 34px;
+}
+#content-box::-webkit-scrollbar { width: 9px; }
+#content-box::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 5px; }
+#content-box h1, #content-box h2, #content-box h3 { color: #00c8ff; }
+#content-box code {
+    background: #1a1a1a;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 0.92em;
+}
+#content-box pre {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    position: relative;
+}
+#content-box pre code { background: none; padding: 0; }
+#content-box img, #content-box svg { max-width: 100%; height: auto; }
+#content-box a { color: #00c8ff; }
+.copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #222;
+    border: 1px solid #333;
+    color: #999;
+    border-radius: 5px;
+    padding: 3px 9px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.copy-code-btn:hover { background: #2c2c2c; color: #fff; }
+.copy-code-btn.copied { color: #00c8ff; border-color: #00c8ff55; }
+
+/* NAV BAR */
+#navbar {
+    height: 40px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 0 20px 20px 20px;
+}
+#navbar button {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+#navbar button:hover { background: #222; color: #00c8ff; }
+#counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">My Tech Learnings</span>
+            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <div id="search-wrap">
+                <input id="topic-search" type="text" placeholder="Search topics...">
+                <button id="search-clear">&#10005;</button>
+            </div>
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-list"></div>
+    </div>
+
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box">
+                <div style="color:#666;">Select a topic from the left to get started.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="navbar">
+    <button id="prevBtn">&#8592; Prev</button>
+    <span id="counter">–</span>
+    <button id="nextBtn">Next &#8594;</button>
+</div>
+
+<div id="topic-tooltip"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Base path where category folders live, relative to this file.
+// e.g. subjects/tech/confidential-computing/attestation-process.html
+const BASE_URL = "subjects/tech/";
+
+// ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
+// Each category: { name, slug, topics: [ [slug, label, desc, keywords], ... ] }
+// An empty topics array = placeholder category ("coming soon").
+const categories = [
+    {
+        name: "Confidential Computing",
+        slug: "confidential-computing",
+        topics: [
+            ["attestation-process", "Attestation Process", "Custom attestation flow — how a workload proves it's running in a trusted TEE.", "attestation tee quote verification"],
+            ["architecture-overview", "Architecture Overview", "Overall Confidential Computing architecture (generic + IBM Cloud specific).", "architecture diagram ibm cloud coco"],
+            ["tdx-attestation-swimlane", "TDX Attestation Swimlane", "Step-by-step swimlane of Intel TDX attestation.", "tdx swimlane attestation intel"],
+            ["kata-remote-deployments", "Kata Remote Deployments", "Notes on custom Kata Containers remote deployment setup.", "kata containers remote deployment"]
+        ]
+    },
+    {
+        name: "Kubernetes",
+        slug: "kubernetes",
+        topics: []
+    },
+    {
+        name: "Networking",
+        slug: "networking",
+        topics: []
+    }
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────
+const sidebarList  = document.getElementById("sidebar-list");
+const contentBox   = document.getElementById("content-box");
+const counterEl     = document.getElementById("counter");
+const tooltipEl      = document.getElementById("topic-tooltip");
+
+// Flattened list of all real (non-placeholder) topics, in display order,
+// for search + prev/next navigation. Each entry keeps a ref to its DOM node.
+const flatTopics = [];
+let currentFlatIndex = -1;
+
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// ── BUILD SIDEBAR ──────────────────────────────────────────────────────
+categories.forEach((cat, catIdx) => {
+    const block = document.createElement("div");
+    block.className = "category-block";
+
+    const header = document.createElement("div");
+    header.className = "category-header";
+    header.innerHTML =
+        '<span>' + cat.name + '</span>' +
+        '<span class="count">' + (cat.topics.length || "") + '</span>' +
+        '<span class="chev">&#9662;</span>';
+    header.addEventListener("click", () => {
+        block.classList.toggle("collapsed");
+    });
+    block.appendChild(header);
+
+    const list = document.createElement("div");
+    list.className = "topic-list";
+
+    if (cat.topics.length === 0) {
+        const ph = document.createElement("div");
+        ph.className = "topic-item placeholder";
+        ph.textContent = "No topics yet";
+        list.appendChild(ph);
+    } else {
+        cat.topics.forEach(([slug, label, desc, keywords]) => {
+            const item = document.createElement("div");
+            item.className = "topic-item";
+            item.textContent = label;
+            item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
+
+            const path = BASE_URL + cat.slug + "/" + slug + ".html";
+            const flatIndex = flatTopics.length;
+            flatTopics.push({ path, label, catName: cat.name, el: item });
+
+            item.addEventListener("click", () => loadTopic(flatIndex));
+
+            item.addEventListener("mouseenter", () => {
+                tooltipEl.textContent = desc || "";
+                if (!desc) return;
+                const rect = item.getBoundingClientRect();
+                tooltipEl.style.left = (rect.right + 10) + "px";
+                tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+                tooltipEl.classList.add("visible");
+            });
+            item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
+
+            list.appendChild(item);
+        });
+    }
+
+    block.appendChild(list);
+    sidebarList.appendChild(block);
+});
+
+// ── LOAD TOPIC ──────────────────────────────────────────────────────────
+function loadTopic(flatIndex) {
+    if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
+    currentFlatIndex = flatIndex;
+    const topic = flatTopics[flatIndex];
+
+    flatTopics.forEach(t => t.el.classList.remove("active"));
+    topic.el.classList.add("active");
+    topic.el.scrollIntoView({ block: "nearest" });
+
+    counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
+    contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
+
+    fetch(topic.path)
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
+        .then(html => {
+            contentBox.innerHTML = html;
+            contentBox.scrollTop = 0;
+            wireCopyButtons();
+        })
+        .catch(err => {
+            contentBox.innerHTML =
+                '<div style="color:#f66;padding:12px 0;">' + err.message +
+                '<br><br>Make sure this page is served over http(s) (e.g. GitHub Pages or a local server) — ' +
+                'opening the file directly (file://) blocks fetch() for security reasons.</div>';
+        });
+}
+
+document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
+document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
+});
+
+// ── COPY-CODE BUTTONS (added to every <pre> in loaded topic content) ────
+function wireCopyButtons() {
+    contentBox.querySelectorAll("pre").forEach(pre => {
+        if (pre.querySelector(".copy-code-btn")) return;
+        const btn = document.createElement("button");
+        btn.className = "copy-code-btn";
+        btn.textContent = "Copy";
+        btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n?/, "")).then(() => {
+                btn.textContent = "Copied";
+                btn.classList.add("copied");
+                setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1200);
+            });
+        });
+        pre.style.position = "relative";
+        pre.appendChild(btn);
+    });
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+const searchWrap  = document.getElementById("search-wrap");
+const searchClear = document.getElementById("search-clear");
+
+function runSearch() {
+    const q = normalizeSearch(searchInput.value.trim());
+    searchClear.classList.toggle("visible", searchInput.value.length > 0);
+
+    if (!q) {
+        flatTopics.forEach(t => t.el.classList.remove("search-match", "search-dim"));
+        document.querySelectorAll(".category-block").forEach(b => b.classList.remove("collapsed", "search-dim-all"));
+        // restore natural collapse state (none collapsed by default)
+        searchCount.textContent = "";
+        return;
+    }
+
+    let matches = 0;
+    flatTopics.forEach(t => {
+        const isMatch = t.el.dataset.search.includes(q);
+        t.el.classList.toggle("search-match", isMatch);
+        t.el.classList.toggle("search-dim", !isMatch);
+        if (isMatch) matches++;
+    });
+
+    document.querySelectorAll(".category-block").forEach(block => {
+        const hasMatch = !!block.querySelector(".topic-item.search-match");
+        block.classList.remove("collapsed");
+        block.classList.toggle("search-dim-all", !hasMatch && block.querySelectorAll(".topic-item").length > 0);
+    });
+
+    searchCount.textContent = matches === 0 ? "No topics found" : matches + " topic" + (matches === 1 ? "" : "s") + " found";
+}
+
+searchInput.addEventListener("input", runSearch);
+searchClear.addEventListener("click", () => { searchInput.value = ""; runSearch(); searchInput.focus(); });
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
+});
+
+// ── SIDEBAR COLLAPSE (whole sidebar, not per-category) ──────────────────
+const sidebarEl = document.getElementById("sidebar");
+const toggleBtn  = document.getElementById("sidebar-toggle");
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    tooltipEl.classList.remove("visible");
+});
+
+// start with nothing loaded — user picks a topic explicitly
+counterEl.textContent = "– / " + flatTopics.length;
+</script>
+
+</body>
+</html>
