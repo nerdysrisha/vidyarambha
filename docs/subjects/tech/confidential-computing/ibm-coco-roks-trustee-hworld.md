@@ -51,6 +51,24 @@ If you have an existing OpenShift cluster, set this to its name; otherwise pick 
 export CLUSTER_NAME=kata-test-roks
 ```
 
+### SSH key (created once, reused for the Trustee VSI and every peer pod)
+
+You need an SSH key registered in your IBM Cloud VPC *before* creating any VSI — the Trustee VSI in Part 1 and every peer pod both reference the same `$SSH_KEY_ID`.
+
+If you already have a local keypair, just upload the public key:
+
+```bash
+ibmcloud is key-create my-ssh-key @~/.ssh/id_rsa.pub
+export SSH_KEY_ID="$(ibmcloud is keys --output json | jq -r '.[] | select(.name=="my-ssh-key") | .id')"
+```
+
+> **Tip:** no local keypair yet? Generate one first, then upload it the same way:
+> ```bash
+> ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+> ```
+
+`$SSH_KEY_ID` now stays set for the rest of this guide — no need to redefine it in Part 2.
+
 ---
 
 ## Part 1 — Deploy a Test Trustee
@@ -238,10 +256,9 @@ popd
 
 This creates `caa-provisioner-cli` in `src/cloud-api-adaptor/test/tools`. You'll also need a `.properties` file with your ibmcloud info.
 
-Set the image/SSH key variables (the rest were set in Pre-reqs above):
+Set the image ID (`$SSH_KEY_ID` and the rest were already set in Pre-reqs above):
 
 ```bash
-export SSH_KEY_ID= # your ssh key id
 export PODVM_IMAGE_ID= # the image id of the peerpod vm uploaded to ibmcloud
 ```
 
