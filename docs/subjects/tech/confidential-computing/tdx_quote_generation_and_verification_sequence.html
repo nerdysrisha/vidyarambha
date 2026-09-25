@@ -8,9 +8,10 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #f4f6f9;
+  background: transparent;
   font-family: 'IBM Plex Sans', sans-serif;
-  padding: 40px 20px 80px;
+  padding: 24px 16px 60px;
+  color: #1a2340;
 }
 
 h1 {
@@ -25,13 +26,12 @@ h1 {
   text-align: center;
   font-size: 12px;
   color: #7a8aaa;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
   font-family: 'IBM Plex Mono', monospace;
 }
 
-/* Section headers */
 .section {
-  margin-bottom: 60px;
+  margin-bottom: 48px;
 }
 .section-header {
   display: flex;
@@ -63,29 +63,29 @@ h1 {
   font-size: 11px;
   color: #7a8aaa;
   font-family: 'IBM Plex Mono', monospace;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   max-width: 1320px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 2px;
 }
 
-/* Transition banner between diagrams */
 .transition {
   max-width: 900px;
-  margin: 10px auto 50px;
+  margin: 8px auto 40px;
   background: linear-gradient(90deg, #dbeafe 0%, #d1fae5 100%);
   border: 1.5px solid #94a3b8;
   border-radius: 8px;
-  padding: 18px 28px;
+  padding: 16px 24px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
 }
 .transition-arrow {
-  font-size: 28px;
+  font-size: 26px;
   color: #047857;
   flex-shrink: 0;
+  line-height: 1;
 }
 .transition-text {
   font-family: 'IBM Plex Mono', monospace;
@@ -100,12 +100,15 @@ h1 {
 
 .scroll {
   overflow-x: auto;
-  padding-bottom: 20px;
+  padding-bottom: 12px;
 }
-svg {
+.scroll svg {
   display: block;
   margin: 0 auto;
-  font-family: 'IBM Plex Mono', monospace;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 </style>
 </head>
@@ -116,9 +119,7 @@ svg {
   End-to-end flow: TD guest generates quote.dat → host verifies via DCAP / PCCS / Intel PCS
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SECTION 1 — GENERATION
-     ═══════════════════════════════════════════════════════════ -->
+<!-- PART 1 — GENERATION -->
 <div class="section">
   <div class="section-header">
     <span class="section-badge gen">PART 1</span>
@@ -128,11 +129,11 @@ svg {
     test_tdx_attest.c · PeerPod/podvm (TD guest) → tdx-attest lib → /dev/tdx-attest → TDX Module (CPU) → QE → quote.dat
   </div>
   <div class="scroll">
-    <svg id="diagram-gen" xmlns="http://www.w3.org/2000/svg" width="1320" height="100"></svg>
+<svg id="diagram-gen" xmlns="http://www.w3.org/2000/svg" width="1320" height="2244"><rect x="0" y="0" width="1320" height="2244" fill="white"></rect><line x1="1204" y1="76" x2="1204" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="986.4" y1="76" x2="986.4" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="768.8" y1="76" x2="768.8" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="551.2" y1="76" x2="551.2" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="333.6" y1="76" x2="333.6" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="116" y1="76" x2="116" y2="2204" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="30" y1="104" x2="1290" y2="104" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="103" width="448.4" height="18" fill="#1d4ed8" rx="2"></rect><text x="40" y="116" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="0.8" fill="white">PHASE 1 — REPORT DATA GENERATION (inside C program, no syscall)</text><rect x="110" y="132" width="12" height="100" fill="#1d4ed8" opacity="0.15" stroke="#1d4ed8" stroke-width="1.2" rx="2"></rect><rect x="128" y="136" width="240" height="72" rx="3" fill="#fffbeb" stroke="#1d4ed8" stroke-width="1.2"></rect><text x="137" y="150" font-family="IBM Plex Mono" font-size="9.5" fill="#333">gen_report_data(report_data.d)</text><text x="137" y="165" font-family="IBM Plex Mono" font-size="9.5" fill="#333">srand(time(NULL))  ← seed from wall clock</text><text x="137" y="180" font-family="IBM Plex Mono" font-size="9.5" fill="#333">fills 64 bytes with rand()  ← pseudo-random nonce</text><text x="137" y="195" font-family="IBM Plex Mono" font-size="9.5" fill="#333">stored in: tdx_report_data_t report_data</text><rect x="-44" y="242" width="320" height="59" rx="3" fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.2"></rect><text x="-34" y="256" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">print_hex_dump() → prints 64 bytes to stdout</text><text x="-34" y="271" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">e.g:  00000000: a3 f7 2b 19 ... (your nonce in hex)</text><text x="-34" y="286" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">this is what you see in terminal output</text><line x1="30" y1="310" x2="1290" y2="310" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="309" width="414.4" height="18" fill="#be123c" rx="2"></rect><text x="40" y="322" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="0.8" fill="white">PHASE 2 — GET TD REPORT (TDREPORT) via kernel → TDX Module</text><rect x="110" y="338" width="12" height="160" fill="#be123c" opacity="0.15" stroke="#be123c" stroke-width="1.2" rx="2"></rect><rect x="327.6" y="338" width="12" height="160" fill="#be123c" opacity="0.15" stroke="#be123c" stroke-width="1.2" rx="2"></rect><rect x="545.2" y="338" width="12" height="130" fill="#be123c" opacity="0.15" stroke="#be123c" stroke-width="1.2" rx="2"></rect><rect x="762.8" y="338" width="12" height="100" fill="#be123c" opacity="0.15" stroke="#be123c" stroke-width="1.2" rx="2"></rect><g><line x1="122" y1="354" x2="324.6" y2="354" stroke="#6d28d9" stroke-width="2" stroke-dasharray="none"></line><polygon points="324.6,354 314.6,349 314.6,359" fill="#6d28d9"></polygon><rect x="103.30000000000001" y="336" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="223.3" y="348" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#6d28d9">tdx_att_get_report(&amp;report_data, &amp;tdx_report)</text><rect x="73.30000000000001" y="357" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="223.3" y="367" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">params: 64-byte report_data nonce, out: tdx_report_t struct</text></g><g><line x1="339.6" y1="396" x2="542.2" y2="396" stroke="#b45309" stroke-width="2" stroke-dasharray="none"></line><polygon points="542.2,396 532.2,391 532.2,401" fill="#b45309"></polygon><rect x="320.90000000000003" y="378" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="440.90000000000003" y="390" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#b45309">ioctl(fd, TDX_CMD_GET_REPORT0, &amp;req)</text><rect x="290.90000000000003" y="399" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="440.90000000000003" y="409" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">opens /dev/tdx-attest, passes report_data in ioctl struct</text></g><g><line x1="557.2" y1="438" x2="759.8" y2="438" stroke="#be123c" stroke-width="2" stroke-dasharray="none"></line><polygon points="759.8,438 749.8,433 749.8,443" fill="#be123c"></polygon><rect x="538.5" y="420" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="658.5" y="432" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#be123c">TDCALL [TDG.MR.REPORT] instruction</text><rect x="508.5" y="441" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="658.5" y="451" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">ring-0 call into TDX Module firmware (SEAM range)</text></g><rect x="780.8" y="464" width="240" height="147" rx="3" fill="#fffbeb" stroke="#be123c" stroke-width="1.2"></rect><text x="789.8" y="478" font-family="IBM Plex Mono" font-size="9.5" fill="#333">TDX Module reads CPU hardware state:</text><text x="789.8" y="493" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  MRTD   — hash of initial TD memory image</text><text x="789.8" y="508" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  RTMR0  — firmware/BIOS measurements</text><text x="789.8" y="523" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  RTMR1  — bootloader measurements</text><text x="789.8" y="538" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  RTMR2  — OS/kernel measurements</text><text x="789.8" y="553" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  RTMR3  — runtime (extended by your code)</text><text x="789.8" y="568" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  MRSIGNER, attributes, XFAM...</text><text x="789.8" y="583" font-family="IBM Plex Mono" font-size="9.5" fill="#333">Embeds your 64-byte report_data into REPORTDATA field</text><text x="789.8" y="598" font-family="IBM Plex Mono" font-size="9.5" fill="#333">Produces TDREPORT (1024 bytes, MAC-protected)</text><g><line x1="762.8" y1="610" x2="560.2" y2="610" stroke="#be123c" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="560.2,610 570.2,605 570.2,615" fill="#be123c"></polygon><rect x="541.5" y="592" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="661.5" y="604" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#be123c">← TDREPORT struct (1024 bytes)</text><rect x="511.5" y="613" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="661.5" y="623" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">hardware-signed report: measurements + your reportdata embedded</text></g><g><line x1="545.2" y1="652" x2="342.6" y2="652" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="342.6,652 352.6,647 352.6,657" fill="#b45309"></polygon><rect x="323.90000000000003" y="634" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="443.90000000000003" y="646" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#b45309">← ioctl returns tdx_report_t</text><rect x="293.90000000000003" y="655" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="443.90000000000003" y="665" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">kernel copies TDREPORT to user-space buffer</text></g><g><line x1="327.6" y1="694" x2="125" y2="694" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,694 135,689 135,699" fill="#6d28d9"></polygon><rect x="106.30000000000001" y="676" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="226.3" y="688" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#6d28d9">← TDX_ATTEST_SUCCESS + tdx_report populated</text><rect x="76.30000000000001" y="697" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="226.3" y="707" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">report_data field inside matches your 64-byte nonce exactly</text></g><rect x="1198" y="744" width="12" height="44" fill="#374151" opacity="0.15" stroke="#374151" stroke-width="1.2" rx="2"></rect><g><line x1="122" y1="760" x2="1195" y2="760" stroke="#374151" stroke-width="2" stroke-dasharray="none"></line><polygon points="1195,760 1185,755 1185,765" fill="#374151"></polygon><rect x="538.5" y="742" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="658.5" y="754" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#374151">fwrite(&amp;tdx_report, sizeof(tdx_report), 1, fptr)</text><rect x="508.5" y="763" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="658.5" y="773" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">writes raw 1024-byte TDREPORT → report.dat</text></g><g><line x1="1198" y1="802" x2="125" y2="802" stroke="#374151" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,802 135,797 135,807" fill="#374151"></polygon><rect x="541.5" y="784" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="661.5" y="796" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#374151">← file written: report.dat</text></g><line x1="30" y1="852" x2="1290" y2="852" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="851" width="319.2" height="18" fill="#0f766e" rx="2"></rect><text x="40" y="864" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="0.8" fill="white">PHASE 3 — GET QUOTE via QE (Quoting Enclave)</text><rect x="110" y="880" width="12" height="260" fill="#0f766e" opacity="0.15" stroke="#0f766e" stroke-width="1.2" rx="2"></rect><rect x="327.6" y="880" width="12" height="260" fill="#0f766e" opacity="0.15" stroke="#0f766e" stroke-width="1.2" rx="2"></rect><rect x="545.2" y="880" width="12" height="230" fill="#0f766e" opacity="0.15" stroke="#0f766e" stroke-width="1.2" rx="2"></rect><rect x="980.4" y="880" width="12" height="200" fill="#0f766e" opacity="0.15" stroke="#0f766e" stroke-width="1.2" rx="2"></rect><g><line x1="122" y1="896" x2="324.6" y2="896" stroke="#6d28d9" stroke-width="2" stroke-dasharray="none"></line><polygon points="324.6,896 314.6,891 314.6,901" fill="#6d28d9"></polygon><rect x="103.30000000000001" y="878" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="223.3" y="890" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#6d28d9">tdx_att_get_quote(&amp;report_data, NULL, 0, &amp;selected_att_key_id, &amp;p_quote_buf, &amp;quote_size, 0)</text><rect x="73.30000000000001" y="899" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="223.3" y="909" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">collateral=NULL → lib handles QE selection; flags=0</text></g><g><line x1="339.6" y1="938" x2="542.2" y2="938" stroke="#b45309" stroke-width="2" stroke-dasharray="none"></line><polygon points="542.2,938 532.2,933 532.2,943" fill="#b45309"></polygon><rect x="320.90000000000003" y="920" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="440.90000000000003" y="932" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#b45309">ioctl(fd, TDX_CMD_GET_QUOTE, &amp;req)</text><rect x="290.90000000000003" y="941" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="440.90000000000003" y="951" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">passes TDREPORT + att_key_id to kernel driver</text></g><g><line x1="557.2" y1="980" x2="977.4" y2="980" stroke="#0f766e" stroke-width="2" stroke-dasharray="none"></line><polygon points="977.4,980 967.4,975 967.4,985" fill="#0f766e"></polygon><rect x="647.3" y="962" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="767.3" y="974" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#0f766e">forward TDREPORT to Quoting Enclave (SGX)</text><rect x="617.3" y="983" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="767.3" y="993" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">driver routes to QE running in SGX enclave on same host</text></g><rect x="998.4" y="1010" width="240" height="147" rx="3" fill="#fffbeb" stroke="#0f766e" stroke-width="1.2"></rect><text x="1007.4" y="1024" font-family="IBM Plex Mono" font-size="9.5" fill="#333">QE verifies TDREPORT MAC (proves it came from this TDX CPU)</text><text x="1007.4" y="1039" font-family="IBM Plex Mono" font-size="9.5" fill="#333">QE fetches its own PCK cert from PCCS (if not cached)</text><text x="1007.4" y="1054" font-family="IBM Plex Mono" font-size="9.5" fill="#333">QE generates ephemeral ECDSA-P256 keypair (ATT key)</text><text x="1007.4" y="1069" font-family="IBM Plex Mono" font-size="9.5" fill="#333">QE signs: TDREPORT hash + REPORTDATA using ATT private key</text><text x="1007.4" y="1084" font-family="IBM Plex Mono" font-size="9.5" fill="#333">QE builds full quote structure:</text><text x="1007.4" y="1099" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  — Quote Header (version, tee_type=TDX)</text><text x="1007.4" y="1114" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  — TD Report body (MRTD, RTMRs, REPORTDATA...)</text><text x="1007.4" y="1129" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  — Quote Signature (ECDSA-P256)</text><text x="1007.4" y="1144" font-family="IBM Plex Mono" font-size="9.5" fill="#333">  — PCK Cert chain (embedded for verifier)</text><g><line x1="980.4" y1="1162" x2="560.2" y2="1162" stroke="#0f766e" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="560.2,1162 570.2,1157 570.2,1167" fill="#0f766e"></polygon><rect x="650.3" y="1144" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="770.3" y="1156" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#0f766e">← signed quote blob (variable size, typically ~4-5 KB)</text><rect x="620.3" y="1165" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="770.3" y="1175" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">binary structure: header + td_report + sig_data + cert_chain</text></g><g><line x1="545.2" y1="1204" x2="342.6" y2="1204" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="342.6,1204 352.6,1199 352.6,1209" fill="#b45309"></polygon><rect x="323.90000000000003" y="1186" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="443.90000000000003" y="1198" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#b45309">← ioctl returns: p_quote_buf pointer + quote_size</text><rect x="293.90000000000003" y="1207" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="443.90000000000003" y="1217" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">kernel copies quote bytes to user-space heap buffer</text></g><g><line x1="327.6" y1="1246" x2="125" y2="1246" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,1246 135,1241 135,1251" fill="#6d28d9"></polygon><rect x="106.30000000000001" y="1228" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="226.3" y="1240" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#6d28d9">← TDX_ATTEST_SUCCESS + p_quote_buf + quote_size = N bytes</text><rect x="76.30000000000001" y="1249" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="226.3" y="1259" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">selected_att_key_id populated (identifies which ATT key was used)</text></g><rect x="-64" y="1296" width="360" height="59" rx="3" fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.2"></rect><text x="-54" y="1310" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">print_hex_dump() → prints full quote bytes to stdout</text><text x="-54" y="1325" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">e.g:  00000000: 03 00 02 00 81 00 00 00 ...</text><text x="-54" y="1340" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">first 4 bytes = quote header (version=4, att_key_type=2...)</text><rect x="1198" y="1354" width="12" height="44" fill="#374151" opacity="0.15" stroke="#374151" stroke-width="1.2" rx="2"></rect><g><line x1="122" y1="1370" x2="1195" y2="1370" stroke="#374151" stroke-width="2" stroke-dasharray="none"></line><polygon points="1195,1370 1185,1365 1185,1375" fill="#374151"></polygon><rect x="538.5" y="1352" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="658.5" y="1364" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#374151">fwrite(p_quote_buf, quote_size, 1, fptr)</text><rect x="508.5" y="1373" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="658.5" y="1383" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">writes raw quote bytes → quote.dat (this is what tdx_verify reads)</text></g><g><line x1="1198" y1="1412" x2="125" y2="1412" stroke="#374151" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,1412 135,1407 135,1417" fill="#374151"></polygon><rect x="541.5" y="1394" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="661.5" y="1406" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#374151">← file written: quote.dat</text></g><line x1="30" y1="1462" x2="1290" y2="1462" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="1461" width="448.4" height="18" fill="#7c3aed" rx="2"></rect><text x="40" y="1474" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="0.8" fill="white">PHASE 4 — EXTEND RTMRs (post-quote, extend RTMR[2] and RTMR[3])</text><rect x="-114" y="1490" width="460" height="59" rx="3" fill="#f8fafc" stroke="#b45309" stroke-width="1.2"></rect><text x="-104" y="1504" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">⚠  These RTMR extensions happen AFTER the quote is generated.</text><text x="-104" y="1519" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">   They will NOT be reflected in the quote above.</text><text x="-104" y="1534" font-family="IBM Plex Mono" font-size="9.5" fill="#1e293b">   A new tdx_att_get_quote() would capture the updated RTMRs.</text><rect x="110" y="1548" width="12" height="130" fill="#7c3aed" opacity="0.15" stroke="#7c3aed" stroke-width="1.2" rx="2"></rect><rect x="327.6" y="1548" width="12" height="130" fill="#7c3aed" opacity="0.15" stroke="#7c3aed" stroke-width="1.2" rx="2"></rect><rect x="545.2" y="1548" width="12" height="110" fill="#7c3aed" opacity="0.15" stroke="#7c3aed" stroke-width="1.2" rx="2"></rect><rect x="762.8" y="1548" width="12" height="90" fill="#7c3aed" opacity="0.15" stroke="#7c3aed" stroke-width="1.2" rx="2"></rect><rect x="88" y="1558" width="708.8" height="48" rx="3" fill="rgba(255,255,255,0.5)" stroke="#7c3aed" stroke-width="1.5"></rect><rect x="88" y="1558" width="37" height="20" fill="#7c3aed" rx="2"></rect><text x="96" y="1572" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="white">seq</text><text x="133" y="1572" font-family="IBM Plex Mono" font-size="10" font-style="italic" fill="#7c3aed">extend RTMR[2]</text><g><line x1="122" y1="1576" x2="324.6" y2="1576" stroke="#7c3aed" stroke-width="2" stroke-dasharray="none"></line><polygon points="324.6,1576 314.6,1571 314.6,1581" fill="#7c3aed"></polygon><rect x="103.30000000000001" y="1558" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="223.3" y="1570" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#7c3aed">tdx_att_extend(&amp;rtmr_event)  rtmr_index=2, extend_data=48×0x01</text><rect x="73.30000000000001" y="1579" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="223.3" y="1589" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">version=1, 48-byte extend_data, event_data_size=0</text></g><g><line x1="339.6" y1="1614" x2="542.2" y2="1614" stroke="#b45309" stroke-width="2" stroke-dasharray="none"></line><polygon points="542.2,1614 532.2,1609 532.2,1619" fill="#b45309"></polygon><rect x="320.90000000000003" y="1596" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="440.90000000000003" y="1608" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#b45309">ioctl(fd, TDX_CMD_EXTEND_RTMR, &amp;rtmr_event)</text><rect x="290.90000000000003" y="1617" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="440.90000000000003" y="1627" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">kernel passes extend request to TDX Module</text></g><g><line x1="557.2" y1="1656" x2="759.8" y2="1656" stroke="#be123c" stroke-width="2" stroke-dasharray="none"></line><polygon points="759.8,1656 749.8,1651 749.8,1661" fill="#be123c"></polygon><rect x="538.5" y="1638" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="658.5" y="1650" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#be123c">TDCALL [TDG.MR.RTMR.EXTEND] rtmr_index=2</text><rect x="508.5" y="1659" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="658.5" y="1669" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">TDX Module: RTMR[2] = SHA384(RTMR[2] || extend_data)</text></g><g><line x1="762.8" y1="1698" x2="125" y2="1698" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,1698 135,1693 135,1703" fill="#7c3aed"></polygon><rect x="323.9" y="1680" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="443.9" y="1692" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#7c3aed">← TDX_ATTEST_SUCCESS — RTMR[2] updated in hardware</text></g><rect x="88" y="1758" width="708.8" height="48" rx="3" fill="rgba(255,255,255,0.5)" stroke="#7c3aed" stroke-width="1.5"></rect><rect x="88" y="1758" width="37" height="20" fill="#7c3aed" rx="2"></rect><text x="96" y="1772" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="white">seq</text><text x="133" y="1772" font-family="IBM Plex Mono" font-size="10" font-style="italic" fill="#7c3aed">extend RTMR[3]</text><g><line x1="122" y1="1776" x2="759.8" y2="1776" stroke="#7c3aed" stroke-width="2" stroke-dasharray="none"></line><polygon points="759.8,1776 749.8,1771 749.8,1781" fill="#7c3aed"></polygon><rect x="320.9" y="1758" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="440.9" y="1770" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#7c3aed">tdx_att_extend(&amp;rtmr_event)  rtmr_index=3  (same extend_data)</text><rect x="290.9" y="1779" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="440.9" y="1789" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">RTMR[3] = SHA384(RTMR[3] || extend_data)</text></g><g><line x1="762.8" y1="1818" x2="125" y2="1818" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,1818 135,1813 135,1823" fill="#7c3aed"></polygon><rect x="323.9" y="1800" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="443.9" y="1812" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#7c3aed">← TDX_ATTEST_SUCCESS — RTMR[3] updated</text></g><line x1="30" y1="1868" x2="1290" y2="1868" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="1867" width="196.79999999999998" height="18" fill="#374151" rx="2"></rect><text x="40" y="1880" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="0.8" fill="white">PHASE 5 — CLEANUP &amp; OUTPUT</text><rect x="327.6" y="1896" width="12" height="40" fill="#374151" opacity="0.15" stroke="#374151" stroke-width="1.2" rx="2"></rect><g><line x1="122" y1="1912" x2="324.6" y2="1912" stroke="#374151" stroke-width="2" stroke-dasharray="none"></line><polygon points="324.6,1912 314.6,1907 314.6,1917" fill="#374151"></polygon><rect x="103.30000000000001" y="1894" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="223.3" y="1906" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="600" font-style="normal" fill="#374151">tdx_att_free_quote(p_quote_buf)</text><rect x="73.30000000000001" y="1915" width="300" height="13" rx="2" fill="white" opacity="0.7"></rect><text x="223.3" y="1925" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#555">lib frees heap buffer allocated during get_quote</text></g><g><line x1="327.6" y1="1954" x2="125" y2="1954" stroke="#374151" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="125,1954 135,1949 135,1959" fill="#374151"></polygon><rect x="106.30000000000001" y="1936" width="240" height="14" rx="2" fill="white" opacity="0.85"></rect><text x="226.3" y="1948" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="400" font-style="italic" fill="#374151">← memory freed, return 0</text></g><rect x="96" y="2004" width="420" height="70" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"></rect><rect x="96" y="2004" width="420" height="8" rx="3" fill="#16a34a"></rect><rect x="96" y="2009" width="420" height="3" fill="#16a34a"></rect><text x="112" y="2030" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="#14532d">✅  Output files written:</text><text x="112" y="2046" font-family="IBM Plex Mono" font-size="9.5" fill="#166534">  report.dat — raw TDREPORT (1024 bytes, MAC-protected)</text><text x="112" y="2061" font-family="IBM Plex Mono" font-size="9.5" fill="#166534">  quote.dat  — full signed TDX quote → ready for tdx_verify</text><rect x="30" y="2106" width="1260" height="82" rx="4" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"></rect><text x="46" y="2124" font-family="IBM Plex Sans" font-size="11" font-weight="700" fill="#1d4ed8">🔑  What REPORTDATA (your 64-byte nonce) guarantees:</text><text x="46" y="2140" font-family="IBM Plex Mono" font-size="9.5" fill="#1e3a8a">The 64 random bytes you generated are cryptographically embedded inside the TDREPORT by the TDX Module hardware.</text><text x="46" y="2153" font-family="IBM Plex Mono" font-size="9.5" fill="#1e3a8a">The QE then signs the entire TDREPORT (which contains your nonce) → so the nonce is inside the signed quote.</text><text x="46" y="2166" font-family="IBM Plex Mono" font-size="9.5" fill="#1e3a8a">When you parse the quote and see it in hex → convert hex to ASCII/bytes to recover your original nonce.</text><text x="46" y="2179" font-family="IBM Plex Mono" font-size="9.5" fill="#1e3a8a">In production: replace rand() nonce with SHA256(public_key) or SHA256(challenge) to bind the quote to something meaningful.</text><text x="30" y="2218" font-family="IBM Plex Sans" font-size="10" font-weight="700" fill="#555">LEGEND:</text><line x1="110" y1="2214" x2="138" y2="2214" stroke="#1d4ed8" stroke-width="2.5"></line><polygon points="138,2214 129,2210 129,2218" fill="#1d4ed8"></polygon><text x="144" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">C program (user-space)</text><line x1="300" y1="2214" x2="328" y2="2214" stroke="#6d28d9" stroke-width="2.5"></line><polygon points="328,2214 319,2210 319,2218" fill="#6d28d9"></polygon><text x="334" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">tdx-attest lib</text><line x1="490" y1="2214" x2="518" y2="2214" stroke="#b45309" stroke-width="2.5"></line><polygon points="518,2214 509,2210 509,2218" fill="#b45309"></polygon><text x="524" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">/dev/tdx-attest (kernel)</text><line x1="680" y1="2214" x2="708" y2="2214" stroke="#be123c" stroke-width="2.5"></line><polygon points="708,2214 699,2210 699,2218" fill="#be123c"></polygon><text x="714" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">TDX Module (CPU/SEAM)</text><line x1="870" y1="2214" x2="898" y2="2214" stroke="#0f766e" stroke-width="2.5"></line><polygon points="898,2214 889,2210 889,2218" fill="#0f766e"></polygon><text x="904" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">Quoting Enclave (QE)</text><line x1="1060" y1="2214" x2="1088" y2="2214" stroke="#374151" stroke-width="2.5"></line><polygon points="1088,2214 1079,2210 1079,2218" fill="#374151"></polygon><text x="1094" y="2218" font-family="IBM Plex Mono" font-size="9.5" fill="#444">disk I/O (quote.dat)</text><g><rect x="33" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="30" y="2" width="172" height="64" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"></rect><rect x="30" y="2" width="172" height="6" rx="4" fill="#1d4ed8"></rect><rect x="30" y="5" width="172" height="3" fill="#1d4ed8"></rect><text x="116" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#1d4ed8">test_tdx_attest.c</text><text x="116" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">C program</text><text x="116" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">inside TD guest</text></g><g><rect x="250.60000000000002" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="247.60000000000002" y="2" width="172" height="64" rx="4" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"></rect><rect x="247.60000000000002" y="2" width="172" height="6" rx="4" fill="#6d28d9"></rect><rect x="247.60000000000002" y="5" width="172" height="3" fill="#6d28d9"></rect><text x="333.6" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#6d28d9">tdx-attest lib</text><text x="333.6" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">libtdx_attest.so</text><text x="333.6" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">user-space</text></g><g><rect x="468.20000000000005" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="465.20000000000005" y="2" width="172" height="64" rx="4" fill="#fef3c7" stroke="#b45309" stroke-width="2"></rect><rect x="465.20000000000005" y="2" width="172" height="6" rx="4" fill="#b45309"></rect><rect x="465.20000000000005" y="5" width="172" height="3" fill="#b45309"></rect><text x="551.2" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#b45309">/dev/tdx-attest</text><text x="551.2" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">kernel driver</text><text x="551.2" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">chardev</text></g><g><rect x="685.8" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="682.8" y="2" width="172" height="64" rx="4" fill="#ffe4e6" stroke="#be123c" stroke-width="2"></rect><rect x="682.8" y="2" width="172" height="6" rx="4" fill="#be123c"></rect><rect x="682.8" y="5" width="172" height="3" fill="#be123c"></rect><text x="768.8" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#be123c">TDX Module</text><text x="768.8" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">CPU firmware</text><text x="768.8" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">(SEAM range)</text></g><g><rect x="903.4" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="900.4" y="2" width="172" height="64" rx="4" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"></rect><rect x="900.4" y="2" width="172" height="6" rx="4" fill="#0f766e"></rect><rect x="900.4" y="5" width="172" height="3" fill="#0f766e"></rect><text x="986.4" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#0f766e">Quoting Enclave</text><text x="986.4" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">QE (SGX enclave)</text><text x="986.4" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">signs the quote</text></g><g><rect x="1121" y="5" width="172" height="64" rx="4" fill="rgba(0,0,0,0.07)"></rect><rect x="1118" y="2" width="172" height="64" rx="4" fill="#f3f4f6" stroke="#374151" stroke-width="2"></rect><rect x="1118" y="2" width="172" height="6" rx="4" fill="#374151"></rect><rect x="1118" y="5" width="172" height="3" fill="#374151"></rect><text x="1204" y="29" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" font-weight="700" fill="#374151">quote.dat</text><text x="1204" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">output file</text><text x="1204" y="57" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#555">report.dat too</text></g></svg>
   </div>
 </div>
 
-<!-- Transition banner -->
+<!-- Transition -->
 <div class="transition">
   <div class="transition-arrow">↓</div>
   <div class="transition-text">
@@ -141,9 +142,7 @@ svg {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SECTION 2 — VERIFICATION
-     ═══════════════════════════════════════════════════════════ -->
+<!-- PART 2 — VERIFICATION -->
 <div class="section">
   <div class="section-header">
     <span class="section-badge ver">PART 2</span>
@@ -153,865 +152,9 @@ svg {
     quote.dat → tdx_verify → DCAP lib → QCNL Config → PCCS → Intel PCS
   </div>
   <div class="scroll">
-    <svg id="diagram-ver" xmlns="http://www.w3.org/2000/svg" width="1260" height="1780"></svg>
+<svg id="diagram-ver" xmlns="http://www.w3.org/2000/svg" width="1260" height="1764"><rect x="0" y="0" width="1260" height="1764" fill="white"></rect><line x1="120" y1="72" x2="120" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="324" y1="72" x2="324" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="528" y1="72" x2="528" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="732" y1="72" x2="732" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="936" y1="72" x2="936" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><line x1="1140" y1="72" x2="1140" y2="1740" stroke="#b0bcd0" stroke-width="1.5" stroke-dasharray="6,5"></line><g><rect x="33" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="30" y="2" width="180" height="62" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="2"></rect><rect x="30" y="2" width="180" height="6" rx="4" fill="#2563eb"></rect><rect x="30" y="5" width="180" height="3" fill="#2563eb"></rect><text x="120" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#2563eb">quote.dat</text><text x="120" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">Binary quote</text><text x="120" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">from TD guest</text></g><g><rect x="237" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="234" y="2" width="180" height="62" rx="4" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"></rect><rect x="234" y="2" width="180" height="6" rx="4" fill="#1d4ed8"></rect><rect x="234" y="5" width="180" height="3" fill="#1d4ed8"></rect><text x="324" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#1d4ed8">tdx_verify</text><text x="324" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">C binary</text><text x="324" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">your program</text></g><g><rect x="441" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="438" y="2" width="180" height="62" rx="4" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"></rect><rect x="438" y="2" width="180" height="6" rx="4" fill="#6d28d9"></rect><rect x="438" y="5" width="180" height="3" fill="#6d28d9"></rect><text x="528" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#6d28d9">DCAP lib</text><text x="528" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">libsgx_dcap_</text><text x="528" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">quoteverify.so</text></g><g><rect x="645" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="642" y="2" width="180" height="62" rx="4" fill="#fef3c7" stroke="#b45309" stroke-width="2"></rect><rect x="642" y="2" width="180" height="6" rx="4" fill="#b45309"></rect><rect x="642" y="5" width="180" height="3" fill="#b45309"></rect><text x="732" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#b45309">QCNL Config</text><text x="732" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">/etc/sgx_default</text><text x="732" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">_qcnl.conf</text></g><g><rect x="849" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="846" y="2" width="180" height="62" rx="4" fill="#d1fae5" stroke="#047857" stroke-width="2"></rect><rect x="846" y="2" width="180" height="6" rx="4" fill="#047857"></rect><rect x="846" y="5" width="180" height="3" fill="#047857"></rect><text x="936" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#047857">PCCS</text><text x="936" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">localhost:8081</text><text x="936" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">Node.js proxy</text></g><g><rect x="1053" y="5" width="180" height="62" rx="4" fill="rgba(0,0,0,0.08)"></rect><rect x="1050" y="2" width="180" height="62" rx="4" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"></rect><rect x="1050" y="2" width="180" height="6" rx="4" fill="#0369a1"></rect><rect x="1050" y="5" width="180" height="3" fill="#0369a1"></rect><text x="1140" y="28" text-anchor="middle" font-family="IBM Plex Sans" font-size="13" font-weight="700" fill="#0369a1">Intel PCS</text><text x="1140" y="43" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">trustedservices</text><text x="1140" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="#555">.intel.com</text></g><g><line x1="30" y1="102" x2="1230" y2="102" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="101" width="265" height="18" fill="#1d4ed8" rx="2"></rect><text x="40" y="114" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 1 — PROGRAM INIT &amp; QUOTE LOAD</text></g><rect x="318" y="130" width="12" height="120" fill="#2563eb" opacity="0.18" stroke="#2563eb" stroke-width="1.2" rx="2"></rect><rect x="114" y="130" width="12" height="80" fill="#2563eb" opacity="0.18" stroke="#2563eb" stroke-width="1.2" rx="2"></rect><g><line x1="318" y1="150" x2="128" y2="150" stroke="#2563eb" stroke-width="2" stroke-dasharray="none"></line><polygon points="128,150 138,145 138,155" fill="#2563eb"></polygon><text x="223" y="143" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#2563eb">fopen("quote.dat", "rb")</text><text x="223" y="156" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">open binary file for reading</text></g><g><line x1="126" y1="202" x2="316" y2="202" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="316,202 306,197 306,207" fill="#2563eb"></polygon><text x="221" y="195" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#2563eb">← uint8_t* buf, quote_size = N bytes</text><text x="221" y="208" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">raw quote loaded into heap buffer</text></g><g><line x1="30" y1="254" x2="1230" y2="254" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="253" width="202" height="18" fill="#6d28d9" rx="2"></rect><text x="40" y="266" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 2 — STRUCTURAL CHECK</text></g><rect x="522" y="282" width="12" height="90" fill="#6d28d9" opacity="0.18" stroke="#6d28d9" stroke-width="1.2" rx="2"></rect><g><line x1="330" y1="298" x2="520" y2="298" stroke="#6d28d9" stroke-width="2" stroke-dasharray="none"></line><polygon points="520,298 510,293 510,303" fill="#6d28d9"></polygon><text x="425" y="291" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#6d28d9">tee_get_supplemental_data_version_and_size()</text><text x="425" y="304" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">params: quote_buf, quote_size</text></g><g><rect x="538" y="334" width="220" height="52" rx="3" fill="#fffbeb" stroke="#6d28d9" stroke-width="1.2"></rect><text x="546" y="346" font-family="IBM Plex Mono" font-size="9.5" fill="#333">Parses quote header</text><text x="546" y="360" font-family="IBM Plex Mono" font-size="9.5" fill="#333">Validates TEE type (TDX/SGX)</text><text x="546" y="374" font-family="IBM Plex Mono" font-size="9.5" fill="#333">Calculates supp data buffer size</text></g><g><line x1="522" y1="384" x2="332" y2="384" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="332,384 342,379 342,389" fill="#6d28d9"></polygon><text x="427" y="377" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#6d28d9">← SGX_QL_SUCCESS</text><text x="427" y="390" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">returns: supp_ver=3, supp_data_size=N bytes</text></g><g><line x1="30" y1="436" x2="1230" y2="436" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="435" width="349" height="18" fill="#b45309" rx="2"></rect><text x="40" y="448" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 3 — CONFIG READ &amp; PCCS ENDPOINT DISCOVERY</text></g><rect x="522" y="464" width="12" height="90" fill="#b45309" opacity="0.18" stroke="#b45309" stroke-width="1.2" rx="2"></rect><rect x="726" y="464" width="12" height="90" fill="#b45309" opacity="0.18" stroke="#b45309" stroke-width="1.2" rx="2"></rect><g><line x1="330" y1="480" x2="520" y2="480" stroke="#6d28d9" stroke-width="2" stroke-dasharray="none"></line><polygon points="520,480 510,475 510,485" fill="#6d28d9"></polygon><text x="425" y="473" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#6d28d9">tee_verify_quote()</text><text x="425" y="486" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">params: quote_buf, size, collateral=NULL, current_time</text></g><g><line x1="534" y1="522" x2="724" y2="522" stroke="#b45309" stroke-width="2" stroke-dasharray="none"></line><polygon points="724,522 714,517 714,527" fill="#b45309"></polygon><text x="629" y="515" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#b45309">read /etc/sgx_default_qcnl.conf</text><text x="629" y="528" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">discover PCCS endpoint + TLS settings</text></g><g><line x1="726" y1="564" x2="536" y2="564" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,564 546,559 546,569" fill="#b45309"></polygon><text x="631" y="557" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#b45309">← pccs_url: https://localhost:8081/sgx/certification/v4/</text><text x="631" y="570" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">use_secure_cert: false, local_cache_only: false</text></g><g><line x1="30" y1="616" x2="1230" y2="616" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="615" width="377" height="18" fill="#047857" rx="2"></rect><text x="40" y="628" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 4 — COLLATERAL FETCH (PCCS CACHE + INTEL PCS)</text></g><g><rect x="498" y="640" width="672" height="680" rx="3" fill="rgba(255,255,255,0.6)" stroke="#047857" stroke-width="1.5" stroke-dasharray="none"></rect><rect x="498" y="640" width="37" height="20" fill="#047857" rx="2"></rect><text x="506" y="654" font-family="IBM Plex Mono" font-size="10" font-weight="600" fill="white">alt</text></g><text x="508" y="680" font-family="IBM Plex Mono" font-size="10" font-style="italic" fill="#047857">[cache hit — artifact already in SQLite, expire_hours=168]</text><rect x="930" y="690" width="12" height="46" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><g><line x1="534" y1="706" x2="928" y2="706" stroke="#047857" stroke-width="2" stroke-dasharray="none"></line><polygon points="928,706 918,701 918,711" fill="#047857"></polygon><text x="731" y="699" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#047857">HTTPS GET /sgx/certification/v4/{artifact}</text><text x="731" y="712" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">TLS to localhost:8081 (self-signed cert, use_secure_cert=false)</text></g><g><line x1="930" y1="748" x2="536" y2="748" stroke="#047857" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,748 546,743 546,753" fill="#047857"></polygon><text x="733" y="741" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#047857">← 200 OK  artifact (PEM / JSON / DER)</text><text x="733" y="754" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">served directly from SQLite cache, no Intel call</text></g><line x1="498" y1="794" x2="1170" y2="794" stroke="#047857" stroke-width="1" stroke-dasharray="4,3"></line><text x="506" y="806" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#047857">[cache miss → fetch from Intel PCS]</text><rect x="522" y="820" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="930" y="820" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="1134" y="820" width="12" height="90" fill="#0369a1" opacity="0.18" stroke="#0369a1" stroke-width="1.2" rx="2"></rect><g><line x1="534" y1="836" x2="928" y2="836" stroke="#047857" stroke-width="2" stroke-dasharray="none"></line><polygon points="928,836 918,831 918,841" fill="#047857"></polygon><text x="731" y="829" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#047857">GET /sgx/certification/v4/pckcert</text><text x="731" y="842" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">encrypted_ppid, pce_id, cpusvn, pcesvn</text></g><g><line x1="942" y1="878" x2="1132" y2="878" stroke="#0369a1" stroke-width="2" stroke-dasharray="none"></line><polygon points="1132,878 1122,873 1122,883" fill="#0369a1"></polygon><text x="1037" y="871" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#0369a1">GET /v4/pckcert?encrypted_ppid=...&amp;pce_id=...&amp;cpusvn=...&amp;pcesvn=...&amp;api-key=●●●</text></g><g><line x1="1134" y1="920" x2="944" y2="920" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="944,920 954,915 954,925" fill="#0369a1"></polygon><text x="1039" y="913" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#0369a1">← 200 OK  PCK Certificate (PEM) + TCB-Info-Issuer-Chain header</text><text x="1039" y="926" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">Proves this CPU is genuine Intel hardware. Cached per platform PPID.</text></g><g><rect x="946" y="952" width="220" height="24" rx="3" fill="#fffbeb" stroke="#047857" stroke-width="1.2"></rect><text x="954" y="964" font-family="IBM Plex Mono" font-size="9.5" fill="#333">💾 store in SQLite cache (expire_hours=168)</text></g><g><line x1="930" y1="988" x2="536" y2="988" stroke="#047857" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,988 546,983 546,993" fill="#047857"></polygon><text x="733" y="981" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#047857">← PCK cert PEM</text><text x="733" y="994" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">served to DCAP lib</text></g><line x1="498" y1="1004" x2="1170" y2="1004" stroke="#cde8d8" stroke-width="1" stroke-dasharray="3,3"></line><rect x="522" y="1050" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="930" y="1050" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="1134" y="1050" width="12" height="90" fill="#0369a1" opacity="0.18" stroke="#0369a1" stroke-width="1.2" rx="2"></rect><g><line x1="534" y1="1066" x2="928" y2="1066" stroke="#047857" stroke-width="2" stroke-dasharray="none"></line><polygon points="928,1066 918,1061 918,1071" fill="#047857"></polygon><text x="731" y="1059" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#047857">GET /sgx/certification/v4/tcb</text><text x="731" y="1072" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">fmspc=AABBCCDD1122, type=TDX</text></g><g><line x1="942" y1="1108" x2="1132" y2="1108" stroke="#0369a1" stroke-width="2" stroke-dasharray="none"></line><polygon points="1132,1108 1122,1103 1122,1113" fill="#0369a1"></polygon><text x="1037" y="1101" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#0369a1">GET /v4/tcb?fmspc=AABBCCDD1122&amp;type=TDX&amp;version=3&amp;api-key=●●●</text></g><g><line x1="1134" y1="1150" x2="944" y2="1150" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="944,1150 954,1145 954,1155" fill="#0369a1"></polygon><text x="1039" y="1143" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#0369a1">← 200 OK  TCBInfo JSON — SVN levels → UpToDate / OutOfDate / Revoked</text><text x="1039" y="1156" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">fmspc = 6-byte CPU family ID. Maps platform SVN to TCB status.</text></g><g><rect x="946" y="1182" width="220" height="24" rx="3" fill="#fffbeb" stroke="#047857" stroke-width="1.2"></rect><text x="954" y="1194" font-family="IBM Plex Mono" font-size="9.5" fill="#333">💾 store in SQLite cache (expire_hours=168)</text></g><g><line x1="930" y1="1218" x2="536" y2="1218" stroke="#047857" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,1218 546,1213 546,1223" fill="#047857"></polygon><text x="733" y="1211" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#047857">← TCBInfo JSON (signed by Intel TCB key)</text><text x="733" y="1224" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">served to DCAP lib</text></g><line x1="498" y1="1234" x2="1170" y2="1234" stroke="#cde8d8" stroke-width="1" stroke-dasharray="3,3"></line><rect x="522" y="1280" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="930" y="1280" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="1134" y="1280" width="12" height="90" fill="#0369a1" opacity="0.18" stroke="#0369a1" stroke-width="1.2" rx="2"></rect><g><line x1="534" y1="1296" x2="928" y2="1296" stroke="#047857" stroke-width="2" stroke-dasharray="none"></line><polygon points="928,1296 918,1291 918,1301" fill="#047857"></polygon><text x="731" y="1289" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#047857">GET /tdx/certification/v4/qe/identity</text><text x="731" y="1302" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">(no params required)</text></g><g><line x1="942" y1="1338" x2="1132" y2="1338" stroke="#0369a1" stroke-width="2" stroke-dasharray="none"></line><polygon points="1132,1338 1122,1333 1122,1343" fill="#0369a1"></polygon><text x="1037" y="1331" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#0369a1">GET /tdx/certification/v4/qe/identity  (no params, pure GET)</text></g><g><line x1="1134" y1="1380" x2="944" y2="1380" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="944,1380 954,1375 954,1385" fill="#0369a1"></polygon><text x="1039" y="1373" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#0369a1">← 200 OK  QE Identity JSON — MRSIGNER, MRSENCLAVE, ISVSVN</text><text x="1039" y="1386" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">Expected identity of TDX Quoting Enclave. Used to validate QE report.</text></g><g><rect x="946" y="1412" width="220" height="24" rx="3" fill="#fffbeb" stroke="#047857" stroke-width="1.2"></rect><text x="954" y="1424" font-family="IBM Plex Mono" font-size="9.5" fill="#333">💾 store in SQLite cache (expire_hours=168)</text></g><g><line x1="930" y1="1448" x2="536" y2="1448" stroke="#047857" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,1448 546,1443 546,1453" fill="#047857"></polygon><text x="733" y="1441" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#047857">← QE Identity JSON (signed by Intel)</text><text x="733" y="1454" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">served to DCAP lib</text></g><line x1="498" y1="1464" x2="1170" y2="1464" stroke="#cde8d8" stroke-width="1" stroke-dasharray="3,3"></line><rect x="522" y="1510" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="930" y="1510" width="12" height="130" fill="#047857" opacity="0.18" stroke="#047857" stroke-width="1.2" rx="2"></rect><rect x="1134" y="1510" width="12" height="90" fill="#0369a1" opacity="0.18" stroke="#0369a1" stroke-width="1.2" rx="2"></rect><g><line x1="534" y1="1526" x2="928" y2="1526" stroke="#047857" stroke-width="2" stroke-dasharray="none"></line><polygon points="928,1526 918,1521 918,1531" fill="#047857"></polygon><text x="731" y="1519" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#047857">GET /sgx/certification/v4/rootcacrl</text><text x="731" y="1532" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">+ /v4/pckcrl?ca=processor</text></g><g><line x1="942" y1="1568" x2="1132" y2="1568" stroke="#0369a1" stroke-width="2" stroke-dasharray="none"></line><polygon points="1132,1568 1122,1563 1122,1573" fill="#0369a1"></polygon><text x="1037" y="1561" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="600" font-style="normal" fill="#0369a1">GET /v4/rootcacrl  +  GET /v4/pckcrl?ca=processor</text></g><g><line x1="1134" y1="1610" x2="944" y2="1610" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="944,1610 954,1605 954,1615" fill="#0369a1"></polygon><text x="1039" y="1603" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#0369a1">← 200 OK  Root CA CRL (DER) + PCK CRL (DER)</text><text x="1039" y="1616" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">Certificate Revocation Lists. Checked to ensure no cert in chain is revoked.</text></g><g><rect x="946" y="1642" width="220" height="24" rx="3" fill="#fffbeb" stroke="#047857" stroke-width="1.2"></rect><text x="954" y="1654" font-family="IBM Plex Mono" font-size="9.5" fill="#333">💾 store in SQLite cache (expire_hours=168)</text></g><g><line x1="930" y1="1678" x2="536" y2="1678" stroke="#047857" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="536,1678 546,1673 546,1683" fill="#047857"></polygon><text x="733" y="1671" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#047857">← Root CA CRL + PCK CRL (DER)</text><text x="733" y="1684" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">served to DCAP lib</text></g><g><line x1="30" y1="1334" x2="1230" y2="1334" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="1333" width="447" height="18" fill="#6d28d9" rx="2"></rect><text x="40" y="1346" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 5 — CRYPTOGRAPHIC VERIFICATION (in-process, no network)</text></g><rect x="522" y="1362" width="12" height="170" fill="#6d28d9" opacity="0.18" stroke="#6d28d9" stroke-width="1.2" rx="2"></rect><rect x="542" y="1374" width="420" height="142" rx="3" fill="#f5f3ff" stroke="#6d28d9" stroke-width="1.2"></rect><text x="552" y="1388" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">① Verify PCK cert chain: Root CA → Intermediate CA → PCK cert</text><text x="552" y="1404" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">② Check PCK cert not present in Root CA CRL or PCK CRL</text><text x="552" y="1420" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">③ Verify ECDSA-P256 quote signature using PCK public key</text><text x="552" y="1436" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">④ Verify QE Report signature (inner report)</text><text x="552" y="1452" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">⑤ Match platform SVN levels against TCBInfo table → get TCB status</text><text x="552" y="1468" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">⑥ Match QE MRSIGNER + ISVSVN against QE Identity JSON</text><text x="552" y="1484" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">⑦ Check collateral expiration against current_time param</text><text x="552" y="1500" font-family="IBM Plex Mono" font-size="9.5" fill="#3b0764">⑧ Populate supplemental data struct (pck_crl_issuer_chain, etc.)</text><g><line x1="30" y1="1532" x2="1230" y2="1532" stroke="#dde3ef" stroke-width="1"></line><rect x="30" y="1531" width="202" height="18" fill="#047857" rx="2"></rect><text x="40" y="1544" font-family="IBM Plex Sans" font-size="10" font-weight="700" letter-spacing="1" fill="white">PHASE 6 — VERDICT RETURNED</text></g><g><line x1="522" y1="1576" x2="332" y2="1576" stroke="#6d28d9" stroke-width="1.5" stroke-dasharray="5,4"></line><polygon points="332,1576 342,1571 342,1581" fill="#6d28d9"></polygon><text x="427" y="1569" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" font-weight="400" font-style="italic" fill="#6d28d9">← SGX_QL_SUCCESS (0x0000)</text><text x="427" y="1582" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-style="italic" fill="#666">qv_result=QV_RESULT_OK, collateral_expiration_status=0 (not expired)</text></g><rect x="304" y="1628" width="380" height="56" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"></rect><rect x="304" y="1628" width="380" height="8" rx="3" fill="#16a34a"></rect><rect x="304" y="1633" width="380" height="3" fill="#16a34a"></rect><text x="320" y="1654" font-family="IBM Plex Mono" font-size="11" font-weight="600" fill="#14532d">✅  [RESULT] PASS — Quote is VALID</text><text x="320" y="1670" font-family="IBM Plex Mono" font-size="9.5" fill="#166534">exit_code = 0  ·  collateral not expired  ·  signature verified</text><text x="30" y="1718" font-family="IBM Plex Sans" font-size="10" font-weight="700" fill="#555">LEGEND:</text><line x1="100" y1="1714" x2="130" y2="1714" stroke="#2563eb" stroke-width="2.5"></line><polygon points="130,1714 122,1710 122,1718" fill="#2563eb"></polygon><text x="136" y="1718" font-family="IBM Plex Mono" font-size="9.5" fill="#444">quote.dat ↔ tdx_verify</text><line x1="300" y1="1714" x2="330" y2="1714" stroke="#6d28d9" stroke-width="2.5"></line><polygon points="330,1714 322,1710 322,1718" fill="#6d28d9"></polygon><text x="336" y="1718" font-family="IBM Plex Mono" font-size="9.5" fill="#444">tdx_verify ↔ DCAP lib</text><line x1="500" y1="1714" x2="530" y2="1714" stroke="#b45309" stroke-width="2.5"></line><polygon points="530,1714 522,1710 522,1718" fill="#b45309"></polygon><text x="536" y="1718" font-family="IBM Plex Mono" font-size="9.5" fill="#444">DCAP lib ↔ QCNL Config</text><line x1="700" y1="1714" x2="730" y2="1714" stroke="#047857" stroke-width="2.5"></line><polygon points="730,1714 722,1710 722,1718" fill="#047857"></polygon><text x="736" y="1718" font-family="IBM Plex Mono" font-size="9.5" fill="#444">DCAP lib ↔ PCCS (localhost)</text><line x1="900" y1="1714" x2="930" y2="1714" stroke="#0369a1" stroke-width="2.5"></line><polygon points="930,1714 922,1710 922,1718" fill="#0369a1"></polygon><text x="936" y="1718" font-family="IBM Plex Mono" font-size="9.5" fill="#444">PCCS ↔ Intel PCS (internet)</text></svg>
   </div>
 </div>
 
-<script>
-// ═══════════════════════════════════════════════════════════════
-// SHARED HELPERS
-// ═══════════════════════════════════════════════════════════════
-const ns = 'http://www.w3.org/2000/svg';
-
-function el(tag, attrs, text) {
-  const e = document.createElementNS(ns, tag);
-  for (const [k,v] of Object.entries(attrs||{})) e.setAttribute(k,v);
-  if (text !== undefined) e.textContent = text;
-  return e;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// PART 1 — GENERATION DIAGRAM
-// ═══════════════════════════════════════════════════════════════
-(function buildGeneration() {
-  const svg = document.getElementById('diagram-gen');
-  const SVG_W = 1320;
-
-  const ACTORS = [
-    { id:'prog',   label:'test_tdx_attest.c', sub:'C program\ninside TD guest',      color:'#1d4ed8', bg:'#dbeafe' },
-    { id:'lib',    label:'tdx-attest lib',    sub:'libtdx_attest.so\nuser-space',     color:'#6d28d9', bg:'#ede9fe' },
-    { id:'dev',    label:'/dev/tdx-attest',   sub:'kernel driver\nchardev',           color:'#b45309', bg:'#fef3c7' },
-    { id:'tdxmod', label:'TDX Module',        sub:'CPU firmware\n(SEAM range)',       color:'#be123c', bg:'#ffe4e6' },
-    { id:'qe',     label:'Quoting Enclave',   sub:'QE (SGX enclave)\nsigns the quote',color:'#0f766e', bg:'#ccfbf1' },
-    { id:'disk',   label:'quote.dat',         sub:'output file\nreport.dat too',      color:'#374151', bg:'#f3f4f6' },
-  ];
-
-  const MARGIN = 30;
-  const ACTOR_W = 172;
-  const ACTOR_H = 64;
-  const COL_GAP = (SVG_W - MARGIN*2 - ACTOR_W) / (ACTORS.length - 1);
-  ACTORS.forEach((a,i) => { a.cx = MARGIN + ACTOR_W/2 + i*COL_GAP; });
-
-  const LIFELINE_TOP = ACTOR_H + 12;
-  let Y = LIFELINE_TOP + 28;
-  const STEP  = 50;
-  const STEPS = 42;
-
-  function drawActors() {
-    ACTORS.forEach(a => {
-      const x = a.cx - ACTOR_W/2;
-      const g = document.createElementNS(ns,'g');
-      g.appendChild(el('rect',{x:x+3,y:5,width:ACTOR_W,height:ACTOR_H,rx:4,fill:'rgba(0,0,0,0.07)'}));
-      g.appendChild(el('rect',{x,y:2,width:ACTOR_W,height:ACTOR_H,rx:4,fill:a.bg,stroke:a.color,'stroke-width':2}));
-      g.appendChild(el('rect',{x,y:2,width:ACTOR_W,height:6,rx:4,fill:a.color}));
-      g.appendChild(el('rect',{x,y:5,width:ACTOR_W,height:3,fill:a.color}));
-      const lbl=el('text',{x:a.cx,y:29,'text-anchor':'middle','font-family':'IBM Plex Sans','font-size':'12','font-weight':'700',fill:a.color});
-      lbl.textContent=a.label; g.appendChild(lbl);
-      a.sub.split('\n').forEach((ln,i)=>{
-        g.appendChild(el('text',{x:a.cx,y:44+i*13,'text-anchor':'middle','font-family':'IBM Plex Mono','font-size':'9',fill:'#555'},ln));
-      });
-      svg.appendChild(g);
-    });
-  }
-
-  function arrow(y, fromId, toId, label, detail, color, dashed) {
-    const fa=ACTORS.find(a=>a.id===fromId), ta=ACTORS.find(a=>a.id===toId);
-    const col=color||fa.color;
-    const fwd = fa.cx < ta.cx;
-    const x1=fa.cx+(fwd?6:-6), x2=ta.cx+(fwd?-9:9);
-    const midX=(x1+x2)/2;
-    const g=document.createElementNS(ns,'g');
-    g.appendChild(el('line',{x1,y1:y,x2,y2:y,stroke:col,'stroke-width':dashed?1.5:2,
-      'stroke-dasharray':dashed?'5,4':'none'}));
-    const dir=fwd?1:-1;
-    const ax=x2,ay=y;
-    const pts=dir===1?`${ax},${ay} ${ax-10},${ay-5} ${ax-10},${ay+5}`:`${ax},${ay} ${ax+10},${ay-5} ${ax+10},${ay+5}`;
-    g.appendChild(el('polygon',{points:pts,fill:col}));
-    const lbg=el('rect',{x:midX-120,y:y-18,width:240,height:14,rx:2,fill:'white',opacity:'0.85'});
-    g.appendChild(lbg);
-    const lbl=el('text',{x:midX,y:y-6,'text-anchor':'middle','font-family':'IBM Plex Mono',
-      'font-size':'10','font-weight':dashed?'400':'600','font-style':dashed?'italic':'normal',fill:col});
-    lbl.textContent=label; g.appendChild(lbl);
-    if(detail){
-      const dbg=el('rect',{x:midX-150,y:y+3,width:300,height:13,rx:2,fill:'white',opacity:'0.7'});
-      g.appendChild(dbg);
-      g.appendChild(el('text',{x:midX,y:y+13,'text-anchor':'middle','font-family':'IBM Plex Mono',
-        'font-size':'9','font-style':'italic',fill:'#555'},detail));
-    }
-    svg.appendChild(g);
-  }
-
-  function activation(actorId, y1, y2, color) {
-    const a=ACTORS.find(x=>x.id===actorId);
-    const col=color||a.color;
-    svg.appendChild(el('rect',{x:a.cx-6,y:y1,width:12,height:y2-y1,
-      fill:col,opacity:'0.15',stroke:col,'stroke-width':'1.2',rx:2}));
-  }
-
-  function selfNote(y, actorId, lines, color) {
-    const a=ACTORS.find(x=>x.id===actorId);
-    const col=color||a.color;
-    const lh=15, bh=lines.length*lh+12;
-    const bx=a.cx+12;
-    svg.appendChild(el('rect',{x:bx,y:y-6,width:240,height:bh,rx:3,
-      fill:'#fffbeb',stroke:col,'stroke-width':1.2}));
-    lines.forEach((ln,i)=>{
-      svg.appendChild(el('text',{x:bx+9,y:y+8+i*lh,'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#333'},ln));
-    });
-  }
-
-  function phaseLabel(y, text, color) {
-    svg.appendChild(el('line',{x1:MARGIN,y1:y,x2:SVG_W-MARGIN,y2:y,stroke:'#dde3ef','stroke-width':1}));
-    const tw=text.length*6.8+20;
-    svg.appendChild(el('rect',{x:MARGIN,y:y-1,width:tw,height:18,fill:color||'#334155',rx:2}));
-    svg.appendChild(el('text',{x:MARGIN+10,y:y+12,'font-family':'IBM Plex Sans','font-size':'10',
-      'font-weight':'700','letter-spacing':'0.8',fill:'white'},text));
-  }
-
-  function fragment(y, height, fromId, toId, keyword, condition, color) {
-    const fa=ACTORS.find(a=>a.id===fromId), ta=ACTORS.find(a=>a.id===toId);
-    const x1=Math.min(fa.cx,ta.cx)-28, x2=Math.max(fa.cx,ta.cx)+28;
-    svg.appendChild(el('rect',{x:x1,y,width:x2-x1,height,rx:3,
-      fill:'rgba(255,255,255,0.5)',stroke:color||'#888','stroke-width':1.5}));
-    const tw=keyword.length*7+16;
-    svg.appendChild(el('rect',{x:x1,y,width:tw,height:20,fill:color||'#888',rx:2}));
-    svg.appendChild(el('text',{x:x1+8,y:y+14,'font-family':'IBM Plex Mono','font-size':'10',
-      'font-weight':'600',fill:'white'},keyword));
-    if(condition){
-      svg.appendChild(el('text',{x:x1+tw+8,y:y+14,'font-family':'IBM Plex Mono','font-size':'10',
-        'font-style':'italic',fill:color||'#555'},condition));
-    }
-  }
-
-  function notebox(y, actorId, lines, color, wide) {
-    const a=ACTORS.find(x=>x.id===actorId);
-    const col=color||a.color;
-    const lh=15, bw=wide||280, bh=lines.length*lh+14;
-    const bx=a.cx-bw/2;
-    svg.appendChild(el('rect',{x:bx,y,width:bw,height:bh,rx:3,
-      fill:'#f8fafc',stroke:col,'stroke-width':1.2}));
-    lines.forEach((ln,i)=>{
-      svg.appendChild(el('text',{x:bx+10,y:y+14+i*lh,'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#1e293b'},ln));
-    });
-  }
-
-  // white bg
-  svg.appendChild(el('rect',{x:0,y:0,width:SVG_W,height:9999,fill:'white'}));
-
-  // ── PHASE 1: REPORTDATA GENERATION ─────────────────────────
-  phaseLabel(Y, 'PHASE 1 — REPORT DATA GENERATION (inside C program, no syscall)', '#1d4ed8');
-  Y += 28;
-
-  activation('prog', Y, Y+100, '#1d4ed8');
-
-  selfNote(Y+10, 'prog', [
-    'gen_report_data(report_data.d)',
-    'srand(time(NULL))  ← seed from wall clock',
-    'fills 64 bytes with rand()  ← pseudo-random nonce',
-    'stored in: tdx_report_data_t report_data',
-  ], '#1d4ed8');
-
-  Y += 110;
-
-  notebox(Y, 'prog', [
-    'print_hex_dump() → prints 64 bytes to stdout',
-    'e.g:  00000000: a3 f7 2b 19 ... (your nonce in hex)',
-    'this is what you see in terminal output',
-  ], '#1d4ed8', 320);
-  Y += 68;
-
-  // ── PHASE 2: GET REPORT ─────────────────────────────────────
-  phaseLabel(Y, 'PHASE 2 — GET TD REPORT (TDREPORT) via kernel → TDX Module', '#be123c');
-  Y += 28;
-
-  activation('prog',   Y, Y+160, '#be123c');
-  activation('lib',    Y, Y+160, '#be123c');
-  activation('dev',    Y, Y+130, '#be123c');
-  activation('tdxmod', Y, Y+100, '#be123c');
-
-  arrow(Y+16, 'prog', 'lib',
-    'tdx_att_get_report(&report_data, &tdx_report)',
-    'params: 64-byte report_data nonce, out: tdx_report_t struct', '#6d28d9');
-
-  arrow(Y+16+STEPS, 'lib', 'dev',
-    'ioctl(fd, TDX_CMD_GET_REPORT0, &req)',
-    'opens /dev/tdx-attest, passes report_data in ioctl struct', '#b45309');
-
-  arrow(Y+16+STEPS*2, 'dev', 'tdxmod',
-    'TDCALL [TDG.MR.REPORT] instruction',
-    'ring-0 call into TDX Module firmware (SEAM range)', '#be123c');
-
-  selfNote(Y+16+STEPS*2+STEPS-10, 'tdxmod', [
-    'TDX Module reads CPU hardware state:',
-    '  MRTD   — hash of initial TD memory image',
-    '  RTMR0  — firmware/BIOS measurements',
-    '  RTMR1  — bootloader measurements',
-    '  RTMR2  — OS/kernel measurements',
-    '  RTMR3  — runtime (extended by your code)',
-    '  MRSIGNER, attributes, XFAM...',
-    'Embeds your 64-byte report_data into REPORTDATA field',
-    'Produces TDREPORT (1024 bytes, MAC-protected)',
-  ], '#be123c');
-
-  Y += 16+STEPS*2+STEPS+130;
-
-  arrow(Y, 'tdxmod', 'dev',
-    '← TDREPORT struct (1024 bytes)',
-    'hardware-signed report: measurements + your reportdata embedded', '#be123c', true);
-
-  arrow(Y+STEPS, 'dev', 'lib',
-    '← ioctl returns tdx_report_t',
-    'kernel copies TDREPORT to user-space buffer', '#b45309', true);
-
-  arrow(Y+STEPS*2, 'lib', 'prog',
-    '← TDX_ATTEST_SUCCESS + tdx_report populated',
-    'report_data field inside matches your 64-byte nonce exactly', '#6d28d9', true);
-
-  Y += STEPS*2 + STEP;
-
-  // write report.dat
-  activation('disk', Y, Y+44, '#374151');
-  arrow(Y+16, 'prog', 'disk',
-    'fwrite(&tdx_report, sizeof(tdx_report), 1, fptr)',
-    'writes raw 1024-byte TDREPORT → report.dat', '#374151');
-  arrow(Y+16+STEPS, 'disk', 'prog',
-    '← file written: report.dat', '', '#374151', true);
-  Y += 16+STEPS+STEP;
-
-  // ── PHASE 3: GET QUOTE ──────────────────────────────────────
-  phaseLabel(Y, 'PHASE 3 — GET QUOTE via QE (Quoting Enclave)', '#0f766e');
-  Y += 28;
-
-  activation('prog', Y, Y+260, '#0f766e');
-  activation('lib',  Y, Y+260, '#0f766e');
-  activation('dev',  Y, Y+230, '#0f766e');
-  activation('qe',   Y, Y+200, '#0f766e');
-
-  arrow(Y+16, 'prog', 'lib',
-    'tdx_att_get_quote(&report_data, NULL, 0, &selected_att_key_id, &p_quote_buf, &quote_size, 0)',
-    'collateral=NULL → lib handles QE selection; flags=0', '#6d28d9');
-
-  arrow(Y+16+STEPS, 'lib', 'dev',
-    'ioctl(fd, TDX_CMD_GET_QUOTE, &req)',
-    'passes TDREPORT + att_key_id to kernel driver', '#b45309');
-
-  arrow(Y+16+STEPS*2, 'dev', 'qe',
-    'forward TDREPORT to Quoting Enclave (SGX)',
-    'driver routes to QE running in SGX enclave on same host', '#0f766e');
-
-  selfNote(Y+16+STEPS*2+STEPS-6, 'qe', [
-    'QE verifies TDREPORT MAC (proves it came from this TDX CPU)',
-    'QE fetches its own PCK cert from PCCS (if not cached)',
-    'QE generates ephemeral ECDSA-P256 keypair (ATT key)',
-    'QE signs: TDREPORT hash + REPORTDATA using ATT private key',
-    'QE builds full quote structure:',
-    '  — Quote Header (version, tee_type=TDX)',
-    '  — TD Report body (MRTD, RTMRs, REPORTDATA...)',
-    '  — Quote Signature (ECDSA-P256)',
-    '  — PCK Cert chain (embedded for verifier)',
-  ], '#0f766e');
-
-  Y += 16+STEPS*2+STEPS+140;
-
-  arrow(Y, 'qe', 'dev',
-    '← signed quote blob (variable size, typically ~4-5 KB)',
-    'binary structure: header + td_report + sig_data + cert_chain', '#0f766e', true);
-
-  arrow(Y+STEPS, 'dev', 'lib',
-    '← ioctl returns: p_quote_buf pointer + quote_size',
-    'kernel copies quote bytes to user-space heap buffer', '#b45309', true);
-
-  arrow(Y+STEPS*2, 'lib', 'prog',
-    '← TDX_ATTEST_SUCCESS + p_quote_buf + quote_size = N bytes',
-    'selected_att_key_id populated (identifies which ATT key was used)', '#6d28d9', true);
-
-  Y += STEPS*2 + STEP;
-
-  // hex dump of quote
-  notebox(Y, 'prog', [
-    'print_hex_dump() → prints full quote bytes to stdout',
-    'e.g:  00000000: 03 00 02 00 81 00 00 00 ...',
-    'first 4 bytes = quote header (version=4, att_key_type=2...)',
-  ], '#1d4ed8', 360);
-  Y += 58;
-
-  // write quote.dat
-  activation('disk', Y, Y+44, '#374151');
-  arrow(Y+16, 'prog', 'disk',
-    'fwrite(p_quote_buf, quote_size, 1, fptr)',
-    'writes raw quote bytes → quote.dat (this is what tdx_verify reads)', '#374151');
-  arrow(Y+16+STEPS, 'disk', 'prog',
-    '← file written: quote.dat', '', '#374151', true);
-  Y += 16+STEPS+STEP;
-
-  // ── PHASE 4: RTMR EXTEND ────────────────────────────────────
-  phaseLabel(Y, 'PHASE 4 — EXTEND RTMRs (post-quote, extend RTMR[2] and RTMR[3])', '#7c3aed');
-  Y += 28;
-
-  notebox(Y, 'prog', [
-    '⚠  These RTMR extensions happen AFTER the quote is generated.',
-    '   They will NOT be reflected in the quote above.',
-    '   A new tdx_att_get_quote() would capture the updated RTMRs.',
-  ], '#b45309', 460);
-  Y += 58;
-
-  activation('prog',   Y, Y+130, '#7c3aed');
-  activation('lib',    Y, Y+130, '#7c3aed');
-  activation('dev',    Y, Y+110, '#7c3aed');
-  activation('tdxmod', Y, Y+90,  '#7c3aed');
-
-  // extend RTMR[2]
-  fragment(Y+10, 48, 'prog', 'tdxmod', 'seq', 'extend RTMR[2]', '#7c3aed');
-  arrow(Y+28, 'prog', 'lib',
-    'tdx_att_extend(&rtmr_event)  rtmr_index=2, extend_data=48×0x01',
-    'version=1, 48-byte extend_data, event_data_size=0', '#7c3aed');
-  Y += 66;
-
-  arrow(Y, 'lib', 'dev',
-    'ioctl(fd, TDX_CMD_EXTEND_RTMR, &rtmr_event)',
-    'kernel passes extend request to TDX Module', '#b45309');
-
-  arrow(Y+STEPS, 'dev', 'tdxmod',
-    'TDCALL [TDG.MR.RTMR.EXTEND] rtmr_index=2',
-    'TDX Module: RTMR[2] = SHA384(RTMR[2] || extend_data)', '#be123c');
-
-  arrow(Y+STEPS*2, 'tdxmod', 'prog',
-    '← TDX_ATTEST_SUCCESS — RTMR[2] updated in hardware',
-    '', '#7c3aed', true);
-
-  Y += STEPS*2+STEP+10;
-
-  // extend RTMR[3]
-  fragment(Y, 48, 'prog', 'tdxmod', 'seq', 'extend RTMR[3]', '#7c3aed');
-  arrow(Y+18, 'prog', 'tdxmod',
-    'tdx_att_extend(&rtmr_event)  rtmr_index=3  (same extend_data)',
-    'RTMR[3] = SHA384(RTMR[3] || extend_data)', '#7c3aed');
-  arrow(Y+18+STEPS, 'tdxmod', 'prog',
-    '← TDX_ATTEST_SUCCESS — RTMR[3] updated', '', '#7c3aed', true);
-  Y += 18+STEPS+STEP;
-
-  // ── PHASE 5: CLEANUP ────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 5 — CLEANUP & OUTPUT', '#374151');
-  Y += 28;
-
-  activation('lib', Y, Y+40, '#374151');
-  arrow(Y+16, 'prog', 'lib',
-    'tdx_att_free_quote(p_quote_buf)',
-    'lib frees heap buffer allocated during get_quote', '#374151');
-  arrow(Y+16+STEPS, 'lib', 'prog',
-    '← memory freed, return 0', '', '#374151', true);
-  Y += 16+STEPS+STEP;
-
-  // final output summary
-  const sumX = ACTORS.find(a=>a.id==='prog').cx - 20;
-  svg.appendChild(el('rect',{x:sumX,y:Y,width:420,height:70,rx:4,
-    fill:'#f0fdf4',stroke:'#16a34a','stroke-width':2}));
-  svg.appendChild(el('rect',{x:sumX,y:Y,width:420,height:8,rx:3,fill:'#16a34a'}));
-  svg.appendChild(el('rect',{x:sumX,y:Y+5,width:420,height:3,fill:'#16a34a'}));
-  svg.appendChild(el('text',{x:sumX+16,y:Y+26,'font-family':'IBM Plex Mono',
-    'font-size':'11','font-weight':'600',fill:'#14532d'},'✅  Output files written:'));
-  svg.appendChild(el('text',{x:sumX+16,y:Y+42,'font-family':'IBM Plex Mono',
-    'font-size':'9.5',fill:'#166534'},'  report.dat — raw TDREPORT (1024 bytes, MAC-protected)'));
-  svg.appendChild(el('text',{x:sumX+16,y:Y+57,'font-family':'IBM Plex Mono',
-    'font-size':'9.5',fill:'#166534'},'  quote.dat  — full signed TDX quote → ready for tdx_verify'));
-  Y += 86;
-
-  // ── REPORTDATA CALLOUT ──────────────────────────────────────
-  Y += 16;
-  const rx2 = MARGIN;
-  svg.appendChild(el('rect',{x:rx2,y:Y,width:SVG_W-MARGIN*2,height:82,rx:4,
-    fill:'#eff6ff',stroke:'#2563eb','stroke-width':1.5}));
-  svg.appendChild(el('text',{x:rx2+16,y:Y+18,'font-family':'IBM Plex Sans',
-    'font-size':'11','font-weight':'700',fill:'#1d4ed8'},'🔑  What REPORTDATA (your 64-byte nonce) guarantees:'));
-  [
-    'The 64 random bytes you generated are cryptographically embedded inside the TDREPORT by the TDX Module hardware.',
-    'The QE then signs the entire TDREPORT (which contains your nonce) → so the nonce is inside the signed quote.',
-    'When you parse the quote and see it in hex → convert hex to ASCII/bytes to recover your original nonce.',
-    'In production: replace rand() nonce with SHA256(public_key) or SHA256(challenge) to bind the quote to something meaningful.',
-  ].forEach((ln,i)=>{
-    svg.appendChild(el('text',{x:rx2+16,y:Y+34+i*13,'font-family':'IBM Plex Mono',
-      'font-size':'9.5',fill:'#1e3a8a'},ln));
-  });
-  Y += 98;
-
-  // ── LEGEND ──────────────────────────────────────────────────
-  Y += 10;
-  svg.appendChild(el('text',{x:MARGIN,y:Y+4,'font-family':'IBM Plex Sans',
-    'font-size':'10','font-weight':'700',fill:'#555'},'LEGEND:'));
-
-  const legendItems=[
-    {color:'#1d4ed8', label:'C program (user-space)'},
-    {color:'#6d28d9', label:'tdx-attest lib'},
-    {color:'#b45309', label:'/dev/tdx-attest (kernel)'},
-    {color:'#be123c', label:'TDX Module (CPU/SEAM)'},
-    {color:'#0f766e', label:'Quoting Enclave (QE)'},
-    {color:'#374151', label:'disk I/O (quote.dat)'},
-  ];
-  legendItems.forEach((item,i)=>{
-    const lx=MARGIN+80+i*190;
-    svg.appendChild(el('line',{x1:lx,y1:Y,x2:lx+28,y2:Y,stroke:item.color,'stroke-width':2.5}));
-    svg.appendChild(el('polygon',{
-      points:`${lx+28},${Y} ${lx+19},${Y-4} ${lx+19},${Y+4}`,fill:item.color}));
-    svg.appendChild(el('text',{x:lx+34,y:Y+4,'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#444'},item.label));
-  });
-  Y += 30;
-
-  // finalize
-  svg.setAttribute('height', Y);
-  svg.setAttribute('width', SVG_W);
-
-  // draw lifelines behind everything
-  const bgRect = svg.children[0];
-  ACTORS.forEach(a=>{
-    const line=el('line',{x1:a.cx,y1:LIFELINE_TOP,x2:a.cx,y2:Y-40,
-      stroke:'#b0bcd0','stroke-width':'1.5','stroke-dasharray':'6,5'});
-    svg.insertBefore(line, bgRect.nextSibling);
-  });
-
-  drawActors();
-})();
-
-// ═══════════════════════════════════════════════════════════════
-// PART 2 — VERIFICATION DIAGRAM
-// ═══════════════════════════════════════════════════════════════
-(function buildVerification() {
-  const svg = document.getElementById('diagram-ver');
-  const SVG_W = 1260;
-  const SVG_H = 1780;
-
-  const ACTORS = [
-    { id:'quote',  label:'quote.dat',    sub:'Binary quote\nfrom TD guest',  color:'#2563eb', bg:'#dbeafe' },
-    { id:'cbin',   label:'tdx_verify',   sub:'C binary\nyour program',        color:'#1d4ed8', bg:'#dbeafe' },
-    { id:'dcap',   label:'DCAP lib',     sub:'libsgx_dcap_\nquoteverify.so',  color:'#6d28d9', bg:'#ede9fe' },
-    { id:'qcnl',   label:'QCNL Config',  sub:'/etc/sgx_default\n_qcnl.conf',  color:'#b45309', bg:'#fef3c7' },
-    { id:'pccs',   label:'PCCS',         sub:'localhost:8081\nNode.js proxy',  color:'#047857', bg:'#d1fae5' },
-    { id:'intel',  label:'Intel PCS',    sub:'trustedservices\n.intel.com',    color:'#0369a1', bg:'#e0f2fe' },
-  ];
-
-  const MARGIN_LEFT = 30;
-  const ACTOR_W = 180;
-  const ACTOR_H = 62;
-  const COL_GAP = (SVG_W - MARGIN_LEFT*2 - ACTOR_W) / (ACTORS.length - 1);
-
-  ACTORS.forEach((a, i) => {
-    a.cx = MARGIN_LEFT + ACTOR_W/2 + i * COL_GAP;
-  });
-
-  const LIFELINE_TOP = ACTOR_H + 10;
-  const LIFELINE_BOT = SVG_H - 40;
-
-  function group(attrs) {
-    return el('g', attrs);
-  }
-
-  function drawActors() {
-    ACTORS.forEach(a => {
-      const x = a.cx - ACTOR_W/2;
-      const g = group();
-      g.appendChild(el('rect', { x: x+3, y: 5, width: ACTOR_W, height: ACTOR_H,
-        rx:4, fill:'rgba(0,0,0,0.08)' }));
-      g.appendChild(el('rect', { x, y:2, width: ACTOR_W, height: ACTOR_H,
-        rx:4, fill: a.bg, stroke: a.color, 'stroke-width':2 }));
-      g.appendChild(el('rect', { x, y:2, width: ACTOR_W, height: 6,
-        rx:4, fill: a.color }));
-      g.appendChild(el('rect', { x, y:5, width: ACTOR_W, height: 3, fill: a.color }));
-      const lbl = el('text', { x: a.cx, y: 28, 'text-anchor':'middle',
-        'font-family':'IBM Plex Sans', 'font-size':'13', 'font-weight':'700',
-        fill: a.color });
-      lbl.textContent = a.label;
-      g.appendChild(lbl);
-      const lines = a.sub.split('\n');
-      lines.forEach((ln, i) => {
-        g.appendChild(el('text', { x: a.cx, y: 43 + i*13, 'text-anchor':'middle',
-          'font-family':'IBM Plex Mono', 'font-size':'9.5', fill:'#555' }, ln));
-      });
-      svg.appendChild(g);
-    });
-  }
-
-  function drawLifelines() {
-    ACTORS.forEach(a => {
-      const line = el('line', {
-        x1: a.cx, y1: LIFELINE_TOP, x2: a.cx, y2: LIFELINE_BOT,
-        stroke: '#b0bcd0', 'stroke-width':'1.5',
-        'stroke-dasharray':'6,5'
-      });
-      svg.appendChild(line);
-    });
-  }
-
-  function arrow(y, fromId, toId, label, detail, color, dashed) {
-    const fa = ACTORS.find(a=>a.id===fromId);
-    const ta = ACTORS.find(a=>a.id===toId);
-    const col = color || fa.color;
-    const g = group();
-    const x1 = fa.cx + (fa.cx < ta.cx ? 6 : -6);
-    const x2 = ta.cx + (fa.cx < ta.cx ? -8 : 8);
-    const midX = (x1+x2)/2;
-    const ln = el('line', {
-      x1, y1:y, x2, y2:y,
-      stroke: col, 'stroke-width': dashed ? 1.5 : 2,
-      'stroke-dasharray': dashed ? '5,4' : 'none'
-    });
-    g.appendChild(ln);
-    const dir = fa.cx < ta.cx ? 1 : -1;
-    const ax = x2, ay = y;
-    const pts = dir === 1
-      ? `${ax},${ay} ${ax-10},${ay-5} ${ax-10},${ay+5}`
-      : `${ax},${ay} ${ax+10},${ay-5} ${ax+10},${ay+5}`;
-    g.appendChild(el('polygon', { points:pts, fill: col }));
-    const labelY = y - 7;
-    const lbl = el('text', {
-      x: midX, y: labelY,
-      'text-anchor':'middle',
-      'font-family': 'IBM Plex Mono',
-      'font-size': '10.5',
-      'font-weight': dashed ? '400' : '600',
-      'font-style': dashed ? 'italic' : 'normal',
-      fill: col
-    }, label);
-    g.appendChild(lbl);
-    if (detail) {
-      g.appendChild(el('text', {
-        x: midX, y: labelY + 13,
-        'text-anchor':'middle',
-        'font-family':'IBM Plex Mono',
-        'font-size':'9',
-        'font-style':'italic',
-        fill:'#666'
-      }, detail));
-    }
-    svg.appendChild(g);
-    return g;
-  }
-
-  function selfNote(y, actorId, lines, color) {
-    const a = ACTORS.find(x=>x.id===actorId);
-    const col = color || a.color;
-    const g = group();
-    const bx = a.cx + 10;
-    const lh = 14;
-    const bh = lines.length * lh + 10;
-    g.appendChild(el('rect', { x:bx, y:y-6, width:220, height:bh,
-      rx:3, fill:'#fffbeb', stroke:col, 'stroke-width':1.2 }));
-    lines.forEach((ln, i) => {
-      g.appendChild(el('text', { x:bx+8, y:y+6+i*lh,
-        'font-family':'IBM Plex Mono', 'font-size':'9.5', fill:'#333' }, ln));
-    });
-    svg.appendChild(g);
-  }
-
-  function fragment(y, height, fromActorId, toActorId, keyword, condition, color) {
-    const fa = ACTORS.find(a=>a.id===fromActorId);
-    const ta = ACTORS.find(a=>a.id===toActorId);
-    const x1 = Math.min(fa.cx, ta.cx) - 30;
-    const x2 = Math.max(fa.cx, ta.cx) + 30;
-    const g = group();
-    g.appendChild(el('rect', { x:x1, y, width:x2-x1, height,
-      rx:3, fill:'rgba(255,255,255,0.6)',
-      stroke: color||'#888', 'stroke-width':1.5,
-      'stroke-dasharray':'none' }));
-    const tw = keyword.length*7+16;
-    g.appendChild(el('rect', { x:x1, y, width:tw, height:20,
-      fill: color||'#888', rx:2 }));
-    g.appendChild(el('text', { x:x1+8, y:y+14,
-      'font-family':'IBM Plex Mono','font-size':'10','font-weight':'600',
-      fill:'white' }, keyword));
-    if (condition) {
-      g.appendChild(el('text', { x:x1+tw+8, y:y+14,
-        'font-family':'IBM Plex Mono','font-size':'10',
-        'font-style':'italic', fill: color||'#555' }, condition));
-    }
-    svg.appendChild(g);
-  }
-
-  function fragDivider(y, fromActorId, toActorId, color) {
-    const fa = ACTORS.find(a=>a.id===fromActorId);
-    const ta = ACTORS.find(a=>a.id===toActorId);
-    const x1 = Math.min(fa.cx, ta.cx) - 30;
-    const x2 = Math.max(fa.cx, ta.cx) + 30;
-    svg.appendChild(el('line', { x1, y1:y, x2, y2:y,
-      stroke: color||'#aaa', 'stroke-width':1,
-      'stroke-dasharray':'4,3' }));
-    if (color) {
-      svg.appendChild(el('text', { x:x1+8, y:y+12,
-        'font-family':'IBM Plex Mono','font-size':'9','font-style':'italic',
-        fill:color }, '[cache miss → fetch from Intel PCS]'));
-    }
-  }
-
-  function phaseLabel(y, text, color) {
-    const g = group();
-    g.appendChild(el('line', { x1:MARGIN_LEFT, y1:y, x2:SVG_W-MARGIN_LEFT, y2:y,
-      stroke:'#dde3ef', 'stroke-width':1 }));
-    g.appendChild(el('rect', { x:MARGIN_LEFT, y:y-1, width:text.length*7+20, height:18,
-      fill: color||'#334155', rx:2 }));
-    g.appendChild(el('text', { x:MARGIN_LEFT+10, y:y+12,
-      'font-family':'IBM Plex Sans','font-size':'10','font-weight':'700',
-      'letter-spacing':'1', fill:'white' }, text));
-    svg.appendChild(g);
-  }
-
-  function activation(actorId, y1, y2, color) {
-    const a = ACTORS.find(x=>x.id===actorId);
-    const col = color || a.color;
-    svg.appendChild(el('rect', {
-      x: a.cx-6, y:y1, width:12, height:y2-y1,
-      fill: col, opacity:'0.18',
-      stroke: col, 'stroke-width':'1.2', rx:2
-    }));
-  }
-
-  // white background
-  svg.appendChild(el('rect', { x:0, y:0, width:SVG_W, height:SVG_H, fill:'white' }));
-
-  drawLifelines();
-  drawActors();
-
-  let Y = LIFELINE_TOP + 30;
-  const STEP = 52;
-  const STEP_S = 42;
-
-  // ── PHASE 1 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 1 — PROGRAM INIT & QUOTE LOAD', '#1d4ed8');
-  Y += 28;
-
-  activation('cbin', Y, Y+120, '#2563eb');
-  activation('quote', Y, Y+80, '#2563eb');
-
-  arrow(Y+20, 'cbin', 'quote',
-    'fopen("quote.dat", "rb")',
-    'open binary file for reading', '#2563eb');
-
-  arrow(Y+20+STEP, 'quote', 'cbin',
-    '← uint8_t* buf, quote_size = N bytes',
-    'raw quote loaded into heap buffer', '#2563eb', true);
-
-  Y += 20 + STEP + STEP;
-
-  // ── PHASE 2 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 2 — STRUCTURAL CHECK', '#6d28d9');
-  Y += 28;
-
-  activation('dcap', Y, Y+90, '#6d28d9');
-
-  arrow(Y+16, 'cbin', 'dcap',
-    'tee_get_supplemental_data_version_and_size()',
-    'params: quote_buf, quote_size', '#6d28d9');
-
-  selfNote(Y+16+STEP_S, 'dcap',
-    ['Parses quote header', 'Validates TEE type (TDX/SGX)', 'Calculates supp data buffer size'],
-    '#6d28d9');
-
-  arrow(Y+16+STEP_S+44, 'dcap', 'cbin',
-    '← SGX_QL_SUCCESS',
-    'returns: supp_ver=3, supp_data_size=N bytes', '#6d28d9', true);
-
-  Y += 16 + STEP_S + 44 + STEP;
-
-  // ── PHASE 3 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 3 — CONFIG READ & PCCS ENDPOINT DISCOVERY', '#b45309');
-  Y += 28;
-
-  activation('dcap', Y, Y+90, '#b45309');
-  activation('qcnl', Y, Y+90, '#b45309');
-
-  arrow(Y+16, 'cbin', 'dcap',
-    'tee_verify_quote()',
-    'params: quote_buf, size, collateral=NULL, current_time', '#6d28d9');
-
-  arrow(Y+16+STEP_S, 'dcap', 'qcnl',
-    'read /etc/sgx_default_qcnl.conf',
-    'discover PCCS endpoint + TLS settings', '#b45309');
-
-  arrow(Y+16+STEP_S*2, 'qcnl', 'dcap',
-    '← pccs_url: https://localhost:8081/sgx/certification/v4/',
-    'use_secure_cert: false, local_cache_only: false', '#b45309', true);
-
-  Y += 16 + STEP_S*2 + STEP;
-
-  // ── PHASE 4 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 4 — COLLATERAL FETCH (PCCS CACHE + INTEL PCS)', '#047857');
-  Y += 24;
-
-  const FRAG_TOP = Y;
-  const FRAG_H = 680;
-  fragment(FRAG_TOP, FRAG_H, 'dcap', 'intel', 'alt', '', '#047857');
-  Y += 26;
-
-  svg.appendChild(el('text', { x: ACTORS.find(a=>a.id==='dcap').cx-20, y:Y+14,
-    'font-family':'IBM Plex Mono','font-size':'10','font-style':'italic',
-    fill:'#047857' }, '[cache hit — artifact already in SQLite, expire_hours=168]'));
-  Y += 24;
-
-  activation('pccs', Y, Y+46, '#047857');
-
-  arrow(Y+16, 'dcap', 'pccs',
-    'HTTPS GET /sgx/certification/v4/{artifact}',
-    'TLS to localhost:8081 (self-signed cert, use_secure_cert=false)', '#047857');
-
-  arrow(Y+16+STEP_S, 'pccs', 'dcap',
-    '← 200 OK  artifact (PEM / JSON / DER)',
-    'served directly from SQLite cache, no Intel call', '#047857', true);
-
-  Y += 16 + STEP_S + STEP - 6;
-
-  fragDivider(Y, 'dcap', 'intel', '#047857');
-  Y += 26;
-
-  const artifacts = [
-    {
-      req:  'GET /v4/pckcert?encrypted_ppid=...&pce_id=...&cpusvn=...&pcesvn=...&api-key=●●●',
-      res:  '← 200 OK  PCK Certificate (PEM) + TCB-Info-Issuer-Chain header',
-      note: 'Proves this CPU is genuine Intel hardware. Cached per platform PPID.',
-      pccsReq:  'GET /sgx/certification/v4/pckcert',
-      pccsDetail: 'encrypted_ppid, pce_id, cpusvn, pcesvn',
-      pccsRes: '← PCK cert PEM',
-    },
-    {
-      req:  'GET /v4/tcb?fmspc=AABBCCDD1122&type=TDX&version=3&api-key=●●●',
-      res:  '← 200 OK  TCBInfo JSON — SVN levels → UpToDate / OutOfDate / Revoked',
-      note: 'fmspc = 6-byte CPU family ID. Maps platform SVN to TCB status.',
-      pccsReq:  'GET /sgx/certification/v4/tcb',
-      pccsDetail: 'fmspc=AABBCCDD1122, type=TDX',
-      pccsRes: '← TCBInfo JSON (signed by Intel TCB key)',
-    },
-    {
-      req:  'GET /tdx/certification/v4/qe/identity  (no params, pure GET)',
-      res:  '← 200 OK  QE Identity JSON — MRSIGNER, MRSENCLAVE, ISVSVN',
-      note: 'Expected identity of TDX Quoting Enclave. Used to validate QE report.',
-      pccsReq:  'GET /tdx/certification/v4/qe/identity',
-      pccsDetail: '(no params required)',
-      pccsRes: '← QE Identity JSON (signed by Intel)',
-    },
-    {
-      req:  'GET /v4/rootcacrl  +  GET /v4/pckcrl?ca=processor',
-      res:  '← 200 OK  Root CA CRL (DER) + PCK CRL (DER)',
-      note: 'Certificate Revocation Lists. Checked to ensure no cert in chain is revoked.',
-      pccsReq:  'GET /sgx/certification/v4/rootcacrl',
-      pccsDetail: '+ /v4/pckcrl?ca=processor',
-      pccsRes: '← Root CA CRL + PCK CRL (DER)',
-    },
-  ];
-
-  artifacts.forEach((art, idx) => {
-    activation('dcap',  Y, Y+130, '#047857');
-    activation('pccs',  Y, Y+130, '#047857');
-    activation('intel', Y, Y+90,  '#0369a1');
-
-    arrow(Y+16, 'dcap', 'pccs',
-      art.pccsReq,
-      art.pccsDetail, '#047857');
-
-    arrow(Y+16+STEP_S, 'pccs', 'intel',
-      art.req, '', '#0369a1');
-
-    arrow(Y+16+STEP_S*2, 'intel', 'pccs',
-      art.res, art.note, '#0369a1', true);
-
-    selfNote(Y+16+STEP_S*2+STEP_S-4, 'pccs',
-      ['💾 store in SQLite cache (expire_hours=168)'], '#047857');
-
-    arrow(Y+16+STEP_S*3+26, 'pccs', 'dcap',
-      art.pccsRes,
-      'served to DCAP lib', '#047857', true);
-
-    Y += 16 + STEP_S*3 + 26 + STEP + (idx < artifacts.length-1 ? 10 : 0);
-
-    if (idx < artifacts.length-1) {
-      svg.appendChild(el('line', {
-        x1: ACTORS.find(a=>a.id==='dcap').cx - 30,
-        y1: Y-STEP+6,
-        x2: ACTORS.find(a=>a.id==='intel').cx + 30,
-        y2: Y-STEP+6,
-        stroke:'#cde8d8','stroke-width':'1','stroke-dasharray':'3,3'
-      }));
-    }
-  });
-
-  Y = FRAG_TOP + FRAG_H + 14;
-
-  // ── PHASE 5 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 5 — CRYPTOGRAPHIC VERIFICATION (in-process, no network)', '#6d28d9');
-  Y += 28;
-
-  activation('dcap', Y, Y+170, '#6d28d9');
-
-  const checks = [
-    '① Verify PCK cert chain: Root CA → Intermediate CA → PCK cert',
-    '② Check PCK cert not present in Root CA CRL or PCK CRL',
-    '③ Verify ECDSA-P256 quote signature using PCK public key',
-    '④ Verify QE Report signature (inner report)',
-    '⑤ Match platform SVN levels against TCBInfo table → get TCB status',
-    '⑥ Match QE MRSIGNER + ISVSVN against QE Identity JSON',
-    '⑦ Check collateral expiration against current_time param',
-    '⑧ Populate supplemental data struct (pck_crl_issuer_chain, etc.)',
-  ];
-
-  const noteY = Y + 16;
-  const noteX = ACTORS.find(a=>a.id==='dcap').cx + 14;
-  svg.appendChild(el('rect', { x:noteX, y:noteY-4, width:420, height:checks.length*16+14,
-    rx:3, fill:'#f5f3ff', stroke:'#6d28d9', 'stroke-width':1.2 }));
-  checks.forEach((c,i) => {
-    svg.appendChild(el('text', { x:noteX+10, y:noteY+10+i*16,
-      'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#3b0764' }, c));
-  });
-
-  Y += 170;
-
-  // ── PHASE 6 ────────────────────────────────────────────────
-  phaseLabel(Y, 'PHASE 6 — VERDICT RETURNED', '#047857');
-  Y += 28;
-
-  arrow(Y+16, 'dcap', 'cbin',
-    '← SGX_QL_SUCCESS (0x0000)',
-    'qv_result=QV_RESULT_OK, collateral_expiration_status=0 (not expired)', '#6d28d9', true);
-
-  Y += 16 + STEP;
-
-  const vx = ACTORS.find(a=>a.id==='cbin').cx - 20;
-  svg.appendChild(el('rect', { x:vx, y:Y, width:380, height:56,
-    rx:4, fill:'#f0fdf4', stroke:'#16a34a', 'stroke-width':2 }));
-  svg.appendChild(el('rect', { x:vx, y:Y, width:380, height:8, rx:3, fill:'#16a34a' }));
-  svg.appendChild(el('rect', { x:vx, y:Y+5, width:380, height:3, fill:'#16a34a' }));
-  svg.appendChild(el('text', { x:vx+16, y:Y+26,
-    'font-family':'IBM Plex Mono','font-size':'11','font-weight':'600',fill:'#14532d' },
-    '✅  [RESULT] PASS — Quote is VALID'));
-  svg.appendChild(el('text', { x:vx+16, y:Y+42,
-    'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#166534' },
-    'exit_code = 0  ·  collateral not expired  ·  signature verified'));
-
-  Y += 56 + 20;
-
-  svg.setAttribute('height', Y + 30);
-
-  // LEGEND
-  const LY = Y + 10;
-  const legendItems = [
-    { color:'#2563eb', label:'quote.dat ↔ tdx_verify' },
-    { color:'#6d28d9', label:'tdx_verify ↔ DCAP lib' },
-    { color:'#b45309', label:'DCAP lib ↔ QCNL Config' },
-    { color:'#047857', label:'DCAP lib ↔ PCCS (localhost)' },
-    { color:'#0369a1', label:'PCCS ↔ Intel PCS (internet)' },
-  ];
-
-  svg.setAttribute('height', LY + 50);
-
-  svg.appendChild(el('text', { x:MARGIN_LEFT, y:LY+4,
-    'font-family':'IBM Plex Sans','font-size':'10','font-weight':'700',fill:'#555' },
-    'LEGEND:'));
-
-  legendItems.forEach((item, i) => {
-    const lx = MARGIN_LEFT + 70 + i*200;
-    svg.appendChild(el('line', { x1:lx, y1:LY, x2:lx+30, y2:LY,
-      stroke:item.color, 'stroke-width':2.5 }));
-    svg.appendChild(el('polygon', {
-      points:`${lx+30},${LY} ${lx+22},${LY-4} ${lx+22},${LY+4}`,
-      fill:item.color }));
-    svg.appendChild(el('text', { x:lx+36, y:LY+4,
-      'font-family':'IBM Plex Mono','font-size':'9.5',fill:'#444' }, item.label));
-  });
-})();
-</script>
 </body>
 </html>
