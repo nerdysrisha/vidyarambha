@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>My Tech Learnings</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <style>
 html, body {
     margin: 0;
@@ -218,49 +220,126 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border-radius: 8px;
     flex: 1;
     min-height: 0;
+    background: #faf8f4;
 }
 #content-box {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
-    padding: 28px 34px;
+    padding: 30px 40px;
+    background: #faf8f4;
+    color: #2b2b2b;
+    font-size: 15px;
+    line-height: 1.7;
 }
 #content-box::-webkit-scrollbar { width: 9px; }
-#content-box::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 5px; }
-#content-box h1, #content-box h2, #content-box h3 { color: #00c8ff; }
+#content-box::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 5px; }
+
+#content-box h1 {
+    color: #1a1a1a;
+    font-size: 1.7em;
+    margin: 0 0 6px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #c9a15a;
+}
+#content-box h2 {
+    color: #6b4f1d;
+    font-size: 1.3em;
+    margin: 30px 0 12px 0;
+}
+#content-box h3 {
+    color: #8a6d3b;
+    font-size: 1.08em;
+    margin: 22px 0 8px 0;
+}
+#content-box p { margin: 0 0 14px 0; }
+#content-box ul, #content-box ol { margin: 0 0 16px 0; padding-left: 22px; }
+#content-box li { margin-bottom: 5px; }
+#content-box a { color: #a1521f; text-decoration: none; border-bottom: 1px solid #c9a15a88; }
+#content-box a:hover { border-bottom-color: #a1521f; }
+#content-box img, #content-box svg { max-width: 100%; height: auto; border-radius: 6px; }
+#content-box hr { border: none; border-top: 1px solid #e8e2d5; margin: 24px 0; }
+
+/* inline code */
 #content-box code {
-    background: #1a1a1a;
+    background: #f0ead9;
+    color: #8a5a1f;
     padding: 2px 6px;
     border-radius: 4px;
     font-family: "Courier New", monospace;
-    font-size: 0.92em;
+    font-size: 0.9em;
 }
+
+/* fenced code blocks — dark panel sitting inside the light page, syntax highlighted */
 #content-box pre {
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    padding: 14px 16px;
+    background: #1a1a1a;
+    border: 1px solid #2e2a22;
+    border-radius: 8px;
+    padding: 16px 18px;
     overflow-x: auto;
     position: relative;
+    margin: 8px 0 18px 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
-#content-box pre code { background: none; padding: 0; }
-#content-box img, #content-box svg { max-width: 100%; height: auto; }
-#content-box a { color: #00c8ff; }
+#content-box pre code {
+    background: none;
+    color: #eaeaea;
+    padding: 0;
+    font-size: 0.88em;
+}
+#content-box pre code.hljs { background: none; }
+
+/* callouts — a plain markdown blockquote becomes a styled note box */
+#content-box blockquote {
+    background: #fbf6ea;
+    border-left: 4px solid #c9a15a;
+    border-radius: 6px;
+    margin: 16px 0;
+    padding: 12px 18px;
+    color: #5a4a2a;
+}
+#content-box blockquote p:last-child { margin-bottom: 0; }
+
+/* tables */
+#content-box table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4px 0 20px 0;
+    background: #fff;
+    border: 1px solid #e8e2d5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+#content-box th {
+    text-align: left;
+    padding: 9px 14px;
+    color: #6b4f1d;
+    background: #f4efe2;
+    border-bottom: 2px solid #c9a15a;
+    font-size: 0.92em;
+}
+#content-box td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #efe9db;
+    font-size: 0.94em;
+}
+#content-box tr:last-child td { border-bottom: none; }
+
 .copy-code-btn {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: #222;
-    border: 1px solid #333;
-    color: #999;
+    background: #2a261e;
+    border: 1px solid #3a3527;
+    color: #c9a15a;
     border-radius: 5px;
     padding: 3px 9px;
     font-size: 11px;
     cursor: pointer;
 }
-.copy-code-btn:hover { background: #2c2c2c; color: #fff; }
-.copy-code-btn.copied { color: #00c8ff; border-color: #00c8ff55; }
+.copy-code-btn:hover { background: #35301f; color: #fff; }
+.copy-code-btn.copied { color: #8fd6b0; border-color: #8fd6b055; }
 
 /* NAV BAR */
 #navbar {
@@ -309,7 +388,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <div id="main-col">
         <div id="content-panel">
             <div id="content-box">
-                <div style="color:#666;">Select a topic from the left to get started.</div>
+                <div style="color:#8a7a5a;">Select a topic from the left to get started.</div>
             </div>
         </div>
     </div>
@@ -440,7 +519,7 @@ function loadTopic(flatIndex) {
     topic.el.scrollIntoView({ block: "nearest" });
 
     counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
-    contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
+    contentBox.innerHTML = '<div style="color:#8a7a5a;padding:10px 0;">Loading…</div>';
 
     fetch(topic.path)
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
@@ -449,10 +528,13 @@ function loadTopic(flatIndex) {
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             wireCopyButtons();
+            if (window.hljs) {
+                contentBox.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
+            }
         })
         .catch(err => {
             contentBox.innerHTML =
-                '<div style="color:#f66;padding:12px 0;">' + err.message +
+                '<div style="color:#b5432f;padding:12px 0;">' + err.message +
                 '<br><br>Make sure this page is served over http(s) (e.g. GitHub Pages or a local server) — ' +
                 'opening the file directly (file://) blocks fetch() for security reasons.</div>';
         });
