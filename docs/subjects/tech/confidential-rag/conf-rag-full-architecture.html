@@ -1,0 +1,359 @@
+<!--
+  confidentialRAG — Full Architecture (v4) (fragment)
+  Scoped for embedding inside a base HTML page. Light-mode theme
+  (converted from the original dark-mode SVG) — layout, coordinates
+  and structure are pixel-for-pixel unchanged; only fills/strokes
+  were relit for a light surface, matching the palette approach used
+  for the other two diagrams in this set.
+-->
+<style>
+  .arch-widget {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f8f9fc;
+    padding: 24px 16px 48px;
+    min-height: 100vh;
+  }
+  .arch-widget .arch-canvas {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e5ec;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .arch-widget svg { display: block; width: 100%; height: auto; }
+</style>
+
+<div class="arch-widget">
+  <div class="arch-canvas">
+<svg viewBox="0 0 1600 1400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+
+  <rect width="1600" height="1400" fill="#f8f9fc" rx="12"/>
+  <text x="800" y="30" text-anchor="middle" fill="#0f172a" font-size="17" font-weight="bold">confidentialRAG — Full Architecture (v4)</text>
+
+  <!-- ============================================================ -->
+  <!-- ROW 1: USER BROWSER + LOCAL MACHINE                          -->
+  <!-- ============================================================ -->
+
+  <!-- User Browser -->
+  <rect x="20" y="48" width="260" height="130" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="150" y="70" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">👤 User Browser</text>
+  <text x="150" y="88" text-anchor="middle" fill="#475569" font-size="9">https://ai-app-skr.aks-lab.com</text>
+  <text x="150" y="103" text-anchor="middle" fill="#475569" font-size="9">/ — Chat with RAG assistant</text>
+  <text x="150" y="118" text-anchor="middle" fill="#475569" font-size="9">/upload — Upload documents</text>
+  <text x="150" y="133" text-anchor="middle" fill="#475569" font-size="9">/api/files/id/decrypt — Download</text>
+  <text x="150" y="168" text-anchor="middle" fill="#2563eb" font-size="9" font-weight="bold">HTTPS</text>
+
+  <!-- Arrow: User → Nginx -->
+  <line x1="150" y1="178" x2="150" y2="248" stroke="#2563eb" stroke-width="1.8" marker-end="url(#ablue)"/>
+
+  <!-- Local Machine -->
+  <rect x="20" y="210" width="260" height="200" rx="10" fill="#ffffff" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="150" y="230" text-anchor="middle" fill="#64748b" font-size="10" font-weight="bold">💻 Local Machine</text>
+  <text x="150" y="245" text-anchor="middle" fill="#6b7280" font-size="8">One-time model preparation</text>
+  <rect x="30" y="252" width="240" height="148" rx="6" fill="#f3f4f6" stroke="#b45309" stroke-width="1.2"/>
+  <text x="150" y="270" text-anchor="middle" fill="#92400e" font-size="10" font-weight="bold">encrypt_model.py</text>
+  <text x="40" y="288" fill="#475569" font-size="9">1. TAR the model directory</text>
+  <text x="40" y="304" fill="#475569" font-size="9">2. Generate DEK (AES-256, 32 bytes)</text>
+  <text x="40" y="320" fill="#475569" font-size="9">3. Encrypt TAR (AES-256-GCM)</text>
+  <text x="40" y="336" fill="#475569" font-size="9">4. Wrap DEK with KEK via Key Vault</text>
+  <text x="40" y="352" fill="#475569" font-size="9">   (RSA-OAEP-256)</text>
+  <text x="40" y="370" fill="#6b7280" font-size="8">Output: model_archive.tar.enc</text>
+  <text x="40" y="384" fill="#6b7280" font-size="8">       wrapped_model_dek.bin</text>
+
+  <!-- Arrow: Local → GPU VM (scp) -->
+  <line x1="280" y1="330" x2="1160" y2="330" stroke="#64748b" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#agray)"/>
+  <text x="720" y="322" text-anchor="middle" fill="#64748b" font-size="9">scp upload (one-time)</text>
+
+  <!-- ============================================================ -->
+  <!-- ROW 2: AKS CLUSTER (full width)                              -->
+  <!-- ============================================================ -->
+
+  <rect x="20" y="248" width="1100" height="620" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="570" y="268" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="bold">☸️  AKS Cluster  —  Confidential VM Node Pool (cvmnp: DC16as_v5)</text>
+
+  <!-- Nginx Ingress -->
+  <rect x="35" y="278" width="1070" height="65" rx="8" fill="#eef2f7" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="570" y="300" text-anchor="middle" fill="#0369a1" font-size="12" font-weight="bold">🌐  Nginx Ingress Controller</text>
+  <text x="570" y="318" text-anchor="middle" fill="#6b7280" font-size="9">HTTPS: ai-app-skr.aks-lab.com  |  TLS cert: ingress-cert  |  proxy-body-size: 30m  |  timeouts: 180s</text>
+  <text x="570" y="332" text-anchor="middle" fill="#64748b" font-size="8">Azure Load Balancer  |  /healthz probe  |  ingressClassName: nginx  |  helm: ingress-nginx namespace</text>
+
+  <!-- Arrow: Nginx → Flask -->
+  <line x1="300" y1="343" x2="300" y2="368" stroke="#0284c7" stroke-width="1.5" marker-end="url(#acyan)"/>
+
+  <!-- ===== THREE PODS ===== -->
+
+  <!-- Flask App Pod -->
+  <rect x="35" y="368" width="510" height="240" rx="8" fill="#f3f4f6" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="290" y="390" text-anchor="middle" fill="#6d28d9" font-size="12" font-weight="bold">🐍  Flask App Pod</text>
+  <text x="290" y="408" text-anchor="middle" fill="#6b7280" font-size="9">ai-app-skr deployment  |  Port 8000  |  ClusterIP svc → port 80</text>
+  <text x="55" y="426" fill="#475569" font-size="9">Workload Identity: sa-ai-app → Managed Identity</text>
+  <text x="55" y="442" fill="#475569" font-size="9">Mounts: /sys/kernel/security  +  /dev/tpmrm0</text>
+  <text x="55" y="458" fill="#dc2626" font-size="9">SKR Mode: ENABLED  |  CPU: 4  |  RAM: 16Gi</text>
+  <text x="55" y="474" fill="#475569" font-size="9">Routes:  /  (chat UI)  |  /upload  |  /api/chat</text>
+  <text x="55" y="490" fill="#475569" font-size="9">        /api/upload  |  /api/files  |  /api/search</text>
+  <text x="55" y="506" fill="#475569" font-size="9">ConfigMap: cm-ai-app-skr  (all .env values)</text>
+  <text x="55" y="522" fill="#475569" font-size="9">Image: amlragwks.azurecr.io/confidential-ai-app:skr</text>
+  <text x="55" y="538" fill="#475569" font-size="9">Secret: docintel-secret  |  ingress-cert</text>
+  <text x="55" y="556" fill="#c2410c" font-size="10" font-weight="bold">→ LLM calls: PHI_MODEL_ENDPOINT over HTTPS + X-API-Key</text>
+  <text x="55" y="572" fill="#6b7280" font-size="8">RBAC: Blob Data Contributor | KV Crypto Officer | Search Contributor</text>
+  <text x="55" y="586" fill="#6b7280" font-size="8">IRONCORE_MASTER_KEY | ENABLE_SEARCH_ENCRYPTION: True</text>
+
+  <!-- Arrow: Flask → Nomic (internal) -->
+  <line x1="545" y1="460" x2="570" y2="460" stroke="#b45309" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#aamber)"/>
+  <!-- Arrow: Flask → Doc Intel (internal) -->
+  <line x1="545" y1="490" x2="570" y2="530" stroke="#0e7490" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#adcyan)"/>
+
+  <!-- Nomic Embed Pod -->
+  <rect x="570" y="368" width="255" height="225" rx="8" fill="#f3f4f6" stroke="#b45309" stroke-width="1.8"/>
+  <text x="697" y="390" text-anchor="middle" fill="#92400e" font-size="12" font-weight="bold">🔢  Nomic Embed Pod</text>
+  <text x="697" y="408" text-anchor="middle" fill="#6b7280" font-size="9">ollama/ollama:latest</text>
+  <text x="585" y="426" fill="#475569" font-size="9">Model: nomic-embed-text:latest</text>
+  <text x="585" y="442" fill="#475569" font-size="9">Port: 11434 → ClusterIP svc: 80</text>
+  <text x="585" y="458" fill="#475569" font-size="9">nomic-svc.ai.svc.cluster.local</text>
+  <text x="585" y="474" fill="#475569" font-size="9">CPU: 8  |  RAM: 32Gi</text>
+  <text x="585" y="490" fill="#475569" font-size="9">PVC: ollama-nomic-pvc (100Gi RWO)</text>
+  <text x="585" y="506" fill="#475569" font-size="9">StorageClass: managed-csi-premium</text>
+  <text x="585" y="522" fill="#475569" font-size="9">postStart: ollama pull nomic-embed-text</text>
+  <text x="585" y="538" fill="#475569" font-size="9">Liveness: GET /api/tags (port 11434)</text>
+  <text x="585" y="555" fill="#475569" font-size="9">OLLAMA_NUM_PARALLEL: 6</text>
+  <text x="585" y="571" fill="#6b7280" font-size="8">OLLAMA_NUM_CTX: 4096  |  KEEP_ALIVE: -1</text>
+  <text x="585" y="583" fill="#6b7280" font-size="8">Vectorises: user queries + doc chunks</text>
+
+  <!-- Doc Intelligence Pod -->
+  <rect x="840" y="368" width="265" height="225" rx="8" fill="#f3f4f6" stroke="#0e7490" stroke-width="1.8"/>
+  <text x="972" y="390" text-anchor="middle" fill="#0e7490" font-size="12" font-weight="bold">📄  Doc Intelligence Pod</text>
+  <text x="972" y="408" text-anchor="middle" fill="#6b7280" font-size="9">form-recognizer/layout-4.0:latest</text>
+  <text x="855" y="426" fill="#475569" font-size="9">Port: 5000 → ClusterIP svc: 80</text>
+  <text x="855" y="442" fill="#475569" font-size="9">di-extraction-...layout.ai.svc</text>
+  <text x="855" y="458" fill="#475569" font-size="9">CPU: 8  |  RAM: 32Gi</text>
+  <text x="855" y="474" fill="#475569" font-size="9">PVC shared: 200Gi (RWX, Azure Files)</text>
+  <text x="855" y="490" fill="#475569" font-size="9">PVC output: 200Gi (RWX, Azure Files)</text>
+  <text x="855" y="506" fill="#475569" font-size="9">StorageClass: sc-di-fileshare (Std LRS)</text>
+  <text x="855" y="522" fill="#475569" font-size="9">Secret: docintel-secret (base64 API key)</text>
+  <text x="855" y="538" fill="#475569" font-size="9">Extracts: text, tables, key-value pairs</text>
+  <text x="855" y="554" fill="#475569" font-size="9">Fallback: PyMuPDF if DI unavailable</text>
+  <text x="855" y="571" fill="#6b7280" font-size="8">Endpoint env: AZURE_DOC_INTELLIGENCE_ENDPOINT</text>
+  <text x="855" y="583" fill="#6b7280" font-size="8">Supports: PDF, DOCX, TXT, JPEG, PNG</text>
+
+  <!-- RAG Flow box -->
+  <rect x="35" y="620" width="1070" height="105" rx="7" fill="#f3f4f6" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="570" y="640" text-anchor="middle" fill="#7c3aed" font-size="10" font-weight="bold">RAG Query Flow (orchestrated by Flask)</text>
+  <text x="55" y="658" fill="#475569" font-size="9">1. User query → Nginx → Flask</text>
+  <text x="55" y="674" fill="#475569" font-size="9">2. Flask → Nomic: vectorise query</text>
+  <text x="55" y="690" fill="#475569" font-size="9">3. Flask → AI Search: top-K chunks (cosine similarity)</text>
+  <text x="55" y="706" fill="#475569" font-size="9">4. Flask builds prompt: system + chunks + user query</text>
+  <text x="470" y="658" fill="#475569" font-size="9">5. Flask → GPU VM Caddy (HTTPS + X-API-Key) → vLLM → answer</text>
+  <text x="470" y="674" fill="#475569" font-size="9">6. Flask returns answer → Nginx → User</text>
+  <text x="470" y="690" fill="#475569" font-size="9">Upload: Doc Intel extract → Nomic embed → AI Search index → Blob store (encrypted)</text>
+  <text x="470" y="706" fill="#475569" font-size="9">Download: Flask → KV (decrypt link) → Blob fetch → serve to user</text>
+
+  <!-- Workload Identity strip -->
+  <rect x="35" y="737" width="1070" height="30" rx="5" fill="#f5f0fc" stroke="#6d28d9" stroke-width="1"/>
+  <text x="570" y="750" text-anchor="middle" fill="#6d28d9" font-size="9" font-weight="bold">Workload Identity: sa-ai-app → Managed Identity (IMDS_CLIENT_ID) → RBAC on all Azure services below</text>
+  <text x="570" y="762" text-anchor="middle" fill="#374151" font-size="8">Node Pools: System (2x DC4as_v5 128GB SSD)  |  User/cvmnp (2x DC16as_v5 256GB SSD)  |  Deploy order: pvc → deployment-read → embeddings → app-skr</text>
+
+  <!-- Infra strip -->
+  <rect x="35" y="778" width="1070" height="28" rx="5" fill="#f3f4f6" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="570" y="791" text-anchor="middle" fill="#64748b" font-size="8" font-weight="bold">Infrastructure: ACR (amlragwks.azurecr.io)  |  ARM Template: infra/arm-template.json  |  kubectl create cm cm-ai-app-skr --from-env-file=.env  |  Certs: ingress-cert secret</text>
+  <text x="570" y="804" text-anchor="middle" fill="#374151" font-size="8">Deploy: helm ingress-nginx  |  sa.yaml (ServiceAccount)  |  Secret docintel-secret (base64 API key)  |  linkerd (optional mTLS between pods)</text>
+
+  <!-- ============================================================ -->
+  <!-- BIG ARROW: Flask → GPU VM  (between the two main boxes)      -->
+  <!-- ============================================================ -->
+  <line x1="1120" y1="556" x2="1160" y2="556" stroke="#c2410c" stroke-width="3" marker-end="url(#aorange)"/>
+  <rect x="1095" y="540" width="70" height="26" rx="4" fill="#fff7ed"/>
+  <text x="1130" y="550" text-anchor="middle" fill="#c2410c" font-size="8" font-weight="bold">HTTPS</text>
+  <text x="1130" y="562" text-anchor="middle" fill="#c2410c" font-size="8">X-API-Key</text>
+
+  <!-- ============================================================ -->
+  <!-- ROW 3: CONFIDENTIAL GPU VM (right side, well separated)      -->
+  <!-- ============================================================ -->
+
+  <rect x="1160" y="248" width="420" height="620" rx="12" fill="#ffffff" stroke="#c2410c" stroke-width="2.5" stroke-dasharray="6,3"/>
+  <text x="1370" y="268" text-anchor="middle" fill="#c2410c" font-size="11" font-weight="bold">🔐  Confidential GPU VM</text>
+  <text x="1370" y="284" text-anchor="middle" fill="#6b7280" font-size="8">Standard_NCC40ads_H100_v5  |  AMD SEV-SNP + NVIDIA H100 TEE</text>
+  <text x="1370" y="298" text-anchor="middle" fill="#64748b" font-size="8">NSG: 80/443 open  |  8000 DENIED  |  FQDN: *.cloudapp.azure.com</text>
+
+  <!-- Caddy -->
+  <rect x="1172" y="308" width="395" height="100" rx="7" fill="#f3f4f6" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="1370" y="328" text-anchor="middle" fill="#0369a1" font-size="11" font-weight="bold">🌐  Caddy Reverse Proxy</text>
+  <text x="1172" y="348" fill="#475569" font-size="9">  Port 443: TLS termination (Let's Encrypt auto cert)</text>
+  <text x="1172" y="364" fill="#475569" font-size="9">  X-API-Key header auth  |  Unauthorized → 401</text>
+  <text x="1172" y="380" fill="#475569" font-size="9">  Port 80: ACME challenge only</text>
+  <text x="1172" y="396" fill="#475569" font-size="9">  Security headers: HSTS, X-Frame-Options, CSP</text>
+  <text x="1172" y="408" text-anchor="middle" fill="#6b7280" font-size="8">  API_KEY env via systemd override.conf  |  /healthz endpoint</text>
+
+  <!-- Arrow: Caddy → vLLM -->
+  <line x1="1370" y1="408" x2="1370" y2="428" stroke="#0284c7" stroke-width="1.5" marker-end="url(#acyan)"/>
+  <text x="1415" y="422" fill="#64748b" font-size="8">127.0.0.1:8000</text>
+
+  <!-- vLLM -->
+  <rect x="1172" y="428" width="395" height="95" rx="7" fill="#f3f4f6" stroke="#c2410c" stroke-width="1.5"/>
+  <text x="1370" y="448" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="bold">🤖  vLLM Inference Server</text>
+  <text x="1182" y="466" fill="#475569" font-size="9">Binds to 127.0.0.1:8000 only (not externally reachable)</text>
+  <text x="1182" y="482" fill="#475569" font-size="9">OpenAI-compatible API: /v1/chat/completions</text>
+  <text x="1182" y="498" fill="#475569" font-size="9">Model: gpt-oss-20b  |  Streaming SSE responses</text>
+  <text x="1182" y="514" fill="#6b7280" font-size="8">Launched by app.py after attestation + decryption</text>
+
+  <!-- Arrow: vLLM → /dev/shm -->
+  <line x1="1370" y1="523" x2="1370" y2="543" stroke="#059669" stroke-width="1.5" marker-end="url(#agreen)"/>
+
+  <!-- /dev/shm -->
+  <rect x="1172" y="543" width="395" height="75" rx="7" fill="#f3f4f6" stroke="#059669" stroke-width="1.5"/>
+  <text x="1370" y="562" text-anchor="middle" fill="#047857" font-size="10" font-weight="bold">💾  /dev/shm/decrypted_model  (tmpfs)</text>
+  <text x="1182" y="579" fill="#475569" font-size="9">RAM only — never persisted to disk</text>
+  <text x="1182" y="594" fill="#475569" font-size="9">Hardware-encrypted by TEE (H100 + SEV-SNP)</text>
+  <text x="1182" y="607" fill="#6b7280" font-size="8">Cleaned up: finally: shutil.rmtree(/dev/shm/decrypted_model)</text>
+
+  <!-- Arrow: /dev/shm → app.py -->
+  <line x1="1370" y1="618" x2="1370" y2="638" stroke="#7c3aed" stroke-width="1.2" marker-end="url(#apurple)"/>
+
+  <!-- app.py -->
+  <rect x="1172" y="638" width="395" height="215" rx="7" fill="#f3f4f6" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="1370" y="657" text-anchor="middle" fill="#6d28d9" font-size="10" font-weight="bold">app.py — Startup Orchestration (inside TEE)</text>
+
+  <!-- Step 1 -->
+  <rect x="1180" y="665" width="185" height="110" rx="5" fill="#f3f4f6" stroke="#b45309" stroke-width="1"/>
+  <text x="1272" y="681" text-anchor="middle" fill="#92400e" font-size="9" font-weight="bold">Step 1: gpu_attestation.py</text>
+  <text x="1190" y="697" fill="#475569" font-size="8">collect_gpu_evidence_local()</text>
+  <text x="1190" y="711" fill="#475569" font-size="8">attest() via local_gpu_verifier</text>
+  <text x="1190" y="725" fill="#475569" font-size="8">Decode JWT: nvidia-overall-att</text>
+  <text x="1190" y="739" fill="#475569" font-size="8">Verify CC Mode + PRODUCTION</text>
+  <text x="1190" y="753" fill="#dc2626" font-size="8">FAIL → abort</text>
+  <text x="1245" y="753" fill="#059669" font-size="8">PASS → Step 2</text>
+  <text x="1190" y="767" fill="#6b7280" font-size="8">Driver + VBIOS RIM validation</text>
+
+  <line x1="1365" y1="720" x2="1380" y2="720" stroke="#7c3aed" stroke-width="1" marker-end="url(#apurple)"/>
+
+  <!-- Step 2 -->
+  <rect x="1380" y="665" width="180" height="110" rx="5" fill="#f3f4f6" stroke="#dc2626" stroke-width="1"/>
+  <text x="1470" y="681" text-anchor="middle" fill="#b91c1c" font-size="9" font-weight="bold">Step 2: skr_decrypt.py</text>
+  <text x="1390" y="697" fill="#475569" font-size="8">Read wrapped_model_dek.bin</text>
+  <text x="1390" y="711" fill="#475569" font-size="8">Call AzureAttestSKR binary</text>
+  <text x="1390" y="725" fill="#475569" font-size="8">VM attests via MAA (vTPM)</text>
+  <text x="1390" y="739" fill="#475569" font-size="8">KV releases KEK (RSA-HSM)</text>
+  <text x="1390" y="753" fill="#475569" font-size="8">Unwrap → raw 32-byte DEK</text>
+  <text x="1390" y="767" fill="#059669" font-size="8">Returns DEK → Step 3</text>
+
+  <!-- Step 3 -->
+  <rect x="1180" y="787" width="380" height="58" rx="5" fill="#f3f4f6" stroke="#059669" stroke-width="1"/>
+  <text x="1370" y="804" text-anchor="middle" fill="#047857" font-size="9" font-weight="bold">Step 3: AES-256-GCM decrypt → extract to /dev/shm → del dek → launch vLLM</text>
+  <text x="1370" y="820" text-anchor="middle" fill="#6b7280" font-size="8">Hardware: SecureBoot ON | CC Mode ON | PRODUCTION | CUDA 12.5 | az-cgpu-onboarding</text>
+  <text x="1370" y="834" text-anchor="middle" fill="#6b7280" font-size="8">AzureAttestSKR: built from confidential-computing-cvm-guest-attestation repo</text>
+
+  <!-- ============================================================ -->
+  <!-- ROW 4: AZURE SERVICES (full width, well below everything)    -->
+  <!-- ============================================================ -->
+
+  <rect x="20" y="900" width="1560" height="460" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="800" y="920" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="bold">☁️  Azure Services</text>
+
+  <!-- Key Vault -->
+  <rect x="35" y="932" width="270" height="180" rx="8" fill="#f3f4f6" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="170" y="952" text-anchor="middle" fill="#b91c1c" font-size="11" font-weight="bold">🔑  Azure Key Vault (Premium)</text>
+  <text x="45" y="970" fill="#6b7280" font-size="9">KekForSKR (RSA-HSM, exportable)</text>
+  <text x="45" y="986" fill="#475569" font-size="9">SKR release policy (sevsnpvm claims)</text>
+  <text x="45" y="1002" fill="#475569" font-size="9">ironcore-master-key (auto-created)</text>
+  <text x="45" y="1018" fill="#475569" font-size="9">ENCRYPTION_PRIVATE/PUBLIC_KEY_NAME</text>
+  <text x="45" y="1034" fill="#6b7280" font-size="9">Flask: encrypt/decrypt document links</text>
+  <text x="45" y="1050" fill="#dc2626" font-size="9">GPU VM: SKR at startup only (KEK)</text>
+  <text x="45" y="1066" fill="#6b7280" font-size="8">Purge protection: ON | RBAC enabled</text>
+  <text x="45" y="1082" fill="#6b7280" font-size="8">RBAC: KV Crypto Officer (Flask + GPU VM MI)</text>
+  <text x="45" y="1098" fill="#6b7280" font-size="8">KV Secrets Officer (Flask)</text>
+
+  <!-- MAA -->
+  <rect x="325" y="932" width="270" height="180" rx="8" fill="#f3f4f6" stroke="#c2410c" stroke-width="1.8"/>
+  <text x="460" y="952" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="bold">🛡️  Azure Attestation (MAA)</text>
+  <text x="335" y="970" fill="#6b7280" font-size="9">shareditn.itn.attest.azure.net</text>
+  <text x="335" y="986" fill="#475569" font-size="9">Validates AMD SEV-SNP CVM claims</text>
+  <text x="335" y="1002" fill="#475569" font-size="9">x-ms-attestation-type: sevsnpvm</text>
+  <text x="335" y="1018" fill="#475569" font-size="9">x-ms-compliance-status: azure-cvm</text>
+  <text x="335" y="1034" fill="#475569" font-size="9">Issues JWT token for SKR flow</text>
+  <text x="335" y="1050" fill="#dc2626" font-size="9">Used by GPU VM AzureAttestSKR ONLY</text>
+  <text x="335" y="1066" fill="#6b7280" font-size="8">NOT used by AKS Flask pod</text>
+  <text x="335" y="1082" fill="#6b7280" font-size="8">Can use shared or dedicated provider</text>
+  <text x="335" y="1098" fill="#6b7280" font-size="8">ARM template provisions attestation server</text>
+
+  <!-- AI Search -->
+  <rect x="615" y="932" width="270" height="180" rx="8" fill="#f3f4f6" stroke="#059669" stroke-width="1.8"/>
+  <text x="750" y="952" text-anchor="middle" fill="#047857" font-size="11" font-weight="bold">🔍  Azure AI Search</text>
+  <text x="625" y="970" fill="#6b7280" font-size="9">Index: documents-index-skr</text>
+  <text x="625" y="986" fill="#475569" font-size="9">Auto-created at Flask app start</text>
+  <text x="625" y="1002" fill="#475569" font-size="9">Vector search (cosine similarity)</text>
+  <text x="625" y="1018" fill="#475569" font-size="9">ENABLE_SEARCH_ENCRYPTION: True</text>
+  <text x="625" y="1034" fill="#475569" font-size="9">Stores encrypted text chunks</text>
+  <text x="625" y="1050" fill="#6b7280" font-size="9">Flask: query (RAG) + index (upload)</text>
+  <text x="625" y="1066" fill="#6b7280" font-size="8">RBAC: Search Index Contributor</text>
+  <text x="625" y="1082" fill="#6b7280" font-size="8">       Search Service Contributor</text>
+  <text x="625" y="1098" fill="#6b7280" font-size="8">Connected to AKS Flask pod only</text>
+
+  <!-- Blob Storage -->
+  <rect x="905" y="932" width="270" height="180" rx="8" fill="#f3f4f6" stroke="#2563eb" stroke-width="1.8"/>
+  <text x="1040" y="952" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">☁️  Azure Blob Storage</text>
+  <text x="915" y="970" fill="#6b7280" font-size="9">Container: encrypted-documents-skr</text>
+  <text x="915" y="986" fill="#475569" font-size="9">Auto-created at Flask app start</text>
+  <text x="915" y="1002" fill="#475569" font-size="9">Stores RSA-encrypted documents</text>
+  <text x="915" y="1018" fill="#475569" font-size="9">Flask upload: encrypt + store</text>
+  <text x="915" y="1034" fill="#475569" font-size="9">Flask download: fetch + KV decrypt</text>
+  <text x="915" y="1050" fill="#6b7280" font-size="9">RBAC: Storage Blob Data Contributor</text>
+  <text x="915" y="1066" fill="#6b7280" font-size="8">Managed via Workload Identity</text>
+  <text x="915" y="1082" fill="#6b7280" font-size="8">AZURE_STORAGE_ACCOUNT_NAME</text>
+  <text x="915" y="1098" fill="#6b7280" font-size="8">Connected to AKS Flask pod only</text>
+
+  <!-- Container Registry + ARM -->
+  <rect x="1195" y="932" width="370" height="180" rx="8" fill="#f3f4f6" stroke="#7c3aed" stroke-width="1.8"/>
+  <text x="1380" y="952" text-anchor="middle" fill="#6d28d9" font-size="11" font-weight="bold">📦  ACR + ARM Template</text>
+  <text x="1205" y="970" fill="#6b7280" font-size="9">ACR: amlragwks.azurecr.io</text>
+  <text x="1205" y="986" fill="#475569" font-size="9">Image: confidential-ai-app:skr-small-0.6</text>
+  <text x="1205" y="1002" fill="#475569" font-size="9">AKS pulls image at pod deployment</text>
+  <text x="1205" y="1018" fill="#475569" font-size="9">Or: build Dockerfile locally</text>
+  <text x="1205" y="1038" fill="#64748b" font-size="8">ARM: infra/arm-template.json</text>
+  <text x="1205" y="1054" fill="#78716c" font-size="8">Provisions: AI Search, Storage, Key Vault,</text>
+  <text x="1205" y="1070" fill="#78716c" font-size="8">Doc Intelligence, Attestation, ACR</text>
+  <text x="1205" y="1086" fill="#78716c" font-size="8">Infrastructure provisioning only</text>
+  <text x="1205" y="1102" fill="#a8a29e" font-size="8">Cleanup: az group delete --name RG</text>
+
+  <!-- Optional Streamlit note -->
+  <rect x="35" y="1130" width="1550" height="50" rx="7" fill="#f3f4f6" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="800" y="1150" text-anchor="middle" fill="#64748b" font-size="9" font-weight="bold">Optional: streamlit_client.py — Direct LLM testing tool only (bypasses AKS RAG pipeline entirely)</text>
+  <text x="800" y="1168" text-anchor="middle" fill="#374151" font-size="8">Connects directly to GPU VM Caddy (HTTPS + X-API-Key) for dev/testing  |  Streaming SSE parsing  |  think tag rendering  |  Multi-turn history  |  NOT part of production RAG flow</text>
+
+  <!-- ============================================================ -->
+  <!-- CONNECTIONS: AKS Flask → Azure Services (downward arrows)    -->
+  <!-- ============================================================ -->
+  <!-- Flask → Key Vault -->
+  <line x1="170" y1="868" x2="170" y2="932" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ared)"/>
+  <!-- Flask → AI Search -->
+  <line x1="400" y1="868" x2="750" y2="932" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#agreen)"/>
+  <!-- Flask → Blob -->
+  <line x1="450" y1="868" x2="1040" y2="932" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ablue)"/>
+  <!-- AKS → ACR -->
+  <line x1="600" y1="868" x2="1380" y2="932" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#apurple)"/>
+
+  <!-- GPU VM startup → Key Vault (SKR) -->
+  <line x1="1280" y1="868" x2="240" y2="932" stroke="#c2410c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aorange)"/>
+  <!-- GPU VM startup → MAA -->
+  <line x1="1350" y1="868" x2="510" y2="932" stroke="#c2410c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#aorange)"/>
+  <text x="860" y="895" text-anchor="middle" fill="#c2410c" font-size="8">GPU VM startup SKR only (not runtime)</text>
+
+  <!-- ============================================================ -->
+  <!-- DEFS                                                          -->
+  <!-- ============================================================ -->
+  <defs>
+    <marker id="ablue"   markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#2563eb"/></marker>
+    <marker id="acyan"   markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0284c7"/></marker>
+    <marker id="agreen"  markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#059669"/></marker>
+    <marker id="ared"    markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#dc2626"/></marker>
+    <marker id="apurple" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#7c3aed"/></marker>
+    <marker id="aamber"  markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#b45309"/></marker>
+    <marker id="adcyan"  markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#0e7490"/></marker>
+    <marker id="agray"   markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#64748b"/></marker>
+    <marker id="aorange" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#c2410c"/></marker>
+  </defs>
+
+</svg>
+
+  </div>
+</div>
