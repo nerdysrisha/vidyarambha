@@ -1,0 +1,454 @@
+<!--
+  cVM Hardware Isolation — How one CPU runs multiple encrypted VMs (fragment)
+  Scoped for embedding inside a base HTML page. All colors, layout values,
+  and inline --accent overrides are unchanged from the original.
+
+  If your base page already loads IBM Plex Sans / IBM Plex Mono elsewhere,
+  this @import is redundant but harmless — remove it if you want to dedupe.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+  .cvm-widget *, .cvm-widget *::before, .cvm-widget *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .cvm-widget {
+    --bg: #f8f9fc;
+    --panel: #ffffff;
+    --border: #dde1ea;
+    --text: #1a1d2e;
+    --muted: #6b7280;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+
+    --c-hardware:  #c2410c;
+    --c-firmware:  #b45309;
+    --c-hypervisor:#dc2626;
+    --c-cvm-a:     #0369a1;
+    --c-cvm-b:     #047857;
+    --c-regular:   #4b5563;
+    --c-key:       #6d28d9;
+  }
+
+  .cvm-widget {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .cvm-widget .page-header { text-align: center; margin-bottom: 36px; }
+  .cvm-widget .page-header h1 { font-size: clamp(1.2rem,2.5vw,1.8rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin-bottom: 6px; }
+  .cvm-widget .page-header p { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .cvm-widget .canvas {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 0 20px;
+    width: 100%;
+    max-width: 1060px;
+    margin: 0 auto;
+  }
+
+  .cvm-widget .stack { display: flex; flex-direction: column; gap: 6px; }
+
+  /* generic layer card */
+  .cvm-widget .layer {
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    background: var(--panel);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .cvm-widget .layer-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+  }
+  .cvm-widget .layer-num {
+    font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, white);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, white);
+  }
+  .cvm-widget .layer-title { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+  .cvm-widget .layer-subtitle { font-size: 0.7rem; color: var(--muted); margin-left: 2px; }
+  .cvm-widget .layer-tag {
+    margin-left: auto; font-family: var(--mono); font-size: 0.57rem;
+    font-weight: 600; padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+  .cvm-widget .tag-hw { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .cvm-widget .tag-fw { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .cvm-widget .tag-bad { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .cvm-widget .tag-tee { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+  .cvm-widget .layer-body { padding: 12px 16px 14px; }
+  .cvm-widget .layer-desc { font-size: 0.77rem; color: #4b5563; line-height: 1.65; margin-bottom: 10px; }
+
+  /* component row for L0 hardware chips */
+  .cvm-widget .hw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .cvm-widget .hw-card {
+    background: #fff7f5; border: 1px solid #fed7aa;
+    border-radius: 6px; padding: 8px 10px;
+  }
+  .cvm-widget .hw-card-name { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; color: #c2410c; margin-bottom: 3px; }
+  .cvm-widget .hw-card-desc { font-size: 0.66rem; color: #92400e; line-height: 1.4; }
+
+  /* VM grid — 3 columns */
+  .cvm-widget .vm-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 2px; }
+
+  .cvm-widget .vm-card {
+    border-radius: 8px; border: 1.5px solid var(--border);
+    overflow: hidden; background: var(--panel);
+  }
+  .cvm-widget .vm-header {
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+    font-weight: 700; font-size: 0.82rem;
+  }
+  .cvm-widget .vm-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; }
+
+  .cvm-widget .vm-row {
+    border-radius: 5px; padding: 7px 9px;
+    font-size: 0.67rem; line-height: 1.5;
+  }
+  .cvm-widget .vm-row-name { font-family: var(--mono); font-size: 0.63rem; font-weight: 600; margin-bottom: 2px; }
+
+  /* regular VM colours */
+  .cvm-widget .vm-regular .vm-header { background: #f3f4f6; color: #374151; }
+  .cvm-widget .vm-regular .vm-os { background: #f3f4f6; border: 1px solid #d1d5db; color: #374151; }
+  .cvm-widget .vm-regular .vm-mem { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+  /* cVM-A colours */
+  .cvm-widget .vm-a .vm-header { background: #eff6ff; color: #0369a1; border-bottom-color: #bae6fd; }
+  .cvm-widget .vm-a .vm-os { background: #dbeafe; border: 1px solid #93c5fd; color: #0c447c; }
+  .cvm-widget .vm-a .vm-mem { background: #eff6ff; border: 1px solid #bae6fd; color: #0c447c; }
+  .cvm-widget .vm-a .vm-key { background: #f5f3ff; border: 1px solid #ddd6fe; color: #4c1d95; }
+  .cvm-widget .vm-a .vm-result { background: #dcfce7; border: 1px solid #86efac; color: #14532d; }
+
+  /* cVM-B colours */
+  .cvm-widget .vm-b .vm-header { background: #f0fdf4; color: #047857; border-bottom-color: #86efac; }
+  .cvm-widget .vm-b .vm-os { background: #dcfce7; border: 1px solid #86efac; color: #065f46; }
+  .cvm-widget .vm-b .vm-mem { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
+  .cvm-widget .vm-b .vm-key { background: #fdf4ff; border: 1px solid #e9d5ff; color: #581c87; }
+  .cvm-widget .vm-b .vm-result { background: #dcfce7; border: 1px solid #86efac; color: #14532d; }
+
+  .cvm-widget .key-badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+    padding: 1px 7px; border-radius: 3px; margin-bottom: 3px;
+  }
+  .cvm-widget .key-a { background: #ddd6fe; color: #4c1d95; }
+  .cvm-widget .key-b { background: #e9d5ff; color: #581c87; }
+
+  /* hypervisor sees section */
+  .cvm-widget .hyp-sees {
+    border: 1.5px dashed #f87171;
+    border-radius: 8px; padding: 14px; margin-top: 2px;
+    background: #fff5f5;
+  }
+  .cvm-widget .hyp-sees-title {
+    font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+    color: #991b1b; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+  .cvm-widget .hyp-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .cvm-widget .hyp-card { border-radius: 6px; padding: 8px 10px; }
+  .cvm-widget .hyp-plain { background: #fee2e2; border: 1px solid #fca5a5; }
+  .cvm-widget .hyp-cipher { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .cvm-widget .hyp-card-title { font-family: var(--mono); font-size: 0.62rem; font-weight: 600; margin-bottom: 4px; }
+  .cvm-widget .hyp-plain  .hyp-card-title { color: #991b1b; }
+  .cvm-widget .hyp-cipher .hyp-card-title { color: #065f46; }
+  .cvm-widget .hyp-card-bytes { font-family: var(--mono); font-size: 0.63rem; line-height: 1.6; }
+  .cvm-widget .hyp-plain  .hyp-card-bytes { color: #7f1d1d; }
+  .cvm-widget .hyp-cipher .hyp-card-bytes { color: #14532d; }
+  .cvm-widget .hyp-card-verdict { font-size: 0.65rem; margin-top: 5px; font-weight: 600; }
+  .cvm-widget .hyp-plain  .hyp-card-verdict { color: #dc2626; }
+  .cvm-widget .hyp-cipher .hyp-card-verdict { color: #047857; }
+
+  /* key generation callout */
+  .cvm-widget .key-callout {
+    border: 1.5px solid #ddd6fe; border-radius: 8px;
+    padding: 12px 14px; background: #f5f3ff; margin-top: 2px;
+  }
+  .cvm-widget .key-callout-title {
+    font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+    color: #4c1d95; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+  }
+  .cvm-widget .key-callout-row { font-size: 0.72rem; color: #4c1d95; line-height: 1.7; }
+  .cvm-widget .key-callout-row span { font-family: var(--mono); font-weight: 600; }
+
+  /* arrow dividers */
+  .cvm-widget .arrow { text-align: center; color: #9ca3af; font-size: 0.75rem; padding: 0; }
+
+  /* right panel */
+  .cvm-widget .right-col { display: flex; flex-direction: column; gap: 14px; padding-top: 2px; }
+  .cvm-widget .r-card { background: var(--panel); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .cvm-widget .r-title { font-family: var(--mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .cvm-widget .r-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 0.71rem; color: #4b5563; line-height: 1.6; }
+  .cvm-widget .r-item:last-child { margin-bottom: 0; }
+  .cvm-widget .r-num { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; color: var(--panel); width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .cvm-widget .r-item strong { color: var(--text); }
+  .cvm-widget .r-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+
+  .cvm-widget .insight-row { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 8px 10px; font-size: 0.7rem; color: #4c1d95; line-height: 1.6; margin-bottom: 6px; }
+  .cvm-widget .insight-row:last-child { margin-bottom: 0; }
+  .cvm-widget .insight-row strong { color: #3c3489; }
+
+  .cvm-widget .bottom-note { max-width: 1060px; margin: 24px auto 0; background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; font-size: 0.76rem; color: #78350f; line-height: 1.7; font-family: var(--mono); }
+  .cvm-widget .bottom-note strong { color: #92400e; }
+</style>
+
+<div class="cvm-widget">
+
+<div class="page-header">
+  <h1>How one CPU runs multiple encrypted VMs — cVM isolation explained</h1>
+  <p>L0 hardware · L1 firmware · L2 hypervisor (untrusted) · TEE memory encryption · per-VM keys</p>
+</div>
+
+<div class="canvas">
+<div class="stack">
+
+  <!-- L0 Hardware -->
+  <div class="layer" style="--accent: var(--c-hardware)">
+    <div class="layer-header" style="background:#fff7f5">
+      <span class="layer-num">L0</span>
+      <span class="layer-title">Physical hardware — one server, one CPU socket</span>
+      <span class="layer-subtitle">— root of trust · never splits · everything above depends on this</span>
+      <span class="layer-tag tag-hw">ROOT OF TRUST</span>
+    </div>
+    <div class="layer-body">
+      <p class="layer-desc">One physical machine. The CPU, DRAM, and Memory Encryption Engine are a single piece of silicon and metal. Nothing at this layer changes when VMs are created — the hardware just gains the ability to enforce per-VM encryption domains.</p>
+      <div class="hw-grid">
+        <div class="hw-card">
+          <div class="hw-card-name">CPU die — Intel Xeon w/ TDX</div>
+          <div class="hw-card-desc">64 physical cores. TDX (Trust Domain Extensions) module is etched directly into silicon. Generates per-VM AES-256 keys internally. Keys never leave the CPU die.</div>
+        </div>
+        <div class="hw-card">
+          <div class="hw-card-name">DRAM — Samsung DDR5 512 GB</div>
+          <div class="hw-card-desc">Shared physical memory. All VMs share the same DRAM sticks. The TEE encrypts each VM's assigned address range so other VMs and the hypervisor only see ciphertext.</div>
+        </div>
+        <div class="hw-card">
+          <div class="hw-card-name">Memory Encryption Engine (MEE/TME)</div>
+          <div class="hw-card-desc">Intel TME-MK circuit sits between CPU cache and DRAM bus. Automatically encrypts/decrypts memory lines using the key assigned to the active VM context. Transparent to software.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow">↑ &nbsp; hardware initialises &nbsp; ↑</div>
+
+  <!-- L1 Firmware -->
+  <div class="layer" style="--accent: var(--c-firmware)">
+    <div class="layer-header" style="background:#fffbf0">
+      <span class="layer-num">L1</span>
+      <span class="layer-title">BIOS / UEFI + CPU microcode</span>
+      <span class="layer-subtitle">— anchors attestation key chain · compromise here collapses all TEE guarantees</span>
+      <span class="layer-tag tag-fw">MFR TCB</span>
+    </div>
+    <div class="layer-body">
+      <p class="layer-desc">First code to run on power-on. Initialises the TDX module, loads microcode patches, and establishes the vendor-signed key chain that remote attestation relies on. The TDX module's root signing key is provisioned at the factory and stored in fused hardware — it cannot be changed post-manufacture.</p>
+    </div>
+  </div>
+
+  <div class="arrow">↑ &nbsp; loads &amp; controls &nbsp; ↑</div>
+
+  <!-- L2 Hypervisor -->
+  <div class="layer" style="--accent: var(--c-hypervisor)">
+    <div class="layer-header" style="background:#fff5f5">
+      <span class="layer-num">L2</span>
+      <span class="layer-title">Hypervisor / KVM + QEMU — UNTRUSTED — CSP controlled</span>
+      <span class="layer-subtitle">— slices CPU time + memory ranges into VMs · treated as actively hostile</span>
+      <span class="layer-tag tag-bad">⚠ UNTRUSTED</span>
+    </div>
+    <div class="layer-body">
+      <p class="layer-desc">The hypervisor does what it has always done — assigns each VM a slice of CPU time and a range of physical memory addresses. This mechanism is unchanged by Confidential Computing. What changes is that for cVMs, the memory range assigned is immediately encrypted by the MEE using a key the hypervisor cannot access. The hypervisor can still read, write, and move memory — it just reads and writes encrypted bytes it cannot interpret.</p>
+    </div>
+  </div>
+
+  <div class="arrow">↑ &nbsp; hypervisor spawns 3 VMs — assigns CPU slice + memory address range to each &nbsp; ↑</div>
+
+  <!-- VM Grid -->
+  <div class="vm-grid">
+
+    <!-- Regular VM -->
+    <div class="vm-card vm-regular">
+      <div class="vm-header">Regular VM &nbsp;<span style="font-weight:400;font-size:0.72rem;color:#6b7280">(no TEE)</span></div>
+      <div class="vm-body">
+        <div class="vm-row vm-os">
+          <div class="vm-row-name">Guest OS + App</div>
+          Ubuntu 24.04 · standard workload
+        </div>
+        <div class="vm-row vm-mem">
+          <div class="vm-row-name">DRAM pages — plaintext</div>
+          Address range: 0x1000–0x8FFF<br>
+          No encryption — bytes readable<br>
+          by hypervisor at any time
+        </div>
+        <div style="font-size:0.66rem;color:#dc2626;margin-top:4px;padding:5px 8px;background:#fee2e2;border-radius:4px;">
+          Hypervisor reads: <span style="font-family:monospace">48 65 6c 6c 6f</span> → "Hello" — exposed
+        </div>
+      </div>
+    </div>
+
+    <!-- cVM A -->
+    <div class="vm-card vm-a">
+      <div class="vm-header">cVM — A &nbsp;<span style="font-weight:400;font-size:0.72rem">TDX Trust Domain</span></div>
+      <div class="vm-body">
+        <div class="vm-row vm-os">
+          <div class="vm-row-name">Guest OS + App A</div>
+          RHEL 9 · sensitive workload A
+        </div>
+        <div class="vm-row vm-mem">
+          <div class="vm-row-name">DRAM pages — encrypted</div>
+          Address range: 0x9000–0xEFFF<br>
+          MEE encrypts every cache line<br>
+          on write using Key-A
+        </div>
+        <div class="vm-row vm-key">
+          <span class="key-badge key-a">Key-A — AES-256-XTS</span><br>
+          Generated inside CPU silicon at VM creation.<br>
+          Held in TDX module registers only.<br>
+          Never written to DRAM, never visible to firmware or hypervisor.
+        </div>
+        <div class="vm-row vm-result">
+          <div class="vm-row-name">Hypervisor reads:</div>
+          <span style="font-family:monospace;font-size:0.63rem">3f a1 09 cc b7 2e ...</span><br>
+          encrypted garbage — uninterpretable
+        </div>
+      </div>
+    </div>
+
+    <!-- cVM B -->
+    <div class="vm-card vm-b">
+      <div class="vm-header">cVM — B &nbsp;<span style="font-weight:400;font-size:0.72rem">TDX Trust Domain</span></div>
+      <div class="vm-body">
+        <div class="vm-row vm-os">
+          <div class="vm-row-name">Guest OS + App B</div>
+          Ubuntu 22.04 · sensitive workload B
+        </div>
+        <div class="vm-row vm-mem">
+          <div class="vm-row-name">DRAM pages — encrypted</div>
+          Address range: 0xF000–0x1AFFF<br>
+          MEE encrypts every cache line<br>
+          on write using Key-B
+        </div>
+        <div class="vm-row vm-key">
+          <span class="key-badge key-b">Key-B — AES-256-XTS</span><br>
+          Separate key from Key-A — generated independently.<br>
+          cVM-A cannot decrypt cVM-B memory and vice versa.<br>
+          Key destroyed on VM shutdown.
+        </div>
+        <div class="vm-row vm-result">
+          <div class="vm-row-name">Hypervisor reads:</div>
+          <span style="font-family:monospace;font-size:0.63rem">b7 2e 44 f0 91 3a ...</span><br>
+          different encrypted garbage — also uninterpretable
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end vm-grid -->
+
+  <!-- Key generation callout -->
+  <div class="key-callout">
+    <div class="key-callout-title">Where do Key-A and Key-B come from — and where do they live?</div>
+    <div class="key-callout-row">
+      <span>Step 1 —</span> Hypervisor calls TDX module (inside CPU silicon) to create a new Trust Domain (TD) for cVM-A<br>
+      <span>Step 2 —</span> TDX module uses its internal PRNG (seeded from hardware entropy) to generate a 256-bit key — Key-A — entirely inside the CPU die<br>
+      <span>Step 3 —</span> Key-A is loaded into a dedicated CPU-internal key slot (MKTME key table) — it never travels outside the CPU package<br>
+      <span>Step 4 —</span> MEE circuit is configured to use Key-A for cVM-A's memory address range — all DRAM reads/writes for that range are auto-encrypted/decrypted<br>
+      <span>Step 5 —</span> Same process happens independently for cVM-B → Key-B, different key slot, different address range<br>
+      <span>Step 6 —</span> On VM shutdown — key slot is zeroed inside CPU — Key-A is gone forever, DRAM pages remain as meaningless ciphertext
+    </div>
+  </div>
+
+  <!-- What hypervisor sees -->
+  <div class="hyp-sees">
+    <div class="hyp-sees-title">What the hypervisor (L2) actually sees when it reads each VM's memory</div>
+    <div class="hyp-grid">
+      <div class="hyp-card hyp-plain">
+        <div class="hyp-card-title">Regular VM memory</div>
+        <div class="hyp-card-bytes">
+          48 65 6c 6c 6f 20 57 6f<br>
+          72 6c 64 0a 00 00 00 00<br>
+          <em style="font-style:italic;font-size:0.6rem">"Hello World\n" — plaintext</em>
+        </div>
+        <div class="hyp-card-verdict">Fully readable by hypervisor</div>
+      </div>
+      <div class="hyp-card hyp-cipher">
+        <div class="hyp-card-title">cVM-A memory (Key-A)</div>
+        <div class="hyp-card-bytes">
+          3f a1 09 cc b7 2e 44 f0<br>
+          91 3a 5d 08 c3 71 ea 22<br>
+          <em style="font-style:italic;font-size:0.6rem">AES-256-XTS ciphertext</em>
+        </div>
+        <div class="hyp-card-verdict">Unreadable — encrypted by MEE</div>
+      </div>
+      <div class="hyp-card hyp-cipher">
+        <div class="hyp-card-title">cVM-B memory (Key-B)</div>
+        <div class="hyp-card-bytes">
+          b7 2e 44 f0 91 3a 5d 08<br>
+          c3 71 ea 22 3f a1 09 cc<br>
+          <em style="font-style:italic;font-size:0.6rem">different AES-256-XTS ciphertext</em>
+        </div>
+        <div class="hyp-card-verdict">Unreadable — encrypted by MEE</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end stack -->
+
+<!-- RIGHT PANEL -->
+<div class="right-col">
+
+  <div class="r-card">
+    <div class="r-title">4 things to understand</div>
+    <div class="r-item">
+      <div class="r-num" style="background:#c2410c">1</div>
+      <div><strong>Hardware (L0) is always one piece.</strong> The CPU, DRAM, and MEE never split. The server chassis, the DRAM sticks, the CPU socket — all one physical object. Confidential Computing adds no new hardware.</div>
+    </div>
+    <div class="r-item">
+      <div class="r-num" style="background:#dc2626">2</div>
+      <div><strong>Hypervisor slices — same as always.</strong> L2 assigns each VM a CPU time slice and a physical memory address range. This mechanism is identical to normal virtualisation — nothing new here.</div>
+    </div>
+    <div class="r-item">
+      <div class="r-num" style="background:#6d28d9">3</div>
+      <div><strong>TEE silicon adds per-VM encryption keys.</strong> When a cVM is created, the TDX/SEV-SNP circuit inside the CPU generates a unique AES-256 key for that VM. The MEE uses it to encrypt every DRAM write for that VM's address range — automatically, in hardware.</div>
+    </div>
+    <div class="r-item">
+      <div class="r-num" style="background:#0369a1">4</div>
+      <div><strong>Keys never leave the CPU die.</strong> Key-A and Key-B live only in CPU-internal key slots. The firmware, hypervisor, OS, and application above never see them. They are zeroed when the VM shuts down.</div>
+    </div>
+  </div>
+
+  <div class="r-card">
+    <div class="r-title">Key properties</div>
+    <div class="r-item"><div class="r-dot" style="background:#6d28d9"></div><div><strong>Algorithm:</strong> AES-256-XTS — tweakable block cipher, different ciphertext per memory address even for identical plaintext</div></div>
+    <div class="r-item"><div class="r-dot" style="background:#0369a1"></div><div><strong>Scope:</strong> one key per Trust Domain (TD) — cVM-A and cVM-B cannot decrypt each other's memory</div></div>
+    <div class="r-item"><div class="r-dot" style="background:#047857"></div><div><strong>Lifetime:</strong> ephemeral — generated at VM creation, zeroed at VM shutdown, never persisted to storage</div></div>
+    <div class="r-item"><div class="r-dot" style="background:#c2410c"></div><div><strong>Location:</strong> MKTME key table inside CPU package — physically inaccessible to any external bus or software</div></div>
+  </div>
+
+  <div class="r-card">
+    <div class="r-title">Key insights</div>
+    <div class="insight-row"><strong>Same hardware, different security domains.</strong> The physical DRAM chip holds bytes for both the regular VM and both cVMs. The MEE circuit determines which bytes are encrypted on the way out — purely based on which VM's address range is being accessed.</div>
+    <div class="insight-row"><strong>The hypervisor can still move memory.</strong> It can copy cVM-A's encrypted bytes to a different location. They remain encrypted — the key is bound to the VM identity, not the physical address. Moving ciphertext doesn't help an attacker.</div>
+    <div class="insight-row"><strong>This is enforced by silicon, not software.</strong> No software switch, no OS policy, no hypervisor setting controls this — the MEE circuit sits on the memory bus between the CPU cache and DRAM. There is no software path to bypass it.</div>
+  </div>
+
+  <div class="r-card">
+    <div class="r-title">Intel TDX vs AMD SEV-SNP</div>
+    <div style="font-size:0.71rem;color:#4b5563;line-height:1.65;">
+      <strong style="color:var(--text)">Intel TDX</strong> — uses MKTME (Multi-Key Total Memory Encryption). Each Trust Domain gets a KeyID. MEE selects encryption key based on KeyID tag on each memory page.<br><br>
+      <strong style="color:var(--text)">AMD SEV-SNP</strong> — uses SME (Secure Memory Encryption) with ASID-based key selection. Each VM gets an Address Space ID, mapped to a key in the AMD Secure Processor. Adds RMP (Reverse Map Table) to prevent hypervisor from remapping cVM pages.<br><br>
+      Both achieve the same result: per-VM hardware memory encryption, keys held inside the processor, hypervisor sees only ciphertext.
+    </div>
+  </div>
+
+</div>
+
+</div><!-- end canvas -->
+
+<div class="bottom-note">
+  <strong>Bottom line:</strong> The hardware (L0) is always one physical piece. The hypervisor (L2) slices it into VMs as it always has. The TEE silicon (TDX / SEV-SNP) adds one thing on top: a per-VM AES-256 key generated inside the CPU die, used by the Memory Encryption Engine to encrypt every byte of that VM's DRAM range. The hypervisor cannot read those keys — they never leave the CPU package. This is enforced by silicon, not by software.
+</div>
+
+</div>
