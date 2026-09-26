@@ -1,0 +1,750 @@
+<!--
+  IBM Cloud CoCo — POC Architecture (fragment)
+  Scoped for embedding inside a base HTML page. Light-mode theme
+  (converted from the original dark-mode version). All rules are
+  scoped under .coco-widget, and there is no bare *, body, or h1
+  selector left unscoped, so embedding this fragment cannot leak
+  background/margin/reset styles onto the host page.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  .coco-widget {
+    --bg: #f7f8fc;
+    --bg2: #eef1f7;
+    --bg3: #e4e8f2;
+    --bg4: #dce2ef;
+    --border: rgba(100,140,255,0.27);
+    --border2: rgba(100,140,255,0.51);
+    --text: #10162a;
+    --text2: #47506b;
+    --text3: #8189a3;
+    --blue: #1d4ed8;
+    --blue-bg: rgba(74,158,255,0.12);
+    --blue-border: rgba(74,158,255,0.51);
+    --teal: #0f766e;
+    --teal-bg: rgba(45,212,191,0.12);
+    --teal-border: rgba(45,212,191,0.51);
+    --amber: #b45309;
+    --amber-bg: rgba(245,158,11,0.12);
+    --amber-border: rgba(245,158,11,0.51);
+    --green: #047857;
+    --green-bg: rgba(52,211,153,0.12);
+    --green-border: rgba(52,211,153,0.51);
+    --purple: #6d28d9;
+    --purple-bg: rgba(167,139,250,0.12);
+    --purple-border: rgba(167,139,250,0.51);
+    --coral: #be123c;
+    --coral-bg: rgba(251,113,133,0.12);
+    --coral-border: rgba(251,113,133,0.51);
+    --gray-bg: rgba(148,163,184,0.09);
+    --gray-border: rgba(148,163,184,0.36);
+    --attest: #b45309;
+    --success: #047857;
+    --font: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  .coco-widget *, .coco-widget *::before, .coco-widget *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .coco-widget { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; padding: 32px 24px 60px; }
+
+  /* ── HEADER ── */
+  .coco-widget .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .coco-widget .header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .coco-widget .header p {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  /* ── OUTER VPC ── */
+  .coco-widget .vpc {
+    border: 1.5px dashed rgba(100,140,255,0.425);
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .coco-widget .vpc-label {
+    position: absolute;
+    top: -11px;
+    left: 24px;
+    background: var(--bg);
+    padding: 0 10px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+  .coco-widget .acl-label {
+    position: absolute;
+    top: -11px;
+    right: 24px;
+    background: var(--bg);
+    padding: 0 10px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+  }
+
+  /* ── TOP ROW: outside VPC elements ── */
+  .coco-widget .outside-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto 24px;
+  }
+  .coco-widget .outside-row .side { display: flex; gap: 12px; }
+
+  /* ── MAIN LAYOUT ── */
+  .coco-widget .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 260px;
+    gap: 20px;
+  }
+
+  /* ── SUBNET BOXES ── */
+  .coco-widget .subnet {
+    border: 1px dashed var(--border2);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+  }
+  .coco-widget .subnet-label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.05em;
+  }
+  .coco-widget .sg-badge {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    border: 1px dashed rgba(148,163,184,0.36);
+    border-radius: 4px;
+  }
+
+  /* ── ROKS CLUSTER BOX ── */
+  .coco-widget .roks-cluster {
+    border: 1px solid rgba(74,158,255,0.36);
+    border-radius: 12px;
+    padding: 16px;
+    background: rgba(74,158,255,0.045);
+    position: relative;
+    margin-top: 8px;
+  }
+  .coco-widget .roks-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue);
+    font-family: var(--mono);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .coco-widget .kata-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 4px;
+    color: var(--blue);
+    font-family: var(--mono);
+  }
+
+  /* ── NAMESPACE BOXES ── */
+  .coco-widget .ns-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .coco-widget .namespace {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    position: relative;
+    background: var(--gray-bg);
+  }
+  .coco-widget .ns-label {
+    position: absolute;
+    top: -9px;
+    left: 10px;
+    background: var(--bg2);
+    padding: 0 6px;
+    font-size: 9px;
+    font-family: var(--mono);
+    color: var(--text3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+  }
+
+  /* ── COMPONENT CARDS ── */
+  .coco-widget .card {
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .coco-widget .card:last-child { margin-bottom: 0; }
+  .coco-widget .card-title {
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .coco-widget .card-sub {
+    font-size: 11px;
+    font-family: var(--mono);
+    opacity: 0.7;
+    line-height: 1.5;
+  }
+  .coco-widget .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+
+  /* card colour variants */
+  .coco-widget .card-teal { background: var(--teal-bg);   border: 1px solid var(--teal-border);   }
+  .coco-widget .card-teal   .card-title { color: var(--teal); }
+  .coco-widget .card-teal   .dot { background: var(--teal); }
+  .coco-widget .card-blue { background: var(--blue-bg);   border: 1px solid var(--blue-border);   }
+  .coco-widget .card-blue   .card-title { color: var(--blue); }
+  .coco-widget .card-blue   .dot { background: var(--blue); }
+  .coco-widget .card-purple { background: var(--purple-bg); border: 1px solid var(--purple-border); }
+  .coco-widget .card-purple .card-title { color: var(--purple); }
+  .coco-widget .card-purple .dot { background: var(--purple); }
+  .coco-widget .card-amber { background: var(--amber-bg);  border: 1px solid var(--amber-border);  }
+  .coco-widget .card-amber  .card-title { color: var(--amber); }
+  .coco-widget .card-amber  .dot { background: var(--amber); }
+  .coco-widget .card-green { background: var(--green-bg);  border: 1px solid var(--green-border);  }
+  .coco-widget .card-green  .card-title { color: var(--green); }
+  .coco-widget .card-green  .dot { background: var(--green); }
+  .coco-widget .card-coral { background: var(--coral-bg);  border: 1px solid var(--coral-border);  }
+  .coco-widget .card-coral  .card-title { color: var(--coral); }
+  .coco-widget .card-coral  .dot { background: var(--coral); }
+  .coco-widget .card-gray { background: var(--gray-bg);   border: 1px solid var(--gray-border);   }
+  .coco-widget .card-gray   .card-title { color: var(--text2); }
+  .coco-widget .card-gray   .dot { background: var(--text3); }
+
+  /* ── PEER POD VSI ── */
+  .coco-widget .peerpod-vsi {
+    border: 1.5px solid var(--teal-border);
+    border-radius: 10px;
+    padding: 12px;
+    background: rgba(45,212,191,0.06);
+    position: relative;
+    margin-top: 12px;
+  }
+  .coco-widget .peerpod-vsi-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .coco-widget .tdx-badge {
+    display: inline-block;
+    font-size: 10px;
+    padding: 2px 8px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: 4px;
+    color: var(--green);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+
+  /* ── ATTESTATION FLOW ── */
+  .coco-widget .attest-flow {
+    background: rgba(245,158,11,0.075);
+    border: 1px dashed rgba(245,158,11,0.51);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .coco-widget .attest-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--amber);
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+  }
+  .coco-widget .flow-steps {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .coco-widget .flow-step {
+    font-size: 11px;
+    font-family: var(--mono);
+    padding: 4px 10px;
+    border-radius: 5px;
+    background: var(--amber-bg);
+    border: 1px solid var(--amber-border);
+    color: var(--amber);
+    white-space: nowrap;
+  }
+  .coco-widget .flow-step.success {
+    background: var(--green-bg);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+  .coco-widget .flow-arrow {
+    color: var(--amber);
+    font-size: 14px;
+    opacity: 0.7;
+  }
+  .coco-widget .flow-arrow.success { color: var(--green); }
+
+  /* ── CONFIGMAP/SECRET BOX ── */
+  .coco-widget .config-box {
+    border: 1px dashed rgba(245,158,11,0.425);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .coco-widget .config-box-title {
+    font-size: 10px;
+    color: var(--amber);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  .coco-widget .config-item {
+    color: var(--text2);
+    margin-bottom: 2px;
+    padding-left: 8px;
+    border-left: 2px solid rgba(245,158,11,0.36);
+  }
+
+  /* ── OUTSIDE ELEMENTS ── */
+  .coco-widget .outside-card {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    min-width: 160px;
+  }
+
+  /* ── TRUSTEE SUBNET (right column) ── */
+  .coco-widget .trustee-subnet {
+    border: 1px dashed var(--border2);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+  }
+
+  /* ── IMAGE FLOW BOX ── */
+  .coco-widget .image-flow {
+    margin-top: 20px;
+    border: 1px dashed rgba(74,158,255,0.36);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .coco-widget .image-flow-title {
+    color: var(--blue);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .coco-widget .image-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text2);
+    margin-bottom: 4px;
+  }
+  .coco-widget .image-step .arrow { color: var(--blue); opacity: 0.6; }
+
+  /* ── LEGEND ── */
+  .coco-widget .legend {
+    margin-top: 24px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .coco-widget .legend-title {
+    width: 100%;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .coco-widget .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  .coco-widget .legend-line {
+    width: 32px;
+    height: 2px;
+    border-radius: 1px;
+  }
+  .coco-widget .legend-dashed {
+    width: 32px;
+    height: 1px;
+    border-top: 2px dashed;
+  }
+
+  /* ── OPERATOR HUB PILL ── */
+  .coco-widget .operator-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--purple-bg);
+    border: 1px solid var(--purple-border);
+    color: var(--purple);
+    margin-bottom: 8px;
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .coco-widget .divider {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    margin: 10px 0 6px;
+    text-transform: uppercase;
+  }
+
+  /* ── SSH PATH NOTE ── */
+  .coco-widget .ssh-note {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--teal);
+    padding: 4px 8px;
+    background: var(--teal-bg);
+    border: 1px dashed var(--teal-border);
+    border-radius: 4px;
+    margin-top: 6px;
+    display: inline-block;
+  }
+
+  .coco-widget .run-path {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--green);
+    padding: 3px 8px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+</style>
+
+<div class="coco-widget">
+<!-- HEADER -->
+<div class="header">
+  <h1>IBM Cloud CoCo — Confidential Containers POC Architecture</h1>
+  <p>ROKS on IBM Cloud VPC · OpenShift Sandboxed Containers v1.11.1 · Intel TDX</p>
+</div>
+
+<!-- OUTSIDE VPC ROW -->
+<div class="outside-row">
+  <div class="side">
+    <!-- Corporate Laptop -->
+    <div class="outside-card card-gray" style="border:1px solid var(--gray-border);">
+      <div class="card-title"><span class="dot" style="background:var(--text3)"></span>Corporate Laptop</div>
+      <div class="card-sub">Browser / HTTPS<br/>accesses Cloud Shell UI<br/>using stored credentials</div>
+    </div>
+    <!-- Arrow hint -->
+    <div style="display:flex;align-items:center;color:var(--text3);font-size:18px;padding-top:10px;">→</div>
+    <!-- OperatorHub -->
+    <div class="outside-card card-purple" style="border:1px solid var(--purple-border);">
+      <div class="card-title"><span class="dot"></span>OperatorHub</div>
+      <div class="card-sub">OSC Operator<br/><strong style="color:var(--purple)">v1.11.1</strong> installed<br/>via install plan approval</div>
+    </div>
+  </div>
+  <div class="side">
+    <!-- COS Bucket -->
+    <div class="outside-card card-blue" style="border:1px solid var(--blue-border);">
+      <div class="card-title"><span class="dot"></span>IBM Cloud COS Bucket</div>
+      <div class="card-sub">Image file uploaded here<br/>(from IBM latest.txt URL)<br/>→ used to create VPC image</div>
+    </div>
+    <div style="display:flex;align-items:center;color:var(--blue);font-size:18px;padding-top:10px;">→</div>
+    <!-- VPC Custom Image -->
+    <div class="outside-card card-blue" style="border:1px solid var(--blue-border);">
+      <div class="card-title"><span class="dot"></span>VPC Custom Image</div>
+      <div class="card-sub"><span style="font-family:var(--mono);font-size:10px">ibmcloud is image-create</span><br/><strong style="color:var(--blue)">exi-coco-2</strong><br/>registered bootable image</div>
+    </div>
+  </div>
+</div>
+
+<!-- VPC BOUNDARY -->
+<div class="vpc">
+  <span class="vpc-label">IBM Cloud VPC — private, no public internet</span>
+  <span class="acl-label">Network ACL · inbound + outbound rules applied</span>
+
+  <div class="main-grid">
+
+    <!-- LEFT: ROKS SUBNET -->
+    <div class="subnet">
+      <span class="subnet-label">Subnet: ROKS cluster (VM-based worker nodes)</span>
+      <span class="sg-badge">Security group · inbound/outbound rules</span>
+
+      <div class="roks-cluster">
+        <div class="roks-title">
+          ROKS Cluster
+          <span class="kata-badge">KataConfig: kata-remote enabled</span>
+        </div>
+
+        <div class="ns-grid">
+
+          <!-- NS: cloudshell -->
+          <div class="namespace">
+            <span class="ns-label">ns: cloudshell</span>
+            <div class="card card-teal" style="margin-top:8px">
+              <div class="card-title"><span class="dot"></span>Cloud Shell Pod</div>
+              <div class="card-sub">
+                kubectl, ibmcloud CLI<br/>
+                private key stored here<br/>
+                jumpserver via browser
+              </div>
+            </div>
+            <div class="ssh-note">SSH → Peer Pod VSI<br/>using stored private key</div>
+            <div class="ssh-note" style="margin-top:4px;color:var(--text2);border-color:var(--border);">exec -it → helloworld pod</div>
+          </div>
+
+          <!-- NS: default -->
+          <div class="namespace">
+            <span class="ns-label">ns: default</span>
+            <div class="card card-green" style="margin-top:8px">
+              <div class="card-title"><span class="dot"></span>helloworld pod</div>
+              <div class="card-sub">
+                runtimeClass: kata-remote<br/>
+                annotation: cc_init_data
+              </div>
+            </div>
+            <div class="card card-coral" style="margin-top:8px">
+              <div class="card-title"><span class="dot"></span>PeerPod resource</div>
+              <div class="card-sub">CRD — links pod<br/>to peer pod VSI</div>
+            </div>
+          </div>
+
+          <!-- NS: openshift-sandboxed-containers-operator -->
+          <div class="namespace" style="grid-row: span 1;">
+            <span class="ns-label">ns: openshift-sandboxed-containers-operator</span>
+            <div style="margin-top:10px">
+              <div class="card card-purple">
+                <div class="card-title"><span class="dot"></span>controller-manager</div>
+                <div class="card-sub">reconciles PeerPod CRD<br/>injects INITDATA</div>
+              </div>
+              <div class="card card-purple">
+                <div class="card-title"><span class="dot"></span>osc-caa-ds</div>
+                <div class="card-sub">cloud-api-adaptor<br/>ibmcloud provider<br/>spawns peer pod VSI</div>
+              </div>
+              <div class="card card-gray">
+                <div class="card-title"><span class="dot"></span>peer-pods-webhook</div>
+                <div class="card-sub">mutates pod specs</div>
+              </div>
+              <div class="card card-gray">
+                <div class="card-title"><span class="dot"></span>osc-monitor</div>
+              </div>
+              <div class="card card-gray">
+                <div class="card-title"><span class="dot"></span>osc-config-sync-install</div>
+              </div>
+              <div class="card card-gray">
+                <div class="card-title"><span class="dot"></span>osc-rpm-install</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /ns-grid -->
+
+        <!-- CONFIGMAP / SECRET -->
+        <div class="config-box">
+          <div class="config-box-title">CONFIGMAPS &amp; SECRETS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <div class="config-item">peer-pods-cm</div>
+              <div class="config-item" style="color:var(--text3);">INITDATA (base64+gzip)</div>
+              <div class="config-item" style="color:var(--text3);">IBMCLOUD_PODVM_IMAGE_ID</div>
+              <div class="config-item" style="color:var(--text3);">CLOUD_PROVIDER=ibmcloud</div>
+              <div class="config-item" style="color:var(--text3);">VPC_ID, RESOURCE_GROUP...</div>
+            </div>
+            <div>
+              <div class="config-item">peer-pods-secret</div>
+              <div class="config-item" style="color:var(--text3);">IBMCLOUD_API_KEY</div>
+              <div class="config-item" style="color:var(--text3);">IBMCLOUD_SSH_KEY_ID</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PEER POD VSI -->
+        <div class="peerpod-vsi">
+          <div class="peerpod-vsi-title">Peer Pod VSI — dynamically provisioned by osc-caa-ds · image: exi-coco-2</div>
+          <span class="tdx-badge">✓ Intel TDX active — hardware memory encryption</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="card card-teal">
+              <div class="card-title"><span class="dot"></span>CDH</div>
+              <div class="card-sub">Confidential Data Hub<br/>:8006<br/>fetches secrets from KBS</div>
+            </div>
+            <div class="card card-teal">
+              <div class="card-title"><span class="dot"></span>Attestation Agent</div>
+              <div class="card-sub">collects TDX evidence<br/>presents to KBS<br/>for verification</div>
+            </div>
+            <div class="card card-green">
+              <div class="card-title"><span class="dot"></span>Workload container</div>
+              <div class="card-sub">runs inside TDX<br/>hardware boundary</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <div class="run-path">/run/confidential-containers/ ✓</div>
+            <div style="font-size:10px;font-family:var(--mono);color:var(--amber);padding:3px 8px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:4px;">INITDATA injected at boot</div>
+          </div>
+        </div>
+
+        <!-- ATTESTATION FLOW -->
+        <div class="attest-flow">
+          <div class="attest-title">ATTESTATION FLOW (end-to-end validation)</div>
+          <div class="flow-steps">
+            <div class="flow-step">curl :8006<br/><span style="font-size:9px;opacity:0.7">helloworld → CDH</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">CDH requests<br/><span style="font-size:9px;opacity:0.7">resource fetch</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">TDX evidence<br/><span style="font-size:9px;opacity:0.7">AA → KBS</span></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">KBS verifies<br/><span style="font-size:9px;opacity:0.7">Attestation Svc</span></div>
+            <div class="flow-arrow success">→</div>
+            <div class="flow-step success">res1val1 ✓<br/><span style="font-size:9px;opacity:0.7">secret returned</span></div>
+          </div>
+        </div>
+
+      </div><!-- /roks-cluster -->
+    </div><!-- /roks subnet -->
+
+    <!-- RIGHT: TRUSTEE SUBNET -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="trustee-subnet">
+        <span class="subnet-label">Subnet: Trustee (separate)</span>
+        <span class="sg-badge">Security group · ports open</span>
+
+        <div style="border:1px solid rgba(245,158,11,0.36);border-radius:10px;padding:14px;background:rgba(245,158,11,0.045);margin-top:14px;">
+          <div style="font-size:12px;font-weight:500;color:var(--amber);font-family:var(--mono);margin-bottom:10px;">
+            Trustee VSI
+            <span style="font-size:10px;color:var(--text3);font-weight:400;margin-left:6px;">private IP only</span>
+          </div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-bottom:10px;padding:3px 8px;background:var(--gray-bg);border-radius:4px;display:inline-block;">docker-compose running</div>
+
+          <div class="card card-amber">
+            <div class="card-title"><span class="dot"></span>KBS</div>
+            <div class="card-sub">Key Broker Service<br/>:8080<br/>releases secrets on valid attestation</div>
+          </div>
+          <div class="card card-amber">
+            <div class="card-title"><span class="dot"></span>Attestation Service</div>
+            <div class="card-sub">verifies TDX evidence<br/>from peer pod VSI</div>
+          </div>
+          <div style="border:1px dashed rgba(245,158,11,0.36);border-radius:6px;padding:8px 10px;margin-top:8px;">
+            <div style="font-size:10px;font-family:var(--mono);color:var(--amber);margin-bottom:4px;">Resource store</div>
+            <div style="font-size:10px;font-family:var(--mono);color:var(--text2);">default/kbsres1/key1</div>
+            <div style="font-size:10px;font-family:var(--mono);color:var(--text3);">"res1val1" stored via kbs-client</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMAGE FLOW -->
+      <div class="image-flow">
+        <div class="image-flow-title">PEER POD IMAGE FLOW</div>
+        <div class="image-step"><span>IBM latest.txt URL</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span>download image file</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span>upload to COS bucket</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span style="color:var(--blue)">ibmcloud is image-create</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span style="color:var(--green)">exi-coco-2 (VPC image)</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span>IBMCLOUD_PODVM_IMAGE_ID patched</span></div>
+        <div class="image-step"><span class="arrow">↓</span><span style="color:var(--teal)">peer pod VSI boots from image</span></div>
+      </div>
+
+      <!-- SSH KEY NOTE -->
+      <div style="border:1px dashed var(--teal-border);border-radius:8px;padding:10px 12px;font-size:11px;font-family:var(--mono);">
+        <div style="color:var(--teal);margin-bottom:6px;font-size:10px;letter-spacing:0.05em;">SSH ACCESS</div>
+        <div style="color:var(--text2);">exi-trustee-key injected</div>
+        <div style="color:var(--text2);">into peer pod VSI via</div>
+        <div style="color:var(--text2);">IBMCLOUD_SSH_KEY_ID</div>
+        <div style="margin-top:6px;color:var(--text3);">Cloud Shell → VSI via<br/>stored private key</div>
+      </div>
+
+    </div><!-- /right column -->
+
+  </div><!-- /main-grid -->
+
+</div><!-- /vpc -->
+
+<!-- LEGEND -->
+<div class="legend" style="margin-top:20px;">
+  <div class="legend-title">LEGEND</div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:var(--amber);"></div>
+    Attestation flow
+  </div>
+  <div class="legend-item">
+    <div class="legend-line" style="background:var(--green);"></div>
+    Secret returned
+  </div>
+  <div class="legend-item">
+    <div class="legend-dashed" style="border-color:var(--blue);"></div>
+    Image / infra flow
+  </div>
+  <div class="legend-item">
+    <div class="legend-dashed" style="border-color:var(--teal);"></div>
+    SSH / exec access
+  </div>
+  <div class="legend-item">
+    <div class="legend-dashed" style="border-color:rgba(100,140,255,0.6);"></div>
+    Subnet / namespace boundary
+  </div>
+  <div class="legend-item">
+    <div style="width:32px;height:1px;border-top:1px dashed rgba(148,163,184,0.51);"></div>
+    Security group boundary
+  </div>
+  <div class="legend-item" style="color:var(--green);">✓ TDX — hardware memory encryption active</div>
+  <div class="legend-item" style="color:var(--text3);">All components inside IBM Cloud VPC · no public internet access</div>
+</div>
+</div>
