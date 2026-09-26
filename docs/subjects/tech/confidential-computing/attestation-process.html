@@ -1,28 +1,565 @@
-<h1>Attestation Process</h1>
-<p>Notes on the custom attestation flow — how a workload proves it's running inside a genuine, unmodified TEE before it's handed secrets/keys.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TDX Attestation Flow — ROKS CoCo v4 (light)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
 
-<h2>Overview</h2>
-<p>Replace this with your notes from <code>custom-attestation-process</code> and <code>High-level ascii diagram - Attestation.txt</code>.</p>
+  :root {
+    --roks1:  #f4faf6;  --roks1-h: #e6f4ea;
+    --roks2:  #f3f8fc;  --roks2-h: #e3eef8;
+    --trust:  #fdf7ef;  --trust-h: #fbead2;
+    --intel:  #eef4fb;  --intel-h: #e0ecf8;
 
-<h2>Steps</h2>
-<pre><code>1. Workload requests a quote from the TEE
-2. Quote sent to attestation service
-3. Attestation service verifies quote against known-good measurements
-4. On success, secrets/keys released to workload
-</code></pre>
+    --teal:   #0f766e; --teal-dim:   #2dd4bf; --teal-bg:   #ecfdf7;
+    --amber:  #b45309; --amber-dim:  #fbbf24; --amber-bg:  #fffbeb;
+    --blue:   #0369a1; --blue-dim:   #7dd3fc; --blue-bg:   #eff8ff;
+    --purple: #6d28d9; --purple-dim: #c4b5fd; --purple-bg: #f5f3ff;
+    --green:  #15803d; --green-dim:  #86efac; --green-bg:  #f0fdf4;
+    --gray:   #57534e; --gray-dim:   #d6d3d1; --gray-bg:   #f5f5f4;
+    --sky:    #0e7490; --sky-dim:    #67e8f9; --sky-bg:    #ecfeff;
 
-<h2>Diagram</h2>
-<p><em>Paste your ASCII diagram or embed an SVG here, e.g.:</em></p>
-<pre><code>[Workload] --quote--&gt; [Attestation Service] --verify--&gt; [Key Broker]
-</code></pre>
+    --border: rgba(0,0,0,0.07);
+    --muted:  #6b7280;
+    --warn-dim: rgba(180,83,9,0.18);
+    --confirmed: rgba(21,128,61,0.22);
+    --confirmed-b: #16a34a;
 
-<blockquote>
-<strong>Note:</strong> the Key Broker never releases secrets on a quote match alone — it also checks the measurement policy hasn't been revoked.
-</blockquote>
+    --font: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
 
+    --col1: 148px;
+    --col2: 200px;
+    --col3: 260px;
+    --col4: 174px;
+    --total: 782px;
+  }
 
-<h2>Related</h2>
-<ul>
-    <li>IBM TDX research paper</li>
-    <li>Intel Quote Verification</li>
-</ul>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #f8f9fc; color: #1a1d2e; padding: 24px; }
+
+  .title-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; }
+  h1 { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); }
+  .badge-v { font-family: var(--mono); font-size: 10px; background: var(--confirmed); border: 1px solid var(--confirmed-b); color: var(--green); border-radius: 4px; padding: 2px 8px; }
+  .subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 18px; }
+
+  /* super headers */
+  .super {
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4);
+    min-width: var(--total);
+  }
+  .sh { padding: 5px 12px; font-size: 10px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+  .sh-roks  { grid-column: 1/3; background: #eaf7ef; color: var(--teal); border: 1px solid rgba(15,118,110,0.25); border-bottom: 2px solid rgba(15,118,110,0.4); border-radius: 8px 0 0 0; display:flex; align-items:center; gap:8px; }
+  .sh-trust { grid-column: 3/4; background: #fdf1e0; color: var(--amber); border-top: 1px solid rgba(180,83,9,0.25); border-bottom: 2px solid rgba(180,83,9,0.4); display:flex; align-items:center; }
+  .sh-intel { grid-column: 4/5; background: #eaf1fb; color: var(--blue); border-top: 1px solid rgba(3,105,161,0.2); border-bottom: 2px solid rgba(3,105,161,0.4); border-radius: 0 8px 0 0; display:flex; align-items:center; }
+  .sh-pill { font-size: 9px; background: rgba(15,118,110,0.1); border: 1px solid rgba(15,118,110,0.3); border-radius: 3px; padding: 1px 6px; }
+
+  /* grid */
+  .swim {
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    min-width: var(--total);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  /* lane headers */
+  .lh { padding: 10px 10px; text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .lh1 { background: var(--roks1-h); color: var(--teal);   border-right: 1px solid var(--border); }
+  .lh2 { background: var(--roks2-h); color: var(--sky);    border-right: 1px solid rgba(14,116,144,0.15); }
+  .lh3 { background: var(--trust-h); color: var(--amber);  border-right: 1px solid var(--border); border-left: 2px solid rgba(180,83,9,0.3); }
+  .lh4 { background: var(--intel-h); color: var(--blue);   }
+  .lh-sub { font-size: 9px; font-weight: 300; opacity: 0.6; display: block; margin-top: 3px; text-transform: none; font-family: var(--mono); }
+  .lh-tag { display: inline-block; margin-top: 5px; font-size: 8px; padding: 1px 5px; border-radius: 3px; }
+  .tag-r { background: rgba(15,118,110,0.1); border: 1px solid rgba(15,118,110,0.25); color: var(--teal); }
+  .tag-e { background: rgba(180,83,9,0.08); border: 1px solid rgba(180,83,9,0.25); color: var(--amber); }
+
+  /* cells */
+  .cell { padding: 10px 9px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cell:last-child { border-right: none; }
+  .c1 { background: var(--roks1); }
+  .c2 { background: var(--roks2); border-right: 1px solid rgba(14,116,144,0.08); }
+  .c3 { background: var(--trust); border-left: 2px solid rgba(180,83,9,0.12); }
+  .c4 { background: var(--intel); }
+
+  /* component boxes */
+  .box { width: 100%; border-radius: 6px; padding: 7px 9px; text-align: center; border: 1px solid; }
+  .bx-gray   { background: var(--gray-bg);   border-color: var(--gray-dim);   color: var(--gray); }
+  .bx-teal   { background: var(--teal-bg);   border-color: var(--teal-dim);   color: var(--teal); }
+  .bx-amber  { background: var(--amber-bg);  border-color: var(--amber-dim);  color: var(--amber); }
+  .bx-blue   { background: var(--blue-bg);   border-color: var(--blue-dim);   color: var(--blue); }
+  .bx-purple { background: var(--purple-bg); border-color: var(--purple-dim); color: var(--purple); }
+  .bx-green  { background: var(--green-bg);  border-color: var(--green-dim);  color: var(--green); }
+  .bx-sky    { background: var(--sky-bg);    border-color: var(--sky-dim);    color: var(--sky); }
+  .bt { font-size: 12px; font-weight: 500; }
+  .bm { font-family: var(--mono); font-size: 10px; opacity: 0.6; margin-top: 3px; }
+
+  /* step label */
+  .step {
+    width: 100%;
+    display: flex; align-items: flex-start; gap: 7px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 5px; padding: 6px 8px;
+    border-left: 2px solid rgba(0,0,0,0.1);
+  }
+  .step-num { font-family: var(--mono); font-size: 11px; font-weight: 500; flex-shrink: 0; min-width: 20px; }
+  .step-txt { font-size: 10px; line-height: 1.5; color: #374151; }
+  .step-txt b { font-weight: 500; color: #1a1d2e; }
+  .step-txt .who { font-family: var(--mono); font-size: 9px; opacity: 0.55; display: block; margin-top: 2px; }
+
+  /* note */
+  .note {
+    width: 100%; border-radius: 5px; padding: 7px 9px;
+    font-size: 10px; line-height: 1.6;
+    border: 1px dashed rgba(180,83,9,0.6);
+    color: var(--amber); background: var(--warn-dim); text-align: left;
+  }
+  .note-ok {
+    width: 100%; border-radius: 5px; padding: 7px 9px;
+    font-size: 10px; line-height: 1.6;
+    border: 1px solid var(--confirmed-b);
+    color: var(--green); background: var(--confirmed); text-align: left;
+  }
+  .note b { font-weight: 500; }
+  .sep { width: 100%; height: 1px; background: rgba(0,0,0,0.07); margin: 4px 0; }
+
+  /* down arrow */
+  .da { display: flex; flex-direction: column; align-items: center; width: 100%; padding: 0 2px; }
+  .da-line { width: 1px; height: 12px; background: rgba(0,0,0,0.12); }
+  .da-head { font-size: 9px; color: rgba(0,0,0,0.2); line-height: 1; }
+
+  /* cross rows */
+  .xrow {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4);
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: visible;
+  }
+  .xrow-inner { height: 38px; position: relative; }
+  .xbg1 { background: var(--roks1); }
+  .xbg2 { background: var(--roks2); }
+  .xbg3 { background: var(--trust); }
+  .xbg4 { background: var(--intel); }
+
+  .ah {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; pointer-events: none; z-index: 2;
+  }
+  .ah-line     { height: 1px; background: rgba(100,116,139,0.3); }
+  .ah-line-grn { height: 2px; background: var(--green); }
+  .ah-hd       { font-size: 10px; color: rgba(100,116,139,0.4); line-height: 1; }
+  .ah-hd-grn   { font-size: 10px; color: var(--green); line-height: 1; }
+  .ah-lbl {
+    position: absolute; top: -15px; left: 0;
+    font-size: 9px; color: var(--muted); font-family: var(--mono); white-space: nowrap;
+  }
+  .ah-lbl-r { position: absolute; top: -15px; right: 0; left: auto; }
+
+  /* full row */
+  .fullrow {
+    grid-column: 1 / -1;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; font-family: var(--mono); line-height: 1.7;
+  }
+
+  /* legend */
+  .legend { grid-column: 1 / -1; background: #f3f4f6; padding: 11px 14px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); }
+  .leg-ln  { width: 28px; height: 1px; background: rgba(100,116,139,0.3); }
+  .leg-grn { width: 28px; height: 2px; background: var(--green); }
+  .leg-sq  { width: 11px; height: 11px; border-radius: 2px; background: var(--confirmed); border: 1px solid var(--confirmed-b); }
+  .leg-da  { width: 28px; height: 0; border-top: 1px dashed rgba(180,83,9,0.6); }
+</style>
+</head>
+<body>
+
+<div class="title-row">
+  <h1>TDX Attestation Flow — IBM Cloud ROKS + CoCo + Trustee</h1>
+  <span class="badge-v">✓ verified v4</span>
+</div>
+<p class="subtitle">v4 · every step shows who calls what · internet-bound call clearly identified</p>
+
+<!-- super headers -->
+<div class="super">
+  <div class="sh sh-roks">▸ ROKS Cluster — IBM Cloud VPC (private, no public internet) <span class="sh-pill">OpenShift Sandboxed Containers v1.11.1</span></div>
+  <div class="sh sh-trust">▸ Trustee VSI — separate subnet, same VPC</div>
+  <div class="sh sh-intel">▸ Intel — public internet</div>
+</div>
+
+<div class="swim">
+
+  <!-- lane headers -->
+  <div class="lh lh1">ROKS Cluster
+    <span class="lh-sub">helloworld pod<br>OpenShift workload</span>
+    <span class="lh-tag tag-r">part of ROKS cluster</span>
+  </div>
+  <div class="lh lh2">Peer Pod VSI (TDX)
+    <span class="lh-sub">new worker node per pod<br>image: exi-coco-2</span>
+    <span class="lh-tag tag-r">part of ROKS cluster<br>spun up by OSC operator</span>
+  </div>
+  <div class="lh lh3">Trustee VSI
+    <span class="lh-sub">docker-compose · separate subnet<br>trustee-kbs-1 · trustee-as-1 · trustee-rvps-1</span>
+    <span class="lh-tag tag-e">external to ROKS · same VPC</span>
+  </div>
+  <div class="lh lh4">Intel PCS
+    <span class="lh-sub">api.trustedservices.intel.com<br>/sgx/certification/v4/</span>
+    <span class="lh-tag tag-e">public internet · confirmed reachable</span>
+  </div>
+
+  <!-- ══ ROW 1 ══ -->
+  <div class="cell c1">
+    <div class="box bx-gray">
+      <div class="bt">helloworld pod</div>
+      <div class="bm">OpenShift pod object</div>
+    </div>
+  </div>
+  <div class="cell c2">
+    <div class="box bx-sky">
+      <div class="bt">CDH</div>
+      <div class="bm">Confidential Data Hub · :8006</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-teal">
+      <div class="bt">Attestation Agent (AA)</div>
+      <div class="bm">runs as daemon in VSI OS</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-purple">
+      <div class="bt">TDX CPU</div>
+      <div class="bm">Intel TDX hardware · confirmed active</div>
+    </div>
+  </div>
+  <div class="cell c3">
+    <div class="box bx-amber">
+      <div class="bt">KBS — trustee-kbs-1</div>
+      <div class="bm">Key Broker Service · :8080</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-amber">
+      <div class="bt">AS — trustee-as-1</div>
+      <div class="bm">Attestation Service · :50004</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-amber">
+      <div class="bt">RVPS — trustee-rvps-1</div>
+      <div class="bm">Ref Value Provider · :50003</div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="box bx-blue">
+      <div class="bt">Intel PCS</div>
+      <div class="bm">PCK cert · TCB info · CRL</div>
+    </div>
+  </div>
+
+  <!-- divider -->
+  <div style="grid-column:1/-1; height:2px; background: linear-gradient(90deg, rgba(15,118,110,0.2) 348px, rgba(180,83,9,0.2) 348px, rgba(180,83,9,0.2) 608px, rgba(3,105,161,0.2) 608px);"></div>
+
+  <!-- ══ STEP 1 ══ -->
+  <div class="cell c1">
+    <div class="step">
+      <span class="step-num" style="color:var(--teal);">①</span>
+      <div class="step-txt">
+        <b>User runs:</b> oc exec -it helloworld -- curl http://cdh:8006/cdh/resource/default/kbsres1/key1
+        <span class="who">helloworld pod → CDH inside Peer Pod VSI</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c2"></div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- xrow 1: pod → CDH -->
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div>
+    <div class="ah" style="left:128px; width:230px;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">① helloworld pod calls CDH :8006 — secret request</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">②</span>
+      <div class="step-txt">
+        <b>CDH receives</b> the resource request. CDH cannot return the secret yet — it must prove the workload is running in a genuine TDX environment. CDH internally calls the Attestation Agent (AA) to start attestation.
+        <span class="who">CDH → AA (internal call inside Peer Pod VSI)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 3 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--teal);">③</span>
+      <div class="step-txt">
+        <b>AA asks TDX CPU</b> to generate a signed hardware quote. The CPU reads MRTD (TD measurement) and RTMR[0–3] (runtime measurements) from its secure registers and signs them with the Intel platform key (PCK).
+        <span class="who">AA → TDX CPU hardware (local call inside VSI)</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>TDX quote contains:</b><br>
+      · MRTD — measurement of the TD itself<br>
+      · RTMR[0–3] — firmware, kernel, workload<br>
+      · PCK certificate chain (embedded)<br>
+      · Hardware signature (unforgeable)
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 4 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--teal);">④</span>
+      <div class="step-txt">
+        <b>TDX CPU returns</b> the signed quote back to AA. AA now has evidence it is running on genuine Intel TDX hardware.
+        <span class="who">TDX CPU → AA (local, inside Peer Pod VSI)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 5 — AA → KBS ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--teal);">⑤</span>
+      <div class="step-txt">
+        <b>AA sends the TDX quote</b> over the VPC network to KBS on Trustee VSI. This crosses the VPC subnet boundary but stays within IBM Cloud — no public internet.
+        <span class="who">AA → KBS :8080 (VPC private IP, no internet)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- xrow 2: AA → KBS -->
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div>
+    <div class="ah" style="left:348px; width:260px;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">⑤ AA sends signed TDX quote → KBS :8080 (VPC private, no internet)</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 6 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">⑥</span>
+      <div class="step-txt">
+        <b>KBS receives the quote</b> from AA. KBS does not verify quotes itself — it delegates verification to AS. KBS calls AS over internal gRPC on port 50004 (docker-compose internal network, not exposed outside VSI).
+        <span class="who">KBS → AS :50004 (docker-compose internal network)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 7 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">⑦</span>
+      <div class="step-txt">
+        <b>AS receives the quote</b> and calls its internal DCAP libraries to verify it. The DCAP library (libsgx-dcap-quote-verify) uses the QPL library (libsgx-dcap-default-qpl) to fetch certificate collateral needed to validate the quote signature.
+        <span class="who">AS internally calls DCAP C library (inside trustee-as-1 container)</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>DCAP library reads:</b> /etc/sgx_default_qcnl.conf<br>
+      collateral_service → Intel PCS URL<br>
+      local_cache_only: false<br>
+      tcb_update_type: early
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 8 — THE INTERNET CALL ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step" style="border-left-color: var(--blue); border-left-width: 3px;">
+      <span class="step-num" style="color:var(--blue);">⑧</span>
+      <div class="step-txt">
+        <b>QPL (inside trustee-as-1 container) makes the internet call</b> to Intel PCS. This is the only internet-bound call in the entire flow. QPL fetches the PCK certificate chain and TCB info needed to verify the quote signature.
+        <span class="who" style="color:var(--blue); opacity:1;">QPL library inside trustee-as-1 → Intel PCS (PUBLIC INTERNET)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="note-ok">
+      <b>✓ Confirmed reachable</b><br>
+      TLS handshake verified<br>
+      from Trustee VSI<br>
+      <div class="sep"></div>
+      QPL fetches:<br>
+      · PCK certificate chain<br>
+      · TCB info (platform)<br>
+      · QE Identity<br>
+      · Root CRL
+    </div>
+  </div>
+
+  <!-- xrow: QPL → Intel PCS -->
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div>
+    <div class="ah" style="left:608px; width:174px;">
+      <div class="ah-line" style="flex:1; background: rgba(3,105,161,0.5);"></div>
+      <div class="ah-hd" style="color:var(--blue);">▶</div>
+      <span class="ah-lbl" style="color:var(--blue);">⑧ QPL (inside trustee-as-1) → Intel PCS — INTERNET CALL</span>
+    </div>
+  </div>
+
+  <!-- xrow: Intel PCS → QPL return -->
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div>
+    <div class="ah" style="left:608px; width:174px; flex-direction:row-reverse;">
+      <div class="ah-line-grn" style="flex:1;"></div>
+      <div class="ah-hd-grn">◀</div>
+      <span class="ah-lbl ah-lbl-r" style="color:var(--green);">⑨ PCK cert chain + TCB collateral returned to QPL</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 9 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">⑨</span>
+      <div class="step-txt">
+        <b>QPL returns cert collateral to AS.</b> AS now uses libsgx-dcap-quote-verify to cryptographically verify the TDX quote signature against the PCK certificate chain from Intel. If valid, the quote is genuine TDX hardware evidence.
+        <span class="who">All inside trustee-as-1 container — no network call</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 10 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">⑩</span>
+      <div class="step-txt">
+        <b>AS calls RVPS</b> to check whether the measurements in the quote (MRTD, RTMR values) match expected/trusted values. RVPS compares against pre-registered reference values.
+        <span class="who">AS → RVPS :50003 (docker-compose internal network)</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>POC state:</b> no reference values registered<br>
+      → RVPS running in allow-all mode<br>
+      measurements accepted regardless of value<br>
+      <div class="sep"></div>
+      <b>Production:</b> register expected MRTD /<br>
+      RTMR values via kbs-client set-resource
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 11 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">⑪</span>
+      <div class="step-txt">
+        <b>RVPS returns OK to AS.</b> AS generates a signed JWT attestation token (signed with token.key). AS returns this token to KBS.
+        <span class="who">RVPS → AS → KBS (docker-compose internal)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- ══ STEP 12 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--green);">⑫</span>
+      <div class="step-txt">
+        <b>KBS validates the JWT token</b> from AS. Both checks passed (quote valid + measurements OK). KBS looks up the requested secret (default/kbsres1/key1) from its local storage and releases it back to AA.
+        <span class="who">KBS → AA :8080 response (VPC private IP, no internet)</span>
+      </div>
+    </div>
+    <div class="note-ok">
+      <b>Secret released: res1val1</b><br>
+      Stored at: kbs-storage/default/kbsres1/key1<br>
+      Registered via: kbs-client set-resource
+    </div>
+  </div>
+  <div class="cell c4"></div>
+
+  <!-- xrow: KBS → AA return -->
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div>
+    <div class="ah" style="left:128px; width:480px; flex-direction:row-reverse;">
+      <div class="ah-line-grn" style="flex:1;"></div>
+      <div class="ah-hd-grn">◀</div>
+      <span class="ah-lbl ah-lbl-r" style="color:var(--green);">⑫ secret "res1val1" → AA → CDH → pod curl response</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 13 ══ -->
+  <div class="cell c1">
+    <div class="step">
+      <span class="step-num" style="color:var(--green);">⑬</span>
+      <div class="step-txt">
+        <b>CDH passes secret to the pod.</b> Pod's curl call returns with the secret value.
+        <span class="who">CDH → helloworld pod — curl response</span>
+      </div>
+    </div>
+    <div class="note-ok" style="font-size:11px; text-align:center; padding:8px;">
+      curl output: <b>res1val1</b> ✓
+    </div>
+  </div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--green);">⑬</span>
+      <div class="step-txt">
+        <b>AA receives secret from KBS.</b> AA passes it to CDH. CDH returns it as the HTTP response to the original curl from the pod.
+        <span class="who">KBS → AA → CDH → pod (all inside Peer Pod VSI + VPC)</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+
+  <!-- setup service -->
+  <div class="fullrow" style="background: linear-gradient(90deg, var(--roks1) 148px, var(--roks2) 148px, var(--roks2) 348px, var(--trust) 348px, var(--trust) 608px, var(--intel) 608px); color: var(--amber);">
+    <span style="margin-left:352px; font-weight:500;">setup service (one-time · runs at docker-compose up · alpine/openssl):</span><br>
+    <span style="margin-left:352px;">generates private.key + public.pub · ca.key + ca-cert.pem · token.key + token-cert-chain.pem · KBS uses token.key to sign JWT tokens</span>
+  </div>
+
+  <!-- legend -->
+  <div class="legend">
+    <span style="font-size:10px; color:var(--muted); font-family:var(--mono);">legend:</span>
+    <div class="leg"><div class="leg-ln"></div>request / call</div>
+    <div class="leg"><div class="leg-grn"></div>success / secret return</div>
+    <div class="leg"><div class="leg-da"></div>config detail</div>
+    <div class="leg"><div class="leg-sq"></div>confirmed via VSI inspection</div>
+    <span style="font-size:10px; color:var(--blue); font-family:var(--mono); margin-left:8px;">⑧ is the only internet-bound call — QPL inside trustee-as-1 → Intel PCS</span>
+  </div>
+
+</div>
+</body>
+</html>
