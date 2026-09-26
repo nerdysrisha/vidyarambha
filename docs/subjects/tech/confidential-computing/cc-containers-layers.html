@@ -1,0 +1,730 @@
+<!--
+  Confidential Containers — Full Layer Stack (v2) — fragment
+  Scoped for embedding inside a base HTML page. All colors, layout values,
+  and inline --accent overrides are unchanged from the original.
+
+  If your base page already loads IBM Plex Sans / IBM Plex Mono elsewhere,
+  this @import is redundant but harmless — remove it if you want to dedupe.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+  .cc-widget *, .cc-widget *::before, .cc-widget *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .cc-widget {
+    --bg: #f8f9fc;
+    --panel: #ffffff;
+    --border: #dde1ea;
+    --text: #1a1d2e;
+    --muted: #6b7280;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+
+    --c-hardware:    #c2410c;
+    --c-firmware:    #b45309;
+    --c-hypervisor:  #dc2626;
+    --c-tee:         #0369a1;
+    --c-kata:        #0891b2;
+    --c-container:   #047857;
+    --c-attestation: #6d28d9;
+    --c-trustee:     #be185d;
+
+    --ibm:   #0f62fe;
+    --aws:   #b45309;
+    --azure: #0078d4;
+    --oss:   #374151;
+  }
+
+  .cc-widget {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .cc-widget .page-header { text-align: center; margin-bottom: 36px; }
+  .cc-widget .page-header h1 { font-size: clamp(1.3rem,2.5vw,1.9rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin-bottom: 6px; }
+  .cc-widget .page-header p { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .cc-widget .provider-pills { display: flex; justify-content: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .cc-widget .ppill { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; }
+  .cc-widget .ppill-ibm { background: #dbeafe; color: var(--ibm);   border: 1px solid #bfdbfe; }
+  .cc-widget .ppill-aws { background: #fff7ed; color: var(--aws);   border: 1px solid #fed7aa; }
+  .cc-widget .ppill-azure { background: #eff6ff; color: var(--azure); border: 1px solid #bfdbfe; }
+
+  /* main canvas */
+  .cc-widget .canvas {
+    display: grid;
+    grid-template-columns: 110px 1fr 250px;
+    gap: 0 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* left TCB labels */
+  .cc-widget .left-col { display: flex; flex-direction: column; gap: 0; }
+  .cc-widget .tcb-label {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.58rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-radius: 6px; padding: 8px 6px; margin-bottom: 6px; text-align: center;
+  }
+  .cc-widget .tcb-mfr { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .cc-widget .tcb-user { background: #dcfce7; color: #047857; border: 1px solid #bbf7d0; }
+  .cc-widget .tcb-untrusted { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+  .cc-widget .tcb-trustee { background: #fdf2f8; color: var(--c-trustee); border: 1px solid #fbcfe8; }
+  .cc-widget .spacer { flex: 1; }
+
+  /* stack */
+  .cc-widget .stack { display: flex; flex-direction: column; gap: 5px; }
+
+  .cc-widget .layer {
+    border-radius: 8px; border: 1.5px solid var(--border);
+    overflow: hidden; background: var(--panel);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: box-shadow 0.2s;
+  }
+  .cc-widget .layer:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+  .cc-widget .layer-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 16px; border-bottom: 1px solid var(--border);
+  }
+  .cc-widget .layer-num {
+    font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, white);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, white);
+  }
+  .cc-widget .layer-title { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+  .cc-widget .layer-subtitle { font-size: 0.72rem; color: var(--muted); margin-left: 2px; }
+  .cc-widget .layer-tag {
+    margin-left: auto; font-family: var(--mono); font-size: 0.58rem;
+    font-weight: 600; padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+  .cc-widget .tag-mfr { background: #e0f2fe; color: #0369a1;        border: 1px solid #bae6fd; }
+  .cc-widget .tag-untrusted { background: #fee2e2; color: #dc2626;         border: 1px solid #fecaca; }
+  .cc-widget .tag-user { background: #dcfce7; color: #047857;         border: 1px solid #bbf7d0; }
+  .cc-widget .tag-tee { background: #dbeafe; color: #1d4ed8;         border: 1px solid #93c5fd; }
+  .cc-widget .tag-trustee { background: #fdf2f8; color: var(--c-trustee);border: 1px solid #fbcfe8; }
+
+  .cc-widget .layer-body { padding: 12px 16px 14px; }
+  .cc-widget .layer-desc { font-size: 0.78rem; color: #4b5563; line-height: 1.65; margin-bottom: 10px; }
+
+  /* split layout for L3 and L4 */
+  .cc-widget .split-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .cc-widget .split-panel {
+    border-radius: 8px; border: 1.5px solid var(--border);
+    overflow: hidden; background: var(--panel);
+  }
+  .cc-widget .split-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-bottom: 1px solid var(--border);
+  }
+  .cc-widget .split-title { font-weight: 700; font-size: 0.82rem; color: var(--text); }
+  .cc-widget .split-sub { font-size: 0.68rem; color: var(--muted); margin-top: 1px; }
+  .cc-widget .split-body { padding: 10px 12px 12px; }
+  .cc-widget .split-desc { font-size: 0.74rem; color: #4b5563; line-height: 1.6; margin-bottom: 8px; }
+  .cc-widget .split-tag { margin-left: auto; font-family: var(--mono); font-size: 0.55rem; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; }
+
+  /* component grid */
+  .cc-widget .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap: 6px; }
+  .cc-widget .split-comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .cc-widget .comp-card {
+    background: #f8f9fc; border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 10px;
+  }
+  .cc-widget .comp-name { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .cc-widget .comp-desc { font-size: 0.67rem; color: var(--muted); line-height: 1.45; }
+  .cc-widget .provider-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .cc-widget .pbadge {
+    font-family: var(--mono); font-size: 0.58rem; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px;
+  }
+  .cc-widget .ibm { background: #dbeafe; color: var(--ibm); }
+  .cc-widget .aws { background: #fff7ed; color: var(--aws); }
+  .cc-widget .azure { background: #eff6ff; color: var(--azure); }
+  .cc-widget .oss { background: #f3f4f6; color: var(--oss); }
+
+  /* kata & attestation sub-boxes */
+  .cc-widget .sub-box {
+    border-radius: 8px; padding: 12px; margin-top: 8px; position: relative;
+  }
+  .cc-widget .sub-box-teal { border: 1.5px dashed #0891b2; background: #f0f9ff; }
+  .cc-widget .sub-box-purple { border: 1.5px dashed #6d28d9; background: #faf5ff; }
+  .cc-widget .sub-box-red { border: 1.5px dashed #dc2626; background: #fff5f5; }
+  .cc-widget .sub-badge {
+    position: absolute; top: -10px; left: 12px;
+    font-family: var(--mono); font-size: 0.58rem; font-weight: 600;
+    padding: 1px 9px; border-radius: 3px;
+  }
+  .cc-widget .badge-teal { background: #0891b2; color: #fff; }
+  .cc-widget .badge-purple { background: #6d28d9; color: #fff; }
+  .cc-widget .badge-red { background: #dc2626; color: #fff; }
+  .cc-widget .badge-amber { background: #b45309; color: #fff; }
+
+  .cc-widget .kata-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 5px; }
+  .cc-widget .kata-card {
+    background: #fff; border: 1px solid #bae6fd; border-radius: 5px; padding: 7px 9px;
+  }
+  .cc-widget .kata-card-title { font-family: var(--mono); font-size: 0.63rem; font-weight: 600; color: #0369a1; margin-bottom: 3px; }
+  .cc-widget .kata-card-desc { font-size: 0.65rem; color: #374151; line-height: 1.4; }
+
+  .cc-widget .warn-row { font-size: 0.68rem; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 5px; padding: 5px 9px; margin-top: 6px; }
+  .cc-widget .absent-row { font-size: 0.68rem; color: #991b1b; background: #fff5f5; border: 1px solid #fecaca; border-radius: 5px; padding: 5px 9px; margin-top: 4px; }
+
+  /* arrow between layers */
+  .cc-widget .arrow { text-align: center; color: #9ca3af; font-size: 0.75rem; padding: 1px 0; }
+
+  /* right panel */
+  .cc-widget .right-col { display: flex; flex-direction: column; gap: 14px; padding-top: 2px; }
+  .cc-widget .r-card { background: var(--panel); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .cc-widget .r-title { font-family: var(--mono); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .cc-widget .r-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 0.72rem; color: #4b5563; line-height: 1.5; }
+  .cc-widget .r-item:last-child { margin-bottom: 0; }
+  .cc-widget .r-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .cc-widget .r-item strong { color: var(--text); display: block; font-size: 0.73rem; }
+
+  .cc-widget .flow-arrow { text-align: center; font-size: 0.75rem; color: var(--c-attestation); margin: 2px 0; font-weight: 700; }
+  .cc-widget .attest-step { background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 6px; padding: 8px 10px; font-size: 0.7rem; color: #4c1d95; line-height: 1.5; margin-bottom: 4px; }
+  .cc-widget .attest-step:last-child { margin-bottom: 0; }
+  .cc-widget .attest-step strong { display: block; font-size: 0.72rem; color: var(--c-attestation); margin-bottom: 2px; }
+
+  .cc-widget .pm-row { background: #f8f9fc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; }
+  .cc-widget .pm-row:last-child { margin-bottom: 0; }
+  .cc-widget .pm-provider { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; margin-bottom: 4px; }
+  .cc-widget .pm-items { font-size: 0.68rem; color: #4b5563; line-height: 1.6; }
+
+  .cc-widget .bottom-note { max-width: 1100px; margin: 24px auto 0; background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; font-size: 0.76rem; color: #78350f; line-height: 1.7; font-family: var(--mono); }
+  .cc-widget .bottom-note strong { color: #92400e; }
+</style>
+
+<div class="cc-widget">
+
+<div class="page-header">
+  <h1>Confidential Containers — Full Layer Stack (v2)</h1>
+  <p>L0–L6 · L3 & L4 split by TEE model · Attestation flow · Provider mapping</p>
+  <div class="provider-pills">
+    <span class="ppill ppill-ibm">IBM Cloud · VSI · Intel TDX · CDH · OpenShift</span>
+    <span class="ppill ppill-aws">AWS · Nitro Enclaves · KVM-based · EKS</span>
+    <span class="ppill ppill-azure">Azure · AKS · AMD SEV-SNP / Intel TDX · MAA</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+  <!-- LEFT TCB labels -->
+  <div class="left-col">
+    <div class="tcb-label tcb-mfr"       style="height:74px">ROOT OF TRUST</div><div style="height:5px"></div>
+    <div class="tcb-label tcb-mfr"       style="height:74px">MFR TCB</div><div style="height:5px"></div>
+    <div class="tcb-label tcb-untrusted" style="height:74px">UNTRUSTED</div><div style="height:5px"></div>
+    <div class="tcb-label tcb-mfr"       style="height:390px">MFR TCB CORE · TEE</div><div style="height:5px"></div>
+    <div class="tcb-label tcb-user"      style="height:390px">USER TCB · WORKLOAD</div><div style="height:5px"></div>
+    <div class="tcb-label tcb-trustee"   style="height:150px">TRUSTED 3RD PARTY</div>
+  </div>
+
+  <!-- MIDDLE STACK -->
+  <div class="stack">
+
+    <!-- L0 -->
+    <div class="layer" style="--accent: var(--c-hardware)">
+      <div class="layer-header" style="background:#fff7f5">
+        <span class="layer-num">L0</span>
+        <span class="layer-title">Physical Hardware</span>
+        <span class="layer-subtitle">— silicon root of trust</span>
+        <span class="layer-tag tag-mfr">ROOT OF TRUST</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Bare-metal server. Everything above is only as secure as this foundation. User must trust this layer blindly — there is no layer beneath it.</p>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-name">CPU (with TEE extensions)</div>
+            <div class="comp-desc">Intel Xeon w/ TDX · AMD EPYC w/ SEV-SNP · ARM w/ CCA</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM TDX</span><span class="pbadge aws">AWS Nitro</span><span class="pbadge azure">Azure TDX/SEV</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">DRAM</div>
+            <div class="comp-desc">Samsung / SK Hynix / Micron — encrypted by TEE memory engine</div>
+            <div class="provider-row"><span class="pbadge oss">All providers</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">NIC / Storage</div>
+            <div class="comp-desc">Broadcom / Intel NIC · Samsung NVMe / Seagate SSD</div>
+            <div class="provider-row"><span class="pbadge oss">All providers</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Server chassis</div>
+            <div class="comp-desc">HPE / Dell / Lenovo — physical boundary of trust</div>
+            <div class="provider-row"><span class="pbadge oss">All providers</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; hardware initialises &nbsp; ↑</div>
+
+    <!-- L1 -->
+    <div class="layer" style="--accent: var(--c-firmware)">
+      <div class="layer-header" style="background:#fffbf0">
+        <span class="layer-num">L1</span>
+        <span class="layer-title">Low-level Firmware &amp; Management</span>
+        <span class="layer-subtitle">— first code on power-on</span>
+        <span class="layer-tag tag-mfr">MFR TCB</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">First code to run on power-on. Initialises CPU, memory, devices. Holds vendor-signed keys anchoring the attestation chain. Compromise here collapses the entire chain. Microcode vulnerabilities can undermine all TEE guarantees.</p>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-name">BIOS / UEFI</div>
+            <div class="comp-desc">AMI / Insyde — initialises hardware, starts boot chain</div>
+            <div class="provider-row"><span class="pbadge oss">All providers</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">CPU Microcode</div>
+            <div class="comp-desc">Intel / AMD signed patches — must be current for TEE integrity</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM</span><span class="pbadge aws">AWS</span><span class="pbadge azure">Azure</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Memory Encryption Engine</div>
+            <div class="comp-desc">AMD SME / Intel TME — encrypts DRAM with hardware keys</div>
+            <div class="provider-row"><span class="pbadge oss">HW vendor</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">BMC / iLO / iDRAC</div>
+            <div class="comp-desc">Out-of-band mgmt — runs independently of main CPU, persistent attack surface even when server is powered off</div>
+            <div class="provider-row"><span class="pbadge oss">Provider-managed</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; loads &amp; controls &nbsp; ↑</div>
+
+    <!-- L2 -->
+    <div class="layer" style="--accent: var(--c-hypervisor)">
+      <div class="layer-header" style="background:#fff5f5">
+        <span class="layer-num">L2</span>
+        <span class="layer-title">Hypervisor / Host OS / VMM</span>
+        <span class="layer-subtitle">— CSP-controlled</span>
+        <span class="layer-tag tag-untrusted">⚠ UNTRUSTED</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Cloud-provider controlled. Treated as <strong style="color:#dc2626">hostile</strong> in the CC threat model. Can inject interrupts, read plain VM memory, forge I/O, control VM lifecycle. TEE must defend against all actions from this layer.</p>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-name">Hypervisor / VMM</div>
+            <div class="comp-desc">VMware ESXi · KVM+QEMU · Xen · Hyper-V — multiplexes HW into VMs</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM KVM</span><span class="pbadge aws">Nitro Hypervisor</span><span class="pbadge azure">Hyper-V</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Host OS</div>
+            <div class="comp-desc">Runs on bare-metal, hosts the hypervisor process</div>
+            <div class="provider-row"><span class="pbadge ibm">RHEL/Ubuntu</span><span class="pbadge aws">Amazon Linux</span><span class="pbadge azure">Windows Server</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Cloud Control Plane</div>
+            <div class="comp-desc">Orchestrates VM creation, networking, storage — equally hostile/untrusted</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM VPC</span><span class="pbadge aws">EC2 control plane</span><span class="pbadge azure">Azure Fabric</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; spawns TEE &nbsp; ↑</div>
+
+    <!-- L3 SPLIT -->
+    <div class="layer" style="--accent: var(--c-tee)">
+      <div class="layer-header" style="background:#eff6ff">
+        <span class="layer-num">L3</span>
+        <span class="layer-title">Trusted Execution Environment (TEE)</span>
+        <span class="layer-subtitle">— hardware isolation boundary · split by model</span>
+        <span class="layer-tag tag-tee">MFR TCB CORE</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Hardware-enforced isolation. Memory encrypted and invisible to hypervisor. Generates signed attestation evidence (Quote/Report) binding CPU identity + firmware version + workload hash. <strong>Two fundamentally different deployment models below.</strong></p>
+        <div class="split-grid">
+
+          <!-- L3a VM-based -->
+          <div class="split-panel" style="border-color:#bae6fd">
+            <div class="split-header" style="background:#eff6ff">
+              <span class="layer-num" style="--accent:#0369a1">L3a</span>
+              <div>
+                <div class="split-title">VM-based TEE (cVM)</div>
+                <div class="split-sub">IBM TDX · Azure SEV-SNP/TDX · ARM CCA</div>
+              </div>
+              <span class="split-tag tag-mfr" style="margin-left:auto">cVM</span>
+            </div>
+            <div class="split-body">
+              <p class="split-desc">Entire VM is hardware-encrypted and spawned as a single atomic unit. Firmware + Guest OS + vTPM all live inside the TEE boundary. No code changes needed for the workload.</p>
+              <div class="split-comp-grid">
+                <div class="comp-card">
+                  <div class="comp-name">VM Firmware</div>
+                  <div class="comp-desc">OVMF / SeaBIOS — must be measured. Often CSP-controlled — key weak point</div>
+                  <div class="provider-row"><span class="pbadge ibm">OVMF</span><span class="pbadge azure">OVMF</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Guest OS + Bootloader</div>
+                  <div class="comp-desc">RHEL / Ubuntu · GRUB2 / systemd-boot — hardened against hostile hypervisor</div>
+                  <div class="provider-row"><span class="pbadge ibm">RHEL</span><span class="pbadge azure">Ubuntu</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">vTPM (inside cVM)</div>
+                  <div class="comp-desc">Stores PCR boot measurements. Must be inside cVM — if outside, unverifiable</div>
+                  <div class="provider-row"><span class="pbadge ibm">sw-TPM</span><span class="pbadge azure">vTPM</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Attestation Agent</div>
+                  <div class="comp-desc">Runs inside cVM — collects TDX TDREPORT / SEV-SNP report, sends to verifier</div>
+                  <div class="provider-row"><span class="pbadge ibm">CDH agent</span><span class="pbadge azure">MAA client</span></div>
+                </div>
+              </div>
+              <div class="warn-row">⚠ VM firmware often CSP-controlled — rogue admin can inject compromised code if not fully attested</div>
+              <div class="warn-row">⚠ vTPM must be inside cVM — CSPs that run vTPM alongside hypervisor make it unverifiable</div>
+
+              <!-- Kata sub-box -->
+              <div class="sub-box sub-box-teal" style="margin-top:10px">
+                <span class="sub-badge badge-teal">Kata Containers / Peer-Pod (containers only)</span>
+                <p style="font-size:0.72rem;color:#0c4a6e;margin-bottom:8px;line-height:1.55;margin-top:4px">Kubernetes-native bridge that connects the orchestrator to the cVM. Kata provides a lightweight micro-VM per pod, isolating containers from the shared host kernel.</p>
+                <div class="kata-grid">
+                  <div class="kata-card">
+                    <div class="kata-card-title">Kata Runtime (CRD)</div>
+                    <div class="kata-card-desc">OCI-compatible runtime registered with kubelet. Intercepts pod creation and spins a micro-VM instead of a plain container.</div>
+                    <div class="provider-row" style="margin-top:4px"><span class="pbadge ibm">OpenShift</span><span class="pbadge aws">EKS+Kata</span><span class="pbadge azure">AKS+Kata</span></div>
+                  </div>
+                  <div class="kata-card">
+                    <div class="kata-card-title">cloud-api-adaptor</div>
+                    <div class="kata-card-desc">Translates Kata VM requests into cloud API calls — creates a remote peer-pod VSI on the cloud provider.</div>
+                    <div class="provider-row" style="margin-top:4px"><span class="pbadge ibm">IBM VSI API</span><span class="pbadge aws">EC2 API</span><span class="pbadge azure">Azure VM API</span></div>
+                  </div>
+                  <div class="kata-card">
+                    <div class="kata-card-title">Kata Agent + CDH</div>
+                    <div class="kata-card-desc">Runs inside peer-pod cVM. Manages container lifecycle. CDH (IBM) handles secret retrieval and attestation.</div>
+                    <div class="provider-row" style="margin-top:4px"><span class="pbadge ibm">IBM CDH</span><span class="pbadge oss">OSS agent</span></div>
+                  </div>
+                  <div class="kata-card">
+                    <div class="kata-card-title">VXLAN tunnel</div>
+                    <div class="kata-card-desc">Tunnels container traffic over VXLAN (port 4789) between worker node and remote peer-pod VSI.</div>
+                    <div class="provider-row" style="margin-top:4px"><span class="pbadge oss">VXLAN 4789</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- L3b Nitro Enclave (corrected) -->
+          <div class="split-panel" style="border-color:#fed7aa">
+            <div class="split-header" style="background:#fff7ed">
+              <span class="layer-num" style="--accent:#b45309">L3b</span>
+              <div>
+                <div class="split-title">Nitro Enclave — micro-VM TEE</div>
+                <div class="split-sub">AWS Nitro Enclaves · processor-agnostic (Intel / AMD / Graviton)</div>
+              </div>
+              <span class="split-tag" style="margin-left:auto;background:#fff7ed;color:#b45309;border:1px solid #fed7aa;font-family:var(--mono);font-size:0.55rem;font-weight:600;padding:2px 7px;border-radius:20px;">Nitro VM</span>
+            </div>
+            <div class="split-body">
+              <p class="split-desc">Separate micro-VM with its own independent Linux kernel, carved from parent EC2 resources using the <strong>AWS Nitro Hypervisor</strong> — not Intel SGX hardware. Processor-agnostic: supports Intel Xeon, AMD EPYC, and AWS Graviton. No persistent storage, no external networking, no interactive access. Communicates with parent via vsock only. Smaller TCB but requires app re-architecture.</p>
+              <div class="split-comp-grid">
+                <div class="comp-card">
+                  <div class="comp-name">Nitro Enclave micro-VM</div>
+                  <div class="comp-desc">Full micro-VM with own Linux kernel — carved from parent EC2 CPU + memory resources via Nitro Hypervisor</div>
+                  <div class="provider-row"><span class="pbadge aws">Nitro Hypervisor</span><span class="pbadge oss">Intel/AMD/Graviton</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">NSM (Nitro Secure Module)</div>
+                  <div class="comp-desc">Hardware root of attestation. Generates signed attestation document with PCR measurements</div>
+                  <div class="provider-row"><span class="pbadge aws">AWS NSM</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">vsock channel</div>
+                  <div class="comp-desc">Only comms path — local to parent EC2. Parent always CID 3, enclave CID 4+. No external network from inside enclave</div>
+                  <div class="provider-row"><span class="pbadge aws">CID vsock</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Attestation document</div>
+                  <div class="comp-desc">NSM-signed, contains PCR values (code hash) + public key for secure channel</div>
+                  <div class="provider-row"><span class="pbadge aws">AWS KMS policy</span></div>
+                </div>
+              </div>
+
+              <div class="sub-box sub-box-red" style="margin-top:10px">
+                <span class="sub-badge badge-red">Not present in this model</span>
+                <div class="absent-row">✕ No VM firmware attestation chain (OVMF/vTPM) — NSM handles measurements directly</div>
+                <div class="absent-row">✕ No Kata / peer-pod / cloud-api-adaptor architecture</div>
+                <div class="absent-row">✕ No persistent disk / external network / interactive access</div>
+                <div class="absent-row">✕ Not Intel SGX — uses AWS Nitro Hypervisor isolation</div>
+              </div>
+
+              <div class="warn-row" style="margin-top:8px">⚠ App must be re-architected — split into trusted (inside enclave) and untrusted (parent EC2) components</div>
+              <div class="warn-row">⚠ Secrets must enter via vsock from parent — parent EC2 is untrusted, data flow must be carefully audited</div>
+            </div>
+          </div>
+
+        </div><!-- end split-grid L3 -->
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; workload runs inside TEE &nbsp; ↑</div>
+
+    <!-- L4 SPLIT -->
+    <div class="layer" style="--accent: var(--c-kata)">
+      <div class="layer-header" style="background:#f0f9ff">
+        <span class="layer-num">L4</span>
+        <span class="layer-title">Pod &amp; Container Runtime</span>
+        <span class="layer-subtitle">— USER TCB · split by model</span>
+        <span class="layer-tag tag-user">USER TCB</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Your Kubernetes pod and containers running inside the TEE. Container image must be signed and verified before execution. Any CSP-injected sidecar expands the TCB. <strong>Operates differently depending on TEE model.</strong></p>
+        <div class="split-grid">
+
+          <!-- L4a VM-based containers -->
+          <div class="split-panel" style="border-color:#bbf7d0">
+            <div class="split-header" style="background:#f0fdf4">
+              <span class="layer-num" style="--accent:#047857">L4a</span>
+              <div>
+                <div class="split-title">VM-based container runtime</div>
+                <div class="split-sub">IBM · Azure · ARM CCA</div>
+              </div>
+              <span class="split-tag tag-user" style="margin-left:auto">cVM pods</span>
+            </div>
+            <div class="split-body">
+              <p class="split-desc">Full Kubernetes pod spec running inside the Kata micro-VM (inside cVM inside TEE). containerd / CRI-O manage container lifecycle. Standard K8s API — no app changes needed.</p>
+              <div class="split-comp-grid">
+                <div class="comp-card">
+                  <div class="comp-name">Pod</div>
+                  <div class="comp-desc">K8s pod spec — runs inside Kata micro-VM (inside TEE)</div>
+                  <div class="provider-row"><span class="pbadge oss">K8s / OpenShift</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">OCI Container</div>
+                  <div class="comp-desc">Must use signed image — Sigstore / Notary v2</div>
+                  <div class="provider-row"><span class="pbadge ibm">IBM ICR</span><span class="pbadge azure">ACR+Notation</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">containerd / CRI-O</div>
+                  <div class="comp-desc">Manages container lifecycle inside the micro-VM</div>
+                  <div class="provider-row"><span class="pbadge oss">containerd</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Image policy</div>
+                  <div class="comp-desc">Kata agent enforces signature check before image pull</div>
+                  <div class="provider-row"><span class="pbadge ibm">Trusted profiles</span><span class="pbadge azure">Azure policy</span></div>
+                </div>
+              </div>
+              <div class="warn-row" style="margin-top:8px">⚠ Any CSP-injected sidecar container at this layer expands the TCB and weakens CC guarantees</div>
+            </div>
+          </div>
+
+          <!-- L4b Nitro-based containers -->
+          <div class="split-panel" style="border-color:#fed7aa">
+            <div class="split-header" style="background:#fff7ed">
+              <span class="layer-num" style="--accent:#b45309">L4b</span>
+              <div>
+                <div class="split-title">Nitro enclave app runtime</div>
+                <div class="split-sub">AWS Nitro Enclaves · processor-agnostic</div>
+              </div>
+              <span class="split-tag" style="margin-left:auto;background:#fff7ed;color:#b45309;border:1px solid #fed7aa;font-family:var(--mono);font-size:0.55rem;font-weight:600;padding:2px 7px;border-radius:20px;">Enclave app</span>
+            </div>
+            <div class="split-body">
+              <p class="split-desc">No standard K8s pod inside the enclave. The application must be re-architected — split into trusted (inside enclave) and untrusted (outside) components. No container orchestration layer inside the TEE.</p>
+              <div class="split-comp-grid">
+                <div class="comp-card">
+                  <div class="comp-name">Enclave application</div>
+                  <div class="comp-desc">Re-architected app — only sensitive logic inside. No standard container runtime</div>
+                  <div class="provider-row"><span class="pbadge aws">Nitro app</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Parent EC2 app</div>
+                  <div class="comp-desc">Untrusted component — handles I/O, passes data via vsock into enclave</div>
+                  <div class="provider-row"><span class="pbadge aws">EC2 process</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">Image signing</div>
+                  <div class="comp-desc">ECR + cosign — image hash embedded in NSM PCR measurements</div>
+                  <div class="provider-row"><span class="pbadge aws">ECR + cosign</span></div>
+                </div>
+                <div class="comp-card">
+                  <div class="comp-name">vsock data flow</div>
+                  <div class="comp-desc">All data in/out via vsock. Parent must not be able to observe plaintext inside enclave</div>
+                  <div class="provider-row"><span class="pbadge aws">CID channel</span></div>
+                </div>
+              </div>
+              <div class="absent-row" style="margin-top:8px">✕ No Kubernetes pod spec inside enclave</div>
+              <div class="absent-row">✕ No containerd / CRI-O / OCI runtime inside TEE</div>
+              <div class="warn-row" style="margin-top:6px">⚠ App split design is complex — data flow between trusted/untrusted must be carefully audited</div>
+            </div>
+          </div>
+
+        </div><!-- end split-grid L4 -->
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; secrets provisioned after attestation &nbsp; ↑</div>
+
+    <!-- L5 User Workload -->
+    <div class="layer" style="--accent: var(--c-container)">
+      <div class="layer-header" style="background:#f0fdf4">
+        <span class="layer-num">L5</span>
+        <span class="layer-title">User Workload &amp; Services</span>
+        <span class="layer-subtitle">— app, runtime, libraries</span>
+        <span class="layer-tag tag-user">USER TCB</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Your actual application, language runtime, and libraries. Also any CSP-managed services used (KMS, IAM, DB). <strong style="color:#dc2626">Warning:</strong> once a CSP-managed service is used here, trust must explicitly extend to the CSP and CC guarantees effectively become moot.</p>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-name">App runtime</div>
+            <div class="comp-desc">Java / Python / Go — application logic processing sensitive data</div>
+            <div class="provider-row"><span class="pbadge oss">User-controlled</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Libraries / dependencies</div>
+            <div class="comp-desc">Supply-chain risk — all libraries expand TCB and must be audited</div>
+            <div class="provider-row"><span class="pbadge oss">User-controlled</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">KMS (user-controlled)</div>
+            <div class="comp-desc">HashiCorp Vault — operator-run, not CSP. Safe.</div>
+            <div class="provider-row"><span class="pbadge oss">HashiCorp Vault</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">CSP KMS / IAM / DB ⚠</div>
+            <div class="comp-desc">AWS KMS / Azure Key Vault / IBM IAM — if used, CSP must be trusted, CC guarantees collapse</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM KMS ⚠</span><span class="pbadge aws">AWS KMS ⚠</span><span class="pbadge azure">Azure KV ⚠</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow">↑ &nbsp; attestation verified · secrets released &nbsp; ↑</div>
+
+    <!-- L6 External Trustee -->
+    <div class="layer" style="--accent: var(--c-trustee)">
+      <div class="layer-header" style="background:#fdf2f8">
+        <span class="layer-num">L6</span>
+        <span class="layer-title">User-provided Trustee</span>
+        <span class="layer-subtitle">— external, operator-controlled, never CSP</span>
+        <span class="layer-tag tag-trustee">TRUSTED 3RD PARTY</span>
+      </div>
+      <div class="layer-body">
+        <p class="layer-desc">Lives <strong>outside</strong> the cloud provider. Verifies attestation evidence, then releases secrets to the workload. <strong style="color:#dc2626">Must be operator-controlled — if the CSP runs this layer, the entire confidentiality model collapses.</strong></p>
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="comp-name">Attestation Verifier</div>
+            <div class="comp-desc">Validates TEE evidence — checks CPU identity, firmware version, code hash against vendor certificate chain</div>
+            <div class="provider-row"><span class="pbadge ibm">IBM Attest Svc</span><span class="pbadge aws">Nitro Verify</span><span class="pbadge azure">MS MAA</span><span class="pbadge oss">Veraison (OSS)</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Key Broker Service (KBS)</div>
+            <div class="comp-desc">Releases encryption keys only after attestation passes. Secret never leaves until verification is complete</div>
+            <div class="provider-row"><span class="pbadge ibm">trustee KBS</span><span class="pbadge aws">KMS + policy</span><span class="pbadge azure">mHSM</span><span class="pbadge oss">trustee OSS</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Secret Store</div>
+            <div class="comp-desc">Encrypted vault — secrets only decrypted post-attestation</div>
+            <div class="provider-row"><span class="pbadge oss">HashiCorp Vault</span><span class="pbadge aws">Secrets Mgr</span><span class="pbadge azure">Azure Key Vault</span></div>
+          </div>
+          <div class="comp-card">
+            <div class="comp-name">Policy Engine</div>
+            <div class="comp-desc">Defines which workload measurements are trusted — allow-list of expected code hashes and firmware versions</div>
+            <div class="provider-row"><span class="pbadge oss">OPA / Rego</span><span class="pbadge ibm">Trusted profiles</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end stack -->
+
+  <!-- RIGHT PANEL -->
+  <div class="right-col">
+
+    <div class="r-card">
+      <div class="r-title">Attestation Flow (How Secrets Are Released)</div>
+      <div class="attest-step"><strong>① Pod / enclave scheduled</strong>K8s schedules a confidential pod → Kata runtime (L3a) or direct EC2 spawn (L3b) creates the TEE.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="attest-step"><strong>② Boot &amp; measure</strong>cVM firmware boots, vTPM records measurements of kernel + initrd + container image hash into PCRs (L3a). NSM records PCR values directly (L3b).</div>
+      <div class="flow-arrow">↓</div>
+      <div class="attest-step"><strong>③ TEE evidence generated</strong>Attestation agent inside TEE requests a signed Quote from hardware: TDX TDREPORT / SEV-SNP report / NSM attestation doc. Contains CPU identity + firmware version + workload hash.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="attest-step"><strong>④ Evidence sent to L6 verifier</strong>Evidence sent over HTTPS to external Attestation Service (Veraison / MAA / IBM Attestation Svc). Verifier checks certificate chain back to CPU vendor root of trust.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="attest-step"><strong>⑤ Policy check</strong>Policy engine compares measurements against trusted allow-list: expected code hash, firmware version, TEE mode enabled. Mismatch → rejected, secrets not released.</div>
+      <div class="flow-arrow">↓</div>
+      <div class="attest-step"><strong>⑥ Secrets released</strong>KBS releases encryption keys only now. CDH / attestation agent delivers them into the TEE. Container decrypts data-at-rest and establishes TLS for in-transit protection.</div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-title">Component Mapping by Provider</div>
+      <div class="pm-row">
+        <div class="pm-provider" style="color:var(--ibm)">IBM Cloud</div>
+        <div class="pm-items">
+          TEE model: Intel TDX (VSI) → <strong>L3a</strong><br>
+          Orchestrator: Red Hat OpenShift<br>
+          Runtime bridge: cloud-api-adaptor → VSI<br>
+          Secret mgmt: Confidential Data Hub (CDH)<br>
+          Attestation: IBM Attestation Service<br>
+          Key broker: trustee KBS (OSS)<br>
+          Tunnel: VXLAN 4789
+        </div>
+      </div>
+      <div class="pm-row">
+        <div class="pm-provider" style="color:var(--aws)">AWS</div>
+        <div class="pm-items">
+          TEE model: Nitro Enclaves → <strong>L3b (Nitro micro-VM, processor-agnostic)</strong><br>
+          Isolation: AWS Nitro Hypervisor — NOT Intel SGX<br>
+          Enclave: full micro-VM with own Linux kernel, carved from parent EC2<br>
+          Orchestrator: EKS on parent EC2 — not inside enclave<br>
+          Runtime: re-architected app — no Kata, no containerd inside enclave<br>
+          Comms: vsock only — parent CID 3, enclave CID 4+<br>
+          Attestation: NSM-signed document → AWS KMS policy<br>
+          Key broker: AWS KMS with attestation policy
+        </div>
+      </div>
+      <div class="pm-row">
+        <div class="pm-provider" style="color:var(--azure)">Azure</div>
+        <div class="pm-items">
+          TEE model: AMD SEV-SNP / Intel TDX cVM → <strong>L3a</strong><br>
+          Orchestrator: AKS (confidential node pools)<br>
+          Runtime bridge: cloud-api-adaptor → Azure VM<br>
+          Secret mgmt: Azure Confidential Ledger<br>
+          Attestation: Microsoft Azure Attestation (MAA)<br>
+          Key broker: Azure mHSM + Key Vault<br>
+          Image signing: ACR + Notation
+        </div>
+      </div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-title">TCB Boundaries</div>
+      <div class="r-item"><div class="r-dot" style="background:#c2410c"></div><div><strong>Root of Trust (L0)</strong>Silicon — must trust blindly</div></div>
+      <div class="r-item"><div class="r-dot" style="background:#b45309"></div><div><strong>Manufacturer TCB (L1)</strong>Firmware + microcode + BMC — persistent attack surface</div></div>
+      <div class="r-item"><div class="r-dot" style="background:#dc2626"></div><div><strong>Untrusted (L2)</strong>Hypervisor + control plane — actively hostile</div></div>
+      <div class="r-item"><div class="r-dot" style="background:#0369a1"></div><div><strong>MFR TCB Core (L3a/L3b)</strong>TEE hardware isolation boundary</div></div>
+      <div class="r-item"><div class="r-dot" style="background:#047857"></div><div><strong>User TCB (L4a/L4b + L5)</strong>Your pods, containers, app — must be attested end-to-end</div></div>
+      <div class="r-item"><div class="r-dot" style="background:#be185d"></div><div><strong>Trusted Trustee (L6)</strong>External — operator-controlled, never CSP</div></div>
+    </div>
+
+    <div class="r-card">
+      <div class="r-title">Key Rule</div>
+      <div style="font-size:0.72rem;color:#4b5563;line-height:1.65;">
+        Secrets must <strong style="color:#6d28d9">never</strong> be released before attestation completes (L3→L6 flow). If the CSP operates the Key Broker Service (L6), the entire confidentiality model collapses — the trustee <strong>must</strong> be independent.<br><br>
+        AWS Nitro (L3b) is a process-based enclave — it does <strong>not</strong> follow the cVM model. Forcing it into a cVM framing is technically inaccurate. L4b reflects this difference explicitly.
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- end canvas -->
+
+<div class="bottom-note">
+  <strong>ANSSI conclusion:</strong> Confidential Computing is <strong>not</strong> a silver bullet. L3a (cVM) and L3b (process-based) are fundamentally different execution models — the same pod/container layer (L4) operates differently for each.
+  Always attest the <strong>entire TCB chain L0→L6</strong>. Tie secret provisioning (L6) to attestation. Harden guest workloads (L3/L4) against hostile hypervisor inputs (L2).
+  Code confidentiality is <strong>not guaranteed</strong> — the processor needs the workload unencrypted to start executing it. Physical and manufacturer attacks are <strong>out of scope</strong> for CC.
+</div>
+
+</div>
