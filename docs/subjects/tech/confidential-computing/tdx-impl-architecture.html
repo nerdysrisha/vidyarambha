@@ -1,0 +1,259 @@
+<!--
+  TDX Implementation Architecture — IBM Cloud ROKS + CoCo + Trustee (fragment)
+  Scoped for embedding inside the base learnings page. All rules are
+  scoped under .coco-arch, so this fragment cannot leak styles onto
+  the host page (no bare *, body, or h1 selectors).
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  .coco-arch {
+    --bg:      #0a0a0a;
+    --panel:   #111318;
+    --text:    #d7dbe0;
+    --muted:   #7d8590;
+    --blue:    #4d94ff;    --blue-bg:   rgba(77,148,255,0.06);
+    --teal:    #2dd4a7;    --teal-bg:   rgba(45,212,167,0.05);
+    --purple:  #b18cf5;    --purple-bg: rgba(177,140,245,0.05);
+    --amber:   #f5a623;    --amber-bg:  rgba(245,166,35,0.05);
+    --red:     #f0654f;    --red-bg:    rgba(240,101,79,0.05);
+    --gray:    #8b93a1;    --gray-bg:   rgba(139,147,161,0.06);
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  .coco-arch *, .coco-arch *::before, .coco-arch *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .coco-arch {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid #1c2430;
+    border-radius: 10px;
+    padding: 22px;
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+
+  .coco-arch .frame-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+
+  /* generic bordered container */
+  .coco-arch .box-wrap {
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .coco-arch .box-label {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .coco-arch .c-blue   { border-color: rgba(77,148,255,0.35); background: var(--blue-bg); }
+  .coco-arch .c-blue > .box-label   { color: var(--blue); }
+  .coco-arch .c-teal   { border-color: rgba(45,212,167,0.4); background: var(--teal-bg); }
+  .coco-arch .c-teal > .box-label   { color: var(--teal); }
+  .coco-arch .c-navy   { border-color: rgba(77,148,255,0.25); background: rgba(77,148,255,0.03); }
+  .coco-arch .c-navy > .box-label   { color: #a9c6ff; }
+  .coco-arch .c-red    { border-color: rgba(240,101,79,0.4); background: var(--red-bg); }
+  .coco-arch .c-red > .box-label    { color: var(--red); }
+
+  /* leaf component boxes */
+  .coco-arch .leaf {
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 12px;
+    background: #0d0f13;
+    white-space: nowrap;
+  }
+  .coco-arch .leaf-purple { border-color: rgba(177,140,245,0.55); color: var(--purple); }
+  .coco-arch .leaf-gray   { border-color: rgba(139,147,161,0.4); color: var(--gray); }
+  .coco-arch .leaf-teal   { border-color: rgba(45,212,167,0.55); color: var(--teal); }
+  .coco-arch .leaf-amber  { border-color: rgba(245,166,35,0.55); color: var(--amber); }
+  .coco-arch .leaf-red    { border-color: rgba(240,101,79,0.55); color: var(--red); }
+  .coco-arch .leaf-blue   { border-color: rgba(77,148,255,0.55); color: var(--blue); }
+
+  .coco-arch .leaf-sub {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  /* rows / columns */
+  .coco-arch .row       { display: flex; gap: 14px; align-items: flex-start; }
+  .coco-arch .row.wrap  { flex-wrap: wrap; }
+  .coco-arch .col       { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .coco-arch .center    { align-items: center; text-align: center; }
+
+  /* connector arrows */
+  .coco-arch .conn-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin: 2px 0;
+  }
+  .coco-arch .conn-v {
+    width: 1px;
+    height: 16px;
+    background: rgba(139,147,161,0.35);
+    margin: 0 auto;
+  }
+  .coco-arch .conn-v.dashed {
+    background: repeating-linear-gradient(to bottom, rgba(139,147,161,0.45) 0 4px, transparent 4px 8px);
+    width: 1px;
+  }
+  .coco-arch .conn-h-dashed {
+    flex: 1;
+    height: 1px;
+    background: repeating-linear-gradient(to right, rgba(139,147,161,0.45) 0 4px, transparent 4px 8px);
+    align-self: center;
+    min-width: 24px;
+  }
+  .coco-arch .arrow-down::after { content: "▾"; display:block; text-align:center; color: var(--muted); font-size: 10px; margin-top: -4px; }
+
+  /* HTTPS connector between peer-pod and trustee */
+  .coco-arch .https-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    flex-shrink: 0;
+    align-self: flex-end;
+    margin-bottom: 40px;
+  }
+  .coco-arch .https-connector .lbl { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+  .coco-arch .https-connector .line { width: 100%; height: 1px; background: rgba(240,101,79,0.5); position: relative; }
+  .coco-arch .https-connector .line::after {
+    content: "▶"; position: absolute; right: -6px; top: -6px; font-size: 10px; color: var(--red);
+  }
+
+  /* setup / preflight row */
+  .coco-arch .setup-title { font-size: 12px; color: var(--muted); margin: 22px 0 10px 0; }
+  .coco-arch .setup-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .coco-arch .setup-box {
+    flex: 1;
+    min-width: 130px;
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
+    text-align: center;
+  }
+  .coco-arch .setup-box .t { font-weight: 600; }
+  .coco-arch .setup-box .s { display:block; margin-top: 3px; font-size: 10px; }
+
+  .coco-arch .footer-note {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid #1c2430;
+    font-size: 10.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+
+<div class="coco-arch">
+
+  <div class="row wrap" style="align-items: stretch;">
+
+    <!-- ============ IBM Cloud VPC ============ -->
+    <div class="box-wrap c-blue" style="flex: 2; min-width: 480px;">
+      <div class="box-label">IBM Cloud VPC — us-south / us-east / eu-de</div>
+
+      <!-- ROKS -->
+      <div class="box-wrap c-teal" style="margin-bottom: 14px;">
+        <div class="box-label">Red Hat OpenShift on IBM Cloud (ROKS)</div>
+
+        <!-- Worker Node -->
+        <div class="box-wrap c-navy" style="margin-bottom: 12px;">
+          <div class="box-label">Worker Node</div>
+
+          <div class="row" style="margin-bottom: 4px;">
+            <div class="leaf leaf-purple" style="flex:1;">Kata runtime (CRD)</div>
+            <div class="leaf leaf-purple" style="flex:1;">cloud-api-adaptor</div>
+            <div class="conn-h-dashed"></div>
+            <div class="col" style="flex: 0 0 130px;">
+              <div class="conn-label">API key / Trusted profile</div>
+              <div class="leaf leaf-gray">IBM Cloud VSI</div>
+            </div>
+          </div>
+          <div class="row" style="margin-bottom: 4px;">
+            <div class="arrow-down" style="flex:1;"></div>
+            <div class="arrow-down" style="flex:1;"></div>
+          </div>
+          <div class="leaf leaf-purple" style="max-width: 220px; margin: 0 auto;">kata-remote</div>
+        </div>
+
+        <div class="row" style="align-items:center; margin-bottom: 6px;">
+          <div class="leaf leaf-gray">OperatorHub</div>
+          <div class="conn-label" style="flex:1; text-align:left; padding-left:8px;">↖ registers Kata runtime</div>
+        </div>
+
+        <div class="conn-v dashed" style="margin-bottom: 2px;"></div>
+        <div class="conn-label">VXLAN 4789</div>
+        <div class="conn-v"></div>
+
+        <!-- Peer Pod VSI -->
+        <div class="box-wrap c-teal" style="margin-top: 10px;">
+          <div class="box-label">Peer Pod VSI — bx3dc-2x10 (TDX enabled)</div>
+
+          <div class="row" style="margin-bottom: 10px;">
+            <div class="col">
+              <div class="leaf leaf-teal">Kata agent</div>
+              <div class="arrow-down"></div>
+              <div class="leaf leaf-teal">Confidential Data Hub</div>
+            </div>
+            <div class="col">
+              <div class="leaf leaf-amber">Attestation agent</div>
+              <div class="arrow-down"></div>
+              <div class="row">
+                <div class="leaf leaf-amber" style="flex:1;">TDX chip</div>
+                <div class="leaf leaf-amber" style="flex:1;">RHEL image</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="leaf leaf-gray" style="flex:1;">Pod</div>
+            <div class="leaf leaf-gray" style="flex:1;">Container</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ HTTPS connector ============ -->
+    <div class="https-connector">
+      <div class="lbl">HTTPS</div>
+      <div class="line"></div>
+    </div>
+
+    <!-- ============ User-provided Trustee ============ -->
+    <div class="box-wrap c-red center" style="flex: 1; min-width: 220px; align-self: flex-end;">
+      <div class="box-label">User-provided Trustee</div>
+      <div class="conn-label" style="margin-bottom: 10px;">Ubuntu VSI — same VPC</div>
+      <div class="col">
+        <div class="leaf leaf-red">Key Broker Service (KBS)</div>
+        <div class="leaf leaf-red">Attestation Service (AS)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Setup & Pre-flight ============ -->
+  <div class="setup-title">Setup &amp; Pre-flight (one-time)</div>
+  <div class="setup-row">
+    <div class="setup-box leaf-blue"><span class="t">VPC Subnet</span><span class="s">+ public gateway</span></div>
+    <div class="setup-box leaf-blue"><span class="t">Security group</span><span class="s">kube-CLUSTER_ID</span></div>
+    <div class="setup-box leaf-purple"><span class="t">API key /</span><span class="s">Trusted profile</span></div>
+    <div class="setup-box leaf-red"><span class="t">PodVM image</span><span class="s">RHEL9 / RHCOS</span></div>
+    <div class="setup-box leaf-teal"><span class="t">OCP version</span><span class="s">4.16 – 4.19</span></div>
+    <div class="setup-box leaf-amber"><span class="t">INITDATA</span><span class="s">base64+gzip</span></div>
+  </div>
+
+  <div class="footer-note">
+    TDX regions: us-south (Dallas) &middot; us-east (Washington DC) &middot; eu-de (Frankfurt) &middot; Profile: bx3dc-2x10
+  </div>
+
+</div>
