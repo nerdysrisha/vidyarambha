@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Hub & Spoke — Private Endpoints</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --text: #e6edf3; --text2: #8b949e; --text3: #6e7681;
+    --blue: #388bfd; --blue-bg: rgba(56,139,253,0.12); --blue-border: rgba(56,139,253,0.35);
+    --green: #3fb950; --green-bg: rgba(63,185,80,0.10); --green-border: rgba(63,185,80,0.35);
+    --teal: #39d0a0; --teal-bg: rgba(57,208,160,0.10); --teal-border: rgba(57,208,160,0.35);
+    --amber: #e3b341; --amber-bg: rgba(227,179,65,0.10); --amber-border: rgba(227,179,65,0.30);
+    --red: #f85149; --red-bg: rgba(248,81,73,0.10); --red-border: rgba(248,81,73,0.30);
+    --purple: #bc8cff; --purple-bg: rgba(188,140,255,0.10); --purple-border: rgba(188,140,255,0.30);
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --mono: 'Cascadia Code', 'Consolas', monospace;
+    --r: 8px; --r-lg: 12px;
+  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px 20px 56px; }
+
+  .header { max-width: 1380px; margin: 0 auto 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .header p { font-size: 12px; color: var(--text2); margin-top: 4px; font-family: var(--mono); }
+  .sub-badge { background: var(--purple-bg); border: 1px solid var(--purple-border); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-family: var(--mono); color: var(--purple); white-space: nowrap; }
+
+  .canvas { max-width: 1380px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+  /* Subscription wrapper */
+  .sub-wrap { border: 1px dashed rgba(188,140,255,0.3); border-radius: 16px; padding: 14px 14px 16px; position: relative; }
+  .sub-wrap::before { content: attr(data-label); position: absolute; top: -11px; left: 18px; background: var(--bg); padding: 1px 10px; font-size: 11px; font-family: var(--mono); color: var(--purple); border: 1px solid var(--purple-border); border-radius: 5px; }
+
+  /* RG row */
+  .rg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+  .rg-box { border: 1px dashed var(--border2); border-radius: 14px; padding: 12px 12px 14px; position: relative; }
+  .rg-box::before { content: attr(data-label); position: absolute; top: -11px; left: 14px; background: var(--bg); padding: 1px 10px; font-size: 11px; font-family: var(--mono); color: var(--text2); border: 1px solid var(--border2); border-radius: 5px; }
+
+  /* VNet containers */
+  .vnet { border-radius: var(--r-lg); padding: 12px 12px 14px; }
+  .vnet-hub { background: var(--blue-bg); border: 1.5px dashed var(--blue-border); }
+  .vnet-spoke { background: var(--green-bg); border: 1.5px dashed var(--green-border); }
+  .vnet-label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .vnet-label .vname { font-size: 13px; font-weight: 600; font-family: var(--mono); }
+  .cidr { font-size: 10px; font-family: var(--mono); color: var(--text2); background: var(--bg3); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); }
+  .region-tag { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-left: auto; }
+
+  /* Subnet */
+  .subnet-grid { display: flex; flex-direction: column; gap: 8px; }
+  .subnet { border: 1px solid var(--border2); border-radius: var(--r); padding: 9px 11px; background: var(--bg2); }
+  .subnet-blue { border-color: var(--blue-border); }
+  .subnet-teal { border-color: var(--teal-border); }
+  .subnet-green { border-color: var(--green-border); }
+  .sn-header { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; flex-wrap: wrap; }
+  .sn-name { font-size: 11px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+  .sn-cidr { font-size: 10px; font-family: var(--mono); color: var(--text3); background: var(--bg3); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); }
+  .sn-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .sn-note { font-size: 10px; font-family: var(--mono); color: var(--text3); margin-top: 2px; }
+
+  /* Tags */
+  .tag { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 4px; font-size: 10px; font-family: var(--mono); font-weight: 500; }
+  .tag-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .tag-teal { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); }
+  .tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+  .tag-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+
+  /* DNS Zone card */
+  .dns-zone { background: var(--teal-bg); border: 1px solid var(--teal-border); border-radius: 6px; padding: 7px 10px; margin-top: 6px; }
+  .dz-name { font-size: 11px; font-family: var(--mono); font-weight: 600; color: var(--teal); }
+  .dz-record { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-top: 2px; }
+  .dz-record span { color: var(--green); }
+
+  /* NSG box */
+  .nsg-box { margin-top: 6px; padding: 6px 10px; background: var(--amber-bg); border: 1px solid var(--amber-border); border-radius: 6px; font-size: 10px; font-family: var(--mono); color: var(--amber); line-height: 1.65; }
+  .nsg-title { font-weight: 600; margin-bottom: 2px; }
+
+  /* UDR box */
+  .udr-box { margin-top: 6px; padding: 6px 10px; background: var(--purple-bg); border: 1px solid var(--purple-border); border-radius: 6px; font-size: 10px; font-family: var(--mono); color: var(--purple); line-height: 1.65; }
+  .udr-title { font-weight: 600; margin-bottom: 2px; }
+
+  /* Spoke inner grid */
+  .spoke-inner { display: grid; grid-template-columns: 1fr 270px; gap: 12px; }
+  .spoke-subnets { display: flex; flex-direction: column; gap: 8px; }
+
+  /* Resource card inside subnet */
+  .res-card { border-radius: var(--r); padding: 9px 11px; border: 1px solid var(--border2); background: var(--bg3); margin-top: 7px; }
+  .res-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .res-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .res-title { font-size: 12px; font-weight: 600; font-family: var(--mono); }
+  .res-type { font-size: 10px; color: var(--text2); }
+  .props { display: flex; flex-direction: column; gap: 3px; }
+  .prop { display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 6px; }
+  .pk { color: var(--text2); flex-shrink: 0; }
+  .pv { font-family: var(--mono); font-size: 10px; color: var(--text); text-align: right; }
+  .pv.g { color: var(--green); } .pv.r { color: var(--red); } .pv.b { color: var(--blue); } .pv.t { color: var(--teal); } .pv.a { color: var(--amber); }
+
+  /* PE NIC */
+  .pe-nic { display: flex; align-items: flex-start; gap: 8px; margin-top: 7px; padding: 7px 10px; background: var(--teal-bg); border: 1px solid var(--teal-border); border-radius: 6px; }
+  .pe-name { font-size: 11px; font-weight: 600; font-family: var(--mono); color: var(--teal); }
+  .pe-detail { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-top: 2px; }
+  .pl-line { display: flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--bg3); border: 1px dashed var(--teal-border); border-radius: 6px; font-size: 10px; font-family: var(--mono); color: var(--teal); margin-top: 5px; }
+
+  /* Storage panel */
+  .storage-panel { display: flex; flex-direction: column; gap: 8px; }
+  .storage-card { background: var(--bg2); border: 1px solid var(--blue-border); border-radius: var(--r-lg); padding: 12px 13px; }
+  .sc-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .sc-icon { width: 36px; height: 36px; background: var(--blue-bg); border: 1px solid var(--blue-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .sc-title { font-size: 13px; font-weight: 600; font-family: var(--mono); }
+  .sc-sub { font-size: 10px; color: var(--text2); margin-top: 3px; }
+  .sec-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin: 8px 0 5px; }
+  .fw-rule { display: flex; align-items: center; gap: 7px; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .fw-rule:last-child { border-bottom: none; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .blocked-box { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--r); padding: 10px 12px; }
+  .blocked-title { font-size: 11px; font-weight: 600; color: var(--red); margin-bottom: 5px; font-family: var(--mono); }
+  .blocked-body { font-size: 10px; font-family: var(--mono); color: var(--text2); line-height: 1.65; }
+
+  /* DNS Flow */
+  .dns-flow { border: 1px solid var(--teal-border); background: var(--teal-bg); border-radius: var(--r-lg); padding: 14px 16px; }
+  .dns-flow-title { font-size: 12px; font-weight: 600; color: var(--teal); margin-bottom: 12px; font-family: var(--mono); }
+  .dns-steps { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+  .ds-item { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+  .ds-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r); padding: 8px 11px; min-width: 152px; max-width: 180px; }
+  .ds-box.success { border-color: var(--green-border); background: var(--green-bg); }
+  .ds-num { width: 20px; height: 20px; background: var(--teal-bg); border: 1px solid var(--teal-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--teal); font-family: var(--mono); margin-bottom: 5px; }
+  .ds-num.g { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+  .ds-title { font-size: 11px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .ds-detail { font-size: 10px; font-family: var(--mono); color: var(--teal); line-height: 1.5; }
+  .ds-detail.g { color: var(--green); }
+  .ds-arrow { padding: 0 7px; color: var(--text3); font-size: 15px; }
+
+  /* Traffic paths */
+  .traffic-section { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 14px 16px; }
+  .traffic-title { font-size: 12px; font-weight: 600; font-family: var(--mono); color: var(--text); margin-bottom: 10px; }
+  .traffic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tp { border-radius: var(--r); padding: 10px 12px; border: 1px solid var(--border); }
+  .tp-allowed { border-color: var(--green-border); background: var(--green-bg); }
+  .tp-blocked { border-color: var(--red-border); background: var(--red-bg); }
+  .tp-title { font-size: 11px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .tp-allowed .tp-title { color: var(--green); }
+  .tp-blocked .tp-title { color: var(--red); }
+  .tp-path { font-size: 10px; font-family: var(--mono); color: var(--text2); line-height: 1.7; }
+  .hop { color: var(--text); }
+  .hop-r { color: var(--red); }
+
+  /* Footer */
+  .meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 11px; font-family: var(--mono); color: var(--text2); }
+  .chip span { color: var(--text3); margin-right: 4px; }
+
+  @media (max-width: 1000px) {
+    .rg-row, .spoke-inner, .traffic-grid { grid-template-columns: 1fr; }
+    .dns-steps { flex-direction: column; }
+    .ds-arrow { transform: rotate(90deg); padding: 4px 0; align-self: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Azure Hub &amp; Spoke — Private Endpoint Architecture</h1>
+    <p>Storage Account · Private Link · Private DNS · NSG / UDR · Azure Firewall · Bastion</p>
+  </div>
+  <div class="sub-badge">📋 sub-prod-connectivity-001</div>
+</div>
+
+<div class="canvas">
+
+  <!-- Subscription -->
+  <div class="sub-wrap" data-label="🔵 Subscription: sub-prod-connectivity-001  (EA — Production Connectivity)">
+
+    <div class="rg-row">
+
+      <!-- ═══════════════════ HUB RG ═══════════════════ -->
+      <div class="rg-box" data-label="📦 rg-hub-network-eastus-001">
+        <div class="vnet vnet-hub">
+          <div class="vnet-label">
+            <span class="vname" style="color:var(--blue)">🔷 vnet-hub-eastus-001</span>
+            <span class="cidr">10.0.0.0/16</span>
+            <span class="region-tag">East US</span>
+          </div>
+
+          <div class="subnet-grid">
+
+            <div class="subnet subnet-blue">
+              <div class="sn-header">
+                <span class="sn-name">GatewaySubnet</span>
+                <span class="sn-cidr">10.0.0.0/27</span>
+              </div>
+              <div class="sn-desc">VPN Gateway (VpnGw2) / ExpressRoute GW — on-prem connectivity</div>
+              <div class="sn-note">⚠ No NSG — Azure restriction on GatewaySubnet</div>
+            </div>
+
+            <div class="subnet subnet-blue">
+              <div class="sn-header">
+                <span class="sn-name">AzureFirewallSubnet</span>
+                <span class="sn-cidr">10.0.1.0/26</span>
+                <span class="tag tag-blue">Firewall Premium</span>
+              </div>
+              <div class="sn-desc">Azure Firewall Premium · Centralised egress &amp; East-West inspection</div>
+              <div class="sn-note">Private IP: 10.0.1.4 · Policy: policy-hub-eastus-001</div>
+            </div>
+
+            <div class="subnet subnet-teal">
+              <div class="sn-header">
+                <span class="sn-name">DnsResolverInboundSubnet</span>
+                <span class="sn-cidr">10.0.2.0/28</span>
+                <span class="tag tag-teal">DNS Resolver</span>
+              </div>
+              <div class="sn-desc">Azure DNS Private Resolver — inbound endpoint at 10.0.2.4</div>
+              <div class="sn-note">All spoke VM DNS servers → 10.0.2.4</div>
+              <div class="dns-zone">
+                <div class="dz-name">🌐 privatelink.blob.core.windows.net</div>
+                <div class="dz-record">A: mystgprod001 → <span>10.2.1.5</span> (PE NIC)</div>
+                <div class="dz-record" style="margin-top:2px">VNet links: vnet-hub-eastus-001, vnet-spoke-app-eastus-001</div>
+                <div class="dz-record">Auto-registration: disabled (PE records are manual/auto via PE)</div>
+              </div>
+            </div>
+
+            <div class="subnet subnet-blue">
+              <div class="sn-header">
+                <span class="sn-name">AzureBastionSubnet</span>
+                <span class="sn-cidr">10.0.3.0/27</span>
+                <span class="tag tag-blue">Bastion</span>
+              </div>
+              <div class="sn-desc">Azure Bastion Standard — browser-based RDP/SSH, no public VM IPs required</div>
+            </div>
+
+            <div class="subnet subnet-blue">
+              <div class="sn-header">
+                <span class="sn-name">MonitoringSubnet</span>
+                <span class="sn-cidr">10.0.4.0/27</span>
+              </div>
+              <div class="sn-desc">Log Analytics: law-hub-eastus-001 · Microsoft Defender for Cloud</div>
+            </div>
+
+            <div class="udr-box">
+              <div class="udr-title">📋 udr-spoke-default — applied to ALL spoke subnets</div>
+              <div>0.0.0.0/0  →  Virtual Appliance  →  10.0.1.4  (Azure Firewall)</div>
+              <div>10.0.0.0/8  →  Virtual Network Gateway  (BGP propagation)</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════ SPOKE RG ═══════════════════ -->
+      <div class="rg-box" data-label="📦 rg-spoke-app-eastus-001">
+        <div class="vnet vnet-spoke">
+          <div class="vnet-label">
+            <span class="vname" style="color:var(--green)">🟢 vnet-spoke-app-eastus-001</span>
+            <span class="cidr">10.2.0.0/16</span>
+            <span class="region-tag">East US · Peered ↔ Hub (Allow GW Transit)</span>
+          </div>
+
+          <div class="spoke-inner">
+
+            <!-- Left subnets -->
+            <div class="spoke-subnets">
+
+              <div class="subnet subnet-green">
+                <div class="sn-header">
+                  <span class="sn-name">snet-app-eastus-001</span>
+                  <span class="sn-cidr">10.2.0.0/24</span>
+                  <span class="tag tag-green">App Tier</span>
+                </div>
+                <div class="sn-desc">Application workload subnet — VMs, app services</div>
+
+                <div class="res-card" style="border-color:var(--green-border)">
+                  <div class="res-header">
+                    <div class="res-icon" style="background:var(--green-bg);border:1px solid var(--green-border)">🖥️</div>
+                    <div>
+                      <div class="res-title" style="color:var(--green)">vm-app-prod-01</div>
+                      <div class="res-type">Virtual Machine · Standard_D2s_v5</div>
+                    </div>
+                  </div>
+                  <div class="props">
+                    <div class="prop"><span class="pk">OS</span><span class="pv">Windows Server 2022 Datacenter</span></div>
+                    <div class="prop"><span class="pk">NIC private IP</span><span class="pv b">10.2.0.10</span></div>
+                    <div class="prop"><span class="pk">Public IP</span><span class="pv r">None (Bastion access only)</span></div>
+                    <div class="prop"><span class="pk">DNS server</span><span class="pv t">10.0.2.4 (Resolver inbound)</span></div>
+                    <div class="prop"><span class="pk">Managed Identity</span><span class="pv g">System-assigned (enabled)</span></div>
+                    <div class="prop"><span class="pk">OS disk</span><span class="pv">osdisk-vm-app-prod-01 · P10 · LRS</span></div>
+                    <div class="prop"><span class="pk">Availability Zone</span><span class="pv">Zone 1</span></div>
+                  </div>
+                </div>
+
+                <div class="nsg-box">
+                  <div class="nsg-title">🛡 nsg-snet-app-eastus-001</div>
+                  <div>Inbound  Allow 443 ← VirtualNetwork (10.2.0.0/16)</div>
+                  <div>Inbound  Allow RDP/SSH ← AzureBastion service tag</div>
+                  <div>Inbound  Deny All ← Internet  [priority 4000]</div>
+                  <div>Outbound Allow 443 → VirtualNetwork (Storage PE)</div>
+                  <div>Outbound Allow Any → AzureMonitor (Diagnostics)</div>
+                  <div>Outbound Deny All → Internet  [priority 4000]</div>
+                </div>
+              </div>
+
+              <div class="subnet subnet-teal">
+                <div class="sn-header">
+                  <span class="sn-name">snet-privateendpoints-eastus-001</span>
+                  <span class="sn-cidr">10.2.1.0/28</span>
+                  <span class="tag tag-teal">PE Subnet</span>
+                </div>
+                <div class="sn-desc">Dedicated Private Endpoint subnet — best practice: no other workloads</div>
+
+                <div class="pe-nic">
+                  <div style="font-size:20px;flex-shrink:0">🔌</div>
+                  <div>
+                    <div class="pe-name">pe-mystgprod001-blob</div>
+                    <div class="pe-detail">NIC IP: 10.2.1.5 · Sub-resource: blob</div>
+                    <div class="pe-detail">Connection: plc-mystgprod001-blob · Status: Approved ✓</div>
+                  </div>
+                </div>
+
+                <div class="pl-line">🔗 Private Link backbone → mystgprod001 back-end (traffic stays on MS network)</div>
+
+                <div class="nsg-box" style="margin-top:6px">
+                  <div class="nsg-title">🛡 nsg-snet-pe-eastus-001</div>
+                  <div>Inbound  Allow 443 ← snet-app (10.2.0.0/24)</div>
+                  <div>Inbound  Deny All ← Internet + other sources</div>
+                  <div>Note: PE subnet NSG support is GA as of 2023</div>
+                </div>
+              </div>
+
+            </div><!-- /spoke-subnets -->
+
+            <!-- Right: Storage Account panel -->
+            <div class="storage-panel">
+
+              <div class="storage-card">
+                <div class="sc-header">
+                  <div class="sc-icon">🗄️</div>
+                  <div>
+                    <div class="sc-title">mystgprod001</div>
+                    <div class="sc-sub">Microsoft.Storage / storageAccounts</div>
+                    <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">
+                      <span class="tag tag-red">Public: Disabled</span>
+                      <span class="tag tag-green">Private Link ✓</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sec-label">Identity &amp; SKU</div>
+                <div class="props">
+                  <div class="prop"><span class="pk">Account name</span><span class="pv">mystgprod001</span></div>
+                  <div class="prop"><span class="pk">SKU / Kind</span><span class="pv">Standard_LRS · StorageV2</span></div>
+                  <div class="prop"><span class="pk">Region</span><span class="pv">East US</span></div>
+                  <div class="prop"><span class="pk">Min TLS</span><span class="pv g">1.2 enforced</span></div>
+                  <div class="prop"><span class="pk">HTTPS only</span><span class="pv g">Yes</span></div>
+                  <div class="prop"><span class="pk">Blob versioning</span><span class="pv g">Enabled</span></div>
+                  <div class="prop"><span class="pk">Soft delete</span><span class="pv g">14 days</span></div>
+                </div>
+
+                <div class="sec-label">Network</div>
+                <div class="props">
+                  <div class="prop"><span class="pk">Public network access</span><span class="pv r">Disabled</span></div>
+                  <div class="prop"><span class="pk">Default action</span><span class="pv r">Deny</span></div>
+                  <div class="prop"><span class="pk">Trusted MS services</span><span class="pv a">Enabled</span></div>
+                  <div class="prop"><span class="pk">Service endpoints</span><span class="pv r">None (PE only)</span></div>
+                </div>
+
+                <div class="sec-label">Firewall rules</div>
+                <div class="fw-rule"><div class="dot" style="background:var(--red)"></div><span style="color:var(--text2)">All public IPs</span><span class="tag tag-red" style="margin-left:auto">DENY</span></div>
+                <div class="fw-rule"><div class="dot" style="background:var(--red)"></div><span style="color:var(--text2)">VNet service endpoints</span><span class="tag tag-red" style="margin-left:auto">DENY</span></div>
+                <div class="fw-rule"><div class="dot" style="background:var(--green)"></div><span style="color:var(--text2)">Private Endpoint (10.2.1.5)</span><span class="tag tag-green" style="margin-left:auto">ALLOW</span></div>
+
+                <div class="sec-label">RBAC (IAM)</div>
+                <div class="props">
+                  <div class="prop"><span class="pk">vm-app-prod-01 MI</span><span class="pv g">Storage Blob Data Reader</span></div>
+                  <div class="prop"><span class="pk">Storage keys</span><span class="pv r">Disabled (Entra ID only)</span></div>
+                </div>
+
+                <div class="sec-label">Private Link</div>
+                <div class="props">
+                  <div class="prop"><span class="pk">Connection</span><span class="pv">plc-mystgprod001-blob</span></div>
+                  <div class="prop"><span class="pk">Sub-resource</span><span class="pv">blob</span></div>
+                  <div class="prop"><span class="pk">Approval</span><span class="pv g">Auto-approved ✓</span></div>
+                  <div class="prop"><span class="pk">PE NIC IP</span><span class="pv t">10.2.1.5</span></div>
+                </div>
+
+              </div>
+
+              <div class="blocked-box">
+                <div class="blocked-title">⊘ Internet path — BLOCKED (defence-in-depth)</div>
+                <div class="blocked-body">
+                  mystgprod001.blob.core.windows.net<br>
+                  → CNAME: mystgprod001.privatelink.blob…<br>
+                  → DNS resolves to 10.2.1.5 (private IP)<br>
+                  → Even if public IP were tried:<br>
+                  &nbsp;&nbsp;① UDR 0.0.0.0/0 → Azure Firewall 10.0.1.4<br>
+                  &nbsp;&nbsp;② Firewall policy: DENY (no public storage rule)<br>
+                  &nbsp;&nbsp;③ Storage firewall: public access = Disabled
+                </div>
+              </div>
+
+            </div><!-- /storage-panel -->
+          </div><!-- /spoke-inner -->
+        </div>
+      </div><!-- /spoke rg-box -->
+
+    </div><!-- /rg-row -->
+  </div><!-- /sub-wrap -->
+
+  <!-- ═══════ DNS Resolution Flow ═══════ -->
+  <div class="dns-flow">
+    <div class="dns-flow-title">🌐 DNS Resolution Flow — vm-app-prod-01 resolves mystgprod001.blob.core.windows.net</div>
+    <div class="dns-steps">
+
+      <div class="ds-item">
+        <div class="ds-box">
+          <div class="ds-num">1</div>
+          <div class="ds-title">VM issues DNS query</div>
+          <div class="ds-detail">Configured DNS: 10.0.2.4:53<br>Query: mystgprod001.blob.core…</div>
+        </div>
+      </div><div class="ds-arrow">→</div>
+
+      <div class="ds-item">
+        <div class="ds-box">
+          <div class="ds-num">2</div>
+          <div class="ds-title">DNS Resolver receives</div>
+          <div class="ds-detail">Inbound EP: 10.0.2.4<br>vnet-hub-eastus-001</div>
+        </div>
+      </div><div class="ds-arrow">→</div>
+
+      <div class="ds-item">
+        <div class="ds-box">
+          <div class="ds-num">3</div>
+          <div class="ds-title">Azure DNS CNAME lookup</div>
+          <div class="ds-detail">blob.core.windows.net<br>→ CNAME to privatelink zone</div>
+        </div>
+      </div><div class="ds-arrow">→</div>
+
+      <div class="ds-item">
+        <div class="ds-box">
+          <div class="ds-num">4</div>
+          <div class="ds-title">Private DNS Zone match</div>
+          <div class="ds-detail">privatelink.blob.core…<br>Linked to hub + spoke VNets</div>
+        </div>
+      </div><div class="ds-arrow">→</div>
+
+      <div class="ds-item">
+        <div class="ds-box">
+          <div class="ds-num">5</div>
+          <div class="ds-title">A record returned</div>
+          <div class="ds-detail">mystgprod001 → 10.2.1.5<br>(PE NIC private IP)</div>
+        </div>
+      </div><div class="ds-arrow">→</div>
+
+      <div class="ds-item">
+        <div class="ds-box success">
+          <div class="ds-num g">6</div>
+          <div class="ds-title">VM connects to 10.2.1.5</div>
+          <div class="ds-detail g">HTTPS 443 → Private Link<br>Never leaves MS backbone ✓</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════ Traffic paths ═══════ -->
+  <div class="traffic-section">
+    <div class="traffic-title">📡 Traffic paths summary</div>
+    <div class="traffic-grid">
+
+      <div class="tp tp-allowed">
+        <div class="tp-title">✓ Allowed — private data path (HTTPS)</div>
+        <div class="tp-path">
+          <span class="hop">vm-app-prod-01</span> → NIC 10.2.0.10<br>
+          → snet-app → HTTPS 443<br>
+          → <span class="hop">PE NIC 10.2.1.5</span> (snet-pe)<br>
+          → Private Link backbone<br>
+          → <span class="hop">mystgprod001 back-end</span> ✓
+        </div>
+      </div>
+
+      <div class="tp tp-blocked">
+        <div class="tp-title">⊘ Blocked — attempted internet path</div>
+        <div class="tp-path">
+          <span class="hop">vm-app-prod-01</span> → UDR 0.0.0.0/0<br>
+          → <span class="hop">Azure Firewall 10.0.1.4</span><br>
+          → Policy: DENY (no internet rule)<br>
+          + <span class="hop-r">Storage firewall: public Disabled</span><br>
+          + <span class="hop-r">NSG: Deny All Internet outbound</span> ✗
+        </div>
+      </div>
+
+      <div class="tp tp-allowed">
+        <div class="tp-title">✓ Allowed — Admin via Bastion (RDP/SSH)</div>
+        <div class="tp-path">
+          <span class="hop">Admin browser (Portal)</span><br>
+          → <span class="hop">AzureBastionSubnet 10.0.3.0/27</span><br>
+          → Encrypted RDP/SSH tunnel<br>
+          → <span class="hop">vm-app-prod-01 10.2.0.10</span> ✓<br>
+          (no public IP on VM required)
+        </div>
+      </div>
+
+      <div class="tp tp-allowed">
+        <div class="tp-title">✓ Allowed — On-premises to spoke (VPN/ER)</div>
+        <div class="tp-path">
+          <span class="hop">On-prem network</span><br>
+          → VPN/ExpressRoute → <span class="hop">GatewaySubnet</span><br>
+          → Hub VNet peering<br>
+          → Azure Firewall inspection (10.0.1.4)<br>
+          → <span class="hop">snet-app vm-app-prod-01</span> ✓
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer metadata chips -->
+  <div class="meta-row">
+    <div class="chip"><span>Subscription</span>sub-prod-connectivity-001</div>
+    <div class="chip"><span>Hub RG</span>rg-hub-network-eastus-001</div>
+    <div class="chip"><span>Spoke RG</span>rg-spoke-app-eastus-001</div>
+    <div class="chip"><span>Region</span>East US</div>
+    <div class="chip"><span>Hub VNet</span>10.0.0.0/16</div>
+    <div class="chip"><span>Spoke VNet</span>10.2.0.0/16</div>
+    <div class="chip"><span>Peering</span>bidirectional · allow-gateway-transit</div>
+    <div class="chip"><span>PE NIC</span>10.2.1.5</div>
+    <div class="chip"><span>DNS Resolver</span>10.0.2.4</div>
+    <div class="chip"><span>Firewall</span>10.0.1.4</div>
+    <div class="chip"><span>Storage</span>mystgprod001 · Standard_LRS · PE only</div>
+  </div>
+
+</div><!-- /canvas -->
+</body>
+</html>
