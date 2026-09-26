@@ -1,0 +1,256 @@
+<!--
+  Bhagavad Gita — Chapter 1 (fragment)
+  Scoped under .gita-chapter, so this cannot leak onto the base page.
+  Per-verse layout:
+    Row 1: two columns — Telugu verse (left) | English transliteration (right)
+    Row 2: full width — English translation
+    Row 3: full width — Telugu purport (commentary)
+
+  HOW TO ADD MORE VERSES:
+  Copy one whole <div class="verse-block">...</div> and fill in the four
+  pieces (telugu verse / transliteration / translation / purport). Update
+  the verse number in .verse-tag and at the end of the purport text.
+  Duplicate this whole file for chapter2.html .. chapter18.html.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600&family=IBM+Plex+Mono:ital@0;1&display=swap');
+
+  .gita-chapter {
+    --gold: #c9a15a;
+    --brown: #6b4f1d;
+    --brown-dark: #5a4a2a;
+    --muted: #8a7a5a;
+    --telugu: 'Noto Sans Telugu', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  .gita-chapter .chapter-head {
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--gold);
+  }
+  .gita-chapter .chapter-head h2 {
+    margin: 0 0 4px 0;
+    color: #1a1a1a;
+    font-size: 1.4em;
+  }
+  .gita-chapter .chapter-head .sub {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .gita-chapter .verse-block {
+    margin-bottom: 30px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e8e2d5;
+  }
+  .gita-chapter .verse-block:last-child { border-bottom: none; }
+
+  .gita-chapter .verse-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--brown);
+    background: #f4efe2;
+    border: 1px solid #e3d7b8;
+    border-radius: 4px;
+    padding: 2px 9px;
+    margin-bottom: 10px;
+  }
+
+  .gita-chapter .verse-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 14px;
+  }
+  .gita-chapter .verse-telugu {
+    font-family: var(--telugu);
+    font-size: 1.08rem;
+    line-height: 1.95;
+    color: #2b2b2b;
+    white-space: pre-line;
+  }
+  .gita-chapter .verse-translit {
+    font-family: var(--mono);
+    font-style: italic;
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: var(--brown);
+    white-space: pre-line;
+  }
+
+  .gita-chapter .verse-translation {
+    background: #fbf6ea;
+    border-left: 4px solid var(--gold);
+    border-radius: 6px;
+    padding: 10px 16px;
+    margin-bottom: 12px;
+    font-style: italic;
+    color: #3a3020;
+  }
+  .gita-chapter .verse-translation .lbl {
+    display: block;
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .gita-chapter .verse-purport {
+    font-family: var(--telugu);
+    font-size: 0.98rem;
+    line-height: 1.9;
+    color: var(--brown-dark);
+  }
+  .gita-chapter .verse-purport .lbl {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .gita-chapter .placeholder-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #b5432f;
+    background: #fdf0ee;
+    border: 1px dashed #e3b3a8;
+    border-radius: 5px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 720px) {
+    .gita-chapter .verse-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="gita-chapter">
+
+  <div class="chapter-head">
+    <h2>Chapter 1 — Arjuna Vishada Yoga</h2>
+    <div class="sub">The Grief of Arjuna &middot; 1st Chapter</div>
+  </div>
+
+  <!-- ══════════ VERSE 1 ══════════ -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 1</span>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">సంజయ ఉవాచ ।
+తం తథా కృపయావిష్టమశ్రుపూర్ణాకులేక్షణమ్ ।
+విషీదంతమిదం వాక్యమువాచ మధుసూదనః ।। 1 ।।</div>
+      <div class="verse-translit">sanjaya uvaca
+
+tam tatha krpayavistam
+asru-purnakuleksanam
+visidantam idam vakyam
+uvaca madhusudanah</div>
+    </div>
+
+    <div class="verse-translation">
+      <span class="lbl">Translation</span>
+      Sanjaya said: Seeing Arjuna full of compassion and very sorrowful, his eyes brimming with tears, Madhusudana, Krsna, spoke the following words.
+    </div>
+
+    <div class="verse-purport">
+      <span class="lbl">తాత్పర్యం</span>
+      తా॥ సంజయుడు పలికెను : ఈ రీతిగా అర్జునుడు దయావిష్ట చిత్తుడై, శోకిస్తున్నవాడుగా అయ్యా అతని కన్నులు నీటితో నిండి కలతపడసాగాడు. అప్పుడు శ్రీకృష్ణుడు అతనితో ఈ విధంగా అన్నాడు. 1
+    </div>
+  </div>
+
+  <!-- ══════════ VERSE 2 (placeholder) ══════════ -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 2</span>
+    <div class="placeholder-note">Placeholder — replace with actual verse 2 content</div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">[తెలుగు శ్లోకం — 2వ శ్లోకం ఇక్కడ ఉంచండి]</div>
+      <div class="verse-translit">[transliteration for verse 2 goes here]</div>
+    </div>
+
+    <div class="verse-translation">
+      <span class="lbl">Translation</span>
+      [English translation for verse 2 goes here.]
+    </div>
+
+    <div class="verse-purport">
+      <span class="lbl">తాత్పర్యం</span>
+      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 2
+    </div>
+  </div>
+
+  <!-- ══════════ VERSE 3 (placeholder) ══════════ -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 3</span>
+    <div class="placeholder-note">Placeholder — replace with actual verse 3 content</div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">[తెలుగు శ్లోకం — 3వ శ్లోకం ఇక్కడ ఉంచండి]</div>
+      <div class="verse-translit">[transliteration for verse 3 goes here]</div>
+    </div>
+
+    <div class="verse-translation">
+      <span class="lbl">Translation</span>
+      [English translation for verse 3 goes here.]
+    </div>
+
+    <div class="verse-purport">
+      <span class="lbl">తాత్పర్యం</span>
+      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 3
+    </div>
+  </div>
+
+  <!-- ══════════ VERSE 4 (placeholder) ══════════ -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 4</span>
+    <div class="placeholder-note">Placeholder — replace with actual verse 4 content</div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">[తెలుగు శ్లోకం — 4వ శ్లోకం ఇక్కడ ఉంచండి]</div>
+      <div class="verse-translit">[transliteration for verse 4 goes here]</div>
+    </div>
+
+    <div class="verse-translation">
+      <span class="lbl">Translation</span>
+      [English translation for verse 4 goes here.]
+    </div>
+
+    <div class="verse-purport">
+      <span class="lbl">తాత్పర్యం</span>
+      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 4
+    </div>
+  </div>
+
+  <!-- ══════════ VERSE 5 (placeholder) ══════════ -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 5</span>
+    <div class="placeholder-note">Placeholder — replace with actual verse 5 content</div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">[తెలుగు శ్లోకం — 5వ శ్లోకం ఇక్కడ ఉంచండి]</div>
+      <div class="verse-translit">[transliteration for verse 5 goes here]</div>
+    </div>
+
+    <div class="verse-translation">
+      <span class="lbl">Translation</span>
+      [English translation for verse 5 goes here.]
+    </div>
+
+    <div class="verse-purport">
+      <span class="lbl">తాత్పర్యం</span>
+      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 5
+    </div>
+  </div>
+
+</div>
