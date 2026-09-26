@@ -1,0 +1,774 @@
+<!--
+  HTTPS/TLS Sequence Diagram — HelloWorld (fragment)
+  Scoped for embedding inside a base HTML page. Light-mode theme
+  (converted from the original dark-mode version) — layout, structure
+  and accent hues are unchanged, only backgrounds/text/accent shades
+  were relit for a light surface.
+
+  If your base page already loads JetBrains Mono / Syne elsewhere,
+  this @import is redundant but harmless — remove it if you want to dedupe.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700&display=swap');
+
+  .tls-widget {
+    --bg:       #f8f9fc;
+    --bg2:      #ffffff;
+    --bg3:      #eef0f6;
+    --border:   #dde1ea;
+    --text:     #1a1d2e;
+    --muted:    #6b7280;
+    --teal:     #0d9488;
+    --teal-dim: rgba(13,148,136,0.10);
+    --amber:    #b45309;
+    --amber-dim:rgba(180,83,9,0.10);
+    --blue:     #0369a1;
+    --blue-dim: rgba(3,105,161,0.10);
+    --green:    #15803d;
+    --green-dim:rgba(21,128,61,0.10);
+    --purple:   #6d28d9;
+    --purple-dim:rgba(109,40,217,0.10);
+    --red:      #dc2626;
+    --font:     'Syne', sans-serif;
+    --mono:     'JetBrains Mono', monospace;
+  }
+
+  .tls-widget * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .tls-widget {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 24px 60px;
+    min-height: 100vh;
+  }
+
+  .tls-widget .page-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-bottom: 6px;
+  }
+
+  .tls-widget .page-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-bottom: 32px;
+    opacity: 0.6;
+  }
+
+  /* ── DIAGRAM WRAPPER ── */
+  .tls-widget .diagram {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── ACTOR HEADERS ── */
+  .tls-widget .actors {
+    display: grid;
+    grid-template-columns: 160px 1fr 160px 160px 160px;
+    gap: 0;
+    margin-bottom: 0;
+  }
+
+  .tls-widget .actor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 6px;
+    border-radius: 8px 8px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    text-align: center;
+  }
+
+  .tls-widget .actor-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .tls-widget .actor-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tls-widget .actor-sub {
+    font-size: 9px;
+    font-family: var(--mono);
+    opacity: 0.5;
+  }
+
+  .tls-widget .a-browser { background: var(--teal-dim);   border-color: var(--teal);   color: var(--teal); }
+  .tls-widget .a-ca { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+  .tls-widget .a-server { background: var(--amber-dim);  border-color: var(--amber);  color: var(--amber); }
+  .tls-widget .a-tls { background: var(--blue-dim);   border-color: var(--blue);   color: var(--blue); }
+  .tls-widget .a-app { background: var(--green-dim);  border-color: var(--green);  color: var(--green); }
+
+  /* ── SEQUENCE BODY ── */
+  .tls-widget .seq-body {
+    display: grid;
+    grid-template-columns: 160px 1fr 160px 160px 160px;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  /* lifeline cells */
+  .tls-widget .ll {
+    border-right: 1px solid var(--border);
+    position: relative;
+    min-height: 100%;
+  }
+  .tls-widget .ll::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+    transform: translateX(-50%);
+  }
+  .tls-widget .ll:last-child { border-right: none; }
+
+  /* ── STEP ROWS ── */
+  .tls-widget .step-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 160px 1fr 160px 160px 160px;
+    min-height: 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .tls-widget .step-row:last-child { border-bottom: none; }
+
+  /* background stripes per column */
+  .tls-widget .step-row > div {
+    position: relative;
+    border-right: 1px solid var(--border);
+  }
+  .tls-widget .step-row > div:last-child { border-right: none; }
+
+  .tls-widget .col-browser { background: rgba(13,148,136,0.025); }
+  .tls-widget .col-mid { background: var(--bg2); }
+  .tls-widget .col-ca { background: rgba(109,40,217,0.025); }
+  .tls-widget .col-server { background: rgba(180,83,9,0.025); }
+  .tls-widget .col-app { background: rgba(21,128,61,0.025); }
+
+  /* phase header rows */
+  .tls-widget .phase-row {
+    grid-column: 1 / -1;
+    padding: 6px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tls-widget .phase-label {
+    font-size: 9px;
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .tls-widget .phase-desc {
+    font-size: 9px;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .tls-widget .phase-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── ARROWS ── */
+  .tls-widget .arrow-row {
+    grid-column: 1 / -1;
+    position: relative;
+    height: 0;
+    overflow: visible;
+    z-index: 10;
+  }
+
+  .tls-widget .arr {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    height: 32px;
+    top: -16px;
+    z-index: 10;
+  }
+
+  .tls-widget .arr-line {
+    height: 1px;
+    flex: 1;
+  }
+
+  .tls-widget .arr-line-solid { background: var(--muted); opacity: 0.4; }
+  .tls-widget .arr-line-teal { background: var(--teal);  opacity: 0.7; }
+  .tls-widget .arr-line-amber { background: var(--amber); opacity: 0.7; }
+  .tls-widget .arr-line-blue { background: var(--blue);  opacity: 0.7; }
+  .tls-widget .arr-line-green { background: var(--green); opacity: 0.7; }
+  .tls-widget .arr-line-purple { background: var(--purple);opacity: 0.7; }
+  .tls-widget .arr-line-return { background: var(--green); opacity: 0.5; border-top: 1px dashed var(--green); height: 0; }
+
+  .tls-widget .arr-head {
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .tls-widget .arr-label-wrap {
+    position: absolute;
+    top: -28px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .tls-widget .arr-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    color: var(--text);
+    opacity: 0.8;
+  }
+
+  /* ── STEP BOXES ── */
+  .tls-widget .sbox {
+    margin: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+    font-size: 10px;
+    line-height: 1.5;
+    font-family: var(--mono);
+  }
+
+  .tls-widget .sbox-teal { background: var(--teal-dim);   border-color: rgba(13,148,136,0.3);  color: var(--teal); }
+  .tls-widget .sbox-amber { background: var(--amber-dim);  border-color: rgba(180,83,9,0.3);  color: var(--amber); }
+  .tls-widget .sbox-blue { background: var(--blue-dim);   border-color: rgba(3,105,161,0.3); color: var(--blue); }
+  .tls-widget .sbox-green { background: var(--green-dim);  border-color: rgba(21,128,61,0.3);  color: var(--green); }
+  .tls-widget .sbox-purple { background: var(--purple-dim); border-color: rgba(109,40,217,0.3); color: var(--purple); }
+  .tls-widget .sbox-gray { background: #f3f4f6; border-color: var(--border);    color: var(--muted); }
+
+  .tls-widget .sbox-title { font-weight: 600; font-size: 11px; margin-bottom: 3px; }
+  .tls-widget .sbox-body { opacity: 0.75; font-size: 9px; }
+
+  /* ── NOTE CALLOUTS ── */
+  .tls-widget .note {
+    margin: 6px 8px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    border-left: 2px solid;
+    font-size: 9px;
+    font-family: var(--mono);
+    line-height: 1.6;
+  }
+  .tls-widget .note-teal { border-color: var(--teal);   color: var(--teal);   background: var(--teal-dim); }
+  .tls-widget .note-amber { border-color: var(--amber);  color: var(--amber);  background: var(--amber-dim); }
+  .tls-widget .note-blue { border-color: var(--blue);   color: var(--blue);   background: var(--blue-dim); }
+  .tls-widget .note-green { border-color: var(--green);  color: var(--green);  background: var(--green-dim); }
+  .tls-widget .note-purple { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+
+  .tls-widget .note b { font-weight: 600; opacity: 1; }
+
+  /* step number badge */
+  .tls-widget .step-num {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    background: rgba(0,0,0,0.055);
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-bottom: 4px;
+    color: var(--muted);
+  }
+
+  /* ── JSON BLOCKS ── */
+  .tls-widget .json-block {
+    font-family: var(--mono);
+    font-size: 9px;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    margin: 4px 8px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  .tls-widget .json-key { color: var(--blue); }
+  .tls-widget .json-val { color: var(--green); }
+  .tls-widget .json-str { color: var(--amber); }
+  .tls-widget .json-brace { color: var(--muted); }
+
+  /* ── LEGEND ── */
+  .tls-widget .legend {
+    max-width: 960px;
+    margin: 20px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 12px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .tls-widget .leg { display: flex; align-items: center; gap: 6px; font-size: 10px; font-family: var(--mono); color: var(--muted); }
+  .tls-widget .leg-line { width: 24px; height: 1px; }
+  .tls-widget .leg-dash { width: 24px; height: 0; border-top: 1px dashed; }
+
+  /* full-span row */
+  .tls-widget .full-span {
+    grid-column: 1 / -1;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .tls-widget .sep { width: 100%; height: 1px; background: var(--border); margin: 4px 0; }
+</style>
+
+<div class="tls-widget">
+
+<p class="page-title">HTTPS sequence — HelloWorld API</p>
+<p class="page-sub">GET /hello?name=John → { "message": "Hello John" } · TLS 1.3 · RSA 2048 cert · ECDHE session</p>
+
+<div class="diagram">
+
+  <!-- ACTOR HEADERS -->
+  <div class="actors">
+    <div class="actor a-browser">
+      <div class="actor-icon">🌐</div>
+      <div class="actor-name">Browser</div>
+      <div class="actor-sub">caller / client</div>
+    </div>
+    <div class="actor a-tls" style="border-radius:8px 8px 0 0;">
+      <div class="actor-icon">🔐</div>
+      <div class="actor-name">TLS layer</div>
+      <div class="actor-sub">inside both sides</div>
+    </div>
+    <div class="actor a-ca">
+      <div class="actor-icon">🏛</div>
+      <div class="actor-name">CA</div>
+      <div class="actor-sub">DigiCert / Let's Encrypt</div>
+    </div>
+    <div class="actor a-server">
+      <div class="actor-icon">⚙️</div>
+      <div class="actor-name">Server TLS</div>
+      <div class="actor-sub">Tomcat / Nginx</div>
+    </div>
+    <div class="actor a-app">
+      <div class="actor-icon">☕</div>
+      <div class="actor-name">Spring Boot</div>
+      <div class="actor-sub">/hello endpoint</div>
+    </div>
+  </div>
+
+  <!-- SEQUENCE BODY -->
+  <div class="seq-body">
+
+    <!-- ══ PHASE 1: SETUP (done once, offline) ══ -->
+    <div class="phase-row" style="grid-column:1/-1;">
+      <div class="phase-dot" style="background:var(--purple);"></div>
+      <span class="phase-label" style="color:var(--purple);">Phase 0 — one-time setup (before any user connects)</span>
+      <span class="phase-desc">RSA keypair + certificate from CA · configured in Spring Boot</span>
+    </div>
+
+    <!-- row: keygen + CA signing -->
+    <div class="step-row">
+      <div class="col-browser"></div>
+      <div class="col-mid" style="padding:10px 14px; display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center;">
+          <div class="step-num">setup</div>
+          <div style="font-size:10px; font-family:var(--mono); color:var(--muted); line-height:1.7;">
+            Developer runs:<br>
+            <span style="color:var(--purple);">keytool -genkeypair -keyalg RSA -keysize 2048</span><br>
+            → generates RSA private key + public key<br>
+            → submits CSR to CA<br>
+            → CA verifies domain ownership<br>
+            → CA signs public key with CA private key<br>
+            → result: <span style="color:var(--amber);">RSA 2048 certificate</span> (contains public key + CA signature)<br>
+            → configured in application.properties
+          </div>
+        </div>
+      </div>
+      <div class="col-ca">
+        <div class="note note-purple">
+          <b>CA's job:</b><br>
+          verifies you own the domain<br>
+          signs your public key<br>
+          issues certificate<br>
+          <br>
+          browser trusts CA by default<br>
+          → browser trusts your cert
+        </div>
+      </div>
+      <div class="col-server">
+        <div class="note note-amber">
+          <b>Stored on server:</b><br>
+          RSA private key (secret)<br>
+          RSA certificate (public)<br>
+          <br>
+          configured in<br>
+          application.properties
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- ══ PHASE 1: TLS HANDSHAKE ══ -->
+    <div class="phase-row">
+      <div class="phase-dot" style="background:var(--blue);"></div>
+      <span class="phase-label" style="color:var(--blue);">Phase 1 — TLS handshake (happens on every new connection)</span>
+      <span class="phase-desc">no actual data yet · just negotiating how to encrypt</span>
+    </div>
+
+    <!-- STEP 1: ClientHello -->
+    <div class="step-row" style="min-height:80px;">
+      <div class="col-browser">
+        <div class="step-num">step 1</div>
+        <div class="sbox sbox-teal">
+          <div class="sbox-title">ClientHello</div>
+          <div class="sbox-body">
+            "I support these ciphers:<br>
+            ECDHE-RSA-AES256-GCM<br>
+            here is my random nonce"
+          </div>
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; align-items:center; padding:0 20px;">
+        <div style="width:100%; position:relative;">
+          <div style="height:1px; background:var(--blue); opacity:0.5;"></div>
+          <div style="position:absolute; right:-6px; top:-5px; color:var(--blue); font-size:11px;">▶</div>
+          <div style="font-size:9px; font-family:var(--mono); color:var(--muted); text-align:center; margin-top:4px;">→ to server TLS</div>
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="note note-blue" style="margin-top:8px;">
+          receives list of<br>
+          supported ciphers<br>
+          picks best one
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- STEP 2: ServerHello + Certificate -->
+    <div class="step-row" style="min-height:120px;">
+      <div class="col-browser">
+        <div class="note note-teal" style="margin-top:8px;">
+          <b>Receives RSA cert.</b><br>
+          Verifies CA signature.<br>
+          Confirms domain matches.<br>
+          <br>
+          <b>RSA used here ONLY<br>
+          for identity check.</b>
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; align-items:center; padding:0 20px;">
+        <div style="width:100%; position:relative;">
+          <div style="height:1px; background:var(--amber); opacity:0.5;"></div>
+          <div style="position:absolute; left:-6px; top:-5px; color:var(--amber); font-size:11px;">◀</div>
+          <div style="font-size:9px; font-family:var(--mono); color:var(--muted); text-align:center; margin-top:4px;">← ServerHello + RSA Certificate + EC public key (signed by RSA)</div>
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="step-num">step 2</div>
+        <div class="sbox sbox-amber">
+          <div class="sbox-title">ServerHello</div>
+          <div class="sbox-body">
+            sends RSA 2048 cert<br>
+            + ephemeral EC P-256<br>
+            public key<br>
+            (EC key signed by RSA<br>
+            private key)
+          </div>
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- STEP 3: ECDHE key exchange -->
+    <div class="step-row" style="min-height:120px;">
+      <div class="col-browser">
+        <div class="step-num">step 3</div>
+        <div class="sbox sbox-blue">
+          <div class="sbox-title">ECDHE key exchange</div>
+          <div class="sbox-body">
+            generates ephemeral<br>
+            EC P-256 keypair<br>
+            sends EC public key<br>
+            to server
+          </div>
+        </div>
+        <div class="note note-blue" style="font-size:8px;">
+          both sides run ECDH math<br>
+          → same shared secret<br>
+          → never transmitted<br>
+          → AES session key derived
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; align-items:center; padding:0 20px;">
+        <div style="width:100%; position:relative;">
+          <div style="height:1px; background:var(--blue); opacity:0.5;"></div>
+          <div style="position:absolute; right:-6px; top:-5px; color:var(--blue); font-size:11px;">▶</div>
+          <div style="font-size:9px; font-family:var(--mono); color:var(--muted); text-align:center; margin-top:4px;">→ browser EC public key</div>
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="note note-amber" style="margin-top:8px;">
+          receives browser EC key<br>
+          runs ECDH math<br>
+          derives same shared secret<br>
+          derives AES session key
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- STEP 4: Handshake done -->
+    <div class="step-row" style="min-height:60px; background: rgba(21,128,61,0.035);">
+      <div class="col-browser">
+        <div class="note note-green" style="margin-top:6px; font-size:9px;">
+          <b>✓ handshake complete</b><br>
+          AES session key ready<br>
+          all data now encrypted
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; align-items:center; justify-content:center;">
+        <div style="font-size:9px; font-family:var(--mono); color:var(--green); opacity:0.7; text-align:center;">
+          ✓ Finished (encrypted)<br>both sides confirm<br>handshake succeeded
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="note note-green" style="margin-top:6px; font-size:9px;">
+          <b>✓ handshake complete</b><br>
+          AES session key ready<br>
+          all data now encrypted
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- ══ PHASE 2: ACTUAL HTTP REQUEST ══ -->
+    <div class="phase-row">
+      <div class="phase-dot" style="background:var(--green);"></div>
+      <span class="phase-label" style="color:var(--green);">Phase 2 — actual HTTP request (now inside encrypted tunnel)</span>
+      <span class="phase-desc">RSA is completely done · only AES from here · Spring Boot sees plaintext</span>
+    </div>
+
+    <!-- STEP 5: HTTP request -->
+    <div class="step-row" style="min-height:120px;">
+      <div class="col-browser">
+        <div class="step-num">step 5</div>
+        <div class="sbox sbox-teal">
+          <div class="sbox-title">HTTP GET request</div>
+          <div class="sbox-body">plaintext inside browser</div>
+        </div>
+        <div class="json-block">
+          <span class="json-brace">GET /hello?name=John</span><br>
+          <span class="json-brace">Host: myapp.com</span><br>
+          <span class="json-brace">Accept: application/json</span>
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; gap:8px;">
+        <div style="font-size:9px; font-family:var(--mono); color:var(--blue); text-align:center; background:var(--blue-dim); padding:6px 10px; border-radius:4px; width:100%;">
+          🔒 AES-256-GCM encrypts entire request<br>
+          wire sees only: <span style="color:var(--muted);">random encrypted bytes</span><br>
+          RSA plays NO role here
+        </div>
+        <div style="width:100%; position:relative;">
+          <div style="height:1px; background:var(--green); opacity:0.5;"></div>
+          <div style="position:absolute; right:-6px; top:-5px; color:var(--green); font-size:11px;">▶</div>
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="note note-blue" style="margin-top:8px; font-size:9px;">
+          TLS layer decrypts<br>
+          using AES session key<br>
+          passes plaintext to<br>
+          Spring Boot
+        </div>
+      </div>
+      <div class="col-app">
+        <div class="note note-green" style="margin-top:8px; font-size:9px;">
+          <b>receives plaintext:</b><br>
+          GET /hello<br>
+          name = "John"<br>
+          <br>
+          processes request<br>
+          builds response
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6: Spring Boot processes -->
+    <div class="step-row" style="min-height:100px;">
+      <div class="col-browser"></div>
+      <div class="col-mid"></div>
+      <div class="col-ca"></div>
+      <div class="col-server"></div>
+      <div class="col-app">
+        <div class="step-num">step 6</div>
+        <div class="sbox sbox-green">
+          <div class="sbox-title">@GetMapping("/hello")</div>
+          <div class="sbox-body">
+            extracts name="John"<br>
+            builds response JSON<br>
+            returns to TLS layer
+          </div>
+        </div>
+        <div class="json-block">
+          <span class="json-brace">{</span><br>
+          &nbsp;<span class="json-key">"message"</span>: <span class="json-str">"Hello John"</span><br>
+          <span class="json-brace">}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7: Response back -->
+    <div class="step-row" style="min-height:120px;">
+      <div class="col-browser">
+        <div class="step-num">step 7</div>
+        <div class="sbox sbox-teal">
+          <div class="sbox-title">receives response</div>
+          <div class="sbox-body">TLS decrypts using AES</div>
+        </div>
+        <div class="json-block">
+          <span style="color:var(--muted);">HTTP 200 OK</span><br>
+          <span class="json-brace">{</span><br>
+          &nbsp;<span class="json-key">"message"</span>: <span class="json-str">"Hello John"</span><br>
+          <span class="json-brace">}</span>
+        </div>
+      </div>
+      <div class="col-mid" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; gap:8px;">
+        <div style="font-size:9px; font-family:var(--mono); color:var(--blue); text-align:center; background:var(--blue-dim); padding:6px 10px; border-radius:4px; width:100%;">
+          🔒 AES-256-GCM encrypts response<br>
+          RSA plays NO role here
+        </div>
+        <div style="width:100%; position:relative;">
+          <div style="height:1px; background:var(--green); opacity:0.5; border-top: 1px dashed var(--green);"></div>
+          <div style="position:absolute; left:-6px; top:-5px; color:var(--green); font-size:11px;">◀</div>
+        </div>
+      </div>
+      <div class="col-ca"></div>
+      <div class="col-server">
+        <div class="note note-amber" style="margin-top:8px; font-size:9px;">
+          TLS layer receives<br>
+          plaintext from Spring Boot<br>
+          encrypts with AES<br>
+          sends over wire
+        </div>
+      </div>
+      <div class="col-app"></div>
+    </div>
+
+    <!-- ══ SIGNATURE CALLOUT ══ -->
+    <div class="phase-row" style="flex-direction:column; align-items:flex-start; gap:6px; padding:14px 16px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="phase-dot" style="background:var(--purple);"></div>
+        <span class="phase-label" style="color:var(--purple);">What is the RSA signature exactly?</span>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; width:100%; margin-top:4px;">
+        <div class="note note-purple">
+          <b>CA signs your cert:</b><br>
+          CA takes your RSA public key<br>
+          runs it through SHA256 hash<br>
+          encrypts hash with CA's private key<br>
+          → this encrypted hash = signature<br>
+          appended to your certificate
+        </div>
+        <div class="note note-blue">
+          <b>Browser verifies signature:</b><br>
+          decrypts signature with CA public key<br>
+          (CA public key is in browser by default)<br>
+          gets back the hash<br>
+          hashes your public key itself<br>
+          compares → if match = cert is genuine
+        </div>
+        <div class="note note-amber">
+          <b>Server signs EC key:</b><br>
+          server hashes its ephemeral EC public key<br>
+          encrypts hash with RSA private key<br>
+          → signature proves server owns RSA cert<br>
+          browser verifies using RSA public key<br>
+          from certificate
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SUMMARY ROW ══ -->
+    <div class="phase-row" style="flex-direction:column; align-items:flex-start; padding:12px 16px; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="phase-dot" style="background:var(--teal);"></div>
+        <span class="phase-label" style="color:var(--teal);">Summary — what each key does</span>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%;">
+        <div style="font-size:9px; font-family:var(--mono); color:var(--purple); background:var(--purple-dim); border-radius:5px; padding:8px;">
+          <b>RSA 2048 private key</b><br>
+          lives on server only<br>
+          signs EC public key<br>
+          never encrypts data
+        </div>
+        <div style="font-size:9px; font-family:var(--mono); color:var(--amber); background:var(--amber-dim); border-radius:5px; padding:8px;">
+          <b>RSA 2048 certificate</b><br>
+          sent to browser<br>
+          proves server identity<br>
+          contains RSA public key
+        </div>
+        <div style="font-size:9px; font-family:var(--mono); color:var(--blue); background:var(--blue-dim); border-radius:5px; padding:8px;">
+          <b>EC P-256 keypair</b><br>
+          generated per connection<br>
+          used for ECDH only<br>
+          discarded after handshake
+        </div>
+        <div style="font-size:9px; font-family:var(--mono); color:var(--green); background:var(--green-dim); border-radius:5px; padding:8px;">
+          <b>AES-256 session key</b><br>
+          derived from ECDH<br>
+          encrypts ALL data<br>
+          your JSON request + response
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end seq-body -->
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span style="font-size:9px; font-family:var(--mono); color:var(--muted);">legend:</span>
+    <div class="leg"><div class="leg-line" style="background:var(--blue); opacity:0.6;"></div>TLS handshake message</div>
+    <div class="leg"><div class="leg-line" style="background:var(--green); opacity:0.6;"></div>encrypted data flow</div>
+    <div class="leg"><div class="leg-dash" style="border-color:var(--green); opacity:0.5;"></div>return / response</div>
+    <span style="font-size:9px; font-family:var(--mono); color:var(--muted); margin-left:8px;">RSA touches data: never · RSA touches identity: always · AES touches data: always</span>
+  </div>
+
+</div>
+</div>
