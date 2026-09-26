@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confidential Computing — Nested Layer View</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f9fc;
+    --panel: #ffffff;
+    --border: #dde1ea;
+    --text: #1a1d2e;
+    --muted: #6b7280;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+  }
+
+  .page-header { text-align: center; margin-bottom: 36px; }
+  .page-header h1 { font-size: clamp(1.2rem,2.5vw,1.8rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text); margin-bottom: 6px; }
+  .page-header p  { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .outer-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* each nested box */
+  .nbox {
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .nbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .nbox-num {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .nbox-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .nbox-sub {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .nbox-tag {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.57rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  /* chip row inside a box */
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  /* L0 — hardware */
+  .l0 {
+    background: #fff7f5;
+    border: 2px solid #f97316;
+  }
+  .l0 .nbox-num   { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+  .l0 .nbox-title { color: #c2410c; }
+  .l0 .nbox-tag   { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+  .l0 .chip       { background: #ffedd5; color: #9a3412; border: 1px solid #fed7aa; }
+
+  /* L1 — firmware */
+  .l1 {
+    background: #fffbf0;
+    border: 2px solid #eab308;
+    margin-top: 4px;
+  }
+  .l1 .nbox-num   { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+  .l1 .nbox-title { color: #854d0e; }
+  .l1 .nbox-tag   { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+  .l1 .chip       { background: #fef9c3; color: #713f12; border: 1px solid #fde68a; }
+
+  /* L2 — hypervisor untrusted */
+  .l2 {
+    background: #fff5f5;
+    border: 2px dashed #ef4444;
+    margin-top: 4px;
+  }
+  .l2 .nbox-num   { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .l2 .nbox-title { color: #b91c1c; }
+  .l2 .nbox-tag   { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+  .l2 .chip       { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+  /* L3 — TEE cVM */
+  .l3 {
+    background: #eff6ff;
+    border: 2px solid #3b82f6;
+    margin-top: 4px;
+  }
+  .l3 .nbox-num   { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+  .l3 .nbox-title { color: #1d4ed8; }
+  .l3 .nbox-tag   { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+  .l3 .chip       { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+  /* L4 — pod/container */
+  .l4 {
+    background: #f0fdf4;
+    border: 2px solid #22c55e;
+    margin-top: 4px;
+  }
+  .l4 .nbox-num   { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .l4 .nbox-title { color: #15803d; }
+  .l4 .nbox-tag   { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .l4 .chip       { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+  /* L5 — workload */
+  .l5 {
+    background: #faf5ff;
+    border: 2px solid #a855f7;
+    margin-top: 4px;
+  }
+  .l5 .nbox-num   { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+  .l5 .nbox-title { color: #7e22ce; }
+  .l5 .nbox-tag   { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+  .l5 .chip       { background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe; }
+
+  /* L6 — external trustee (outside the nesting) */
+  .l6-outer {
+    max-width: 860px;
+    margin: 16px auto 0;
+    background: #fdf2f8;
+    border: 2px solid #ec4899;
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .l6-outer .nbox-num   { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+  .l6-outer .nbox-title { color: #be185d; }
+  .l6-outer .nbox-tag   { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; }
+  .l6-outer .chip       { background: #fce7f3; color: #9d174d; border: 1px solid #fbcfe8; }
+
+  .outside-label {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin: 14px 0 6px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* attestation arrow */
+  .attest-arrow {
+    text-align: center;
+    font-size: 0.72rem;
+    color: #be185d;
+    font-family: var(--mono);
+    margin: 8px 0 2px;
+    letter-spacing: 0.04em;
+  }
+
+  .bottom-note {
+    max-width: 860px;
+    margin: 24px auto 0;
+    background: #fefce8;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.74rem;
+    color: #78350f;
+    line-height: 1.7;
+    font-family: var(--mono);
+  }
+  .bottom-note strong { color: #92400e; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Confidential Computing — nested layer view</h1>
+  <p>each layer lives inside the one below it · outermost = most fundamental</p>
+</div>
+
+<!-- L0 outermost -->
+<div class="outer-wrap">
+<div class="nbox l0">
+  <div class="nbox-label">
+    <span class="nbox-num">L0</span>
+    <span class="nbox-title">Physical hardware</span>
+    <span class="nbox-sub">— root of trust · trust this blindly</span>
+    <span class="nbox-tag">ROOT OF TRUST</span>
+  </div>
+  <div class="chip-row">
+    <span class="chip">CPU die (Intel Xeon TDX / AMD EPYC SEV-SNP)</span>
+    <span class="chip">DRAM (Samsung / SK Hynix)</span>
+    <span class="chip">Memory Encryption Engine (MEE/TME)</span>
+    <span class="chip">NIC · NVMe · Server chassis (HPE / Dell)</span>
+  </div>
+
+  <!-- L1 inside L0 -->
+  <div class="nbox l1">
+    <div class="nbox-label">
+      <span class="nbox-num">L1</span>
+      <span class="nbox-title">Low-level firmware &amp; management</span>
+      <span class="nbox-sub">— first code on power-on · anchors attestation chain</span>
+      <span class="nbox-tag">MFR TCB</span>
+    </div>
+    <div class="chip-row">
+      <span class="chip">BIOS / UEFI (AMI / Insyde)</span>
+      <span class="chip">CPU microcode (Intel / AMD)</span>
+      <span class="chip">BMC / iDRAC / iLO — persistent attack surface</span>
+    </div>
+
+    <!-- L2 inside L1 -->
+    <div class="nbox l2">
+      <div class="nbox-label">
+        <span class="nbox-num">L2</span>
+        <span class="nbox-title">Hypervisor / Host OS / VMM</span>
+        <span class="nbox-sub">— CSP-controlled · treated as hostile</span>
+        <span class="nbox-tag">⚠ UNTRUSTED</span>
+      </div>
+      <div class="chip-row">
+        <span class="chip">KVM + QEMU · VMware · Hyper-V · Xen</span>
+        <span class="chip">Host OS (Ubuntu / RHEL)</span>
+        <span class="chip">Cloud control plane (IBM VPC / EC2 / Azure Fabric)</span>
+      </div>
+
+      <!-- L3 inside L2 -->
+      <div class="nbox l3">
+        <div class="nbox-label">
+          <span class="nbox-num">L3</span>
+          <span class="nbox-title">TEE — confidential VM (cVM)</span>
+          <span class="nbox-sub">— hardware-encrypted · hypervisor sees only ciphertext</span>
+          <span class="nbox-tag">MFR TCB CORE</span>
+        </div>
+        <div class="chip-row">
+          <span class="chip">VM firmware (OVMF) — must be measured</span>
+          <span class="chip">Guest OS + bootloader (RHEL / Ubuntu · GRUB2)</span>
+          <span class="chip">vTPM — must be inside cVM</span>
+          <span class="chip">Attestation agent — collects Quote / Report</span>
+          <span class="chip">Kata runtime + cloud-api-adaptor (containers only)</span>
+        </div>
+
+        <!-- L4 inside L3 -->
+        <div class="nbox l4">
+          <div class="nbox-label">
+            <span class="nbox-num">L4</span>
+            <span class="nbox-title">Pod &amp; container runtime</span>
+            <span class="nbox-sub">— runs inside TEE · image must be signed</span>
+            <span class="nbox-tag">USER TCB</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip">Kubernetes pod (K8s / OpenShift)</span>
+            <span class="chip">OCI container (signed — Sigstore / Notary)</span>
+            <span class="chip">containerd / CRI-O</span>
+            <span class="chip">Image signature policy</span>
+          </div>
+
+          <!-- L5 inside L4 -->
+          <div class="nbox l5">
+            <div class="nbox-label">
+              <span class="nbox-num">L5</span>
+              <span class="nbox-title">User workload &amp; services</span>
+              <span class="nbox-sub">— your app · if CSP service used here, CC guarantees weaken</span>
+              <span class="nbox-tag">USER TCB</span>
+            </div>
+            <div class="chip-row">
+              <span class="chip">App runtime (Java / Python / Go)</span>
+              <span class="chip">Libraries &amp; dependencies</span>
+              <span class="chip">User-controlled KMS (HashiCorp Vault)</span>
+              <span class="chip">⚠ CSP KMS / IAM / DB — expands trust to CSP</span>
+            </div>
+          </div><!-- end L5 -->
+
+        </div><!-- end L4 -->
+      </div><!-- end L3 -->
+    </div><!-- end L2 -->
+  </div><!-- end L1 -->
+</div><!-- end L0 -->
+</div><!-- end outer-wrap -->
+
+<!-- L6 lives outside the nesting -->
+<div class="outside-label">↕ &nbsp; attestation evidence flows out · secrets flow back in &nbsp; ↕</div>
+<div class="attest-arrow">Quote / attestation report ↑ &nbsp;&nbsp; secret keys ↓</div>
+
+<div class="outer-wrap">
+<div class="l6-outer">
+  <div class="nbox-label">
+    <span class="nbox-num">L6</span>
+    <span class="nbox-title">User-provided trustee</span>
+    <span class="nbox-sub">— lives outside the cloud provider · operator-controlled · never CSP</span>
+    <span class="nbox-tag">TRUSTED 3RD PARTY</span>
+  </div>
+  <div class="chip-row">
+    <span class="chip">Attestation verifier (Veraison / IBM Attest Svc / MAA)</span>
+    <span class="chip">Key Broker Service — KBS (releases keys post-attestation only)</span>
+    <span class="chip">Secret store (HashiCorp Vault)</span>
+    <span class="chip">Policy engine (OPA / Rego)</span>
+  </div>
+</div>
+</div>
+
+<div class="bottom-note" style="margin-top:16px">
+  <strong>Read it as:</strong> L5 (your workload) runs inside L4 (container) · inside L3 (TEE / cVM) · inside L2 (hypervisor, untrusted) · inside L1 (firmware) · inside L0 (hardware). L6 lives <strong>outside</strong> the entire stack — it is the independent party that verifies the TEE and releases secrets. If the CSP controls L6, the model collapses.
+</div>
+
+</body>
+</html>
