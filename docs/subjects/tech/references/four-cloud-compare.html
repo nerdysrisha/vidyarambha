@@ -1,0 +1,152 @@
+<!--
+  IBM Cloud / AWS / Azure / Google Cloud Service Mapping (fragment)
+  Scoped for embedding inside a base HTML page. No DOCTYPE/html/head/body,
+  every rule (incl. *) is prefixed with .cloud4-widget, so it cannot leak
+  background/margin/reset/font styles onto the host page.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  .cloud4-widget {
+    --font:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+    --bg:#f8f9fc; --card:#ffffff; --border:rgba(0,0,0,0.07); --muted:#6b7280; --ink:#1a1d2e;
+    --teal:#0f766e; --teal-bg:#ecfdf7; --teal-h:#e6f4ea;
+    --amber:#b45309; --amber-bg:#fffbeb; --amber-h:#fdf1e0;
+    --blue:#0369a1; --blue-bg:#eff8ff; --blue-h:#e3eef8;
+    --purple:#6d28d9; --purple-bg:#f5f3ff; --purple-h:#efeafd;
+    --green:#15803d; --green-bg:#f0fdf4; --green-h:#e6f4ea;
+  }
+
+  .cloud4-widget *, .cloud4-widget *::before, .cloud4-widget *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .cloud4-widget { font-family: var(--font); background: var(--bg); color: var(--ink); padding: 28px 20px 60px; }
+
+  .cloud4-widget .wrap{max-width:1280px;margin:0 auto;}
+  .cloud4-widget header{margin-bottom:22px;}
+  .cloud4-widget .eyebrow{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;}
+  .cloud4-widget h1{font-size:26px;font-weight:600;margin-top:4px;letter-spacing:-0.01em;}
+  .cloud4-widget .sub{font-size:13px;color:var(--muted);margin-top:6px;max-width:680px;line-height:1.5;}
+
+  .cloud4-widget nav{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0 28px;}
+  .cloud4-widget nav a{
+    font-family:var(--mono);font-size:10.5px;padding:5px 10px;border-radius:20px;
+    text-decoration:none;color:var(--muted);background:var(--card);
+    border:1px solid var(--border);white-space:nowrap;
+  }
+  .cloud4-widget nav a:hover{color:var(--ink);border-color:rgba(0,0,0,0.18);}
+
+  .cloud4-widget .section{margin-bottom:26px;scroll-margin-top:16px;}
+  .cloud4-widget .section-head{
+    display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-radius:10px 10px 0 0;
+    border:1px solid var(--border);border-bottom:none;
+  }
+  .cloud4-widget .section-head h2{font-size:14px;font-weight:500;letter-spacing:.02em;}
+  .cloud4-widget .section-head .count{font-family:var(--mono);font-size:10px;opacity:.65;}
+
+  .cloud4-widget table{width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,0.05);table-layout:fixed;}
+  .cloud4-widget thead th{
+    text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--border);font-weight:500;
+  }
+  .cloud4-widget tbody td{padding:10px 12px;font-size:12px;line-height:1.5;border-bottom:1px solid var(--border);border-left:1px solid var(--border);vertical-align:top;word-break:break-word;}
+  .cloud4-widget tbody td:first-child{border-left:none;}
+  .cloud4-widget tbody tr:last-child td{border-bottom:none;}
+  .cloud4-widget tbody tr:nth-child(even){background:rgba(0,0,0,0.012);}
+  .cloud4-widget td.cat{font-weight:600;background:rgba(0,0,0,0.015);}
+  .cloud4-widget td.c-ibm{color:#1a1d2e;}
+
+  /* per-section theme */
+  .cloud4-widget .t-teal .section-head{background:var(--teal-h);color:var(--teal);border-color:rgba(15,118,110,.25);}
+  .cloud4-widget .t-teal thead{background:var(--teal-bg);}
+  .cloud4-widget .t-amber .section-head{background:var(--amber-h);color:var(--amber);border-color:rgba(180,83,9,.25);}
+  .cloud4-widget .t-amber thead{background:var(--amber-bg);}
+  .cloud4-widget .t-blue .section-head{background:var(--blue-h);color:var(--blue);border-color:rgba(3,105,161,.2);}
+  .cloud4-widget .t-blue thead{background:var(--blue-bg);}
+  .cloud4-widget .t-purple .section-head{background:var(--purple-h);color:var(--purple);border-color:rgba(109,40,217,.2);}
+  .cloud4-widget .t-purple thead{background:var(--purple-bg);}
+  .cloud4-widget .t-green .section-head{background:var(--green-h);color:var(--green);border-color:rgba(21,128,61,.2);}
+  .cloud4-widget .t-green thead{background:var(--green-bg);}
+
+  .cloud4-widget footer{margin-top:36px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;}
+
+  @media (max-width:700px){
+    .cloud4-widget table,.cloud4-widget thead,.cloud4-widget tbody,.cloud4-widget tr{display:block;}
+    .cloud4-widget thead{display:none;}
+    .cloud4-widget tbody tr{border-bottom:1px solid var(--border);padding:10px 14px;display:block;}
+    .cloud4-widget tbody td{border:none;padding:3px 0;display:block;}
+    .cloud4-widget td.cat{background:none;font-weight:600;margin-bottom:4px;}
+    .cloud4-widget td.c-ibm::before{content:"IBM CLOUD  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+    .cloud4-widget td.c-aws::before{content:"AWS  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+    .cloud4-widget td.c-az::before{content:"AZURE  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+    .cloud4-widget td.c-gcp::before{content:"GOOGLE CLOUD  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+    .cloud4-widget h1{font-size:21px;}
+  }
+</style>
+
+<div class="cloud4-widget">
+<div class="wrap">
+<header>
+  <div class="eyebrow">CLOUD PLATFORM REFERENCE</div>
+  <h1>IBM Cloud &middot; AWS &middot; Azure &middot; Google Cloud &mdash; Service Mapping</h1>
+  <div class="sub">A category-by-category equivalence guide across the four major cloud platforms &mdash; account structure, compute, databases, networking, containers, storage, AI/ML, security, and management tooling.</div>
+</header>
+
+<nav>
+  <a href="#account-compute">Account Structure &amp; Compute</a>
+  <a href="#db-networking">Databases &amp; Networking</a>
+  <a href="#containers-storage">Containers &amp; Storage</a>
+  <a href="#ai-network-security">AI/ML &amp; Network Security</a>
+  <a href="#edge-identity-mgmt">Edge, Identity &amp; Management</a>
+</nav>
+<section class="section t-teal" id="account-compute">
+<div class="section-head"><h2>Account Structure &amp; Compute</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Category</th><th>IBM Cloud</th><th>AWS</th><th>Azure</th><th>Google Cloud</th></tr></thead><tbody>
+<tr><td class="cat">Top level / Mid level / Enterprise Account Grouping</td><td class="c-ibm">IBM Cloud Ent / Account Groups / Cloud Account</td><td class="c-aws">Organizations / Org Units / AWS Account</td><td class="c-az">Tenant / Management Groups / Subscriptions</td><td class="c-gcp">Org / Folders / Projects</td></tr>
+<tr><td class="cat">VPC / Virtual Network</td><td class="c-ibm">VPC</td><td class="c-aws">VPC</td><td class="c-az">VNET</td><td class="c-gcp">VPC</td></tr>
+<tr><td class="cat">Compute (VM)</td><td class="c-ibm">Virtual Servers</td><td class="c-aws">EC2</td><td class="c-az">VM</td><td class="c-gcp">Compute Engine</td></tr>
+<tr><td class="cat">Auto Scaling</td><td class="c-ibm">Auto-scaling for VSI</td><td class="c-aws">Auto Scaling</td><td class="c-az">VMSS</td><td class="c-gcp">Instance Groups</td></tr>
+<tr><td class="cat">Bare Metal</td><td class="c-ibm">Bare Metal Servers</td><td class="c-aws">Bare Metal Instances</td><td class="c-az">Azure Bare Metal</td><td class="c-gcp">Bare Metal Solution</td></tr>
+<tr><td class="cat">Serverless</td><td class="c-ibm">Cloud Functions</td><td class="c-aws">Lambda</td><td class="c-az">Azure Functions</td><td class="c-gcp">Cloud Function</td></tr>
+</tbody></table></section>
+<section class="section t-blue" id="db-networking">
+<div class="section-head"><h2>Databases &amp; Networking</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Category</th><th>IBM Cloud</th><th>AWS</th><th>Azure</th><th>Google Cloud</th></tr></thead><tbody>
+<tr><td class="cat">Relational DB</td><td class="c-ibm">Db2, PostgreSQL</td><td class="c-aws">RDS</td><td class="c-az">SQL Database</td><td class="c-gcp">Cloud SQL</td></tr>
+<tr><td class="cat">NoSQL DB</td><td class="c-ibm">Databases for MongoDB</td><td class="c-aws">DynamoDB</td><td class="c-az">Cosmos DB</td><td class="c-gcp">Firestore</td></tr>
+<tr><td class="cat">Data Warehouse</td><td class="c-ibm">Netezza Performance Server</td><td class="c-aws">Redshift</td><td class="c-az">Synapse Analytics</td><td class="c-gcp">BigQuery</td></tr>
+<tr><td class="cat">In-Memory Cache</td><td class="c-ibm">Database Cache</td><td class="c-aws">ElastiCache</td><td class="c-az">Azure Cache for Redis</td><td class="c-gcp">Memorystore</td></tr>
+<tr><td class="cat">DNS</td><td class="c-ibm">DNS Services</td><td class="c-aws">Route 53</td><td class="c-az">Azure DNS</td><td class="c-gcp">Cloud DNS</td></tr>
+<tr><td class="cat">Load Balancer</td><td class="c-ibm">Load Balancer</td><td class="c-aws">ELB</td><td class="c-az">Azure Load Balancer</td><td class="c-gcp">Cloud Load Balancing</td></tr>
+</tbody></table></section>
+<section class="section t-amber" id="containers-storage">
+<div class="section-head"><h2>Containers &amp; Storage</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Category</th><th>IBM Cloud</th><th>AWS</th><th>Azure</th><th>Google Cloud</th></tr></thead><tbody>
+<tr><td class="cat">Managed Kubernetes</td><td class="c-ibm">Kubernetes Service</td><td class="c-aws">EKS</td><td class="c-az">AKS</td><td class="c-gcp">GKE</td></tr>
+<tr><td class="cat">Container Registry</td><td class="c-ibm">Container Registry</td><td class="c-aws">ECR</td><td class="c-az">ACR</td><td class="c-gcp">Container Registry</td></tr>
+<tr><td class="cat">Containers on VM</td><td class="c-ibm">Code Engine</td><td class="c-aws">ECS on EC2</td><td class="c-az">AKS Virtual Nodes</td><td class="c-gcp">GKE Autopilot</td></tr>
+<tr><td class="cat">Object Storage</td><td class="c-ibm">Cloud Object Storage</td><td class="c-aws">S3</td><td class="c-az">Blob Storage</td><td class="c-gcp">Cloud Storage</td></tr>
+<tr><td class="cat">Block Storage</td><td class="c-ibm">Block Storage</td><td class="c-aws">EBS</td><td class="c-az">Managed Disks</td><td class="c-gcp">Persistent Disks</td></tr>
+<tr><td class="cat">File Storage</td><td class="c-ibm">File Storage</td><td class="c-aws">EFS</td><td class="c-az">File Storage</td><td class="c-gcp">Filestore</td></tr>
+</tbody></table></section>
+<section class="section t-purple" id="ai-network-security">
+<div class="section-head"><h2>AI/ML &amp; Network Security</h2><span class="count">5 items</span></div>
+<table><thead><tr><th>Category</th><th>IBM Cloud</th><th>AWS</th><th>Azure</th><th>Google Cloud</th></tr></thead><tbody>
+<tr><td class="cat">ML Platform</td><td class="c-ibm">Watson Studio</td><td class="c-aws">SageMaker</td><td class="c-az">Azure ML</td><td class="c-gcp">Vertex AI</td></tr>
+<tr><td class="cat">Conversational AI</td><td class="c-ibm">Watson Assistant</td><td class="c-aws">Lex</td><td class="c-az">Azure Bot Services</td><td class="c-gcp">Dialogflow</td></tr>
+<tr><td class="cat">Vision AI</td><td class="c-ibm">Watson Visual Recognition</td><td class="c-aws">Rekognition</td><td class="c-az">Computer Vision</td><td class="c-gcp">Vision AI</td></tr>
+<tr><td class="cat">Instance Level Firewall</td><td class="c-ibm">Security Groups</td><td class="c-aws">No official Image Security Groups</td><td class="c-az">NSG</td><td class="c-gcp">VPC Firewall Rules</td></tr>
+<tr><td class="cat">Subnet Level Firewall</td><td class="c-ibm">ACLs</td><td class="c-aws">No official Image NACLS</td><td class="c-az">NSGs</td><td class="c-gcp">N/A</td></tr>
+</tbody></table></section>
+<section class="section t-green" id="edge-identity-mgmt">
+<div class="section-head"><h2>Edge, Identity &amp; Management</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Category</th><th>IBM Cloud</th><th>AWS</th><th>Azure</th><th>Google Cloud</th></tr></thead><tbody>
+<tr><td class="cat">CDN</td><td class="c-ibm">Content Delivery Network</td><td class="c-aws">CloudFront</td><td class="c-az">Azure CDN</td><td class="c-gcp">Cloud CDN</td></tr>
+<tr><td class="cat">IAM</td><td class="c-ibm">No official Image IAM + Access Groups</td><td class="c-aws">IAM</td><td class="c-az">Azure AD + IAM</td><td class="c-gcp">Cloud IAM</td></tr>
+<tr><td class="cat">Key Management</td><td class="c-ibm">Key Protect</td><td class="c-aws">KMS</td><td class="c-az">Key Vault</td><td class="c-gcp">Cloud KMS</td></tr>
+<tr><td class="cat">Monitoring</td><td class="c-ibm">Monitoring + Activity Tracker</td><td class="c-aws">CloudWatch</td><td class="c-az">Azure Monitor</td><td class="c-gcp">Cloud Monitoring</td></tr>
+<tr><td class="cat">IaC</td><td class="c-ibm">Schematics</td><td class="c-aws">CloudFormation</td><td class="c-az">ARM Templates</td><td class="c-gcp">Deployment Manager</td></tr>
+<tr><td class="cat">Cost Management</td><td class="c-ibm">Cost &amp; Usage Reports</td><td class="c-aws">Cost Explorer</td><td class="c-az">Cost Management + Billing</td><td class="c-gcp">Cloud Billing</td></tr>
+</tbody></table></section><footer>IBM Cloud &middot; AWS &middot; Azure &middot; Google Cloud &mdash; service mapping for architecture reference.</footer>
+</div>
+</div>
