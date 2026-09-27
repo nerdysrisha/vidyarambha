@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Azure ⇄ IBM Cloud Service Mapping</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --font:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+  --bg:#f8f9fc; --card:#ffffff; --border:rgba(0,0,0,0.07); --muted:#6b7280; --ink:#1a1d2e;
+  --teal:#0f766e; --teal-dim:#2dd4bf; --teal-bg:#ecfdf7; --teal-h:#e6f4ea;
+  --amber:#b45309; --amber-dim:#fbbf24; --amber-bg:#fffbeb; --amber-h:#fdf1e0;
+  --blue:#0369a1; --blue-dim:#7dd3fc; --blue-bg:#eff8ff; --blue-h:#e3eef8;
+  --purple:#6d28d9; --purple-dim:#c4b5fd; --purple-bg:#f5f3ff; --purple-h:#efeafd;
+  --green:#15803d; --green-dim:#86efac; --green-bg:#f0fdf4; --green-h:#e6f4ea;
+  --sky:#0e7490; --sky-dim:#67e8f9; --sky-bg:#ecfeff; --sky-h:#e3f6fa;
+  --gray:#57534e; --gray-dim:#d6d3d1; --gray-bg:#f5f5f4; --gray-h:#ececeb;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);}
+body{
+  font-family:var(--font); color:var(--ink); padding:28px 20px 60px;
+  padding-top:calc(28px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));
+}
+.wrap{max-width:1180px;margin:0 auto;}
+header{margin-bottom:22px;}
+.eyebrow{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em;}
+h1{font-size:26px;font-weight:600;margin-top:4px;letter-spacing:-0.01em;}
+.sub{font-size:13px;color:var(--muted);margin-top:6px;max-width:640px;line-height:1.5;}
+
+nav{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0 28px;}
+nav a{
+  font-family:var(--mono);font-size:10.5px;padding:5px 10px;border-radius:20px;
+  text-decoration:none;color:var(--muted);background:var(--card);
+  border:1px solid var(--border);white-space:nowrap;
+}
+nav a:hover{color:var(--ink);border-color:rgba(0,0,0,0.18);}
+
+.section{margin-bottom:26px;scroll-margin-top:16px;}
+.section-head{
+  display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-radius:10px 10px 0 0;
+  border:1px solid var(--border);border-bottom:none;
+}
+.section-head h2{font-size:14px;font-weight:500;letter-spacing:.02em;}
+.section-head .count{font-family:var(--mono);font-size:10px;opacity:.65;}
+
+table{width:100%;border-collapse:collapse;background:var(--card);
+  border:1px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+thead th{
+  text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);padding:9px 14px;border-bottom:1px solid var(--border);font-weight:500;
+}
+tbody td{padding:10px 14px;font-size:12.5px;line-height:1.5;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:nth-child(even){background:rgba(0,0,0,0.012);}
+td.az{font-weight:500;}
+td.def{color:#374151;font-size:12px;}
+td.ib{font-weight:500;}
+td.ibdef{color:#374151;font-size:12px;}
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px;}
+
+/* per-section theme */
+.t-teal .section-head{background:var(--teal-h);color:var(--teal);border-color:rgba(15,118,110,.25);}
+.t-teal thead{background:var(--teal-bg);}
+.t-amber .section-head{background:var(--amber-h);color:var(--amber);border-color:rgba(180,83,9,.25);}
+.t-amber thead{background:var(--amber-bg);}
+.t-blue .section-head{background:var(--blue-h);color:var(--blue);border-color:rgba(3,105,161,.2);}
+.t-blue thead{background:var(--blue-bg);}
+.t-purple .section-head{background:var(--purple-h);color:var(--purple);border-color:rgba(109,40,217,.2);}
+.t-purple thead{background:var(--purple-bg);}
+.t-green .section-head{background:var(--green-h);color:var(--green);border-color:rgba(21,128,61,.2);}
+.t-green thead{background:var(--green-bg);}
+.t-sky .section-head{background:var(--sky-h);color:var(--sky);border-color:rgba(14,116,144,.2);}
+.t-sky thead{background:var(--sky-bg);}
+.t-gray .section-head{background:var(--gray-h);color:var(--gray);border-color:rgba(87,83,78,.2);}
+.t-gray thead{background:var(--gray-bg);}
+
+footer{margin-top:36px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;}
+
+@media (max-width:640px){
+  table,thead,tbody,tr{display:block;}
+  thead{display:none;}
+  tbody tr{border-bottom:1px solid var(--border);padding:10px 14px;display:block;}
+  tbody td{border:none;padding:3px 0;display:block;}
+  td.az::before{content:"AZURE  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+  td.def::before{content:"";}
+  td.ib::before{content:"IBM CLOUD  ";font-family:var(--mono);font-size:9px;color:var(--muted);}
+  h1{font-size:21px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="eyebrow">CLOUD PLATFORM REFERENCE</div>
+  <h1>Azure ⇄ IBM Cloud Service Mapping</h1>
+  <div class="sub">A category-by-category equivalence guide between Microsoft Azure and IBM Cloud — governance concepts, networking, compute, data, AI/ML, security, and platform tooling.</div>
+</header>
+
+<nav>
+  <a href="#governance">Governance Concepts</a>
+  <a href="#networking">Networking</a>
+  <a href="#compute">Compute &amp; Containers</a>
+  <a href="#storage">Storage</a>
+  <a href="#databases">Databases</a>
+  <a href="#integration">Integration</a>
+  <a href="#analytics">Analytics</a>
+  <a href="#ai">AI / ML</a>
+  <a href="#devops">DevOps &amp; Management</a>
+  <a href="#iam">IAM &amp; Security</a>
+  <a href="#hybrid">Hybrid / Edge</a>
+  <a href="#platform">App Platform &amp; Dev Tools</a>
+  <a href="#misc">Media, IoT, Data Gov, MLOps, Marketplace</a>
+</nav>
+<section class="section t-purple" id="governance">
+<div class="section-head"><h2>Governance &amp; Organizational Concepts</h2><span class="count">7 items</span></div>
+<table><thead><tr><th>Azure Concept</th><th>Azure Definition</th><th>IBM Cloud Equivalent</th><th>IBM Cloud Definition</th></tr></thead><tbody>
+<tr><td class="az">Management Group</td><td class="def">A container to organize multiple subscriptions into a hierarchy for governance, policy, and compliance.</td><td class="ib">Enterprise Account / Enterprise</td><td class="ibdef">An Enterprise in IBM Cloud allows you to organize multiple accounts, set policies, and consolidate billing at a higher level.</td></tr>
+<tr><td class="az">Subscription</td><td class="def">A billing boundary and container for resources; tied to an Azure AD tenant.</td><td class="ib">IBM Cloud Account</td><td class="ibdef">An account is the fundamental unit of ownership, billing, and user access. All resources are created within an account.</td></tr>
+<tr><td class="az">Resource Group (RG)</td><td class="def">A logical container for grouping related resources for lifecycle management, access control, and cost tracking.</td><td class="ib">Resource Group (same name in IBM Cloud)</td><td class="ibdef">A grouping construct to organize resources within an account for access management and billing. IBM Cloud also has resource groups that function similarly to Azure's.</td></tr>
+<tr><td class="az">Resource</td><td class="def">An individual service instance (VM, DB, storage, etc.) deployed in Azure.</td><td class="ib">Resource (Service Instance)</td><td class="ibdef">Any service instance (VM, DB, Object Storage, etc.) created in IBM Cloud. Each resource belongs to a resource group.</td></tr>
+<tr><td class="az">Tenant / Azure AD Directory</td><td class="def">Identity boundary, providing identity and access management across subscriptions.</td><td class="ib">IAM (Identity and Access Management)</td><td class="ibdef">IBM Cloud IAM defines identities, roles, and access policies across accounts and resources. Each account has its own IAM setup.</td></tr>
+<tr><td class="az">Tags</td><td class="def">Key-value pairs to organize and classify resources across subscriptions and resource groups.</td><td class="ib">Tags (same concept in IBM Cloud)</td><td class="ibdef">Key-value labels used for organizing, searching, and billing visibility across accounts/resources.</td></tr>
+<tr><td class="az">Policy / Initiative</td><td class="def">Governance rules applied at management group, subscription, or RG level.</td><td class="ib">Access Groups &amp; IAM Policies</td><td class="ibdef">IBM Cloud applies access governance via IAM policies and access groups. Enterprises can also set quotas and guardrails at the account/enterprise level.</td></tr>
+</tbody></table></section>
+<section class="section t-blue" id="networking">
+<div class="section-head"><h2>Networking</h2><span class="count">25 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Virtual Network (VNet)</td><td class="def">Networking</td><td class="ib">Virtual Private Cloud (VPC)</td></tr>
+<tr><td class="az">Subnet</td><td class="def">Networking</td><td class="ib">VPC Subnet</td></tr>
+<tr><td class="az">Network Security Group (NSG)</td><td class="def">Networking</td><td class="ib">VPC Security Group</td></tr>
+<tr><td class="az">Route Table / UDR</td><td class="def">Networking</td><td class="ib">VPC Routing Table</td></tr>
+<tr><td class="az">NAT Gateway</td><td class="def">Networking</td><td class="ib">VPC Public Gateway (SNAT) / Floating IP (DNAT)</td></tr>
+<tr><td class="az">Private Link</td><td class="def">Networking</td><td class="ib">Virtual Private Endpoint (VPE)</td></tr>
+<tr><td class="az">Service Endpoints</td><td class="def">Networking</td><td class="ib">VPC Private Service Connectivity (via VPE)</td></tr>
+<tr><td class="az">ExpressRoute</td><td class="def">Networking</td><td class="ib">Direct Link</td></tr>
+<tr><td class="az">VPN Gateway</td><td class="def">Networking</td><td class="ib">VPN for VPC (IPsec)</td></tr>
+<tr><td class="az">Load Balancer (L4)</td><td class="def">Networking</td><td class="ib">Load Balancer for VPC (Network LB)</td></tr>
+<tr><td class="az">Application Gateway (L7)</td><td class="def">Networking</td><td class="ib">Load Balancer for VPC (Application LB) / Cloud Internet Services (CIS) HTTP Proxy</td></tr>
+<tr><td class="az">Front Door</td><td class="def">Networking</td><td class="ib">Cloud Internet Services (CIS) Global Load Balancer</td></tr>
+<tr><td class="az">Traffic Manager (DNS GSLB)</td><td class="def">Networking</td><td class="ib">Cloud Internet Services (CIS) Load Balancing (DNS/GLB)</td></tr>
+<tr><td class="az">Azure DNS (public)</td><td class="def">Networking</td><td class="ib">IBM Cloud DNS</td></tr>
+<tr><td class="az">Private DNS Zones / DNS Private Resolver</td><td class="def">Networking</td><td class="ib">IBM Cloud DNS Services (private DNS)</td></tr>
+<tr><td class="az">DDoS Protection</td><td class="def">Networking</td><td class="ib">Cloud Internet Services (CIS) DDoS</td></tr>
+<tr><td class="az">Firewall / Firewall Manager</td><td class="def">Networking</td><td class="ib">VPC Security Groups &amp; ACLs / CIS WAF (app layer)</td></tr>
+<tr><td class="az">Bastion</td><td class="def">Networking</td><td class="ib">Jump host VSI pattern (no managed bastion service)</td></tr>
+<tr><td class="az">Network Watcher</td><td class="def">Networking</td><td class="ib">VPC Flow Logs + IBM Cloud Monitoring &amp; Logs</td></tr>
+<tr><td class="az">Peering (VNet Peering)</td><td class="def">Networking</td><td class="ib">VPC Peering</td></tr>
+<tr><td class="az">Virtual WAN</td><td class="def">Networking</td><td class="ib">Transit Gateway</td></tr>
+<tr><td class="az">Application Gateway WAF</td><td class="def">Networking</td><td class="ib">CIS WAF</td></tr>
+<tr><td class="az">Private Link Service</td><td class="def">Networking</td><td class="ib">VPE Gateway (provider)</td></tr>
+<tr><td class="az">Public IP</td><td class="def">Networking</td><td class="ib">Floating IP</td></tr>
+<tr><td class="az">User Defined Routes</td><td class="def">Networking</td><td class="ib">VPC Routing Tables</td></tr>
+</tbody></table></section>
+<section class="section t-teal" id="compute">
+<div class="section-head"><h2>Compute &amp; Containers</h2><span class="count">12 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Virtual Machines</td><td class="def">Compute</td><td class="ib">Virtual Server Instances (VSI) for VPC</td></tr>
+<tr><td class="az">VM Scale Sets</td><td class="def">Compute</td><td class="ib">Instance Groups (Auto Scale)</td></tr>
+<tr><td class="az">Dedicated Host</td><td class="def">Compute</td><td class="ib">Dedicated Host for VPC / Bare Metal Servers</td></tr>
+<tr><td class="az">Spot/Low-priority VMs</td><td class="def">Compute</td><td class="ib">Transient VSI</td></tr>
+<tr><td class="az">Azure Batch</td><td class="def">Compute</td><td class="ib">Code Engine Jobs / Analytics Engine (Spark batch)</td></tr>
+<tr><td class="az">Azure Functions</td><td class="def">Compute</td><td class="ib">IBM Cloud Functions (Apache OpenWhisk)</td></tr>
+<tr><td class="az">App Service (Web/App/API)</td><td class="def">Compute</td><td class="ib">IBM Cloud Code Engine (apps) / Cloud Foundry Public (where available)</td></tr>
+<tr><td class="az">Container Instances</td><td class="def">Containers</td><td class="ib">IBM Cloud Code Engine (serverless containers)</td></tr>
+<tr><td class="az">Azure Container Apps</td><td class="def">Containers</td><td class="ib">IBM Cloud Code Engine</td></tr>
+<tr><td class="az">Kubernetes Service (AKS)</td><td class="def">Containers</td><td class="ib">IBM Cloud Kubernetes Service (IKS)</td></tr>
+<tr><td class="az">Azure Red Hat OpenShift</td><td class="def">Containers</td><td class="ib">Red Hat OpenShift on IBM Cloud (ROKS)</td></tr>
+<tr><td class="az">Container Registry (ACR)</td><td class="def">Containers</td><td class="ib">IBM Cloud Container Registry</td></tr>
+</tbody></table></section>
+<section class="section t-amber" id="storage">
+<div class="section-head"><h2>Storage</h2><span class="count">8 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Blob Storage</td><td class="def">Storage</td><td class="ib">IBM Cloud Object Storage</td></tr>
+<tr><td class="az">Data Lake Storage Gen2</td><td class="def">Storage</td><td class="ib">IBM Cloud Object Storage + watsonx.data / Analytics Engine</td></tr>
+<tr><td class="az">Files (Azure Files)</td><td class="def">Storage</td><td class="ib">File Storage for VPC (NFS)</td></tr>
+<tr><td class="az">Managed Disks</td><td class="def">Storage</td><td class="ib">Block Storage for VPC</td></tr>
+<tr><td class="az">Disk Snapshots</td><td class="def">Storage</td><td class="ib">VPC Volume Snapshots</td></tr>
+<tr><td class="az">Azure Backup (VM/Files)</td><td class="def">Storage</td><td class="ib">Backup for VPC / IBM Cloud Backup (classic)</td></tr>
+<tr><td class="az">Archive Storage</td><td class="def">Storage</td><td class="ib">IBM Cloud Object Storage Archive tier</td></tr>
+<tr><td class="az">Import/Export</td><td class="def">Storage</td><td class="ib">IBM COS multipart/bulk tools (closest)</td></tr>
+</tbody></table></section>
+<section class="section t-green" id="databases">
+<div class="section-head"><h2>Databases</h2><span class="count">10 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">SQL Database</td><td class="def">Databases</td><td class="ib">Db2 on Cloud / Db2 Warehouse (SaaS)</td></tr>
+<tr><td class="az">SQL Managed Instance</td><td class="def">Databases</td><td class="ib">Db2 on Cloud (managed)</td></tr>
+<tr><td class="az">Azure Database for PostgreSQL</td><td class="def">Databases</td><td class="ib">Databases for PostgreSQL (managed)</td></tr>
+<tr><td class="az">Azure Database for MySQL</td><td class="def">Databases</td><td class="ib">Databases for MySQL (managed)</td></tr>
+<tr><td class="az">Azure Database for MariaDB</td><td class="def">Databases</td><td class="ib">Databases for MariaDB (managed)</td></tr>
+<tr><td class="az">Cosmos DB (NoSQL)</td><td class="def">Databases</td><td class="ib">Cloudant (CouchDB-compatible)</td></tr>
+<tr><td class="az">Azure Cache for Redis</td><td class="def">Databases</td><td class="ib">Databases for Redis</td></tr>
+<tr><td class="az">Azure Database for MongoDB (via Cosmos)</td><td class="def">Databases</td><td class="ib">Databases for MongoDB</td></tr>
+<tr><td class="az">Azure Database for Cassandra (via Cosmos)</td><td class="def">Databases</td><td class="ib">Databases for Cassandra</td></tr>
+<tr><td class="az">Azure SQL Edge/IoT</td><td class="def">Databases</td><td class="ib">Edge DB via CP4D/ROKS (pattern)</td></tr>
+</tbody></table></section>
+<section class="section t-purple" id="integration">
+<div class="section-head"><h2>Integration &amp; Messaging</h2><span class="count">7 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Event Hubs</td><td class="def">Integration/Messaging</td><td class="ib">Event Streams (Apache Kafka)</td></tr>
+<tr><td class="az">Service Bus</td><td class="def">Integration/Messaging</td><td class="ib">IBM MQ on Cloud / Event Streams (topics)</td></tr>
+<tr><td class="az">Storage Queues</td><td class="def">Integration/Messaging</td><td class="ib">Cloudant changes/Kafka (closest)</td></tr>
+<tr><td class="az">Event Grid</td><td class="def">Integration/Messaging</td><td class="ib">Event Streams + Functions triggers</td></tr>
+<tr><td class="az">API Management</td><td class="def">Integration/Messaging</td><td class="ib">IBM API Connect</td></tr>
+<tr><td class="az">Logic Apps</td><td class="def">Integration/Messaging</td><td class="ib">IBM App Connect</td></tr>
+<tr><td class="az">Azure Notification Hubs</td><td class="def">Integration/Messaging</td><td class="ib">Push Notifications (deprecated) / 3rd-party (closest)</td></tr>
+</tbody></table></section>
+<section class="section t-sky" id="analytics">
+<div class="section-head"><h2>Analytics</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Cloud Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Synapse Analytics</td><td class="def">Analytics</td><td class="ib">Db2 Warehouse + Analytics Engine (Spark) + watsonx.data / Cloud Pak for Data</td></tr>
+<tr><td class="az">Azure Databricks</td><td class="def">Analytics</td><td class="ib">Analytics Engine (Spark) / Databricks (partner, where available)</td></tr>
+<tr><td class="az">HDInsight</td><td class="def">Analytics</td><td class="ib">Analytics Engine (Spark)</td></tr>
+<tr><td class="az">Data Factory</td><td class="def">Analytics</td><td class="ib">IBM DataStage (as-a-Service in Cloud Pak for Data) / App Connect</td></tr>
+<tr><td class="az">Stream Analytics</td><td class="def">Analytics</td><td class="ib">IBM Streams (via Cloud Pak for Data) / Event Streams + Functions</td></tr>
+<tr><td class="az">Power BI Embedded</td><td class="def">Analytics</td><td class="ib">Cognos Analytics on Cloud</td></tr>
+</tbody></table></section>
+<section class="section t-teal" id="ai">
+<div class="section-head"><h2>AI / ML</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM AI/ML Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Azure OpenAI Service</td><td class="def">AI/ML</td><td class="ib">watsonx.ai (foundation models &amp; Studio)</td></tr>
+<tr><td class="az">Machine Learning (AML)</td><td class="def">AI/ML</td><td class="ib">Watson Machine Learning (watsonx.ai Runtime)</td></tr>
+<tr><td class="az">Cognitive Services – Language</td><td class="def">AI/ML</td><td class="ib">Watson Natural Language Understanding</td></tr>
+<tr><td class="az">Cognitive Services – Speech</td><td class="def">AI/ML</td><td class="ib">Watson Speech to Text / Text to Speech</td></tr>
+<tr><td class="az">Cognitive Services – Vision</td><td class="def">AI/ML</td><td class="ib">Watson Visual Recognition (legacy) / watsonx.ai with vision models (where available)</td></tr>
+<tr><td class="az">Bot Service</td><td class="def">AI/ML</td><td class="ib">watsonx Assistant</td></tr>
+</tbody></table></section>
+<section class="section t-amber" id="devops">
+<div class="section-head"><h2>DevOps &amp; Management / Governance</h2><span class="count">16 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Azure DevOps</td><td class="def">DevOps</td><td class="ib">Continuous Delivery (Toolchains, Tekton, Pipelines)</td></tr>
+<tr><td class="az">GitHub (Azure integration)</td><td class="def">DevOps</td><td class="ib">Git Repos &amp; Issue Tracking (in Toolchains)</td></tr>
+<tr><td class="az">Azure Monitor</td><td class="def">Management</td><td class="ib">IBM Cloud Monitoring (Sysdig)</td></tr>
+<tr><td class="az">Log Analytics / Azure Monitor Logs</td><td class="def">Management</td><td class="ib">IBM Cloud Logs (Log Analysis)</td></tr>
+<tr><td class="az">Application Insights</td><td class="def">Management</td><td class="ib">IBM Cloud Monitoring APM integrations</td></tr>
+<tr><td class="az">Azure Policy</td><td class="def">Governance</td><td class="ib">Security and Compliance Center (posture)</td></tr>
+<tr><td class="az">Azure Blueprints</td><td class="def">Governance</td><td class="ib">Schematics (Terraform) + Landing Zone templates</td></tr>
+<tr><td class="az">Resource Manager (ARM)</td><td class="def">Governance</td><td class="ib">IBM Cloud Resource Controller / Schematics (Terraform)</td></tr>
+<tr><td class="az">Bicep / ARM Templates</td><td class="def">Governance</td><td class="ib">Schematics (Terraform)</td></tr>
+<tr><td class="az">Cost Management + Billing</td><td class="def">Governance</td><td class="ib">IBM Cloud Cost &amp; Usage</td></tr>
+<tr><td class="az">Advisor</td><td class="def">Governance</td><td class="ib">SCC recommendations / Monitoring insights (closest)</td></tr>
+<tr><td class="az">Automation / Runbooks</td><td class="def">Governance</td><td class="ib">Schematics Actions (Ansible)</td></tr>
+<tr><td class="az">Activity Log</td><td class="def">Governance</td><td class="ib">Activity Tracker events / IBM Cloud Logs</td></tr>
+<tr><td class="az">Azure Migrate</td><td class="def">Migration</td><td class="ib">Migration Factory patterns / VPC image import (closest)</td></tr>
+<tr><td class="az">Update Management</td><td class="def">Governance</td><td class="ib">ROKS/IKS add-ons &amp; OS mgmt via tooling (closest)</td></tr>
+<tr><td class="az">Azure Lighthouse</td><td class="def">Governance</td><td class="ib">IBM Cloud Enterprise accounts &amp; CSE tooling (closest)</td></tr>
+</tbody></table></section>
+<section class="section t-green" id="iam">
+<div class="section-head"><h2>IAM &amp; Security</h2><span class="count">10 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Security/Identity Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Entra ID (Azure AD)</td><td class="def">Identity</td><td class="ib">IBM Security Verify (IDaaS) / IBM Cloud IAM</td></tr>
+<tr><td class="az">Azure AD B2C</td><td class="def">Identity</td><td class="ib">IBM Security Verify (CIAM)</td></tr>
+<tr><td class="az">Managed Identity</td><td class="def">Identity</td><td class="ib">IBM Cloud IAM service IDs &amp; API keys</td></tr>
+<tr><td class="az">Key Vault</td><td class="def">Security</td><td class="ib">Key Protect (KMS)</td></tr>
+<tr><td class="az">Managed HSM</td><td class="def">Security</td><td class="ib">Hyper Protect Crypto Services (dedicated HSM)</td></tr>
+<tr><td class="az">Defender for Cloud</td><td class="def">Security</td><td class="ib">Security and Compliance Center + Workload Protection</td></tr>
+<tr><td class="az">Microsoft Sentinel (SIEM)</td><td class="def">Security</td><td class="ib">IBM Security QRadar SaaS</td></tr>
+<tr><td class="az">Confidential Computing (AMD/Intel SGX)</td><td class="def">Security</td><td class="ib">Hyper Protect Services / Confidential Computing options</td></tr>
+<tr><td class="az">Certificate Manager</td><td class="def">Security</td><td class="ib">IBM Certificate Manager</td></tr>
+<tr><td class="az">Private CA</td><td class="def">Security</td><td class="ib">Certificate Manager (private certs)</td></tr>
+</tbody></table></section>
+<section class="section t-gray" id="hybrid">
+<div class="section-head"><h2>Hybrid / Edge</h2><span class="count">2 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Hybrid/Edge Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Azure Arc</td><td class="def">Hybrid/Edge</td><td class="ib">IBM Cloud Satellite</td></tr>
+<tr><td class="az">Stack HCI / Azure Edge</td><td class="def">Hybrid/Edge</td><td class="ib">Satellite Locations + ROKS anywhere</td></tr>
+</tbody></table></section>
+<section class="section t-blue" id="platform">
+<div class="section-head"><h2>App Platform &amp; Developer Tools</h2><span class="count">6 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Spring Apps</td><td class="def">App Platform</td><td class="ib">ROKS with Open Liberty/IBM WebSphere Liberty operators</td></tr>
+<tr><td class="az">API Apps</td><td class="def">App Platform</td><td class="ib">API Connect</td></tr>
+<tr><td class="az">Logic Apps Standard</td><td class="def">App Platform</td><td class="ib">App Connect (flows)</td></tr>
+<tr><td class="az">Static Web Apps</td><td class="def">App Platform</td><td class="ib">Code Engine + Object Storage (static hosting pattern)</td></tr>
+<tr><td class="az">Cloud Shell</td><td class="def">Dev Tools</td><td class="ib">IBM Cloud Shell</td></tr>
+<tr><td class="az">SDKs/CLI</td><td class="def">Dev Tools</td><td class="ib">IBM Cloud CLI &amp; SDKs</td></tr>
+</tbody></table></section>
+<section class="section t-purple" id="misc">
+<div class="section-head"><h2>Media, IoT, Observability, Data Governance, MLOps &amp; Marketplace</h2><span class="count">9 items</span></div>
+<table><thead><tr><th>Azure Service</th><th>Category</th><th>IBM Equivalent(s)</th></tr></thead><tbody>
+<tr><td class="az">Media Services</td><td class="def">Media</td><td class="ib">Cloud Internet Services (CDN/HTTP video delivery) / IBM Video Streaming (separate)</td></tr>
+<tr><td class="az">IoT Hub</td><td class="def">IoT</td><td class="ib">IBM Maximo Application Suite IoT / Event Streams (broker)</td></tr>
+<tr><td class="az">IoT Central</td><td class="def">IoT</td><td class="ib">Maximo Monitor (closest)</td></tr>
+<tr><td class="az">Event Grid System Topics</td><td class="def">Events</td><td class="ib">IBM Cloud Events (via Event Streams + Activity Tracker)</td></tr>
+<tr><td class="az">Alerts (Monitor)</td><td class="def">Observability</td><td class="ib">IBM Cloud Monitoring alerts</td></tr>
+<tr><td class="az">Microsoft Purview</td><td class="def">Data Gov</td><td class="ib">Watson Knowledge Catalog (in CP4D)</td></tr>
+<tr><td class="az">Data Share</td><td class="def">Data Gov</td><td class="ib">watsonx.data + COS bucket sharing (closest)</td></tr>
+<tr><td class="az">MLflow on AML</td><td class="def">MLOps</td><td class="ib">Watson Machine Learning + Model Manager (CP4D)</td></tr>
+<tr><td class="az">Azure Marketplace</td><td class="def">Marketplace</td><td class="ib">IBM Cloud Catalog / Partner Center</td></tr>
+</tbody></table></section><footer>Azure ⇄ IBM Cloud Service Mapping — for architecture reference. "Closest" entries indicate no 1:1 equivalent exists.</footer>
+</div>
+</body>
+</html>
