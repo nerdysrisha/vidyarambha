@@ -1,0 +1,610 @@
+<!--
+  Hypervisor Admin Access — Guest Memory Exposure: Normal VSI vs Intel TDX VSI (fragment)
+  Scoped for embedding inside a base HTML page. Light-mode theme, same pattern as the
+  TDX Attestation Flow fragment. All rules are scoped under .vh-widget. There is no
+  DOCTYPE / html / head / body, and no bare *, body or h1 selector, so embedding this
+  fragment cannot leak styles onto the host page. `all: initial` on the wrapper also stops
+  the host page's inherited styles from leaking in.
+  Status: ILLUSTRATIVE. IBM's internal access-gateway / PAM stack and hypervisor internals
+  are not public; those lanes are representative, not verified.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  .vh-widget {
+    all: initial;
+    display: block;
+    --human:   #f7f5fd;  --human-h:  #ece8fa;
+    --access:  #fdf7ef;  --access-h: #fbead2;
+    --host:    #f3f8fc;  --host-h:   #e3eef8;
+    --plain:   #fef6f6;  --plain-h:  #fbe4e4;
+    --tdx:     #f2fbf5;  --tdx-h:    #dcf5e4;
+    --teal:   #0f766e; --teal-dim:   #2dd4bf; --teal-bg:   #ecfdf7;
+    --amber:  #b45309; --amber-dim:  #fbbf24; --amber-bg:  #fffbeb;
+    --blue:   #0369a1; --blue-dim:   #7dd3fc; --blue-bg:   #eff8ff;
+    --purple: #6d28d9; --purple-dim: #c4b5fd; --purple-bg: #f5f3ff;
+    --green:  #15803d; --green-dim:  #86efac; --green-bg:  #f0fdf4;
+    --gray:   #57534e; --gray-dim:   #d6d3d1; --gray-bg:   #f5f5f4;
+    --sky:    #0e7490; --sky-dim:    #67e8f9; --sky-bg:    #ecfeff;
+    --red:    #b91c1c; --red-dim:    #fca5a5; --red-bg:    #fef2f2;
+    --border: rgba(0,0,0,0.07);
+    --muted:  #6b7280;
+    --warn-dim: rgba(180,83,9,0.18);
+    --confirmed: rgba(21,128,61,0.22);
+    --confirmed-b: #16a34a;
+    --exposed: rgba(220,38,38,0.12);
+    --exposed-b: #dc2626;
+    --font: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --col1: 150px;
+    --col2: 190px;
+    --col3: 250px;
+    --col4: 220px;
+    --col5: 220px;
+    --total: 1030px;
+    font-family: var(--font);
+    background: #f8f9fc;
+    color: #1a1d2e;
+    padding: 24px;
+    line-height: normal;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .vh-widget *, .vh-widget *::before, .vh-widget *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* horizontal scroll lives inside the widget, never on the host page */
+  .vh-widget .scroll { overflow-x: auto; max-width: 100%; }
+  .vh-widget .frame { min-width: var(--total); }
+
+  .vh-widget .title-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
+  .vh-widget h1 { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); }
+  .vh-widget .badge-v { font-family: var(--mono); font-size: 10px; background: var(--warn-dim); border: 1px solid var(--amber); color: var(--amber); border-radius: 4px; padding: 2px 8px; }
+  .vh-widget .subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 18px; }
+
+  /* super headers */
+  .vh-widget .super {
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4) var(--col5);
+    min-width: var(--total);
+  }
+  .vh-widget .sh { padding: 5px 12px; font-size: 10px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .vh-widget .sh-human  { grid-column: 1/2; background: #f0ecfb; color: var(--purple); border: 1px solid rgba(109,40,217,0.22); border-bottom: 2px solid rgba(109,40,217,0.4); border-radius: 8px 0 0 0; }
+  .vh-widget .sh-access { grid-column: 2/3; background: #fdf1e0; color: var(--amber); border-top: 1px solid rgba(180,83,9,0.25); border-bottom: 2px solid rgba(180,83,9,0.4); }
+  .vh-widget .sh-host   { grid-column: 3/4; background: #eaf1fb; color: var(--blue); border-top: 1px solid rgba(3,105,161,0.2); border-bottom: 2px solid rgba(3,105,161,0.4); }
+  .vh-widget .sh-tenant { grid-column: 4/6; background: #f1f1ef; color: var(--gray); border-top: 1px solid rgba(87,83,78,0.25); border-bottom: 2px solid rgba(87,83,78,0.4); border-right: 1px solid rgba(87,83,78,0.2); border-radius: 0 8px 0 0; }
+  .vh-widget .sh-pill { font-size: 9px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.15); border-radius: 3px; padding: 1px 6px; text-transform: none; letter-spacing: 0; }
+
+  /* grid */
+  .vh-widget .swim {
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4) var(--col5);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    min-width: var(--total);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  /* lane headers */
+  .vh-widget .lh { padding: 10px 10px; text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vh-widget .lh1 { background: var(--human-h);  color: var(--purple); }
+  .vh-widget .lh2 { background: var(--access-h); color: var(--amber);  border-left: 2px solid rgba(180,83,9,0.25); }
+  .vh-widget .lh3 { background: var(--host-h);   color: var(--sky);    border-left: 2px solid rgba(14,116,144,0.25); }
+  .vh-widget .lh4 { background: var(--plain-h);  color: var(--red);    border-left: 2px solid rgba(185,28,28,0.3); }
+  .vh-widget .lh5 { background: var(--tdx-h);    color: var(--green);  border-right: none; }
+  .vh-widget .lh-sub { font-size: 9px; font-weight: 300; opacity: 0.7; display: block; margin-top: 3px; text-transform: none; font-family: var(--mono); }
+  .vh-widget .lh-tag { display: inline-block; margin-top: 5px; font-size: 8px; padding: 1px 5px; border-radius: 3px; text-transform: none; }
+  .vh-widget .tag-h { background: rgba(109,40,217,0.08); border: 1px solid rgba(109,40,217,0.25); color: var(--purple); }
+  .vh-widget .tag-e { background: rgba(180,83,9,0.08);  border: 1px solid rgba(180,83,9,0.25);  color: var(--amber); }
+  .vh-widget .tag-s { background: rgba(14,116,144,0.08); border: 1px solid rgba(14,116,144,0.25); color: var(--sky); }
+  .vh-widget .tag-x { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.3); color: var(--red); }
+  .vh-widget .tag-ok { background: rgba(21,128,61,0.08); border: 1px solid rgba(21,128,61,0.3); color: var(--green); }
+
+  /* cells */
+  .vh-widget .cell { padding: 10px 9px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .vh-widget .c1 { background: var(--human); }
+  .vh-widget .c2 { background: var(--access); border-left: 2px solid rgba(180,83,9,0.10); }
+  .vh-widget .c3 { background: var(--host);   border-left: 2px solid rgba(14,116,144,0.10); }
+  .vh-widget .c4 { background: var(--plain);  border-left: 2px solid rgba(185,28,28,0.12); }
+  .vh-widget .c5 { background: var(--tdx); border-right: none; }
+
+  /* component boxes */
+  .vh-widget .box { width: 100%; border-radius: 6px; padding: 7px 9px; text-align: center; border: 1px solid; }
+  .vh-widget .bx-gray   { background: var(--gray-bg);   border-color: var(--gray-dim);   color: var(--gray); }
+  .vh-widget .bx-teal   { background: var(--teal-bg);   border-color: var(--teal-dim);   color: var(--teal); }
+  .vh-widget .bx-amber  { background: var(--amber-bg);  border-color: var(--amber-dim);  color: var(--amber); }
+  .vh-widget .bx-blue   { background: var(--blue-bg);   border-color: var(--blue-dim);   color: var(--blue); }
+  .vh-widget .bx-purple { background: var(--purple-bg); border-color: var(--purple-dim); color: var(--purple); }
+  .vh-widget .bx-green  { background: var(--green-bg);  border-color: var(--green-dim);  color: var(--green); }
+  .vh-widget .bx-sky    { background: var(--sky-bg);    border-color: var(--sky-dim);    color: var(--sky); }
+  .vh-widget .bx-red    { background: var(--red-bg);    border-color: var(--red-dim);    color: var(--red); }
+  .vh-widget .bt { font-size: 12px; font-weight: 500; }
+  .vh-widget .bm { font-family: var(--mono); font-size: 10px; opacity: 0.65; margin-top: 3px; }
+
+  /* step label */
+  .vh-widget .step {
+    width: 100%;
+    display: flex; align-items: flex-start; gap: 7px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 5px; padding: 6px 8px;
+    border-left: 2px solid rgba(0,0,0,0.1);
+  }
+  .vh-widget .step-num { font-family: var(--mono); font-size: 11px; font-weight: 500; flex-shrink: 0; min-width: 20px; }
+  .vh-widget .step-txt { font-size: 10px; line-height: 1.5; color: #374151; }
+  .vh-widget .step-txt b { font-weight: 500; color: #1a1d2e; }
+  .vh-widget .step-txt code { font-family: var(--mono); font-size: 9px; background: rgba(0,0,0,0.05); border-radius: 3px; padding: 0 3px; }
+  .vh-widget .step-txt .who { font-family: var(--mono); font-size: 9px; opacity: 0.55; display: block; margin-top: 2px; }
+
+  /* notes */
+  .vh-widget .note,
+  .vh-widget .note-ok,
+  .vh-widget .note-bad {
+    width: 100%; border-radius: 5px; padding: 7px 9px;
+    font-size: 10px; line-height: 1.6; text-align: left;
+  }
+  .vh-widget .note     { border: 1px dashed rgba(180,83,9,0.6); color: var(--amber); background: var(--warn-dim); }
+  .vh-widget .note-ok  { border: 1px solid var(--confirmed-b);  color: var(--green); background: var(--confirmed); }
+  .vh-widget .note-bad { border: 1px solid var(--exposed-b);    color: var(--red);   background: var(--exposed); }
+  .vh-widget .note b, .vh-widget .note-ok b, .vh-widget .note-bad b { font-weight: 500; }
+  .vh-widget .sep { width: 100%; height: 1px; background: rgba(0,0,0,0.07); margin: 4px 0; }
+
+  /* cross rows */
+  .vh-widget .xrow {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: var(--col1) var(--col2) var(--col3) var(--col4) var(--col5);
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: visible;
+    min-height: 38px;
+  }
+  .vh-widget .xrow.dual { min-height: 62px; }
+  .vh-widget .xbg1 { background: var(--human); }
+  .vh-widget .xbg2 { background: var(--access); }
+  .vh-widget .xbg3 { background: var(--host); }
+  .vh-widget .xbg4 { background: var(--plain); }
+  .vh-widget .xbg5 { background: var(--tdx); }
+
+  .vh-widget .ah {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; pointer-events: none; z-index: 2;
+  }
+  .vh-widget .ah-line { height: 1px; background: rgba(100,116,139,0.35); }
+  .vh-widget .ah-line-red { height: 2px; background: var(--exposed-b); }
+  .vh-widget .ah-line-grn { height: 2px; background: var(--green); }
+  .vh-widget .ah-hd { font-size: 10px; color: rgba(100,116,139,0.5); line-height: 1; }
+  .vh-widget .ah-hd-red { font-size: 10px; color: var(--exposed-b); line-height: 1; }
+  .vh-widget .ah-hd-grn { font-size: 10px; color: var(--green); line-height: 1; }
+  .vh-widget .ah-lbl {
+    position: absolute; top: -15px; left: 0;
+    font-size: 9px; color: var(--muted); font-family: var(--mono); white-space: nowrap;
+  }
+
+  /* full rows */
+  .vh-widget .fullrow {
+    grid-column: 1 / -1;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px; font-family: var(--mono); line-height: 1.7;
+  }
+  .vh-widget .fork {
+    grid-column: 1 / -1;
+    padding: 7px 14px;
+    background: #eceff4;
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    font-size: 10px; font-family: var(--mono); color: #374151; letter-spacing: 0.03em;
+  }
+  .vh-widget .fork b { font-weight: 500; color: #1a1d2e; }
+  .vh-widget .divider { grid-column: 1 / -1; height: 2px; background: linear-gradient(90deg, rgba(109,40,217,0.2) 150px, rgba(180,83,9,0.2) 150px, rgba(180,83,9,0.2) 340px, rgba(14,116,144,0.2) 340px, rgba(14,116,144,0.2) 590px, rgba(185,28,28,0.25) 590px, rgba(185,28,28,0.25) 810px, rgba(21,128,61,0.25) 810px); }
+
+  /* legend */
+  .vh-widget .legend { grid-column: 1 / -1; background: #f3f4f6; padding: 11px 14px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .vh-widget .leg { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); }
+  .vh-widget .leg-ln  { width: 28px; height: 1px; background: rgba(100,116,139,0.35); }
+  .vh-widget .leg-red { width: 28px; height: 2px; background: var(--exposed-b); }
+  .vh-widget .leg-grn { width: 28px; height: 2px; background: var(--green); }
+  .vh-widget .leg-bad { width: 11px; height: 11px; border-radius: 2px; background: var(--exposed); border: 1px solid var(--exposed-b); }
+  .vh-widget .leg-sq  { width: 11px; height: 11px; border-radius: 2px; background: var(--confirmed); border: 1px solid var(--confirmed-b); }
+  .vh-widget .leg-da  { width: 28px; height: 0; border-top: 1px dashed rgba(180,83,9,0.6); }
+</style>
+
+<div class="vh-widget">
+<div class="scroll">
+<div class="frame">
+
+<div class="title-row">
+  <h1>Hypervisor Admin Access — Guest Memory Exposure: Normal VSI vs TDX VSI</h1>
+  <span class="badge-v">◌ illustrative · not verified</span>
+</div>
+<p class="subtitle">production IBM Cloud VPC · IBM-side personnel only, customers have no path here · same admin, same commands, two very different results</p>
+
+<!-- super headers -->
+<div class="super">
+  <div class="sh sh-human">▸ IBM personnel</div>
+  <div class="sh sh-access">▸ Access gateway</div>
+  <div class="sh sh-host">▸ Hypervisor host <span class="sh-pill">representative stack</span></div>
+  <div class="sh sh-tenant">▸ Tenant VSIs — customer workloads on the same host</div>
+</div>
+
+<div class="swim">
+
+  <!-- lane headers -->
+  <div class="lh lh1">Human actor
+    <span class="lh-sub">Hypervisor admin<br>Cloud SRE / Cloud admin</span>
+    <span class="lh-tag tag-h">role-holder, ticketed</span>
+  </div>
+  <div class="lh lh2">Access gateway
+    <span class="lh-sub">SSO · bastion · PAM/PIM<br>gateway to management plane</span>
+    <span class="lh-tag tag-e">illustrative · internals not public</span>
+  </div>
+  <div class="lh lh3">Hypervisor host
+    <span class="lh-sub">KVM · QEMU · libvirt<br>virsh on qemu:///system</span>
+    <span class="lh-tag tag-s">representative</span>
+  </div>
+  <div class="lh lh4">Normal VSI
+    <span class="lh-sub">non-TDX · standard KVM guest<br>RAM is ordinary host memory</span>
+    <span class="lh-tag tag-x">cleartext exposure</span>
+  </div>
+  <div class="lh lh5">TDX VSI
+    <span class="lh-sub">Intel TDX Trust Domain<br>RAM encrypted by the CPU</span>
+    <span class="lh-tag tag-ok">no plaintext</span>
+  </div>
+
+  <!-- ══ ROW 0 — components ══ -->
+  <div class="cell c1">
+    <div class="box bx-purple">
+      <div class="bt">Hypervisor admin</div>
+      <div class="bm">IBM personnel only</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-purple">
+      <div class="bt">Cloud SRE / Cloud admin</div>
+      <div class="bm">role-based · ticketed</div>
+    </div>
+  </div>
+  <div class="cell c2">
+    <div class="box bx-amber">
+      <div class="bt">SSO + MFA</div>
+      <div class="bm">identity · role check</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-amber">
+      <div class="bt">Bastion / jump host</div>
+      <div class="bm">only path to mgmt network</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-amber">
+      <div class="bt">PAM / PIM</div>
+      <div class="bm">JIT elevation · session recording</div>
+    </div>
+  </div>
+  <div class="cell c3">
+    <div class="box bx-sky">
+      <div class="bt">Hypervisor host (Linux)</div>
+      <div class="bm">KVM kernel module</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-teal">
+      <div class="bt">libvirtd · virsh</div>
+      <div class="bm">qemu:///system · root</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-sky">
+      <div class="bt">QEMU process (one per VSI)</div>
+      <div class="bm">guest RAM mapped here</div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="box bx-red">
+      <div class="bt">Normal VSI</div>
+      <div class="bm">plain memory · host can read it</div>
+    </div>
+  </div>
+  <div class="cell c5">
+    <div class="box bx-green">
+      <div class="bt">TDX VSI (Trust Domain)</div>
+      <div class="bm">private RAM encrypted</div>
+    </div>
+    <div class="sep"></div>
+    <div class="box bx-purple">
+      <div class="bt">TDX CPU (memory encryption)</div>
+      <div class="bm">key never visible to host</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══ STEP 1 ══ -->
+  <div class="cell c1">
+    <div class="step">
+      <span class="step-num" style="color:var(--purple);">①</span>
+      <div class="step-txt">
+        <b>Task raised and approved.</b> An incident or change ticket authorises the work. Only IBM personnel hold these roles; customers have no access path.
+        <span class="who">human → ticketing / approval</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c2"></div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div><div class="xbg5"></div>
+    <div class="ah" style="left:112px; width:190px;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">① approved ticket → login request</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">②</span>
+      <div class="step-txt">
+        <b>SSO + MFA.</b> Admin proves identity with a second factor. Group and role membership (for example a hypervisor-admin role) is checked before anything is reachable.
+        <span class="who">admin → SSO / identity provider</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <!-- ══ STEP 3 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2">
+    <div class="step">
+      <span class="step-num" style="color:var(--amber);">③</span>
+      <div class="step-txt">
+        <b>Bastion + PAM/PIM.</b> The bastion is the only route into the management network. PAM/PIM grants time-boxed (just-in-time) privilege, vaults the credential or issues a short-lived SSH certificate, and starts session recording.
+        <span class="who">SSO → bastion → PAM/PIM → host</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>Illustrative.</b> IBM's internal gateway stack is not public. Typical controls:<br>
+      · just-in-time approval + auto-expiry<br>
+      · dual control on sensitive roles<br>
+      · full session recording → SIEM
+    </div>
+  </div>
+  <div class="cell c3"></div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <div class="xrow">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div><div class="xbg5"></div>
+    <div class="ah" style="left:300px; width:220px;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">③ SSH via bastion → hypervisor host</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">④</span>
+      <div class="step-txt">
+        <b>Root shell on the hypervisor host.</b> The system-wide libvirt connection needs root. Whoever can reach that socket effectively has root over every guest on the host.
+        <span class="who">bastion → host shell (SSH), then root</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>Still on the record:</b> every command lands in session recording and host audit logs. Detective, not preventive: it does not stop the read.
+    </div>
+  </div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <!-- ══ STEP 5 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑤</span>
+      <div class="step-txt">
+        <b>List what runs here:</b> <code>virsh -c qemu:///system list --all</code>. Every VSI on this host shows up as a libvirt domain. Normal and TDX guests sit side by side.
+        <span class="who">virsh → libvirtd :: both VSIs visible</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="box bx-red">
+      <div class="bt">VSI-A · normal</div>
+      <div class="bm">state: running<br>plain KVM guest</div>
+    </div>
+  </div>
+  <div class="cell c5">
+    <div class="box bx-green">
+      <div class="bt">VSI-B · TDX</div>
+      <div class="bm">state: running<br>launch security visible in XML (version-dependent)</div>
+    </div>
+  </div>
+
+  <div class="xrow dual">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div><div class="xbg5"></div>
+    <div class="ah" style="left:540px; width:150px; top:32%;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">⑤ list → VSI-A</span>
+    </div>
+    <div class="ah" style="left:540px; width:370px; top:74%;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">⑤ list → VSI-B</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 6 ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑥</span>
+      <div class="step-txt">
+        <b>Recon, no memory yet:</b> <code>domstate --reason</code> · <code>dominfo</code> · <code>dumpxml</code> · <code>domtime</code> · <code>screenshot</code>. Metadata only; a non-invasive first look.
+        <span class="who">virsh → libvirtd → QEMU</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="note-bad">
+      <b>Visible:</b> config, state, guest clock, console screenshot.
+    </div>
+  </div>
+  <div class="cell c5">
+    <div class="note">
+      <b>Visible:</b> config, state, sizing. Guest RAM contents are not.
+    </div>
+  </div>
+
+  <!-- ══ FORK ══ -->
+  <div class="fork"><b>▼ FORK</b> · two ways an admin can try to read guest RAM: <b>⑦ ⑧</b> dump to a file, then decipher offline · <b>⑨ ⑩</b> live peek, no file and no pause</div>
+
+  <!-- ══ STEP 7 — dump ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑦</span>
+      <div class="step-txt">
+        <b>Dump path.</b> <code>suspend</code> → <code>dump --memory-only --format elf --bypass-cache</code> → <code>sha256sum</code> → <code>resume</code>.
+        <span class="who">virsh → libvirtd → QEMU → file on host</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>Customer-visible:</b> the VSI is paused for the whole dump. <code>--live</code> avoids the pause but smears the image.
+    </div>
+  </div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <div class="xrow dual">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div><div class="xbg5"></div>
+    <div class="ah" style="left:540px; width:150px; top:32%;">
+      <div class="ah-line-red" style="flex:1;"></div>
+      <div class="ah-hd-red">▶</div>
+      <span class="ah-lbl">⑦ dump VSI-A</span>
+    </div>
+    <div class="ah" style="left:540px; width:370px; top:74%;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">⑦ dump VSI-B</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 8 — decipher offline ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑧</span>
+      <div class="step-txt">
+        <b>Decipher offline.</b> Open the ELF in Volatility 3, <code>crash</code>, <code>strings</code> or YARA to rebuild processes, connections and secrets.
+        <span class="who">analysis on the dump file</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="note-bad">
+      <b>✗ CLEARTEXT.</b> Full RAM image: disk-encryption keys, TLS private and session keys, DB buffers, credentials, process list and network table.
+    </div>
+  </div>
+  <div class="cell c5">
+    <div class="note-ok">
+      <b>✓ NO PLAINTEXT.</b> Private pages are encrypted by the CPU with a key the host never holds. The dump yields ciphertext, zeros or an error, so there is nothing to decipher.
+    </div>
+  </div>
+
+  <!-- ══ STEP 9 — live peek ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑨</span>
+      <div class="step-txt">
+        <b>Live peek path.</b> <code>virsh qemu-monitor-command --hmp 'xp /64xb &lt;addr&gt;'</code> · <code>pmemsave</code> · read the QEMU process memory · introspection tools (LibVMI). No file, no pause.
+        <span class="who">host root → running QEMU process</span>
+      </div>
+    </div>
+    <div class="note">
+      <b>Bypasses libvirt access control:</b> monitor passthrough is an unsupported low-level path and skips polkit rules.
+    </div>
+  </div>
+  <div class="cell c4"></div>
+  <div class="cell c5"></div>
+
+  <div class="xrow dual">
+    <div class="xbg1"></div><div class="xbg2"></div><div class="xbg3"></div><div class="xbg4"></div><div class="xbg5"></div>
+    <div class="ah" style="left:540px; width:150px; top:32%;">
+      <div class="ah-line-red" style="flex:1;"></div>
+      <div class="ah-hd-red">▶</div>
+      <span class="ah-lbl">⑨ peek VSI-A</span>
+    </div>
+    <div class="ah" style="left:540px; width:370px; top:74%;">
+      <div class="ah-line" style="flex:1;"></div>
+      <div class="ah-hd">▶</div>
+      <span class="ah-lbl">⑨ peek VSI-B</span>
+    </div>
+  </div>
+
+  <!-- ══ STEP 10 — live decipher ══ -->
+  <div class="cell c1"></div>
+  <div class="cell c2"></div>
+  <div class="cell c3">
+    <div class="step">
+      <span class="step-num" style="color:var(--sky);">⑩</span>
+      <div class="step-txt">
+        <b>Decipher live.</b> Raw bytes are easy to read. Turning them into processes, keys and sessions needs a profile (LibVMI or Volatility), and can be repeated to watch memory change.
+        <span class="who">introspection tooling on the host</span>
+      </div>
+    </div>
+  </div>
+  <div class="cell c4">
+    <div class="note-bad">
+      <b>✗ LIVE CLEARTEXT.</b> Real-time view; polling can catch keys while they are in use. The VSI is never paused, so the customer sees no outage and no alert.
+    </div>
+  </div>
+  <div class="cell c5">
+    <div class="note-ok">
+      <b>✓ NO PLAINTEXT.</b> Reads return ciphertext, or fault or error. Nothing to interpret.
+    </div>
+    <div class="note">
+      <b>Caveat:</b> shared pages (I/O bounce buffers) stay host-visible. They are not the guest's private memory.
+    </div>
+  </div>
+
+  <!-- audit strip -->
+  <div class="fullrow" style="background: linear-gradient(90deg, var(--human) 150px, var(--access) 150px, var(--access) 340px, var(--host) 340px, var(--host) 590px, var(--plain) 590px, var(--plain) 810px, var(--tdx) 810px); color: var(--amber);">
+    <div style="padding-left:154px;"><span style="font-weight:500;">audit trail (illustrative):</span><br>
+    <span>session recording · PAM/PIM checkout logs · host audit logs · libvirt/QEMU logs → SIEM · the read is recorded, but on a normal VSI it cannot be prevented.</span></div>
+  </div>
+
+  <!-- customer defence strip -->
+  <div class="fullrow" style="background: linear-gradient(90deg, var(--human) 150px, var(--access) 150px, var(--access) 340px, var(--host) 340px, var(--host) 590px, var(--plain) 590px, var(--plain) 810px, var(--tdx) 810px); color: var(--green);">
+    <div style="padding-left:594px;"><span style="font-weight:500;">what the customer can do:</span><br>
+    <span>run secrets-bearing workloads on TDX VSIs · release keys only after attestation proves genuine TDX (see TDX Attestation Flow)</span></div>
+  </div>
+
+  <!-- legend -->
+  <div class="legend">
+    <span style="font-size:10px; color:var(--muted); font-family:var(--mono);">legend:</span>
+    <div class="leg"><div class="leg-ln"></div>request / call</div>
+    <div class="leg"><div class="leg-red"></div>read attempt on a normal VSI</div>
+    <div class="leg"><div class="leg-bad"></div>plaintext exposed</div>
+    <div class="leg"><div class="leg-sq"></div>no plaintext obtained</div>
+    <div class="leg"><div class="leg-da"></div>caveat / config detail</div>
+    <span style="font-size:10px; color:var(--amber); font-family:var(--mono); margin-left:8px;">illustrative: hypervisor stack and access gateway are representative, not IBM-confirmed</span>
+  </div>
+
+</div>
+</div>
+</div>
+</div>
