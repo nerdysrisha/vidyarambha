@@ -1,24 +1,28 @@
 <!--
   TDX Implementation Architecture — IBM Cloud ROKS + CoCo + Trustee (fragment)
-  Scoped for embedding inside the base learnings page. All rules are
+  Light-mode theme (palette/fonts aligned with the TLS handshake sample). Scoped for embedding inside the base learnings page. All rules are
   scoped under .coco-arch, so this fragment cannot leak styles onto
   the host page (no bare *, body, or h1 selectors).
 -->
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700&display=swap');
 
   .coco-arch {
-    --bg:      #0a0a0a;
-    --panel:   #111318;
-    --text:    #d7dbe0;
-    --muted:   #7d8590;
-    --blue:    #4d94ff;    --blue-bg:   rgba(77,148,255,0.06);
-    --teal:    #2dd4a7;    --teal-bg:   rgba(45,212,167,0.05);
-    --purple:  #b18cf5;    --purple-bg: rgba(177,140,245,0.05);
-    --amber:   #f5a623;    --amber-bg:  rgba(245,166,35,0.05);
-    --red:     #f0654f;    --red-bg:    rgba(240,101,79,0.05);
-    --gray:    #8b93a1;    --gray-bg:   rgba(139,147,161,0.06);
-    --mono: 'IBM Plex Mono', monospace;
+    --bg:      #f8f9fc;
+    --bg2:     #ffffff;
+    --bg3:     #eef0f6;
+    --border:  #dde1ea;
+    --text:    #1a1d2e;
+    --body:    #374151;
+    --muted:   #6b7280;
+    --blue:    #0369a1;    --blue-bg:   rgba(3,105,161,0.06);
+    --teal:    #0d9488;    --teal-bg:   rgba(13,148,136,0.06);
+    --purple:  #6d28d9;    --purple-bg: rgba(109,40,217,0.06);
+    --amber:   #b45309;    --amber-bg:  rgba(180,83,9,0.06);
+    --red:     #dc2626;    --red-bg:    rgba(220,38,38,0.05);
+    --gray:    #6b7280;    --gray-bg:   rgba(107,114,128,0.06);
+    --font: 'Syne', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
   }
 
   .coco-arch *, .coco-arch *::before, .coco-arch *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,11 +30,12 @@
     font-family: var(--mono);
     background: var(--bg);
     color: var(--text);
-    border: 1px solid #1c2430;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 22px;
+    padding: 24px;
     font-size: 12.5px;
-    line-height: 1.4;
+    line-height: 1.45;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
 
   .coco-arch .frame-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
@@ -47,13 +52,13 @@
     margin-bottom: 12px;
   }
 
-  .coco-arch .c-blue   { border-color: rgba(77,148,255,0.35); background: var(--blue-bg); }
+  .coco-arch .c-blue   { border-color: rgba(3,105,161,0.45); background: var(--blue-bg); }
   .coco-arch .c-blue > .box-label   { color: var(--blue); }
-  .coco-arch .c-teal   { border-color: rgba(45,212,167,0.4); background: var(--teal-bg); }
+  .coco-arch .c-teal   { border-color: rgba(13,148,136,0.5); background: var(--teal-bg); }
   .coco-arch .c-teal > .box-label   { color: var(--teal); }
-  .coco-arch .c-navy   { border-color: rgba(77,148,255,0.25); background: rgba(77,148,255,0.03); }
-  .coco-arch .c-navy > .box-label   { color: #a9c6ff; }
-  .coco-arch .c-red    { border-color: rgba(240,101,79,0.4); background: var(--red-bg); }
+  .coco-arch .c-navy   { border-color: rgba(3,105,161,0.3); background: rgba(255,255,255,0.7); }
+  .coco-arch .c-navy > .box-label   { color: var(--blue); }
+  .coco-arch .c-red    { border-color: rgba(220,38,38,0.45); background: var(--red-bg); }
   .coco-arch .c-red > .box-label    { color: var(--red); }
 
   /* leaf component boxes */
@@ -63,15 +68,15 @@
     padding: 8px 12px;
     text-align: center;
     font-size: 12px;
-    background: #0d0f13;
+    background: var(--bg2);
     white-space: nowrap;
   }
-  .coco-arch .leaf-purple { border-color: rgba(177,140,245,0.55); color: var(--purple); }
-  .coco-arch .leaf-gray   { border-color: rgba(139,147,161,0.4); color: var(--gray); }
-  .coco-arch .leaf-teal   { border-color: rgba(45,212,167,0.55); color: var(--teal); }
-  .coco-arch .leaf-amber  { border-color: rgba(245,166,35,0.55); color: var(--amber); }
-  .coco-arch .leaf-red    { border-color: rgba(240,101,79,0.55); color: var(--red); }
-  .coco-arch .leaf-blue   { border-color: rgba(77,148,255,0.55); color: var(--blue); }
+  .coco-arch .leaf-purple { border-color: rgba(109,40,217,0.6); color: var(--purple); }
+  .coco-arch .leaf-gray   { border-color: rgba(107,114,128,0.5); color: var(--gray); }
+  .coco-arch .leaf-teal   { border-color: rgba(13,148,136,0.6); color: var(--teal); }
+  .coco-arch .leaf-amber  { border-color: rgba(180,83,9,0.6); color: var(--amber); }
+  .coco-arch .leaf-red    { border-color: rgba(220,38,38,0.6); color: var(--red); }
+  .coco-arch .leaf-blue   { border-color: rgba(3,105,161,0.6); color: var(--blue); }
 
   .coco-arch .leaf-sub {
     display: block;
@@ -97,17 +102,17 @@
   .coco-arch .conn-v {
     width: 1px;
     height: 16px;
-    background: rgba(139,147,161,0.35);
+    background: rgba(107,114,128,0.5);
     margin: 0 auto;
   }
   .coco-arch .conn-v.dashed {
-    background: repeating-linear-gradient(to bottom, rgba(139,147,161,0.45) 0 4px, transparent 4px 8px);
+    background: repeating-linear-gradient(to bottom, rgba(107,114,128,0.6) 0 4px, transparent 4px 8px);
     width: 1px;
   }
   .coco-arch .conn-h-dashed {
     flex: 1;
     height: 1px;
-    background: repeating-linear-gradient(to right, rgba(139,147,161,0.45) 0 4px, transparent 4px 8px);
+    background: repeating-linear-gradient(to right, rgba(107,114,128,0.6) 0 4px, transparent 4px 8px);
     align-self: center;
     min-width: 24px;
   }
@@ -125,7 +130,7 @@
     margin-bottom: 40px;
   }
   .coco-arch .https-connector .lbl { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
-  .coco-arch .https-connector .line { width: 100%; height: 1px; background: rgba(240,101,79,0.5); position: relative; }
+  .coco-arch .https-connector .line { width: 100%; height: 1px; background: rgba(220,38,38,0.6); position: relative; }
   .coco-arch .https-connector .line::after {
     content: "▶"; position: absolute; right: -6px; top: -6px; font-size: 10px; color: var(--red);
   }
@@ -141,6 +146,7 @@
     padding: 8px 10px;
     font-size: 11px;
     text-align: center;
+    background: var(--bg2);
   }
   .coco-arch .setup-box .t { font-weight: 600; }
   .coco-arch .setup-box .s { display:block; margin-top: 3px; font-size: 10px; }
@@ -148,7 +154,7 @@
   .coco-arch .footer-note {
     margin-top: 18px;
     padding-top: 12px;
-    border-top: 1px solid #1c2430;
+    border-top: 1px solid var(--border);
     font-size: 10.5px;
     color: var(--muted);
     text-align: center;
@@ -165,42 +171,50 @@
     content: "";
     flex: 1;
     height: 1px;
-    background: linear-gradient(to right, transparent, rgba(139,147,161,0.5));
+    background: linear-gradient(to right, transparent, #b8bfcc);
   }
-  .coco-arch .sep::after { background: linear-gradient(to left, transparent, rgba(139,147,161,0.5)); }
-  .coco-arch .sep span { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .coco-arch .sep::after { background: linear-gradient(to left, transparent, #b8bfcc); }
+  .coco-arch .sep span { font-family: var(--font); font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; }
   .coco-arch .sep-sub { text-align: center; font-size: 11px; color: var(--muted); margin-bottom: 18px; }
 
   .coco-arch .why-item {
-    border-left: 2px solid;
-    padding: 8px 0 8px 14px;
-    margin-bottom: 14px;
+    border-left: 3px solid;
+    background: var(--bg2);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
   .coco-arch .why-item.w-red    { border-color: var(--red); }
   .coco-arch .why-item.w-amber  { border-color: var(--amber); }
   .coco-arch .why-item.w-teal   { border-color: var(--teal); }
   .coco-arch .why-item.w-blue   { border-color: var(--blue); }
   .coco-arch .why-item.w-purple { border-color: var(--purple); }
-  .coco-arch .why-head { font-weight: 600; font-size: 12.5px; color: var(--text); margin-bottom: 6px; }
-  .coco-arch .why-cols { display: flex; gap: 14px; flex-wrap: wrap; }
+  .coco-arch .why-head { font-family: var(--font); font-weight: 700; font-size: 13.5px; color: var(--text); margin-bottom: 8px; }
+  .coco-arch .why-cols { display: flex; gap: 12px; flex-wrap: wrap; }
   .coco-arch .why-col {
     flex: 1;
     min-width: 260px;
-    font-size: 11.5px;
-    line-height: 1.55;
-    color: #b6bcc5;
+    font-family: var(--font);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--body);
+    border-radius: 6px;
+    padding: 8px 10px;
   }
-  .coco-arch .why-col b { display: block; font-size: 10.5px; margin-bottom: 3px; font-weight: 600; }
+  .coco-arch .why-col b { display: block; font-family: var(--mono); font-size: 10.5px; margin-bottom: 4px; font-weight: 600; }
+  .coco-arch .why-col.bad  { background: var(--red-bg); }
+  .coco-arch .why-col.good { background: var(--teal-bg); }
   .coco-arch .why-col.bad  b { color: var(--red); }
   .coco-arch .why-col.good b { color: var(--teal); }
   .coco-arch .why-col code, .coco-arch .why-item code {
-    background: #171b22;
-    border: 1px solid #222a36;
+    background: var(--bg3);
+    border: 1px solid var(--border);
     border-radius: 4px;
     padding: 0 4px;
     font-family: var(--mono);
     font-size: 11px;
-    color: #cfd6e0;
+    color: var(--text);
   }
 
   .coco-arch .tcb-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 20px 0; }
@@ -211,28 +225,31 @@
     border-radius: 5px;
     padding: 5px 10px;
     font-size: 11px;
-    background: #0d0f13;
+    background: var(--bg2);
   }
-  .coco-arch .tcb-layer.in  { border-color: rgba(45,212,167,0.55); color: var(--teal); }
-  .coco-arch .tcb-layer.out { border-color: rgba(240,101,79,0.55); color: var(--red); border-style: dashed; }
-  .coco-arch .tcb-note { font-size: 10.5px; color: var(--muted); margin-top: 8px; }
+  .coco-arch .tcb-layer.in  { border-color: rgba(13,148,136,0.6); color: var(--teal); }
+  .coco-arch .tcb-layer.out { border-color: rgba(220,38,38,0.55); color: var(--red); border-style: dashed; }
+  .coco-arch .tcb-note { font-family: var(--font); font-size: 11.5px; color: var(--muted); margin-top: 8px; }
 
   .coco-arch table.matrix {
     width: 100%;
     border-collapse: collapse;
-    font-size: 11px;
+    font-family: var(--font);
+    font-size: 12px;
     margin: 6px 0 18px 0;
+    background: var(--bg2);
   }
   .coco-arch table.matrix th, .coco-arch table.matrix td {
-    border: 1px solid #1c2430;
-    padding: 6px 9px;
+    border: 1px solid var(--border);
+    padding: 7px 10px;
     text-align: left;
     vertical-align: top;
+    color: var(--body);
   }
-  .coco-arch table.matrix th { background: #0d1015; color: var(--muted); font-weight: 600; }
-  .coco-arch table.matrix td.y { color: var(--teal); }
-  .coco-arch table.matrix td.n { color: var(--red); }
-  .coco-arch table.matrix td.p { color: var(--amber); }
+  .coco-arch table.matrix th { background: var(--bg3); color: var(--text); font-weight: 700; }
+  .coco-arch table.matrix td.y { color: #0f766e; font-weight: 600; }
+  .coco-arch table.matrix td.n { color: var(--red); font-weight: 600; }
+  .coco-arch table.matrix td.p { color: var(--amber); font-weight: 600; }
   .coco-arch .matrix-wrap { overflow-x: auto; }
 </style>
 
