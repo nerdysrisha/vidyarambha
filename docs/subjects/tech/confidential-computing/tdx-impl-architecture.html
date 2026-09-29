@@ -153,6 +153,87 @@
     color: var(--muted);
     text-align: center;
   }
+
+  /* ============ Rationale section (below the diagram) ============ */
+  .coco-arch .sep {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 34px 0 6px 0;
+  }
+  .coco-arch .sep::before, .coco-arch .sep::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(139,147,161,0.5));
+  }
+  .coco-arch .sep::after { background: linear-gradient(to left, transparent, rgba(139,147,161,0.5)); }
+  .coco-arch .sep span { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .coco-arch .sep-sub { text-align: center; font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+
+  .coco-arch .why-item {
+    border-left: 2px solid;
+    padding: 8px 0 8px 14px;
+    margin-bottom: 14px;
+  }
+  .coco-arch .why-item.w-red    { border-color: var(--red); }
+  .coco-arch .why-item.w-amber  { border-color: var(--amber); }
+  .coco-arch .why-item.w-teal   { border-color: var(--teal); }
+  .coco-arch .why-item.w-blue   { border-color: var(--blue); }
+  .coco-arch .why-item.w-purple { border-color: var(--purple); }
+  .coco-arch .why-head { font-weight: 600; font-size: 12.5px; color: var(--text); margin-bottom: 6px; }
+  .coco-arch .why-cols { display: flex; gap: 14px; flex-wrap: wrap; }
+  .coco-arch .why-col {
+    flex: 1;
+    min-width: 260px;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: #b6bcc5;
+  }
+  .coco-arch .why-col b { display: block; font-size: 10.5px; margin-bottom: 3px; font-weight: 600; }
+  .coco-arch .why-col.bad  b { color: var(--red); }
+  .coco-arch .why-col.good b { color: var(--teal); }
+  .coco-arch .why-col code, .coco-arch .why-item code {
+    background: #171b22;
+    border: 1px solid #222a36;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #cfd6e0;
+  }
+
+  .coco-arch .tcb-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 20px 0; }
+  .coco-arch .tcb-col { flex: 1; min-width: 300px; }
+  .coco-arch .tcb-stack { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .coco-arch .tcb-layer {
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 11px;
+    background: #0d0f13;
+  }
+  .coco-arch .tcb-layer.in  { border-color: rgba(45,212,167,0.55); color: var(--teal); }
+  .coco-arch .tcb-layer.out { border-color: rgba(240,101,79,0.55); color: var(--red); border-style: dashed; }
+  .coco-arch .tcb-note { font-size: 10.5px; color: var(--muted); margin-top: 8px; }
+
+  .coco-arch table.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin: 6px 0 18px 0;
+  }
+  .coco-arch table.matrix th, .coco-arch table.matrix td {
+    border: 1px solid #1c2430;
+    padding: 6px 9px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .coco-arch table.matrix th { background: #0d1015; color: var(--muted); font-weight: 600; }
+  .coco-arch table.matrix td.y { color: var(--teal); }
+  .coco-arch table.matrix td.n { color: var(--red); }
+  .coco-arch table.matrix td.p { color: var(--amber); }
+  .coco-arch .matrix-wrap { overflow-x: auto; }
 </style>
 
 <div class="coco-arch">
@@ -250,6 +331,155 @@
     <div class="setup-box leaf-red"><span class="t">PodVM image</span><span class="s">RHEL9 / RHCOS</span></div>
     <div class="setup-box leaf-teal"><span class="t">OCP version</span><span class="s">4.16 – 4.19</span></div>
     <div class="setup-box leaf-amber"><span class="t">INITDATA</span><span class="s">base64+gzip</span></div>
+  </div>
+
+  <!-- ======================================================================
+       RATIONALE: why peer-pod CoCo beats a whole-node TDX worker
+       ====================================================================== -->
+  <div class="sep"><span>Why peer-pod CoCo, not a whole-node TDX worker</span></div>
+  <div class="sep-sub">Design rationale for the diagram above. Compare: worker node on a TDX VSI (node = 1 TD) vs. one TD per pod (peer-pod).</div>
+
+  <!-- TCB comparison -->
+  <div class="tcb-row">
+    <div class="box-wrap c-red tcb-col">
+      <div class="box-label">Whole-node TDX worker: one TD, one big TCB</div>
+      <div class="tcb-stack">
+        <div class="tcb-layer in">Node OS + kernel (RHCOS), modules, eBPF</div>
+        <div class="tcb-layer in">kubelet, CRI-O, runc/crun, CNI (OVN-K), CSI</div>
+        <div class="tcb-layer in">Node agents: MCD, monitoring, logging, sshd/<code>oc debug node</code></div>
+        <div class="tcb-layer in">Pod A, Pod B, Pod C (all share the same kernel and TD memory)</div>
+        <div class="tcb-layer out">Outside TD: cloud host / hypervisor only</div>
+      </div>
+      <div class="tcb-note">Cluster-admin, node root and every co-tenant pod sit inside the trust boundary.</div>
+    </div>
+    <div class="box-wrap c-teal tcb-col">
+      <div class="box-label">Peer-pod CoCo: one TD per pod, minimal TCB</div>
+      <div class="tcb-stack">
+        <div class="tcb-layer in">Pod TD: minimal guest kernel + initrd (measured)</div>
+        <div class="tcb-layer in">kata-agent (Rego policy), attestation-agent, CDH, image-rs</div>
+        <div class="tcb-layer in">Only this pod's containers</div>
+        <div class="tcb-layer out">Outside TD: worker node, kubelet, CRI-O, cloud-api-adaptor, cluster-admin</div>
+        <div class="tcb-layer out">Outside TD: cloud host / hypervisor</div>
+      </div>
+      <div class="tcb-note">The worker node is an untrusted relay (VXLAN 4789 + agent ttrpc). It cannot read pod memory.</div>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="why-item w-red">
+    <div class="why-head">1. Trust boundary: node TD protects against the cloud, not against your own operators</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        TDX encrypts guest memory (MKTME, AES-XTS) and blocks the host/VMM from reading it. But inside the TD, root on the node can read <code>/proc/&lt;pid&gt;/mem</code>, attach with <code>ptrace</code>/<code>gdb</code>, dump cgroups, or run <code>oc debug node/&lt;n&gt;</code> and <code>chroot /host</code>. Memory is "confidential" only from a party that never had access anyway.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        The pod TD boots its own kernel. There is no node shell, no CRI-O, and no <code>runc exec</code> path into it. The only management channel is the kata-agent ttrpc API, and that API is filtered by an agent policy (see #2). Cluster-admin and node root are moved outside the TCB.</div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="why-item w-amber">
+    <div class="why-head">2. Kata agent policy blocks <code>kubectl exec / cp / logs</code>; a node TD cannot</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        <code>kubectl exec</code> goes API server → kubelet → CRI-O → container. All allowed, all standard. <code>kubectl cp</code>, <code>logs</code>, <code>port-forward</code>, ephemeral debug containers and <code>crictl</code> also work. Any RBAC grant (or admin compromise) exposes plaintext data in use.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        The Rego policy is delivered via <code>INITDATA</code> (the base64+gzip box in the pre-flight row). It allow-lists agent RPCs such as <code>CreateContainerRequest</code> (with exact image digest, command, env, mounts) and denies <code>ExecProcessRequest</code>, <code>ReadStreamRequest</code>, <code>CopyFileRequest</code>. The policy digest goes into the attestation evidence, so tampering changes the measurement and KBS refuses to release secrets.</div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="why-item w-purple">
+    <div class="why-head">3. Per-workload isolation: kernel and TD per pod</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        All pods share one kernel and one TD key. A container escape (runc/kernel CVE, privileged pod, hostPath, CAP_SYS_ADMIN) lands in the node context and gives access to every other pod's memory and to the kubelet's credentials. Confidential and non-confidential workloads mix in the same failure domain.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        Each pod is a separate TD (its own kernel, its own memory key, its own IBM Cloud VSI, here <code>bx3dc-2x10</code>). An escape only reaches that pod's guest. Blast radius = one pod. Untrusted and confidential pods can coexist on the same cluster, selected by <code>runtimeClassName: kata-remote</code>.</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="why-item w-blue">
+    <div class="why-head">4. Attestation granularity: per pod, bound to what is actually running</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        One TDX quote covers the node boot chain (MRTD, RTMR0-2: firmware, bootloader, kernel). After boot, kubelet pulls arbitrary images and starts arbitrary pods, and none of that is reflected in the quote unless you build IMA/RTMR extension yourself. A verifier cannot answer "which image and config is this secret going to?"</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        The attestation-agent (amber box in the pod VSI) fetches a TDX quote (via <code>configfs-tsm</code>) including the initdata hash. Trustee's Attestation Service verifies the quote against Intel collateral (PCS/PCCS) and compares measurements to reference values (RVPS). Only then does the KBS issue a token and release the key. Secrets are bound to a specific pod measurement.</div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="why-item w-teal">
+    <div class="why-head">5. Image pull, verification and decryption happen inside the TD</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        CRI-O/containerd pulls and unpacks layers on the node. Layer contents are in node page cache and on node disk (encrypted only if you added LUKS). No mandatory signature check, and encrypted images (ocicrypt) require the node itself to hold the private key, which admins can read.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        <code>image-rs</code> in the guest pulls directly from the registry, enforces the signature policy (cosign / simple signing) and decrypts layers using keys fetched from the KBS through the Confidential Data Hub. Layers live only in guest-encrypted memory. The worker never sees plaintext layers.</div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="why-item w-red">
+    <div class="why-head">6. Secrets: Kubernetes Secrets are readable by admins, KBS resources are not</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        K8s Secrets live in etcd (base64), are mounted on the node as tmpfs, and are visible to anyone with <code>get secrets</code> or node access. Placing a node in a TD does not change who can read them at the API layer.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        CDH fetches secrets from the user-provided Trustee KBS (red box) after successful attestation, over HTTPS, and exposes them as sealed secrets or KBS resource URIs. They never transit etcd or the kubelet. Because you own the Trustee (Ubuntu VSI in the same VPC), you hold the release policy and the key custody.</div>
+      </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="why-item w-amber">
+    <div class="why-head">7. Attack surface in the TCB: general-purpose node OS vs. purpose-built guest</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Whole-node TDX</b>
+        The TCB includes a full RHCOS userland, systemd, container runtime, CNI plugins, device plugins, node agents and their update channels (MCO rolls new OS/config onto the node at any time). Every component and every operator action can alter what runs inside the trusted environment.</div>
+      <div class="why-col good"><b>Peer-pod CoCo</b>
+        The pod VM image (RHEL9/RHCOS PodVM image in the pre-flight row) is small, immutable and measured. It has no sshd, no general shell path and no package manager at runtime. The set of processes inside the TD is deliberately tiny: kata-agent, attestation-agent, CDH, plus the workload.</div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="why-item w-blue">
+    <div class="why-head">8. Why not "TD-per-pod on a TDX worker" (classic Kata/CoCo)? Nested virtualization</div>
+    <div class="why-cols">
+      <div class="why-col bad"><b>Constraint</b>
+        Classic Kata launches each pod with QEMU/Cloud-Hypervisor+KVM. The ROKS worker is already a VSI (a guest), and a TD cannot host another TD: there is no nested TDX. So <code>kata-qemu-tdx</code> only works on bare metal TDX hosts, not inside a VSI worker.</div>
+      <div class="why-col good"><b>Peer-pods workaround</b>
+        <code>cloud-api-adaptor</code> (purple box on the worker) skips local virtualization. It calls the IBM Cloud VPC API (API key / trusted profile) to create a TDX-enabled VSI per pod, then wires it back to the worker via VXLAN 4789 so the pod still looks like a normal pod to Kubernetes.</div>
+    </div>
+  </div>
+
+  <!-- Threat matrix -->
+  <div class="why-head" style="margin: 22px 0 4px 0;">Threat-model summary: who can read pod data in use?</div>
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <tr><th>Actor / threat</th><th>Whole-node TDX worker</th><th>Peer-pod CoCo (TDX)</th></tr>
+      <tr><td>Cloud host / hypervisor / provider admin</td><td class="y">Protected (TD memory encryption)</td><td class="y">Protected (TD memory encryption)</td></tr>
+      <tr><td>Cluster-admin (<code>exec</code>, <code>cp</code>, <code>debug</code>)</td><td class="n">Exposed</td><td class="y">Blocked by agent policy</td></tr>
+      <tr><td>Node root / SRE with node access</td><td class="n">Exposed</td><td class="y">Outside the TD</td></tr>
+      <tr><td>Co-tenant pod after container escape</td><td class="n">Exposed (shared kernel and TD)</td><td class="y">Contained to own pod TD</td></tr>
+      <tr><td>Tampered / swapped container image</td><td class="n">Not detected by attestation</td><td class="y">Signature policy + measured initdata</td></tr>
+      <tr><td>Secret release only to verified workload</td><td class="n">Node-level only, coarse</td><td class="y">Per-pod via Trustee (KBS + AS)</td></tr>
+      <tr><td>Network path (node ↔ pod VM)</td><td class="p">Node-local, not attested</td><td class="p">VXLAN is not confidentiality-protected; use app-level TLS/mTLS</td></tr>
+      <tr><td>Availability / DoS by the operator</td><td class="p">Out of scope for TDX</td><td class="p">Out of scope for TDX</td></tr>
+    </table>
+  </div>
+
+  <!-- Trade-offs -->
+  <div class="box-wrap c-navy" style="margin-bottom: 4px;">
+    <div class="box-label">Honest trade-offs of peer-pods (and when a TDX worker is enough)</div>
+    <div class="why-cols">
+      <div class="why-col">
+        <b style="color: var(--amber);">Costs of peer-pods</b>
+        Slower pod start (a VSI is provisioned per pod, typically tens of seconds). Extra VSI cost per pod and quota limits per profile/region (TDX only in us-south, us-east, eu-de). Fixed VM size per pod (bx3dc-2x10) instead of bin-packing on a node. Extra moving parts: cloud-api-adaptor credentials, PodVM image lifecycle, and a Trustee you must run and secure. Networking and storage integration is more limited than for regular pods.</div>
+      <div class="why-col">
+        <b style="color: var(--teal);">Whole-node TDX is enough when</b>
+        The only adversary is the cloud provider, and you fully trust your own cluster admins, SREs and every workload on the node. You want lift-and-shift with no per-pod latency or VSI overhead. Compliance requires "encrypted in use at the infrastructure level" and not "operator cannot access". If the requirement is <i>operator cannot access data in use</i>, peer-pod CoCo is the only one of the two that meets it.</div>
+    </div>
   </div>
 
   <div class="footer-note">
