@@ -687,6 +687,24 @@ At a high level only — these are the classes of gap that exist in most unharde
 
 ---
 
+## 10. Where to study this yourself — logging, audit &amp; QEMU internals
+
+Self-study pointers for §9 — primary sources and structured literature, so the detection-gap analysis can be worked out independently rather than handed over as a recipe.
+
+| What you'd learn / be able to do | Where to study |
+|---|---|
+| See exactly what libvirt does and does not log for each API call (`virDomainCoreDump`, `virDomainOpenConsole`, etc.) — the real source of truth for gaps | libvirt source, `src/qemu/qemu_security.c` &amp; `src/util/virauth.c` on [gitlab.com/libvirt/libvirt](https://gitlab.com/libvirt/libvirt); libvirt-users/libvirt-devel mailing list archives |
+| Understand Linux audit rule loading, precedence, and what happens when rules are added/removed at runtime | `auditd`, `auditctl`, `ausearch` man pages; kernel.org Documentation/admin-guide/audit; RHEL/CentOS Security Hardening Guide, audit chapter |
+| See every path into QEMU that doesn't go through libvirt (QMP/HMP sockets, direct monitor commands) | QEMU QMP reference — [qemu.org/docs/master/interop/qmp-spec.html](https://www.qemu.org/docs/master/interop/qmp-spec.html); `qemu-qmp-ref` man page |
+| Learn the standard vocabulary and real-world case studies for log tampering and defense impairment | MITRE ATT&amp;CK — **T1070 Indicator Removal** and **T1562 Impair Defenses**, [attack.mitre.org](https://attack.mitre.org) |
+| Learn what a tamper-resistant logging architecture requires from a compliance/standards angle | NIST SP 800-92 (Guide to Computer Security Log Management); NIST SP 800-53, AU (Audit &amp; Accountability) control family |
+| Understand what is/isn't forensically recoverable from a memory image, from the defender's side | *The Art of Memory Forensics* — Ligh, Case, Levy, Walters |
+| See vendor-documented hardening guidance that already enumerates hypervisor logging gaps | Red Hat "Securing Virtualization" / libvirt security docs; IBM KVM security hardening guides |
+| Practice finding gaps hands-on, legally, on infrastructure you own | Build a standalone/nested libvirt lab, instrument it with auditd + a local SIEM (e.g. Wazuh), then try to find your own blind spots |
+| Practice offense-for-defense technique in a sanctioned environment | HackTheBox / TryHackMe infrastructure-security tracks; SANS GCFA (forensics) / GCIH (incident handling) / OSCP as formal paths |
+
+---
+
 ## References
 
 - libvirt project, virsh(1) manual — https://libvirt.org/manpages/virsh.html (primary source for all syntax above)
