@@ -644,6 +644,49 @@ virsh domfsinfo nontdxvsi
 
 ---
 
+## 9. Detecting use of the commands in §8 — and what "silent" tampering could look like
+
+This section is for briefing, not for building evasion — it's the trust-boundary discussion that follows naturally from §8: if these commands expose guest data, how would you know they ran, and what would a determined insider with host root theoretically be able to do about that logging?
+
+### 9.1 How to alert on the commands in §8
+
+None of this is native to `virsh` — alerting has to be built on top, from more than one independent source:
+
+| Layer | What it gives you |
+|---|---|
+| **auditd rules on `virsh`/`libvirtd`** | Kernel-level `execve` logging, filtered on argument strings (`dump`, `qemu-monitor-command`, `pmemsave`, `console`, `domdisplay`, `dumpxml.*security-info`, etc.) — catches CLI use |
+| **libvirtd's own logging** (`log_filters`/`log_outputs` in `/etc/libvirt/libvirtd.conf`) | Captures the underlying API calls (`virDomainCoreDump`, `virDomainScreenshot`, `virDomainOpenConsole`, `virDomainQemuMonitorCommand`, ...) — catches virt-manager/API use too, not just CLI |
+| **QEMU monitor event stream** (`virsh qemu-monitor-event --all --loop --timestamp` as a service) | Real-time STOP/RESUME/panic events tied to these actions |
+| **SIEM forwarding** | Correlates auditd + libvirtd + sudo logs and alerts on the specific §8 command patterns, not just "virsh was run" |
+| **Wrapper / sudo command logging** | An independent record of invocation, separate from libvirtd's own log path |
+
+Design point: use **more than one independent log source** (kernel-level + application-level + shell-level), so no single log an admin can touch is the only record.
+
+### 9.2 Categories of theoretical "silent run" / suppression
+
+At a high level only — these are the classes of gap that exist in most unhardened logging stacks, useful for identifying what to architecturally close off:
+
+| # | Category | Why it's possible, at a high level |
+|---|---|---|
+| 1 | **Local log tampering** | Root on the hypervisor can, in principle, edit or delete local log files (auditd, libvirtd) after the fact if there's no independent copy |
+| 2 | **Audit subsystem disable/reconfigure** | auditd rules, log level, and destinations are themselves root-configurable — rules could be lowered or unloaded before acting, then restored |
+| 3 | **Bypassing the logged interface** | If alerting is wired to one specific path (e.g. only the `virsh` CLI), the same libvirt API can often be reached another way (direct RPC, virt-manager, a custom script) not covered by that rule |
+| 4 | **Going under libvirt entirely** | libvirtd is a management layer on top of QEMU; host root can sometimes reach the same data via the QEMU process directly (e.g. its QMP socket) without touching any libvirt-audited path |
+| 5 | **Timing/gap exploitation** | Briefly stopping a logging/forwarding service, acting, then restarting it — "service down" and "service tampered" look identical unless gaps are themselves monitored |
+| 6 | **Log-forwarding race** | If logs ship to the SIEM periodically rather than streaming, there's a window where local-only logs could be altered before the next forward |
+| 7 | **Privilege-path ambiguity** | Multiple routes to root (direct login, sudo, polkit) may have inconsistent logging coverage, so the weakest-logged path becomes the path of least resistance |
+
+### 9.3 The architectural fix (closes all seven at once)
+
+- Ship logs off-host, **streaming**, not batched
+- **Append-only / WORM** storage for the audit trail
+- Alert on **log-pipeline gaps themselves** (auditd stopping, journald restarting, forwarding going quiet) — a gap is itself a signal
+- **Separation of duties** — the people with `qemu:///system` root should not be the same people who administer the SIEM/log retention
+
+> The takeaway for leadership: no single log can be made un-tamperable by the person it's watching, but tampering can be made loud and independently verifiable.
+
+---
+
 ## References
 
 - libvirt project, virsh(1) manual — https://libvirt.org/manpages/virsh.html (primary source for all syntax above)
