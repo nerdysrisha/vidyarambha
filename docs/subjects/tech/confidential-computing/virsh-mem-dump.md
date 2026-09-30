@@ -561,6 +561,89 @@ Twelve commands, ordered as a narrative. All are fast, visual, and safe on a lab
 
 ---
 
+## 8. Top sensitive `virsh` commands — what the hypervisor admin can actually see
+
+These are not "dangerous" in the destructive sense (see §4/§6 for that) — they are commands where a **host/hypervisor admin**, with no access to the guest OS itself, can directly observe or extract **guest-side data**: memory contents, live screen, credentials, or filesystem/user details. Listed roughly in order of how much guest data is exposed.
+
+| # | Command | What the admin can literally see |
+|---|---|---|
+| 1 | `virsh dump --memory-only` | The guest's **entire RAM** as a file — any plaintext passwords, private keys, or decrypted data resident in memory at that moment, recoverable with `strings`/`volatility`/`crash` |
+| 2 | `virsh qemu-monitor-command ... pmemsave` | Same full-RAM exposure as `dump`, pulled **directly from QEMU**, bypassing libvirt's own audit path entirely |
+| 3 | `virsh console` | A **live, interactive** attach to the guest's serial console — sees (and can type into) real-time login prompts and command output |
+| 4 | `virsh domdisplay --include-password` | The guest's **VNC/SPICE password in cleartext**, usable to open a live remote-desktop session and watch the guest's actual screen |
+| 5 | `virsh screenshot` | A **point-in-time image** of exactly what's rendered on the guest's display right now — an open document, a password mid-type, an unlocked session |
+| 6 | `virsh save` / `virsh managedsave` | The guest's **full RAM + CPU state** written to a host file (and the VM stopped) — same exposure as a memory dump, but persisted indefinitely on disk |
+| 7 | `virsh qemu-agent-command` | Depending on guest-agent config, can **execute commands or read files inside the guest OS** directly — independent of the guest user |
+| 8 | `virsh dumpxml --security-info` | **Cleartext VNC/SPICE passwords** stored in the domain's own config XML — a standing secret, not just a momentary capture |
+| 9 | `virsh guestinfo --user --os --filesystem --disk` | Logged-in **usernames, OS build, mounted filesystems, disk layout** — a full inventory of what's inside the guest |
+| 10 | `virsh domfsinfo` | Every **filesystem mounted inside the guest** (mount points, device, type) via the guest agent |
+
+### Syntax &amp; examples
+
+**1. Full memory dump**
+```
+virsh dump <domain> <output-file> --memory-only [--format <fmt>]
+virsh dump nontdxvsi /evidence/vsixxx.dump --memory-only
+```
+
+**2. Raw QMP memory extraction**
+```
+virsh qemu-monitor-command <domain> --hmp '<qmp/hmp command>'
+virsh qemu-monitor-command nontdxvsi --hmp 'pmemsave 0 4294967296 /evidence/nontdxvsi.raw'
+```
+
+**3. Live console attach**
+```
+virsh console <domain> [--force]
+virsh console nontdxvsi --force
+```
+
+**4. VNC/SPICE password + live screen**
+```
+virsh domdisplay <domain> --include-password
+virsh domdisplay nontdxvsi --include-password
+```
+
+**5. Point-in-time screenshot**
+```
+virsh screenshot <domain> <output-file> [--screen N]
+virsh screenshot nontdxvsi /evidence/nontdxvsi-screen.ppm
+```
+
+**6. Save full RAM + CPU state to disk**
+```
+virsh save <domain> <state-file>
+virsh save nontdxvsi /var/lib/libvirt/save/nontdxvsi.save
+```
+
+**7. Execute/read inside the guest via agent**
+```
+virsh qemu-agent-command <domain> '<json-command>'
+virsh qemu-agent-command nontdxvsi '{"execute":"guest-file-open","arguments":{"path":"/etc/shadow","mode":"r"}}'
+```
+
+**8. Cleartext credentials from domain XML**
+```
+virsh dumpxml <domain> --security-info
+virsh dumpxml nontdxvsi --security-info
+```
+
+**9. Guest user/OS/filesystem inventory**
+```
+virsh guestinfo <domain> [--user] [--os] [--filesystem] [--disk]
+virsh guestinfo nontdxvsi --user --os --filesystem --disk
+```
+
+**10. Mounted filesystem list**
+```
+virsh domfsinfo <domain>
+virsh domfsinfo nontdxvsi
+```
+
+> All ten require root/`qemu:///system` access (see §5) — the point for tech leadership is that **whoever has host root already has a path to guest-level data**, regardless of guest OS controls. This is a hypervisor trust-boundary discussion, not a guest-hardening one.
+
+---
+
 ## References
 
 - libvirt project, virsh(1) manual — https://libvirt.org/manpages/virsh.html (primary source for all syntax above)
