@@ -315,31 +315,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 .copy-code-btn { display: none; } /* not used for verse content, kept for engine compatibility */
 
-/* ── AUDIO SYNC (added) ─────────────────────────────────────────────── */
-/* Player stays pinned at the top of the panel while verses scroll */
-#content-box .audio-player {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: #fbf8f2;
-    padding: 8px 0 10px 0;
-    border-bottom: 1px solid #e8e2d5;
-}
-/* Only active when a topic's <audio> has data-ends */
-#content-box.sync-on .verse-block {
-    cursor: pointer;
-    transition: opacity 0.35s ease, background 0.35s ease, border-color 0.35s ease,
-                box-shadow 0.35s ease, transform 0.35s ease;
-}
-#content-box.sync-on.sync-playing .verse-block { opacity: 0.45; }
-#content-box.sync-on .verse-block.verse-active {
-    opacity: 1;
-    background: #fff4d9;
-    border-color: #c9a15a;
-    box-shadow: 0 4px 16px rgba(201,161,90,0.38);
-    transform: scale(1.02);
-}
-
 /* NAV BAR */
 #navbar {
     height: 40px;
@@ -507,103 +482,11 @@ categories.forEach((cat) => {
     sidebarList.appendChild(block);
 });
 
-// ── AUDIO SYNC (added) ──────────────────────────────────────────────────
-// A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
-// list gives the END time of each .verse-block, in order (seconds or m:ss).
-// Block 1 starts at 0; every other block starts where the previous one ends.
-// Pages without data-ends are left alone.
-// (Scripts inside fetched pages do not run, so this logic lives here.)
-let syncUserScrollUntil = 0;
-const MANUAL_SCROLL_PAUSE_MS = 5000;
-
-["wheel", "touchmove", "mousedown"].forEach(evt =>
-    contentBox.addEventListener(evt, e => {
-        if (e.target.closest && e.target.closest(".audio-player")) return;
-        syncUserScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
-    }, { passive: true })
-);
-
-function parseSyncTime(str) {
-    return str.trim().split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
-}
-
-function stopAudioSync() {
-    contentBox.querySelectorAll("audio").forEach(a => a.pause());
-    contentBox.classList.remove("sync-on", "sync-playing");
-}
-
-function initAudioSync() {
-    const audio = contentBox.querySelector("audio[data-ends]");
-    if (!audio) return;
-
-    const ends = audio.dataset.ends.split(",").map(parseSyncTime);
-    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
-    if (ends.some(isNaN)) { console.warn("Audio sync: bad data-ends value"); return; }
-    if (ends.length !== blocks.length) {
-        console.warn("Audio sync: " + ends.length + " times but " + blocks.length + " blocks");
-    }
-    const n = Math.min(ends.length, blocks.length);
-    const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
-    const player = contentBox.querySelector(".audio-player");
-
-    // No playback-speed option (Chrome/Edge hide it; others are reset to 1x)
-    audio.setAttribute("controlsList", "nodownload noplaybackrate");
-    audio.playbackRate = 1;
-    audio.addEventListener("ratechange", () => {
-        if (audio.playbackRate !== 1) audio.playbackRate = 1;
-    });
-
-    contentBox.classList.add("sync-on");
-    let active = -1;
-
-    function blockAt(t) {
-        for (let i = 0; i < n; i++) if (t < ends[i]) return i;
-        return -1;   // after the last block: nothing highlighted
-    }
-
-    function scrollToBlock(block) {
-        const boxRect = contentBox.getBoundingClientRect();
-        const blkRect = block.getBoundingClientRect();
-        const playerH = player ? player.offsetHeight : 0;
-        const wantTop = playerH + (contentBox.clientHeight - playerH - blkRect.height) / 2;
-        contentBox.scrollTo({
-            top: contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop,
-            behavior: "smooth"
-        });
-    }
-
-    function update(forceScroll) {
-        const i = blockAt(audio.currentTime);
-        if (i === active) return;
-        if (active >= 0) blocks[active].classList.remove("verse-active");
-        active = i;
-        if (i < 0) return;
-        blocks[i].classList.add("verse-active");
-        if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
-    }
-
-    audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); });
-    audio.addEventListener("pause",      () => contentBox.classList.remove("sync-playing"));
-    audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); });
-    audio.addEventListener("timeupdate", () => update(false));
-    audio.addEventListener("seeked",     () => { syncUserScrollUntil = 0; update(true); });
-
-    // Tap a block to jump to its start and play
-    blocks.slice(0, n).forEach((block, i) => {
-        block.addEventListener("click", () => {
-            audio.currentTime = starts[i] + 0.01;
-            const p = audio.play();
-            if (p && p.catch) p.catch(() => {});
-        });
-    });
-}
-
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
-    stopAudioSync();   // (added) stop previous topic's audio
 
     flatTopics.forEach(t => t.el.classList.remove("active"));
     topic.el.classList.add("active");
@@ -618,7 +501,6 @@ function loadTopic(flatIndex) {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
-            initAudioSync();   // (added) wire up audio highlighting if the page has it
         })
         .catch(err => {
             contentBox.innerHTML =
@@ -632,7 +514,7 @@ document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 
 document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
 
 document.addEventListener("keydown", e => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "AUDIO") return;  // (added) AUDIO: arrows seek
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
 });
