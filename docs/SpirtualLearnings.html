@@ -420,7 +420,8 @@ const categories = [
             ["hanuman-chalisa", 							"1. Hanuman Chalisa", "Tulsidas's 40-verse hymn to Lord Hanuman.", "hanuman chalisa tulsidas", "html"],
             ["ganesh-aarti-sukhakarta-dukhaharta", 			"2. Ganesh Aarti — Sukhakarta Dukhaharta", "Samarth Ramdas's classic Marathi aarti to Lord Ganesha.", "ganesh aarti sukhakarta dukhaharta ganpati", "html"],
             ["vishnu-sahasranama", 							"3. Vishnu Sahasranama", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],
-            ["lalita-sahasranama-stotram", 					"4. Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "html"],
+			["vishnu-sahasranama-v2", 						"3. Vishnu Sahasranama v2", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],			 
+			["lalita-sahasranama-stotram", 					"4. Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "html"],
             ["shiv-chalisa", 								"5. Shiv Chalisa", "40-verse hymn to Lord Shiva.", "shiv chalisa shiva", "html"],
             ["durga-chalisa", 								"6. Durga Chalisa", "40-verse hymn to Goddess Durga.", "durga chalisa devi", "html"],
             ["aditya-hridayam", 							"7. Aditya Hridayam Stotram", "Hymn to Surya (the Sun), recited to Rama before his battle with Ravana.", "aditya hridayam surya sun stotram", "html"],
@@ -438,7 +439,7 @@ const categories = [
 			["aparadha-kshamapana-stotram", 				"18. Durga Saptashati (Aparadha Kshmapana)", "Durga Saptashati", "Durga Saptashati", "html"],
 			["maha-lakshmi-ashtakam", 						"19. Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
 			["bilvashtakam", 								"20. Bilva Ashtakam", "Bilva Ashtakam", "Bilva Ashtakam", "html"],
-			["sri-suktam-with-audio", 						"21. Sri Suktam", "Sri Suktam", "Sri Suktam", "html"],
+			["sri-suktam-with-audio", 						"21. Sri Suktam", "Sri Suktam", "Sri Suktam", "html"]
 			 
 			
         ]
@@ -565,7 +566,9 @@ function initAudioSync() {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
         const playerH = player ? player.offsetHeight : 0;
-        const wantTop = playerH + (contentBox.clientHeight - playerH - blkRect.height) / 2;
+        const avail = contentBox.clientHeight - playerH;
+        // block taller than the visible area: align its top; otherwise centre it
+        const wantTop = blkRect.height > avail - 16 ? playerH + 8 : playerH + (avail - blkRect.height) / 2;
         contentBox.scrollTo({
             top: contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop,
             behavior: "smooth"
