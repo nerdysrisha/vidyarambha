@@ -370,33 +370,19 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
 
-/* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
-#navbar { position: relative; }
-#fsBtn {
-    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
-}
-body.reading #sidebar { display: none; }
-
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
   #navbar { margin: 0 4px 4px 4px; }
-
-  /* bigger sidebar open/close button */
-  #sidebar.collapsed { width: 46px; }
-  #sidebar.collapsed #sidebar-title { padding: 10px 0; }
-  #sidebar-toggle { width: 38px; height: 38px; font-size: 24px;
-                    color: #d8b46a; border-color: #d8b46a88; background: #1a1a1a; }
-
+  #sidebar.collapsed { width: 30px; }
   #content-box { padding: 12px 3px 40px 3px; }
   #content-box h1 { font-size: 1.5em; }
   #content-box .verse-block,
   #content-box .verse-refrain {
       max-width: none;
       padding: 10px 4px;
-      font-size: 15px;      /* real size is set per verse by fitVerses() */
+      white-space: nowrap;            /* never wrap a line */
+      font-size: var(--verse-fs, 15px); /* set by fitVerses() in JS */
       line-height: 1.8;
   }
   #content-box.sync-on .verse-block.verse-active { transform: none; }
@@ -436,7 +422,6 @@ body.reading #sidebar { display: none; }
     <button id="prevBtn">&#8592; Prev</button>
     <span id="counter">–</span>
     <button id="nextBtn">Next &#8594;</button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
 
 <div id="topic-tooltip"></div>
@@ -663,30 +648,28 @@ function initAudioSync() {
 }
 
 
-// ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
-const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
-const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
+// ── MOBILE FIT: pick the largest font size where every verse line fits ──
 function fitVerses() {
-    const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
     if (!window.matchMedia("(max-width: 700px)").matches) {
-        blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+        contentBox.style.removeProperty("--verse-fs");
         return;
     }
+    const blocks = contentBox.querySelectorAll(".verse-block, .verse-refrain");
+    if (!blocks.length) return;
     const TEST = 20;
-    blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
+    contentBox.style.setProperty("--verse-fs", TEST + "px");
     const range = document.createRange();
-    const results = blocks.map(b => {
+    let ratio = Infinity;
+    blocks.forEach(b => {
         const cs = getComputedStyle(b);
         const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         range.selectNodeContents(b);
-        const w = range.getBoundingClientRect().width;     // width of widest line
-        return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;
+        const w = range.getBoundingClientRect().width;   // width of widest line
+        if (w > 0) ratio = Math.min(ratio, avail / w);
     });
-    blocks.forEach((b, i) => {
-        const fs = results[i];
-        if (fs < FIT_MIN) { b.style.fontSize = FIT_MIN + "px"; b.style.whiteSpace = "normal"; }
-        else { b.style.fontSize = (Math.floor(Math.min(fs, FIT_MAX) * 10) / 10) + "px"; }
-    });
+    if (!isFinite(ratio)) return;
+    const fs = Math.max(9, Math.min(26, Math.floor(TEST * ratio * 0.98 * 10) / 10));
+    contentBox.style.setProperty("--verse-fs", fs + "px");
 }
 let fitTimer;
 window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
@@ -698,7 +681,6 @@ function loadTopic(flatIndex) {
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
     stopAudioSync();   // (added) stop previous topic's audio
-    if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
     flatTopics.forEach(t => t.el.classList.remove("active"));
     topic.el.classList.add("active");
@@ -776,36 +758,12 @@ searchInput.addEventListener("keydown", e => {
 // ── SIDEBAR COLLAPSE ──────────────────────────────────────────────────
 const sidebarEl = document.getElementById("sidebar");
 const toggleBtn  = document.getElementById("sidebar-toggle");
-function setSidebarCollapsed(collapsed) {
-    sidebarEl.classList.toggle("collapsed", collapsed);
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
     setTimeout(fitVerses, 250);   // re-fit after sidebar width animation
-}
-toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-
-// ── FULLSCREEN / READING MODE ─────────────────────────────────────────
-const fsBtn = document.getElementById("fsBtn");
-function setReading(on) {
-    document.body.classList.toggle("reading", on);
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
-    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
-    setTimeout(fitVerses, 250);
-}
-fsBtn.addEventListener("click", () => {
-    if (!document.body.classList.contains("reading")) {
-        setReading(true);
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-    } else {
-        setReading(false);
-        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    }
-});
-document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
-    if (!document.fullscreenElement) setReading(false);
-    setTimeout(fitVerses, 250);
 });
 
 counterEl.textContent = "– / " + flatTopics.length;
