@@ -370,8 +370,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
 
-.audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
-
 /* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
 #navbar { position: relative; }
 #fsBtn {
@@ -617,9 +615,9 @@ function initAudioSync() {
     const ends = audio.dataset.ends.split(",").map(parseSyncTime);
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (ends.some(isNaN)) { console.warn("Audio sync: bad data-ends value"); return; }
-    if (ends.length > blocks.length) {
-        console.warn("Audio sync: " + ends.length + " times but only " + blocks.length + " blocks");
-    }   // fewer times than blocks is fine: the remaining blocks are simply not synced
+    if (ends.length !== blocks.length) {
+        console.warn("Audio sync: " + ends.length + " times but " + blocks.length + " blocks");
+    }
     const n = Math.min(ends.length, blocks.length);
     const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
     // Pin the player in the static dock above the scrolling text
@@ -635,26 +633,6 @@ function initAudioSync() {
 
     contentBox.classList.add("sync-on");
     let active = -1;
-    let syncDisabled = false;
-
-    // If the mp3 is missing/unplayable: switch sync off so the page is plain, scrollable text.
-    function disableSync() {
-        if (syncDisabled) return;
-        syncDisabled = true;
-        if (active >= 0) blocks[active].classList.remove("verse-active");
-        active = -1;
-        contentBox.classList.remove("sync-on", "sync-playing");
-        audioDock.innerHTML = '<div class="audio-missing">\uD83D\uDD07 Audio not available for this page</div>';
-        scrollAnim = null;
-    }
-    const srcEl = audio.querySelector("source");
-    if (srcEl) srcEl.addEventListener("error", disableSync);
-    audio.addEventListener("error", disableSync);
-    audio.preload = "metadata";            // make the browser try the file now, so a missing mp3 is noticed on load
-    audio.load();
-    setTimeout(() => {                      // safety net if no error event fires
-        if (audio.readyState === 0 && audio.networkState === 3) disableSync();
-    }, 5000);
 
     function blockAt(t) {
         for (let i = 0; i < n; i++) if (t < ends[i]) return i;
@@ -671,7 +649,6 @@ function initAudioSync() {
     }
 
     function update(forceScroll) {
-        if (syncDisabled) return;
         const i = blockAt(audio.currentTime);
         if (i === active) return;
         if (active >= 0) blocks[active].classList.remove("verse-active");
@@ -690,7 +667,6 @@ function initAudioSync() {
     // Tap a block to jump to its start and play
     blocks.slice(0, n).forEach((block, i) => {
         block.addEventListener("click", () => {
-            if (syncDisabled) return;
             audio.currentTime = starts[i] + 0.01;
             const p = audio.play();
             if (p && p.catch) p.catch(() => {});
