@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spiritual Learnings</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
@@ -369,25 +368,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
-
-/* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
-@media (max-width: 700px) {
-  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; }
-  #sidebar.collapsed { width: 30px; }
-  #content-box { padding: 12px 3px 40px 3px; }
-  #content-box h1 { font-size: 1.5em; }
-  #content-box .verse-block,
-  #content-box .verse-refrain {
-      max-width: none;
-      padding: 10px 4px;
-      white-space: nowrap;            /* never wrap a line */
-      font-size: var(--verse-fs, 15px); /* set by fitVerses() in JS */
-      line-height: 1.8;
-  }
-  #content-box.sync-on .verse-block.verse-active { transform: none; }
-  #audio-dock { padding: 8px 6px; }
-}
 </style>
 </head>
 <body>
@@ -647,34 +627,6 @@ function initAudioSync() {
     });
 }
 
-
-// ── MOBILE FIT: pick the largest font size where every verse line fits ──
-function fitVerses() {
-    if (!window.matchMedia("(max-width: 700px)").matches) {
-        contentBox.style.removeProperty("--verse-fs");
-        return;
-    }
-    const blocks = contentBox.querySelectorAll(".verse-block, .verse-refrain");
-    if (!blocks.length) return;
-    const TEST = 20;
-    contentBox.style.setProperty("--verse-fs", TEST + "px");
-    const range = document.createRange();
-    let ratio = Infinity;
-    blocks.forEach(b => {
-        const cs = getComputedStyle(b);
-        const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        range.selectNodeContents(b);
-        const w = range.getBoundingClientRect().width;   // width of widest line
-        if (w > 0) ratio = Math.min(ratio, avail / w);
-    });
-    if (!isFinite(ratio)) return;
-    const fs = Math.max(9, Math.min(26, Math.floor(TEST * ratio * 0.98 * 10) / 10));
-    contentBox.style.setProperty("--verse-fs", fs + "px");
-}
-let fitTimer;
-window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses);
-
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
@@ -696,8 +648,6 @@ function loadTopic(flatIndex) {
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             initAudioSync();   // (added) wire up audio highlighting if the page has it
-            fitVerses();
-            setTimeout(fitVerses, 300);   // re-fit once fonts settle
         })
         .catch(err => {
             contentBox.innerHTML =
@@ -763,7 +713,6 @@ toggleBtn.addEventListener("click", () => {
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
-    setTimeout(fitVerses, 250);   // re-fit after sidebar width animation
 });
 
 counterEl.textContent = "– / " + flatTopics.length;
