@@ -377,27 +377,18 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
     color: #d8b46a !important; border-color: #d8b46a66 !important;
 }
-#menuBtn {
-    display: none;                       /* shown on phones only */
-    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
-    width: 36px; height: 30px; padding: 0; font-size: 19px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
-}
-#menuBtn.open { background: #d8b46a !important; color: #111 !important; }
-@media (min-width: 701px) { body.reading #sidebar { display: none; } }
+body.reading #sidebar { display: none; }
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
   #navbar { margin: 0 4px 4px 4px; }
 
-  /* Menu button lives in the nav bar. Sidebar = full-width list when open,
-     completely gone when closed. */
-  #menuBtn { display: block; }
-  #sidebar-toggle { display: none; }
-  #sidebar { width: 100%; }
-  #sidebar.collapsed { display: none; }
-  body.side-open #main-col { display: none; }
+  /* bigger sidebar open/close button */
+  #sidebar.collapsed { width: 46px; }
+  #sidebar.collapsed #sidebar-title { padding: 10px 0; }
+  #sidebar-toggle { width: 38px; height: 38px; font-size: 24px;
+                    color: #d8b46a; border-color: #d8b46a88; background: #1a1a1a; }
 
   #content-box { padding: 12px 3px 40px 3px; }
   #content-box h1 { font-size: 1.5em; }
@@ -442,7 +433,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 </div>
 
 <div id="navbar">
-    <button id="menuBtn" title="Topics list">&#9776;</button>
     <button id="prevBtn">&#8592; Prev</button>
     <span id="counter">–</span>
     <button id="nextBtn">Next &#8594;</button>
@@ -682,7 +672,6 @@ function fitVerses() {
         blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
         return;
     }
-    if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const TEST = 20;
     blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
     const range = document.createRange();
@@ -792,13 +781,8 @@ function setSidebarCollapsed(collapsed) {
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
-    document.body.classList.toggle("side-open", !collapsed);
-    const mb = document.getElementById("menuBtn");
-    if (mb) mb.classList.toggle("open", !collapsed);
     setTimeout(fitVerses, 250);   // re-fit after sidebar width animation
 }
-document.getElementById("menuBtn").addEventListener("click",
-    () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
 toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
 
 // ── FULLSCREEN / READING MODE ─────────────────────────────────────────
@@ -824,8 +808,6 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     setTimeout(fitVerses, 250);
 });
 
-document.body.classList.add("side-open");
-document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
 </script>
 
