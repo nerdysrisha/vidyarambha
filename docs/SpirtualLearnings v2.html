@@ -316,24 +316,20 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .copy-code-btn { display: none; } /* not used for verse content, kept for engine compatibility */
 
 /* ── AUDIO SYNC (added) ─────────────────────────────────────────────── */
-/* The player is moved by script into #audio-dock: a static strip above the
-   scrolling text, so verses never scroll underneath it. */
-#audio-dock { display: none; flex: none; padding: 10px 40px; box-sizing: border-box;
-              background: #fbf8f2; border-bottom: 1px solid #e8e2d5; }
-#content-panel.has-dock { display: flex; flex-direction: column; }
-#content-panel.has-dock #audio-dock { display: block; }
-#content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
-#audio-dock .audio-player { margin: 0 !important; text-align: center; }
-/* Longer seek bar: as wide as the panel, up to 900px */
-#audio-dock audio { width: 100% !important; max-width: 900px !important;
-                    display: block; margin: 0 auto !important; }
-
-/* Smooth highlight: slow cross-fade between blocks (only for pages with data-ends) */
+/* Player stays pinned at the top of the panel while verses scroll */
+#content-box .audio-player {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #fbf8f2;
+    padding: 8px 0 10px 0;
+    border-bottom: 1px solid #e8e2d5;
+}
+/* Only active when a topic's <audio> has data-ends */
 #content-box.sync-on .verse-block {
     cursor: pointer;
-    transition: opacity 1.1s ease-in-out, background-color 1.4s ease-in-out,
-                border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out,
-                transform 1.1s ease-in-out;
+    transition: opacity 0.35s ease, background 0.35s ease, border-color 0.35s ease,
+                box-shadow 0.35s ease, transform 0.35s ease;
 }
 #content-box.sync-on.sync-playing .verse-block { opacity: 0.45; }
 #content-box.sync-on .verse-block.verse-active {
@@ -390,7 +386,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
     <div id="main-col">
         <div id="content-panel">
-            <div id="audio-dock"></div>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chalisa, stotra or aarti from the left to begin.</div>
             </div>
@@ -425,7 +420,7 @@ const categories = [
             ["hanuman-chalisa", 							"1. Hanuman Chalisa", "Tulsidas's 40-verse hymn to Lord Hanuman.", "hanuman chalisa tulsidas", "html"],
             ["ganesh-aarti-sukhakarta-dukhaharta", 			"2. Ganesh Aarti — Sukhakarta Dukhaharta", "Samarth Ramdas's classic Marathi aarti to Lord Ganesha.", "ganesh aarti sukhakarta dukhaharta ganpati", "html"],
             ["vishnu-sahasranama", 							"3. Vishnu Sahasranama", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],
-			["vishnu-sahasranama-v4", 						"3. Vishnu Sahasranama v4", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],			 
+			["vishnu-sahasranama-v2", 						"3. Vishnu Sahasranama v2", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],			 
 			["vishnu-sahasranama-v3", 						"3. Vishnu Sahasranama v3", "The 1000 names of Lord Vishnu, from the Mahabharata.", "vishnu sahasranama", "html"],			 
 			["lalita-sahasranama-stotram", 					"4. Lalita Sahasranama", "The 1000 names of Devi Lalita, from the Brahmanda Purana.", "lalita sahasranama devi", "html"],
             ["shiv-chalisa", 								"5. Shiv Chalisa", "40-verse hymn to Lord Shiva.", "shiv chalisa shiva", "html"],
@@ -522,26 +517,6 @@ categories.forEach((cat) => {
 // (Scripts inside fetched pages do not run, so this logic lives here.)
 let syncUserScrollUntil = 0;
 const MANUAL_SCROLL_PAUSE_MS = 5000;
-const contentPanel = document.getElementById("content-panel");
-const audioDock    = document.getElementById("audio-dock");
-let scrollAnim = null;
-
-// Eased scroll (about 0.9 s) so the text glides to the next block instead of jumping
-function smoothScrollTo(top, ms) {
-    const startTop = contentBox.scrollTop;
-    const delta = top - startTop;
-    if (Math.abs(delta) < 2) return;
-    const t0 = performance.now();
-    const me = scrollAnim = {};
-    (function step(now) {
-        if (scrollAnim !== me) return;                                   // replaced by a newer scroll
-        if (Date.now() < syncUserScrollUntil) { scrollAnim = null; return; }   // user took over
-        const p = Math.min(1, (now - t0) / ms);
-        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // easeInOutCubic
-        contentBox.scrollTop = startTop + delta * e;
-        if (p < 1) requestAnimationFrame(step); else scrollAnim = null;
-    })(t0);
-}
 
 ["wheel", "touchmove", "mousedown"].forEach(evt =>
     contentBox.addEventListener(evt, e => {
@@ -555,11 +530,8 @@ function parseSyncTime(str) {
 }
 
 function stopAudioSync() {
-    document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
+    contentBox.querySelectorAll("audio").forEach(a => a.pause());
     contentBox.classList.remove("sync-on", "sync-playing");
-    audioDock.innerHTML = "";                     // remove the pinned player
-    contentPanel.classList.remove("has-dock");
-    scrollAnim = null;
 }
 
 function initAudioSync() {
@@ -574,9 +546,7 @@ function initAudioSync() {
     }
     const n = Math.min(ends.length, blocks.length);
     const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
-    // Pin the player in the static dock above the scrolling text
-    audioDock.appendChild(audio.closest(".audio-player") || audio);
-    contentPanel.classList.add("has-dock");
+    const player = contentBox.querySelector(".audio-player");
 
     // No playback-speed option (Chrome/Edge hide it; others are reset to 1x)
     audio.setAttribute("controlsList", "nodownload noplaybackrate");
@@ -596,10 +566,14 @@ function initAudioSync() {
     function scrollToBlock(block) {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
-        const avail = contentBox.clientHeight;
+        const playerH = player ? player.offsetHeight : 0;
+        const avail = contentBox.clientHeight - playerH;
         // block taller than the visible area: align its top; otherwise centre it
-        const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
-        smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 900);
+        const wantTop = blkRect.height > avail - 16 ? playerH + 8 : playerH + (avail - blkRect.height) / 2;
+        contentBox.scrollTo({
+            top: contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop,
+            behavior: "smooth"
+        });
     }
 
     function update(forceScroll) {
