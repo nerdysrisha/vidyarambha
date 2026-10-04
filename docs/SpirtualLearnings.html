@@ -329,12 +329,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #audio-dock audio { width: 100% !important; max-width: 900px !important;
                     display: block; margin: 0 auto !important; }
 
-/* Playback-speed buttons (pinned under the player) */
-#speed-bar { display: flex; justify-content: center; gap: 10px; margin-top: 6px; }
-#speed-bar button { min-width: 62px; height: 30px; padding: 0 12px; border-radius: 8px;
-    border: 1px solid #c9a35a; background: #fff; color: #7a4a12; cursor: pointer;
-    font: 700 15px/1 monospace; letter-spacing: 1px; }
-#speed-bar button.active { background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
+/* Playback-speed buttons now live in the nav bar (see #speedGroup) */
 
 /* Smooth highlight: slow cross-fade between blocks (only for pages with data-ends) */
 #content-box.sync-on .verse-block {
@@ -377,6 +372,19 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
 
+/* Speed: three round buttons. Filled gold = current speed.
+   Dimmed + disabled when the current topic has no audio. */
+#speedGroup { display: flex; align-items: center; gap: 6px; }
+#navbar #speedGroup button.speed-btn {
+    width: 26px; height: 26px; padding: 0; border-radius: 50%;
+    background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
+    font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+#navbar #speedGroup button.speed-btn:hover { background: #d8b46a33; }
+#navbar #speedGroup button.speed-btn.active { background: #d8b46a; color: #111; }
+#navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+
 .audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
 
 /* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
@@ -398,7 +406,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; }
+  #navbar { margin: 0 4px 4px 4px; gap: 6px; }
+  #navbar .nav-label { display: none; }
+  #prevBtn, #nextBtn { width: 34px; height: 30px; padding: 0; font-size: 16px; line-height: 1; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #speedGroup { gap: 4px; }
 
   /* Menu button lives in the nav bar. Sidebar = full-width list when open,
      completely gone when closed. */
@@ -452,9 +464,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 <div id="navbar">
     <button id="menuBtn" title="Topics list">&#9776;</button>
-    <button id="prevBtn">&#8592; Prev</button>
+    <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
-    <button id="nextBtn">Next &#8594;</button>
+    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
+    <div id="speedGroup" role="group" aria-label="Playback speed">
+        <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1</button>
+        <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
+        <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
+    </div>
     <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
 
@@ -615,6 +632,9 @@ function stopAudioSync() {
     document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
     contentBox.classList.remove("sync-on", "sync-playing");
     audioDock.innerHTML = "";                     // remove the pinned player
+    document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
+        b.disabled = true; b.classList.remove("active"); b.onclick = null;
+    });
     contentPanel.classList.remove("has-dock");
     scrollAnim = null;
 }
@@ -635,27 +655,23 @@ function initAudioSync() {
     audioDock.appendChild(audio.closest(".audio-player") || audio);
     contentPanel.classList.add("has-dock");
 
-    // Playback speed: > (normal), >> (1.5x), >>> (1.75x). Choice is remembered.
+    // Playback speed: circles 1 / 2 / 3 in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
     audio.setAttribute("controlsList", "nodownload noplaybackrate");   // hide the browser's own speed menu
-    const SPEEDS = [[">", 1, "Normal speed"], [">>", 1.5, "1.5x speed"], [">>>", 1.75, "1.75x speed"]];
+    const SPEED_BTNS = Array.from(document.querySelectorAll("#speedGroup .speed-btn"));
+    const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
-    try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEEDS.some(x => x[1] === v)) rate = v; } catch (e) {}
-    const speedBar = document.createElement("div");
-    speedBar.id = "speed-bar";
+    try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
     function paintSpeed() {
-        speedBar.querySelectorAll("button").forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
+        SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
-    SPEEDS.forEach(([label, r, tip]) => {
-        const b = document.createElement("button");
-        b.textContent = label; b.title = tip; b.dataset.rate = r;
-        b.addEventListener("click", () => {
-            rate = r; applyRate(); paintSpeed();
-            try { localStorage.setItem("audioRate", String(r)); } catch (e) {}
-        });
-        speedBar.appendChild(b);
+    SPEED_BTNS.forEach(b => {
+        b.disabled = false;
+        b.onclick = () => {          // onclick (not addEventListener) so topics don't stack handlers
+            rate = parseFloat(b.dataset.rate); applyRate(); paintSpeed();
+            try { localStorage.setItem("audioRate", String(rate)); } catch (e) {}
+        };
     });
-    audioDock.appendChild(speedBar);
     applyRate(); paintSpeed();
     audio.addEventListener("loadedmetadata", applyRate);   // some browsers reset the rate when the file loads
 
