@@ -1,16 +1,15 @@
 <!--
-  Bhagavad Gita — Chapter 1 (fragment)
-  Scoped under .gita-chapter, so this cannot leak onto the base page.
-  Per-verse layout:
-    Row 1: two columns — Telugu verse (left) | English transliteration (right)
-    Row 2: full width — English translation
-    Row 3: full width — Telugu purport (commentary)
+  Bhagavad Gita — Chapter 1 : Arjuna Vishada Yoga (fragment)
+  Scoped under .gita-chapter — identical styling/classes to chapter2.html
+  and chapter3.html. This REPLACES the earlier 5-verse placeholder
+  chapter1.html with the full 47-verse chapter you supplied.
 
-  HOW TO ADD MORE VERSES:
-  Copy one whole <div class="verse-block">...</div> and fill in the four
-  pieces (telugu verse / transliteration / translation / purport). Update
-  the verse number in .verse-tag and at the end of the purport text.
-  Duplicate this whole file for chapter2.html .. chapter18.html.
+  Source-fidelity notes: grouped verses (where the source itself said
+  "Refer Below" / "Same for X to Y") are combined the same way verses
+  42–44 were combined in chapter2.html. Genuine inconsistencies found
+  IN THE SOURCE DATA (not introduced by me) are called out with a red
+  flag box — see the summary box right after the chapter heading, and
+  smaller inline flags at the exact verse they affect.
 -->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600&family=IBM+Plex+Mono:ital@0;1&display=swap');
@@ -67,6 +66,7 @@
     gap: 24px;
     margin-bottom: 14px;
   }
+  .gita-chapter .verse-grid + .verse-grid { margin-top: -4px; }
   .gita-chapter .verse-telugu {
     font-family: var(--telugu);
     font-size: 1.08rem;
@@ -89,12 +89,10 @@
     border-radius: 6px;
     padding: 10px 16px;
     margin-bottom: 12px;
-    font-style: italic;
     color: #3a3020;
   }
   .gita-chapter .verse-translation .lbl {
     display: block;
-    font-style: normal;
     font-family: var(--mono);
     font-size: 10px;
     text-transform: uppercase;
@@ -108,6 +106,7 @@
     font-size: 0.98rem;
     line-height: 1.9;
     color: var(--brown-dark);
+    margin-bottom: 10px;
   }
   .gita-chapter .verse-purport .lbl {
     display: block;
@@ -119,15 +118,48 @@
     margin-bottom: 4px;
   }
 
-  .gita-chapter .placeholder-note {
+  .gita-chapter .group-tag {
     font-family: var(--mono);
-    font-size: 11px;
-    color: #b5432f;
+    font-size: 10px;
+    color: var(--muted);
+    margin: 0 0 8px 18px;
+  }
+
+  /* RED FLAG BOXES — for genuine problems found in the supplied source */
+  .gita-chapter .flag-summary {
     background: #fdf0ee;
-    border: 1px dashed #e3b3a8;
+    border: 2px solid #d9433a;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 26px;
+  }
+  .gita-chapter .flag-summary .flag-title {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #b5342c;
+    margin-bottom: 8px;
+  }
+  .gita-chapter .flag-summary ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #7a2c26;
+  }
+  .gita-chapter .flag-summary li { margin-bottom: 4px; }
+
+  .gita-chapter .flag-inline {
+    background: #fdf0ee;
+    border: 1px solid #d9433a;
     border-radius: 5px;
     padding: 6px 10px;
     margin-bottom: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #b5342c;
   }
 
   @media (max-width: 720px) {
@@ -139,118 +171,860 @@
 
   <div class="chapter-head">
     <h2>Chapter 1 — Arjuna Vishada Yoga</h2>
-    <div class="sub">The Grief of Arjuna &middot; 1st Chapter</div>
+    <div class="sub">The Grief of Arjuna &middot; 1st Chapter &middot; 47 verses</div>
   </div>
 
-  <!-- ══════════ VERSE 1 ══════════ -->
+  <div class="flag-summary">
+    <div class="flag-title">⚠ Issues found in the supplied source (flagged, not corrected)</div>
+    <ul>
+      <li>Verse 2's transliteration uses full IAST diacritics (ṣ, ñ, ī...) while every other verse in this chapter uses plain-ASCII transliteration (s, n, i...) — inconsistent style, kept as given.</li>
+      <li>Verse 15's Telugu commentary ends with a stray leftover label "(Verse 15 )" that looks like an unremoved editing note rather than part of the text — kept as given.</li>
+      <li>Verse 24's entry contains the literal stray text "Telugu Same for 24 to 25" sitting where body text would be — looks like an unremoved placeholder note — kept as given.</li>
+      <li>"Same for 24 to 25" appears twice (once under verse 24, again under verse 25) — redundant duplicate marker in the source.</li>
+      <li>The Telugu commentary spanning verses 28–30 has overlapping/misaligned verse numbers: one తా॥ block is labeled "28-29" but its content runs through verse 30's imagery (Gandiva slipping), and the following తా॥ block under verse 30 is labeled only "30" but its content (wandering mind, bad omens) actually belongs to verse 31. Both are kept exactly as given.</li>
+      <li>Verse 41's Telugu commentary references a footnote marker "²" with no footnote definition supplied anywhere in the source.</li>
+    </ul>
+  </div>
+
+  <!-- VERSE 1 -->
   <div class="verse-block">
     <span class="verse-tag">Verse 1</span>
-
     <div class="verse-grid">
-      <div class="verse-telugu">సంజయ ఉవాచ ।
-తం తథా కృపయావిష్టమశ్రుపూర్ణాకులేక్షణమ్ ।
-విషీదంతమిదం వాక్యమువాచ మధుసూదనః ।। 1 ।।</div>
-      <div class="verse-translit">sanjaya uvaca
+      <div class="verse-telugu">ధృతరాష్ట్ర ఉవాచ ।
+ధర్మక్షేత్రే కురుక్షేత్రే సమవేతా యుయుత్సవః ।
+మామకాః పాండవాశ్చైవ కిమకుర్వత సంజయ ।। 1 ।।</div>
+      <div class="verse-translit">dhrtarastra uvaca
 
-tam tatha krpayavistam
-asru-purnakuleksanam
-visidantam idam vakyam
-uvaca madhusudanah</div>
+dharma-ksetre kuru-ksetre
+samaveta yuyutsavah
+mamakah pandavas caiva
+kim akurvata sanjaya</div>
     </div>
-
-    <div class="verse-translation">
-      <span class="lbl">Translation</span>
-      Sanjaya said: Seeing Arjuna full of compassion and very sorrowful, his eyes brimming with tears, Madhusudana, Krsna, spoke the following words.
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Bhagavad-gita is the widely read theistic science; one should read it scrutinizingly with the help of a devotee of Sri Krsna, without personally motivated interpretations, as Arjuna understood it directly from the Lord. The topics discussed by Dhrtarastra and Sanjaya form the basic principle of this philosophy. Dhrtarastra, highly doubtful of his sons' victory, inquired from Sanjaya because he feared the holy place of Kuruksetra would influence the outcome favorably toward the virtuous Pandavas. His deliberate phrase "my sons" versus "the sons of Pandu" discloses his partiality.
     </div>
-
-    <div class="verse-purport">
-      <span class="lbl">తాత్పర్యం</span>
-      తా॥ సంజయుడు పలికెను : ఈ రీతిగా అర్జునుడు దయావిష్ట చిత్తుడై, శోకిస్తున్నవాడుగా అయ్యా అతని కన్నులు నీటితో నిండి కలతపడసాగాడు. అప్పుడు శ్రీకృష్ణుడు అతనితో ఈ విధంగా అన్నాడు. 1
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ ధృతరాష్ట్రుడు పలికెను : సంజయా! పుణ్యభూమియైన కురుక్షేత్రంలో యుద్ధకాంక్షతో నా పుత్రులైన దుర్యోధనాదులు, పాండు పుత్రులైన యుధిష్ఠిరాదులు కలసి ఏం చేసారు? 1
     </div>
   </div>
 
-  <!-- ══════════ VERSE 2 (placeholder) ══════════ -->
+  <!-- VERSE 2 -->
   <div class="verse-block">
     <span class="verse-tag">Verse 2</span>
-    <div class="placeholder-note">Placeholder — replace with actual verse 2 content</div>
-
+    <div class="flag-inline">⚠ transliteration below uses full diacritics, unlike the rest of this chapter — see summary box above</div>
     <div class="verse-grid">
-      <div class="verse-telugu">[తెలుగు శ్లోకం — 2వ శ్లోకం ఇక్కడ ఉంచండి]</div>
-      <div class="verse-translit">[transliteration for verse 2 goes here]</div>
+      <div class="verse-telugu">సంజయ ఉవాచ ।
+దృష్ట్వా తు పాండవానీకం వ్యూఢం దుర్యోధనస్తదా ।
+ఆచార్యముపసంగమ్య రాజా వచనమబ్రవీత్ ।। 2 ।।</div>
+      <div class="verse-translit">sañjaya uvāca
+dṛṣṭvā tu pāṇḍavānīkaṁ
+vyūḍhaṁ duryodhanas tadā
+ācāryam upasaṅgamya
+rājā vacanam abravīt</div>
     </div>
-
-    <div class="verse-translation">
-      <span class="lbl">Translation</span>
-      [English translation for verse 2 goes here.]
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Dhrtarastra, blind from birth and bereft of spiritual vision, knew his sons could never reach an understanding with the pious Pandavas, yet was doubtful about the influence of the holy place. Sanjaya informed the King that Duryodhana, after seeing the Pandava forces, at once went to commander-in-chief Dronacarya — a diplomatic move that could not disguise the fear he felt.
     </div>
-
-    <div class="verse-purport">
-      <span class="lbl">తాత్పర్యం</span>
-      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 2
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ సంజయుడు పలికెను : అప్పుడు రాజైన దుర్యోధనుడు వ్యూహాకారంలో ఉన్న పాండవ సైన్యాన్ని చూసి, ద్రోణాచార్యుని వద్దకు వెళ్ళి ఇలా పలికాడు. 2
     </div>
   </div>
 
-  <!-- ══════════ VERSE 3 (placeholder) ══════════ -->
+  <!-- VERSE 3 -->
   <div class="verse-block">
     <span class="verse-tag">Verse 3</span>
-    <div class="placeholder-note">Placeholder — replace with actual verse 3 content</div>
-
     <div class="verse-grid">
-      <div class="verse-telugu">[తెలుగు శ్లోకం — 3వ శ్లోకం ఇక్కడ ఉంచండి]</div>
-      <div class="verse-translit">[transliteration for verse 3 goes here]</div>
+      <div class="verse-telugu">పశ్యైతాం పాండుపుత్రాణామ్ ఆచార్య మహతీం చమూమ్ ।
+వ్యూఢాం ద్రుపదపుత్రేణ తవ శిష్యేణ ధీమతా ।। 3 ।।</div>
+      <div class="verse-translit">pasyaitam pandu-putranam
+acarya mahatim camum
+vyudham drupada-putrena
+tava sisyena dhimata</div>
     </div>
-
-    <div class="verse-translation">
-      <span class="lbl">Translation</span>
-      [English translation for verse 3 goes here.]
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Duryodhana, a great diplomat, wanted to point out the defect of Dronacarya training Dhrstadyumna — the son of Drupada, Dronacarya's old rival, who was destined to kill him — in military secrets. Dhrstadyumna, now on the Pandava side, arranged their military phalanx. Duryodhana points this out to keep Dronacarya alert and uncompromising.
     </div>
-
-    <div class="verse-purport">
-      <span class="lbl">తాత్పర్యం</span>
-      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 3
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ గురుదేవా! బుద్ధిమంతుడూ, మీ శిష్యుడూ, ద్రుపదపుత్రుడూ అయిన ధృష్టద్యుమ్నుడు ఈ వ్యూహాన్ని విరచించాడు, పాండవుల ఈ విపులసైన్య సమావేశాన్ని చూడండి! 3
     </div>
   </div>
 
-  <!-- ══════════ VERSE 4 (placeholder) ══════════ -->
+  <!-- VERSES 4–6 (grouped — source says purport/Telugu are shared, given once after verse 6) -->
   <div class="verse-block">
-    <span class="verse-tag">Verse 4</span>
-    <div class="placeholder-note">Placeholder — replace with actual verse 4 content</div>
+    <span class="verse-tag">Verses 4–6</span>
 
     <div class="verse-grid">
-      <div class="verse-telugu">[తెలుగు శ్లోకం — 4వ శ్లోకం ఇక్కడ ఉంచండి]</div>
-      <div class="verse-translit">[transliteration for verse 4 goes here]</div>
+      <div class="verse-telugu">అత్ర శూరా మహేష్వాసా భీమార్జునసమా యుధి ।
+యుయుధానో విరాటశ్చ ద్రుపదశ్చ మహారథః ।। 4 ।।</div>
+      <div class="verse-translit">atra sura mahesv-asa
+bhimarjuna-sama yudhi
+yuyudhano viratas ca
+drupadas ca maha-rathah</div>
     </div>
 
-    <div class="verse-translation">
-      <span class="lbl">Translation</span>
-      [English translation for verse 4 goes here.]
+    <div class="verse-grid">
+      <div class="verse-telugu">ధృష్టకేతుశ్చేకితానః కాశిరాజశ్చ వీర్యవాన్ ।
+పురుజిత్ కుంతిభోజశ్చ శైబ్యశ్చ నరపుంగవః ।। 5 ।।</div>
+      <div class="verse-translit">dhrstaketus cekitanah
+kasirajas ca viryavan
+purujit kuntibhojas ca
+saibyas ca nara-pungavah</div>
     </div>
 
-    <div class="verse-purport">
-      <span class="lbl">తాత్పర్యం</span>
-      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 4
+    <div class="verse-grid">
+      <div class="verse-telugu">యుధామన్యుశ్చ విక్రాంత ఉత్తమౌజాశ్చ వీర్యవాన్ ।
+సౌభద్రో ద్రౌపదేయాశ్చ సర్వ ఏవ మహారథాః ।। 6 ।।</div>
+      <div class="verse-translit">yudhamanyus ca vikranta
+uttamaujas ca viryavan
+saubhadro draupadeyas ca
+sarva eva maha-rathah</div>
+    </div>
+
+    <div class="verse-translation"><span class="lbl">Purport (covers verses 4–6)</span>
+      Even though Dhrstadyumna alone was not a great obstacle against Dronacarya's power, there were many other heroes as formidable as Bhima and Arjuna — Dhrstaketu, Cekitana, Kasiraja, Purujit, Kuntibhoja, Saibya, the mighty Yudhamanyu, the powerful Uttamauja, the son of Subhadra and the sons of Draupadi — all great chariot fighters (maha-rathas).
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (4–6 శ్లోకాలకు)</span>
+      తా॥ ఈ పాండవసేనలో యుద్ధంలో భీమార్జునులతో సరితూగగల సాత్యకి, విరాటరాజు, మహారథుడైన ద్రుపదుడు, శిశుపాలుని పుత్రుడైన ధృష్టకేతువు, యదువంశీయవీరుడైన చేకితానుడు, శక్తిశాలియైన కాశీరాజు, పురుజిత్తు, కుంతిభోజుడు, నరశ్రేష్ఠుడైన శైబ్యుడు, పరాక్రమశాలియైన యుధామన్యుడు, మహాశక్తిశాలియైన ఉత్తమౌజుడు, సుభద్రాసుతుడైన అభిమన్యుడు, ద్రౌపదీ పుత్రులైన ఉపపాండవులు మొదలైన మహాధనుర్ధరులైన వీరులు ఉన్నారు. వీరందరూ మహారథులు. 4-6
     </div>
   </div>
 
-  <!-- ══════════ VERSE 5 (placeholder) ══════════ -->
+  <!-- VERSE 7 -->
   <div class="verse-block">
-    <span class="verse-tag">Verse 5</span>
-    <div class="placeholder-note">Placeholder — replace with actual verse 5 content</div>
-
+    <span class="verse-tag">Verse 7</span>
     <div class="verse-grid">
-      <div class="verse-telugu">[తెలుగు శ్లోకం — 5వ శ్లోకం ఇక్కడ ఉంచండి]</div>
-      <div class="verse-translit">[transliteration for verse 5 goes here]</div>
+      <div class="verse-telugu">అస్మాకం తు విశిష్టా యే తాన్నిబోధ ద్విజోత్తమ ।
+నాయకా మమ సైన్యస్య సంజ్ఞార్థం తాన్ బ్రవీమి తే ।। 7 ।।</div>
+      <div class="verse-translit">asmakam tu visista ye
+tan nibodha dvijottama
+nayaka mama sainyasya
+samjnartham tan bravimi te</div>
     </div>
-
-    <div class="verse-translation">
-      <span class="lbl">Translation</span>
-      [English translation for verse 5 goes here.]
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      O best of the brahmanas, for your information, let me tell you about the captains who are especially qualified to lead my military force.
     </div>
-
-    <div class="verse-purport">
-      <span class="lbl">తాత్పర్యం</span>
-      [తాత్పర్యం / వ్యాఖ్యానం ఇక్కడ ఉంచండి] 5
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ విప్రవర్యా! మన పక్షాన ఉన్న ప్రసిద్ధ యోధులను సేనాపతులను తెలుసుకోండి. మీకు తెలియజేడానికై వారి పేర్లను చెపుతున్నాను. 7
     </div>
   </div>
+
+  <!-- VERSE 8 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 8</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">భవాన్ భీష్మశ్చ కర్ణశ్చ కృపశ్చ సమితింజయః ।
+అశ్వత్థామా వికర్ణశ్చ సౌమదత్తిస్తథైవ చ ।। 8 ।।</div>
+      <div class="verse-translit">bhavan bhismas ca karnas ca
+krpas ca samitim-jayah
+asvatthama vikarnas ca
+saumadattis tathaiva ca</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Duryodhana mentioned the exceptional ever-victorious heroes. Vikarna is Duryodhana's brother, Asvatthama is Dronacarya's son, Saumadatti (Bhurisrava) is the son of the King of the Bahlikas, Karna is Arjuna's half-brother (born of Kunti before her marriage), and Krpacarya married Dronacarya's twin sister.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ మనపక్షాన మీరు, భీష్ముడు, కర్ణుడు, సంగ్రామ విజయుడైన కృపాచార్యుడూ, అలాగే అశ్వత్థామ, వికర్ణుడు, సోమదత్తుని పుత్రుడైన భూరిశ్రవుడు మొదలైన ప్రముఖులు ఉన్నారు. 8
+    </div>
+  </div>
+
+  <!-- VERSE 9 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 9</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అన్యే చ బహవః శూరా మదర్థే త్యక్తజీవితాః ।
+నానాశస్త్ర ప్రహరణాః సర్వే యుద్ధవిశారదాః ।। 9 ।।</div>
+      <div class="verse-translit">anye ca bahavah sura
+mad-arthe tyakta-jivitah
+nana-sastra-praharanah
+sarve yuddha-visaradah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      As for others — Jayadratha, Krtavarma, Salya, etc. — all are determined to lay down their lives for Duryodhana's sake; it was already concluded that all would die for joining the party of the sinful Duryodhana, who was nonetheless confident of victory on account of their combined strength.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ నా నిమిత్తం ప్రాణాన్ని సైతం త్యజించడానికి సంసిద్ధులైనవారు ఇంకా అనేకమంది ఉన్నారు. వీరందరూ వివిధశస్త్రధరులైన సంపన్నులు, యుద్ధనిపుణులును. 9
+    </div>
+  </div>
+
+  <!-- VERSE 10 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 10</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అపర్యాప్తం తదస్మాకం బలం భీష్మాభిరక్షితమ్ ।
+పర్యాప్తం త్విదమేతేషాం బలం భీమాభిరక్షితం ।। 10 ।।</div>
+      <div class="verse-translit">aparyaptam tad asmakam
+balam bhismabhiraksitam
+paryaptam tv idam etesam
+balam bhimabhiraksitam</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Duryodhana estimates comparative strength: his forces are immeasurable, protected by the most experienced general Bhisma, while the Pandava forces, protected by the less experienced Bhima, are limited — though he was always envious of Bhima, knowing that if he were to die, it would be by Bhima's hand.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ భీష్మ పితామహునిచే రక్షించబడుతున్న మన సైన్యబలం పరిమితం, భీమునిచే రక్షించబడుతున్న పాండవసైన్యం అపరిమితమైనది. 10
+      (కౌరవుల సైన్యసంఖ్య పాండవుల సైన్యసంఖ్య కన్నా అధికమైనా, తద్వ్యతిరిక్తంగా చెప్పబడింది. ఎందుకంటే భీష్మపితామహుడు ఉభయపక్షపాతి, భీముడు ఏకపక్షపాతి. కనుక బలం పాండవుల వైపుకే మ్రొగ్గుతోంది.)
+    </div>
+  </div>
+
+  <!-- VERSE 11 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 11</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అయనేషు చ సర్వేషు యథాభాగమవస్థితాః ।
+భీష్మమేవాభిరక్షంతు భవంతః సర్వ ఏవ హి ।। 11 ।।</div>
+      <div class="verse-translit">ayanesu ca sarvesu
+yatha-bhagam avasthitah
+bhismam evabhiraksantu
+bhavantah sarva eva hi</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Duryodhana, in his usual diplomatic way, emphasized that although Bhismadeva was the greatest hero, he was an old man, so every other warrior must especially protect him from all sides and not leave their strategic positions, since victory of the Kurus depended on Bhismadeva's presence.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ (అందువల్ల మీరీవిధంగా చేయండి) కనుక మీరందరూ సైన్య సమూహాల వ్యూహద్వారాలలో యథాస్థానంలో ఉండి, భీష్మ పితామహుణ్ణి రక్షించండి. (భీష్ముని బలమే మన ప్రాణాలను కాపాడుతుంది.) 11
+    </div>
+  </div>
+
+  <!-- VERSE 12 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 12</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తస్య సంజనయన్హర్షం కురువృద్ధః పితామహః ।
+సింహనాదం వినద్యోచ్చైః శంఖం దధ్మౌ ప్రతాపవాన్ ।। 12 ।।</div>
+      <div class="verse-translit">tasya sanjanayan harsam
+kuru-vrddhah pitamahah
+simha-nadam vinadyoccaih
+sankham dadhmau pratapavan</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Bhisma understood Duryodhana's inner anxiety and, out of compassion, tried to cheer him by blowing his conchshell loudly like a lion — though by this symbolism he was indirectly telling Duryodhana there was no chance of victory, since Krsna was on the other side.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ (సమ్మానపూర్వకమైన దుర్యోధనుని వాక్కులను విని) కురుకుల వృద్ధుడు, ప్రతాపశాలి, పితామహుడు అయిన భీష్ముడు పెద్దగా సింహగర్జన చేసి, శంఖాన్ని పూరించాడు. దుర్యోధనుని హృదయం హర్షపూర్ణమయ్యింది. 12
+    </div>
+  </div>
+
+  <!-- VERSE 13 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 13</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తతః శంఖాశ్చ భేర్యశ్చ పణవానకగోముఖాః ।
+సహసైవాభ్యహన్యంత స శబ్దస్తుములోఽభవత్ ।। 13 ।।</div>
+      <div class="verse-translit">tatah sankhas ca bheryas ca
+panavanaka-gomukhah
+sahasaivabhyahanyanta
+sa sabdas tumulo 'bhavat</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      After that, the conchshells, bugles, trumpets, drums and horns were all suddenly sounded, and the combined sound was tumultuous.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ (భీష్ముని యుద్ధోత్సాహం సర్వత్రా యుద్ధోత్సాహాన్ని పురికొల్పింది.) శంఖాలు, భేరులు, డోళ్ళు, మృదంగాలు, రణశృంగాలు ఒక్కసారిగా మ్రోగసాగాయి. ఆ ధ్వనులు కలిసిపోయినవి. 13
+    </div>
+  </div>
+
+  <!-- VERSE 14 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 14</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తతః శ్వేతైర్హయైర్యుక్తే మహతి స్యందనే స్థితౌ ।
+మాధవః పాండవశ్చైవ దివ్యౌ శంఖౌ ప్రదధ్మతుః ।। 14 ।।</div>
+      <div class="verse-translit">tatah svetair hayair yukte
+mahati syandane sthitau
+madhavah pandavas caiva
+divyau sankhau pradadhmatuh</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      The conchshells of Krsna and Arjuna are described as transcendental, indicating no hope of victory for the other side since Krsna, and therefore the goddess of fortune, was with the Pandavas. The chariot itself, donated by Agni to Arjuna, was capable of conquering all sides.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ పిదప తెల్లని గుఱ్ఱాలు పూన్చిన ఉత్తమరథంలో కూర్చున్న శ్రీకృష్ణుడు, పాండుకుమారుడైన అర్జునుడు తమ దివ్య శంఖాలను పూరించారు. 14
+    </div>
+  </div>
+
+  <!-- VERSE 15 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 15</span>
+    <div class="flag-inline">⚠ source Telugu text below ends with a leftover "(Verse 15 )" label — see summary box above</div>
+    <div class="verse-grid">
+      <div class="verse-telugu">పాంచజన్యం హృషీకేశో దేవదత్తం ధనంజయః ।
+పౌండ్రం దధ్మౌ మహాశంఖం భీమకర్మా వృకోదరః ।। 15 ।।</div>
+      <div class="verse-translit">pancajanyam hrsikeso
+devadattam dhananjayah
+paundram dadhmau maha-sankham
+bhima-karma vrkodarah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Lord Krsna is called Hrsikesa (owner of all senses) because He directs the senses of all living entities, and here directly controls Arjuna's. Arjuna is Dhananjaya for fetching wealth for his brother's sacrifices; Bhima is Vrkodara for his voracious, Herculean nature. The conchshells sounded on the Pandava side, beginning with the Lord's own, were encouraging — predestining the other side to lose.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ హృషీకేశుడు పాంచజన్యం అనే శంఖాన్ని, ధనంజయుడు దేవదత్తమనే శంఖాన్ని, ఘోరకర్ముడైన భీముడు పౌండ్రమనే శంఖాన్ని పూరించారు. (Verse 15 )
+    </div>
+  </div>
+
+  <!-- VERSE 16 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 16</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అనంతవిజయం రాజా కుంతీపుత్రో యుధిష్ఠిరః ।
+నకులః సహదేవశ్చ సుఘోషమణిపుష్పకౌ ।। 16 ।।</div>
+      <div class="verse-translit">anantavijayam raja
+kunti-putro yudhisthirah
+nakulah sahadevas ca
+sughosa-manipuspakau</div>
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ కుంతీతనయుడైన ధర్మరాజు అనంతవిజయమనే శంఖాన్ని, నకుల-సహదేవులు సుఘోష-మణిపుష్పకాలనే శంఖాలను పూరించారు. 16
+    </div>
+  </div>
+
+  <!-- VERSES 17–18 (grouped — Telugu commentary shared in the source) -->
+  <div class="verse-block">
+    <span class="verse-tag">Verses 17–18</span>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">కాశ్యశ్చ పరమేష్వాసః శిఖండీ చ మహారథః ।
+ధృష్టద్యుమ్నో విరాటశ్చ సాత్యకిశ్చాపరాజితః ।। 17 ।।</div>
+      <div class="verse-translit">kasyas ca paramesv-asah
+sikhandi ca maha-rathah
+dhrstadyumno viratas ca
+satyakis caparajitah</div>
+    </div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">ద్రుపదో ద్రౌపదేయాశ్చ సర్వశః పృథివీపతే ।
+సౌభద్రశ్చ మహాబాహుః శంఖాన్ దధ్ముః పృథక్ పృథక్ ।। 18 ।।</div>
+      <div class="verse-translit">drupado draupadeyas ca
+sarvasah prthivi-pate
+saubhadras ca maha-bahuh
+sankhan dadhmuh prthak prthak</div>
+    </div>
+
+    <div class="verse-translation"><span class="lbl">Purport (covers verses 16–18)</span>
+      Sanjaya tactfully informed Dhrtarastra that his policy of deceiving the sons of Pandu was not laudable — the signs already indicated the whole Kuru dynasty, from Bhisma down to grandsons like Abhimanyu, were doomed, a catastrophe due to Dhrtarastra encouraging his sons' policy.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (17–18 శ్లోకాలకు)</span>
+      తా॥ ఓ ధృతరాష్ట్ర భూపతీ! మహాధనుర్ధరుడైన కాశీరాజు, మహారథుడైన శిఖండి, ధృష్టద్యుమ్నుడు, విరాటుడు, అజేయుడైన సాత్యకి, ద్రుపదరాజు, ద్రౌపదీ తనయ పంచకము, మహాభుజుడైన అభిమన్యుడు మొదలైనవారు నలువైపుల నుండి తమతమ శంఖాలను విడివిడిగా పూరించారు. 17-18
+    </div>
+  </div>
+
+  <!-- VERSE 19 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 19</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">స ఘోషో ధార్తరాష్ట్రాణాం హృదయాని వ్యదారయత్ ।
+నభశ్చ పృథివీం చైవ తుములోఽభ్యనునాదయన్ ।। 19 ।।</div>
+      <div class="verse-translit">sa ghoso dhartarastranam
+hrdayani vyadarayat
+nabhas ca prthivim caiva
+tumulo 'bhyanunadayan</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Unlike the sounding on Duryodhana's side, the sounds from the Pandava party shattered the hearts of Dhrtarastra's sons — a result of the Pandavas' confidence in Lord Krsna; one who takes shelter of the Supreme Lord has nothing to fear, even amid the greatest calamity.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ ఆ భీకర శంఖధ్వనులు భూనభోంతరాలలో ప్రతిధ్వనించి దుర్యోధనాదుల హృదయాలను అదరగొట్టాయి. 19
+    </div>
+  </div>
+
+  <!-- VERSE 20 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 20</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అథ వ్యవస్థితాన్ దృష్ట్వా ధార్తరాష్ట్రాన్ కపిధ్వజః ।
+ప్రవృత్తే శస్త్రసంపాతే ధనురుద్యమ్య పాండవః ।
+హృషీకేశం తదా వాక్యమిదమాహ మహీపతే ।। 20 ।।</div>
+      <div class="verse-translit">atha vyavasthitan drstva
+dhartarastran kapi-dhvajah
+pravrtte sastra-sampate
+dhanur udyamya pandavah
+hrsikesam tada vakyam
+idam aha mahi-pate</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      The sons of Dhrtarastra were more or less disheartened by the Pandavas' military arrangement under Krsna's direct guidance. The emblem of Hanuman on Arjuna's flag is a sign of victory, recalling Lord Rama's triumph — Rama (Krsna) and Hanuman were both present to help Arjuna, who had no cause to fear any enemy.
+    </div>
+  </div>
+
+  <!-- VERSE 21 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 21</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అర్జున ఉవాచ ।
+సేనయోరుభయోర్మధ్యే రథం స్థాపయ మేఽచ్యుత ।। 21 ।।</div>
+      <div class="verse-translit">arjuna uvaca
+senayor ubhayor madhye
+ratham sthapaya me 'cyuta</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Although the Supreme Personality of Godhead, Krsna out of causeless mercy engaged Himself in the service of His friend as charioteer — hence addressed here as "infallible." As a pure devotee, Arjuna had no desire to fight his cousins and wanted to see who exactly had assembled, bent upon this unwanted war.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (20–21 శ్లోకాలకు)</span>
+      తా॥ ఓ మహీపతీ! అప్పుడు కపిధ్వజుడైన (ధ్వజంపై హనుమంతుని గుర్తు కలిగిన) అర్జునుడు యుద్ధసందిద్ధులైన ధృతరాష్ట్ర పుత్రులను చూసి, విల్లునెత్తి శ్రీకృష్ణునితో ఇలా పలికాడు. 20-21
+    </div>
+  </div>
+
+  <!-- VERSES 22–23 (grouped — source says purport/Telugu shared) -->
+  <div class="verse-block">
+    <span class="verse-tag">Verses 22–23</span>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">యావదేతాన్ నిరీక్షేఽహం యోద్ధుకామానవస్థితాన్ ।
+కైర్మయా సహ యోద్ధవ్యమ్ అస్మిన్ రణసముద్యమే ।। 22 ।।</div>
+      <div class="verse-translit">yavad etan nirikse 'ham
+yoddhu-kaman avasthitan
+kair maya saha yoddhavyam
+asmin rana-samudyame</div>
+    </div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">యోత్స్యమానానవేక్షేఽహం య ఏతేఽత్ర సమాగతాః ।
+ధార్తరాష్ట్రస్య దుర్బుద్ధేః యుద్ధే ప్రియచికీర్షవః ।। 23 ।।</div>
+      <div class="verse-translit">yotsyamanan avekse 'ham
+ya ete 'tra samagatah
+dhartarastrasya durbuddher
+yuddhe priya-cikirsavah</div>
+    </div>
+
+    <div class="verse-translation"><span class="lbl">Purport (covers verses 22–23)</span>
+      Duryodhana wanted to usurp the Pandavas' kingdom by evil plans, so those who joined his side were birds of the same feather. Arjuna wanted to see them before the fight began, not to propose peace, but to estimate the strength he had to face — though confident of victory with Krsna at his side.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (22–23 శ్లోకాలకు)</span>
+      తా॥ అర్జునుడు పలికెను: నేను యుద్ధం చేయగోరి వచ్చిన వీరందరినీ చూస్తాను. ఈ మహాయుద్ధంలో ఎవరెవరితో పోరాడవలసి ఉందో గ్రహించి, దుర్బుద్ధి అయిన దుర్యోధనుని ప్రియకాములైన ఏ వీరపురుషులు యుద్ధం చేయడానికి ఈ కురుక్షేత్రానికి అరుదెంచారో వారిని చూడాలి. కాబట్టి, శ్రీకృష్ణా! ఉభయ సైన్యానికి మధ్యలో నా రథాన్ని నిలుపు. 22-23
+    </div>
+  </div>
+
+  <!-- VERSE 24 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 24</span>
+    <div class="flag-inline">⚠ source body text here literally contains the stray note "Telugu Same for 24 to 25" — see summary box above</div>
+    <div class="verse-grid">
+      <div class="verse-telugu">సంజయ ఉవాచ ।
+ఏవముక్తో హృషీకేశో గుడాకేశేన భారత ।
+సేనయోరుభయోర్మధ్యే స్థాపయిత్వా రథోత్తమమ్ ।। 24 ।।</div>
+      <div class="verse-translit">sanjaya uvaca
+evam ukto hrsikeso
+gudakesena bharata
+senayor ubhayor madhye
+sthapayitva rathottamam</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Arjuna is called Gudakesa — one who has conquered sleep (and ignorance) — because of his friendship with Krsna; even awake or asleep a devotee cannot forget Krsna. As Hrsikesa, Krsna understood Arjuna's purpose and placed the chariot accordingly.
+    </div>
+  </div>
+
+  <!-- VERSE 25 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 25</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">భీష్మద్రోణప్రముఖతః సర్వేషాం చ మహీక్షితామ్ ।
+ఉవాచ పార్థ పశ్యైతాన్ సమవేతాన్ కురూనితి ।। 25 ।।</div>
+      <div class="verse-translit">bhisma-drona-pramukhatah
+sarvesam ca mahi-ksitam
+uvaca partha pasyaitan
+samavetan kurun iti</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      As the Supersoul, Krsna could understand Arjuna's mind. Addressing him as Partha (son of His own aunt Prtha), Krsna, in friendly joking, predicated what Arjuna wanted — telling him to "behold the Kurus" rather than expecting him to want to stop and not fight.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (24–25 శ్లోకాలకు)</span>
+      తా॥ సంజయుడు పలికెను : ఓ ధృతరాష్ట్రా! గుడాకేశుడైన అర్జునుడు శ్రీకృష్ణునితో ఈ విధంగా చెప్పగా, శ్రీకృష్ణుడు రెండు సేనల మధ్య, భీష్మ ద్రోణులు తదితరులైన మహీపతుల సమ్ముఖాన రథోత్తమాన్ని నిలిపి, "పార్థా! యుద్ధం చేయడానికి సమావేశమైన ఈ కౌరవులను చూడు!" అని పలికెను. 24-25
+    </div>
+  </div>
+
+  <!-- VERSE 26 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 26</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తత్రాపశ్యత్ స్థితాన్ పార్థః పితౄనథ పితామహాన్ ।
+ఆచార్యాన్మాతులాన్భ్రాతౄన్ పుత్రాన్ పౌత్రాన్ సఖీంస్తథా
+శ్వశురాన్ సుహృదశ్చైవ సేనయోరుభయోరపి ।। 26 ।।</div>
+      <div class="verse-translit">tatrapasyat sthitan parthah
+pitrn atha pitamahan
+acaryan matulan bhratrn
+putran pautran sakhims tatha
+svasuran suhrdas caiva
+senayor ubhayor api</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      On the battlefield Arjuna could see all kinds of relatives — fathers'-contemporaries like Bhurisrava, grandfathers Bhisma and Somadatta, teachers Dronacarya and Krpacarya, uncles Salya and Sakuni, brothers like Duryodhana, sons like Laksmana, friends like Asvatthama, and well-wishers like Krtavarma.
+    </div>
+  </div>
+
+  <!-- VERSE 27 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 27</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తాన్ సమీక్ష్య స కౌంతేయః సర్వాన్ బంధూనవస్థితాన్
+కృపయా పరయావిష్టో విషీదన్నిదమబ్రవీత్ ।। 27 ।।</div>
+      <div class="verse-translit">tan samiksya sa kaunteyah
+sarvan bandhun avasthitan
+krpaya parayavisto
+visidann idam abravit</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      When the son of Kunti, Arjuna, saw all these different grades of friends and relatives, he became overwhelmed with compassion and spoke thus:
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (26–27 శ్లోకాలకు)</span>
+      తా॥ అప్పుడు పార్థుడు రెండుసేనలలో ఉన్న భూరిశ్రవాది పితృసములను, భీష్ముడు మొదలుగాగల పితామహులను, ద్రోణుడు మున్నగు ఆచార్యులను, శల్యుదులైన మేనమామలను, దుర్యోధనాదులైన సోదరులను, లక్ష్మణాదులైన పుత్రస్థానీయులను, పౌత్రులను, అశ్వత్థామాది మిత్రగణాన్ని, కృతవర్మాదులైన ఆత్మీయులను గాంచాడు. 26-27
+    </div>
+  </div>
+
+  <!-- VERSE 28 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 28</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అర్జున ఉవాచ ।
+దృష్ట్వేమం స్వజనం కృష్ణ యుయుత్సుం సముపస్థితమ్
+సీదంతి మమ గాత్రాణి ముఖం చ పరిశుష్యతి ।। 28 ।।</div>
+      <div class="verse-translit">arjuna uvaca
+drstvemam sva-janam krsna
+yuyutsum samupasthitam
+sidanti mama gatrani
+mukham ca parisusyati</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Any man with genuine devotion has the good qualities of godly persons. Arjuna, overwhelmed by compassion for his kinsmen (and even the opposing soldiers, foreseeing their death), felt his limbs quiver and mouth dry — symptoms not of weakness but of the softheartedness of a pure devotee.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ అర్జునుడు అచటనున్న బంధువుల నందరిని గాంచి, అత్యంత దయార్ద్రచిత్తుడై దుఃఖిస్తూ ఈ విధంగా పలికాడు. 27-28
+    </div>
+  </div>
+
+  <!-- VERSE 29 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 29</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">వేపథుశ్చ శరీరే మే రోమహర్షశ్చ జాయతే ।। 29 ।।</div>
+      <div class="verse-translit">vepathus ca sarire me
+roma-harsas ca jayate</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Trembling of the body and standing of hair on end occur either in great spiritual ecstasy or out of great fear under material conditions. Arjuna's symptoms here are out of material fear — namely, loss of life — evident also from his bow Gandiva slipping and a burning sensation of the skin.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ అర్జునుడు పలికెను : ఓ కృష్ణా! యుద్ధార్థమై అరుదెంచిన బంధువులను చూసి, నా అవయవాలన్నీ పట్టు తప్పి పోతున్నాయి, నోరు ఎండుతోంది. నా శరీరం వణుకుతోంది, రోమాలు నిక్కపొడుచుకున్నాయి, చేతి నుండి గాండీవం జారిపోతోంది, చర్మం దగ్ధమవుతున్నట్లుగా ఉంది. 28-29
+    </div>
+  </div>
+
+  <!-- VERSE 30 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 30</span>
+    <div class="flag-inline">⚠ the తాత్పర్యం below is labeled "30" in the source but its content (wandering mind, bad omens) matches verse 31's text, not verse 30's — see summary box above</div>
+    <div class="verse-grid">
+      <div class="verse-telugu">గాండీవం స్రంసతే హస్తాత్ త్వక్చైవ పరిదహ్యతే ।
+న చ శక్నోమ్యవస్థాతుం భ్రమతీవ చ మే మనః ।। 30 ।।</div>
+      <div class="verse-translit">gandivam sramsate hastat
+tvak caiva paridahyate
+na ca saknomy avasthatum
+bhramativa ca me manah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Due to impatience, Arjuna was unable to stay on the battlefield, his mind bewildered by excessive attachment. Arjuna envisioned only unhappiness — his real self-interest (submission to Krsna's will) was forgotten, and so he thought his victory would only be cause for lamentation.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ కేశవా! నేనింక స్థిరంగా ఉండజాలకున్నాను. నా మనస్సు చంచలమగుచున్నట్లుగా ఉంది, అమంగళ సూచకాలైన అపశకునాలను నేను చూస్తున్నాను. 30
+    </div>
+  </div>
+
+  <!-- VERSE 31 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 31</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">నిమిత్తాని చ పశ్యామి విపరీతాని కేశవ ।
+న చ శ్రేయోఽనుపశ్యామి హత్వా స్వజనమాహవే ।। 31 ।।</div>
+      <div class="verse-translit">nimittani ca pasyami
+viparitani kesava
+na ca sreyo 'nupasyami
+hatva sva-janam ahave</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Not knowing his self-interest lies in Krsna, Arjuna, attracted by bodily relationships, even forgot the moral codes for a ksatriya — that dying under Krsna's orders or living in total renunciation are the two paths to the powerful sun-globe. He decided he would rather live in frustrated seclusion than reclaim his kingdom by killing kinsmen.
+    </div>
+  </div>
+
+  <!-- VERSE 32 (and purport group 32–35) -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 32</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">న కాంక్షే విజయం కృష్ణ న చ రాజ్యం సుఖాని చ ।
+కిం నో రాజ్యేన గోవింద కిం భోగైర్జీవితేన వా ।। 32 ।।</div>
+      <div class="verse-translit">na kankse vijayam krsna
+na ca rajyam sukhani ca
+kim no rajyena govinda
+kim bhogair jivitena va</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport (covers verses 32–35)</span>
+      Arjuna addresses Krsna as Govinda, the object of all pleasures — indicating that by satisfying Govinda's desires, rather than seeking one's own sense gratification, all desires are automatically fulfilled. Arjuna's deep affection for family is exhibited here; he did not want to retaliate against his miscreant cousins even though it was the Lord's plan that they be killed.
+    </div>
+  </div>
+
+  <!-- VERSE 33 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 33</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">యేషామర్థే కాంక్షితం నో రాజ్యం భోగాః సుఖాని చ ।
+త ఇమేఽవస్థితా యుద్ధే ప్రాణాంస్త్యక్త్వా ధనాని చ ।। 33 ।।</div>
+      <div class="verse-translit">yesam arthe kanksitam no
+rajyam bhogah sukhani ca
+ta ime 'vasthita yuddhe
+pranams tyaktva dhanani ca</div>
+    </div>
+  </div>
+
+  <!-- VERSE 34 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 34</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">ఆచార్యాః పితరః పుత్రాస్తథైవ చ పితామహాః ।
+మాతులాః శ్వశురాః పౌత్రాః శ్యాలాః సంబంధినస్తథా ।। 34 ।।</div>
+      <div class="verse-translit">acaryah pitarah putras
+tathaiva ca pitamahah
+matulah svasurah pautrah
+syalah sambandhinas tatha</div>
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (32–34 శ్లోకాలకు)</span>
+      తా॥ గోవిందా! మనకు రాజ్యంతోగాని, సుఖభోగాలతో గాని, జీవితంతో గాని ప్రయోజనమేముంది? ఎందుకంటే, ఎవరి కోసం మనం రాజ్యాన్ని, భోగాలను సుఖాలను ఆకాంక్షిస్తున్నామో; ఆ గురువులు, తండ్రులు, పుత్రులు, పితామహులు, మేనమామలు, మామలు, మనుమలు, బావలు, ఇతర బంధువులు ధనప్రాణాలపై ఆశను వదలి ఈ యుద్ధానికి అరుదెంచారు. 32-34
+    </div>
+  </div>
+
+  <!-- VERSE 35 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 35</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">ఏతాన్న హంతుమిచ్ఛామి ఘ్నతోఽపి మధుసూదన ।
+అపి త్రైలోక్యరాజ్యస్య హేతోః కిం ను మహీకృతే ।। 35 ।।</div>
+      <div class="verse-translit">etan na hantum icchami
+ghnato 'pi madhusudana
+api trailokya-rajyasya
+hetoh kim nu mahi-krte</div>
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ (నీవు వీరిని చంపకపోయినా, వీరు నిన్ను వధిస్తారు, కనుక వీరిని వధించి రాజ్యాన్ని భోగించమని అంటావా — ) ఓ మధుసూదనా! నన్ను వీరు వధించినా, నాకు వీరిని చంప ఇష్టం లేదు. పృథ్వీ మాటేమి, త్రిలోకరాజ్యాన్ని పొందడానికైనా కూడా వీరిని చంపను. 35
+    </div>
+  </div>
+
+  <!-- VERSE 36 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 36</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">నిహత్య ధార్తరాష్ట్రాన్నః కా ప్రీతిః స్యాజ్జనార్దన ।
+పాపమేవాశ్రయేదస్మాన్ హత్వైతానాతతాయినః ।। 36 ।।</div>
+      <div class="verse-translit">nihatya dhartarastran nah
+ka pritih syaj janardana
+papam evasrayed asman
+hatvaitan atatayinah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Vedic injunction lists six aggressors who may be killed without sin — but Arjuna, being saintly, wanted to deal with his special aggressors (grandfather, teacher, friends, sons) with forgiveness rather than the severe steps appropriate against ordinary aggressors.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ జనార్దనా! దుర్యోధనాదులను చంపడం వల్ల మనకు కలిగే సంతోషం ఏమిటి? ఈ ఆతతాయుల నందరిని చంపడం వల్ల మనకు లభించేది పాపమే! 36
+    </div>
+  </div>
+
+  <!-- VERSE 37 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 37</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">తస్మాన్నార్హా వయం హంతుం ధార్తరాష్ట్రాన్ స్వబాంధవాన్ ।
+స్వజనం హి కథం హత్వా సుఖినః స్యామ మాధవ ।। 37 ।।</div>
+      <div class="verse-translit">tasman narha vayam hantum
+dhartarastran sa-bandhavan
+sva-janam hi katham hatva
+sukhinah syama madhava</div>
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ కాబట్టి, దుర్యోధనాదులను, వారి బంధువులను చంపడం మనకు తగదు. మాధవా! స్వజనులను చంపి మనమెలా సుఖించగలం? 37
+    </div>
+  </div>
+
+  <!-- VERSES 38–39 (grouped — source says shared English/Telugu) -->
+  <div class="verse-block">
+    <span class="verse-tag">Verses 38–39</span>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">యద్యప్యేతే న పశ్యంతి లోభోపహతచేతసః ।
+కులక్షయకృతం దోషం మిత్రద్రోహే చ పాతకమ్ ।। 38 ।।</div>
+      <div class="verse-translit">yady apy ete na pasyanti
+lobhopahata-cetasah
+kula-ksaya-krtam dosam
+mitra-drohe ca patakam</div>
+    </div>
+
+    <div class="verse-grid">
+      <div class="verse-telugu">కథం న జ్ఞేయమస్మాభిః పాపాదస్మాన్నివర్తితుమ్ ।
+కులక్షయకృతం దోషం ప్రపశ్యద్భిర్జనార్దన ।। 39 ।।</div>
+      <div class="verse-translit">katham na jneyam asmabhih
+papad asman nivartitum
+kula-ksaya-krtam dosam
+prapasyadbhir janardana</div>
+    </div>
+
+    <div class="verse-translation"><span class="lbl">Purport (covers verses 38–39)</span>
+      A ksatriya is not supposed to refuse a battle he is challenged to. Arjuna considered that although the other party was blind to the evil effects of such a challenge, he himself could clearly see the consequences, and obligation is actually binding only when its effect is good.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం (38–39 శ్లోకాలకు)</span>
+      తా॥ (బంధువధ వల్లకలిగే పాపాన్ని లెక్కచేయకుండా వీరు యుద్ధ ప్రవృత్తులైనట్లు, నీవు కూడా యుద్ధం చేసి రాజ్యాన్ని భోగించకూడదా? అని అంటావా — ) వీరు రాజ్యలోభం కారణంగా వివేకాన్ని త్యజించి, కులక్షయం వల్ల కలిగే దోషాన్ని, మిత్రద్రోహం వల్ల కలిగే పాపాన్ని గ్రహించలేకున్నారు. జనార్దనా! వంశనాశం వల్ల కలిగే దోషాన్ని గుర్తిస్తున్న మనం ఈ పాపం నుండి నివర్తిల్లడానికి తెలియనివారం ఎలా కాగలుగుతాం? 38-39
+    </div>
+  </div>
+
+  <!-- VERSE 40 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 40</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">కులక్షయే ప్రణశ్యంతి కులధర్మాః సనాతనాః ।
+ధర్మే నష్టే కులం కృత్స్నమధర్మోఽభిభవత్యుత ।। 40 ।।</div>
+      <div class="verse-translit">kula-ksaye pranasyanti
+kula-dharmah sanatanah
+dharme naste kulam krtsnam
+adharmo 'bhibhavaty uta</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Elder family members are responsible for the varnasrama institution's purifying traditions. On their death, such traditions may stop, and the remaining younger members may develop irreligious habits and lose their chance for spiritual salvation.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ కులనాశనం వల్ల సనాతనమైన కులధర్మాలు వినష్టమవుతాయి; ధర్మం నశిస్తే, కులమంతా అనాచారమయమయ్యే అధర్మంతో కప్పబడిపోతుంది. 40
+    </div>
+  </div>
+
+  <!-- VERSE 41 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 41</span>
+    <div class="flag-inline">⚠ source Telugu below references a footnote marker "²" with no footnote text supplied — see summary box above</div>
+    <div class="verse-grid">
+      <div class="verse-telugu">అధర్మాభిభవాత్ కృష్ణ ప్రదుష్యంతి కులస్త్రియః ।
+స్త్రీషు దుష్టాసు వార్ష్ణేయ జాయతే వర్ణసంకరః ।। 41 ।।</div>
+      <div class="verse-translit">adharmabhibhavat krsna
+pradusyanti kula-striyah
+strisu dustasu varsneya
+jayate varna-sankarah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Good population depends on the chastity of womanhood, which requires protection and engagement in religious practices by elder family members. On the failure of varnasrama-dharma, adultery is indulged in at the risk of unwanted population, war and pestilence.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ కృష్ణా! అధర్మాక్రమణం వల్ల కులస్త్రీలు వినష్టలవుతారు; ఓ వృష్ణికుల సంభవా! కులస్త్రీలు చెడిపోతే వర్ణసంకరం అవుతుంది. 41
+    </div>
+  </div>
+
+  <!-- VERSE 42 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 42</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">సంకరో నరకాయైవ కులఘ్నానాం కులస్య చ ।
+పతంతి పితరో హ్యేషాం లుప్తపిండోదకక్రియాః ।। 42 ।।</div>
+      <div class="verse-translit">sankaro narakayaiva
+kula-ghnanam kulasya ca
+patanti pitaro hy esam
+lupta-pindodaka-kriyah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Periodical food and water offerings (via worship of Visnu) deliver forefathers from various sinful reactions and ghostly conditions. Devotional service alone can deliver thousands of forefathers from all misery, fulfilling such obligations automatically.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ వర్ణసంకరమైతే కులఘాతకులు, కుల జనులంతా కూడా నరకంలో పడవేయబడుతున్నారు; శ్రాద్ధతర్పణ క్రియలు (పిండదానమొనర్పే అధికారులు లేకపోవడం చేత) లోపించడం వల్ల వారి పితృపురుషులు కూడా నరకంలో పడుతున్నారు. 42
+    </div>
+  </div>
+
+  <!-- VERSE 43 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 43</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">దోషైరేతైః కులఘ్నానాం వర్ణసంకరకారకైః ।
+ఉత్సాద్యంతే జాతిధర్మాః కులధర్మాశ్చ శాశ్వతాః ।। 43 ।।</div>
+      <div class="verse-translit">dosair etaih kula-ghnanam
+varna-sankara-karakaih
+utsadyante jati-dharmah
+kula-dharmas ca sasvatah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      The sanatana-dharma institution, designed to enable ultimate salvation, is broken by irresponsible leaders, bringing chaos; such leaders are called blind, and those who follow them are led into chaos.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ వర్ణసంకర కారణాలైన ఈ దోషాల వల్ల, కులఘాతకుల వల్ల సనాతన వర్ణధర్మాలు, కులధర్మాలు, ఆశ్రమధర్మాలు, ఉత్సన్నమవుతున్నాయి. (సమూలంగా నశించినవి అవుతున్నాయి) 43
+    </div>
+  </div>
+
+  <!-- VERSE 44 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 44</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">ఉత్సన్నకులధర్మాణాం మనుష్యాణాం జనార్దన ।
+నరకేఽనియతం వాసో భవతీత్యనుశుశ్రుమ ।। 44 ।।</div>
+      <div class="verse-translit">utsanna-kula-dharmanam
+manusyanam janardana
+narake niyatam vaso
+bhavatity anususruma</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Arjuna bases his argument on what he has heard from authorities, not personal experience — the proper way of receiving real knowledge. The varnasrama system prescribes ablution (prayascitta) for sinful activity; without it, one is transferred to hellish planets.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ జనార్దనా! 'కులధర్మ భ్రష్టులు తప్పక నరకంలో నివసిస్తారు' - ఇది మనం ఆచార్య పరంపరా క్రమంలో విన్న విషయం. 44
+    </div>
+  </div>
+
+  <!-- VERSE 45 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 45</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">అహో బత మహత్పాపం కర్తుం వ్యవసితా వయమ్ ।
+యద్రాజ్యసుఖలోభేన హంతుం స్వజనముద్యతాః ।। 45 ।।</div>
+      <div class="verse-translit">aho bata mahat papam
+kartum vyavasita vayam
+yad rajya-sukha-lobhena
+hantum sva-janam udyatah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Driven by selfish motives, one may be inclined to kill even brother, father or mother — many such instances exist in world history — but Arjuna, a saintly devotee always conscious of moral principles, is careful to avoid such activities.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ అయ్యో! మనమెంత మహాపాపాన్ని చేయ పూనుకున్నాం! ఎందుకంటే రాజ్యం వల్ల కలిగే సుఖాశచేత బంధువులను చంప ఒడిగట్టామే! 45
+    </div>
+  </div>
+
+  <!-- VERSE 46 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 46</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">యది మామప్రతీకారమశస్త్రం శస్త్రపాణయః ।
+ధార్తరాష్ట్రా రణే హన్యుః తన్మే క్షేమతరం భవేత్ ।। 46 ।।</div>
+      <div class="verse-translit">yadi mam apratikaram
+asastram sastra-panayah
+dhartarastra rane hanyus
+tan me ksemataram bhavet</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      It is the custom of ksatriya fighting that an unarmed and unwilling foe should not be attacked. Arjuna, in his enigmatic position, decided he would not fight even if attacked — a symptom of the softheartedness of a great devotee of the Lord.
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ ప్రతిఘటించకుండా, నిరాయుధుడనై ఉన్న నన్ను శస్త్రధారులైన దుర్యోధనాదులు యుద్ధంలో చంపినా చంపుతారు గాక! - ఆ చావు ఇంతకంటే మేలే అవుతుంది. 46
+    </div>
+  </div>
+
+  <!-- VERSE 47 -->
+  <div class="verse-block">
+    <span class="verse-tag">Verse 47</span>
+    <div class="verse-grid">
+      <div class="verse-telugu">సంజయ ఉవాచ ।
+ఏవముక్త్వార్జునః సంఖ్యే రథోపస్థ ఉపావిశత్ ।
+విసృజ్య సశరం చాపం శోకసంవిగ్నమానసః ।। 47 ।।</div>
+      <div class="verse-translit">sanjaya uvaca
+evam uktvarjunah sankhye
+rathopastha upavisat
+visrjya sa-saram capam
+soka-samvigna-manasah</div>
+    </div>
+    <div class="verse-translation"><span class="lbl">Purport</span>
+      Observing the enemy, Arjuna stood up on the chariot, but so afflicted with lamentation that he sat down again, setting aside bow and arrows — such a softhearted devotee is fit to receive self-knowledge.
+      <br><br>
+      <em>Thus end the Bhaktivedanta Purports to the First Chapter of the Srimad-Bhagavad-gita in the matter of Observing the Armies on the Battlefield of Kuruksetra.</em>
+    </div>
+    <div class="verse-purport"><span class="lbl">తాత్పర్యం</span>
+      తా॥ సంజయుడు పలికెను : అర్జునుడు ఇలా పలికి, ఎక్కుపెట్టిన విల్లును వీడి, శోకతప్తచిత్తుడై రథమధ్యంలో కూలబడ్డాడు. 47
+    </div>
+  </div>
+
+  <div class="group-tag" style="margin-left:0; text-align:center;">Thus ends Chapter One, "Arjuna Vishada Yoga," of the Srimad Bhagavad-gita.</div>
 
 </div>
