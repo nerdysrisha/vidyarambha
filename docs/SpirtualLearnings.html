@@ -223,6 +223,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 15px;
     line-height: 1.7;
 }
+/* Copy button: pinned to the panel frame (not the scrolling text), so it never moves */
+#copyBtn { position: absolute; top: 10px; right: 16px; z-index: 5; display: none;
+    width: 30px; height: 30px; padding: 0; border-radius: 8px; cursor: pointer;
+    align-items: center; justify-content: center;
+    border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.6; }
+#copyBtn.show { display: flex; }
+#copyBtn:hover { opacity: 1; }
+#copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
+#copyBtn svg { width: 16px; height: 16px; }
 #content-box::-webkit-scrollbar { width: 9px; }
 #content-box::-webkit-scrollbar-thumb { background: #e4dcc8; border-radius: 5px; }
 
@@ -324,14 +333,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-panel.has-dock { display: flex; flex-direction: column; }
 #content-panel.has-dock #audio-dock { display: block; }
 #content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
-#audio-dock .audio-player { margin: 0 auto !important; text-align: center; position: relative; max-width: 900px; }
-/* Small gold tag on the top-right corner of the player; shown only at 1.5x / 1.75x */
-.speed-badge { position: absolute; top: -9px; right: 6px; z-index: 2; pointer-events: none;
-    background: #d8b46a; color: #111; font: 700 11px/1 system-ui, sans-serif;
-    padding: 3px 7px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
-/* Longer seek bar: as wide as the panel, up to 900px */
-#audio-dock audio { width: 100% !important; max-width: 900px !important;
-                    display: block; margin: 0 auto !important; }
+#audio-dock .audio-player { margin: 0 auto !important; max-width: 900px;
+    display: flex; align-items: center; justify-content: center; gap: 8px; }
+/* Longer seek bar: fills the row, up to 900px */
+#audio-dock audio { flex: 1 1 auto; min-width: 0; width: 100% !important; max-width: 900px !important;
+                    display: block; margin: 0 !important; }
+/* Speed tag: sits to the right of the player, shown only at 1.5x / 1.75x */
+.speed-badge { flex: none; display: none; align-items: center; height: 22px; padding: 0 8px;
+    border-radius: 11px; background: #d8b46a; color: #111; pointer-events: none;
+    font: 700 11px/1 system-ui, sans-serif; }
 
 /* Playback-speed buttons now live in the nav bar (see #speedGroup) */
 
@@ -437,6 +447,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   }
   #content-box.sync-on .verse-block.verse-active { transform: none; }
   #audio-dock { padding: 8px 6px; }
+  #copyBtn { right: 6px; width: 28px; height: 28px; }
 }
 </style>
 </head>
@@ -461,6 +472,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <div id="main-col">
         <div id="content-panel">
             <div id="audio-dock"></div>
+            <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chalisa, stotra or aarti from the left to begin.</div>
             </div>
@@ -658,7 +672,12 @@ function initAudioSync() {
     const n = Math.min(ends.length, blocks.length);
     const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
     // Pin the player in the static dock above the scrolling text
-    audioDock.appendChild(audio.closest(".audio-player") || audio);
+    let holder = audio.closest(".audio-player");
+    if (!holder) {   // page had a bare <audio>: wrap it so the speed tag can sit beside it
+        holder = document.createElement("div"); holder.className = "audio-player";
+        audio.parentNode.insertBefore(holder, audio); holder.appendChild(audio);
+    }
+    audioDock.appendChild(holder);
     contentPanel.classList.add("has-dock");
 
     // Playback speed: circles 1 / 2 / 3 in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
@@ -667,14 +686,14 @@ function initAudioSync() {
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
     try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
-    const badgeHost = audio.closest(".audio-player") || audio.parentElement;
+    const badgeHost = holder;
     const badge = document.createElement("span");
     badge.className = "speed-badge";
-    badgeHost.appendChild(badge);          // removed together with the player when the topic changes
+    badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
     function paintSpeed() {
         SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
         badge.textContent = rate + "x";
-        badge.style.display = rate === 1 ? "none" : "block";
+        badge.style.display = rate === 1 ? "none" : "flex";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
     SPEED_BTNS.forEach(b => {
@@ -797,6 +816,7 @@ function loadTopic(flatIndex) {
 
     counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
     contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
+    copyBtn.classList.remove("show");
 
     fetch(topic.path)
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
@@ -805,6 +825,7 @@ function loadTopic(flatIndex) {
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             initAudioSync();   // (added) wire up audio highlighting if the page has it
+            placeCopyBtn(); copyBtn.classList.add("show");
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
         })
@@ -815,6 +836,41 @@ function loadTopic(flatIndex) {
                 'opening the file directly (file://) blocks fetch() for security reasons.</div>';
         });
 }
+
+// ── COPY BUTTON ──────────────────────────────────────────────────────────
+const copyBtn = document.getElementById("copyBtn");
+function placeCopyBtn() {   // sit just below the audio dock (if any), top-right of the text area
+    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0) + 8) + "px";
+}
+if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
+window.addEventListener("resize", placeCopyBtn);
+
+function topicPlainText() {
+    const c = contentBox.cloneNode(true);
+    c.querySelectorAll("audio, .audio-player, script, style, button, .verse-label, .copy-code-btn").forEach(n => n.remove());
+    // collapse HTML source whitespace first, then turn <br> and block ends into real line breaks
+    const tw = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) n.nodeValue = n.nodeValue.replace(/\s+/g, " ");
+    c.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+    c.querySelectorAll("p,div,h1,h2,h3,h4,h5,h6,ul,ol,blockquote,pre,hr").forEach(el => el.append("\n\n"));
+    c.querySelectorAll("li").forEach(el => el.append("\n"));
+    return c.textContent.split("\n").map(l => l.trim()).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise((res, rej) => {   // fallback for plain http / file://
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy") ? res() : rej(); } catch (e) { rej(e); } finally { ta.remove(); }
+    });
+}
+copyBtn.onclick = () => {
+    copyText(topicPlainText()).then(() => {
+        copyBtn.classList.add("done"); copyBtn.title = "Copied";
+        setTimeout(() => { copyBtn.classList.remove("done"); copyBtn.title = "Copy text"; }, 1600);
+    }).catch(() => { copyBtn.title = "Copy failed"; });
+};
 
 document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
 document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
