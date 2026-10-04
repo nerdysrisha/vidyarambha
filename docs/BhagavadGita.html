@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bhagavad Gita</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -81,7 +82,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     align-items: center;
     justify-content: center;
 }
-#sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
+#sidebar-toggle:hover { background: #1a1a1a; color: #d8b46a; }
 #sidebar.collapsed #sidebar-list { display: none; }
 
 /* SEARCH */
@@ -107,7 +108,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     outline: none;
 }
 #topic-search::placeholder { color: #666; }
-#topic-search:focus { border-color: #00c8ff88; }
+#topic-search:focus { border-color: #d8b46a88; }
 #search-wrap { position: relative; }
 #search-clear {
     position: absolute;
@@ -159,7 +160,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     margin-left: auto;
     margin-right: 8px;
 }
-.topic-list { }
 .category-block.collapsed .topic-list { display: none; }
 
 .topic-item {
@@ -173,20 +173,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 .topic-item:hover { background: #1a1a1a; color: #fff; }
 .topic-item.active {
-    background: #0d1f2b;
-    color: #00c8ff;
-    border-left-color: #00c8ff;
+    background: #241a0d;
+    color: #d8b46a;
+    border-left-color: #d8b46a;
     font-weight: bold;
 }
-.topic-item.placeholder {
-    color: #555;
-    font-style: italic;
-    cursor: default;
-}
-.topic-item.placeholder:hover { background: none; color: #555; }
-
-/* SEARCH MATCH / DIM */
-.topic-item.search-match { background: #0d1f2b; border-left-color: #00c8ff; color: #fff; }
+.topic-item.search-match { background: #241a0d; border-left-color: #d8b46a; color: #fff; }
 .topic-item.search-dim { opacity: 0.25; }
 .category-block.search-dim-all { opacity: 0.25; }
 
@@ -197,7 +189,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     max-width: 280px;
     background: #1a1a1a;
     color: #ddd;
-    border: 1px solid #00c8ff55;
+    border: 1px solid #d8b46a55;
     border-radius: 6px;
     padding: 8px 12px;
     font-size: 13px;
@@ -220,40 +212,68 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border-radius: 8px;
     flex: 1;
     min-height: 0;
-    background: #faf8f4;
+    background: #fbf8f2;
 }
 #content-box {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
-    padding: 30px 40px;
-    background: #faf8f4;
+    padding: 34px 40px 50px 40px;
+    background: #fbf8f2;
     color: #2b2b2b;
     font-size: 15px;
     line-height: 1.7;
 }
+/* Copy button: pinned to the panel frame (not the scrolling text), so it never moves */
+#copyBtn { position: absolute; top: 10px; right: 16px; z-index: 5; display: none;
+    width: 30px; height: 30px; padding: 0; border-radius: 8px; cursor: pointer;
+    align-items: center; justify-content: center;
+    border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.6; }
+#copyBtn.show { display: flex; }
+#copyBtn:hover { opacity: 1; }
+#copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
+#copyBtn svg { width: 16px; height: 16px; }
 #content-box::-webkit-scrollbar { width: 9px; }
-#content-box::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 5px; }
+#content-box::-webkit-scrollbar-thumb { background: #e4dcc8; border-radius: 5px; }
 
+/* Title block for a topic */
 #content-box h1 {
-    color: #1a1a1a;
-    font-size: 1.7em;
+    text-align: center;
+    color: #7a1f1f;
+    font-size: 1.9em;
+    margin: 0 0 4px 0;
+    font-family: Georgia, "Times New Roman", serif;
+}
+#content-box .topic-tagline {
+    text-align: center;
+    color: #a1521f;
+    font-style: italic;
+    font-size: 1em;
     margin: 0 0 6px 0;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #c9a15a;
+}
+#content-box .topic-invocation {
+    text-align: center;
+    color: #8a6d3b;
+    font-size: 0.95em;
+    margin: 0 0 26px 0;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e8e2d5;
 }
 #content-box h2 {
     color: #6b4f1d;
-    font-size: 1.3em;
-    margin: 30px 0 12px 0;
+    font-size: 1.25em;
+    margin: 26px 0 12px 0;
+    text-align: center;
 }
+#content-box p { margin: 0 0 14px 0; }
+
+/* Generic content styling carried over from the original Bhagavad Gita master */
 #content-box h3 {
     color: #8a6d3b;
     font-size: 1.08em;
     margin: 22px 0 8px 0;
 }
-#content-box p { margin: 0 0 14px 0; }
 #content-box ul, #content-box ol { margin: 0 0 16px 0; padding-left: 22px; }
 #content-box li { margin-bottom: 5px; }
 #content-box a { color: #a1521f; text-decoration: none; border-bottom: 1px solid #c9a15a88; }
@@ -326,6 +346,64 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #content-box tr:last-child td { border-bottom: none; }
 
+
+/* Verse cards — one per stanza, centered, generous spacing for recitation */
+#content-box .verse-block {
+    max-width: 620px;
+    margin: 0 auto 16px auto;
+    padding: 16px 26px;
+    background: #ffffff;
+    border: 1px solid #ecd9b8;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    text-align: center;
+    font-size: 1.12em;
+    line-height: 1.85;
+    color: #2b2b2b;
+}
+#content-box .verse-label {
+    display: inline-block;
+    font-size: 0.62em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a1521f;
+    background: #f4efe2;
+    border-radius: 12px;
+    padding: 2px 12px;
+    margin-bottom: 10px;
+}
+#content-box .verse-refrain {
+    max-width: 620px;
+    margin: 4px auto 18px auto;
+    padding: 12px 26px;
+    background: #fbf3e0;
+    border-left: 4px solid #c9a15a;
+    border-radius: 8px;
+    text-align: center;
+    font-style: italic;
+    color: #6b4f1d;
+    font-size: 1.05em;
+    line-height: 1.8;
+}
+#content-box hr.divider {
+    border: none;
+    text-align: center;
+    margin: 30px auto;
+    max-width: 100px;
+    border-top: 2px solid #e8d9ba;
+}
+#content-box .topic-note {
+    max-width: 620px;
+    margin: 24px auto 0 auto;
+    padding: 12px 18px;
+    background: #f4f8f6;
+    border: 1px dashed #8fb9a8;
+    border-radius: 8px;
+    color: #2f6b52;
+    font-size: 0.88em;
+    text-align: center;
+}
+
 .copy-code-btn {
     position: absolute;
     top: 8px;
@@ -340,6 +418,42 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 .copy-code-btn:hover { background: #35301f; color: #fff; }
 .copy-code-btn.copied { color: #8fd6b0; border-color: #8fd6b055; }
+
+/* ── AUDIO SYNC (added) ─────────────────────────────────────────────── */
+/* The player is moved by script into #audio-dock: a static strip above the
+   scrolling text, so verses never scroll underneath it. */
+#audio-dock { display: none; flex: none; padding: 10px 40px; box-sizing: border-box;
+              background: #fbf8f2; border-bottom: 1px solid #e8e2d5; }
+#content-panel.has-dock { display: flex; flex-direction: column; }
+#content-panel.has-dock #audio-dock { display: block; }
+#content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
+#audio-dock .audio-player { margin: 0 auto !important; max-width: 900px;
+    display: flex; align-items: center; justify-content: center; gap: 8px; }
+/* Longer seek bar: fills the row, up to 900px */
+#audio-dock audio { flex: 1 1 auto; min-width: 0; width: 100% !important; max-width: 900px !important;
+                    display: block; margin: 0 !important; }
+/* Speed tag: sits to the right of the player, shown only at 1.5x / 1.75x */
+.speed-badge { flex: none; display: none; align-items: center; height: 22px; padding: 0 8px;
+    border-radius: 11px; background: #d8b46a; color: #111; pointer-events: none;
+    font: 700 11px/1 system-ui, sans-serif; }
+
+/* Playback-speed buttons now live in the nav bar (see #speedGroup) */
+
+/* Smooth highlight: slow cross-fade between blocks (only for pages with data-ends) */
+#content-box.sync-on .verse-block {
+    cursor: pointer;
+    transition: opacity 1.1s ease-in-out, background-color 1.4s ease-in-out,
+                border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out,
+                transform 1.1s ease-in-out;
+}
+#content-box.sync-on.sync-playing .verse-block { opacity: 0.45; }
+#content-box.sync-on .verse-block.verse-active {
+    opacity: 1;
+    background: #fff4d9;
+    border-color: #c9a15a;
+    box-shadow: 0 4px 16px rgba(201,161,90,0.38);
+    transform: scale(1.02);
+}
 
 /* NAV BAR */
 #navbar {
@@ -363,8 +477,72 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 13px;
     cursor: pointer;
 }
-#navbar button:hover { background: #222; color: #00c8ff; }
+#navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+#navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
+#navbar .nav-label { font-size: 13px; font-weight: 400; }
+
+/* Speed: three round buttons. Filled gold = current speed.
+   Dimmed + disabled when the current topic has no audio. */
+#speedGroup { display: flex; align-items: center; gap: 11px; margin-left: 4px; }
+#navbar #speedGroup button.speed-btn {
+    width: 26px; height: 26px; padding: 0; border-radius: 50%;
+    background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
+    font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+#navbar #speedGroup button.speed-btn:hover { background: #d8b46a33; }
+#navbar #speedGroup button.speed-btn.active { background: #d8b46a; color: #111; }
+#navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+
+.audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
+
+/* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
+#navbar { position: relative; }
+#fsBtn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
+    color: #d8b46a !important; border-color: #d8b46a66 !important;
+}
+#menuBtn {
+    display: none;                       /* shown on phones only */
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 30px; padding: 0; font-size: 19px; line-height: 1;
+    color: #d8b46a !important; border-color: #d8b46a66 !important;
+}
+#menuBtn.open { background: #d8b46a !important; color: #111 !important; }
+@media (min-width: 701px) { body.reading #sidebar { display: none; } }
+
+/* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
+@media (max-width: 700px) {
+  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
+  #navbar .nav-label { display: none; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #speedGroup { gap: 8px; margin-left: 0; }
+
+  /* Menu button lives in the nav bar. Sidebar = full-width list when open,
+     completely gone when closed. */
+  #menuBtn { display: block; }
+  #sidebar-toggle { display: none; }
+  #sidebar { width: 100%; }
+  #sidebar.collapsed { display: none; }
+  body.side-open #main-col { display: none; }
+
+  #content-box { padding: 12px 3px 40px 3px; }
+  #content-box h1 { font-size: 1.5em; }
+  #content-box .verse-block,
+  #content-box .verse-refrain {
+      max-width: none;
+      padding: 10px 4px;
+      font-size: 15px;      /* real size is set per verse by fitVerses() */
+      line-height: 1.8;
+  }
+  #content-box.sync-on .verse-block.verse-active { transform: none; }
+  #audio-dock { padding: 8px 6px; }
+  #copyBtn { right: 6px; width: 28px; height: 28px; }
+}
 </style>
 </head>
 <body>
@@ -387,17 +565,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
     <div id="main-col">
         <div id="content-panel">
+            <div id="audio-dock"></div>
+            <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
             <div id="content-box">
-                <div style="color:#8a7a5a;">Select a chapter from the left to get started.</div>
+                <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chapter from the left to begin.</div>
             </div>
         </div>
     </div>
 </div>
 
 <div id="navbar">
-    <button id="prevBtn">&#8592; Prev</button>
+    <button id="menuBtn" title="Topics list">&#9776;</button>
+    <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
-    <button id="nextBtn">Next &#8594;</button>
+    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
+    <div id="speedGroup" role="group" aria-label="Playback speed">
+        <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1</button>
+        <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
+        <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
+    </div>
+    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
 
 <div id="topic-tooltip"></div>
@@ -447,8 +636,6 @@ const contentBox   = document.getElementById("content-box");
 const counterEl     = document.getElementById("counter");
 const tooltipEl      = document.getElementById("topic-tooltip");
 
-// Flattened list of all real (non-placeholder) topics, in display order,
-// for search + prev/next navigation. Each entry keeps a ref to its DOM node.
 const flatTopics = [];
 let currentFlatIndex = -1;
 
@@ -457,7 +644,7 @@ function normalizeSearch(s) {
 }
 
 // ── BUILD SIDEBAR ──────────────────────────────────────────────────────
-categories.forEach((cat, catIdx) => {
+categories.forEach((cat) => {
     const block = document.createElement("div");
     block.className = "category-block";
 
@@ -475,85 +662,278 @@ categories.forEach((cat, catIdx) => {
     const list = document.createElement("div");
     list.className = "topic-list";
 
-    if (cat.topics.length === 0) {
-        const ph = document.createElement("div");
-        ph.className = "topic-item placeholder";
-        ph.textContent = "No topics yet";
-        list.appendChild(ph);
-    } else {
-        cat.topics.forEach(([slug, label, desc, keywords, ext]) => {
-            const item = document.createElement("div");
-            item.className = "topic-item";
-            item.textContent = label;
-            item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
+    cat.topics.forEach(([slug, label, desc, keywords, ext]) => {
+        const item = document.createElement("div");
 
-            const fileExt = ext || "html";
-            const path = BASE_URL + cat.slug + "/" + slug + "." + fileExt;
-            const flatIndex = flatTopics.length;
-            flatTopics.push({ path, label, catName: cat.name, ext: fileExt, el: item });
+        item.className = "topic-item";
+        item.textContent = label;
+        item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
 
-            item.addEventListener("click", () => loadTopic(flatIndex));
+        const fileExt = ext || "html";
+        const path = BASE_URL + cat.slug + "/" + slug + "." + fileExt;
+        const flatIndex = flatTopics.length;
+        flatTopics.push({ path, label, catName: cat.name, ext: fileExt, el: item });
 
-            item.addEventListener("mouseenter", () => {
-                tooltipEl.textContent = desc || "";
-                if (!desc) return;
-                const rect = item.getBoundingClientRect();
-                tooltipEl.style.left = (rect.right + 10) + "px";
-                tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
-                tooltipEl.classList.add("visible");
-            });
-            item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
+        item.addEventListener("click", () => loadTopic(flatIndex));
 
-            list.appendChild(item);
+        item.addEventListener("mouseenter", () => {
+            tooltipEl.textContent = desc || "";
+            if (!desc) return;
+            const rect = item.getBoundingClientRect();
+            tooltipEl.style.left = (rect.right + 10) + "px";
+            tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+            tooltipEl.classList.add("visible");
         });
-    }
+        item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
+
+        list.appendChild(item);
+    });
 
     block.appendChild(list);
     sidebarList.appendChild(block);
 });
+
+// ── AUDIO SYNC (added) ──────────────────────────────────────────────────
+// A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
+// list gives the END time of each .verse-block, in order (seconds or m:ss).
+// Block 1 starts at 0; every other block starts where the previous one ends.
+// Pages without data-ends are left alone.
+// (Scripts inside fetched pages do not run, so this logic lives here.)
+let syncUserScrollUntil = 0;
+const MANUAL_SCROLL_PAUSE_MS = 5000;
+const contentPanel = document.getElementById("content-panel");
+const audioDock    = document.getElementById("audio-dock");
+let scrollAnim = null;
+
+// Eased scroll (about 0.9 s) so the text glides to the next block instead of jumping
+function smoothScrollTo(top, ms) {
+    const startTop = contentBox.scrollTop;
+    const delta = top - startTop;
+    if (Math.abs(delta) < 2) return;
+    const t0 = performance.now();
+    const me = scrollAnim = {};
+    (function step(now) {
+        if (scrollAnim !== me) return;                                   // replaced by a newer scroll
+        if (Date.now() < syncUserScrollUntil) { scrollAnim = null; return; }   // user took over
+        const p = Math.min(1, (now - t0) / ms);
+        const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;   // easeInOutCubic
+        contentBox.scrollTop = startTop + delta * e;
+        if (p < 1) requestAnimationFrame(step); else scrollAnim = null;
+    })(t0);
+}
+
+["wheel", "touchmove", "mousedown"].forEach(evt =>
+    contentBox.addEventListener(evt, e => {
+        if (e.target.closest && e.target.closest(".audio-player")) return;
+        syncUserScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
+    }, { passive: true })
+);
+
+function parseSyncTime(str) {
+    return str.trim().split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
+}
+
+function stopAudioSync() {
+    document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
+    contentBox.classList.remove("sync-on", "sync-playing");
+    audioDock.innerHTML = "";                     // remove the pinned player
+    document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
+        b.disabled = true; b.classList.remove("active"); b.onclick = null;
+    });
+    contentPanel.classList.remove("has-dock");
+    scrollAnim = null;
+}
+
+function initAudioSync() {
+    const audio = contentBox.querySelector("audio[data-ends]");
+    if (!audio) return;
+
+    const ends = audio.dataset.ends.split(",").map(parseSyncTime);
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    if (ends.some(isNaN)) { console.warn("Audio sync: bad data-ends value"); return; }
+    if (ends.length > blocks.length) {
+        console.warn("Audio sync: " + ends.length + " times but only " + blocks.length + " blocks");
+    }   // fewer times than blocks is fine: the remaining blocks are simply not synced
+    const n = Math.min(ends.length, blocks.length);
+    const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
+    // Pin the player in the static dock above the scrolling text
+    let holder = audio.closest(".audio-player");
+    if (!holder) {   // page had a bare <audio>: wrap it so the speed tag can sit beside it
+        holder = document.createElement("div"); holder.className = "audio-player";
+        audio.parentNode.insertBefore(holder, audio); holder.appendChild(audio);
+    }
+    audioDock.appendChild(holder);
+    contentPanel.classList.add("has-dock");
+
+    // Playback speed: circles 1 / 2 / 3 in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
+    audio.setAttribute("controlsList", "nodownload noplaybackrate");   // hide the browser's own speed menu
+    const SPEED_BTNS = Array.from(document.querySelectorAll("#speedGroup .speed-btn"));
+    const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
+    let rate = 1;
+    try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
+    const badgeHost = holder;
+    const badge = document.createElement("span");
+    badge.className = "speed-badge";
+    badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
+    function paintSpeed() {
+        SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
+        badge.textContent = rate + "x";
+        badge.style.display = rate === 1 ? "none" : "flex";
+    }
+    function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
+    SPEED_BTNS.forEach(b => {
+        b.disabled = false;
+        b.onclick = () => {          // onclick (not addEventListener) so topics don't stack handlers
+            rate = parseFloat(b.dataset.rate); applyRate(); paintSpeed();
+            try { localStorage.setItem("audioRate", String(rate)); } catch (e) {}
+        };
+    });
+    applyRate(); paintSpeed();
+    audio.addEventListener("loadedmetadata", applyRate);   // some browsers reset the rate when the file loads
+
+    contentBox.classList.add("sync-on");
+    let active = -1;
+    let syncDisabled = false;
+
+    // If the mp3 is missing/unplayable: switch sync off so the page is plain, scrollable text.
+    function disableSync() {
+        if (syncDisabled) return;
+        syncDisabled = true;
+        if (active >= 0) blocks[active].classList.remove("verse-active");
+        active = -1;
+        contentBox.classList.remove("sync-on", "sync-playing");
+        audioDock.innerHTML = '<div class="audio-missing">\uD83D\uDD07 Audio not available for this page</div>';
+        scrollAnim = null;
+    }
+    const srcEl = audio.querySelector("source");
+    if (srcEl) srcEl.addEventListener("error", disableSync);
+    audio.addEventListener("error", disableSync);
+    audio.preload = "metadata";            // make the browser try the file now, so a missing mp3 is noticed on load
+    audio.load();
+    setTimeout(() => {                      // safety net if no error event fires
+        if (audio.readyState === 0 && audio.networkState === 3) disableSync();
+    }, 5000);
+
+    function blockAt(t) {
+        for (let i = 0; i < n; i++) if (t < ends[i]) return i;
+        return -1;   // after the last block: nothing highlighted
+    }
+
+    function scrollToBlock(block) {
+        const boxRect = contentBox.getBoundingClientRect();
+        const blkRect = block.getBoundingClientRect();
+        const avail = contentBox.clientHeight;
+        // block taller than the visible area: align its top; otherwise centre it
+        const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
+        smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 900);
+    }
+
+    function update(forceScroll) {
+        if (syncDisabled) return;
+        const i = blockAt(audio.currentTime);
+        if (i === active) return;
+        if (active >= 0) blocks[active].classList.remove("verse-active");
+        active = i;
+        if (i < 0) return;
+        blocks[i].classList.add("verse-active");
+        if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
+    }
+
+    audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); });
+    audio.addEventListener("pause",      () => contentBox.classList.remove("sync-playing"));
+    audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); });
+    audio.addEventListener("timeupdate", () => update(false));
+    audio.addEventListener("seeked",     () => { syncUserScrollUntil = 0; update(true); });
+
+    // Tap a block to jump to its start and play
+    blocks.slice(0, n).forEach((block, i) => {
+        block.addEventListener("click", () => {
+            if (syncDisabled) return;
+            audio.currentTime = starts[i] + 0.01;
+            const p = audio.play();
+            if (p && p.catch) p.catch(() => {});
+        });
+    });
+}
+
+
+// ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
+const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
+const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
+function fitVerses() {
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
+    if (!window.matchMedia("(max-width: 700px)").matches) {
+        blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+        return;
+    }
+    if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
+    const TEST = 20;
+    blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
+    const range = document.createRange();
+    const results = blocks.map(b => {
+        const cs = getComputedStyle(b);
+        const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        range.selectNodeContents(b);
+        const w = range.getBoundingClientRect().width;     // width of widest line
+        return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;
+    });
+    blocks.forEach((b, i) => {
+        const fs = results[i];
+        if (fs < FIT_MIN) { b.style.fontSize = FIT_MIN + "px"; b.style.whiteSpace = "normal"; }
+        else { b.style.fontSize = (Math.floor(Math.min(fs, FIT_MAX) * 10) / 10) + "px"; }
+    });
+}
+let fitTimer;
+window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses);
 
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
+    stopAudioSync();   // (added) stop previous topic's audio
+    if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
     flatTopics.forEach(t => t.el.classList.remove("active"));
     topic.el.classList.add("active");
     topic.el.scrollIntoView({ block: "nearest" });
 
     counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
-    contentBox.innerHTML = '<div style="color:#8a7a5a;padding:10px 0;">Loading…</div>';
+    contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
+    copyBtn.classList.remove("show");
 
     fetch(topic.path)
-        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path); return r.text(); })
+        .then(r => {
+            if (r.status === 404) { const e = new Error("missing"); e.isMissing = true; throw e; }   // page not written yet
+            if (!r.ok) throw new Error("HTTP " + r.status + " for " + topic.path);
+            return r.text();
+        })
         .then(raw => {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             wireCopyButtons();
-            if (window.hljs) {
-                contentBox.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
-            }
+            if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
+            initAudioSync();   // (added) wire up audio highlighting if the page has it
+            placeCopyBtn(); copyBtn.classList.add("show");
+            fitVerses();
+            setTimeout(fitVerses, 300);   // re-fit once fonts settle
         })
         .catch(err => {
+            if (err.isMissing) {   // missing page = work in progress: just an icon
+                contentBox.innerHTML = '<div role="img" aria-label="Work in progress" title="Work in progress" ' +
+                    'style="text-align:center;font-size:64px;padding:70px 0;">🚧</div>';
+                return;
+            }
             contentBox.innerHTML =
-                '<div style="color:#b5432f;padding:12px 0;">' + err.message +
+                '<div style="color:#b5432f;padding:12px 0;text-align:center;">' + err.message +
                 '<br><br>Make sure this page is served over http(s) (e.g. GitHub Pages or a local server) — ' +
                 'opening the file directly (file://) blocks fetch() for security reasons.</div>';
         });
 }
 
-document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
-document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
-
-document.addEventListener("keydown", e => {
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
-    if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
-});
-
-// ── COPY-CODE BUTTONS (added to every <pre> in loaded topic content) ────
+// ── COPY-CODE BUTTONS (on every <pre> in loaded content, as in the original) ──
 function wireCopyButtons() {
     contentBox.querySelectorAll("pre").forEach(pre => {
         if (pre.querySelector(".copy-code-btn")) return;
@@ -561,9 +941,8 @@ function wireCopyButtons() {
         btn.className = "copy-code-btn";
         btn.textContent = "Copy";
         btn.addEventListener("click", () => {
-            navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n?/, "")).then(() => {
-                btn.textContent = "Copied";
-                btn.classList.add("copied");
+            copyText(pre.innerText.replace(/^Copy\n?/, "")).then(() => {
+                btn.textContent = "Copied"; btn.classList.add("copied");
                 setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1200);
             });
         });
@@ -572,10 +951,53 @@ function wireCopyButtons() {
     });
 }
 
+// ── COPY BUTTON ──────────────────────────────────────────────────────────
+const copyBtn = document.getElementById("copyBtn");
+function placeCopyBtn() {   // sit just below the audio dock (if any), top-right of the text area
+    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0) + 8) + "px";
+}
+if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
+window.addEventListener("resize", placeCopyBtn);
+
+function topicPlainText() {
+    const c = contentBox.cloneNode(true);
+    c.querySelectorAll("audio, .audio-player, script, style, button, .verse-label, .copy-code-btn").forEach(n => n.remove());
+    // collapse HTML source whitespace first, then turn <br> and block ends into real line breaks
+    const tw = document.createTreeWalker(c, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) n.nodeValue = n.nodeValue.replace(/\s+/g, " ");
+    c.querySelectorAll("br").forEach(br => br.replaceWith("\n"));
+    c.querySelectorAll("p,div,h1,h2,h3,h4,h5,h6,ul,ol,blockquote,pre,hr").forEach(el => el.append("\n\n"));
+    c.querySelectorAll("li").forEach(el => el.append("\n"));
+    return c.textContent.split("\n").map(l => l.trim()).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise((res, rej) => {   // fallback for plain http / file://
+        const ta = document.createElement("textarea");
+        ta.value = text; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy") ? res() : rej(); } catch (e) { rej(e); } finally { ta.remove(); }
+    });
+}
+copyBtn.onclick = () => {
+    copyText(topicPlainText()).then(() => {
+        copyBtn.classList.add("done"); copyBtn.title = "Copied";
+        setTimeout(() => { copyBtn.classList.remove("done"); copyBtn.title = "Copy text"; }, 1600);
+    }).catch(() => { copyBtn.title = "Copy failed"; });
+};
+
+document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
+document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "AUDIO") return;  // (added) AUDIO: arrows seek
+    if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
+});
+
 // ── SEARCH ───────────────────────────────────────────────────────────────
 const searchInput = document.getElementById("topic-search");
 const searchCount = document.getElementById("search-count");
-const searchWrap  = document.getElementById("search-wrap");
 const searchClear = document.getElementById("search-clear");
 
 function runSearch() {
@@ -612,17 +1034,48 @@ searchInput.addEventListener("keydown", e => {
     if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
 });
 
-// ── SIDEBAR COLLAPSE (whole sidebar, not per-category) ──────────────────
+// ── SIDEBAR COLLAPSE ──────────────────────────────────────────────────
 const sidebarEl = document.getElementById("sidebar");
 const toggleBtn  = document.getElementById("sidebar-toggle");
-toggleBtn.addEventListener("click", () => {
-    const collapsed = sidebarEl.classList.toggle("collapsed");
+function setSidebarCollapsed(collapsed) {
+    sidebarEl.classList.toggle("collapsed", collapsed);
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
+    document.body.classList.toggle("side-open", !collapsed);
+    const mb = document.getElementById("menuBtn");
+    if (mb) mb.classList.toggle("open", !collapsed);
+    setTimeout(fitVerses, 250);   // re-fit after sidebar width animation
+}
+document.getElementById("menuBtn").addEventListener("click",
+    () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+
+// ── FULLSCREEN / READING MODE ─────────────────────────────────────────
+const fsBtn = document.getElementById("fsBtn");
+function setReading(on) {
+    document.body.classList.toggle("reading", on);
+    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    setTimeout(fitVerses, 250);
+}
+fsBtn.addEventListener("click", () => {
+    if (!document.body.classList.contains("reading")) {
+        setReading(true);
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    } else {
+        setReading(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+});
+document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
+    if (!document.fullscreenElement) setReading(false);
+    setTimeout(fitVerses, 250);
 });
 
-// start with nothing loaded — user picks a chapter explicitly
+document.body.classList.add("side-open");
+document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
 </script>
 
