@@ -324,7 +324,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-panel.has-dock { display: flex; flex-direction: column; }
 #content-panel.has-dock #audio-dock { display: block; }
 #content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
-#audio-dock .audio-player { margin: 0 !important; text-align: center; }
+#audio-dock .audio-player { margin: 0 auto !important; text-align: center; position: relative; max-width: 900px; }
+/* Small gold tag on the top-right corner of the player; shown only at 1.5x / 1.75x */
+.speed-badge { position: absolute; top: -9px; right: 6px; z-index: 2; pointer-events: none;
+    background: #d8b46a; color: #111; font: 700 11px/1 system-ui, sans-serif;
+    padding: 3px 7px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.35); }
 /* Longer seek bar: as wide as the panel, up to 900px */
 #audio-dock audio { width: 100% !important; max-width: 900px !important;
                     display: block; margin: 0 auto !important; }
@@ -371,10 +375,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+#navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
+#navbar .nav-label { font-size: 13px; font-weight: 400; }
 
 /* Speed: three round buttons. Filled gold = current speed.
    Dimmed + disabled when the current topic has no audio. */
-#speedGroup { display: flex; align-items: center; gap: 6px; }
+#speedGroup { display: flex; align-items: center; gap: 11px; margin-left: 4px; }
 #navbar #speedGroup button.speed-btn {
     width: 26px; height: 26px; padding: 0; border-radius: 50%;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
@@ -406,11 +412,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; gap: 6px; }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
   #navbar .nav-label { display: none; }
-  #prevBtn, #nextBtn { width: 34px; height: 30px; padding: 0; font-size: 16px; line-height: 1; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
   #counter { min-width: 40px; font-size: 12px; }
-  #speedGroup { gap: 4px; }
+  #speedGroup { gap: 8px; margin-left: 0; }
 
   /* Menu button lives in the nav bar. Sidebar = full-width list when open,
      completely gone when closed. */
@@ -464,9 +470,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 <div id="navbar">
     <button id="menuBtn" title="Topics list">&#9776;</button>
-    <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
+    <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
-    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
+    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
         <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1</button>
         <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
@@ -661,8 +667,14 @@ function initAudioSync() {
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
     try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
+    const badgeHost = audio.closest(".audio-player") || audio.parentElement;
+    const badge = document.createElement("span");
+    badge.className = "speed-badge";
+    badgeHost.appendChild(badge);          // removed together with the player when the topic changes
     function paintSpeed() {
         SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
+        badge.textContent = rate + "x";
+        badge.style.display = rate === 1 ? "none" : "block";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
     SPEED_BTNS.forEach(b => {
