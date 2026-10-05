@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Portuguese Course</title>
 <style>
 html, body {
@@ -441,65 +440,6 @@ button:active { transform: scale(0.97); }
     min-width: 60px;
     text-align: center;
 }
-
-/* Wrapper put around every lesson page. On desktop it generates no box (layout unchanged). */
-.page-canvas { display: contents; }
-
-/* ── MOBILE-ONLY CONTROLS (hidden on desktop, so desktop is unchanged) ── */
-#bottom-nav { position: relative; }
-#menuBtn, #fsBtn { display: none; }
-
-/* ── MOBILE (portrait phones): topic list first, then full-width scrollable lesson ── */
-@media (max-width: 700px) {
-  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-
-  /* Bottom bar becomes a compact bordered strip: ☰  <  1 / 30  >  ⛶ */
-  #bottom-nav {
-      height: 40px; box-sizing: border-box; padding: 0; margin: 0 4px 4px 4px; gap: 4px;
-      background: #111; border: 1px solid #333; border-radius: 8px;
-  }
-  #bottom-nav button,
-  #bottom-nav button:hover {
-      background: #1a1a1a; color: #ccc; border: 1px solid #333; border-radius: 6px;
-      box-shadow: none; padding: 0; font-weight: 700;
-  }
-  #bottom-nav #prevBtn, #bottom-nav #nextBtn { width: 38px; height: 32px; font-size: 22px; line-height: 1; }
-  #bottom-nav .nav-label { display: none; }
-  #counter { min-width: 40px; font-size: 12px; }
-  #bottom-nav #menuBtn, #bottom-nav #fsBtn {
-      display: block; position: absolute; top: 3px; height: 32px; font-size: 19px; line-height: 1;
-      color: #00c8ff; border-color: #00c8ff66;
-  }
-  #bottom-nav #menuBtn { left: 6px; width: 36px; }
-  #bottom-nav #fsBtn   { right: 6px; width: 34px; font-size: 18px; }
-  #bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
-
-  /* Sidebar = full-width list when open, completely gone when closed */
-  #sidebar { width: 100%; }
-  #sidebar.collapsed { display: none; }
-  #sidebar-toggle { display: none; }
-  #sidebar-title { height: 40px; box-sizing: border-box; padding: 0 16px; }
-  #sidebar-search-row { top: 40px; }
-  #topic-search { font-size: 16px; }          /* stops iOS zooming in on focus */
-  .topic-item { padding-top: 12px; padding-bottom: 12px; }   /* bigger tap targets */
-  #topic-tooltip { display: none; }                          /* no hover on touch */
-  body.side-open #main-col { display: none; }
-
-  #main-col { gap: 4px; }
-
-  /* Lesson: edge-to-edge; the page is laid out on a fixed-width canvas and scrolls left/right
-     instead of being squeezed to the phone width. Change 900px to taste. */
-  #content-box { padding: 12px 10px 40px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  #content-box .page-canvas { display: block; box-sizing: border-box; width: 100%; min-width: 900px; }
-
-  /* Bigger invisible tap area around the 🔊 buttons (no visual or layout change; speech code untouched) */
-  #content-box .spk-btn::after { content: ""; position: absolute; top: -10px; right: -10px; bottom: -10px; left: -10px; }
-
-  /* Sentence checker: compact */
-  #sentence-check-panel { padding: 8px 10px; }
-  #sc-input { font-size: 16px; }
-  #sc-check-btn { padding: 8px 12px; }
-}
 </style>
 </head>
 <body>
@@ -542,11 +482,9 @@ button:active { transform: scale(0.97); }
 <div id="topic-tooltip"></div>
 
 <div id="bottom-nav">
-    <button id="menuBtn" title="Topics list">&#9776;</button>
-    <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
+    <button id="prevBtn">&#8592; Prev</button>
     <span id="counter">1 / 1</span>
-    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="nextBtn">Next &#8594;</button>
 </div>
 
 <script>
@@ -674,14 +612,9 @@ const topicEls = topics.map(([slug, label, desc, keywords], i) => {
     return item;
 });
 
-const isMobile = () => window.matchMedia("(max-width: 700px)").matches;
-// previous topic (from the "nothing opened yet" state on a phone, go to the last one)
-const goPrev = () => loadTopic(currentIndex < 0 ? topics.length - 1 : currentIndex - 1);
-
 function loadTopic(i) {
     currentIndex = ((i % topics.length) + topics.length) % topics.length;
     const [slug] = topics[currentIndex];
-    if (isMobile()) setSidebarCollapsed(true);   // phone: hide the list after picking a topic
 
     topicEls.forEach((el, idx) => el.classList.toggle("active", idx === currentIndex));
     topicEls[currentIndex].scrollIntoView({ block: "nearest" });
@@ -694,13 +627,13 @@ function loadTopic(i) {
 
     fetch(BASE_URL + slug + ".html")
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
-        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; contentBox.scrollTop = 0; contentBox.scrollLeft = 0; })
+        .then(html => { contentBox.innerHTML = html; contentBox.scrollTop = 0; })
         .catch(err => {
             contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
         });
 }
 
-document.getElementById("prevBtn").onclick = goPrev;
+document.getElementById("prevBtn").onclick = () => loadTopic(currentIndex - 1);
 document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
 
 // ── SEARCH ───────────────────────────────────────────────────────────────
@@ -751,43 +684,17 @@ searchInput.addEventListener("keydown", e => {
 // ── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────
 const sidebarEl   = document.getElementById("sidebar");
 const toggleBtn    = document.getElementById("sidebar-toggle");
-const menuBtn      = document.getElementById("menuBtn");
-function setSidebarCollapsed(collapsed) {
-    sidebarEl.classList.toggle("collapsed", collapsed);
+toggleBtn.addEventListener("click", () => {
+    const collapsed = sidebarEl.classList.toggle("collapsed");
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
-    document.body.classList.toggle("side-open", !collapsed);   // only has an effect on phones (see CSS)
-    menuBtn.classList.toggle("open", !collapsed);
-}
-toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-menuBtn.addEventListener("click",   () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-
-// Rotating / resizing from phone to desktop width: bring the sidebar back
-window.matchMedia("(max-width: 700px)").addEventListener("change", e => {
-    if (!e.matches) setSidebarCollapsed(false);
-});
-
-// ── FULLSCREEN / READING MODE (button is phone-only) ────────────────────
-const fsBtn = document.getElementById("fsBtn");
-fsBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-    } else {
-        document.exitFullscreen().catch(() => {});
-    }
-});
-document.addEventListener("fullscreenchange", () => {
-    const on = !!document.fullscreenElement;
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
-    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
 });
 
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
-    if (e.key === "ArrowLeft")  { e.preventDefault(); goPrev(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); loadTopic(currentIndex - 1); }
 });
 
 // ── TEXT-TO-SPEECH (Portuguese) ──────────────────────────────────────────────
@@ -943,17 +850,8 @@ scInput.addEventListener("keydown", e => {
     }
 });
 
-// Desktop: start on Topic 0 (as before).
-// Phone: show only the topic list first; nothing is opened until a topic is tapped.
-if (isMobile()) {
-    currentIndex = -1;
-    counterEl.textContent = "– / " + topics.length;
-    contentBox.innerHTML = '<div style="color:#666;padding:20px 0;text-align:center;">Select a topic from the list (&#9776;) to begin.</div>';
-    document.body.classList.add("side-open");
-    menuBtn.classList.add("open");
-} else {
-    loadTopic(0);
-}
+// start on Topic 0
+loadTopic(0);
 </script>
 
 </body>
