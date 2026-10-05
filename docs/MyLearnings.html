@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Tech Learnings</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -365,6 +366,48 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar button:hover { background: #222; color: #00c8ff; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+
+/* ── MOBILE-ONLY CONTROLS (hidden on desktop, so desktop is unchanged) ── */
+#navbar { position: relative; }
+#menuBtn, #fsBtn { display: none; }
+#menuBtn {
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 30px; padding: 0; font-size: 19px; line-height: 1;
+    color: #00c8ff !important; border-color: #00c8ff66 !important;
+}
+#menuBtn.open { background: #00c8ff !important; color: #111 !important; }
+#fsBtn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
+    color: #00c8ff !important; border-color: #00c8ff66 !important;
+}
+
+/* ── MOBILE (portrait phones): list first, then full-width content ───── */
+@media (max-width: 700px) {
+  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
+  #navbar .nav-label { display: none; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #menuBtn, #fsBtn { display: block; }
+
+  /* Sidebar = full-width list when open, completely gone when closed */
+  #sidebar { width: 100%; }
+  #sidebar.collapsed { display: none; }
+  #sidebar-toggle { display: none; }
+  #sidebar-title { height: 40px; box-sizing: border-box; padding: 0 16px; }
+  #sidebar-search-row { top: 40px; }
+  .topic-item { padding-top: 11px; padding-bottom: 11px; }   /* bigger tap targets */
+  #topic-tooltip { display: none; }                          /* no hover on touch */
+  body.side-open #main-col { display: none; }
+
+  /* Content: edge-to-edge; wide diagrams / tables / code scroll sideways inside the pane */
+  #content-box { padding: 14px 10px 40px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #content-box h1 { font-size: 1.4em; }
+  #content-box h2 { font-size: 1.2em; }
+  #content-box table { display: block; overflow-x: auto; width: auto; max-width: 100%; }
+  #content-box img, #content-box svg { max-width: none; }   /* don't squash diagrams; pan / pinch-zoom instead */
+}
 </style>
 </head>
 <body>
@@ -395,9 +438,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 </div>
 
 <div id="navbar">
-    <button id="prevBtn">&#8592; Prev</button>
+    <button id="menuBtn" title="Topics list">&#9776;</button>
+    <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
-    <button id="nextBtn">Next &#8594;</button>
+    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
+    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
 
 <div id="topic-tooltip"></div>
@@ -552,6 +597,7 @@ function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
+    if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
     flatTopics.forEach(t => t.el.classList.remove("active"));
     topic.el.classList.add("active");
@@ -651,12 +697,42 @@ searchInput.addEventListener("keydown", e => {
 // ── SIDEBAR COLLAPSE (whole sidebar, not per-category) ──────────────────
 const sidebarEl = document.getElementById("sidebar");
 const toggleBtn  = document.getElementById("sidebar-toggle");
-toggleBtn.addEventListener("click", () => {
-    const collapsed = sidebarEl.classList.toggle("collapsed");
+const menuBtn    = document.getElementById("menuBtn");
+function setSidebarCollapsed(collapsed) {
+    sidebarEl.classList.toggle("collapsed", collapsed);
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     tooltipEl.classList.remove("visible");
+    document.body.classList.toggle("side-open", !collapsed);   // only has an effect on phones (see CSS)
+    menuBtn.classList.toggle("open", !collapsed);
+}
+toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+menuBtn.addEventListener("click",   () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+
+// Rotating / resizing from phone to desktop width: bring the sidebar back
+window.matchMedia("(max-width: 700px)").addEventListener("change", e => {
+    if (!e.matches) setSidebarCollapsed(false);
 });
+
+// ── FULLSCREEN / READING MODE (button is phone-only) ────────────────────
+const fsBtn = document.getElementById("fsBtn");
+function setFsIcon(on) {
+    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+}
+fsBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    } else {
+        document.exitFullscreen().catch(() => {});
+    }
+});
+document.addEventListener("fullscreenchange", () => setFsIcon(!!document.fullscreenElement));
+
+// On phones the topic list is the first thing you see
+document.body.classList.add("side-open");
+menuBtn.classList.add("open");
 
 // start with nothing loaded — user picks a topic explicitly
 counterEl.textContent = "– / " + flatTopics.length;
