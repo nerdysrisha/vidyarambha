@@ -1016,7 +1016,7 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
 });
 
-// Swipe the text area: left = Next, right = Prev (same as pressing the buttons)
+// Swipe the text area: left = Prev, right = Next (matches the < and > button positions)
 (function () {
     let sx = 0, sy = 0, st = 0, tracking = false;
     contentBox.addEventListener("touchstart", e => {
@@ -1034,7 +1034,7 @@ document.addEventListener("keydown", e => {
         if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;   // too short, or mostly vertical (scrolling)
         const sel = window.getSelection && window.getSelection();
         if (sel && !sel.isCollapsed) return;                        // user is selecting text
-        document.getElementById(dx < 0 ? "nextBtn" : "prevBtn").click();
+        document.getElementById(dx < 0 ? "prevBtn" : "nextBtn").click();
     }, { passive: true });
 })();
 
