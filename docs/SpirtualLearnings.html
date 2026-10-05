@@ -689,7 +689,11 @@ function buildCustomPlayer(audio, holder) {
     bar.setAttribute("role", "slider"); bar.setAttribute("aria-label", "Seek");
     bar.innerHTML = '<div class="ap-track"><span class="ap-bufs"></span><span class="ap-played"></span></div><span class="ap-thumb"></span>';
     const tot = document.createElement("span"); tot.className = "ap-time"; tot.textContent = "0:00";
-    holder.append(btn, cur, bar, tot);
+    const mute = document.createElement("button");
+    mute.type = "button"; mute.className = "ap-btn ap-mute";
+    const ICON_VOL  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    const ICON_MUTE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    holder.append(btn, cur, bar, tot, mute);
 
     const bufs = bar.querySelector(".ap-bufs"), played = bar.querySelector(".ap-played"), thumb = bar.querySelector(".ap-thumb");
     let dragging = false, dragT = 0, raf = 0;
@@ -723,6 +727,18 @@ function buildCustomPlayer(audio, holder) {
         btn.innerHTML = audio.paused ? ICON_PLAY : ICON_PAUSE;
         btn.setAttribute("aria-label", audio.paused ? "Play" : "Pause");
     }
+    function paintMute() {
+        const m = audio.muted || audio.volume === 0;
+        mute.innerHTML = m ? ICON_MUTE : ICON_VOL;
+        mute.setAttribute("aria-label", m ? "Unmute" : "Mute");
+        mute.title = m ? "Unmute" : "Mute";
+    }
+    mute.addEventListener("click", () => {
+        if (audio.muted || audio.volume === 0) { audio.muted = false; if (audio.volume === 0) audio.volume = 1; }
+        else audio.muted = true;
+        paintMute();
+    });
+    audio.addEventListener("volumechange", paintMute);
     function loop() { paint(); raf = audio.paused ? 0 : requestAnimationFrame(loop); }
 
     btn.addEventListener("click", () => {
@@ -765,7 +781,7 @@ function buildCustomPlayer(audio, holder) {
         e.preventDefault(); audio.currentTime = Math.min(d, Math.max(0, t));
     });
 
-    paintBtn(); paintBuffered(); paint();
+    paintBtn(); paintMute(); paintBuffered(); paint();
 }
 
 function initAudioSync() {
