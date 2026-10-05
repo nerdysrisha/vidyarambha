@@ -778,7 +778,7 @@ function buildCustomPlayer(audio, holder) {
         else if (e.key === "Home") t = 0;
         else if (e.key === "End") t = d;
         if (t === null) return;
-        e.preventDefault(); audio.currentTime = Math.min(d, Math.max(0, t));
+        e.preventDefault(); e.stopPropagation(); audio.currentTime = Math.min(d, Math.max(0, t));
     });
 
     paintBtn(); paintMute(); paintBuffered(); paint();
@@ -1015,6 +1015,28 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
 });
+
+// Swipe the text area: left = Next, right = Prev (same as pressing the buttons)
+(function () {
+    let sx = 0, sy = 0, st = 0, tracking = false;
+    contentBox.addEventListener("touchstart", e => {
+        tracking = e.touches.length === 1;
+        if (!tracking) return;
+        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+    }, { passive: true });
+    contentBox.addEventListener("touchcancel", () => { tracking = false; }, { passive: true });
+    contentBox.addEventListener("touchend", e => {
+        if (!tracking) return;
+        tracking = false;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - sx, dy = t.clientY - sy;
+        if (Date.now() - st > 700) return;                          // slow drag: not a swipe
+        if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;   // too short, or mostly vertical (scrolling)
+        const sel = window.getSelection && window.getSelection();
+        if (sel && !sel.isCollapsed) return;                        // user is selecting text
+        document.getElementById(dx < 0 ? "nextBtn" : "prevBtn").click();
+    }, { passive: true });
+})();
 
 // ── SEARCH ───────────────────────────────────────────────────────────────
 const searchInput = document.getElementById("topic-search");
