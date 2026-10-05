@@ -1,0 +1,288 @@
+<div class="pt-possessivos">
+<style>
+.pt-possessivos { color: #2b2b2b; font-family: inherit; }
+.pt-possessivos h2, .pt-possessivos h3, .pt-possessivos h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-possessivos .desc-box {
+  background: #fbfaf7 !important;
+  color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 18px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-possessivos .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-possessivos .desc-box h3:first-child { margin-top: 0; }
+.pt-possessivos .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-possessivos .desc-box p:last-child { margin-bottom: 0; }
+.pt-possessivos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-possessivos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+
+.pt-possessivos .example-list { margin: 0 0 12px 0; }
+.pt-possessivos .ex-line {
+  color: #2b2b2b !important;
+  line-height: 1.7;
+  margin: 0 0 6px 0;
+  padding-left: 2em;
+  position: relative;
+}
+.pt-possessivos .ex-line:last-child { margin-bottom: 0; }
+.pt-possessivos .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-possessivos .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-possessivos .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-possessivos .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-possessivos .desc-box h3:hover .spk-btn,
+.pt-possessivos .ex-line:hover .spk-btn,
+.pt-possessivos .spk-btn:focus-visible { opacity: 1; }
+.pt-possessivos .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-possessivos .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-possessivos .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Divider between intro paragraphs and content below ---------- */
+.pt-possessivos .desc-box hr.desc-divider {
+  border: none;
+  border-top: 1px solid #e6ddc9;
+  margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables ---------- */
+.pt-possessivos .compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff !important;
+  margin: 4px 0 10px 0;
+}
+.pt-possessivos .compare-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.92em;
+  color: #6b4f1d !important;
+  border-bottom: 2px solid #c9a15a;
+  background: #ffffff !important;
+}
+.pt-possessivos .compare-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #e8e2d5;
+  background: #ffffff !important;
+  color: #2b2b2b !important;
+  vertical-align: top;
+}
+.pt-possessivos .compare-table tr:last-child td { border-bottom: none; }
+.pt-possessivos .compare-table .spk-wrap {
+  position: relative;
+  padding-left: 1.9em;
+}
+.pt-possessivos .compare-table .spk-wrap .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-possessivos .compare-table .spk-wrap:hover .spk-btn,
+.pt-possessivos .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-possessivos .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+  .pt-possessivos .compare-table .spk-btn { opacity: 0.4; }
+}
+
+.pt-possessivos .example-box {
+  background: #1a1a1a !important;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 18px 0;
+}
+.pt-possessivos .example-box h4 {
+  color: #d8b46a !important;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.pt-possessivos .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-possessivos .example-box .pt-word { color: #d8b46a !important; }
+.pt-possessivos .example-box .ex-line { color: #eaeaea !important; }
+.pt-possessivos .example-box .en-eq { color: #9a9a9a !important; }
+.pt-possessivos .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-possessivos .exercise-box {
+  background: #f6f2fb !important;
+  border: 1px dashed #b79bd6;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+.pt-possessivos .exercise-box > h4 {
+  color: #7a3f9e !important;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.pt-possessivos .exercise-item {
+  background: #ffffff !important;
+  border: 1px solid #e4d9f0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.pt-possessivos .exercise-item:last-child { margin-bottom: 0; }
+.pt-possessivos .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-possessivos .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-possessivos .cue-list { list-style: none; margin: 0; padding: 0; }
+.pt-possessivos .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-possessivos .cue-list li:last-child { border-bottom: none; }
+.pt-possessivos .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-possessivos .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-possessivos .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-possessivos .check-btn {
+  background: #7a3f9e !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: 0.85em;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.pt-possessivos .check-btn:hover { background: #5f2f7d !important; }
+
+.pt-possessivos .poss-note { font-size: 0.92em; }
+</style>
+<h2>21. Possessivos <span class="en">(Possessives)</span></h2>
+
+<div class="desc-box">
+  <p class="intro-text">Possessives say who something belongs to — <span class="pt-word">o meu</span> (my), <span class="pt-word">o teu</span> (your), <span class="pt-word">o nosso</span> (our)… In European Portuguese they are normally used together with the definite article: <span class="pt-word">o meu livro</span>, <span class="pt-word">a minha casa</span>.</p>
+  <p class="intro-text">Most possessives agree in gender and number with the <strong>thing owned</strong>, not with the owner: <span class="pt-word">meu / meus</span> (masculine), <span class="pt-word">minha / minhas</span> (feminine). The exceptions are <span class="pt-word">dele, dela, deles, delas</span> (his, her, their): they come <strong>after</strong> the noun and agree with the <strong>owner</strong>.</p>
+
+  <hr class="desc-divider">
+
+  <h3 data-pt="Tabela dos possessivos"><button class="spk-btn" aria-label="Ouvir">🔊</button>Tabela dos possessivos <span class="en">(Possessives table)</span></h3>
+  <p class="ex-note" style="color:#888 !important; font-size:0.85em; font-style:italic; margin:0 0 8px 0;">The columns describe the thing owned (here: <em>filho / filha</em>, son / daughter), the rows describe the owner.</p>
+  <table class="compare-table">
+    <thead><tr><th>Pronome pessoal</th><th>Masculino singular</th><th>Masculino plural</th><th>Feminino singular</th><th>Feminino plural</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pt-word">Eu</span></td><td class="spk-wrap" data-pt="o meu filho"><button class="spk-btn" aria-label="Ouvir">🔊</button>o <span class="pt-word">meu</span> filho</td><td class="spk-wrap" data-pt="os meus filhos"><button class="spk-btn" aria-label="Ouvir">🔊</button>os <span class="pt-word">meus</span> filhos</td><td class="spk-wrap" data-pt="a minha filha"><button class="spk-btn" aria-label="Ouvir">🔊</button>a <span class="pt-word">minha</span> filha</td><td class="spk-wrap" data-pt="as minhas filhas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as <span class="pt-word">minhas</span> filhas</td></tr>
+      <tr><td><span class="pt-word">Você / Sr. / Sra.</span></td><td class="spk-wrap" data-pt="o seu filho"><button class="spk-btn" aria-label="Ouvir">🔊</button>o <span class="pt-word">seu</span> filho</td><td class="spk-wrap" data-pt="os seus filhos"><button class="spk-btn" aria-label="Ouvir">🔊</button>os <span class="pt-word">seus</span> filhos</td><td class="spk-wrap" data-pt="a sua filha"><button class="spk-btn" aria-label="Ouvir">🔊</button>a <span class="pt-word">sua</span> filha</td><td class="spk-wrap" data-pt="as suas filhas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as <span class="pt-word">suas</span> filhas</td></tr>
+      <tr><td><span class="pt-word">Tu</span></td><td class="spk-wrap" data-pt="o teu filho"><button class="spk-btn" aria-label="Ouvir">🔊</button>o <span class="pt-word">teu</span> filho</td><td class="spk-wrap" data-pt="os teus filhos"><button class="spk-btn" aria-label="Ouvir">🔊</button>os <span class="pt-word">teus</span> filhos</td><td class="spk-wrap" data-pt="a tua filha"><button class="spk-btn" aria-label="Ouvir">🔊</button>a <span class="pt-word">tua</span> filha</td><td class="spk-wrap" data-pt="as tuas filhas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as <span class="pt-word">tuas</span> filhas</td></tr>
+      <tr><td><span class="pt-word">Ele</span></td><td class="spk-wrap" data-pt="o filho dele"><button class="spk-btn" aria-label="Ouvir">🔊</button>o filho <span class="pt-word">dele</span></td><td class="spk-wrap" data-pt="os filhos dele"><button class="spk-btn" aria-label="Ouvir">🔊</button>os filhos <span class="pt-word">dele</span></td><td class="spk-wrap" data-pt="a filha dele"><button class="spk-btn" aria-label="Ouvir">🔊</button>a filha <span class="pt-word">dele</span></td><td class="spk-wrap" data-pt="as filhas dele"><button class="spk-btn" aria-label="Ouvir">🔊</button>as filhas <span class="pt-word">dele</span></td></tr>
+      <tr><td><span class="pt-word">Ela</span></td><td class="spk-wrap" data-pt="o filho dela"><button class="spk-btn" aria-label="Ouvir">🔊</button>o filho <span class="pt-word">dela</span></td><td class="spk-wrap" data-pt="os filhos dela"><button class="spk-btn" aria-label="Ouvir">🔊</button>os filhos <span class="pt-word">dela</span></td><td class="spk-wrap" data-pt="a filha dela"><button class="spk-btn" aria-label="Ouvir">🔊</button>a filha <span class="pt-word">dela</span></td><td class="spk-wrap" data-pt="as filhas dela"><button class="spk-btn" aria-label="Ouvir">🔊</button>as filhas <span class="pt-word">dela</span></td></tr>
+      <tr><td><span class="pt-word">Nós</span></td><td class="spk-wrap" data-pt="o nosso filho"><button class="spk-btn" aria-label="Ouvir">🔊</button>o <span class="pt-word">nosso</span> filho</td><td class="spk-wrap" data-pt="os nossos filhos"><button class="spk-btn" aria-label="Ouvir">🔊</button>os <span class="pt-word">nossos</span> filhos</td><td class="spk-wrap" data-pt="a nossa filha"><button class="spk-btn" aria-label="Ouvir">🔊</button>a <span class="pt-word">nossa</span> filha</td><td class="spk-wrap" data-pt="as nossas filhas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as <span class="pt-word">nossas</span> filhas</td></tr>
+      <tr><td><span class="pt-word">Vós / Vocês</span></td><td class="spk-wrap" data-pt="o vosso filho"><button class="spk-btn" aria-label="Ouvir">🔊</button>o <span class="pt-word">vosso</span> filho</td><td class="spk-wrap" data-pt="os vossos filhos"><button class="spk-btn" aria-label="Ouvir">🔊</button>os <span class="pt-word">vossos</span> filhos</td><td class="spk-wrap" data-pt="a vossa filha"><button class="spk-btn" aria-label="Ouvir">🔊</button>a <span class="pt-word">vossa</span> filha</td><td class="spk-wrap" data-pt="as vossas filhas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as <span class="pt-word">vossas</span> filhas</td></tr>
+      <tr><td><span class="pt-word">Eles</span></td><td class="spk-wrap" data-pt="o filho deles"><button class="spk-btn" aria-label="Ouvir">🔊</button>o filho <span class="pt-word">deles</span></td><td class="spk-wrap" data-pt="os filhos deles"><button class="spk-btn" aria-label="Ouvir">🔊</button>os filhos <span class="pt-word">deles</span></td><td class="spk-wrap" data-pt="a filha deles"><button class="spk-btn" aria-label="Ouvir">🔊</button>a filha <span class="pt-word">deles</span></td><td class="spk-wrap" data-pt="as filhas deles"><button class="spk-btn" aria-label="Ouvir">🔊</button>as filhas <span class="pt-word">deles</span></td></tr>
+      <tr><td><span class="pt-word">Elas</span></td><td class="spk-wrap" data-pt="o filho delas"><button class="spk-btn" aria-label="Ouvir">🔊</button>o filho <span class="pt-word">delas</span></td><td class="spk-wrap" data-pt="os filhos delas"><button class="spk-btn" aria-label="Ouvir">🔊</button>os filhos <span class="pt-word">delas</span></td><td class="spk-wrap" data-pt="a filha delas"><button class="spk-btn" aria-label="Ouvir">🔊</button>a filha <span class="pt-word">delas</span></td><td class="spk-wrap" data-pt="as filhas delas"><button class="spk-btn" aria-label="Ouvir">🔊</button>as filhas <span class="pt-word">delas</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3 data-pt="Atenção"><button class="spk-btn" aria-label="Ouvir">🔊</button>Atenção <span class="en">(Things to watch)</span></h3>
+  <p class="poss-note"><span class="pt-word">seu / sua</span> can mean “your”, “his” or “her”. To avoid confusion, Portuguese often prefers <span class="pt-word">dele / dela</span>: <em>o carro dele</em> (his car), <em>o carro dela</em> (her car).</p>
+  <p class="poss-note"><span class="pt-word">Vós</span> is rare today; in everyday speech people say <span class="pt-word">vocês</span> and use <span class="pt-word">o vosso</span> for “your” (plural).</p>
+  <p class="poss-note">Notice the plural owner: <span class="pt-word">deles</span> (masculine or mixed group) and <span class="pt-word">delas</span> (all-female group).</p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Olá, bom dia, o meu nome é Sridhara Shastry."><button class="spk-btn" aria-label="Ouvir">🔊</button>Olá, bom dia, o <span class="pt-word">meu</span> nome é Sridhara Shastry.<span class="en-eq">Hello, good morning, my name is Sridhara Shastry.</span></p>
+    <p class="ex-line" data-pt="Os meus filhos são altos e fortes."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os <span class="pt-word">meus</span> filhos são altos e fortes.<span class="en-eq">My children are tall and strong.</span></p>
+    <p class="ex-line" data-pt="A minha empresa fica no Porto."><button class="spk-btn" aria-label="Ouvir">🔊</button>A <span class="pt-word">minha</span> empresa fica no Porto.<span class="en-eq">My company is in Porto.</span></p>
+    <p class="ex-line" data-pt="A minha casa não é grande, mas é bonita."><button class="spk-btn" aria-label="Ouvir">🔊</button>A <span class="pt-word">minha</span> casa não é grande, mas é bonita.<span class="en-eq">My house is not big, but it is pretty.</span></p>
+    <p class="ex-line" data-pt="O meu telemóvel é da marca iPhone e é moderno."><button class="spk-btn" aria-label="Ouvir">🔊</button>O <span class="pt-word">meu</span> telemóvel é da marca iPhone e é moderno.<span class="en-eq">My phone is an iPhone and it is modern.</span></p>
+    <p class="ex-line" data-pt="O meu trabalho é duro, mas o salário é bom."><button class="spk-btn" aria-label="Ouvir">🔊</button>O <span class="pt-word">meu</span> trabalho é duro, mas o salário é bom.<span class="en-eq">My job is hard, but the salary is good.</span></p>
+    <p class="ex-line" data-pt="A minha esposa é da Índia e os pais dela vivem nos EUA (Estados Unidos da América)."><button class="spk-btn" aria-label="Ouvir">🔊</button>A minha esposa é da Índia e os pais <span class="pt-word">dela</span> vivem nos EUA (Estados Unidos da América).<span class="en-eq">My wife is from India and her parents live in the USA (United States of America).</span></p>
+    <p class="ex-line" data-pt="Os meus pais são da África do Sul, mas agora estão cá em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os <span class="pt-word">meus</span> pais são da África do Sul, mas agora estão cá em Portugal.<span class="en-eq">My parents are from South Africa, but now they are here in Portugal.</span></p>
+    <p class="ex-line" data-pt="Os meus irmãos não são casados e vivem em Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os <span class="pt-word">meus</span> irmãos não são casados e vivem em Lisboa.<span class="en-eq">My brothers are not married and they live in Lisbon.</span></p>
+    <p class="ex-line" data-pt="Os amigos deles são do mundo todo."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os amigos <span class="pt-word">deles</span> são do mundo todo.<span class="en-eq">Their friends are from all over the world.</span></p>
+    <p class="ex-line" data-pt="O teu livro está aqui."><button class="spk-btn" aria-label="Ouvir">🔊</button>O <span class="pt-word">teu</span> livro está aqui.<span class="en-eq">Your book is here. (informal)</span></p>
+    <p class="ex-line" data-pt="A nossa casa é grande."><button class="spk-btn" aria-label="Ouvir">🔊</button>A <span class="pt-word">nossa</span> casa é grande.<span class="en-eq">Our house is big.</span></p>
+    <p class="ex-line" data-pt="Os vossos amigos são simpáticos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os <span class="pt-word">vossos</span> amigos são simpáticos.<span class="en-eq">Your friends are nice. (plural “you”)</span></p>
+    <p class="ex-line" data-pt="O carro dele é novo."><button class="spk-btn" aria-label="Ouvir">🔊</button>O carro <span class="pt-word">dele</span> é novo.<span class="en-eq">His car is new.</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios — Possessivos</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Eu, tu, você.</p>
+    <p class="ex-note">Complete com o possessivo correto (com o artigo).</p>
+    <ol class="cue-list">
+      <li><span class="cue">___ casa é grande. (eu)</span> <span class="reveal">A minha</span></li>
+      <li><span class="cue">___ filhos são altos. (eu)</span> <span class="reveal">Os meus</span></li>
+      <li><span class="cue">___ telemóvel é novo. (tu)</span> <span class="reveal">O teu</span></li>
+      <li><span class="cue">___ amigas são simpáticas. (tu)</span> <span class="reveal">As tuas</span></li>
+      <li><span class="cue">___ mãe é professora. (você)</span> <span class="reveal">A sua</span></li>
+      <li><span class="cue">___ livros estão aqui. (você)</span> <span class="reveal">Os seus</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Nós, vós / vocês.</p>
+    <p class="ex-note">Complete com o possessivo correto (com o artigo).</p>
+    <ol class="cue-list">
+      <li><span class="cue">___ casa é bonita. (nós)</span> <span class="reveal">A nossa</span></li>
+      <li><span class="cue">___ filhos vivem em Lisboa. (nós)</span> <span class="reveal">Os nossos</span></li>
+      <li><span class="cue">___ carro é novo. (nós)</span> <span class="reveal">O nosso</span></li>
+      <li><span class="cue">___ escola é grande. (vós / vocês)</span> <span class="reveal">A vossa</span></li>
+      <li><span class="cue">___ amigos são portugueses. (vocês)</span> <span class="reveal">Os vossos</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Dele, dela, deles, delas.</p>
+    <p class="ex-note">Complete com dele, dela, deles ou delas.</p>
+    <ol class="cue-list">
+      <li><span class="cue">O carro ___. (ele)</span> <span class="reveal">dele</span></li>
+      <li><span class="cue">A casa ___. (ela)</span> <span class="reveal">dela</span></li>
+      <li><span class="cue">Os filhos ___. (eles)</span> <span class="reveal">deles</span></li>
+      <li><span class="cue">As amigas ___. (elas)</span> <span class="reveal">delas</span></li>
+      <li><span class="cue">Os pais ___ vivem nos EUA. (a esposa)</span> <span class="reveal">dela</span></li>
+      <li><span class="cue">Os amigos ___ são do mundo todo. (eles)</span> <span class="reveal">deles</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Traduza.</p>
+    <p class="ex-note">Traduza para português. As respostas ficam escondidas.</p>
+    <ol class="cue-list">
+      <li><span class="cue">My job is hard.</span> <span class="reveal">O meu trabalho é duro.</span></li>
+      <li><span class="cue">Your (informal) house is big.</span> <span class="reveal">A tua casa é grande.</span></li>
+      <li><span class="cue">Our company is in Porto.</span> <span class="reveal">A nossa empresa fica no Porto.</span></li>
+      <li><span class="cue">My brothers are not married.</span> <span class="reveal">Os meus irmãos não são casados.</span></li>
+      <li><span class="cue">Her parents live in the USA.</span> <span class="reveal">Os pais dela vivem nos EUA.</span></li>
+      <li><span class="cue">Their friends are from all over the world.</span> <span class="reveal">Os amigos deles são do mundo todo.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+</div>
