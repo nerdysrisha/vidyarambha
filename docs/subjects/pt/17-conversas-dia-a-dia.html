@@ -50,7 +50,45 @@
 .pt-conversas .example-box .ex-line { color: #eaeaea !important; }
 .pt-conversas .example-box .en-eq { color: #9a9a9a !important; }
 .pt-conversas .example-box .en-eq::before { color: #6a6a6a !important; }
-.pt-conversas .example-box .qa-answer { margin-left: 28px; display: inline-block; }
+/* ---------- Dialogue: question / answer pairs ---------- */
+.pt-conversas .qa-box { position: relative; }
+.pt-conversas .qa-pair { padding: 12px 0; border-bottom: 1px solid #2c2c2c; }
+.pt-conversas .qa-pair:last-child { border-bottom: none; padding-bottom: 2px; }
+.pt-conversas .qa-row {
+	display: flex; align-items: flex-start; gap: 4px;
+	padding-left: 8px; border-left: 2px solid transparent;
+}
+.pt-conversas .qa-a { margin-top: 6px; border-left-color: #d8b46a; }       /* gold line = the reply */
+.pt-conversas .qa-row .spk-btn-inline {
+	flex: none; width: 32px; height: 30px; padding: 0; margin: 0;
+	display: flex; align-items: center; justify-content: center;
+	opacity: 0.6; font-size: 0.95em;
+}
+.pt-conversas .qa-row .spk-btn-inline:hover { opacity: 1; }
+.pt-conversas .qa-text { flex: 1; min-width: 0; padding-top: 3px; line-height: 1.55; }
+.pt-conversas .qa-q .pt-word { color: #d8b46a !important; }
+.pt-conversas .qa-a .pt-word { color: #eaeaea !important; }
+.pt-conversas .qa-box .qa-pair .en-eq { display: none; margin: 2px 0 0 0; }
+.pt-conversas .qa-box .qa-pair .en-eq::before { content: none; }
+.pt-conversas .qa-en-toggle:checked ~ .qa-pair .en-eq { display: block; }  /* "Show English" ON */
+
+/* "Show English" switch: sticks to the top of the scroll area while you move through the dialogue.
+   Left-aligned on purpose (phones scroll this page sideways, a right-aligned control would be off-screen). */
+.pt-conversas .qa-toggle-row {
+	position: sticky; top: 0; z-index: 3;
+	background: #1a1a1a; padding: 4px 0 6px 0; margin: -4px 0 4px 0;
+	border-bottom: 1px solid #2c2c2c;
+}
+.pt-conversas .qa-en-toggle { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.pt-conversas .qa-switch {
+	display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+	color: #cfcfcf; font-size: 0.88em; user-select: none; padding: 6px 4px;
+}
+.pt-conversas .qa-track { position: relative; width: 38px; height: 20px; border-radius: 10px; background: #4a4a4a; transition: background 0.15s ease; }
+.pt-conversas .qa-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #cfcfcf; transition: left 0.15s ease, background 0.15s ease; }
+.pt-conversas .qa-en-toggle:checked + .qa-switch .qa-track { background: #d8b46a; }
+.pt-conversas .qa-en-toggle:checked + .qa-switch .qa-knob { left: 20px; background: #111; }
+.pt-conversas .qa-en-toggle:focus-visible + .qa-switch .qa-track { outline: 2px solid #d8b46a; outline-offset: 2px; }
 
 .pt-conversas .exercise-box {
 	background: #f6f2fb !important;
@@ -123,7 +161,9 @@
 	.pt-conversas .spk-btn { opacity: 0.4; }
 }
 .pt-conversas .spk-btn-inline {
-	position: static;
+	/* relative (not static): the shell adds a ::after tap-area to every .spk-btn on phones; it must be
+	   sized to THIS button, otherwise it covers the whole parent line and steals taps from sibling buttons */
+	position: relative;
 	left: auto;
 	top: auto;
 	transform: none;
@@ -408,61 +448,218 @@
 	</table>
 </div>
 
-<div class="example-box">
+<div class="example-box qa-box">
 <h4>Diálogo — perguntas e respostas</h4>
 <div class="example-list">
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como está?">🔊</button><span class="pt-word">Como está?</span> <span class="en-eq">How are you?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou bem, obrigado. E consigo?">🔊</button><span class="pt-word qa-answer">— Estou bem, obrigado. E consigo?</span> <span class="en-eq">I'm well, thank you. And you?</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como se chama?">🔊</button><span class="pt-word">Como se chama?</span> <span class="en-eq">What is your name?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Chamo-me Sri.">🔊</button><span class="pt-word qa-answer">— Chamo-me Sri.</span> <span class="en-eq">My name is Sri.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Qual é a sua nacionalidade?">🔊</button><span class="pt-word">Qual é a sua nacionalidade?</span> <span class="en-eq">What is your nationality?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou da Índia. / Sou indiano.">🔊</button><span class="pt-word qa-answer">— Sou da Índia. / Sou indiano.</span> <span class="en-eq">I am from India. / I am Indian.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="De onde és?">🔊</button><span class="pt-word">De onde és?</span> <span class="en-eq">Where are you from?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou da Índia.">🔊</button><span class="pt-word qa-answer">— Sou da Índia.</span> <span class="en-eq">I am from India.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><span class="pt-word">Onde moras?</span> <span class="en-eq">Where do you live?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Moro em Saldanha, no Montijo.">🔊</button><span class="pt-word qa-answer">— Moro em Saldanha, no Montijo.</span> <span class="en-eq">I live in Saldanha, in Montijo.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="És casado?">🔊</button><span class="pt-word">És casado?</span> <span class="en-eq">Are you married?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, sou casado.">🔊</button><span class="pt-word qa-answer">— Sim, sou casado.</span> <span class="en-eq">Yes, I am married.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos filhos tem?">🔊</button><span class="pt-word">Quantos filhos tem?</span> <span class="en-eq">How many children do you have?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho dois filhos.">🔊</button><span class="pt-word qa-answer">— Tenho dois filhos.</span> <span class="en-eq">I have two children.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que fazes?">🔊</button><span class="pt-word">O que fazes?</span> <span class="en-eq">What do you do?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou arquiteto de nuvem.">🔊</button><span class="pt-word qa-answer">— Sou arquiteto de nuvem.</span> <span class="en-eq">I am a cloud architect.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz o seu marido?">🔊</button><span class="pt-word">O que faz o seu marido?</span> <span class="en-eq">What does your husband do?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O meu marido trabalha como arquiteto.">🔊</button><span class="pt-word qa-answer">— O meu marido trabalha como arquiteto.</span> <span class="en-eq">My husband works as an architect.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz a sua mulher?">🔊</button><span class="pt-word">O que faz a sua mulher?</span> <span class="en-eq">What does your wife do?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Ela é dona de casa.">🔊</button><span class="pt-word qa-answer">— Ela é dona de casa.</span> <span class="en-eq">She is a housewife.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem passaporte português ou indiano?">🔊</button><span class="pt-word">Tem passaporte português ou indiano?</span> <span class="en-eq">Do you have a Portuguese or Indian passport?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho passaporte indiano.">🔊</button><span class="pt-word qa-answer">— Tenho passaporte indiano.</span> <span class="en-eq">I have an Indian passport.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="É legal em Portugal?">🔊</button><span class="pt-word">É legal em Portugal?</span> <span class="en-eq">Are you legally resident in Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho uma autorização de residência temporária.">🔊</button><span class="pt-word qa-answer">— Sim, tenho uma autorização de residência temporária.</span> <span class="en-eq">Yes, I have a temporary residence permit.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Há quanto tempo está em Portugal?">🔊</button><span class="pt-word">Há quanto tempo está em Portugal?</span> <span class="en-eq">How long have you been in Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou em Portugal há 5 anos.">🔊</button><span class="pt-word qa-answer">— Estou em Portugal há 5 anos.</span> <span class="en-eq">I have been in Portugal for 5 years.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem?">🔊</button><span class="pt-word">Quantos anos tem?</span> <span class="en-eq">How old are you?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho 50 anos.">🔊</button><span class="pt-word qa-answer">— Tenho 50 anos.</span> <span class="en-eq">I am 50 years old.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz? Trabalha?">🔊</button><span class="pt-word">O que faz? Trabalha?</span> <span class="en-eq">What do you do? Do you work?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Neste momento, não trabalho. Estou a aprender português.">🔊</button><span class="pt-word qa-answer">— Neste momento, não trabalho. Estou a aprender português.</span> <span class="en-eq">At the moment, I don't work. I am learning Portuguese.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde aprende português?">🔊</button><span class="pt-word">Onde aprende português?</span> <span class="en-eq">Where do you learn Portuguese?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou a aprender português na Casa da Índia, em Lisboa.">🔊</button><span class="pt-word qa-answer">— Estou a aprender português na Casa da Índia, em Lisboa.</span> <span class="en-eq">I am learning Portuguese at Casa da Índia, in Lisbon.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Fala português?">🔊</button><span class="pt-word">Fala português?</span> <span class="en-eq">Do you speak Portuguese?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Falo um pouco de português. Estou a aprender.">🔊</button><span class="pt-word qa-answer">— Falo um pouco de português. Estou a aprender.</span> <span class="en-eq">I speak a little Portuguese. I am learning.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Muito prazer em conhecer-te.">🔊</button><span class="pt-word">Muito prazer em conhecer-te.</span> <span class="en-eq">Very pleased to meet you.</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Igualmente!">🔊</button><span class="pt-word qa-answer">— Igualmente!</span> <span class="en-eq">Likewise!</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como te chamas?">🔊</button><span class="pt-word">Como te chamas?</span> <span class="en-eq">What is your name?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Chamo-me Sri.">🔊</button><span class="pt-word qa-answer">— Chamo-me Sri.</span> <span class="en-eq">My name is Sri.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><span class="pt-word">Onde moras?</span> <span class="en-eq">Where do you live?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Moro no Montijo.">🔊</button><span class="pt-word qa-answer">— Moro no Montijo.</span> <span class="en-eq">I live in Montijo.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de Portugal?">🔊</button><span class="pt-word">Gostas de Portugal?</span> <span class="en-eq">Do you like Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto muito de Portugal.">🔊</button><span class="pt-word qa-answer">— Sim, gosto muito de Portugal.</span> <span class="en-eq">Yes, I like Portugal very much.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de viver em Portugal?">🔊</button><span class="pt-word">Gostas de viver em Portugal?</span> <span class="en-eq">Do you like living in Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de viver em Portugal.">🔊</button><span class="pt-word qa-answer">— Sim, gosto de viver em Portugal.</span> <span class="en-eq">Yes, I like living in Portugal.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de comida portuguesa?">🔊</button><span class="pt-word">Gostas de comida portuguesa?</span> <span class="en-eq">Do you like Portuguese food?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de comida portuguesa.">🔊</button><span class="pt-word qa-answer">— Sim, gosto de comida portuguesa.</span> <span class="en-eq">Yes, I like Portuguese food.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que comeste?">🔊</button><span class="pt-word">O que comeste?</span> <span class="en-eq">What did you eat?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Comi arroz e tofu.">🔊</button><span class="pt-word qa-answer">— Comi arroz e tofu.</span> <span class="en-eq">I ate rice and tofu.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Já comeste?">🔊</button><span class="pt-word">Já comeste?</span> <span class="en-eq">Have you eaten?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, já comi.">🔊</button><span class="pt-word qa-answer">— Sim, já comi.</span> <span class="en-eq">Yes, I have.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que vais comer?">🔊</button><span class="pt-word">O que vais comer?</span> <span class="en-eq">What are you going to eat?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou comer arroz.">🔊</button><span class="pt-word qa-answer">— Vou comer arroz.</span> <span class="en-eq">I am going to eat rice.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como vieste?">🔊</button><span class="pt-word">Como vieste?</span> <span class="en-eq">How did you come?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vim de carro.">🔊</button><span class="pt-word qa-answer">— Vim de carro.</span> <span class="en-eq">I came by car.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vieste de autocarro?">🔊</button><span class="pt-word">Vieste de autocarro?</span> <span class="en-eq">Did you come by bus?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, vim de autocarro.">🔊</button><span class="pt-word qa-answer">— Sim, vim de autocarro.</span> <span class="en-eq">Yes, I came by bus.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como está o tempo?">🔊</button><span class="pt-word">Como está o tempo?</span> <span class="en-eq">How is the weather?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está muito calor.">🔊</button><span class="pt-word qa-answer">— Está muito calor.</span> <span class="en-eq">It is very hot.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está a chover?">🔊</button><span class="pt-word">Está a chover?</span> <span class="en-eq">Is it raining?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, está a chover.">🔊</button><span class="pt-word qa-answer">— Sim, está a chover.</span> <span class="en-eq">Yes, it is raining.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está frio hoje?">🔊</button><span class="pt-word">Está frio hoje?</span> <span class="en-eq">Is it cold today?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, está muito frio.">🔊</button><span class="pt-word qa-answer">— Sim, está muito frio.</span> <span class="en-eq">Yes, it is very cold.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Que horas são?">🔊</button><span class="pt-word">Que horas são?</span> <span class="en-eq">What time is it?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="São três horas.">🔊</button><span class="pt-word qa-answer">— São três horas.</span> <span class="en-eq">It is three o'clock.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas acordas?">🔊</button><span class="pt-word">A que horas acordas?</span> <span class="en-eq">What time do you wake up?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Acordo às sete horas.">🔊</button><span class="pt-word qa-answer">— Acordo às sete horas.</span> <span class="en-eq">I wake up at seven.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas trabalhas?">🔊</button><span class="pt-word">A que horas trabalhas?</span> <span class="en-eq">What time do you work?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Trabalho às nove horas.">🔊</button><span class="pt-word qa-answer">— Trabalho às nove horas.</span> <span class="en-eq">I work at nine.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas vais dormir?">🔊</button><span class="pt-word">A que horas vais dormir?</span> <span class="en-eq">What time do you go to sleep?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou dormir às onze horas.">🔊</button><span class="pt-word qa-answer">— Vou dormir às onze horas.</span> <span class="en-eq">I go to sleep at eleven.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem o seu filho?">🔊</button><span class="pt-word">Quantos anos tem o seu filho?</span> <span class="en-eq">How old is your son?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O meu filho tem dez anos.">🔊</button><span class="pt-word qa-answer">— O meu filho tem dez anos.</span> <span class="en-eq">My son is ten years old.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem a sua filha?">🔊</button><span class="pt-word">Quantos anos tem a sua filha?</span> <span class="en-eq">How old is your daughter?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A minha filha tem oito anos.">🔊</button><span class="pt-word qa-answer">— A minha filha tem oito anos.</span> <span class="en-eq">My daughter is eight years old.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem filhos?">🔊</button><span class="pt-word">Tem filhos?</span> <span class="en-eq">Do you have children?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho dois filhos.">🔊</button><span class="pt-word qa-answer">— Sim, tenho dois filhos.</span> <span class="en-eq">Yes, I have two children.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem irmãos?">🔊</button><span class="pt-word">Tem irmãos?</span> <span class="en-eq">Do you have siblings?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho um irmão.">🔊</button><span class="pt-word qa-answer">— Sim, tenho um irmão.</span> <span class="en-eq">Yes, I have one brother.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde trabalha?">🔊</button><span class="pt-word">Onde trabalha?</span> <span class="en-eq">Where do you work?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Trabalho em Lisboa.">🔊</button><span class="pt-word qa-answer">— Trabalho em Lisboa.</span> <span class="en-eq">I work in Lisbon.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde está a sua família?">🔊</button><span class="pt-word">Onde está a sua família?</span> <span class="en-eq">Where is your family?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A minha família está na Índia.">🔊</button><span class="pt-word qa-answer">— A minha família está na Índia.</span> <span class="en-eq">My family is in India.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Há quanto tempo vive em Portugal?">🔊</button><span class="pt-word">Há quanto tempo vive em Portugal?</span> <span class="en-eq">How long have you lived in Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vivo em Portugal há cinco anos.">🔊</button><span class="pt-word qa-answer">— Vivo em Portugal há cinco anos.</span> <span class="en-eq">I have lived in Portugal for five years.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quando chegou a Portugal?">🔊</button><span class="pt-word">Quando chegou a Portugal?</span> <span class="en-eq">When did you arrive in Portugal?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Cheguei a Portugal há cinco anos.">🔊</button><span class="pt-word qa-answer">— Cheguei a Portugal há cinco anos.</span> <span class="en-eq">I arrived in Portugal five years ago.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que estás a fazer?">🔊</button><span class="pt-word">O que estás a fazer?</span> <span class="en-eq">What are you doing?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou a estudar português.">🔊</button><span class="pt-word qa-answer">— Estou a estudar português.</span> <span class="en-eq">I am studying Portuguese.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estás a trabalhar?">🔊</button><span class="pt-word">Estás a trabalhar?</span> <span class="en-eq">Are you working?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Não, estou a aprender português.">🔊</button><span class="pt-word qa-answer">— Não, estou a aprender português.</span> <span class="en-eq">No, I am learning Portuguese.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Queres um café?">🔊</button><span class="pt-word">Queres um café?</span> <span class="en-eq">Do you want a coffee?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, quero um café, por favor.">🔊</button><span class="pt-word qa-answer">— Sim, quero um café, por favor.</span> <span class="en-eq">Yes, I want a coffee, please.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Queres água?">🔊</button><span class="pt-word">Queres água?</span> <span class="en-eq">Do you want water?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, quero água.">🔊</button><span class="pt-word qa-answer">— Sim, quero água.</span> <span class="en-eq">Yes, I want water.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de café?">🔊</button><span class="pt-word">Gostas de café?</span> <span class="en-eq">Do you like coffee?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de café.">🔊</button><span class="pt-word qa-answer">— Sim, gosto de café.</span> <span class="en-eq">Yes, I like coffee.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de viajar?">🔊</button><span class="pt-word">Gostas de viajar?</span> <span class="en-eq">Do you like travelling?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto muito de viajar.">🔊</button><span class="pt-word qa-answer">— Sim, gosto muito de viajar.</span> <span class="en-eq">Yes, I like travelling very much.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que vais fazer amanhã?">🔊</button><span class="pt-word">O que vais fazer amanhã?</span> <span class="en-eq">What are you going to do tomorrow?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Amanhã vou estudar português.">🔊</button><span class="pt-word qa-answer">— Amanhã vou estudar português.</span> <span class="en-eq">Tomorrow I am going to study Portuguese.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que fizeste ontem?">🔊</button><span class="pt-word">O que fizeste ontem?</span> <span class="en-eq">What did you do yesterday?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Ontem fiquei em casa.">🔊</button><span class="pt-word qa-answer">— Ontem fiquei em casa.</span> <span class="en-eq">Yesterday I stayed at home.</span></p>
-<p class="ex-line"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Até quando vais ficar aqui?">🔊</button><span class="pt-word">Até quando vais ficar aqui?</span> <span class="en-eq">Until when are you going to stay here?</span><br/><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou ficar aqui até amanhã.">🔊</button><span class="pt-word qa-answer">— Vou ficar aqui até amanhã.</span> <span class="en-eq">I am going to stay here until tomorrow.</span></p>
+<div class="qa-toggle-row"><input type="checkbox" id="qa-en-toggle" class="qa-en-toggle"><label class="qa-switch" for="qa-en-toggle"><span class="qa-track"><span class="qa-knob"></span></span>Show English</label></div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como está?">🔊</button><div class="qa-text"><span class="pt-word">Como está?</span><span class="en-eq">How are you?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou bem, obrigado. E consigo?">🔊</button><div class="qa-text"><span class="pt-word">Estou bem, obrigado. E consigo?</span><span class="en-eq">I'm well, thank you. And you?</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como se chama?">🔊</button><div class="qa-text"><span class="pt-word">Como se chama?</span><span class="en-eq">What is your name?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Chamo-me Sri.">🔊</button><div class="qa-text"><span class="pt-word">Chamo-me Sri.</span><span class="en-eq">My name is Sri.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Qual é a sua nacionalidade?">🔊</button><div class="qa-text"><span class="pt-word">Qual é a sua nacionalidade?</span><span class="en-eq">What is your nationality?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou da Índia. / Sou indiano.">🔊</button><div class="qa-text"><span class="pt-word">Sou da Índia. / Sou indiano.</span><span class="en-eq">I am from India. / I am Indian.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="De onde és?">🔊</button><div class="qa-text"><span class="pt-word">De onde és?</span><span class="en-eq">Where are you from?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou da Índia.">🔊</button><div class="qa-text"><span class="pt-word">Sou da Índia.</span><span class="en-eq">I am from India.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><div class="qa-text"><span class="pt-word">Onde moras?</span><span class="en-eq">Where do you live?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Moro em Saldanha, no Montijo.">🔊</button><div class="qa-text"><span class="pt-word">Moro em Saldanha, no Montijo.</span><span class="en-eq">I live in Saldanha, in Montijo.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="És casado?">🔊</button><div class="qa-text"><span class="pt-word">És casado?</span><span class="en-eq">Are you married?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, sou casado.">🔊</button><div class="qa-text"><span class="pt-word">Sim, sou casado.</span><span class="en-eq">Yes, I am married.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos filhos tem?">🔊</button><div class="qa-text"><span class="pt-word">Quantos filhos tem?</span><span class="en-eq">How many children do you have?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho dois filhos.">🔊</button><div class="qa-text"><span class="pt-word">Tenho dois filhos.</span><span class="en-eq">I have two children.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que fazes?">🔊</button><div class="qa-text"><span class="pt-word">O que fazes?</span><span class="en-eq">What do you do?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sou arquiteto de nuvem.">🔊</button><div class="qa-text"><span class="pt-word">Sou arquiteto de nuvem.</span><span class="en-eq">I am a cloud architect.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz o seu marido?">🔊</button><div class="qa-text"><span class="pt-word">O que faz o seu marido?</span><span class="en-eq">What does your husband do?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O meu marido trabalha como arquiteto.">🔊</button><div class="qa-text"><span class="pt-word">O meu marido trabalha como arquiteto.</span><span class="en-eq">My husband works as an architect.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz a sua mulher?">🔊</button><div class="qa-text"><span class="pt-word">O que faz a sua mulher?</span><span class="en-eq">What does your wife do?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Ela é dona de casa.">🔊</button><div class="qa-text"><span class="pt-word">Ela é dona de casa.</span><span class="en-eq">She is a housewife.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem passaporte português ou indiano?">🔊</button><div class="qa-text"><span class="pt-word">Tem passaporte português ou indiano?</span><span class="en-eq">Do you have a Portuguese or Indian passport?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho passaporte indiano.">🔊</button><div class="qa-text"><span class="pt-word">Tenho passaporte indiano.</span><span class="en-eq">I have an Indian passport.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="É legal em Portugal?">🔊</button><div class="qa-text"><span class="pt-word">É legal em Portugal?</span><span class="en-eq">Are you legally resident in Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho uma autorização de residência temporária.">🔊</button><div class="qa-text"><span class="pt-word">Sim, tenho uma autorização de residência temporária.</span><span class="en-eq">Yes, I have a temporary residence permit.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Há quanto tempo está em Portugal?">🔊</button><div class="qa-text"><span class="pt-word">Há quanto tempo está em Portugal?</span><span class="en-eq">How long have you been in Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou em Portugal há 5 anos.">🔊</button><div class="qa-text"><span class="pt-word">Estou em Portugal há 5 anos.</span><span class="en-eq">I have been in Portugal for 5 years.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem?">🔊</button><div class="qa-text"><span class="pt-word">Quantos anos tem?</span><span class="en-eq">How old are you?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tenho 50 anos.">🔊</button><div class="qa-text"><span class="pt-word">Tenho 50 anos.</span><span class="en-eq">I am 50 years old.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que faz? Trabalha?">🔊</button><div class="qa-text"><span class="pt-word">O que faz? Trabalha?</span><span class="en-eq">What do you do? Do you work?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Neste momento, não trabalho. Estou a aprender português.">🔊</button><div class="qa-text"><span class="pt-word">Neste momento, não trabalho. Estou a aprender português.</span><span class="en-eq">At the moment, I don't work. I am learning Portuguese.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde aprende português?">🔊</button><div class="qa-text"><span class="pt-word">Onde aprende português?</span><span class="en-eq">Where do you learn Portuguese?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou a aprender português na Casa da Índia, em Lisboa.">🔊</button><div class="qa-text"><span class="pt-word">Estou a aprender português na Casa da Índia, em Lisboa.</span><span class="en-eq">I am learning Portuguese at Casa da Índia, in Lisbon.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Fala português?">🔊</button><div class="qa-text"><span class="pt-word">Fala português?</span><span class="en-eq">Do you speak Portuguese?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Falo um pouco de português. Estou a aprender.">🔊</button><div class="qa-text"><span class="pt-word">Falo um pouco de português. Estou a aprender.</span><span class="en-eq">I speak a little Portuguese. I am learning.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Muito prazer em conhecer-te.">🔊</button><div class="qa-text"><span class="pt-word">Muito prazer em conhecer-te.</span><span class="en-eq">Very pleased to meet you.</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Igualmente!">🔊</button><div class="qa-text"><span class="pt-word">Igualmente!</span><span class="en-eq">Likewise!</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como te chamas?">🔊</button><div class="qa-text"><span class="pt-word">Como te chamas?</span><span class="en-eq">What is your name?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Chamo-me Sri.">🔊</button><div class="qa-text"><span class="pt-word">Chamo-me Sri.</span><span class="en-eq">My name is Sri.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde moras?">🔊</button><div class="qa-text"><span class="pt-word">Onde moras?</span><span class="en-eq">Where do you live?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Moro no Montijo.">🔊</button><div class="qa-text"><span class="pt-word">Moro no Montijo.</span><span class="en-eq">I live in Montijo.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de Portugal?">🔊</button><div class="qa-text"><span class="pt-word">Gostas de Portugal?</span><span class="en-eq">Do you like Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto muito de Portugal.">🔊</button><div class="qa-text"><span class="pt-word">Sim, gosto muito de Portugal.</span><span class="en-eq">Yes, I like Portugal very much.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de viver em Portugal?">🔊</button><div class="qa-text"><span class="pt-word">Gostas de viver em Portugal?</span><span class="en-eq">Do you like living in Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de viver em Portugal.">🔊</button><div class="qa-text"><span class="pt-word">Sim, gosto de viver em Portugal.</span><span class="en-eq">Yes, I like living in Portugal.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de comida portuguesa?">🔊</button><div class="qa-text"><span class="pt-word">Gostas de comida portuguesa?</span><span class="en-eq">Do you like Portuguese food?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de comida portuguesa.">🔊</button><div class="qa-text"><span class="pt-word">Sim, gosto de comida portuguesa.</span><span class="en-eq">Yes, I like Portuguese food.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que comeste?">🔊</button><div class="qa-text"><span class="pt-word">O que comeste?</span><span class="en-eq">What did you eat?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Comi arroz e tofu.">🔊</button><div class="qa-text"><span class="pt-word">Comi arroz e tofu.</span><span class="en-eq">I ate rice and tofu.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Já comeste?">🔊</button><div class="qa-text"><span class="pt-word">Já comeste?</span><span class="en-eq">Have you eaten?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, já comi.">🔊</button><div class="qa-text"><span class="pt-word">Sim, já comi.</span><span class="en-eq">Yes, I have.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que vais comer?">🔊</button><div class="qa-text"><span class="pt-word">O que vais comer?</span><span class="en-eq">What are you going to eat?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou comer arroz.">🔊</button><div class="qa-text"><span class="pt-word">Vou comer arroz.</span><span class="en-eq">I am going to eat rice.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como vieste?">🔊</button><div class="qa-text"><span class="pt-word">Como vieste?</span><span class="en-eq">How did you come?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vim de carro.">🔊</button><div class="qa-text"><span class="pt-word">Vim de carro.</span><span class="en-eq">I came by car.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vieste de autocarro?">🔊</button><div class="qa-text"><span class="pt-word">Vieste de autocarro?</span><span class="en-eq">Did you come by bus?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, vim de autocarro.">🔊</button><div class="qa-text"><span class="pt-word">Sim, vim de autocarro.</span><span class="en-eq">Yes, I came by bus.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Como está o tempo?">🔊</button><div class="qa-text"><span class="pt-word">Como está o tempo?</span><span class="en-eq">How is the weather?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está muito calor.">🔊</button><div class="qa-text"><span class="pt-word">Está muito calor.</span><span class="en-eq">It is very hot.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está a chover?">🔊</button><div class="qa-text"><span class="pt-word">Está a chover?</span><span class="en-eq">Is it raining?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, está a chover.">🔊</button><div class="qa-text"><span class="pt-word">Sim, está a chover.</span><span class="en-eq">Yes, it is raining.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Está frio hoje?">🔊</button><div class="qa-text"><span class="pt-word">Está frio hoje?</span><span class="en-eq">Is it cold today?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, está muito frio.">🔊</button><div class="qa-text"><span class="pt-word">Sim, está muito frio.</span><span class="en-eq">Yes, it is very cold.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Que horas são?">🔊</button><div class="qa-text"><span class="pt-word">Que horas são?</span><span class="en-eq">What time is it?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="São três horas.">🔊</button><div class="qa-text"><span class="pt-word">São três horas.</span><span class="en-eq">It is three o'clock.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas acordas?">🔊</button><div class="qa-text"><span class="pt-word">A que horas acordas?</span><span class="en-eq">What time do you wake up?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Acordo às sete horas.">🔊</button><div class="qa-text"><span class="pt-word">Acordo às sete horas.</span><span class="en-eq">I wake up at seven.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas trabalhas?">🔊</button><div class="qa-text"><span class="pt-word">A que horas trabalhas?</span><span class="en-eq">What time do you work?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Trabalho às nove horas.">🔊</button><div class="qa-text"><span class="pt-word">Trabalho às nove horas.</span><span class="en-eq">I work at nine.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A que horas vais dormir?">🔊</button><div class="qa-text"><span class="pt-word">A que horas vais dormir?</span><span class="en-eq">What time do you go to sleep?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou dormir às onze horas.">🔊</button><div class="qa-text"><span class="pt-word">Vou dormir às onze horas.</span><span class="en-eq">I go to sleep at eleven.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem o seu filho?">🔊</button><div class="qa-text"><span class="pt-word">Quantos anos tem o seu filho?</span><span class="en-eq">How old is your son?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O meu filho tem dez anos.">🔊</button><div class="qa-text"><span class="pt-word">O meu filho tem dez anos.</span><span class="en-eq">My son is ten years old.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quantos anos tem a sua filha?">🔊</button><div class="qa-text"><span class="pt-word">Quantos anos tem a sua filha?</span><span class="en-eq">How old is your daughter?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A minha filha tem oito anos.">🔊</button><div class="qa-text"><span class="pt-word">A minha filha tem oito anos.</span><span class="en-eq">My daughter is eight years old.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem filhos?">🔊</button><div class="qa-text"><span class="pt-word">Tem filhos?</span><span class="en-eq">Do you have children?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho dois filhos.">🔊</button><div class="qa-text"><span class="pt-word">Sim, tenho dois filhos.</span><span class="en-eq">Yes, I have two children.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Tem irmãos?">🔊</button><div class="qa-text"><span class="pt-word">Tem irmãos?</span><span class="en-eq">Do you have siblings?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, tenho um irmão.">🔊</button><div class="qa-text"><span class="pt-word">Sim, tenho um irmão.</span><span class="en-eq">Yes, I have one brother.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde trabalha?">🔊</button><div class="qa-text"><span class="pt-word">Onde trabalha?</span><span class="en-eq">Where do you work?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Trabalho em Lisboa.">🔊</button><div class="qa-text"><span class="pt-word">Trabalho em Lisboa.</span><span class="en-eq">I work in Lisbon.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Onde está a sua família?">🔊</button><div class="qa-text"><span class="pt-word">Onde está a sua família?</span><span class="en-eq">Where is your family?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="A minha família está na Índia.">🔊</button><div class="qa-text"><span class="pt-word">A minha família está na Índia.</span><span class="en-eq">My family is in India.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Há quanto tempo vive em Portugal?">🔊</button><div class="qa-text"><span class="pt-word">Há quanto tempo vive em Portugal?</span><span class="en-eq">How long have you lived in Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vivo em Portugal há cinco anos.">🔊</button><div class="qa-text"><span class="pt-word">Vivo em Portugal há cinco anos.</span><span class="en-eq">I have lived in Portugal for five years.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Quando chegou a Portugal?">🔊</button><div class="qa-text"><span class="pt-word">Quando chegou a Portugal?</span><span class="en-eq">When did you arrive in Portugal?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Cheguei a Portugal há cinco anos.">🔊</button><div class="qa-text"><span class="pt-word">Cheguei a Portugal há cinco anos.</span><span class="en-eq">I arrived in Portugal five years ago.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que estás a fazer?">🔊</button><div class="qa-text"><span class="pt-word">O que estás a fazer?</span><span class="en-eq">What are you doing?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estou a estudar português.">🔊</button><div class="qa-text"><span class="pt-word">Estou a estudar português.</span><span class="en-eq">I am studying Portuguese.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Estás a trabalhar?">🔊</button><div class="qa-text"><span class="pt-word">Estás a trabalhar?</span><span class="en-eq">Are you working?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Não, estou a aprender português.">🔊</button><div class="qa-text"><span class="pt-word">Não, estou a aprender português.</span><span class="en-eq">No, I am learning Portuguese.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Queres um café?">🔊</button><div class="qa-text"><span class="pt-word">Queres um café?</span><span class="en-eq">Do you want a coffee?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, quero um café, por favor.">🔊</button><div class="qa-text"><span class="pt-word">Sim, quero um café, por favor.</span><span class="en-eq">Yes, I want a coffee, please.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Queres água?">🔊</button><div class="qa-text"><span class="pt-word">Queres água?</span><span class="en-eq">Do you want water?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, quero água.">🔊</button><div class="qa-text"><span class="pt-word">Sim, quero água.</span><span class="en-eq">Yes, I want water.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de café?">🔊</button><div class="qa-text"><span class="pt-word">Gostas de café?</span><span class="en-eq">Do you like coffee?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto de café.">🔊</button><div class="qa-text"><span class="pt-word">Sim, gosto de café.</span><span class="en-eq">Yes, I like coffee.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Gostas de viajar?">🔊</button><div class="qa-text"><span class="pt-word">Gostas de viajar?</span><span class="en-eq">Do you like travelling?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Sim, gosto muito de viajar.">🔊</button><div class="qa-text"><span class="pt-word">Sim, gosto muito de viajar.</span><span class="en-eq">Yes, I like travelling very much.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que vais fazer amanhã?">🔊</button><div class="qa-text"><span class="pt-word">O que vais fazer amanhã?</span><span class="en-eq">What are you going to do tomorrow?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Amanhã vou estudar português.">🔊</button><div class="qa-text"><span class="pt-word">Amanhã vou estudar português.</span><span class="en-eq">Tomorrow I am going to study Portuguese.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="O que fizeste ontem?">🔊</button><div class="qa-text"><span class="pt-word">O que fizeste ontem?</span><span class="en-eq">What did you do yesterday?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Ontem fiquei em casa.">🔊</button><div class="qa-text"><span class="pt-word">Ontem fiquei em casa.</span><span class="en-eq">Yesterday I stayed at home.</span></div></div>
+</div>
+<div class="qa-pair">
+<div class="qa-row qa-q"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Até quando vais ficar aqui?">🔊</button><div class="qa-text"><span class="pt-word">Até quando vais ficar aqui?</span><span class="en-eq">Until when are you going to stay here?</span></div></div>
+<div class="qa-row qa-a"><button aria-label="Ouvir" class="spk-btn spk-btn-inline" data-pt="Vou ficar aqui até amanhã.">🔊</button><div class="qa-text"><span class="pt-word">Vou ficar aqui até amanhã.</span><span class="en-eq">I am going to stay here until tomorrow.</span></div></div>
+</div>
 </div>
 </div>
 <div class="exercise-box">
