@@ -1,0 +1,71 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-figure { margin: 14px 0 22px 0; text-align: center; }
+.az-topic .az-figure a { display: block; border-bottom: none; }
+.az-topic .az-figure img { width: 100%; max-width: 980px; height: auto; border: 1px solid #e8e2d5; border-radius: 8px;
+    background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.az-topic .az-figure figcaption { margin-top: 6px; font-size: 0.82em; color: #8a8a8a; font-style: italic; }
+.az-topic .az-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.az-topic .az-scroll table { min-width: 520px; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 14px 20px; margin: 22px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+</style>
+
+<h1>Building Virtual Machines <span class="az-tag">AZ-104</span></h1>
+
+<p class="az-lead">An Azure VM is never just "a server". It is a virtual machine plus a small set of networking and storage resources that sit around it: a virtual network to live in, a network card to connect, disks to boot from, and rules to decide what traffic gets in.</p>
+
+<h2>The picture</h2>
+<figure class="az-figure">
+  <a href="subjects/tech/azure/az104/img/az104-vms.webp" target="_blank" rel="noopener">
+    <img src="subjects/tech/azure/az104/img/az104-vms.webp" alt="Diagram of an Azure virtual machine inside a resource group, virtual network and subnet, with its network interface, NSG, OS disk, private and public IP, next to the AWS equivalents (VPC, EC2, ENI, Security Group, EBS, Elastic IP)" loading="lazy">
+  </a>
+  <figcaption>Tap or click the image to open it full size, then zoom in.</figcaption>
+</figure>
+
+<h2>The pieces</h2>
+<div class="az-scroll">
+<table>
+  <tr><th>Piece</th><th>What it does</th></tr>
+  <tr><td><strong>Resource group</strong></td><td>The folder that holds everything for the VM, so it can be managed, tagged and deleted together.</td></tr>
+  <tr><td><strong>Virtual network (VNet)</strong></td><td>The private network space the VM lives in, for example <code>172.16.0.0/16</code>.</td></tr>
+  <tr><td><strong>Subnet</strong></td><td>A slice of the VNet, for example <code>172.16.0.0/24</code>. The VM's network card is attached to one subnet.</td></tr>
+  <tr><td><strong>Network interface (NIC)</strong></td><td>The VM's network card. It carries the IP configuration and is bound to the subnet.</td></tr>
+  <tr><td><strong>Private IP</strong></td><td>The internal address inside the VNet, such as <code>172.16.0.4</code>. It is handed out from the subnet range.</td></tr>
+  <tr><td><strong>Public IP</strong></td><td>Optional. A separate resource that lets the Internet reach the VM. It is linked through the NIC's IP configuration.</td></tr>
+  <tr><td><strong>Network security group (NSG)</strong></td><td>A list of allow/deny rules for traffic. It can be attached to the subnet, to the NIC, or both.</td></tr>
+  <tr><td><strong>OS disk</strong></td><td>The disk the operating system boots from. Extra data disks are optional.</td></tr>
+</table>
+</div>
+
+<h2>Azure vs AWS</h2>
+<div class="az-scroll">
+<table>
+  <tr><th>Azure</th><th>AWS equivalent</th><th>Role</th></tr>
+  <tr><td>Virtual machine</td><td>EC2 instance</td><td>The compute itself</td></tr>
+  <tr><td>Virtual network (VNet)</td><td>VPC</td><td>The private network space</td></tr>
+  <tr><td>Subnet</td><td>Subnet</td><td>A slice of that network</td></tr>
+  <tr><td>Network interface (NIC)</td><td>Elastic network interface (ENI)</td><td>The network card</td></tr>
+  <tr><td>Network security group (NSG)</td><td>Security group</td><td>Traffic allow/deny rules</td></tr>
+  <tr><td>OS disk (managed disk)</td><td>EBS root volume</td><td>The boot disk</td></tr>
+  <tr><td>Public IP address</td><td>Elastic IP / public IP</td><td>Internet-facing address</td></tr>
+  <tr><td>Private IP</td><td>Private IP (inside the VPC)</td><td>Internal address</td></tr>
+  <tr><td>Resource group</td><td>No direct match (tags and resource groups come closest)</td><td>Grouping for management</td></tr>
+</table>
+</div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>A VM needs at least one NIC, and each NIC sits in exactly one subnet. The VM, NIC and VNet must be in the same region.</li>
+  <li>Azure reserves the first four addresses and the last one in every subnet, which is why the first VM in <code>172.16.0.0/24</code> gets <code>172.16.0.4</code>.</li>
+  <li>NSG rules can apply at the subnet level, the NIC level, or both. When both exist, traffic must be allowed by each of them.</li>
+  <li>A public IP is optional. A VM with no public IP can still reach and be reached by other resources inside the VNet.</li>
+</ul>
+</div>
+</div>
