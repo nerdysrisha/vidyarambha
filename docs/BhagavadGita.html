@@ -568,6 +568,16 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
 }
 #bm-toast.show { opacity: 1; }
+
+/* ── TABLET / DESKTOP HEIGHT FIX ─────────────────────────────────────────
+   The old rule used 100vh, which on Android Chrome is the height with the toolbar hidden: taller than what is
+   really visible, so the bottom nav bar was pushed off-screen on tablets. Now the page is a column exactly as tall
+   as the visible window: content area takes what is left, nav bar always sits at the bottom. (Phones: unchanged.) */
+@media (min-width: 701px) {
+  body { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+  #outer { flex: 1 1 auto; min-height: 0; height: auto; }
+  #navbar { flex: none; }
+}
 </style>
 </head>
 <body>
