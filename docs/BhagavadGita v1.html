@@ -543,31 +543,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #audio-dock { padding: 8px 6px; }
   #copyBtn { right: 6px; width: 28px; height: 28px; }
 }
-
-/* ── BOOKMARK ("dog-ear") + nav-bar bookmark button ───────────────────── */
-#content-box { touch-action: manipulation; }          /* no double-tap zoom, so double-tap can mean "bookmark" */
-#content-box .bookmarked { position: relative; }
-#content-box .bookmarked::after {                       /* folded top-right corner: page-coloured cut + gold flap */
-    content: ""; position: absolute; top: -1px; right: -1px; width: 32px; height: 32px;
-    background: linear-gradient(225deg, #fbf8f2 0%, #fbf8f2 50%, #ecd08a 50%, #b88a3a 100%);
-    border-radius: 0 0 8px 0 / 0 0 8px 0; pointer-events: none;
-}
-#content-box .bm-flash { box-shadow: 0 0 0 3px #d8b46acc, 0 4px 16px rgba(201,161,90,0.5) !important; }
-#navbar #bmBtn {
-    width: 34px; height: 30px; padding: 0; margin-left: 4px;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #d8b46a; border-color: #d8b46a66; opacity: 0.5;
-}
-#navbar #bmBtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
-#navbar #bmBtn.has { opacity: 1; background: #d8b46a; color: #111; }
-#navbar #bmBtn.has svg { fill: currentColor; }
-#bm-toast {
-    position: fixed; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 60;
-    background: #111; color: #d8b46a; border: 1px solid #d8b46a66; border-radius: 8px;
-    padding: 8px 14px; font-size: 13px; max-width: 86vw; text-align: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-}
-#bm-toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -611,18 +586,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
         <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
         <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
     </div>
-    <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
     <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
-
-<div id="bm-toast" role="status"></div>
 
 <div id="topic-tooltip"></div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-// ★ BOOKMARK + REOPEN: double-tap a verse = gold dog-ear (ONE bookmark, saved in this browser's localStorage);
-//   the bookmark button in the bottom bar jumps back to it. The page also reopens the last chapter. Search "BOOKMARK" below.
 // Base path where category folders live, relative to this file.
 // e.g. subjects/bhagavadgita/chapter1.html
 const BASE_URL = "subjects/";
@@ -729,7 +699,6 @@ categories.forEach((cat) => {
 // Block 1 starts at 0; every other block starts where the previous one ends.
 // Pages without data-ends are left alone.
 // (Scripts inside fetched pages do not run, so this logic lives here.)
-let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
 let syncUserScrollUntil = 0;
 const MANUAL_SCROLL_PAUSE_MS = 5000;
 const contentPanel = document.getElementById("content-panel");
@@ -765,7 +734,6 @@ function parseSyncTime(str) {
 }
 
 function stopAudioSync() {
-    clearTimeout(pendingTapPlay);
     document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
     contentBox.classList.remove("sync-on", "sync-playing");
     audioDock.innerHTML = "";                     // remove the pinned player
@@ -881,12 +849,9 @@ function initAudioSync() {
     blocks.slice(0, n).forEach((block, i) => {
         block.addEventListener("click", () => {
             if (syncDisabled) return;
-            clearTimeout(pendingTapPlay);
-            pendingTapPlay = setTimeout(() => {      // short wait: a 2nd quick tap means "bookmark", not "play"
-                audio.currentTime = starts[i] + 0.01;
-                const p = audio.play();
-                if (p && p.catch) p.catch(() => {});
-            }, 280);
+            audio.currentTime = starts[i] + 0.01;
+            const p = audio.play();
+            if (p && p.catch) p.catch(() => {});
         });
     });
 }
@@ -922,122 +887,11 @@ let fitTimer;
 window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses);
 
-// ── BOOKMARK + REOPEN LAST CHAPTER ──────────────────────────────────────
-// ★ Double-tap (or double-click) a verse: a gold folded corner appears on it = THE bookmark (only one exists;
-//   a new one replaces the old; double-tap it again to remove). It is saved at once in localStorage, as
-//   chapter + verse number (not pixels), so it survives closing the page, clearing recent apps and resizes.
-//   The bookmark button in the bottom bar opens that chapter and scrolls to the folded verse.
-//   The last chapter you opened is reopened automatically when the page opens.
-const BM_KEY = "gitaBookmark", LAST_KEY = "gitaLastTopic";
-const DOUBLE_TAP_MS = 320;
-try { localStorage.removeItem("gitaReaderState"); } catch (e) {}   // leftover from the earlier scroll-saving test
-let bookmark = null;                 // { path, index, label }
-try { bookmark = JSON.parse(localStorage.getItem(BM_KEY)); } catch (e) {}
-if (!bookmark || typeof bookmark.path !== "string" || typeof bookmark.index !== "number") bookmark = null;
-let pageLoaded = false, pendingJump = false, bmUserMoved = false;
-const bmBtn = document.getElementById("bmBtn");
-const bmToast = document.getElementById("bm-toast");
-let toastTimer;
-
-function saveBookmark() {
-    try { if (bookmark) localStorage.setItem(BM_KEY, JSON.stringify(bookmark)); else localStorage.removeItem(BM_KEY); } catch (e) {}
-}
-function showToast(msg) {
-    bmToast.textContent = msg; bmToast.classList.add("show");
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => bmToast.classList.remove("show"), 2200);
-}
-function paintBmBtn() { bmBtn.classList.toggle("has", !!bookmark); }
-function bookmarkables() {           // blocks that can carry the bookmark: verses (or plain paragraphs if a page has none)
-    const v = contentBox.querySelectorAll(".verse-block, .verse-refrain");
-    return Array.from(v.length ? v : contentBox.querySelectorAll("p, li, blockquote, h2, h3"));
-}
-function blockFromTarget(t) {
-    if (!t || !t.closest || t.closest("button, a, audio, .audio-player")) return null;
-    const el = t.closest(".verse-block, .verse-refrain") || t.closest("p, li, blockquote, h2, h3");
-    return el && bookmarkables().includes(el) ? el : null;
-}
-function markBookmark(topic) {       // draw the dog-ear if the bookmark is in the chapter now on screen
-    contentBox.querySelectorAll(".bookmarked").forEach(n => n.classList.remove("bookmarked"));
-    if (!bookmark || bookmark.path !== topic.path) return;
-    const el = bookmarkables()[bookmark.index];
-    if (el) el.classList.add("bookmarked");
-}
-function toggleBookmark(block) {
-    const idx = bookmarkables().indexOf(block);
-    if (idx < 0 || currentFlatIndex < 0) return;
-    const topic = flatTopics[currentFlatIndex];
-    if (bookmark && bookmark.path === topic.path && bookmark.index === idx) {
-        bookmark = null; block.classList.remove("bookmarked");
-        showToast("Bookmark removed");
-    } else {
-        contentBox.querySelectorAll(".bookmarked").forEach(n => n.classList.remove("bookmarked"));
-        bookmark = { path: topic.path, index: idx, label: topic.label };
-        block.classList.add("bookmarked");
-        showToast("Bookmarked — tap the ribbon below to return here");
-    }
-    saveBookmark(); paintBmBtn();
-    if (window.getSelection) window.getSelection().removeAllRanges();
-}
-
-// Double-tap detection (capture phase = runs before the verse's own tap-to-play handler)
-let lastTapEl = null, lastTapAt = 0;
-contentBox.addEventListener("click", e => {
-    const block = blockFromTarget(e.target);
-    if (!block) { lastTapEl = null; return; }
-    const now = Date.now();
-    if (lastTapEl === block && now - lastTapAt < DOUBLE_TAP_MS) {
-        e.stopPropagation();                 // 2nd tap: don't start audio
-        clearTimeout(pendingTapPlay);        // ...and cancel the audio the 1st tap queued
-        lastTapEl = null;
-        toggleBookmark(block);
-        return;
-    }
-    lastTapEl = block; lastTapAt = now;
-}, true);
-contentBox.addEventListener("mousedown", e => {      // desktop: stop the double-click from selecting a word
-    if (e.detail > 1 && blockFromTarget(e.target)) e.preventDefault();
-});
-["wheel", "touchstart", "mousedown"].forEach(evt =>
-    contentBox.addEventListener(evt, () => { bmUserMoved = true; }, { passive: true }));
-
-function scrollToBookmarkBlock(flash) {
-    const el = bookmark && bookmarkables()[bookmark.index];
-    if (!el) return false;
-    const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
-    const want = r.height > contentBox.clientHeight - 16 ? 8 : (contentBox.clientHeight - r.height) / 2;
-    scrollAnim = null;
-    contentBox.scrollTop += (r.top - box.top) - want;
-    if (flash) { el.classList.add("bm-flash"); setTimeout(() => el.classList.remove("bm-flash"), 1500); }
-    return true;
-}
-function jumpToBookmarkSoon() {      // verses get resized right after a chapter loads, so aim again a moment later
-    bmUserMoved = false;
-    const go = first => { if (!bmUserMoved) scrollToBookmarkBlock(first); };
-    go(true);
-    setTimeout(() => go(false), 350);
-    setTimeout(() => go(false), 900);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => go(false));
-}
-bmBtn.addEventListener("click", () => {
-    if (!bookmark) { showToast("No bookmark yet — double-tap a verse to place one"); return; }
-    const i = flatTopics.findIndex(t => t.path === bookmark.path);
-    if (i < 0) { showToast("Bookmarked chapter not found"); return; }
-    if (i === currentFlatIndex && pageLoaded) {
-        if (!scrollToBookmarkBlock(true)) showToast("Couldn't find the bookmarked verse");
-        return;
-    }
-    pendingJump = true;              // open the chapter first; the jump happens once it has loaded
-    loadTopic(i);
-});
-paintBmBtn();
-
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
-    pageLoaded = false;
-    try { localStorage.setItem(LAST_KEY, topic.path); } catch (e) {}   // BOOKMARK/REOPEN: remember last chapter
     stopAudioSync();   // (added) stop previous topic's audio
     if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
@@ -1056,7 +910,6 @@ function loadTopic(flatIndex) {
             return r.text();
         })
         .then(raw => {
-            if (currentFlatIndex !== flatIndex) return;   // another topic was picked meanwhile: drop this stale response
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
@@ -1066,8 +919,6 @@ function loadTopic(flatIndex) {
             placeCopyBtn(); copyBtn.classList.add("show");
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
-            pageLoaded = true; markBookmark(topic);   // BOOKMARK: draw the dog-ear if it is in this chapter
-            if (pendingJump) { pendingJump = false; jumpToBookmarkSoon(); }
         })
         .catch(err => {
             if (err.isMissing) {   // missing page = work in progress: just an icon
@@ -1226,14 +1077,6 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
 document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
-
-// REOPEN: on page open, go straight to the last chapter you were reading (does nothing on a first visit)
-(function () {
-    let last = null;
-    try { last = localStorage.getItem(LAST_KEY); } catch (e) {}
-    const i = flatTopics.findIndex(t => t.path === last);
-    if (i >= 0) loadTopic(i);
-})();
 </script>
 
 </body>
