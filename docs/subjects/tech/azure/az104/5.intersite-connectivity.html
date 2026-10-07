@@ -1,0 +1,322 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Implement Intersite Connectivity <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">By default, two VNets cannot talk to each other. This topic covers how to connect them (peering), how to check the link (Network Watcher) and how to steer traffic (custom routes).</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">rg-intersite-eus</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VNet</span><span class="lt">vnet-core-eus</span><span class="ld">10.20.0.0/16</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-core</span><span class="ld">10.20.10.0/24</span></div>
+        <div class="cs"><span class="cp">vm-core-01</span></div>
+      </div>
+    </div>
+    <div class="ly c-y">
+      <div class="lh"><span class="lv">Peering</span><span class="lt">One link per direction</span><span class="lp">Connected</span></div>
+      <div class="cs"><span class="cp cu">vnet-core-to-vnet-mfg</span><span class="cp cu">vnet-mfg-to-vnet-core</span></div>
+    </div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VNet</span><span class="lt">vnet-mfg-eus</span><span class="ld">10.30.0.0/16</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-mfg</span><span class="ld">10.30.20.0/24</span></div>
+        <div class="cs"><span class="cp">vm-mfg-01</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Two VNets, one VM each, joined by peering. This is what the exercise builds.</p>
+
+<h3>Virtual network peering</h3>
+<ul class="az-list">
+  <li>Peering connects two VNets so they act as <strong>one network</strong> for connectivity. VMs talk using <strong>private IPs</strong>.</li>
+  <li>Traffic stays on the <strong>Microsoft backbone</strong>. It does not cross the public Internet.</li>
+  <li>Works in the same region, across regions (global peering) and across subscriptions.</li>
+  <li>Address spaces must <strong>not overlap</strong>.</li>
+  <li>Peering is <strong>two links</strong>, one on each VNet. The portal creates both when you add it. Status shows <span class="az-val">Connected</span> only when both exist.</li>
+  <li>Peering is <strong>not transitive</strong>. If A peers with B and B peers with C, A still cannot reach C.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-r dash">
+    <div class="lh"><span class="lt">Before peering</span></div>
+    <div class="cs"><span class="cp">vm-mfg-01 &rarr; vm-core-01 on 3389</span><span class="cp cu">Unreachable</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lt">After peering</span></div>
+    <div class="cs"><span class="cp">vm-mfg-01 &rarr; vm-core-01 on 3389</span><span class="cp cu">Succeeded</span></div>
+  </div>
+</div>
+<p class="az-cap">Same test, run before and after peering. Only the peering changed.</p>
+
+<h3>Peering link settings</h3>
+<ul class="az-list">
+  <li><strong>Allow access to the peered VNet:</strong> on by default. Turn it off and the VNets stop talking.</li>
+  <li><strong>Allow forwarded traffic:</strong> accept traffic that did not start in the peered VNet, for example traffic sent through an NVA.</li>
+  <li><strong>Gateway transit / use remote gateway:</strong> lets one VNet share the other's VPN or ExpressRoute gateway.</li>
+</ul>
+
+<h3>Peering is not transitive</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="cs"><span class="cp cu">VNet A</span><span class="cp">&harr; peered</span><span class="cp cu">VNet B</span><span class="cp">&harr; peered</span><span class="cp cu">VNet C</span></div>
+  </div>
+  <div class="ly c-r dash">
+    <div class="lh"><span class="lt">VNet A &rarr; VNet C: not reachable</span></div>
+    <div class="cs"><span class="cp">Fix: peer A and C directly</span><span class="cp">or route through an NVA</span></div>
+  </div>
+</div>
+<p class="az-cap">B can reach both. A and C cannot reach each other.</p>
+
+<h3>Network Watcher: Connection troubleshoot</h3>
+<ul class="az-list">
+  <li>Tests whether a source (such as a VM) can reach a destination on a given <strong>port and protocol</strong>.</li>
+  <li>You set: source VM, destination VM, protocol (TCP), destination port (<span class="az-val">3389</span>).</li>
+  <li>Result is <span class="az-val">Reachable</span> or <span class="az-val">Unreachable</span>.</li>
+  <li>Other ways to test: <span class="az-ui">Run command</span> on the VM, or RDP in and use <span class="az-val">Test-NetConnection</span>.</li>
+</ul>
+
+<h3>Routes: system and custom</h3>
+<ul class="az-list">
+  <li>Azure creates <strong>system routes</strong> for every subnet automatically (VNet, Internet, peering).</li>
+  <li>A <strong>user-defined route (UDR)</strong> adds to or overrides the system routes.</li>
+  <li>Routes live in a <strong>route table</strong>. The table only takes effect once <strong>associated with a subnet</strong>. It controls traffic <em>leaving</em> that subnet.</li>
+  <li>A route has: a destination (CIDR), a next hop type, and a next hop address.</li>
+  <li>Next hop types: <span class="az-val">Virtual appliance</span>, <span class="az-val">Virtual network gateway</span>, <span class="az-val">Virtual network</span>, <span class="az-val">Internet</span>, <span class="az-val">None</span>.</li>
+  <li><strong>Virtual appliance</strong> = an NVA (firewall or similar). Give its private IP as the next hop address. The NVA's NIC needs <strong>IP forwarding</strong> turned on.</li>
+  <li><strong>Propagate gateway routes:</strong> if <span class="az-val">No</span>, routes learned from a VPN or ExpressRoute gateway (BGP) are not added to this table.</li>
+  <li>Same destination as a system route? The UDR wins.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">Route table</span><span class="lt">rt-core</span><span class="ld">attached to snet-core</span></div>
+    <div class="cs"><span class="cp cu">to-core-via-nva 10.20.0.0/16 &rarr; Virtual appliance 10.20.30.7</span></div>
+    <div class="cs" style="margin-top:5px;"><span class="cp">10.20.0.0/16 &rarr; Virtual network (system, overridden)</span><span class="cp">0.0.0.0/0 &rarr; Internet (system)</span></div>
+  </div>
+</div>
+<p class="az-cap">Bold chip is your route. The others are the built-in system routes.</p>
+
+<h3>Where the route table sits</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">VNet</span><span class="lt">vnet-core-eus</span><span class="ld">10.20.0.0/16</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-core</span><span class="ld">10.20.10.0/24</span><span class="lp">rt-core</span></div>
+      <div class="cs"><span class="cp">vm-core-01</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-perimeter</span><span class="ld">10.20.30.0/24</span></div>
+      <div class="cs"><span class="cp">future NVA 10.20.30.7</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Traffic leaving snet-core for the VNet range is sent to the NVA in snet-perimeter.</p>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> build two VNets with a VM each, prove they cannot talk, peer them, prove they can, then add a custom route. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Core VM + VNet</span><span class="cp cu">2 Manufacturing VM + VNet</span><span class="cp cu">3 Test (fails)</span><span class="cp cu">4 Peer</span><span class="cp cu">5 Test (works)</span><span class="cp cu">6 Custom route</span></div>
+  </div>
+</div>
+<div class="az-note"><p>The original steps use <span class="az-val">CoreServicesVM</span>, <span class="az-val">ManufacturingVM</span>, <span class="az-val">CoreServicesVnet</span> (<span class="az-val">10.0.0.0/16</span>), <span class="az-val">ManufacturingVnet</span> (<span class="az-val">172.16.0.0/16</span>), <span class="az-val">az104-rg5</span> and similar. Any names and non-overlapping ranges work. Names here match topic 4.</p></div>
+
+<h3>Task 1: Create a core VM and VNet</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Virtual machines</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Azure virtual machine</span>.</li>
+  <li>Basics:
+    <ul>
+      <li>Resource group <span class="az-val">rg-intersite-eus</span> (create new), name <span class="az-val">vm-core-01</span>, region <span class="az-val">East US</span></li>
+      <li>Availability: <em>No infrastructure redundancy required</em>, security type <em>Standard</em></li>
+      <li>Image <span class="az-val">Windows Server 2019 Datacenter: x64 Gen2</span>, size <span class="az-val">Standard_DS2_v3</span></li>
+      <li>Username <span class="az-val">localadmin</span>, a complex password, public inbound ports <em>None</em></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Disks</span>: take the defaults. Go to <span class="az-ui">Networking</span>.</li>
+  <li>Virtual network &rarr; <span class="az-ui">Create new</span>: name <span class="az-val">vnet-core-eus</span>, range <span class="az-val">10.20.0.0/16</span>, subnet <span class="az-val">snet-core</span> <span class="az-val">10.20.10.0/24</span> &rarr; <span class="az-ui">OK</span>. Replace any default values.</li>
+  <li><span class="az-ui">Monitoring</span>: Boot diagnostics &rarr; <span class="az-ui">Disable</span>.</li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>. No need to wait. Start Task 2.</li>
+</ol>
+
+<h3>Task 2: Create a VM in a different VNet</h3>
+<ol class="az-list">
+  <li>Repeat Task 1 with these changes:
+    <ul>
+      <li>VM name <span class="az-val">vm-mfg-01</span>, same resource group, same region and settings</li>
+      <li>New VNet <span class="az-val">vnet-mfg-eus</span>, range <span class="az-val">10.30.0.0/16</span>, subnet <span class="az-val">snet-mfg</span> <span class="az-val">10.30.20.0/24</span></li>
+    </ul>
+  </li>
+  <li>Boot diagnostics &rarr; <span class="az-ui">Disable</span>, then <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> two VMs, in two VNets with different ranges. Wait until both are deployed and running before Task 3.</p></div>
+
+<h3>Task 3: Test the connection with Network Watcher</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Network Watcher</span> &rarr; <span class="az-ui">Connection troubleshoot</span>.</li>
+  <li>Source type <em>Virtual machine</em> &rarr; <span class="az-val">vm-core-01</span>. Destination type <em>Virtual machine</em> &rarr; <span class="az-val">vm-mfg-01</span>.</li>
+  <li>Preferred IP version <em>Both</em>, protocol <em>TCP</em>, destination port <span class="az-val">3389</span>, source port blank, diagnostic tests default.</li>
+  <li><span class="az-ui">Run diagnostic tests</span>. It can take a couple of minutes.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the connectivity test shows <span class="az-val">Unreachable</span>. Expected, because the VMs are in different VNets.</p></div>
+
+<h3>Task 4: Peer the VNets</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">vnet-core-eus</span> &rarr; <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Peerings</span> &rarr; <span class="az-ui">+ Add</span>.</li>
+  <li>Link names: <span class="az-val">vnet-core-to-vnet-mfg</span> (this VNet) and <span class="az-val">vnet-mfg-to-vnet-core</span> (remote VNet).</li>
+  <li>Remote virtual network: <span class="az-val">vnet-mfg-eus</span> in <span class="az-val">rg-intersite-eus</span>.</li>
+  <li>Leave <em>Allow access</em> selected on both sides, and select <em>Allow forwarded traffic</em> on both sides. Defaults for the rest.</li>
+  <li><span class="az-ui">Add</span>.</li>
+  <li>On <span class="az-val">vnet-core-eus</span> &rarr; <span class="az-ui">Peerings</span>, check the link and <span class="az-ui">Refresh</span> until status is <span class="az-val">Connected</span>. Do the same on <span class="az-val">vnet-mfg-eus</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> both VNets list their peering link with status <span class="az-val">Connected</span>.</p></div>
+
+<h3>Task 5: Test again with PowerShell</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">vm-core-01</span> &rarr; <span class="az-ui">Overview</span> &rarr; <span class="az-ui">Networking</span>. Write down its <strong>private IP address</strong>.</li>
+  <li>Open <span class="az-val">vm-mfg-01</span> &rarr; <span class="az-ui">Operations</span> &rarr; <span class="az-ui">Run command</span> &rarr; <span class="az-ui">RunPowerShellScript</span>.</li>
+  <li>Run it with the core VM's private IP:
+    <ul><li><span class="az-val">Test-NetConnection &lt;vm-core-01 private IP&gt; -port 3389</span></li></ul>
+  </li>
+  <li>Wait. The page shows <em>Script execution in progress</em> and can take a couple of minutes.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the test succeeds (<span class="az-val">TcpTestSucceeded : True</span>). Peering made the difference.</p></div>
+<div class="az-note"><p>You could also RDP into a VM and run <span class="az-val">Test-NetConnection</span> there, or rerun Network Watcher from Task 3.</p></div>
+
+<h3>Task 6: Create a custom route</h3>
+<ol class="az-list">
+  <li><strong>Add a subnet:</strong> <span class="az-val">vnet-core-eus</span> &rarr; <span class="az-ui">Subnets</span> &rarr; <span class="az-ui">+ Subnet</span>: name <span class="az-val">snet-perimeter</span>, start <span class="az-val">10.20.30.0</span>, size <span class="az-val">/24</span> &rarr; <span class="az-ui">Add</span>.</li>
+  <li><strong>Route table:</strong> <span class="az-ui">Route tables</span> &rarr; <span class="az-ui">+ Create</span>: group <span class="az-val">rg-intersite-eus</span>, region East US, name <span class="az-val">rt-core</span>, Propagate gateway routes <em>No</em> &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li>Open <span class="az-val">rt-core</span> (click the name, not the checkbox) &rarr; <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Routes</span> &rarr; <span class="az-ui">Add</span>:
+    <ul>
+      <li>Route name <span class="az-val">to-core-via-nva</span>, destination type <em>IP Addresses</em></li>
+      <li>Destination <span class="az-val">10.20.0.0/16</span> (the core VNet)</li>
+      <li>Next hop type <em>Virtual appliance</em>, next hop address <span class="az-val">10.20.30.7</span> (the future NVA)</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Add</span>.</li>
+  <li><strong>Associate:</strong> <span class="az-ui">Subnets</span> &rarr; <span class="az-ui">+ Associate</span>: VNet <span class="az-val">vnet-core-eus</span>, subnet <span class="az-val">snet-core</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">rt-core</span> lists the route <span class="az-val">to-core-via-nva</span> and shows <span class="az-val">snet-core</span> under Subnets.</p></div>
+<div class="az-note"><p>No NVA exists at <span class="az-val">10.20.30.7</span> yet, so this only builds the plumbing. In real life, deploy the NVA and enable IP forwarding on its NIC first. Do Task 5 before this task, because the route sends traffic to an address with nothing behind it.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">rg-intersite-eus</span> when you finish. It removes everything built here.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Different VNets cannot communicate by default.</li>
+  <li>Peering gives private IP connectivity over the Microsoft backbone. It works across regions and subscriptions.</li>
+  <li>Peering needs non-overlapping address spaces and a link on each VNet. Status <span class="az-val">Connected</span> means both exist.</li>
+  <li>Peering is <strong>not transitive</strong>.</li>
+  <li><em>Allow forwarded traffic</em> is needed for traffic that passes through an NVA.</li>
+  <li>Network Watcher <em>Connection troubleshoot</em> tests a port between two VMs. <span class="az-val">Test-NetConnection</span> does the same from inside a VM.</li>
+  <li>System routes exist by default. A UDR overrides them for the same destination.</li>
+  <li>A route table does nothing until it is associated with a subnet, and it affects traffic leaving that subnet.</li>
+  <li>Next hop <em>Virtual appliance</em> needs the NVA's private IP, and IP forwarding on the NVA's NIC.</li>
+  <li>Propagate gateway routes <em>No</em> keeps BGP-learned routes out of the table.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>Two VMs sit in different VNets with no peering. Can they communicate by default?</strong>
+    <div class="az-a">No. Resources in different VNets cannot communicate until you connect the VNets, for example with peering.</div></li>
+
+  <li><strong>You peer <span class="az-val">vnet-core-eus</span> to <span class="az-val">vnet-mfg-eus</span> but only one link exists. What status do you expect?</strong>
+    <div class="az-a">Not <span class="az-val">Connected</span>. Peering needs a link on <em>each</em> VNet. The portal creates both when you add the peering, and then both show <span class="az-val">Connected</span>.</div></li>
+
+  <li><strong>VNet A is peered with VNet B, and VNet B is peered with VNet C. Can a VM in A reach a VM in C?</strong>
+    <ol class="az-opts"><li>Yes, peering is transitive</li><li>Yes, but only on private IPs</li><li>No, you must peer A and C directly or route through an NVA</li><li>No, peering supports only two VNets in total</li></ol>
+    <div class="az-a"><strong>C.</strong> Peering is not transitive. Peer A and C directly, or send traffic through an NVA with the right routes.</div></li>
+
+  <li><strong>Can you peer two VNets that both use <span class="az-val">10.20.0.0/16</span>?</strong>
+    <div class="az-a">No. Peered VNets must have non-overlapping address spaces.</div></li>
+
+  <li><strong>Which Network Watcher tool did the lab use to test a TCP port between two VMs, and what did it show before peering?</strong>
+    <div class="az-a"><em>Connection troubleshoot</em> (source VM, destination VM, TCP, port <span class="az-val">3389</span>). It showed <span class="az-val">Unreachable</span>, because the VMs were in different VNets.</div></li>
+
+  <li><strong>The VMs have no public inbound ports, yet <span class="az-val">Test-NetConnection</span> to port 3389 succeeds after peering. Why?</strong>
+    <div class="az-a">The traffic is private, VM to VM across the peering. It is allowed by the default NSG rule that permits traffic from the VNet (peered VNets count as part of it). Public inbound ports only matter for Internet traffic.</div></li>
+
+  <li><strong>You need to send traffic from a subnet to a firewall appliance at <span class="az-val">10.20.30.7</span>. What do you build?</strong>
+    <div class="az-a">A route table with a route to the destination range, next hop type <em>Virtual appliance</em> and next hop address <span class="az-val">10.20.30.7</span>, then <strong>associate</strong> the table with the subnet. The NVA's NIC also needs IP forwarding turned on.</div></li>
+
+  <li><strong>A UDR and a system route cover the same destination prefix. Which one is used?</strong>
+    <ol class="az-opts"><li>The system route</li><li>The user-defined route</li><li>Both, traffic is split</li><li>Neither, the traffic is dropped</li></ol>
+    <div class="az-a"><strong>B.</strong> A user-defined route overrides the system route for the same prefix.</div></li>
+
+  <li><strong>What does <em>Propagate gateway routes: No</em> do on a route table?</strong>
+    <div class="az-a">Routes learned from a VPN or ExpressRoute gateway (BGP) are not added to the subnets that use this route table.</div></li>
+
+  <li><strong>You created <span class="az-val">rt-core</span> with a route to an NVA, but traffic still takes the old path. What is the most likely cause?</strong>
+    <div class="az-a">The route table is not associated with the subnet the traffic leaves from. A route table only works once associated with a subnet. (Also check that the NVA exists and has IP forwarding enabled.)</div></li>
+</ol>
+</div>
