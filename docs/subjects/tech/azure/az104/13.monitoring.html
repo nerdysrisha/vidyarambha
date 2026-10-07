@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Azure Monitor: Logs, Alerts and Action Groups <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Azure Monitor collects data from your Azure resources, stores it, and tells you when something happens. In this topic a VM sends data to a Log Analytics workspace, you query it with KQL, and you build an alert that emails the team when the VM is deleted. This covers metrics, logs, the Activity Log, action groups and alert processing rules.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -89,6 +98,8 @@
   <li><strong>Logs:</strong> detailed records stored in a <strong>Log Analytics workspace</strong> and queried with <strong>KQL</strong> (Kusto Query Language).</li>
   <li><strong>Activity Log:</strong> subscription-level record of who did what to a resource (create, delete, change). Kept 90 days. Not a metric.</li>
   <li>Host metrics being visible does <strong>not</strong> prove logs-based VM monitoring is set up. You need the agent, a rule and a workspace.</li>
+  <li><strong>Metrics vs logs:</strong> use metrics for fast numeric checks and simple alerts (is CPU high now?). Use logs for detail and analysis across many resources (what happened, and why?). Metrics come automatically from Azure resources. Logs must be sent to a workspace first.</li>
+  <li><strong>Diagnostic settings</strong> (on a resource) send its platform logs and metrics to a destination: a <strong>Log Analytics workspace</strong>, a <strong>storage account</strong> (archive), <strong>Event Hubs</strong> or a partner solution. The Activity Log has its own diagnostic setting to keep it longer than 90 days.</li>
 </ul>
 
 <h3>Collecting VM data: agent, DCR, workspace</h3>
@@ -111,6 +122,7 @@
   <li>A query starts with a table, then pipes (<span class="az-val">|</span>) steps: <span class="az-val">where</span> (filter), <span class="az-val">summarize</span> (group or count), <span class="az-val">bin()</span> (time buckets), <span class="az-val">render</span> (chart).</li>
   <li><span class="az-val">ago(30m)</span> means "the last 30 minutes". <span class="az-val">=~</span> compares text ignoring case.</li>
   <li>Open it from the workspace: <span class="az-ui">General</span> &rarr; <span class="az-ui">Logs</span> (KQL mode).</li>
+  <li>Pattern: <strong>filter</strong> first, then <strong>aggregate</strong>. For example <span class="az-val">InsightsMetrics | where Name == "UtilizationPercentage" | summarize avg(Val) by bin(TimeGenerated, 5m)</span> gives average CPU per 5 minutes. <span class="az-val">Heartbeat | summarize max(TimeGenerated) by Computer</span> shows the last time each VM reported in.</li>
 </ul>
 
 <h3>Alerts</h3>
@@ -120,6 +132,8 @@
   <li>Deleting a VM is an <strong>Activity Log administrative operation</strong>: <span class="az-val">Microsoft.Compute/virtualMachines/delete</span>. It is not a VM metric.</li>
   <li>Scope here is the <strong>subscription</strong>, so any VM deletion in it triggers the alert. Activity Log alerts have a <strong>Global</strong> region.</li>
   <li>Severity runs from <strong>0 (Critical)</strong> to <strong>4 (Verbose)</strong>.</li>
+  <li><strong>Metric alert example:</strong> signal <em>Percentage CPU</em>, aggregation <em>Average</em>, operator <em>Greater than</em>, <strong>threshold</strong> <span class="az-val">80</span> (percent), checked every 1 minute over the last 5 minutes. When true, it fires and runs the action group. Static thresholds are fixed numbers. Dynamic thresholds learn the normal pattern.</li>
+  <li><strong>Log alert:</strong> runs a KQL query on a schedule and fires on the result, for example when the number of rows is above a threshold. Costs more than a metric alert and has a delay, but can check anything in the logs.</li>
 </ul>
 
 <h3>Action groups</h3>
@@ -140,9 +154,10 @@
   <li>Simple memory: action group = <em>who</em> is told. Processing rule = <em>when</em> they are told.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> deploy a monitored VM, prove data is arriving, set up an alert and action group, add a maintenance suppression rule, then delete the VM to trigger the alert. About 45 minutes.</p>
 <div class="az-dg">
@@ -244,9 +259,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -294,4 +310,5 @@
   <li><strong>After you delete the VM, can you still query the data it collected earlier?</strong>
     <div class="az-a">Yes. Records already in the workspace stay for the workspace retention period. The VM just cannot send any new data.</div></li>
 </ol>
+</details>
 </div>

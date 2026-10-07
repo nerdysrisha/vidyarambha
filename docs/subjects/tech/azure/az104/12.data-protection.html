@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Data Protection: Azure Backup and Site Recovery <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Backup brings your data back after it is deleted or damaged. Site Recovery keeps a copy of a whole VM running in another region, so you can switch over after a disaster. Both use a Recovery Services vault. This topic covers vaults, backup policies, soft delete, monitoring and VM replication.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -88,6 +97,7 @@
   <li><strong>Azure Site Recovery (ASR)</strong> = keep a copy of the VM running in a <strong>second region</strong> and <strong>fail over</strong> if the first region has an outage. This is <strong>disaster recovery</strong>.</li>
   <li>Backup is for getting data back. ASR is for getting the whole workload running again quickly with little downtime.</li>
   <li>Backup works for Azure VMs, on-premises servers, SQL Server in VMs, Azure file shares and more.</li>
+  <li><strong>Backup vs ASR in one line:</strong> Backup answers "can I get my data back?" (restore from a past point in time, measured in hours). ASR answers "can I keep running if a region fails?" (failover, measured in minutes). Many workloads need both. ASR also replicates on-premises servers (VMware, Hyper-V, physical) to Azure as a disaster recovery site.</li>
 </ul>
 
 <h3>Recovery Services vault</h3>
@@ -122,6 +132,7 @@
   <li><span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Backup jobs</span> lists backup operations. Use <em>View details</em> for one job.</li>
   <li><strong>Diagnostic settings</strong> send vault logs and metrics to a destination: <strong>Log Analytics workspace</strong>, <strong>storage account</strong> (archive), Event Hub or a partner solution.</li>
   <li>The lab sends these categories: Backup Reporting Data, Backup Job Data, Backup Alert Data, Site Recovery Jobs and Site Recovery Events.</li>
+  <li><strong>Backup reports</strong> (<span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Backup center</span> or the vault's <em>Backup Reports</em>) show usage, jobs, policy adherence and retention in a dashboard. They need the Reporting Data category sent to a Log Analytics workspace.</li>
 </ul>
 
 <h3>Site Recovery: replicating a VM</h3>
@@ -139,11 +150,14 @@
   <li>The first copy takes time (10 to 15 minutes in the lab). Status starts at 0% synchronization, then becomes <strong>Protected</strong>.</li>
   <li>Check it in the target vault: <span class="az-ui">Protected items</span> &rarr; <span class="az-ui">Replicated items</span>. Replication health should be healthy.</li>
   <li>Good practice: run a <strong>test failover</strong> (a drill) without affecting production.</li>
+  <li>A <strong>failover</strong> starts the replica VM in the target region. After the original region is healthy again, <strong>reprotect</strong> the VM and <strong>fail back</strong> to move the workload home.</li>
+  <li>A <strong>recovery plan</strong> groups several VMs and fails them over together, in a set order (for example database first, then web tier), with optional manual steps or automation scripts.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> deploy a VM from a template, back it up with a policy, send vault logs to storage, then replicate the VM to another region. About 50 minutes.</p>
 <div class="az-dg">
@@ -230,9 +244,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -280,4 +295,5 @@
   <li><strong>How do you know the VM replication has finished and is working?</strong>
     <div class="az-a">In the target-region vault, under Protected items &rarr; Replicated items: health is healthy and the status moves from 0% synchronization to Protected.</div></li>
 </ol>
+</details>
 </div>
