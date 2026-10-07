@@ -1,0 +1,194 @@
+<div class="pt-interrog">
+<style>
+.pt-interrog { color: #2b2b2b; font-family: inherit; }
+.pt-interrog h2, .pt-interrog h4, .pt-interrog h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-interrog .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-interrog .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-interrog .desc-box p:last-child { margin-bottom: 0; }
+.pt-interrog .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-interrog .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-interrog .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-interrog .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-interrog .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-interrog .spk-wrap, .pt-interrog .ex-line { position: relative; padding-left: 1.9em; }
+.pt-interrog .spk-wrap:hover .spk-btn,
+.pt-interrog .ex-line:hover .spk-btn,
+.pt-interrog .spk-btn:focus-visible { opacity: 1; }
+.pt-interrog .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-interrog .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-interrog .desc-box > p:hover .spk-inline,
+.pt-interrog .spk-inline:focus-visible,
+.pt-interrog .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-interrog .spk-btn, .pt-interrog .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-interrog .table-scroll { overflow-x: auto; }
+.pt-interrog .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-interrog .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-interrog .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-interrog .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-interrog .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-interrog .compare-table tr:last-child td { border-bottom: none; }
+.pt-interrog .compare-table td.spk-wrap, .pt-interrog .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-interrog .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-interrog .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-interrog .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-interrog .example-list { margin: 0 0 12px 0; }
+.pt-interrog .example-list:last-child { margin-bottom: 0; }
+.pt-interrog .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-interrog .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-interrog .ex-line:last-child { margin-bottom: 0; }
+.pt-interrog .example-box .pt-word { color: #d8b46a !important; }
+.pt-interrog .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-interrog .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-interrog .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-interrog .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-interrog .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-interrog .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-interrog .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-interrog .exercise-item:last-child { margin-bottom: 0; }
+.pt-interrog .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-interrog .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-interrog .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-interrog .blank-word { display: inline-block; }
+.pt-interrog .underscore { color: #999 !important; }
+.pt-interrog .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-interrog .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-interrog .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-interrog .cue-list li:last-child { border-bottom: none; }
+.pt-interrog .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-interrog .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-interrog .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-interrog .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-interrog .check-btn:hover { background: #245640 !important; }
+</style>
+
+<h2>23. Interrogativos <span class="en">(Question words)</span></h2>
+
+<div class="desc-box">
+  <p>Interrogatives are the words that open a question. In Portuguese the question word usually comes first, followed by the verb (<em>Onde trabalhas?</em>), and your voice goes up at the end. This page lists the main question words, then focuses on <strong>qual / quais</strong>, the words you need to ask for personal information such as a nationality, an address or a passport number.</p>
+
+  <hr class="desc-divider">
+
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Interrogativo</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="Onde?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde?</span></td><td>where? (place)</td><td>कहाँ?</td></tr>
+      <tr><td class="spk-wrap" data-pt="De onde?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">De onde?</span></td><td>where from? (origin)</td><td>कहाँ से?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Quando?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quando?</span></td><td>when? (time)</td><td>कब?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Quem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quem?</span></td><td>who? (person)</td><td>कौन?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Qual? Quais?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual? / Quais?</span></td><td>which? / what? (singular / plural)</td><td>कौन सा? / कौन से?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Como?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como?</span></td><td>how? (manner, description)</td><td>कैसे?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Porquê?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Porquê?</span></td><td>why? (alone or at the end of a sentence)</td><td>क्यों?</td></tr>
+      <tr><td class="spk-wrap" data-pt="Porque?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Porque…?</span></td><td>why…? (at the start of a question); also "because" in the answer</td><td>क्यों…? / क्योंकि</td></tr>
+      <tr><td class="spk-wrap" data-pt="Quantos? Quantas?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos? / Quantas?</span></td><td>how many? (masculine / feminine plural)</td><td>कितने? / कितनी?</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>Qual / Quais</strong> — use <span class="pt-word">qual</span> with a singular noun and <span class="pt-word">quais</span> with a plural one, followed by <em>é</em> or <em>são</em>: <em>Qual <strong>é</strong> a sua idade?</em>, <em>Quais <strong>são</strong> os nomes dos seus filhos?</em> The answer starts with the same verb (<em>É…</em> / <em>São…</em>). With <em>tu</em> use <em>o teu / a tua</em> instead of <em>o seu / a sua</em>. For age, people also say <em>Tenho 32 anos</em> in everyday speech.</p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — Qual / Quais</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Qual é a sua nacionalidade? É indiana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> a sua nacionalidade? <span class="pt-word">É</span> indiana.<span class="en-eq">What is your nationality? Indian.</span></p>
+    <p class="ex-line" data-pt="Qual é a sua idade? É 32 anos. A minha idade é 32 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> a sua idade? <span class="pt-word">É</span> 32 anos. (A minha idade <span class="pt-word">é</span> 32 anos.)<span class="en-eq">What is your age? 32 years.</span></p>
+    <p class="ex-line" data-pt="Qual é a sua morada? É a Rua de Camões, 32, 2.º D, 1700-065 Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> a sua morada? <span class="pt-word">É</span> a Rua de Camões, 32, 2ºD, 1700-065 Lisboa.<span class="en-eq">What is your address?</span></p>
+    <p class="ex-line" data-pt="Qual é o seu número do contribuinte? É 234567890."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> o seu número do contribuinte? <span class="pt-word">É</span> 234567890.<span class="en-eq">What is your tax number?</span></p>
+    <p class="ex-line" data-pt="Qual é o seu número de Segurança Social? É 1234567890."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> o seu número de Segurança Social? <span class="pt-word">É</span> 1234567890.<span class="en-eq">What is your Social Security number?</span></p>
+    <p class="ex-line" data-pt="Qual é o número do seu passaporte? É RG123456."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual <span class="pt-word">é</span> o (seu) número do seu passaporte? <span class="pt-word">É</span> RG123456.<span class="en-eq">What is your passport number?</span></p>
+    <p class="ex-line" data-pt="Quais são os nomes dos seus filhos? São o João e a Carla."><button class="spk-btn" aria-label="Ouvir">🔊</button>Quais <span class="pt-word">são</span> os nomes dos seus filhos? <span class="pt-word">São</span> o João e a Carla.<span class="en-eq">What are your children's names?</span></p>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — outros interrogativos</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Onde trabalhas? Trabalho numa escola."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde</span> trabalhas? Trabalho numa escola.<span class="en-eq">Where do you work? At a school.</span></p>
+    <p class="ex-line" data-pt="De onde és? Sou da Índia."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">De onde</span> és? Sou da Índia.<span class="en-eq">Where are you from? From India.</span></p>
+    <p class="ex-line" data-pt="Quando chegas? Chego às 18 horas."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quando</span> chegas? Chego às 18h.<span class="en-eq">When do you arrive? At 6 pm.</span></p>
+    <p class="ex-line" data-pt="Quem fala inglês? A Ana fala inglês."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quem</span> fala inglês? A Ana fala inglês.<span class="en-eq">Who speaks English? Ana does.</span></p>
+    <p class="ex-line" data-pt="Como estás? Estou bem."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como</span> estás? Estou bem.<span class="en-eq">How are you? I'm fine.</span></p>
+    <p class="ex-line" data-pt="Quantos filhos tens? Tenho dois filhos."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos</span> filhos tens? Tenho dois filhos.<span class="en-eq">How many children do you have? Two.</span></p>
+    <p class="ex-line" data-pt="Porque estudas português? Porque quero trabalhar em Portugal."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Porque</span> estudas português? <span class="pt-word">Porque</span> quero trabalhar em Portugal.<span class="en-eq">Why do you study Portuguese? Because I want to work in Portugal.</span></p>
+    <p class="ex-line" data-pt="Hoje não trabalho. Porquê?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje não trabalho. <span class="pt-word">Porquê</span>?<span class="en-eq">I'm not working today. Why?</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Complete com o interrogativo correto.</p>
+    <p class="ex-note">Words: Qual · Quais · Onde · De onde · Quando · Quem · Quantos · Porque</p>
+    <p class="question">
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Qual</span></span> é a sua idade?<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Quais</span></span> são os nomes dos seus filhos?<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Onde</span></span> trabalhas? Trabalho numa loja.<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">De onde</span></span> és? Sou da Índia.<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Quando</span></span> chegas? Chego às 18h.<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Quem</span></span> fala inglês? A Ana.<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Quantos</span></span> filhos tens? Tenho dois.<br>
+      <span class="blank-word"><span class="underscore">___</span><span class="fill">Porque</span></span> estudas português? Porque quero trabalhar em Portugal.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Escolhe a opção correta <span class="en">(Presente do indicativo: trabalhar)</span></p>
+    <ol class="cue-list">
+      <li><span class="cue">Eu (trabalho / trabalha) no Porto.</span> <span class="reveal">trabalho</span></li>
+      <li><span class="cue">Tu (trabalhas / trabalham) numa loja.</span> <span class="reveal">trabalhas</span></li>
+      <li><span class="cue">A Maria (trabalha / trabalhamos) numa escola.</span> <span class="reveal">trabalha</span></li>
+      <li><span class="cue">Nós (trabalhamos / trabalham) juntos.</span> <span class="reveal">trabalhamos</span></li>
+      <li><span class="cue">Eles (trabalha / trabalham) num restaurante.</span> <span class="reveal">trabalham</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Completa as frases <span class="en">(Presente do indicativo: trabalhar)</span></p>
+    <p class="ex-note">Usa as palavras: empresa — hospital — escola — loja — restaurante</p>
+    <p class="question">
+      Um médico trabalha num <span class="blank-word"><span class="underscore">_______</span><span class="fill">hospital</span></span>.<br>
+      Um professor trabalha numa <span class="blank-word"><span class="underscore">_______</span><span class="fill">escola</span></span>.<br>
+      Um empregado de mesa trabalha num <span class="blank-word"><span class="underscore">_______</span><span class="fill">restaurante</span></span>.<br>
+      Uma pessoa pode trabalhar numa <span class="blank-word"><span class="underscore">_______</span><span class="fill">loja</span></span> de roupa.<br>
+      Muitas pessoas trabalham numa <span class="blank-word"><span class="underscore">_______</span><span class="fill">empresa</span></span>.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+</div>
+
+</div>
