@@ -1,0 +1,297 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Azure Monitor: Logs, Alerts and Action Groups <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Azure Monitor collects data from your Azure resources, stores it, and tells you when something happens. In this topic a VM sends data to a Log Analytics workspace, you query it with KQL, and you build an alert that emails the team when the VM is deleted. This covers metrics, logs, the Activity Log, action groups and alert processing rules.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg11</span><span class="ld">East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VM</span><span class="lt">az104-vm0</span><span class="ld">Azure Monitor Agent</span></div>
+      <div class="cs"><span class="cp">heartbeat</span><span class="cp">performance data</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">DCR</span><span class="lt">az104-dcr11</span><span class="ld">what to collect, where to send</span></div>
+      <div class="ly c-y">
+        <div class="lh"><span class="lv">Workspace</span><span class="lt">az104-law11-...</span><span class="ld">Log Analytics, queried with KQL</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">Monitor</span><span class="lt">Alert rule: VM was deleted</span></div>
+    <div class="cs"><span class="cp cu">Activity Log</span><span class="cp">&rarr;</span><span class="cp cu">Action group: AlertOpsTeam</span><span class="cp">&rarr;</span><span class="cp cu">email</span></div>
+    <div class="cs"><span class="cp">processing rule: Planned Maintenance (suppress)</span></div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. Data flows into the workspace. The alert path is separate and uses the Activity Log.</p>
+
+<h3>Azure Monitor and its data</h3>
+<ul class="az-list">
+  <li><strong>Azure Monitor</strong> is the platform to collect, analyze and act on data from Azure, on-premises and other clouds.</li>
+  <li><strong>Metrics:</strong> numbers over time (such as CPU %). Light, near real time, kept 93 days.</li>
+  <li><strong>Logs:</strong> detailed records stored in a <strong>Log Analytics workspace</strong> and queried with <strong>KQL</strong> (Kusto Query Language).</li>
+  <li><strong>Activity Log:</strong> subscription-level record of who did what to a resource (create, delete, change). Kept 90 days. Not a metric.</li>
+  <li>Host metrics being visible does <strong>not</strong> prove logs-based VM monitoring is set up. You need the agent, a rule and a workspace.</li>
+</ul>
+
+<h3>Collecting VM data: agent, DCR, workspace</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="cs"><span class="cp cu">AMA on VM</span><span class="cp">&rarr; DCR association &rarr;</span><span class="cp cu">DCR</span><span class="cp">&rarr;</span><span class="cp cu">Log Analytics workspace</span></div>
+  </div>
+</div>
+<p class="az-cap">No data collection rule association, no data in the workspace.</p>
+<ul class="az-list">
+  <li><strong>Azure Monitor Agent (AMA)</strong> runs on the VM as an extension. On Windows it is <span class="az-val">AzureMonitorWindowsAgent</span>. Check it shows <em>Provisioning succeeded</em>.</li>
+  <li>A <strong>Data collection rule (DCR)</strong> says what to collect and where to send it. It must be <strong>associated</strong> with the VM.</li>
+  <li>A <strong>Log Analytics workspace</strong> is the store. Data can take several minutes to arrive.</li>
+  <li>Useful tables: <span class="az-val">Heartbeat</span> (the agent says "I am alive") and <span class="az-val">InsightsMetrics</span> (performance counters).</li>
+  <li>Deleted VM = no new data, but data already collected stays for the workspace retention period.</li>
+</ul>
+
+<h3>KQL basics</h3>
+<ul class="az-list">
+  <li>A query starts with a table, then pipes (<span class="az-val">|</span>) steps: <span class="az-val">where</span> (filter), <span class="az-val">summarize</span> (group or count), <span class="az-val">bin()</span> (time buckets), <span class="az-val">render</span> (chart).</li>
+  <li><span class="az-val">ago(30m)</span> means "the last 30 minutes". <span class="az-val">=~</span> compares text ignoring case.</li>
+  <li>Open it from the workspace: <span class="az-ui">General</span> &rarr; <span class="az-ui">Logs</span> (KQL mode).</li>
+</ul>
+
+<h3>Alerts</h3>
+<ul class="az-list">
+  <li>An <strong>alert rule</strong> has: <strong>scope</strong> (what to watch), <strong>condition</strong> (signal and logic), <strong>actions</strong> (action group) and <strong>details</strong> (name, resource group, severity).</li>
+  <li>Alert types: <strong>Metric</strong>, <strong>Log search</strong> (KQL), <strong>Activity Log</strong> (and others such as service health).</li>
+  <li>Deleting a VM is an <strong>Activity Log administrative operation</strong>: <span class="az-val">Microsoft.Compute/virtualMachines/delete</span>. It is not a VM metric.</li>
+  <li>Scope here is the <strong>subscription</strong>, so any VM deletion in it triggers the alert. Activity Log alerts have a <strong>Global</strong> region.</li>
+  <li>Severity runs from <strong>0 (Critical)</strong> to <strong>4 (Verbose)</strong>.</li>
+</ul>
+
+<h3>Action groups</h3>
+<ul class="az-list">
+  <li>An <strong>action group</strong> is a reusable list of who gets notified and what runs when an alert fires.</li>
+  <li>Notifications: <strong>Email</strong>, SMS, push (Azure app) and voice.</li>
+  <li>Actions: Automation runbook, Azure Function, Logic App, webhook, ITSM, Event Hub.</li>
+  <li>Lab values: name <span class="az-val">Alert the operations team</span>, display name <span class="az-val">AlertOpsTeam</span>, region <strong>Global</strong>. Display name appears in notifications.</li>
+  <li>One action group can serve many alert rules.</li>
+</ul>
+
+<h3>Alert processing rules</h3>
+<ul class="az-list">
+  <li>An <strong>alert processing rule</strong> changes what happens after an alert fires, without editing each alert rule.</li>
+  <li><strong>Suppress notifications:</strong> alerts still fire and are recorded, but no notification is sent. Good for <strong>planned maintenance</strong>.</li>
+  <li>The other main use is to <strong>add action groups</strong> to alerts in a scope.</li>
+  <li>It can run <strong>at a specific time</strong> or on a <strong>recurring</strong> schedule, and you choose the time zone.</li>
+  <li>Simple memory: action group = <em>who</em> is told. Processing rule = <em>when</em> they are told.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> deploy a monitored VM, prove data is arriving, set up an alert and action group, add a maintenance suppression rule, then delete the VM to trigger the alert. About 45 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Deploy</span><span class="cp cu">2 Verify logs</span><span class="cp cu">3 Action group</span><span class="cp cu">4 Alert</span><span class="cp cu">5 Processing rule</span><span class="cp cu">6 Trigger</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg11</span>, <span class="az-val">az104-vm0</span>, <span class="az-val">az104-dcr11</span>, <span class="az-val">Alert the operations team</span>, <span class="az-val">VM was deleted</span>, <span class="az-val">Planned Maintenance</span>. Do not delete the VM until Task 2 is done.</p></div>
+
+<h3>Task 1: Deploy the lab infrastructure</h3>
+<ol class="az-list">
+  <li>Download <span class="az-val">\Allfiles\Labs\11\az104-11-vm-template.json</span>. Sign in to the portal.</li>
+  <li>Search for <span class="az-ui">Deploy a custom template</span> &rarr; <span class="az-ui">Build your own template in the editor</span> &rarr; <span class="az-ui">Load file</span> &rarr; select the template &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Fill in the form:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg11</span> (create if needed), Region <span class="az-val">East US</span></li>
+      <li>VM size <span class="az-val">Standard_D2s_v5</span> if available</li>
+      <li>Username <span class="az-val">localadmin</span>, and a complex password</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Review + create</span>, <span class="az-ui">Create</span>, wait, then <span class="az-ui">Go to resource group</span>.</li>
+  <li>Confirm the group has: VM <span class="az-val">az104-vm0</span>, a workspace starting <span class="az-val">az104-law11-</span>, data collection rule <span class="az-val">az104-dcr11</span>, plus the network, NIC, public IP, NSG and storage account.</li>
+  <li>Open the VM. If it is <em>Stopped</em>, select <span class="az-ui">Start</span> and wait for <em>Running</em>.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Extensions + applications</span>: <span class="az-val">AzureMonitorWindowsAgent</span> must show <em>Provisioning succeeded</em>.</li>
+  <li>Open <span class="az-val">az104-dcr11</span> &rarr; <span class="az-ui">Configuration</span> &rarr; <span class="az-ui">Resources</span>: confirm the VM is associated.</li>
+</ol>
+<div class="az-note"><p>If the size fails, redeploy to the same group with <span class="az-val">Standard_D2s_v6</span>, then <span class="az-val">Standard_D2s_v7</span>. If a partial deployment causes a conflict, delete <span class="az-val">az104-rg11</span> and restart Task 1.</p></div>
+<div class="az-check"><p><strong>Check:</strong> the VM is Running, the agent succeeded, and the DCR lists the VM.</p></div>
+
+<h3>Task 2: Verify monitoring data with Azure Monitor Logs</h3>
+<ol class="az-list">
+  <li>Open the <span class="az-val">az104-law11-</span> workspace &rarr; <span class="az-ui">General</span> &rarr; <span class="az-ui">Logs</span>. Close any welcome window or Queries hub. Use <strong>KQL mode</strong>.</li>
+  <li>Run the Heartbeat query and confirm results contain <span class="az-val">az104-vm0</span>:
+    <ul><li><span class="az-val">Heartbeat | where TimeGenerated &gt; ago(30m) | where Computer =~ "az104-vm0" | summarize HeartbeatCount = count(), LastHeartbeat = max(TimeGenerated) by Computer, Category</span></li></ul>
+  </li>
+  <li>No rows? Wait 5 minutes and rerun. Still none: recheck the agent extension and the DCR association.</li>
+  <li>Run the performance query and confirm it returns data:
+    <ul><li><span class="az-val">InsightsMetrics | where TimeGenerated &gt; ago(30m) | where Computer =~ "az104-vm0" | where Name == "UtilizationPercentage" | summarize AverageUtilization = avg(Val) by bin(TimeGenerated, 5m), Computer | render timechart</span></li></ul>
+  </li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> both queries return data. Continue only after that.</p></div>
+
+<h3>Task 3: Create an action group</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Monitor</span> &rarr; <span class="az-ui">Alerts</span> &rarr; <span class="az-ui">Action groups</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li><span class="az-ui">Basics</span>: group <span class="az-val">az104-rg11</span>, Region <span class="az-val">Global</span>, name <span class="az-val">Alert the operations team</span>, display name <span class="az-val">AlertOpsTeam</span>.</li>
+  <li><span class="az-ui">Next: Notifications</span>: type <em>Email/SMS message/Push/Voice</em>, name <span class="az-val">VM was deleted</span>.</li>
+  <li>Select <span class="az-ui">Email</span>, enter your address, <span class="az-ui">OK</span>, then <span class="az-ui">Review + create</span> and <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> you receive an email saying you were added to the action group (it can take a few minutes).</p></div>
+
+<h3>Task 4: Create an Activity Log alert</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Monitor</span> &rarr; <span class="az-ui">Alerts</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Alert rule</span>.</li>
+  <li><span class="az-ui">Scope</span>: select your subscription, <span class="az-ui">Apply</span>.</li>
+  <li><span class="az-ui">Condition</span>: signal <em>Activity log</em>, then <em>Delete Virtual Machine (Virtual Machines)</em>, <span class="az-ui">Apply</span>. Leave Event level and Status as <em>All selected</em>.</li>
+  <li><span class="az-ui">Actions</span>: <em>Use action groups</em>, pick <span class="az-val">Alert the operations team</span>, <span class="az-ui">Select</span>.</li>
+  <li><span class="az-ui">Details</span>: group <span class="az-val">az104-rg11</span>, name <span class="az-val">VM was deleted</span>, description <span class="az-val">A VM in the subscription was deleted</span>, Region <span class="az-val">Global</span>, enable on creation.</li>
+  <li><span class="az-ui">Review + create</span>, <span class="az-ui">Create</span>. Then <span class="az-ui">Alerts</span> &rarr; <span class="az-ui">Alert rules</span> and confirm the rule is <strong>enabled</strong>.</li>
+</ol>
+<div class="az-note"><p>If the portal says <em>Couldn't load metric query signals</em>, try selecting the signal anyway. If you cannot apply it, use Cloud Shell (Bash): get the subscription ID and action group ID, then run <span class="az-val">az monitor activity-log alert create --name "VM was deleted" --resource-group az104-rg11 --scope "/subscriptions/$subscriptionId" --condition "category=Administrative and operationName=Microsoft.Compute/virtualMachines/delete" --action-group "$actionGroupId"</span>.</p></div>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">VM was deleted</span> shows as enabled under Alert rules.</p></div>
+
+<h3>Task 5: Configure an alert processing rule</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Monitor</span> &rarr; <span class="az-ui">Alerts</span> &rarr; <span class="az-ui">Alert processing rules</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li><span class="az-ui">Scope</span>: your subscription, <span class="az-ui">Apply</span>. <span class="az-ui">Next: Rule settings</span> &rarr; <strong>Suppress notifications</strong>.</li>
+  <li><span class="az-ui">Scheduling</span>: <em>At a specific time</em>. Start today 10:00 PM, End tomorrow 7:00 AM, your time zone.</li>
+  <li><span class="az-ui">Details</span>: group <span class="az-val">az104-rg11</span>, name <span class="az-val">Planned Maintenance</span>, description <span class="az-val">Suppress notifications during planned maintenance.</span></li>
+  <li><span class="az-ui">Review + create</span>, <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-note"><p>If your current time falls inside the window, change the schedule first, or it will hide the email you are waiting for.</p></div>
+<div class="az-check"><p><strong>Check:</strong> the rule is listed and its schedule does not cover the current time.</p></div>
+
+<h3>Task 6: Trigger and verify the alert</h3>
+<ol class="az-list">
+  <li>Confirm <span class="az-val">VM was deleted</span> is enabled.</li>
+  <li>Portal &rarr; <span class="az-ui">Virtual machines</span> &rarr; tick <span class="az-val">az104-vm0</span> &rarr; <span class="az-ui">Delete</span>.</li>
+  <li>Type <span class="az-val">delete</span> in the confirmation box, <span class="az-ui">Delete</span> (and again if asked). Watch Notifications until it is deleted.</li>
+  <li>Wait for the email saying the <em>VM was deleted</em> alert was activated (a few minutes).</li>
+  <li><span class="az-ui">Monitor</span> &rarr; <span class="az-ui">Alerts</span>: find the alert, open it and review scope, condition, operation name, status and history.</li>
+  <li>Optional: rerun the Task 2 queries. Data collected before deletion is still there.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the email arrives and an alert named <span class="az-val">VM was deleted</span> is listed in Alerts.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg11</span> (open it, <em>Delete resource group</em>, type its name, <em>Delete</em>). PowerShell: <span class="az-val">Remove-AzResourceGroup -Name az104-rg11</span>. CLI: <span class="az-val">az group delete --name az104-rg11</span>.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li><strong>Metrics</strong> = numbers over time. <strong>Logs</strong> = records in a Log Analytics workspace, queried with KQL. <strong>Activity Log</strong> = control-plane actions in the subscription.</li>
+  <li>VM guest data path: <strong>Azure Monitor Agent</strong> + <strong>data collection rule</strong> (associated with the VM) + <strong>Log Analytics workspace</strong>.</li>
+  <li>Tables: <span class="az-val">Heartbeat</span> shows the agent is alive. <span class="az-val">InsightsMetrics</span> holds performance data.</li>
+  <li>VM deletion is an <strong>Activity Log</strong> event (<span class="az-val">Microsoft.Compute/virtualMachines/delete</span>), not a metric.</li>
+  <li>Alert rule = scope + condition + actions + details. Types: metric, log search, activity log.</li>
+  <li><strong>Action group</strong> = who is notified and what runs. Reusable across alert rules.</li>
+  <li><strong>Alert processing rule</strong> = when. Suppress notifications for maintenance. Alerts still fire and are recorded.</li>
+  <li>Severity 0 = Critical, 4 = Verbose. Metrics kept 93 days, Activity Log 90 days.</li>
+  <li>Verify data is arriving before deleting the resource that produces it.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>What is the difference between metrics, logs and the Activity Log?</strong>
+    <div class="az-a">Metrics are numeric values over time (like CPU %). Logs are detailed records stored in a Log Analytics workspace and queried with KQL. The Activity Log records subscription-level actions such as creating or deleting a resource.</div></li>
+
+  <li><strong>Which three things must be in place for a VM to send guest data to a workspace?</strong>
+    <div class="az-a">The Azure Monitor Agent on the VM, a data collection rule associated with the VM, and a Log Analytics workspace to receive the data.</div></li>
+
+  <li><strong>What does a data collection rule do?</strong>
+    <ol class="az-opts"><li>Sends the email when an alert fires</li><li>Defines what data to collect and where to send it</li><li>Stores the logs</li><li>Deletes old logs</li></ol>
+    <div class="az-a"><strong>B.</strong> The DCR defines what is collected and the destination. The workspace stores the data, and an action group sends notifications.</div></li>
+
+  <li><strong>Which table would you query to prove the agent on a VM is alive?</strong>
+    <div class="az-a"><span class="az-val">Heartbeat</span>. <span class="az-val">InsightsMetrics</span> holds the performance data.</div></li>
+
+  <li><strong>What does this KQL do? <span class="az-val">Heartbeat | where TimeGenerated &gt; ago(30m)</span></strong>
+    <div class="az-a">It reads the Heartbeat table and keeps only records from the last 30 minutes. The pipe (|) passes the result to the next step.</div></li>
+
+  <li><strong>The query returns no rows right after deployment. What do you do?</strong>
+    <div class="az-a">Wait about five minutes and rerun it. If it still returns nothing, check that the agent extension succeeded and that the DCR is associated with the VM.</div></li>
+
+  <li><strong>You want an alert when anyone deletes a VM in the subscription. Which signal type?</strong>
+    <ol class="az-opts"><li>Metric</li><li>Activity log</li><li>Heartbeat</li><li>Application Insights availability</li></ol>
+    <div class="az-a"><strong>B.</strong> Deletion is an Activity Log administrative operation (<span class="az-val">Microsoft.Compute/virtualMachines/delete</span>), not a metric.</div></li>
+
+  <li><strong>What are the four parts of an alert rule?</strong>
+    <div class="az-a">Scope (what is watched), condition (signal and logic), actions (action group) and details (name, resource group, severity and so on).</div></li>
+
+  <li><strong>What is an action group, and can several alert rules share one?</strong>
+    <div class="az-a">A reusable set of notifications (email, SMS, push, voice) and actions (runbook, function, Logic App, webhook, ITSM, Event Hub). Yes, many alert rules can use the same action group.</div></li>
+
+  <li><strong>You need to stop emails during a planned maintenance window without editing any alert rule. What do you create?</strong>
+    <ol class="az-opts"><li>A new action group</li><li>An alert processing rule with Suppress notifications</li><li>A new workspace</li><li>A diagnostic setting</li></ol>
+    <div class="az-a"><strong>B.</strong> An alert processing rule with a schedule. Alerts still fire and are recorded, but no notification is sent.</div></li>
+
+  <li><strong>In one line each: what does an action group decide and what does an alert processing rule decide?</strong>
+    <div class="az-a">The action group decides who is told and what runs. The alert processing rule decides when notifications are delivered, or suppressed.</div></li>
+
+  <li><strong>After you delete the VM, can you still query the data it collected earlier?</strong>
+    <div class="az-a">Yes. Records already in the workspace stay for the workspace retention period. The VM just cannot send any new data.</div></li>
+</ol>
+</div>
