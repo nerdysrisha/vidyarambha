@@ -1,0 +1,278 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-figure { margin: 10px 0 16px 0; text-align: center; }
+.az-topic .az-figure svg { width: 100%; max-width: 340px; height: auto; border: 1px solid #e8e2d5; border-radius: 8px; background: #fff; }
+.az-topic .az-figure figcaption { margin-top: 4px; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic svg text { font-family: "Segoe UI", Arial, sans-serif; font-size: 10px; fill: #333; }
+.az-topic svg .h { font-weight: 700; font-size: 11px; }
+.az-topic svg .m { fill: #888; font-size: 9px; }
+.az-topic svg .b { fill: #005a9e; }
+.az-topic svg .g { fill: #6b4f1d; }
+.az-topic svg .r { fill: #a33a2a; }
+.az-topic svg .k { fill: #2f6b3b; }
+.az-topic svg .w { fill: #fff; font-weight: 700; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 12px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic details.az-answers { margin: 18px 0; }
+.az-topic details.az-answers > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; }
+.az-topic details.az-answers > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-answers > summary:hover { background: #005a9e; }
+.az-topic details.az-answers[open] > summary { background: #6b4f1d; }
+.az-topic details.az-answers .az-keybox { margin-top: 12px; padding: 8px 14px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; }
+</style>
+
+<h1>Manage Governance via Azure Policy <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Governance means keeping a growing cloud tidy and safe. Tags label things, Azure Policy sets the rules, and locks stop accidents.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The problem</h3>
+<ul class="az-list">
+  <li>Contoso's cloud grew fast. An audit found many resources with no owner, project or cost center.</li>
+  <li>Finance cannot split the bill. Nobody knows who can switch a server off.</li>
+  <li>Plan: tag everything, force tags on new resources, fix old ones, protect the important ones.</li>
+</ul>
+
+<h3>Three guards, three jobs</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 340 110" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RBAC controls who can act, Policy controls what may exist, Locks block delete or change">
+  <rect x="6" y="8" width="104" height="94" rx="8" fill="#eef6fc" stroke="#0078d4"/>
+  <text class="h b" x="58" y="26" text-anchor="middle">RBAC</text>
+  <text x="58" y="44" text-anchor="middle">Who can act</text>
+  <text class="m" x="58" y="64" text-anchor="middle">Help desk can</text><text class="m" x="58" y="76" text-anchor="middle">manage VMs</text>
+  <rect x="118" y="8" width="104" height="94" rx="8" fill="#f4efe2" stroke="#c9a15a"/>
+  <text class="h g" x="170" y="26" text-anchor="middle">Policy</text>
+  <text x="170" y="44" text-anchor="middle">What may exist</text>
+  <text class="m" x="170" y="64" text-anchor="middle">Only West and</text><text class="m" x="170" y="76" text-anchor="middle">North Europe</text>
+  <rect x="230" y="8" width="104" height="94" rx="8" fill="#fdf1ee" stroke="#a33a2a"/>
+  <text class="h r" x="282" y="26" text-anchor="middle">Lock</text>
+  <text x="282" y="44" text-anchor="middle">Stop delete / change</text>
+  <text class="m" x="282" y="64" text-anchor="middle">No delete on</text><text class="m" x="282" y="76" text-anchor="middle">rg-network-hub</text>
+</svg>
+<figcaption>They work together. None replaces the others.</figcaption>
+</figure>
+<ul class="az-list">
+  <li><strong>RBAC</strong> is about <em>people</em>: who can do what.</li>
+  <li><strong>Policy</strong> is about <em>resources</em>: what settings are allowed, even for an Owner.</li>
+  <li><strong>Locks</strong> block delete or change, even for an Owner.</li>
+  <li>Policy is checked <em>before</em> a resource is made. RBAC and locks protect it <em>afterwards</em>.</li>
+</ul>
+
+<h3>Tags</h3>
+<ul class="az-list">
+  <li>A tag is a name and value pair on a resource, like <span class="az-val">CostCenter = CC-4021</span>.</li>
+  <li>Used for cost reports, owners, projects, environments, sunset dates.</li>
+  <li><strong>Not inherited.</strong> A tag on a resource group does not reach its resources by itself.</li>
+  <li>Tag names are not case sensitive. Tag values are.</li>
+  <li>Up to 50 tags per resource. Not every resource type supports tags.</li>
+  <li>Real examples: <span class="az-val">Owner = anna@contoso.com</span>, <span class="az-val">Environment = prod</span>, <span class="az-val">Project = payments</span>.</li>
+</ul>
+
+<h3>Azure Policy</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 340 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A create request is checked by Azure Policy. With the tag it is created. Without the tag it is denied">
+  <defs>
+    <marker id="gvA1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#888"/></marker>
+  </defs>
+  <rect x="6" y="52" width="92" height="46" rx="8" fill="#fff" stroke="#bbb"/>
+  <text class="h" x="52" y="70" text-anchor="middle">Create</text><text class="m" x="52" y="84" text-anchor="middle">storage account</text>
+  <path d="M98 75 H 124" stroke="#888" stroke-width="1.5" marker-end="url(#gvA1)"/>
+  <rect x="126" y="46" width="90" height="58" rx="8" fill="#f4efe2" stroke="#c9a15a" stroke-width="2"/>
+  <text class="h g" x="171" y="66" text-anchor="middle">Azure Policy</text><text class="m" x="171" y="80" text-anchor="middle">Has the</text><text class="m" x="171" y="92" text-anchor="middle">CostCenter tag?</text>
+  <path d="M216 62 C 232 62, 232 30, 244 30" fill="none" stroke="#4a9b5a" stroke-width="1.5" marker-end="url(#gvA1)"/>
+  <path d="M216 88 C 232 88, 232 120, 244 120" fill="none" stroke="#a33a2a" stroke-width="1.5" marker-end="url(#gvA1)"/>
+  <text class="k" x="226" y="46" text-anchor="middle" style="font-size:9px">yes</text><text class="r" x="226" y="112" text-anchor="middle" style="font-size:9px">no</text>
+  <rect x="246" y="12" width="88" height="38" rx="8" fill="#f1f8f1" stroke="#4a9b5a"/><text class="h k" x="290" y="29" text-anchor="middle">Created</text><text class="m" x="290" y="42" text-anchor="middle">rule is met</text>
+  <rect x="246" y="102" width="88" height="38" rx="8" fill="#fdf1ee" stroke="#a33a2a"/><text class="h r" x="290" y="119" text-anchor="middle">Denied</text><text class="m" x="290" y="132" text-anchor="middle">validation fails</text>
+</svg>
+<figcaption>Effect used here: Deny.</figcaption>
+</figure>
+<ul class="az-list">
+  <li><strong>Definition:</strong> the rule. "If this is true, then do this effect."</li>
+  <li><strong>Assignment:</strong> a definition applied to a scope. It flows down: management group &gt; subscription &gt; resource group. You can exclude some resources.</li>
+  <li><strong>Initiative:</strong> a bundle of policies assigned together.</li>
+  <li>Many <strong>built-in</strong> definitions exist. You can also write your own.</li>
+  <li>Takes about 5 to 10 minutes to start working after you assign it.</li>
+</ul>
+
+<h3>Policy effects</h3>
+<ul class="az-list">
+  <li><strong>Deny:</strong> block the request.</li>
+  <li><strong>Audit:</strong> allow it, but mark it non-compliant.</li>
+  <li><strong>Modify / Append:</strong> change properties or tags while creating or updating.</li>
+  <li><strong>DeployIfNotExists:</strong> deploy a missing extra resource, such as diagnostic settings.</li>
+  <li><strong>Disabled:</strong> switched off.</li>
+</ul>
+
+<h3>Fixing old resources: remediation</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 340 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A Modify policy copies the CostCenter tag from the resource group onto a storage account that has no tag">
+  <defs><marker id="gvA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0078d4"/></marker></defs>
+  <rect x="6" y="8" width="150" height="114" rx="8" fill="#fbfaf7" stroke="#c9a15a"/>
+  <text class="h g" x="81" y="26" text-anchor="middle">rg-payments-prod</text>
+  <rect x="24" y="34" width="114" height="18" rx="9" fill="#f4efe2" stroke="#c9a15a"/><text class="g" x="81" y="47" text-anchor="middle">CostCenter = CC-4021</text>
+  <rect x="24" y="68" width="114" height="42" rx="6" fill="#fff" stroke="#bbb" stroke-dasharray="4 3"/>
+  <text x="81" y="86" text-anchor="middle">stpayments01</text><text class="r" x="81" y="100" text-anchor="middle">no tag</text>
+  <path d="M158 89 H 192" stroke="#0078d4" stroke-width="2" marker-end="url(#gvA2)"/>
+  <text class="b" x="175" y="80" text-anchor="middle" style="font-size:9px">Modify</text>
+  <rect x="194" y="68" width="140" height="42" rx="6" fill="#f1f8f1" stroke="#4a9b5a"/>
+  <text x="264" y="86" text-anchor="middle">stpayments01</text><text class="k" x="264" y="100" text-anchor="middle">CostCenter = CC-4021 (added)</text>
+  <text class="m" x="264" y="56" text-anchor="middle">After the policy runs</text>
+</svg>
+<figcaption>The policy copies the tag down from the resource group.</figcaption>
+</figure>
+<ul class="az-list">
+  <li>Policy only checks new or changed resources, plus a regular scan (about every 24 hours).</li>
+  <li>Old resources are just marked <strong>non-compliant</strong>. Nothing changes by itself.</li>
+  <li>A <strong>remediation task</strong> fixes them. Works for <strong>Modify</strong> and <strong>DeployIfNotExists</strong>.</li>
+  <li>Needs a <strong>managed identity</strong> to make the change. The portal creates it for you.</li>
+</ul>
+
+<h3>Resource locks</h3>
+<ul class="az-list">
+  <li><strong>Delete</strong> (CanNotDelete): can read and change, cannot delete.</li>
+  <li><strong>Read-only</strong>: can read only. No change, no delete. Can break things, for example listing storage keys.</li>
+  <li>Set on a subscription, resource group or resource. Child resources inherit the lock.</li>
+  <li>Applies to everyone, including Owners. To delete, remove the lock first.</li>
+  <li>Real example: Delete lock on <span class="az-val">rg-network-hub</span> and on the production database.</li>
+</ul>
+
+<h3>More real-world policies</h3>
+<ul class="az-list">
+  <li><strong>Allowed locations:</strong> only West Europe and North Europe, for data residency.</li>
+  <li><strong>Allowed VM sizes:</strong> block expensive sizes in dev subscriptions.</li>
+  <li><strong>Require tags:</strong> every resource must have <span class="az-val">Owner</span> and <span class="az-val">CostCenter</span>.</li>
+  <li><strong>Audit:</strong> list VMs that have no backup.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> tag a resource group, force and inherit the tag with policy, then lock the group. About 30 minutes.</p>
+<figure class="az-figure">
+<svg viewBox="0 0 340 66" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Steps: tag, enforce, inherit, lock">
+  <defs><marker id="gvA3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0078d4"/></marker></defs>
+  <path d="M30 22 H 322" stroke="#0078d4" stroke-width="1.5" marker-end="url(#gvA3)"/>
+  <circle cx="34" cy="22" r="12" fill="#0078d4"/><text class="w" x="34" y="26" text-anchor="middle">1</text>
+  <circle cx="126" cy="22" r="12" fill="#0078d4"/><text class="w" x="126" y="26" text-anchor="middle">2</text>
+  <circle cx="218" cy="22" r="12" fill="#c9a15a"/><text class="w" x="218" y="26" text-anchor="middle">3</text>
+  <circle cx="310" cy="22" r="12" fill="#a33a2a"/><text class="w" x="310" y="26" text-anchor="middle">4</text>
+  <text class="b" x="34" y="54" text-anchor="middle">Tag</text>
+  <text class="b" x="126" y="54" text-anchor="middle">Enforce</text>
+  <text class="g" x="218" y="54" text-anchor="middle">Inherit</text>
+  <text class="r" x="310" y="54" text-anchor="middle">Lock</text>
+</svg>
+</figure>
+<div class="az-note"><p>The original steps use <span class="az-val">az104-rg2</span>, the tag <span class="az-val">Cost Center</span> with value <span class="az-val">000</span>, and <span class="az-val">rg-lock</span>. Any names work. Real-world names are used here.</p></div>
+
+<h3>Task 1: Create a resource group with a tag</h3>
+<ol class="az-list">
+  <li>Azure portal &rarr; search <span class="az-ui">Resource groups</span> &rarr; <span class="az-ui">+ Create</span>.</li>
+  <li>Name: <span class="az-val">rg-payments-prod</span>. Region: East US (or your own).</li>
+  <li><span class="az-ui">Next</span> to the <span class="az-ui">Tags</span> tab. Name: <span class="az-val">CostCenter</span>, value: <span class="az-val">CC-4021</span>.</li>
+  <li><span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the group is listed, and its <span class="az-ui">Tags</span> page shows the CostCenter tag.</p></div>
+
+<h3>Task 2: Enforce the tag (Deny)</h3>
+<ol class="az-list">
+  <li>Search <span class="az-ui">Policy</span> &rarr; <span class="az-ui">Authoring</span> &rarr; <span class="az-ui">Definitions</span>. Browse, then search <span class="az-val">Require a tag and its value on resources</span> and open it.</li>
+  <li><span class="az-ui">Assign policy</span>. Scope: your subscription and <span class="az-val">rg-payments-prod</span>.</li>
+  <li>Basics: name <span class="az-val">Require CostCenter tag on payments resources</span>. Policy enforcement: <em>Enabled</em>.</li>
+  <li>Parameters: tag name <span class="az-val">CostCenter</span>, tag value <span class="az-val">CC-4021</span>.</li>
+  <li>Remediation: leave <em>Create a Managed Identity</em> unticked. <span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span>. Wait 5 to 10 minutes.</li>
+  <li><strong>Test it:</strong> <span class="az-ui">Storage accounts</span> &rarr; <span class="az-ui">+ Create</span>. Resource group <span class="az-val">rg-payments-prod</span>, a globally unique name like <span class="az-val">stpayments</span> plus numbers. No tag. <span class="az-ui">Review</span> &rarr; <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> you get <em>Validation failed</em>. The error says the deployment was disallowed by the policy. See <span class="az-ui">Raw Error</span> for the policy name.</p></div>
+
+<h3>Task 3: Inherit the tag (Modify)</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Policy</span> &rarr; <span class="az-ui">Assignments</span>. Use the <strong>...</strong> menu on the Task 2 assignment &rarr; <span class="az-ui">Delete assignment</span>.</li>
+  <li><span class="az-ui">Assign policy</span>. Scope: the same resource group.</li>
+  <li>Definition: <span class="az-val">Inherit a tag from the resource group if missing</span>. Name it <span class="az-val">Inherit CostCenter tag from resource group</span>.</li>
+  <li>Parameters: tag name <span class="az-val">CostCenter</span>.</li>
+  <li>Remediation: tick <em>Create a remediation task</em>. This uses the Modify effect, so a managed identity is needed.</li>
+  <li><span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span>. Wait 5 to 10 minutes.</li>
+  <li><strong>Test it:</strong> create a storage account in the same group, again with no tag. This time validation passes. <span class="az-ui">Create</span>, then <span class="az-ui">Go to resource</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> on the storage account's <span class="az-ui">Tags</span> page, CostCenter = CC-4021 was added for you. Tip: the portal's <span class="az-ui">Tags</span> page lists all resources with a given tag.</p></div>
+
+<h3>Task 4: Lock the group</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">rg-payments-prod</span> &rarr; <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Locks</span> &rarr; <span class="az-ui">Add</span>.</li>
+  <li>Name: <span class="az-val">lock-no-delete</span>. Type: <span class="az-val">Delete</span>. <span class="az-ui">OK</span>.</li>
+  <li><span class="az-ui">Overview</span> &rarr; <span class="az-ui">Delete resource group</span>. Type the group name and confirm.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> a notification says the delete was denied by the lock.</p></div>
+<div class="az-note"><p>Cleanup: remove the lock first, then delete <span class="az-val">rg-payments-prod</span>. You will not be able to delete the group while the lock is there.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Tags are name and value pairs. They are <strong>not</strong> inherited by default.</li>
+  <li>Policy controls resources. RBAC controls people. Policy still applies to Owners.</li>
+  <li>Assignment = definition + scope. It inherits down the scopes and can have exclusions.</li>
+  <li>Deny blocks. Audit only flags. Modify and DeployIfNotExists can be remediated.</li>
+  <li>Remediation tasks fix <strong>existing</strong> resources and need a managed identity.</li>
+  <li>Locks: Delete or Read-only. Inherited by children. Beat any user permission.</li>
+  <li>To delete a locked resource, remove the lock first.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try all the questions first. Then press <strong>Check answers</strong> at the bottom.</p>
+
+<ol class="az-qlist">
+  <li>What is the main difference between Azure Policy and RBAC?</li>
+  <li>You tag <span class="az-val">rg-payments-prod</span> with <span class="az-val">CostCenter = CC-4021</span>. A new VM is created in it. Does the VM get the tag?</li>
+  <li>Finance wants every resource to carry a <span class="az-val">CostCenter</span> tag, and new ones without it must be blocked. Which effect?
+    <ol class="az-opts"><li>Audit</li><li>Deny</li><li>Disabled</li><li>DeployIfNotExists</li></ol></li>
+  <li>Your policy was assigned last week. Today you find 40 old resources without the tag. Why were they not fixed, and what do you do?</li>
+  <li>Which effect needs a managed identity for remediation: Deny or Modify?</li>
+  <li>You assign a policy at a management group. Which scopes does it apply to?</li>
+  <li>A security officer wants to stop anyone, including Owners, from deleting the production database. What do you use?</li>
+  <li>What is the difference between a Delete lock and a Read-only lock?</li>
+  <li>You assigned a new policy two minutes ago and a test deployment still succeeds. Is it broken?</li>
+  <li>The company wants only West Europe and North Europe to be used. What type of policy is this, and what effect?</li>
+</ol>
+
+<details class="az-answers">
+  <summary>Check answers</summary>
+  <div class="az-keybox">
+  <ol class="az-list">
+    <li>Policy controls <em>resources</em> (what settings are allowed). RBAC controls <em>people</em> (who can do which actions).</li>
+    <li>No. Tags are not inherited by default. You need a policy such as "Inherit a tag from the resource group if missing".</li>
+    <li><strong>B (Deny).</strong> Audit only flags. Disabled switches the policy off.</li>
+    <li>Policy only checks new or changed resources. Old ones are just marked non-compliant. Create a <strong>remediation task</strong> (with a Modify or DeployIfNotExists policy).</li>
+    <li><strong>Modify.</strong> It changes resources, so it needs a managed identity. Deny only blocks.</li>
+    <li>All management groups, subscriptions, resource groups and resources below it, unless you set an exclusion.</li>
+    <li>A <strong>Delete lock</strong> on the database (or its resource group). Locks apply to Owners too.</li>
+    <li>Delete lock: can read and change, cannot delete. Read-only lock: can read only, no change and no delete.</li>
+    <li>No. A new assignment can take 5 to 10 minutes to take effect. Test again later.</li>
+    <li>The built-in <strong>Allowed locations</strong> policy, with the <strong>Deny</strong> effect.</li>
+  </ol>
+  </div>
+</details>
+</div>
