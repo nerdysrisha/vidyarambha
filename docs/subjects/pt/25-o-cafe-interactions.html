@@ -1,0 +1,217 @@
+<div class="pt-cafe">
+<style>
+.pt-cafe { color: #2b2b2b; font-family: inherit; }
+.pt-cafe h2, .pt-cafe h4, .pt-cafe h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-cafe .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-cafe .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-cafe .desc-box p:last-child { margin-bottom: 0; }
+.pt-cafe .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-cafe .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-cafe .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-cafe .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-cafe .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-cafe .spk-wrap, .pt-cafe .ex-line { position: relative; padding-left: 1.9em; }
+.pt-cafe .spk-wrap:hover .spk-btn,
+.pt-cafe .ex-line:hover .spk-btn,
+.pt-cafe .spk-btn:focus-visible { opacity: 1; }
+.pt-cafe .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-cafe .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-cafe .desc-box > p:hover .spk-inline,
+.pt-cafe .spk-inline:focus-visible,
+.pt-cafe .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-cafe .spk-btn, .pt-cafe .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-cafe .table-scroll { overflow-x: auto; }
+.pt-cafe .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-cafe .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-cafe .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-cafe .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-cafe .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-cafe .compare-table tr:last-child td { border-bottom: none; }
+.pt-cafe .compare-table td.spk-wrap, .pt-cafe .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-cafe .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-cafe .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-cafe .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-cafe .example-list { margin: 0 0 12px 0; }
+.pt-cafe .example-list:last-child { margin-bottom: 0; }
+.pt-cafe .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-cafe .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-cafe .ex-line:last-child { margin-bottom: 0; }
+.pt-cafe .example-box .pt-word { color: #d8b46a !important; }
+.pt-cafe .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-cafe .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-cafe .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-cafe .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-cafe .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-cafe .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-cafe .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-cafe .exercise-item:last-child { margin-bottom: 0; }
+.pt-cafe .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-cafe .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-cafe .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-cafe .blank-word { display: inline-block; }
+.pt-cafe .underscore { color: #999 !important; }
+.pt-cafe .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-cafe .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-cafe .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-cafe .cue-list li:last-child { border-bottom: none; }
+.pt-cafe .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-cafe .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-cafe .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-cafe .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-cafe .check-btn:hover { background: #245640 !important; }
+</style>
+
+<h2>24. O café <span class="en">(Tomar café — coffee culture)</span></h2>
+
+<div class="desc-box">
+  <p>In Portugal, <span class="pt-word">tomar café</span><button class="spk-inline" data-pt="tomar café" aria-label="Ouvir">🔊</button> (or <em>beber um café</em>) is a daily ritual. People stop at the neighbourhood <em>café</em> or <em>pastelaria</em> for a quick break, to meet friends or colleagues, and the staff often remember how you like it. Ordering is less simple than it looks, because each style has its own name. A plain <em>café</em> is an espresso, which Lisbon also calls a <em>bica</em> and Porto a <em>cimbalino</em>. <em>Tomar</em> is a regular -ar verb: <em>eu tomo, tu tomas, ele toma, nós tomamos, eles tomam</em>.</p>
+
+  <hr class="desc-divider">
+
+  <p><strong>1. Café puro</strong> <span class="en">(black coffee)</span> — an espresso, in different strengths.</p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Pedido</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="um café"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">café / bica</span></td><td>espresso (<em>bica</em> in Lisbon, <em>cimbalino</em> in Porto)</td><td>एस्प्रेसो कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um café curto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">café curto</span></td><td>short, strong espresso with less water</td><td>कम पानी वाली कड़क कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um café cheio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">café cheio</span></td><td>"full" espresso, with more water</td><td>ज़्यादा पानी वाली, लंबी कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um café sem princípio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">café sem princípio</span></td><td>milder espresso, made without the first (strongest) drops</td><td>हल्की कॉफ़ी (शुरुआती बूँदें हटाकर)</td></tr>
+      <tr><td class="spk-wrap" data-pt="um descafeinado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">descafeinado</span></td><td>decaffeinated coffee</td><td>बिना कैफ़ीन की कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um café com cheirinho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">café com cheirinho</span></td><td>espresso with a little <em>aguardente</em> (Portuguese brandy)</td><td>थोड़ी ब्रांडी वाली कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um americano"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">americano</span></td><td>espresso with hot water</td><td>गर्म पानी वाली कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um abatanado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">abatanado</span></td><td>long coffee with more water, in a large cup (like an americano)</td><td>बड़े कप में ज़्यादा पानी वाली कॉफ़ी</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Café com leite</strong> <span class="en">(coffee with milk)</span> — the name tells you how much milk and what size of cup or glass.</p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Pedido</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="um pingado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pingado</span></td><td>espresso with just a few drops of milk</td><td>कुछ बूँद दूध वाली कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="um garoto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">garoto</span></td><td>small cup of milk with a little espresso</td><td>छोटे कप में दूध वाली कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="uma meia de leite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">meia de leite</span></td><td>half coffee, half milk, in a large cup</td><td>बड़े कप में आधी कॉफ़ी, आधा दूध</td></tr>
+      <tr><td class="spk-wrap" data-pt="um galão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">galão</span></td><td>coffee with milk in a tall glass, more milk than coffee</td><td>लंबे काँच के गिलास में दूध वाली कॉफ़ी</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>3. Como pedir o galão</strong> <span class="en">(temperature and strength)</span> — add these words after <em>galão</em> to get it just right. They can be combined: <em>um galão escuro, bem quente</em>. You can also order a <span class="pt-word">chá com limão</span><button class="spk-inline" data-pt="chá com limão" aria-label="Ouvir">🔊</button> <span class="en">(tea with lemon, नींबू वाली चाय)</span>.</p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Palavra</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="quente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quente</span></td><td>hot</td><td>गर्म</td></tr>
+      <tr><td class="spk-wrap" data-pt="bem quente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bem quente</span></td><td>really hot</td><td>काफ़ी गर्म</td></tr>
+      <tr><td class="spk-wrap" data-pt="muito quente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">muito quente</span></td><td>very hot</td><td>बहुत गर्म</td></tr>
+      <tr><td class="spk-wrap" data-pt="escuro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">escuro</span></td><td>dark: more coffee, stronger</td><td>गहरा, ज़्यादा कॉफ़ी</td></tr>
+      <tr><td class="spk-wrap" data-pt="claro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">claro</span></td><td>light: more milk, milder</td><td>हल्का, ज़्यादा दूध</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — no café</h4>
+  <div class="example-list">
+    <h5>Pedir <span class="en">(ordering)</span></h5>
+    <p class="ex-line" data-pt="Bom dia! Um café, se faz favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Bom dia! Um <span class="pt-word">café</span>, se faz favor.<span class="en-eq">Good morning! An espresso, please.</span></p>
+    <p class="ex-line" data-pt="Queria um galão claro, bem quente, por favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Queria um <span class="pt-word">galão claro</span>, <span class="pt-word">bem quente</span>, por favor.<span class="en-eq">I'd like a light galão, really hot, please.</span></p>
+    <p class="ex-line" data-pt="Eu quero um galão escuro muito quente."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">quero</span> um galão escuro muito quente.<span class="en-eq">I want a dark galão, very hot.</span></p>
+    <p class="ex-line" data-pt="Quero um chá com limão, se faz favor."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quero</span> um chá com limão, se faz favor.<span class="en-eq">I'd like a tea with lemon, please.</span></p>
+    <p class="ex-line" data-pt="Quanto é? São três euros."><button class="spk-btn" aria-label="Ouvir">🔊</button>Quanto é? São três euros.<span class="en-eq">How much is it? It's three euros.</span></p>
+  </div>
+  <div class="example-list">
+    <h5>Falar sobre café <span class="en">(talking about coffee)</span></h5>
+    <p class="ex-line" data-pt="Eu tomo um café curto de manhã."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">tomo</span> um café curto de manhã.<span class="en-eq">I have a short espresso in the morning.</span></p>
+    <p class="ex-line" data-pt="Tu tomas café com açúcar?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">tomas</span> café com açúcar?<span class="en-eq">Do you have coffee with sugar?</span></p>
+    <p class="ex-line" data-pt="A Maria quer uma meia de leite e um pastel de nata."><button class="spk-btn" aria-label="Ouvir">🔊</button>A Maria <span class="pt-word">quer</span> uma meia de leite e um pastel de nata.<span class="en-eq">Maria wants a meia de leite and a custard tart.</span></p>
+    <p class="ex-line" data-pt="Nós tomamos um pingado e uma água."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">tomamos</span> um pingado e uma água.<span class="en-eq">We have a pingado and a water.</span></p>
+    <p class="ex-line" data-pt="Eles não tomam café à noite."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles não <span class="pt-word">tomam</span> café à noite.<span class="en-eq">They don't drink coffee at night.</span></p>
+    <p class="ex-line" data-pt="O galão não está quente. Quero um galão bem quente."><button class="spk-btn" aria-label="Ouvir">🔊</button>O galão não <span class="pt-word">está</span> quente. Quero um galão bem quente.<span class="en-eq">The galão isn't hot. I want a really hot one.</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Qual é o café? Liga a descrição ao pedido.</p>
+    <p class="ex-note">Options: pingado · galão · café curto · abatanado · meia de leite · café sem princípio · café com cheirinho</p>
+    <ol class="cue-list">
+      <li><span class="cue">Café com umas gotas de leite.</span> <span class="reveal">pingado</span></li>
+      <li><span class="cue">Café com leite num copo alto de vidro.</span> <span class="reveal">galão</span></li>
+      <li><span class="cue">Café forte, com pouca água.</span> <span class="reveal">café curto</span></li>
+      <li><span class="cue">Café com mais água, numa chávena grande.</span> <span class="reveal">abatanado</span></li>
+      <li><span class="cue">Metade café, metade leite, numa chávena grande.</span> <span class="reveal">meia de leite</span></li>
+      <li><span class="cue">Café mais suave, sem as primeiras gotas.</span> <span class="reveal">café sem princípio</span></li>
+      <li><span class="cue">Café com um pouco de aguardente.</span> <span class="reveal">café com cheirinho</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Complete com tomar ou querer no presente.</p>
+    <p class="question">
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">tomo</span></span> (tomar) café de manhã.<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">tomas</span></span> (tomar) um galão?<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">tomamos</span></span> (tomar) um pingado.<br>
+      Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">quer</span></span> (querer) uma meia de leite.<br>
+      Eles <span class="blank-word"><span class="underscore">___</span><span class="fill">tomam</span></span> (tomar) chá com limão.<br>
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">quero</span></span> (querer) um café curto.<br>
+      Vocês <span class="blank-word"><span class="underscore">___</span><span class="fill">tomam</span></span> (tomar) café com açúcar?<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">queres</span></span> (querer) um galão escuro?
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Faça frases completas.</p>
+    <ol class="cue-list">
+      <li><span class="cue">(eu / querer / um galão escuro / bem quente)</span> <span class="reveal">Eu quero um galão escuro bem quente.</span></li>
+      <li><span class="cue">(nós / tomar / dois cafés e uma água)</span> <span class="reveal">Nós tomamos dois cafés e uma água.</span></li>
+      <li><span class="cue">(tu / querer / chá com limão?)</span> <span class="reveal">Tu queres chá com limão?</span></li>
+      <li><span class="cue">(ela / tomar / uma meia de leite / de manhã)</span> <span class="reveal">Ela toma uma meia de leite de manhã.</span></li>
+      <li><span class="cue">(vocês / querer / um café cheio?)</span> <span class="reveal">Vocês querem um café cheio?</span></li>
+      <li><span class="cue">(eles / não / tomar / café à noite)</span> <span class="reveal">Eles não tomam café à noite.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+</div>
