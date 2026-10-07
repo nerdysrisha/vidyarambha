@@ -84,25 +84,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
 #sidebar.collapsed #sidebar-list { display: none; }
-#title-btns { display: flex; align-items: center; gap: 6px; }
-#sidebar.collapsed #fold-all-btn { display: none; }
-#fold-all-btn {
-    background: none;
-    border: 1px solid #333;
-    border-radius: 5px;
-    color: #999;
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-    padding: 0;
-    font-size: 17px;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-#fold-all-btn:hover { background: #1a1a1a; color: #00c8ff; }
 
 /* SEARCH */
 #sidebar-search-row {
@@ -443,10 +424,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">My Tech Learnings</span>
-            <div id="title-btns">
-                <button id="fold-all-btn" title="Expand all topics">+</button>
-                <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
-            </div>
+            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
         </div>
         <div id="sidebar-search-row">
             <div id="search-wrap">
@@ -588,7 +566,7 @@ function normalizeSearch(s) {
 // ── BUILD SIDEBAR ──────────────────────────────────────────────────────
 categories.forEach((cat, catIdx) => {
     const block = document.createElement("div");
-    block.className = "category-block collapsed";   // folded by default
+    block.className = "category-block";
 
     const header = document.createElement("div");
     header.className = "category-header";
@@ -598,7 +576,6 @@ categories.forEach((cat, catIdx) => {
         '<span class="chev">&#9662;</span>';
     header.addEventListener("click", () => {
         block.classList.toggle("collapsed");
-        updateFoldBtn();
     });
     block.appendChild(header);
 
@@ -642,21 +619,6 @@ categories.forEach((cat, catIdx) => {
     sidebarList.appendChild(block);
 });
 
-// ── FOLD / UNFOLD ALL (+ / −) ───────────────────────────────────────────
-const foldAllBtn = document.getElementById("fold-all-btn");
-function allBlocks() { return Array.from(document.querySelectorAll(".category-block")); }
-function updateFoldBtn() {
-    const allOpen = allBlocks().every(b => !b.classList.contains("collapsed"));
-    foldAllBtn.innerHTML = allOpen ? "&minus;" : "+";
-    foldAllBtn.title = allOpen ? "Fold all topics" : "Unfold all topics";
-}
-foldAllBtn.addEventListener("click", () => {
-    const allOpen = allBlocks().every(b => !b.classList.contains("collapsed"));
-    allBlocks().forEach(b => b.classList.toggle("collapsed", allOpen));
-    updateFoldBtn();
-});
-updateFoldBtn();
-
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
@@ -666,8 +628,6 @@ function loadTopic(flatIndex) {
 
     flatTopics.forEach(t => t.el.classList.remove("active"));
     topic.el.classList.add("active");
-    topic.el.closest(".category-block").classList.remove("collapsed");
-    updateFoldBtn();
     topic.el.scrollIntoView({ block: "nearest" });
 
     counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
@@ -727,25 +687,17 @@ const searchCount = document.getElementById("search-count");
 const searchWrap  = document.getElementById("search-wrap");
 const searchClear = document.getElementById("search-clear");
 
-let preSearchFold = null;
-
 function runSearch() {
     const q = normalizeSearch(searchInput.value.trim());
     searchClear.classList.toggle("visible", searchInput.value.length > 0);
 
     if (!q) {
         flatTopics.forEach(t => t.el.classList.remove("search-match", "search-dim"));
-        const blocks = allBlocks();
-        blocks.forEach((b, i) => {
-            b.classList.remove("search-dim-all");
-            if (preSearchFold) b.classList.toggle("collapsed", preSearchFold[i]);
-        });
-        preSearchFold = null;   // back to the fold state from before the search
-        updateFoldBtn();
+        document.querySelectorAll(".category-block").forEach(b => b.classList.remove("collapsed", "search-dim-all"));
+        // restore natural collapse state (none collapsed by default)
         searchCount.textContent = "";
         return;
     }
-    if (!preSearchFold) preSearchFold = allBlocks().map(b => b.classList.contains("collapsed"));
 
     let matches = 0;
     flatTopics.forEach(t => {
@@ -761,7 +713,6 @@ function runSearch() {
         block.classList.toggle("search-dim-all", !hasMatch && block.querySelectorAll(".topic-item").length > 0);
     });
 
-    updateFoldBtn();
     searchCount.textContent = matches === 0 ? "No topics found" : matches + " topic" + (matches === 1 ? "" : "s") + " found";
 }
 
