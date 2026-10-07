@@ -12,7 +12,7 @@
                                                  |  #audio-dock  (TOP bar)     |  dark #111 strip: custom audio player
                                                  |  #content-box (MIDDLE)      |  cream area, the ONLY part that scrolls
                                                  +-----------------------------+
-   [ #navbar ]  (BOTTOM bar)  Prev | n / total | Next | speed 1 2 3 | lock | fullscreen
+   [ #navbar ]  (BOTTOM bar)  Prev | n / total | Next | speed 1 2 3 | fullscreen
    The content scrolls BETWEEN the two black bars; both stay fixed.
 
  DESIGN TOKENS (search & replace to re-theme)
@@ -35,7 +35,7 @@
       not fetched yet, and a mute button.
    6. Bottom nav bar: Prev / Next (wrap around), counter, speed buttons
       (disabled when the topic has no audio), full-screen "reading mode" button.
-   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text (all swipes and verse taps can be blocked with the lock button)
+   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text
       (swipe left = Next, swipe right = Prev). Check here carefully for 'scrollable texts'
 	  that do not conflict with swiping. 
    8. Copy button: copies the page's plain text (no audio/labels) to clipboard.
@@ -497,24 +497,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     color: #d8b46a !important; border-color: #d8b46a66 !important;
 }
 #menuBtn.open { background: #d8b46a !important; color: #111 !important; }
-
-/* Touch lock: sits just left of the fullscreen/X button. While locked, taps on verses,
-   the seek bar and text swipes are ignored (see body.touch-locked in the script). */
-#lockBtn {
-    position: absolute; right: 48px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 15px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
-}
-#lockBtn.on { background: #d8b46a !important; color: #111 !important; }
-/* leave room on the right for lock + fullscreen, so Prev / counter / Next / 1 2 3 shift left */
-#navbar { padding-right: 90px; }
-body.touch-locked #content-box .verse-block { cursor: default; }
 @media (min-width: 701px) { body.reading #sidebar { display: none; } }
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 88px; }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
   #counter { min-width: 40px; font-size: 12px; }
@@ -541,13 +529,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
   #copyBtn { right: 6px; width: 28px; height: 28px; }
-}
-/* very narrow phones: tighten the centre group so it still fits between menu and lock */
-@media (max-width: 380px) {
-  #navbar { gap: 2px; }
-  #navbar #prevBtn, #navbar #nextBtn { width: 34px; }
-  #counter { min-width: 30px; }
-  #speedGroup { gap: 6px; }
 }
 </style>
 </head>
@@ -586,7 +567,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     </div>
 </div>
 
-<!-- BOTTOM BAR: menu (phone only) | Prev | counter | Next | speed 1/2/3 = 1x/1.5x/1.75x | touch lock | fullscreen -->
+<!-- BOTTOM BAR: menu (phone only) | Prev | counter | Next | speed 1/2/3 = 1x/1.5x/1.75x | fullscreen -->
 <div id="navbar">
     <button id="menuBtn" title="Topics list">&#9776;</button>
     <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
@@ -597,7 +578,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
         <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
     </div>
-    <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true">&#128274;</button>
     <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
 
@@ -853,7 +833,6 @@ function buildCustomPlayer(audio, holder) {
         return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     }
     bar.addEventListener("pointerdown", e => {
-        if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore the seek bar
         if (!(audio.duration > 0)) return;
         dragging = true; dragT = ratioFrom(e) * audio.duration;
         try { bar.setPointerCapture(e.pointerId); } catch (err) {}
@@ -984,7 +963,6 @@ function initAudioSync() {
     // Tap a block to jump to its start and play
     blocks.slice(0, n).forEach((block, i) => {
         block.addEventListener("click", () => {
-            if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore taps on verses
             if (syncDisabled) return;
             audio.currentTime = starts[i] + 0.01;
             const p = audio.play();
@@ -1127,7 +1105,6 @@ document.addEventListener("keydown", e => {
     contentBox.addEventListener("touchend", e => {
         if (!tracking) return;
         tracking = false;
-        if (document.body.classList.contains("touch-locked")) return;   // touch lock: no swipe-to-change-topic
         const t = e.changedTouches[0];
         const dx = t.clientX - sx, dy = t.clientY - sy;
         if (Date.now() - st > 700) return;                          // slow drag: not a swipe
@@ -1216,20 +1193,6 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     if (!document.fullscreenElement) setReading(false);
     setTimeout(fitVerses, 250);
 });
-
-// ── TOUCH LOCK ────────────────────────────────────────────────────────
-// While locked: verse taps, the seek bar and topic swipes are ignored. Scrolling, Play/Pause,
-// Prev/Next buttons and speed still work. It starts LOCKED each time the page opens.
-const lockBtn = document.getElementById("lockBtn");
-function setTouchLock(on) {
-    document.body.classList.toggle("touch-locked", on);
-    lockBtn.classList.toggle("on", on);
-    lockBtn.setAttribute("aria-pressed", on ? "true" : "false");
-    lockBtn.innerHTML = on ? "&#128274;" : "&#128275;";
-    lockBtn.title = on ? "Touch locked: tap to unlock" : "Lock touch (ignore accidental taps)";
-}
-lockBtn.addEventListener("click", () => setTouchLock(!document.body.classList.contains("touch-locked")));
-setTouchLock(true);   // locked by default every time the page opens; tap the lock to unlock
 
 document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
