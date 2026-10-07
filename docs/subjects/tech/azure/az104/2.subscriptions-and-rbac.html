@@ -1,0 +1,279 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-figure { margin: 12px 0 18px 0; text-align: center; }
+.az-topic .az-figure svg { width: 100%; max-width: 440px; height: auto; border: 1px solid #e8e2d5; border-radius: 8px; background: #fff; }
+.az-topic .az-figure figcaption { margin-top: 4px; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic svg text { font-family: "Segoe UI", Arial, sans-serif; font-size: 11px; fill: #333; }
+.az-topic svg .h { font-weight: 700; font-size: 12px; }
+.az-topic svg .m { fill: #888; font-size: 10px; }
+.az-topic svg .b { fill: #005a9e; }
+.az-topic svg .g { fill: #6b4f1d; }
+.az-topic svg .r { fill: #a33a2a; }
+.az-topic svg .w { fill: #fff; font-weight: 700; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic pre.az-code { background: #fbfaf7; border: 1px solid #e8e2d5; border-radius: 6px; padding: 10px 14px; font-size: 0.85em; overflow-x: auto; line-height: 1.45; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 16px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic details.az-qa { margin-top: 8px; }
+.az-topic details.az-qa > summary { display: inline-block; cursor: pointer; padding: 4px 14px; font-size: 0.9em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 5px; list-style: none; }
+.az-topic details.az-qa > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-qa > summary:hover { background: #005a9e; }
+.az-topic details.az-qa[open] > summary { background: #6b4f1d; }
+.az-topic details.az-qa .az-a { margin-top: 8px; padding: 8px 14px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+</style>
+
+<h1>Manage Subscriptions and RBAC <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Entra ID tells Azure <em>who</em> you are. Role-based access control (RBAC) decides <em>what you can do</em>, and <em>where</em>.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big idea: scopes and inheritance</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 440 265" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scope hierarchy from tenant root group down to a VM. A role assigned at the management group flows down to everything below">
+  <defs>
+    <marker id="rbA1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c9a15a"/></marker>
+    <marker id="rbA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0078d4"/></marker>
+  </defs>
+  <rect x="16" y="12" width="170" height="32" rx="6" fill="#fff" stroke="#bbb"/><text x="101" y="32" text-anchor="middle">Tenant Root Group</text>
+  <rect x="16" y="60" width="170" height="32" rx="6" fill="#fff8e8" stroke="#c9a15a" stroke-width="2"/><text class="g" x="101" y="80" text-anchor="middle">mg-contoso-emea</text>
+  <rect x="16" y="108" width="170" height="32" rx="6" fill="#fff" stroke="#c9a15a"/><text x="101" y="128" text-anchor="middle">sub-emea-prod</text>
+  <rect x="16" y="156" width="170" height="32" rx="6" fill="#fff" stroke="#c9a15a"/><text x="101" y="176" text-anchor="middle">rg-web-weu</text>
+  <rect x="16" y="204" width="170" height="32" rx="6" fill="#fff" stroke="#c9a15a"/><text x="101" y="224" text-anchor="middle">vm-web-01</text>
+  <path d="M101 44 V58 M101 92 V106 M101 140 V154 M101 188 V202" stroke="#c9a15a" stroke-width="1.5" marker-end="url(#rbA1)"/>
+  <text class="m" x="32" y="256">Management group &gt; Subscription &gt; Resource group &gt; Resource</text>
+
+  <rect x="214" y="56" width="212" height="40" rx="8" fill="#eef6fc" stroke="#0078d4"/>
+  <text class="h b" x="320" y="72" text-anchor="middle">grp-helpdesk-emea</text>
+  <text class="b" x="320" y="88" text-anchor="middle">= Virtual Machine Contributor</text>
+  <path d="M320 98 V215" stroke="#0078d4" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#rbA2)"/>
+  <text x="332" y="140">Flows down to the</text>
+  <text x="332" y="156">subscription, the</text>
+  <text x="332" y="172">resource group and</text>
+  <text x="332" y="188">every VM inside</text>
+</svg>
+<figcaption>Assign once at the top. Everything below inherits it.</figcaption>
+</figure>
+
+<h3>Subscriptions and management groups</h3>
+<ul class="az-list">
+  <li><strong>Subscription:</strong> a container for resources. It is a billing and limits boundary.</li>
+  <li>Each subscription trusts <strong>one</strong> Entra ID tenant.</li>
+  <li><strong>Management group:</strong> a folder for subscriptions. Roles and Azure Policy flow down from it.</li>
+  <li>The top one is built in: <strong>Tenant Root Group</strong>. You can nest up to 6 levels below it.</li>
+  <li>A subscription sits in <strong>one</strong> management group at a time.</li>
+  <li>To see all subscriptions as a Global Administrator, turn on <span class="az-ui">Access management for Azure resources</span> in Entra ID &rarr; Properties.</li>
+</ul>
+
+<h3>RBAC in one line</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 440 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Role assignment equals who plus what plus where">
+  <rect x="10" y="12" width="124" height="52" rx="8" fill="#eef6fc" stroke="#0078d4"/>
+  <text class="m" x="72" y="28" text-anchor="middle">WHO</text><text class="h b" x="72" y="46" text-anchor="middle">grp-helpdesk-emea</text><text class="m" x="72" y="58" text-anchor="middle">user or group</text>
+  <text class="h" x="146" y="43" text-anchor="middle">+</text>
+  <rect x="158" y="12" width="124" height="52" rx="8" fill="#f4efe2" stroke="#c9a15a"/>
+  <text class="m" x="220" y="28" text-anchor="middle">WHAT</text><text class="h g" x="220" y="44" text-anchor="middle">VM Contributor</text><text class="m" x="220" y="58" text-anchor="middle">the role</text>
+  <text class="h" x="294" y="43" text-anchor="middle">+</text>
+  <rect x="306" y="12" width="124" height="52" rx="8" fill="#f1f8f1" stroke="#4a9b5a"/>
+  <text class="m" x="368" y="28" text-anchor="middle">WHERE</text><text class="h" x="368" y="44" text-anchor="middle" style="fill:#2f6b3b">mg-contoso-emea</text><text class="m" x="368" y="58" text-anchor="middle">the scope</text>
+  <rect x="110" y="84" width="220" height="34" rx="17" fill="#0078d4"/>
+  <text class="w" x="220" y="105" text-anchor="middle">= one role assignment</text>
+</svg>
+<figcaption>Who + what + where.</figcaption>
+</figure>
+<ul class="az-list">
+  <li><strong>Owner:</strong> everything, plus can give access to others.</li>
+  <li><strong>Contributor:</strong> everything except giving access to others.</li>
+  <li><strong>Reader:</strong> look only.</li>
+  <li><strong>User Access Administrator:</strong> only manages who has access.</li>
+  <li><strong>Virtual Machine Contributor:</strong> manages VMs, but not the OS inside, and not the network or storage they use.</li>
+  <li>Best practice: assign roles to <strong>groups</strong>, not to individuals.</li>
+</ul>
+
+<h3>Real-world examples</h3>
+<ul class="az-list">
+  <li><strong>Contoso Europe help desk:</strong> VM Contributor on <span class="az-val">mg-contoso-emea</span>. Covers every EU subscription, including new ones added later.</li>
+  <li><strong>Finance auditors:</strong> Reader on <span class="az-val">sub-finance-prod</span>. They can look, never change.</li>
+  <li><strong>Web developers:</strong> Contributor on <span class="az-val">rg-web-dev</span> only. No access to production.</li>
+  <li><strong>Network team:</strong> Network Contributor on <span class="az-val">rg-network-hub</span>.</li>
+  <li><strong>Outsourced night-shift operators:</strong> a custom role that can only start, restart and stop VMs.</li>
+</ul>
+
+<h3>Custom roles</h3>
+<figure class="az-figure">
+<svg viewBox="0 0 440 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A custom role is a built-in role minus a removed permission">
+  <rect x="10" y="12" width="124" height="68" rx="8" fill="#f4efe2" stroke="#c9a15a"/>
+  <text class="m" x="72" y="28" text-anchor="middle">START WITH</text><text class="h g" x="72" y="46" text-anchor="middle">Support Request</text><text class="h g" x="72" y="60" text-anchor="middle">Contributor</text><text class="m" x="72" y="74" text-anchor="middle">built-in role</text>
+  <text class="h" x="146" y="50" text-anchor="middle">&minus;</text>
+  <rect x="158" y="12" width="124" height="68" rx="8" fill="#fdf1ee" stroke="#a33a2a"/>
+  <text class="m" x="220" y="28" text-anchor="middle">TAKE AWAY (NotActions)</text><text class="r" x="220" y="48" text-anchor="middle" style="font-size:10px">Registers Support</text><text class="r" x="220" y="61" text-anchor="middle" style="font-size:10px">Resource Provider</text><text class="m" x="220" y="74" text-anchor="middle">no new providers</text>
+  <text class="h" x="294" y="50" text-anchor="middle">=</text>
+  <rect x="306" y="12" width="124" height="68" rx="8" fill="#f1f8f1" stroke="#4a9b5a"/>
+  <text class="m" x="368" y="28" text-anchor="middle">RESULT</text><text class="h" x="368" y="46" text-anchor="middle" style="fill:#2f6b3b">Contoso Support</text><text class="h" x="368" y="60" text-anchor="middle" style="fill:#2f6b3b">Ticket Agent</text><text class="m" x="368" y="74" text-anchor="middle">custom role</text>
+  <text class="m" x="220" y="106" text-anchor="middle">Least privilege: only what the job needs</text>
+</svg>
+<figcaption>Clone a role, remove what you do not want.</figcaption>
+</figure>
+<ul class="az-list">
+  <li>Use a custom role when built-in roles give too much (or the wrong) access.</li>
+  <li>A role is a JSON file: <strong>Actions</strong> (allowed), <strong>NotActions</strong> (taken away), <strong>AssignableScopes</strong> (where it can be used). Data operations use <strong>DataActions</strong>.</li>
+  <li><strong>NotActions is not a deny.</strong> It only subtracts from Actions. Another role can still grant the same permission.</li>
+</ul>
+<pre class="az-code">{
+  "Name": "Contoso Support Ticket Agent",
+  "Actions": [ "Microsoft.Support/*", ... ],          // simplified
+  "NotActions": [ "Microsoft.Support/register/action" ],
+  "AssignableScopes": [ "/providers/Microsoft.Management/managementGroups/mg-contoso-emea" ]
+}</pre>
+
+<h3>Azure roles vs Entra ID roles</h3>
+<ul class="az-list">
+  <li><strong>Azure RBAC roles:</strong> control Azure resources (VMs, storage). Work at any scope level.</li>
+  <li><strong>Entra ID roles:</strong> control the directory (users, groups, apps). Work at tenant level.</li>
+  <li>Being Global Administrator does <em>not</em> give access to Azure resources by default.</li>
+</ul>
+
+<h3>Activity log</h3>
+<ul class="az-list">
+  <li>Records who did what, and when, at subscription and management group level.</li>
+  <li>Filter by operation (for example role assignments) to audit access changes.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> give the Europe help desk limited rights across all EU subscriptions. About 30 minutes. Before you start, have a security group for the help desk (create <span class="az-val">grp-helpdesk-emea</span> as in the previous topic if needed).</p>
+<figure class="az-figure">
+<svg viewBox="0 0 440 78" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Steps: management group, built-in role, custom role, activity log">
+  <defs><marker id="rbA3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0078d4"/></marker></defs>
+  <path d="M40 26 H 410" stroke="#0078d4" stroke-width="2" marker-end="url(#rbA3)"/>
+  <circle cx="45" cy="26" r="14" fill="#0078d4"/><text class="w" x="45" y="30" text-anchor="middle">1</text>
+  <circle cx="160" cy="26" r="14" fill="#0078d4"/><text class="w" x="160" y="30" text-anchor="middle">2</text>
+  <circle cx="275" cy="26" r="14" fill="#c9a15a"/><text class="w" x="275" y="30" text-anchor="middle">3</text>
+  <circle cx="395" cy="26" r="14" fill="#4a9b5a"/><text class="w" x="395" y="30" text-anchor="middle">4</text>
+  <text class="b" x="45" y="62" text-anchor="middle">Mgmt group</text>
+  <text class="b" x="160" y="62" text-anchor="middle">Built-in role</text>
+  <text class="g" x="275" y="62" text-anchor="middle">Custom role</text>
+  <text x="395" y="62" text-anchor="middle" style="fill:#2f6b3b">Activity log</text>
+</svg>
+</figure>
+
+<div class="az-note"><p>The original steps use the names <span class="az-val">az104-mg1</span>, <span class="az-val">helpdesk</span> and <span class="az-val">Custom Support Request</span>. Any names work. Real-world names are used here.</p></div>
+
+<h3>Task 1: Management group</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Microsoft Entra ID</span> &rarr; <span class="az-ui">Properties</span>. Under <em>Access management for Azure resources</em>, check you can manage all subscriptions and management groups.</li>
+  <li>Search <span class="az-ui">Management groups</span> &rarr; <span class="az-ui">+ Create</span>.
+    <ul>
+      <li>ID: <span class="az-val">mg-contoso-emea</span> (must be unique in the directory)</li>
+      <li>Display name: <span class="az-val">Contoso EMEA</span></li>
+      <li><span class="az-ui">Submit</span>, then refresh (can take a minute)</li>
+    </ul>
+  </li>
+  <li>Spot the <strong>Tenant Root Group</strong>. In real life you would now move the EU subscriptions into this group.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">Contoso EMEA</span> is listed under the Tenant Root Group.</p></div>
+
+<h3>Task 2: Assign a built-in role</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">Contoso EMEA</span> &rarr; <span class="az-ui">Access control (IAM)</span> &rarr; <span class="az-ui">Roles</span> tab. Browse the roles. Open one to see <em>Permissions</em>, <em>JSON</em> and <em>Assignments</em>.</li>
+  <li><span class="az-ui">+ Add</span> &rarr; <span class="az-ui">Add role assignment</span> &rarr; pick <span class="az-val">Virtual Machine Contributor</span> &rarr; <span class="az-ui">Next</span>.</li>
+  <li><span class="az-ui">Select members</span> &rarr; <span class="az-val">grp-helpdesk-emea</span> &rarr; <span class="az-ui">Select</span>.</li>
+  <li><span class="az-ui">Review + assign</span> (twice).</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> on the <span class="az-ui">Role assignments</span> tab the group has Virtual Machine Contributor. (If you are an Owner, you may not notice a change. Owner already includes it.)</p></div>
+
+<h3>Task 3: Create a custom role</h3>
+<ol class="az-list">
+  <li>Same IAM page: <span class="az-ui">+ Add</span> &rarr; <span class="az-ui">Add custom role</span>.</li>
+  <li>Basics tab:
+    <ul>
+      <li>Name: <span class="az-val">Contoso Support Ticket Agent</span></li>
+      <li>Description: <span class="az-val">Create and manage support tickets. Cannot register resource providers.</span></li>
+      <li>Baseline permissions: <span class="az-ui">Clone a role</span> &rarr; <span class="az-val">Support Request Contributor</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Next</span> &rarr; <span class="az-ui">+ Exclude permissions</span> &rarr; search <span class="az-val">.Support</span> &rarr; pick <span class="az-val">Microsoft.Support</span>.</li>
+  <li>Tick <em>Other: Registers Support Resource Provider</em> &rarr; <span class="az-ui">Add</span>. It becomes a <strong>NotAction</strong>.</li>
+  <li><span class="az-ui">Assignable scopes</span>: make sure your management group is listed. Review the JSON.</li>
+  <li><span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the new role shows in the IAM <span class="az-ui">Roles</span> tab as a <em>CustomRole</em>. To use it, assign it to the group the same way as Task 2.</p></div>
+
+<h3>Task 4: Activity log</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">Contoso EMEA</span> &rarr; <span class="az-ui">Activity log</span>.</li>
+  <li>Filter the operation to role assignments and find the one you made.</li>
+</ol>
+<div class="az-note"><p>Cleanup: delete the management group and test role when you are done. This stops clutter, and keeps your own subscription tidy.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Role assignment = who + what + where.</li>
+  <li>Assigned roles <strong>inherit downward</strong>: management group &gt; subscription &gt; resource group &gt; resource.</li>
+  <li>Owner can assign roles. Contributor cannot.</li>
+  <li>Assign to groups, not individuals.</li>
+  <li>NotActions subtracts permissions. It is not a deny.</li>
+  <li>Custom roles need AssignableScopes.</li>
+  <li>Management groups: up to 6 levels deep. One subscription belongs to one group.</li>
+  <li>Azure RBAC roles are not the same as Entra ID roles.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Think first, then press <strong>Show answer</strong> under each question.</p>
+
+<ol class="az-qlist">
+  <li><strong>What three things make up a role assignment?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Who (user, group or app), what (the role), and where (the scope).</div></details></li>
+
+  <li><strong>The Contoso Europe help desk needs the same access on 12 EU subscriptions, and on any new ones. Where do you assign the role?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">On the management group that holds the EU subscriptions. Access is inherited by every subscription in it, including new ones.</div></details></li>
+
+  <li><strong>What can Owner do that Contributor cannot?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Give access to others (create role assignments). Contributor can manage resources but cannot assign roles.</div></details></li>
+
+  <li><strong>Which is NOT allowed by Virtual Machine Contributor?</strong>
+    <ol class="az-opts"><li>Start and stop VMs</li><li>Create a VM</li><li>Log in to the operating system</li><li>Resize a VM</li></ol>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a"><strong>C.</strong> The role manages VMs but not the OS inside them, and not the virtual network or storage they use.</div></details></li>
+
+  <li><strong>Is a permission listed in NotActions denied for the user?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">No. NotActions just removes it from that role's Actions. If another role grants the same permission, the user still has it.</div></details></li>
+
+  <li><strong>Why assign roles to groups instead of people?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Easier to manage. When someone joins or leaves, you change group membership and not dozens of role assignments.</div></details></li>
+
+  <li><strong>What is the difference between Azure RBAC roles and Entra ID roles?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Azure RBAC roles control Azure resources and work at many scopes. Entra ID roles control the directory (users, groups, apps) at tenant level.</div></details></li>
+
+  <li><strong>Your security team asks who gave a contractor access to the production subscription last Tuesday. Where do you look?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">The Activity log of that subscription (or management group). Filter on role assignment operations.</div></details></li>
+
+  <li><strong>A contractor must only start, restart and stop VMs in <span class="az-val">rg-web-weu</span>. What do you do?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Create a custom role with just the VM start, restart, deallocate and read actions. Assign it to the contractor (or their group) at the resource group scope.</div></details></li>
+
+  <li><strong>You are a Global Administrator but cannot see any subscriptions in the portal. Why, and what is the fix?</strong>
+    <details class="az-qa"><summary>Show answer</summary><div class="az-a">Entra ID roles do not give Azure resource access. Turn on <em>Access management for Azure resources</em> in Entra ID Properties to elevate yourself to User Access Administrator at the root.</div></details></li>
+</ol>
+</div>
