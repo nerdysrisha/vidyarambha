@@ -1,0 +1,312 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Manage Azure Storage <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">One storage account holds your blobs, file shares, queues and tables. This topic covers how to pick its redundancy, cut cost with tiers, protect the data, and lock down who can reach it.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg7</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">Storage account</span><span class="lt">one unique name</span><span class="lp">GRS + read access</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Blob</span><span class="lt">container: data</span><span class="ld">private</span></div>
+        <div class="cs"><span class="cp">folder securitytest</span><span class="cp">uploaded file</span></div>
+      </div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Files</span><span class="lt">file share: share1</span><span class="ld">Transaction optimized</span></div>
+      </div>
+      <div class="cs"><span class="cp">Queues</span><span class="cp">Tables</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. Queues and tables exist in the account too but are not used in the lab.</p>
+
+<h3>Storage account basics</h3>
+<ul class="az-list">
+  <li>A <strong>storage account</strong> is a unique namespace for your data, reachable over HTTP or HTTPS from anywhere.</li>
+  <li>Holds four services: <strong>Blobs</strong> (unstructured data), <strong>Files</strong> (file shares), <strong>Queues</strong> (messages), <strong>Tables</strong>.</li>
+  <li>Name: <strong>globally unique</strong>, 3 to 24 characters, lowercase letters and digits only.</li>
+  <li><strong>Performance:</strong> <em>Standard</em> for most apps, <em>Premium</em> for enterprise or high-performance workloads.</li>
+  <li><strong>Soft delete</strong> keeps deleted data recoverable. Default retention is <span class="az-val">7 days</span>. You can also turn on <strong>versioning</strong> for blobs.</li>
+</ul>
+
+<h3>Redundancy</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Primary region</span><span class="lt">East US</span></div>
+    <div class="cs"><span class="cp cu">LRS: 3 copies, 1 datacenter</span><span class="cp cu">ZRS: 3 copies, 3 zones</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Secondary region</span><span class="lt">paired region</span></div>
+    <div class="cs"><span class="cp cu">GRS: LRS copy here too</span><span class="cp cu">GZRS: ZRS in primary + copy here</span></div>
+  </div>
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Add "RA" for read access</span></div>
+    <div class="cs"><span class="cp">RA-GRS</span><span class="cp">RA-GZRS</span><span class="cp">secondary readable at any time</span></div>
+  </div>
+</div>
+<p class="az-cap">Left to right in cost: LRS, ZRS, GRS, GZRS. The lab picks GRS and ticks the read access box.</p>
+<ul class="az-list">
+  <li><strong>LRS:</strong> protects against a failed disk or rack. Not a whole datacenter.</li>
+  <li><strong>ZRS:</strong> survives the loss of a datacenter or zone in the region.</li>
+  <li><strong>GRS:</strong> also copies to a secondary region, protecting against a regional disaster. Secondary is not readable unless you add read access (<strong>RA-GRS</strong>).</li>
+  <li>See the primary and secondary locations under <span class="az-ui">Data management</span> &rarr; <span class="az-ui">Redundancy</span>.</li>
+</ul>
+
+<h3>Access tiers and lifecycle rules</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Cheaper to store &rarr; costlier to read</span></div>
+    <div class="cs"><span class="cp cu">Hot</span><span class="cp">&rarr;</span><span class="cp cu">Cool (30 days min)</span><span class="cp">&rarr;</span><span class="cp cu">Cold (90 days min)</span><span class="cp">&rarr;</span><span class="cp cu">Archive (180 days min)</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Lifecycle rule</span><span class="lt">Movetocool</span></div>
+    <div class="cs"><span class="cp cu">base blobs last modified more than 30 days ago &rarr; Move to cool storage</span></div>
+  </div>
+</div>
+<p class="az-cap">A lifecycle rule moves blobs between tiers on its own, based on age.</p>
+<ul class="az-list">
+  <li>Use <strong>Hot</strong> for data used often, <strong>Cool or Cold</strong> for infrequent access, <strong>Archive</strong> for rare access (offline, must be rehydrated before reading).</li>
+  <li>Moving or deleting a blob before the minimum days can cost an early deletion fee.</li>
+  <li>A <strong>lifecycle management rule</strong> sets scope, then conditions (such as days since last modified), then the action (move to cool, archive, delete).</li>
+  <li>You can also change a single blob's tier by hand with <span class="az-ui">Change tier</span>.</li>
+</ul>
+
+<h3>Blob containers and immutable storage</h3>
+<ul class="az-list">
+  <li>A <strong>container</strong> holds blobs, like a folder at the top level. Blob types: <strong>block</strong> (most files), append, page.</li>
+  <li>Public access level is <strong>Private (no anonymous access)</strong> by default. Opening the blob URL in a browser fails.</li>
+  <li><strong>Immutable storage</strong> = WORM (write once, read many). Two policy types:
+    <ul>
+      <li><strong>Time-based retention:</strong> blobs cannot be changed or deleted for the set period, for example <span class="az-val">180 days</span>.</li>
+      <li><strong>Legal hold:</strong> blobs are locked until the hold is cleared. No fixed end date.</li>
+    </ul>
+  </li>
+  <li>An unlocked retention policy can still be edited. A <strong>locked</strong> policy cannot be removed, and the period can only be extended.</li>
+</ul>
+
+<h3>Shared access signatures (SAS)</h3>
+<ul class="az-list">
+  <li>A <strong>SAS</strong> is a signed URL that gives limited access to a blob without sharing the account key.</li>
+  <li>You set: <strong>permissions</strong> (such as Read), <strong>start and expiry</strong> time, optional <strong>allowed IP addresses</strong>, and the signing key (<span class="az-val">Key 1</span>).</li>
+  <li>Anyone holding the SAS URL gets that access until it expires.</li>
+  <li>Result in the lab: the plain URL fails, the <strong>Blob SAS URL</strong> shows the file.</li>
+</ul>
+
+<h3>Locking down network access</h3>
+<div class="az-dg">
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">1 Network</span><span class="lt">Firewall and VNets</span><span class="ld">Public access: disabled, selected networks, or all</span></div>
+    <div class="cs"><span class="cp cu">allow vnet1 / default subnet</span><span class="cp">client IP (removed in the lab)</span></div>
+    <div class="ly c-y">
+      <div class="lh"><span class="lv">2 Authorization</span><span class="lt">Who are you?</span></div>
+      <div class="cs"><span class="cp">SAS</span><span class="cp">account key</span><span class="cp">Microsoft Entra ID</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">3 Container</span><span class="lt">data</span><span class="ld">private, no anonymous access</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">A request must get through every layer, outside in.</p>
+<ul class="az-list">
+  <li><strong>Public network access</strong> has three settings: <em>Disabled</em>, <em>Enabled from selected networks and IP addresses</em>, <em>Enabled from all networks</em>.</li>
+  <li>To allow only a VNet: add a <strong>service endpoint</strong> <span class="az-val">Microsoft.Storage</span> on the subnet, then add that VNet and subnet in the storage account's <span class="az-ui">Networking</span> page.</li>
+  <li>Outside the allowed networks, you get <em>not authorized to perform this operation</em>, even in the portal's Storage browser.</li>
+</ul>
+
+<h3>Azure Files and Storage browser</h3>
+<ul class="az-list">
+  <li><strong>Azure Files</strong> gives shared file storage in the cloud, organised in folders. Candidate to replace on-premises file shares.</li>
+  <li>File share tiers (standard accounts): <em>Transaction optimized</em> (default), <em>Hot</em>, <em>Cool</em>.</li>
+  <li><strong>Storage browser</strong> is a portal tool to view and manage blobs, file shares, queues and tables in one place. You can add directories and upload files.</li>
+  <li>Backup for the share is optional. The lab turns it off to keep things simple.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> create a GRS storage account, add a cost rule, make a protected blob container, share a file with a SAS, create a file share, then restrict the account to one VNet. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Storage account</span><span class="cp cu">2 Secure blobs</span><span class="cp cu">3 Files + lock to VNet</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg7</span>, <span class="az-val">data</span>, <span class="az-val">share1</span>, <span class="az-val">vnet1</span>. Use any globally unique storage account name.</p></div>
+
+<h3>Task 1: Create and configure the storage account</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Storage accounts</span> &rarr; <span class="az-ui">+ Create</span>. Basics:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg7</span> (create new), unique name, region <span class="az-val">East US</span></li>
+      <li>Performance <em>Standard</em>, redundancy <em>Geo-redundant storage</em></li>
+      <li>Tick <em>Make read access to data available in the event of regional unavailability</em></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Advanced</span>: take the defaults.</li>
+  <li><span class="az-ui">Networking</span>: Network access &rarr; <em>Disable public access and use private access</em>.</li>
+  <li><span class="az-ui">Data protection</span> and <span class="az-ui">Encryption</span>: read, keep the defaults (soft delete is 7 days).</li>
+  <li><span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li><span class="az-ui">Security + networking</span> &rarr; <span class="az-ui">Networking</span>. Public network access is disabled. Change it to <em>Enable from selected networks and IP addresses</em>, tick <em>Add your client IP address</em>, <span class="az-ui">Save</span>.</li>
+  <li><span class="az-ui">Data management</span> &rarr; <span class="az-ui">Redundancy</span>: see the primary and secondary locations.</li>
+  <li><span class="az-ui">Data management</span> &rarr; <span class="az-ui">Lifecycle management</span> &rarr; <span class="az-ui">Add a rule</span>:
+    <ul>
+      <li>Name <span class="az-val">Movetocool</span> &rarr; <span class="az-ui">Next</span></li>
+      <li>Base blobs: if last modified more than <span class="az-val">30 days</span> ago, then <em>Move to cool storage</em> &rarr; <span class="az-ui">Add</span></li>
+    </ul>
+  </li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the account shows GRS with a secondary location, public access limited to your IP, and the rule <span class="az-val">Movetocool</span> is listed.</p></div>
+
+<h3>Task 2: Create and configure secure blob storage</h3>
+<ol class="az-list">
+  <li><strong>Container:</strong> <span class="az-ui">Data storage</span> &rarr; <span class="az-ui">Containers</span> &rarr; <span class="az-ui">+ Add container</span>: name <span class="az-val">data</span>, access level stays <em>Private</em> &rarr; <span class="az-ui">Create</span>.</li>
+  <li><strong>Retention policy:</strong> on the container, ellipsis (...) &rarr; <span class="az-ui">Access Policy</span> &rarr; Immutable blob storage &rarr; <span class="az-ui">Add policy</span>: type <em>Time-based retention</em>, <span class="az-val">180</span> days &rarr; <span class="az-ui">Save</span>.</li>
+  <li><strong>Upload:</strong> open <span class="az-val">data</span> &rarr; <span class="az-ui">Upload</span>, choose a small file, expand <span class="az-ui">Advanced</span>:
+    <ul>
+      <li>Blob type <em>Block blob</em>, block size <span class="az-val">4 MiB</span>, tier <em>Hot</em></li>
+      <li>Upload to folder <span class="az-val">securitytest</span>, default encryption scope</li>
+    </ul>
+    Then <span class="az-ui">Upload</span>.
+  </li>
+  <li>Select the file and look at the options: Download, Delete, Change tier, Acquire lease.</li>
+  <li><strong>Try the plain URL:</strong> copy the URL from Properties, paste it in an InPrivate window.</li>
+  <li><strong>Generate a SAS:</strong> on the file, ellipsis (...) &rarr; <span class="az-ui">Generate SAS</span>:
+    <ul>
+      <li>Signing key <span class="az-val">Key 1</span>, permissions <em>Read</em></li>
+      <li>Start: yesterday, current time. Expiry: tomorrow, current time. Allowed IPs blank</li>
+    </ul>
+    <span class="az-ui">Generate SAS token and URL</span>, copy the <strong>Blob SAS URL</strong>, open it in another InPrivate window.
+  </li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the plain URL shows an XML error (<em>ResourceNotFound</em> or <em>PublicAccessNotPermitted</em>), because the container is private. The SAS URL shows the file.</p></div>
+
+<h3>Task 3: Create and secure Azure Files</h3>
+<ol class="az-list">
+  <li><strong>Share:</strong> <span class="az-ui">Data storage</span> &rarr; <span class="az-ui">File shares</span> &rarr; <span class="az-ui">+ File share</span>: name <span class="az-val">share1</span>, tier <em>Transaction optimized</em>. On <span class="az-ui">Backup</span>, leave <em>Enable backup</em> unticked &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li><strong>Storage browser:</strong> open it &rarr; <span class="az-ui">File shares</span> &rarr; <span class="az-val">share1</span>. Try <span class="az-ui">+ Add directory</span>, then <span class="az-ui">Upload</span> a file.</li>
+  <li><strong>Create a VNet:</strong> <span class="az-ui">Virtual networks</span> &rarr; <span class="az-ui">+ Create</span>: your resource group, name <span class="az-val">vnet1</span>, defaults &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Service endpoints</span> &rarr; <span class="az-ui">Add</span>: service <span class="az-val">Microsoft.Storage</span>, subnet <span class="az-val">Default</span> &rarr; <span class="az-ui">Add</span>.</li>
+  <li>Back on the storage account &rarr; <span class="az-ui">Security + networking</span> &rarr; <span class="az-ui">Networking</span> &rarr; <span class="az-ui">Add existing virtual network</span>: <span class="az-val">vnet1</span>, subnet <span class="az-val">default</span> &rarr; <span class="az-ui">Add</span>.</li>
+  <li>In the Firewall section, <strong>delete</strong> your client IP address, then <span class="az-ui">Save</span>.</li>
+  <li>Open <span class="az-ui">Storage browser</span> and refresh. Try your file share or blob content. It can take a couple of minutes to take effect.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> you now get <em>not authorized to perform this operation</em>, because your computer is not on <span class="az-val">vnet1</span>.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg7</span> when you finish. It removes the storage account and the VNet.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>A storage account holds blobs, files, queues and tables. The name is globally unique, 3 to 24 lowercase letters and digits.</li>
+  <li>LRS = one datacenter. ZRS = three zones in the region. GRS = adds a secondary region. Add <strong>RA</strong> to read the secondary.</li>
+  <li>Tiers: Hot, Cool, Cold, Archive. Archive is offline and needs rehydration.</li>
+  <li>Lifecycle management moves or deletes blobs automatically by age.</li>
+  <li>Containers are private by default. A plain URL to a private blob fails.</li>
+  <li>Immutable storage is WORM: time-based retention (fixed period) or legal hold (until cleared). A locked policy cannot be removed.</li>
+  <li>SAS = signed URL with limited permissions, start and expiry, and optional IP limit. No account key shared.</li>
+  <li>Restrict to a VNet: service endpoint <span class="az-val">Microsoft.Storage</span> on the subnet, then add the VNet in the storage Networking page.</li>
+  <li>Soft delete is 7 days by default. Versioning is optional.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>Which four services can one storage account hold?</strong>
+    <div class="az-a">Blobs, Files, Queues and Tables.</div></li>
+
+  <li><strong>You want the lowest-cost option that survives the loss of a whole datacenter inside one region. Which redundancy?</strong>
+    <ol class="az-opts"><li>LRS</li><li>ZRS</li><li>GRS</li><li>RA-GRS</li></ol>
+    <div class="az-a"><strong>B.</strong> ZRS copies data across three zones in the region. LRS stays in one datacenter. GRS and RA-GRS cost more and are aimed at regional disasters.</div></li>
+
+  <li><strong>What is the difference between GRS and RA-GRS?</strong>
+    <div class="az-a">Both copy data to a secondary region. With plain GRS you cannot read the secondary copy. With RA-GRS the secondary is readable at any time.</div></li>
+
+  <li><strong>Blobs that have not been modified for 30 days should move to Cool automatically. Where do you set that up?</strong>
+    <div class="az-a"><span class="az-ui">Data management</span> &rarr; <span class="az-ui">Lifecycle management</span> &rarr; <span class="az-ui">Add a rule</span>: base blobs, last modified more than 30 days ago, then <em>Move to cool storage</em>.</div></li>
+
+  <li><strong>You paste the URL of a blob in a private container into an InPrivate browser window. What do you see, and why?</strong>
+    <div class="az-a">An XML error such as <em>ResourceNotFound</em> or <em>PublicAccessNotPermitted</em>. The container's public access level is Private (no anonymous access).</div></li>
+
+  <li><strong>A partner needs to download one blob for the next 24 hours. You do not want to share the account key. What do you create?</strong>
+    <div class="az-a">A shared access signature (SAS) for that blob with the <em>Read</em> permission and an expiry 24 hours from now. You can also limit it to the partner's IP address.</div></li>
+
+  <li><strong>A container has a time-based retention policy of 180 days. What happens when someone tries to delete a blob after 10 days? What is the other policy type?</strong>
+    <div class="az-a">The delete is blocked. Blobs are WORM (write once, read many) for the retention period. The other type is a <strong>legal hold</strong>, which stays until it is cleared.</div></li>
+
+  <li><strong>You want a storage account reachable only from one VNet subnet. What do you do?</strong>
+    <ol class="az-opts"><li>Add a service endpoint <span class="az-val">Microsoft.Storage</span> on the subnet, then add the VNet and subnet in the storage account's Networking page</li><li>Peer the VNet with the storage account</li><li>Add a route table to the subnet</li><li>Create a SAS token</li></ol>
+    <div class="az-a"><strong>A.</strong> The service endpoint plus the VNet rule in the storage firewall. Peering is between VNets, a route table steers traffic, and a SAS is authorization, not network access.</div></li>
+
+  <li><strong>After you restrict the account to <span class="az-val">vnet1</span> and delete your client IP, Storage browser in the portal says <em>not authorized to perform this operation</em>. Why?</strong>
+    <div class="az-a">Your computer is not in the allowed VNet and your IP is no longer in the firewall, so the network rules block the request.</div></li>
+
+  <li><strong>What is the default soft delete retention for blobs, and what does soft delete give you?</strong>
+    <div class="az-a">7 days. A deleted blob stays recoverable during that time.</div></li>
+</ol>
+</div>

@@ -1,0 +1,288 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Implement Network Traffic Management <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Spread incoming traffic across several VMs. The Load Balancer does it by IP and port (layer 4). The Application Gateway does it by looking at the web request itself (layer 7).</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg6</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VNet</span><span class="lt">az104-06-vnet1</span><span class="ld">built by the template</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">subnet 0</span></div>
+        <div class="cs"><span class="cp">az104-06-vm0</span></div>
+      </div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">subnet 1</span><span class="ld">NIC 10.60.1.4</span></div>
+        <div class="cs"><span class="cp">az104-06-vm1</span></div>
+      </div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">subnet 2</span><span class="ld">NIC 10.60.2.4</span></div>
+        <div class="cs"><span class="cp">az104-06-vm2</span></div>
+      </div>
+      <div class="ly c-y">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">subnet-appgw</span><span class="ld">10.60.3.224/27, added in Task 3</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">One template gives you the VNet, an NSG and three VMs. The load balancing pieces are added on top.</p>
+
+<h3>Load Balancer vs Application Gateway</h3>
+<ul class="az-list">
+  <li><strong>Azure Load Balancer:</strong> layer 4 (TCP and UDP). Looks at IP address and port only. Fast and simple.</li>
+  <li><strong>Application Gateway:</strong> layer 7 (HTTP and HTTPS). Can route by URL path or host header. Adds WAF (web application firewall), SSL termination and end-to-end encryption.</li>
+  <li>Both sit in front of a <strong>backend pool</strong> of VMs and spread the traffic across them.</li>
+  <li>Other options: <strong>Traffic Manager</strong> (DNS-based, global) and <strong>Front Door</strong> (global, layer 7).</li>
+</ul>
+
+<h3>Azure Load Balancer</h3>
+<ul class="az-list">
+  <li><strong>Public</strong> load balancer: frontend has a public IP, used for Internet traffic. <strong>Internal</strong> (private) load balancer: frontend has a private IP only.</li>
+  <li>Three building blocks: <strong>frontend IP</strong> (where traffic arrives), <strong>backend pool</strong> (the VMs), <strong>rules</strong> (how to distribute).</li>
+  <li>A <strong>health probe</strong> checks each VM. A VM that fails the probe gets no new traffic.</li>
+  <li>A <strong>load balancing rule</strong> ties it together: frontend + port &rarr; backend pool + backend port, with a health probe.</li>
+  <li><strong>Session persistence: None</strong> means no stickiness. A refresh can land on a different VM.</li>
+  <li>Standard SKU uses a static public IP and is closed to inbound traffic unless an NSG allows it.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Public IP</span><span class="lt">az104-lbpip</span><span class="ld">Standard, static</span></div>
+  </div>
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">LB</span><span class="lt">az104-lb</span><span class="ld">Standard, Public, Regional</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Frontend</span><span class="lt">az104-fe</span></div>
+      <div class="cs"><span class="cp cu">rule az104-lbrule: TCP 80 &rarr; 80</span><span class="cp cu">probe az104-hp: TCP 80, every 5 s</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Backend pool</span><span class="lt">az104-be</span></div>
+      <div class="cs"><span class="cp">az104-06-vm0</span><span class="cp">az104-06-vm1</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Traffic goes in at the public IP and the rule sends it to a healthy VM in the pool.</p>
+
+<h3>Azure Application Gateway</h3>
+<ul class="az-list">
+  <li>Needs its own <strong>dedicated subnet</strong>, <span class="az-val">/27</span> or larger.</li>
+  <li>Parts: <strong>frontend IP</strong> (public, private or both), <strong>listener</strong> (protocol and port to listen on), <strong>routing rule</strong>, <strong>backend settings</strong> (how to talk to the backend), <strong>backend pools</strong>.</li>
+  <li><strong>Path-based routing:</strong> the URL path picks the backend pool, for example <span class="az-val">/image/*</span> to the image servers and <span class="az-val">/video/*</span> to the video servers. Anything else goes to the default pool.</li>
+  <li>Backend settings include <em>cookie-based affinity</em> (sticky sessions) and <em>connection draining</em> (finish current requests before a server is removed).</li>
+  <li><strong>Standard V2</strong> tier gives all the layer 7 features. The <strong>WAF</strong> tier adds the firewall that checks for malicious traffic.</li>
+  <li>Check the pool with <span class="az-ui">Backend health</span> under Monitoring. Servers should show <span class="az-val">Healthy</span>.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">AppGW</span><span class="lt">az104-appgw</span><span class="ld">in subnet-appgw 10.60.3.224/27</span></div>
+    <div class="cs"><span class="cp cu">listener az104-listener: HTTP 80</span><span class="cp cu">rule az104-gwrule, priority 10</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Path rules</span><span class="lt">Which pool gets the request</span></div>
+    <div class="cs"><span class="cp cu">/image/* &rarr; az104-imagebe &rarr; vm1</span><span class="cp cu">/video/* &rarr; az104-videobe &rarr; vm2</span></div>
+    <div class="cs" style="margin-top:5px;"><span class="cp">everything else &rarr; az104-appgwbe &rarr; vm1 + vm2</span></div>
+  </div>
+</div>
+<p class="az-cap">One public address, different VMs depending on the URL path.</p>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> deploy the VMs from a template, put a Load Balancer in front of two of them, then put an Application Gateway in front of two of them with path-based routing. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Template: VNet + 3 VMs</span><span class="cp cu">2 Load Balancer</span><span class="cp cu">3 Application Gateway</span></div>
+  </div>
+</div>
+<div class="az-note"><p>The template creates the VM and network names (<span class="az-val">az104-06-vm0</span> and so on), so the lab names are kept on this page.</p></div>
+
+<h3>Task 1: Deploy the infrastructure from a template</h3>
+<ol class="az-list">
+  <li>Download the Lab06 files: <span class="az-val">az104-06-vms-template.json</span> and <span class="az-val">az104-06-vms-parameters.json</span>.</li>
+  <li>Portal &rarr; <span class="az-ui">Deploy a custom template</span> &rarr; <span class="az-ui">Build your own template in the editor</span> &rarr; <span class="az-ui">Load file</span> (template) &rarr; <span class="az-ui">Save</span>.</li>
+  <li><span class="az-ui">Edit parameters</span> &rarr; <span class="az-ui">Load file</span> (parameters) &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Resource group <span class="az-val">az104-rg6</span> (create new), enter a secure password.</li>
+  <li><span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span>. Wait about 5 minutes.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> one VNet with three subnets, one VM in each, plus an NSG. If the VM size is unavailable, pick one with at least 2 cores.</p></div>
+
+<h3>Task 2: Configure the Load Balancer</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Load balancers</span> &rarr; <span class="az-ui">+ Create</span>. Basics:
+    <ul>
+      <li>Group <span class="az-val">az104-rg6</span>, name <span class="az-val">az104-lb</span>, same region as the VMs</li>
+      <li>SKU <em>Standard</em>, type <em>Public</em>, tier <em>Regional</em></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Frontend IP configuration</span> &rarr; <span class="az-ui">Add</span>: name <span class="az-val">az104-fe</span>, IP type <em>IP address</em>, Public IP <span class="az-ui">Create new</span>:
+    <ul><li>Name <span class="az-val">az104-lbpip</span>, SKU <em>Standard</em>, tier <em>Regional</em>, assignment <em>Static</em>, routing preference <em>Microsoft network</em> &rarr; <span class="az-ui">Save</span> twice</li></ul>
+  </li>
+  <li><span class="az-ui">Backend pools</span> &rarr; <span class="az-ui">Add</span>: name <span class="az-val">az104-be</span>, VNet <span class="az-val">az104-06-vnet1</span>, configuration <em>NIC</em>. Add <span class="az-val">az104-06-vm0</span> and <span class="az-val">az104-06-vm1</span> &rarr; <span class="az-ui">Add</span> &rarr; <span class="az-ui">Save</span>.</li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Load balancing rules</span> &rarr; <span class="az-ui">+ Add</span>:
+    <ul>
+      <li>Name <span class="az-val">az104-lbrule</span>, IPv4, frontend <span class="az-val">az104-fe</span>, backend pool <span class="az-val">az104-be</span></li>
+      <li>Protocol <em>TCP</em>, port <span class="az-val">80</span>, backend port <span class="az-val">80</span></li>
+      <li>Health probe <em>Create new</em>: name <span class="az-val">az104-hp</span>, TCP, port <span class="az-val">80</span>, interval <span class="az-val">5</span> &rarr; <span class="az-ui">Save</span></li>
+      <li>Session persistence <em>None</em>, idle timeout <span class="az-val">4</span>, TCP reset, floating IP disabled, outbound SNAT <em>Recommended</em></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Save</span>. Open <span class="az-ui">Frontend IP configuration</span> and copy the public IP address.</li>
+  <li>Browse to that IP. Refresh a few times, or use an InPrivate window.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the page alternates between <em>Hello World from az104-06-vm0</em> and <em>Hello World from az104-06-vm1</em>.</p></div>
+
+<h3>Task 3: Configure the Application Gateway</h3>
+<ol class="az-list">
+  <li><strong>Subnet first:</strong> <span class="az-val">az104-06-vnet1</span> &rarr; <span class="az-ui">Subnets</span> &rarr; <span class="az-ui">+ Subnet</span>: name <span class="az-val">subnet-appgw</span>, start <span class="az-val">10.60.3.224</span>, size <span class="az-val">/27</span> (check the start address did not change) &rarr; <span class="az-ui">Add</span>.</li>
+  <li>Portal &rarr; <span class="az-ui">Application gateways</span> &rarr; <span class="az-ui">+ Create</span>. Basics:
+    <ul>
+      <li>Group <span class="az-val">az104-rg6</span>, name <span class="az-val">az104-appgw</span>, same region</li>
+      <li>Tier <em>Standard V2</em>, autoscaling <em>No</em>, instance count <span class="az-val">2</span>, HTTP2 disabled</li>
+      <li>VNet <span class="az-val">az104-06-vnet1</span>, subnet <span class="az-val">subnet-appgw</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Frontends</span>: type <em>Public</em>, public IP <em>Add new</em>: name <span class="az-val">az104-gwpip</span>, zone <span class="az-val">1</span> &rarr; <span class="az-ui">OK</span>.</li>
+  <li><span class="az-ui">Backends</span>: add three pools (each with targets, not empty):
+    <ul>
+      <li><span class="az-val">az104-appgwbe</span>: <span class="az-val">az104-06-nic1 (10.60.1.4)</span> and <span class="az-val">az104-06-nic2 (10.60.2.4)</span></li>
+      <li><span class="az-val">az104-imagebe</span>: <span class="az-val">az104-06-nic1</span> only</li>
+      <li><span class="az-val">az104-videobe</span>: <span class="az-val">az104-06-nic2</span> only</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Configuration</span> &rarr; <span class="az-ui">Add a routing rule</span>:
+    <ul>
+      <li>Rule <span class="az-val">az104-gwrule</span>, priority <span class="az-val">10</span>, listener <span class="az-val">az104-listener</span>, frontend <em>Public IPv4</em>, <em>HTTP</em>, port <span class="az-val">80</span>, listener type <em>Basic</em></li>
+      <li><span class="az-ui">Backend targets</span> tab: target <span class="az-val">az104-appgwbe</span>, backend settings <span class="az-val">az104-http</span> (create new)</li>
+      <li>Path-based routing &rarr; <span class="az-ui">Add multiple targets</span>. Add two rules:
+        <ul>
+          <li>Path <span class="az-val">/image/*</span>, target name <span class="az-val">images</span>, settings <span class="az-val">az104-http</span>, backend <span class="az-val">az104-imagebe</span></li>
+          <li>Path <span class="az-val">/video/*</span>, target name <span class="az-val">videos</span>, settings <span class="az-val">az104-http</span>, backend <span class="az-val">az104-videobe</span></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Next</span> through Tags &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>. Takes 5 to 10 minutes.</li>
+  <li>Open <span class="az-val">az104-appgw</span> &rarr; <span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Backend health</span>. Both servers should show <span class="az-val">Healthy</span>.</li>
+  <li>Copy the <strong>frontend public IP address</strong> from Overview. Browse to <span class="az-val">http://&lt;ip&gt;/image/</span>, then <span class="az-val">http://&lt;ip&gt;/video/</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">/image/</span> shows the image server (vm1). <span class="az-val">/video/</span> shows the video server (vm2). Refresh or use InPrivate if you see old results.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg6</span> when you finish. The Application Gateway costs money while it runs.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Load Balancer = layer 4 (TCP/UDP). Application Gateway = layer 7 (HTTP/HTTPS).</li>
+  <li>Public LB has a public frontend IP. Internal LB has a private frontend IP only.</li>
+  <li>LB needs: frontend IP, backend pool, health probe, load balancing rule.</li>
+  <li>Failed health probe means the VM gets no new traffic.</li>
+  <li>Standard LB and Standard public IP: static address, closed to inbound traffic until an NSG allows it.</li>
+  <li>Application Gateway needs a dedicated subnet, <span class="az-val">/27</span> or larger.</li>
+  <li>Path-based and host-based routing, SSL termination and WAF are Application Gateway features.</li>
+  <li>WAF tier adds the firewall. Standard V2 does not have it.</li>
+  <li>Check Application Gateway pools in <span class="az-ui">Backend health</span>.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>At which OSI layer does each service work: Azure Load Balancer and Azure Application Gateway?</strong>
+    <div class="az-a">Load Balancer: layer 4 (TCP and UDP, by IP and port). Application Gateway: layer 7 (HTTP and HTTPS, can read the URL and headers).</div></li>
+
+  <li><strong>Name the parts you configure on a Load Balancer so that traffic reaches the VMs.</strong>
+    <div class="az-a">A frontend IP configuration, a backend pool, a health probe, and a load balancing rule that links the frontend to the pool (for example TCP 80 to 80).</div></li>
+
+  <li><strong>You must send <span class="az-val">/image/*</span> requests to one set of VMs and <span class="az-val">/video/*</span> to another, behind one public IP. What do you use?</strong>
+    <ol class="az-opts"><li>Public Load Balancer</li><li>Internal Load Balancer</li><li>Application Gateway with path-based routing</li><li>Network Watcher</li></ol>
+    <div class="az-a"><strong>C.</strong> Only the Application Gateway reads the URL path. A Load Balancer sees only IP and port.</div></li>
+
+  <li><strong>What does the health probe do on a Load Balancer?</strong>
+    <div class="az-a">It checks each backend VM (for example TCP port 80 every 5 seconds). A VM that fails the probe is taken out of rotation and gets no new traffic.</div></li>
+
+  <li><strong>What does the Application Gateway need in the VNet?</strong>
+    <div class="az-a">A dedicated subnet of <span class="az-val">/27</span> or larger (the lab uses <span class="az-val">subnet-appgw</span>, <span class="az-val">10.60.3.224/27</span>).</div></li>
+
+  <li><strong>The load balancing rule has Session persistence set to <em>None</em>. What does that mean when you refresh the page?</strong>
+    <div class="az-a">There is no stickiness. Each new connection can go to any healthy VM, so the page can switch between <em>vm0</em> and <em>vm1</em>.</div></li>
+
+  <li><strong>What is the difference between a public and an internal load balancer?</strong>
+    <div class="az-a">A public load balancer has a public frontend IP and takes traffic from the Internet. An internal load balancer has a private frontend IP only and is used inside a VNet.</div></li>
+
+  <li><strong>You need a web application firewall and SSL termination in front of your web servers. Which service and tier?</strong>
+    <ol class="az-opts"><li>Load Balancer Standard</li><li>Application Gateway, WAF tier</li><li>Traffic Manager</li><li>Public IP address</li></ol>
+    <div class="az-a"><strong>B.</strong> The Application Gateway WAF tier adds the firewall that checks for malicious traffic. SSL termination is also an Application Gateway feature.</div></li>
+
+  <li><strong>Request A is <span class="az-val">http://&lt;ip&gt;/image/logo.png</span>. Request B is <span class="az-val">http://&lt;ip&gt;/index.html</span>. Where does each one go in the lab?</strong>
+    <div class="az-a">A matches <span class="az-val">/image/*</span> and goes to <span class="az-val">az104-imagebe</span> (vm1). B matches no path rule, so it goes to the default target <span class="az-val">az104-appgwbe</span> (vm1 and vm2).</div></li>
+
+  <li><strong>A Standard public Load Balancer is set up correctly, but nobody on the Internet can reach port 80. What do you check first?</strong>
+    <div class="az-a">The NSG. Standard load balancers and Standard public IPs are closed to inbound traffic by default, so an NSG rule must allow port 80. Also check the health probe shows the VMs as healthy.</div></li>
+</ol>
+</div>
