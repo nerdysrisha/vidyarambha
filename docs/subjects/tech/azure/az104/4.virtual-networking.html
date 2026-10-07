@@ -1,0 +1,329 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Implement Virtual Networking <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">A virtual network (VNet) is your own private network inside Azure. This topic covers how to size it, split it, guard it and give things names.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">rg-network-eus</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VNet</span><span class="lt">vnet-core-eus</span><span class="ld">10.20.0.0/16, big for growth</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-shared</span><span class="ld">10.20.10.0/24</span></div>
+        <div class="cs"><span class="cp">vm-dc-01</span><span class="cp">vm-files-01</span></div>
+      </div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-db</span><span class="ld">10.20.20.0/24</span></div>
+        <div class="cs"><span class="cp">vm-sql-01</span><span class="cp">vm-sql-02</span></div>
+      </div>
+    </div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VNet</span><span class="lt">vnet-mfg-eus</span><span class="ld">10.30.0.0/16, for factory sensors</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-sensors-1</span><span class="ld">10.30.20.0/24</span></div>
+        <div class="cs"><span class="cp">vm-sensor-01</span><span class="cp">vm-sensor-02</span></div>
+      </div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-sensors-2</span><span class="ld">10.30.21.0/24</span></div>
+        <div class="cs"><span class="cp">vm-sensor-03</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Two VNets with different, non-overlapping ranges. This is what the exercise builds.</p>
+
+<h3>Virtual networks and subnets</h3>
+<ul class="az-list">
+  <li>A <strong>VNet</strong> is your private network in the cloud. It lives in one region and one subscription.</li>
+  <li>You give it an <strong>address space</strong> in CIDR form, for example <span class="az-val">10.20.0.0/16</span>.</li>
+  <li>Use private ranges: <span class="az-val">10.0.0.0/8</span>, <span class="az-val">172.16.0.0/12</span>, <span class="az-val">192.168.0.0/16</span>.</li>
+  <li><strong>Subnets</strong> slice the VNet. Every VNet needs at least one. Subnets cannot overlap each other.</li>
+  <li><strong>Do not overlap</strong> ranges with other VNets or your office network. Overlapping VNets cannot be connected later.</li>
+  <li>Smallest subnet is <span class="az-val">/29</span> (8 addresses, 3 usable).</li>
+  <li>Some services need a subnet with a fixed name, such as <span class="az-val">GatewaySubnet</span>, <span class="az-val">AzureBastionSubnet</span> and <span class="az-val">AzureFirewallSubnet</span>.</li>
+</ul>
+
+<h3>Address maths</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">VNet</span><span class="lt">10.20.0.0/16</span><span class="lp">65,536 addresses</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Subnet</span><span class="lt">snet-shared 10.20.10.0/24</span><span class="lp">256 - 5 = 251 usable</span></div>
+      <div class="ly c-r dash">
+        <div class="lh"><span class="lt">Reserved by Azure (5)</span></div>
+        <div class="cs"><span class="cp">.0 network</span><span class="cp">.1 gateway</span><span class="cp">.2 Azure DNS</span><span class="cp">.3 Azure DNS</span><span class="cp">.255 broadcast</span></div>
+      </div>
+      <div class="ly c-y">
+        <div class="lh"><span class="lt">Yours to use</span></div>
+        <div class="cs"><span class="cp">.4 first VM gets this</span><span class="cp">.5 ... .254</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Azure keeps the first four addresses and the last one in every subnet.</p>
+<ul class="az-list">
+  <li>/16 = 65,536 addresses. /24 = 256. /29 = 8.</li>
+  <li>Real examples: Contoso core services get a big <span class="az-val">/16</span> because lots of growth is expected. The factory VNet gets a <span class="az-val">/16</span> too, because thousands of sensors will connect.</li>
+  <li>A common design is one subnet per tier: <span class="az-val">snet-web</span>, <span class="az-val">snet-app</span>, <span class="az-val">snet-db</span>.</li>
+</ul>
+
+<h3>Network security groups (NSG)</h3>
+<ul class="az-list">
+  <li>An NSG is a list of allow and deny rules for traffic.</li>
+  <li>A rule has: priority, source, destination, port, protocol, action.</li>
+  <li><strong>Lowest priority number is checked first.</strong> Your rules use 100 to 4096.</li>
+  <li><strong>Default rules</strong> sit at 65000 and above. You cannot delete them, but a rule with a lower number can override them.</li>
+  <li>Defaults: inbound allows traffic from the same VNet and the load balancer, then denies the rest. Outbound allows the VNet and the Internet.</li>
+  <li>NSGs are <strong>stateful</strong>. If you allow a request in, the reply is allowed out automatically.</li>
+  <li>Attach an NSG to a <strong>subnet</strong>, a <strong>NIC</strong>, or both. If both, traffic must pass both.</li>
+  <li><strong>Service tags</strong> are Microsoft-managed names for IP groups, such as <span class="az-val">Internet</span>, <span class="az-val">VirtualNetwork</span> and <span class="az-val">Storage</span>.</li>
+</ul>
+
+<h3>Application security groups (ASG)</h3>
+<ul class="az-list">
+  <li>An ASG is a label for VMs with the same job, such as "web servers".</li>
+  <li>Use the ASG in an NSG rule instead of listing IP addresses. New web VMs get the label and are covered automatically.</li>
+  <li>The NICs in an ASG must be in the same VNet.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">ASG</span><span class="lt">asg-web</span><span class="ld">label for web VMs</span><span class="lp">source</span></div>
+    <div class="cs"><span class="cp">vm-web-01</span><span class="cp">vm-web-02</span></div>
+  </div>
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">NSG</span><span class="lt">nsg-shared</span><span class="ld">attached to snet-shared</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">IN</span><span class="lt">Inbound rules</span></div>
+      <div class="cs"><span class="cp cu">100 Allow 80,443 from asg-web</span><span class="cp">65000 AllowVnetInBound</span><span class="cp">65001 AllowAzureLoadBalancerInBound</span><span class="cp">65500 DenyAllInBound</span></div>
+    </div>
+    <div class="ly c-r">
+      <div class="lh"><span class="lv">OUT</span><span class="lt">Outbound rules</span></div>
+      <div class="cs"><span class="cp cu">4096 Deny Internet port 8080</span><span class="cp">65000 AllowVnetOutBound</span><span class="cp">65001 AllowInternetOutBound</span><span class="cp">65500 DenyAllOutBound</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Bold chips are your rules. The others are the built-in defaults.</p>
+
+<h3>Azure DNS</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">Public</span><span class="lt">contoso.com</span><span class="ld">DNS zone</span><span class="lp">visible on the Internet</span></div>
+    <div class="cs"><span class="cp">4 Azure name servers</span><span class="cp">www A 203.0.113.10</span></div>
+  </div>
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Private</span><span class="lt">private.contoso.com</span><span class="ld">DNS zone</span><span class="lp">linked VNets only</span></div>
+    <div class="cs"><span class="cp">no name servers</span><span class="cp">sensorvm A 10.30.20.4</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Link</span><span class="lt">link-vnet-mfg</span><span class="ld">connects the zone to vnet-mfg-eus</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Public zone for the world. Private zone for names inside your VNets.</p>
+<ul class="az-list">
+  <li><strong>Public zone:</strong> hosts your domain. You get 4 Azure name servers. At your domain registrar, set the domain's name servers to those four.</li>
+  <li><strong>Private zone:</strong> names that only work inside VNets <em>linked</em> to the zone. Not reachable from the Internet.</li>
+  <li>Records map names to targets. Common types: <strong>A</strong> (name to IPv4), <strong>CNAME</strong> (name to name), <strong>MX</strong> (mail), <strong>TXT</strong> (text).</li>
+  <li>Real example: apps call <span class="az-val">sensorvm.private.contoso.com</span> and never hard-code an IP address.</li>
+</ul>
+
+<h3>Templates</h3>
+<ul class="az-list">
+  <li>You can export any resource as an <strong>ARM template</strong> (<span class="az-val">template.json</span>) plus a <span class="az-val">parameters.json</span> file.</li>
+  <li>Change the names and ranges, then deploy with <span class="az-ui">Deploy a custom template</span>. A fast way to copy a design.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> build the two VNets, protect one subnet, and set up public and private DNS. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 VNet in the portal</span><span class="cp cu">2 Copy it with a template</span><span class="cp cu">3 ASG + NSG</span><span class="cp cu">4 DNS zones</span></div>
+  </div>
+</div>
+<div class="az-note"><p>The original steps use <span class="az-val">CoreServicesVnet</span>, <span class="az-val">ManufacturingVnet</span>, <span class="az-val">az104-rg4</span> and similar. Any names work. Real-world names are used here.</p></div>
+
+<h3>Task 1: Create a VNet in the portal</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Virtual networks</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li>Basics: resource group <span class="az-val">rg-network-eus</span> (create it if needed), name <span class="az-val">vnet-core-eus</span>, region East US.</li>
+  <li><span class="az-ui">IP addresses</span> tab: replace the default with <span class="az-val">10.20.0.0/16</span>.</li>
+  <li><span class="az-ui">+ Add a subnet</span> (click <span class="az-ui">Add</span> each time), and delete the <em>default</em> subnet:
+    <ul>
+      <li><span class="az-val">snet-shared</span>, start <span class="az-val">10.20.10.0</span>, size <span class="az-val">/24</span></li>
+      <li><span class="az-val">snet-db</span>, start <span class="az-val">10.20.20.0</span>, size <span class="az-val">/24</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li>Under <span class="az-ui">Automation</span> choose <span class="az-ui">Export template</span>, <span class="az-ui">Download</span>, and extract the zip. You need <span class="az-val">template.json</span> and <span class="az-val">parameters.json</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the VNet shows address space <span class="az-val">10.20.0.0/16</span> and two subnets.</p></div>
+
+<h3>Task 2: Copy it with a template</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">template.json</span> in an editor. Use <em>replace all</em>:
+    <ul>
+      <li><span class="az-val">vnet-core-eus</span> &rarr; <span class="az-val">vnet-mfg-eus</span></li>
+      <li><span class="az-val">10.20.0.0</span> &rarr; <span class="az-val">10.30.0.0</span></li>
+      <li><span class="az-val">snet-shared</span> &rarr; <span class="az-val">snet-sensors-1</span>, and <span class="az-val">10.20.10.0/24</span> &rarr; <span class="az-val">10.30.20.0/24</span></li>
+      <li><span class="az-val">snet-db</span> &rarr; <span class="az-val">snet-sensors-2</span>, and <span class="az-val">10.20.20.0/24</span> &rarr; <span class="az-val">10.30.21.0/24</span></li>
+    </ul>
+    Save.
+  </li>
+  <li>In <span class="az-val">parameters.json</span>, replace the one <span class="az-val">vnet-core-eus</span> with <span class="az-val">vnet-mfg-eus</span>. Save.</li>
+  <li>Portal &rarr; <span class="az-ui">Deploy a custom template</span> &rarr; <span class="az-ui">Build your own template in the editor</span> &rarr; <span class="az-ui">Load file</span> (template) &rarr; <span class="az-ui">Save</span>.</li>
+  <li><span class="az-ui">Edit parameters</span> &rarr; <span class="az-ui">Load file</span> (parameters) &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Pick <span class="az-val">rg-network-eus</span> &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">vnet-mfg-eus</span> exists with <span class="az-val">snet-sensors-1</span> and <span class="az-val">snet-sensors-2</span>. If a deploy fails halfway, delete the partial resources and retry.</p></div>
+
+<h3>Task 3: ASG and NSG</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Application security groups</span> &rarr; <span class="az-ui">Create</span>. Name <span class="az-val">asg-web</span>, group <span class="az-val">rg-network-eus</span>, East US. (In real life you would now attach web VM NICs to it.)</li>
+  <li><span class="az-ui">Network security groups</span> &rarr; <span class="az-ui">Create</span>. Name <span class="az-val">nsg-shared</span>, same group and region. Then <span class="az-ui">Go to resource</span>.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Subnets</span> &rarr; <span class="az-ui">Associate</span>: VNet <span class="az-val">vnet-core-eus</span>, subnet <span class="az-val">snet-shared</span> &rarr; <span class="az-ui">OK</span>.</li>
+  <li><span class="az-ui">Inbound security rules</span>: read the defaults, then <span class="az-ui">+ Add</span>:
+    <ul>
+      <li>Source: <em>Application security group</em> &rarr; <span class="az-val">asg-web</span>, source ports <span class="az-val">*</span></li>
+      <li>Destination: <em>Any</em>, service <em>Custom</em>, port ranges <span class="az-val">80,443</span>, protocol <em>TCP</em></li>
+      <li>Action <em>Allow</em>, priority <span class="az-val">100</span>, name <span class="az-val">AllowAsgWeb</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Outbound security rules</span>: note <em>AllowInternetOutBound</em> (65001) cannot be deleted. Then <span class="az-ui">+ Add</span>:
+    <ul>
+      <li>Source <em>Any</em>, ports <span class="az-val">*</span>. Destination: <em>Service tag</em> &rarr; <span class="az-val">Internet</span></li>
+      <li>Service <em>Custom</em>, port <span class="az-val">8080</span>, protocol <em>Any</em></li>
+      <li>Action <em>Deny</em>, priority <span class="az-val">4096</span>, name <span class="az-val">DenyAnyCustom8080Outbound</span></li>
+    </ul>
+  </li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">nsg-shared</span> shows your two rules next to the defaults, and the subnet <span class="az-val">snet-shared</span> is attached.</p></div>
+
+<h3>Task 4: DNS zones</h3>
+<ol class="az-list">
+  <li><strong>Public:</strong> <span class="az-ui">DNS zones</span> &rarr; <span class="az-ui">+ Create</span>. Group <span class="az-val">rg-network-eus</span>, name <span class="az-val">contoso.com</span> (change it if taken). <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li>On <span class="az-ui">Overview</span>, see the four name servers. Copy one.</li>
+  <li><span class="az-ui">Recordsets</span> &rarr; <span class="az-ui">+ Add</span>: name <span class="az-val">www</span>, type <span class="az-val">A</span>, TTL <span class="az-val">1</span>, IP <span class="az-val">203.0.113.10</span> (in real life, your web server's public IP).</li>
+  <li>Test in a command prompt: <span class="az-val">nslookup www.contoso.com &lt;name server&gt;</span></li>
+  <li><strong>Private:</strong> <span class="az-ui">Private DNS zones</span> &rarr; <span class="az-ui">+ Create</span>. Name <span class="az-val">private.contoso.com</span>, same group. <span class="az-ui">Go to resource</span>. Notice there are no name servers.</li>
+  <li><span class="az-ui">Virtual network links</span> &rarr; <span class="az-ui">Add</span>: link name <span class="az-val">link-vnet-mfg</span>, VNet <span class="az-val">vnet-mfg-eus</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li><span class="az-ui">Recordsets</span> &rarr; <span class="az-ui">+ Add</span>: name <span class="az-val">sensorvm</span>, type <span class="az-val">A</span>, TTL <span class="az-val">1</span>, IP <span class="az-val">10.30.20.4</span> (the real VM's private IP).</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">nslookup</span> returns <span class="az-val">203.0.113.10</span> for <span class="az-val">www.contoso.com</span>. The private zone shows the link and the <span class="az-val">sensorvm</span> record.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">rg-network-eus</span> when you finish. It removes everything built here.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Azure reserves <strong>5 addresses</strong> per subnet: .0, .1, .2, .3 and the last one.</li>
+  <li>A VNet is in one region. Subnets must sit inside the VNet range and cannot overlap.</li>
+  <li>Overlapping VNets cannot be peered or connected.</li>
+  <li>NSG: lowest priority number wins. Default rules (65000+) cannot be deleted. NSGs are stateful.</li>
+  <li>NSG on both subnet and NIC: both must allow the traffic.</li>
+  <li>ASG: label VMs by role and use the label in NSG rules instead of IPs.</li>
+  <li>Public DNS zone gives 4 name servers. Private DNS zone has none and must be <strong>linked</strong> to a VNet.</li>
+  <li>Export template, edit it, then Deploy a custom template.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>How many addresses can you use in a <span class="az-val">/24</span> subnet in Azure, and which five are reserved?</strong>
+    <div class="az-a">251 (256 minus 5). Reserved: the network address (.0), the gateway (.1), two for Azure DNS (.2 and .3), and the broadcast address (the last one, .255).</div></li>
+
+  <li><strong>Two rules match the same traffic. One has priority 100 (Deny), the other 4000 (Allow). What happens?</strong>
+    <div class="az-a">The traffic is denied. The lowest number is processed first, and processing stops at the first match.</div></li>
+
+  <li><strong>You want any web VM, today or added later, to receive traffic on ports 80 and 443, without listing IP addresses. What do you use?</strong>
+    <div class="az-a">An application security group (such as <span class="az-val">asg-web</span>) used as the <em>source</em> in an NSG inbound rule. New web VMs just join the ASG.</div></li>
+
+  <li><strong>An NSG is on the subnet and another on the VM's NIC. What happens to inbound traffic?</strong>
+    <div class="az-a">It is checked by the subnet NSG first, then the NIC NSG. Both must allow it.</div></li>
+
+  <li><strong>Can you delete the default rule <span class="az-val">AllowVnetInBound</span>?</strong>
+    <ol class="az-opts"><li>Yes, any time</li><li>Yes, if the NSG is detached</li><li>No, but you can override it with a rule that has a lower priority number</li><li>No, and it cannot be overridden</li></ol>
+    <div class="az-a"><strong>C.</strong> Default rules cannot be removed. A custom rule with a lower number (higher priority) overrides them.</div></li>
+
+  <li><strong>Contoso plans to connect <span class="az-val">vnet-core-eus</span> to a new VNet that also uses <span class="az-val">10.20.0.0/16</span>. What is the problem?</strong>
+    <div class="az-a">The address spaces overlap. Overlapping VNets cannot be peered or connected. Plan non-overlapping ranges (for example 10.30.0.0/16) from the start.</div></li>
+
+  <li><strong>How do you quickly build a second VNet with the same layout as the first?</strong>
+    <div class="az-a">Export the first VNet's template (and parameters), change the names and address ranges, then use <em>Deploy a custom template</em>.</div></li>
+
+  <li><strong>What is the difference between a public and a private DNS zone, and what must you do before VMs can use the private one?</strong>
+    <div class="az-a">A public zone is answered on the Internet and gives 4 name servers. A private zone only answers inside VNets and has no name servers. You must add a <strong>virtual network link</strong> to each VNet that should use it.</div></li>
+
+  <li><strong>You created the public zone <span class="az-val">contoso.com</span> in Azure, but the Internet still does not use it. What is missing?</strong>
+    <div class="az-a">At the domain registrar, set the domain's name servers to the four Azure name servers shown on the zone's Overview page.</div></li>
+
+  <li><strong>You added a rule <em>Deny, Internet, port 8080, priority 4096</em>. A VM can still browse websites on port 443. Why?</strong>
+    <div class="az-a">The rule only blocks port 8080. Everything else still hits the default <em>AllowInternetOutBound</em> rule (65001), which allows outbound Internet traffic.</div></li>
+</ol>
+</div>
