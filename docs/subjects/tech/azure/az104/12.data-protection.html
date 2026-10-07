@@ -1,0 +1,283 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Data Protection: Azure Backup and Site Recovery <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Backup brings your data back after it is deleted or damaged. Site Recovery keeps a copy of a whole VM running in another region, so you can switch over after a disaster. Both use a Recovery Services vault. This topic covers vaults, backup policies, soft delete, monitoring and VM replication.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg-region1</span><span class="ld">East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">VM</span><span class="lt">az104-10-vm0</span><span class="lp">protected</span></div>
+      <div class="cs"><span class="cp">virtual network</span><span class="cp">backup extension</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Vault</span><span class="lt">az104-rsv-region1</span><span class="ld">Backup: policy az104-backup</span></div>
+      <div class="cs"><span class="cp cu">recovery points</span><span class="cp cu">logs to storage account</span></div>
+    </div>
+  </div>
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg-region2</span><span class="ld">West US</span></div>
+    <div class="ly c-y">
+      <div class="lh"><span class="lv">Vault</span><span class="lt">az104-rsv-region2</span><span class="ld">Site Recovery</span></div>
+      <div class="cs"><span class="cp cu">replicated item: az104-10-vm0</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. Backup stays in the VM's region. The replica lands in a different region.</p>
+
+<h3>Backup vs Site Recovery</h3>
+<ul class="az-list">
+  <li><strong>Azure Backup</strong> = take copies (recovery points) on a schedule and restore data or a VM later. Protects against <strong>accidental or malicious deletion</strong> and corruption.</li>
+  <li><strong>Azure Site Recovery (ASR)</strong> = keep a copy of the VM running in a <strong>second region</strong> and <strong>fail over</strong> if the first region has an outage. This is <strong>disaster recovery</strong>.</li>
+  <li>Backup is for getting data back. ASR is for getting the whole workload running again quickly with little downtime.</li>
+  <li>Backup works for Azure VMs, on-premises servers, SQL Server in VMs, Azure file shares and more.</li>
+</ul>
+
+<h3>Recovery Services vault</h3>
+<ul class="az-list">
+  <li>A <strong>Recovery Services vault</strong> is the storage and management container for backup data and ASR replication.</li>
+  <li>For <strong>backup</strong>, the vault must be in the <strong>same region</strong> as the VM. For <strong>ASR</strong>, the vault goes in the <strong>target</strong> (different) region.</li>
+  <li><strong>Storage replication type</strong>: Locally-redundant, Zone-redundant or <strong>Geo-redundant</strong> (default). It can only be changed when the vault has <strong>no backup items</strong>.</li>
+  <li><strong>Cross Region Restore</strong> lets you restore into the paired region. It needs geo-redundant storage.</li>
+  <li>Azure has two vault types: <strong>Recovery Services vault</strong> (VMs, files, SQL, ASR) and <strong>Backup vault</strong> (other data sources, such as blobs and disks).</li>
+  <li><strong>Soft delete</strong> keeps deleted backup data for a while (the lab shows <strong>14 days</strong>), so a deleted backup can be recovered.</li>
+</ul>
+
+<h3>Backup policy</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Policy</span><span class="lt">az104-backup</span><span class="ld">Standard, daily 12:00 AM</span></div>
+    <div class="cs"><span class="cp cu">instant snapshot: 2 days</span><span class="cp cu">vault retention</span></div>
+  </div>
+</div>
+<p class="az-cap">The policy answers: how often, at what time, and how long to keep each recovery point.</p>
+<ul class="az-list">
+  <li>A <strong>policy</strong> sets <strong>frequency</strong>, <strong>time</strong>, <strong>time zone</strong> and <strong>retention</strong>. Different VMs can use different policies.</li>
+  <li><strong>Policy sub types</strong>: <strong>Standard</strong> (one backup per day) and <strong>Enhanced</strong> (more than one backup per day, plus support for newer VM types such as Trusted launch).</li>
+  <li><strong>Instant recovery snapshots</strong> are kept next to the VM disks, so restores are fast. Standard allows 1 to 5 days (default 2).</li>
+  <li>Older recovery points are kept in the vault for the retention period you set.</li>
+  <li><strong>Backup now</strong> runs an on-demand backup. The <em>Retain Backup Till</em> date has a default you can accept.</li>
+  <li>Enabling backup installs a backup <strong>extension</strong> on the VM. <strong>Backup Pre-Check</strong> and <strong>Last Backup Status</strong> show health.</li>
+</ul>
+
+<h3>Monitoring Azure Backup</h3>
+<ul class="az-list">
+  <li><span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Backup jobs</span> lists backup operations. Use <em>View details</em> for one job.</li>
+  <li><strong>Diagnostic settings</strong> send vault logs and metrics to a destination: <strong>Log Analytics workspace</strong>, <strong>storage account</strong> (archive), Event Hub or a partner solution.</li>
+  <li>The lab sends these categories: Backup Reporting Data, Backup Job Data, Backup Alert Data, Site Recovery Jobs and Site Recovery Events.</li>
+</ul>
+
+<h3>Site Recovery: replicating a VM</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Source: East US &rarr; Target: West US</span></div>
+    <div class="cs"><span class="cp cu">VM disks</span><span class="cp">&rarr; replicate &rarr;</span><span class="cp cu">replica disks</span></div>
+    <div class="cs"><span class="cp">test failover</span><span class="cp">failover</span><span class="cp">failback</span></div>
+  </div>
+</div>
+<p class="az-cap">Replication runs all the time. You only start the replica when you fail over or test.</p>
+<ul class="az-list">
+  <li>On the VM: <span class="az-ui">Backup + Disaster recovery</span> &rarr; <span class="az-ui">Disaster recovery</span>. Pick the <strong>target region</strong> (must differ from the VM's region).</li>
+  <li>The wizard fills in target resources, and creates an <strong>automation account</strong> (it manages the agent updates). If the settings are not filled in, validation fails.</li>
+  <li>The first copy takes time (10 to 15 minutes in the lab). Status starts at 0% synchronization, then becomes <strong>Protected</strong>.</li>
+  <li>Check it in the target vault: <span class="az-ui">Protected items</span> &rarr; <span class="az-ui">Replicated items</span>. Replication health should be healthy.</li>
+  <li>Good practice: run a <strong>test failover</strong> (a drill) without affecting production.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> deploy a VM from a template, back it up with a policy, send vault logs to storage, then replicate the VM to another region. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Template</span><span class="cp cu">2 Vault</span><span class="cp cu">3 VM backup</span><span class="cp cu">4 Monitor</span><span class="cp cu">5 Replicate</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg-region1</span>, <span class="az-val">az104-rsv-region1</span>, <span class="az-val">az104-rg-region2</span>, <span class="az-val">az104-rsv-region2</span>. Regions are East US and West US. The lab writes the VM name as both <span class="az-val">az104-10-vm0</span> and <span class="az-val">az-104-10-vm0</span>. Use the name you see in the portal.</p></div>
+
+<h3>Task 1: Use a template to provision an infrastructure</h3>
+<ol class="az-list">
+  <li>Download the <span class="az-val">\Allfiles\Lab10\</span> lab files. Sign in to the Azure portal.</li>
+  <li>Search for and select <span class="az-ui">Deploy a custom template</span> &rarr; <span class="az-ui">Build your own template in the editor</span>.</li>
+  <li><span class="az-ui">Load file</span>: <span class="az-val">az104-10-vms-edge-template.json</span>, then <span class="az-ui">Save</span>. (It deploys a virtual network and a VM.)</li>
+  <li><span class="az-ui">Edit parameters</span> &rarr; <span class="az-ui">Load file</span>: <span class="az-val">az104-10-vms-edge-parameters.json</span>, then <span class="az-ui">Save</span>.</li>
+  <li>Fill in the form:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg-region1</span> (create new if needed), Region <span class="az-val">East US</span></li>
+      <li>VM size <span class="az-val">Standard_D2s_v5</span> if available</li>
+      <li>Username <span class="az-val">localadmin</span>, and a complex password</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Review + Create</span>, then <span class="az-ui">Create</span>. Wait, then <span class="az-ui">Go to resource</span>.</li>
+</ol>
+<div class="az-note"><p>If the size is unavailable or capacity is short, redeploy to the same group with <span class="az-val">Standard_D2s_v6</span>, then <span class="az-val">Standard_D2s_v7</span>. If a retry fails because of a conflicting partial deployment, delete <span class="az-val">az104-rg-region1</span> and restart Task 1.</p></div>
+<div class="az-check"><p><strong>Check:</strong> the resource group has one virtual machine in one virtual network.</p></div>
+
+<h3>Task 2: Create and configure a Recovery Services vault</h3>
+<ol class="az-list">
+  <li>Search for <span class="az-ui">Recovery Services vaults</span> &rarr; <span class="az-ui">+ Create</span>.</li>
+  <li>Resource group <span class="az-val">az104-rg-region1</span>, Vault name <span class="az-val">az104-rsv-region1</span>, Region <span class="az-val">East US</span> (same region as the VM).</li>
+  <li><span class="az-ui">Review + Create</span>, then <span class="az-ui">Create</span>. Then <span class="az-ui">Go to Resource</span>.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Properties</span> &rarr; <span class="az-ui">Update</span> under <em>Backup Configuration</em>. Review <strong>Storage replication type</strong>, keep <strong>Geo-redundant</strong>, close.</li>
+  <li>Under <em>Security Settings</em> &rarr; <em>Soft Delete Settings</em>, select <span class="az-ui">Update</span>. Confirm retention is <strong>14</strong> days, close.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the vault exists, is geo-redundant, and soft delete retention shows 14 days.</p></div>
+
+<h3>Task 3: Configure Azure virtual machine-level backup</h3>
+<ol class="az-list">
+  <li>On the vault: <span class="az-ui">Overview</span> &rarr; <span class="az-ui">+ Backup</span>. Workload runs in <strong>Azure</strong>, back up <strong>Virtual machine</strong>, then <span class="az-ui">Backup</span>.</li>
+  <li>Policy sub type: choose <strong>Standard</strong>. Select <span class="az-ui">Create a new policy</span>.</li>
+  <li>Policy name <span class="az-val">az104-backup</span>, Frequency <strong>Daily</strong>, Time <strong>12:00 AM</strong>, your time zone, instant recovery snapshots <strong>2</strong> days. <span class="az-ui">OK</span>.</li>
+  <li>Under <em>Virtual Machines</em> select <span class="az-ui">Add</span>, tick the lab VM, <span class="az-ui">OK</span>, then <span class="az-ui">Enable backup</span> (about 2 minutes). <span class="az-ui">Go to resource</span>.</li>
+  <li><span class="az-ui">Protected items</span> &rarr; <span class="az-ui">Backup items</span> &rarr; <span class="az-ui">Azure virtual machine</span> &rarr; <em>View details</em>. Look at <strong>Backup Pre-Check</strong> and <strong>Last Backup Status</strong> (pending).</li>
+  <li>Select <span class="az-ui">Backup now</span>, accept the default <em>Retain Backup Till</em>, <span class="az-ui">OK</span>. Do not wait for it to finish.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the VM is listed under Backup items, and an on-demand backup job has started.</p></div>
+
+<h3>Task 4: Monitor Azure Backup</h3>
+<ol class="az-list">
+  <li>Create a <strong>storage account</strong>: group <span class="az-val">az104-rg-region1</span>, a globally unique name, Region <span class="az-val">East US</span>. <span class="az-ui">Create</span>.</li>
+  <li>Open the vault &rarr; <span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Diagnostic Settings</span> &rarr; <span class="az-ui">Add diagnostic setting</span>.</li>
+  <li>Name <span class="az-val">Logs and Metrics to storage</span>. Tick Azure Backup Reporting Data, Addon Azure Backup Job Data, Addon Azure Backup Alert Data, Azure Site Recovery Jobs and Azure Site Recovery Events.</li>
+  <li>Destination: <strong>Archive to a storage account</strong>, pick your account, <span class="az-ui">Save</span>.</li>
+  <li>Back on the vault: <span class="az-ui">Monitoring</span> &rarr; <span class="az-ui">Backup jobs</span>. Find the VM's job and open <em>View details</em> (scroll right).</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the diagnostic setting is saved, and you can see the VM's backup job and its details.</p></div>
+
+<h3>Task 5: Enable virtual machine replication</h3>
+<ol class="az-list">
+  <li>Create a second vault: group <span class="az-val">az104-rg-region2</span> (new), name <span class="az-val">az104-rsv-region2</span>, Region <span class="az-val">West US</span> (different from the VM). <span class="az-ui">Create</span>.</li>
+  <li>Open the VM &rarr; <span class="az-ui">Backup + Disaster recovery</span> &rarr; <span class="az-ui">Disaster recovery</span>. On <em>Basics</em>, note the <strong>Target region</strong>.</li>
+  <li><span class="az-ui">Next: Advanced settings</span>. The selections are filled in. Scroll down and <strong>Create</strong> the automation account. The settings must be populated or validation fails.</li>
+  <li><span class="az-ui">Review + Start replication</span>, then <span class="az-ui">Start replication</span>. It takes 10 to 15 minutes.</li>
+  <li>Open <span class="az-val">az104-rsv-region2</span> (refresh if needed) &rarr; <span class="az-ui">Protected items</span> &rarr; <span class="az-ui">Replicated items</span>.</li>
+  <li>Check the replication health is healthy. Status starts at 0% and ends as <strong>Protected</strong>. Select the VM for details.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the VM appears under Replicated items with healthy replication and, after the first sync, status Protected.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg-region1</span> and <span class="az-val">az104-rg-region2</span> (select the group, <em>Delete the resource group</em>, type its name, <em>Delete</em>, confirm again). CLI: <span class="az-val">az group delete --name az104-rg-region1</span>. A vault with protected items will not delete until you stop protection, remove the items and turn off soft delete first.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>Backup = restore data. Site Recovery = run the workload in another region (failover). Both live in a <strong>Recovery Services vault</strong>.</li>
+  <li>For <strong>backup</strong> the vault must be in the <strong>same region</strong> as the VM. For <strong>ASR</strong> the vault is in the <strong>target region</strong>.</li>
+  <li>Storage redundancy: LRS, ZRS or <strong>GRS (default)</strong>. Change it only before any backup items exist. <strong>Cross Region Restore</strong> needs GRS.</li>
+  <li>Policy = frequency, time, time zone, retention. <strong>Standard</strong> = one backup per day. <strong>Enhanced</strong> = several per day.</li>
+  <li>Instant restore snapshots: 1 to 5 days on Standard (default 2), for fast restores.</li>
+  <li><strong>Soft delete</strong> (14 days in the lab) protects against deleted backups. Disable it and remove items before deleting a vault.</li>
+  <li><strong>Backup now</strong> = on-demand backup. <strong>Backup jobs</strong> shows status.</li>
+  <li>Diagnostic settings can send vault logs to Log Analytics, a storage account, Event Hub or a partner.</li>
+  <li>Recovery Services vault covers VMs, files and SQL. <strong>Backup vault</strong> covers other data sources.</li>
+  <li>Test failover (a drill) does not touch production. Replication status ends as <strong>Protected</strong>.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>What is the main difference between Azure Backup and Azure Site Recovery?</strong>
+    <div class="az-a">Backup takes recovery points so you can restore data or a VM after loss or damage. Site Recovery replicates a VM to another region so you can fail over and keep running after a disaster.</div></li>
+
+  <li><strong>What is a Recovery Services vault?</strong>
+    <div class="az-a">A storage and management container for backup data and Site Recovery replication. It reduces management work.</div></li>
+
+  <li><strong>You back up a VM in East US. Where must the Recovery Services vault be?</strong>
+    <ol class="az-opts"><li>Any region</li><li>East US, the same region as the VM</li><li>West US only</li><li>Same region as the storage account</li></ol>
+    <div class="az-a"><strong>B.</strong> For VM backup the vault must be in the same region as the VM. (For Site Recovery, the vault is in the target region.)</div></li>
+
+  <li><strong>The vault storage replication type is geo-redundant. When can you change it?</strong>
+    <div class="az-a">Only when the vault has no existing backup items.</div></li>
+
+  <li><strong>Which setting lets you restore data in the paired region?</strong>
+    <ol class="az-opts"><li>Soft delete</li><li>Cross Region Restore</li><li>Instant restore snapshots</li><li>Backup now</li></ol>
+    <div class="az-a"><strong>B.</strong> Cross Region Restore restores data into the secondary, paired region. It needs geo-redundant storage.</div></li>
+
+  <li><strong>What does soft delete do, and what is the retention shown in the lab?</strong>
+    <div class="az-a">It keeps deleted backup data so it can be recovered. The lab shows 14 days.</div></li>
+
+  <li><strong>What does a backup policy define?</strong>
+    <div class="az-a">How often to back up (frequency), at what time and time zone, and how long to keep recovery points. Different VMs can use different policies.</div></li>
+
+  <li><strong>You need more than one backup per day for a VM. Which policy sub type?</strong>
+    <ol class="az-opts"><li>Standard</li><li>Enhanced</li><li>Basic</li><li>Archive</li></ol>
+    <div class="az-a"><strong>B.</strong> Enhanced supports multiple backups per day. Standard gives one per day.</div></li>
+
+  <li><strong>What are instant recovery snapshots good for?</strong>
+    <div class="az-a">Fast restores, because the snapshot is kept close to the VM disks. The lab keeps them for 2 days.</div></li>
+
+  <li><strong>You want vault logs kept for later analysis in a storage account. What do you configure?</strong>
+    <div class="az-a">A diagnostic setting on the vault. Pick the log categories, then choose Archive to a storage account as the destination. Other options are Log Analytics, Event Hub and partner solutions.</div></li>
+
+  <li><strong>Where do you check on-demand and scheduled backup operations?</strong>
+    <div class="az-a">On the vault under Monitoring &rarr; Backup jobs. Use View details for one job.</div></li>
+
+  <li><strong>How do you know the VM replication has finished and is working?</strong>
+    <div class="az-a">In the target-region vault, under Protected items &rarr; Replicated items: health is healthy and the status moves from 0% synchronization to Protected.</div></li>
+</ol>
+</div>
