@@ -1,0 +1,194 @@
+<div class="pt-leitura">
+<style>
+.pt-leitura { color: #2b2b2b; font-family: inherit; }
+.pt-leitura h2, .pt-leitura h4, .pt-leitura h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-leitura .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-leitura .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-leitura .desc-box p:last-child { margin-bottom: 0; }
+.pt-leitura .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-leitura .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-leitura .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-leitura .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-leitura .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-leitura .spk-wrap, .pt-leitura .ex-line { position: relative; padding-left: 1.9em; }
+.pt-leitura .spk-wrap:hover .spk-btn,
+.pt-leitura .ex-line:hover .spk-btn,
+.pt-leitura .spk-btn:focus-visible { opacity: 1; }
+.pt-leitura .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-leitura .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-leitura .desc-box > p:hover .spk-inline,
+.pt-leitura .spk-inline:focus-visible,
+.pt-leitura .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-leitura .spk-btn, .pt-leitura .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-leitura .table-scroll { overflow-x: auto; }
+.pt-leitura .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-leitura .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-leitura .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-leitura .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-leitura .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-leitura .compare-table tr:last-child td { border-bottom: none; }
+.pt-leitura .compare-table td.spk-wrap, .pt-leitura .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-leitura .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-leitura .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-leitura .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-leitura .example-list { margin: 0 0 12px 0; }
+.pt-leitura .example-list:last-child { margin-bottom: 0; }
+.pt-leitura .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-leitura .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-leitura .ex-line:last-child { margin-bottom: 0; }
+.pt-leitura .example-box .pt-word { color: #d8b46a !important; }
+.pt-leitura .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-leitura .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-leitura .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-leitura .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-leitura .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-leitura .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-leitura .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-leitura .exercise-item:last-child { margin-bottom: 0; }
+.pt-leitura .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-leitura .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-leitura .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-leitura .blank-word { display: inline-block; }
+.pt-leitura .underscore { color: #999 !important; }
+.pt-leitura .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-leitura .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-leitura .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-leitura .cue-list li:last-child { border-bottom: none; }
+.pt-leitura .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-leitura .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-leitura .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-leitura .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-leitura .check-btn:hover { background: #245640 !important; }
+</style>
+
+<h2>25. Leitura: um dia de trabalho <span class="en">(Reading: a working day)</span></h2>
+
+<div class="desc-box">
+  <p>This page is a short <strong>reading comprehension</strong>. It puts the <em>presente do indicativo</em> of <span class="pt-word">trabalhar</span><button class="spk-inline" data-pt="trabalhar" aria-label="Ouvir">🔊</button> into real sentences: first different people and where they work, then a full day told by the narrator. The present tense is used here for <em>routines</em>, the things people do every day, so look for time expressions such as <em>todos os dias</em>, <em>de manhã</em>, <em>ao meio-dia</em>, <em>à tarde</em> and <em>das 9h às 17h</em>.</p>
+  <p>Things to notice while you read: <em>numa / num</em> are contractions of <em>em + uma / um</em> (<em>numa empresa</em>, <em>num hospital</em>); <em>gosto <strong>do</strong> meu trabalho</em> uses <em>gostar de + o</em>; <em>começar a</em> + infinitive means "to start doing"; and <em>vou</em> comes from the irregular verb <em>ir</em> (to go), which you will study later. Read the text once for the general idea, listen to it with the 🔊 buttons, then answer the questions without looking back.</p>
+
+  <hr class="desc-divider">
+
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Vocabulário</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="o pequeno-almoço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o pequeno-almoço</span></td><td>breakfast</td><td>नाश्ता</td></tr>
+      <tr><td class="spk-wrap" data-pt="almoçar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">almoçar</span></td><td>to have lunch</td><td>दोपहर का खाना खाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="o colega"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o colega</span></td><td>colleague</td><td>सहकर्मी</td></tr>
+      <tr><td class="spk-wrap" data-pt="começar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">começar</span></td><td>to start</td><td>शुरू करना</td></tr>
+      <tr><td class="spk-wrap" data-pt="continuar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">continuar</span></td><td>to continue</td><td>जारी रखना</td></tr>
+      <tr><td class="spk-wrap" data-pt="terminar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">terminar</span></td><td>to finish</td><td>ख़त्म करना</td></tr>
+      <tr><td class="spk-wrap" data-pt="gostar de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostar de</span></td><td>to like</td><td>पसंद करना</td></tr>
+      <tr><td class="spk-wrap" data-pt="o meio-dia"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o meio-dia</span></td><td>midday, noon</td><td>दोपहर के 12 बजे</td></tr>
+      <tr><td class="spk-wrap" data-pt="da segunda à sexta-feira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">da segunda à sexta-feira</span></td><td>from Monday to Friday</td><td>सोमवार से शुक्रवार तक</td></tr>
+      <tr><td class="spk-wrap" data-pt="perto de casa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">perto de casa</span></td><td>near home</td><td>घर के पास</td></tr>
+      <tr><td class="spk-wrap" data-pt="todos os dias"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">todos os dias</span></td><td>every day</td><td>हर दिन</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Texto — quem trabalha onde?</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Eu trabalho numa empresa no Porto."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">trabalho</span> numa empresa no Porto.<span class="en-eq">I work at a company in Porto.</span></p>
+    <p class="ex-line" data-pt="Tu trabalhas numa loja perto de casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">trabalhas</span> numa loja perto de casa.<span class="en-eq">You work in a shop near home.</span></p>
+    <p class="ex-line" data-pt="O João trabalha num hospital."><button class="spk-btn" aria-label="Ouvir">🔊</button>O João <span class="pt-word">trabalha</span> num hospital.<span class="en-eq">João works at a hospital.</span></p>
+    <p class="ex-line" data-pt="Nós trabalhamos da segunda à sexta-feira."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">trabalhamos</span> da segunda à sexta-feira.<span class="en-eq">We work from Monday to Friday.</span></p>
+    <p class="ex-line" data-pt="A Ana e o Pedro trabalham numa escola."><button class="spk-btn" aria-label="Ouvir">🔊</button>A Ana e o Pedro <span class="pt-word">trabalham</span> numa escola.<span class="en-eq">Ana and Pedro work at a school.</span></p>
+  </div>
+  <h4 style="margin-top:16px;">Texto — um dia de trabalho</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Todos os dias, eu trabalho das nove às dezassete horas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Todos os dias, eu <span class="pt-word">trabalho</span> das 9h às 17h.<span class="en-eq">Every day I work from 9 to 5.</span></p>
+    <p class="ex-line" data-pt="De manhã, tomo o pequeno-almoço e vou para o trabalho."><button class="spk-btn" aria-label="Ouvir">🔊</button>De manhã, <span class="pt-word">tomo</span> o pequeno-almoço e <span class="pt-word">vou</span> para o trabalho.<span class="en-eq">In the morning I have breakfast and go to work.</span></p>
+    <p class="ex-line" data-pt="Ao meio-dia, almoço com os meus colegas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ao meio-dia, <span class="pt-word">almoço</span> com os meus colegas.<span class="en-eq">At noon I have lunch with my colleagues.</span></p>
+    <p class="ex-line" data-pt="À tarde, continuo a trabalhar."><button class="spk-btn" aria-label="Ouvir">🔊</button>À tarde, <span class="pt-word">continuo</span> a trabalhar.<span class="en-eq">In the afternoon I keep working.</span></p>
+    <p class="ex-line" data-pt="Às dezassete horas, termino o trabalho e vou para casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Às 17h, <span class="pt-word">termino</span> o trabalho e <span class="pt-word">vou</span> para casa.<span class="en-eq">At 5 pm I finish work and go home.</span></p>
+    <p class="ex-line" data-pt="Eu gosto do meu trabalho porque tenho bons colegas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">gosto</span> do meu trabalho porque <span class="pt-word">tenho</span> bons colegas.<span class="en-eq">I like my job because I have good colleagues.</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Responde às perguntas.</p>
+    <ol class="cue-list">
+      <li><span class="cue">Onde trabalha o narrador?</span> <span class="reveal">O narrador trabalha numa empresa no Porto.</span></li>
+      <li><span class="cue">Em que cidade trabalha?</span> <span class="reveal">O narrador trabalha no Porto.</span></li>
+      <li><span class="cue">Onde trabalha o João?</span> <span class="reveal">O João trabalha num hospital.</span></li>
+      <li><span class="cue">Onde trabalham a Ana e o Pedro?</span> <span class="reveal">A Ana e o Pedro trabalham numa escola.</span></li>
+      <li><span class="cue">A que horas começa o narrador a trabalhar?</span> <span class="reveal">O narrador começa a trabalhar às 9h.</span></li>
+      <li><span class="cue">A que horas termina o trabalho?</span> <span class="reveal">O narrador termina o trabalho às 17h.</span></li>
+      <li><span class="cue">Com quem almoça o narrador?</span> <span class="reveal">O narrador almoça com os colegas.</span></li>
+      <li><span class="cue">O narrador gosta do seu trabalho? Porquê?</span> <span class="reveal">Sim, o narrador gosta do seu trabalho porque tem bons colegas.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Verdadeiro ou falso?</p>
+    <ol class="cue-list">
+      <li><span class="cue">O narrador trabalha numa loja.</span> <span class="reveal">Falso — trabalha numa empresa.</span></li>
+      <li><span class="cue">O João trabalha num hospital.</span> <span class="reveal">Verdadeiro.</span></li>
+      <li><span class="cue">O narrador almoça sozinho.</span> <span class="reveal">Falso — almoça com os colegas.</span></li>
+      <li><span class="cue">O narrador termina o trabalho às 17h.</span> <span class="reveal">Verdadeiro.</span></li>
+      <li><span class="cue">A Ana e o Pedro trabalham numa empresa.</span> <span class="reveal">Falso — trabalham numa escola.</span></li>
+      <li><span class="cue">O narrador tem bons colegas.</span> <span class="reveal">Verdadeiro.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Complete com a forma correta de <em>trabalhar</em>.</p>
+    <p class="question">
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">trabalho</span></span> numa empresa no Porto.<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">trabalhas</span></span> numa loja perto de casa.<br>
+      O João <span class="blank-word"><span class="underscore">___</span><span class="fill">trabalha</span></span> num hospital.<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">trabalhamos</span></span> da segunda à sexta-feira.<br>
+      A Ana e o Pedro <span class="blank-word"><span class="underscore">___</span><span class="fill">trabalham</span></span> numa escola.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Escreve sobre o teu dia.</p>
+    <p class="ex-note">Write 4 sentences: where you work, what time you start and finish, who you have lunch with, and whether you like your job.</p>
+    <ol class="cue-list">
+      <li><span class="cue">Exemplo / model answer:</span> <span class="reveal">Eu trabalho numa escola em Lisboa. Começo às 9h e termino às 17h. Almoço com os meus colegas. Gosto do meu trabalho.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Show model'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide model':'Show model';">Show model</button>
+  </div>
+</div>
+
+</div>

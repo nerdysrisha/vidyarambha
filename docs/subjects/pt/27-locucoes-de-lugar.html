@@ -1,0 +1,210 @@
+<div class="pt-lugar">
+<style>
+.pt-lugar { color: #2b2b2b; font-family: inherit; }
+.pt-lugar h2, .pt-lugar h4, .pt-lugar h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-lugar .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-lugar .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-lugar .desc-box p:last-child { margin-bottom: 0; }
+.pt-lugar .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-lugar .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-lugar .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-lugar .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-lugar .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-lugar .spk-wrap, .pt-lugar .ex-line { position: relative; padding-left: 1.9em; }
+.pt-lugar .spk-wrap:hover .spk-btn,
+.pt-lugar .ex-line:hover .spk-btn,
+.pt-lugar .spk-btn:focus-visible { opacity: 1; }
+.pt-lugar .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-lugar .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-lugar .desc-box > p:hover .spk-inline,
+.pt-lugar .spk-inline:focus-visible,
+.pt-lugar .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-lugar .spk-btn, .pt-lugar .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-lugar .table-scroll { overflow-x: auto; }
+.pt-lugar .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-lugar .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-lugar .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-lugar .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-lugar .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-lugar .compare-table tr:last-child td { border-bottom: none; }
+.pt-lugar .compare-table td.spk-wrap, .pt-lugar .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-lugar .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-lugar .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-lugar .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-lugar .example-list { margin: 0 0 12px 0; }
+.pt-lugar .example-list:last-child { margin-bottom: 0; }
+.pt-lugar .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-lugar .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-lugar .ex-line:last-child { margin-bottom: 0; }
+.pt-lugar .example-box .pt-word { color: #d8b46a !important; }
+.pt-lugar .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-lugar .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-lugar .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-lugar .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-lugar .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-lugar .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-lugar .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-lugar .exercise-item:last-child { margin-bottom: 0; }
+.pt-lugar .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-lugar .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-lugar .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-lugar .blank-word { display: inline-block; }
+.pt-lugar .underscore { color: #999 !important; }
+.pt-lugar .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-lugar .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-lugar .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-lugar .cue-list li:last-child { border-bottom: none; }
+.pt-lugar .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-lugar .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-lugar .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-lugar .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-lugar .check-btn:hover { background: #245640 !important; }
+</style>
+
+<h2>26. Locuções de lugar <span class="en">(Place expressions)</span></h2>
+
+<div class="desc-box">
+  <p>To say <em>where</em> something is, Portuguese uses <strong>locuções de lugar</strong>: small groups of words such as <span class="pt-word">em cima de</span><button class="spk-inline" data-pt="em cima de" aria-label="Ouvir">🔊</button> or <span class="pt-word">ao lado de</span><button class="spk-inline" data-pt="ao lado de" aria-label="Ouvir">🔊</button> that work like prepositions. They answer the question <em>Onde…?</em> (see Section 23). A typical answer has three parts: <strong>place + locução + reference</strong>, for example <em>Na rua <span class="pt-word">em frente da</span> Faculdade</em>.</p>
+  <p>Most of these expressions end in <em>de</em>, and <em>de</em> merges with the article that follows: <em>de + a = da</em>, <em>de + o = do</em>, <em>de + os = dos</em> (so <em>em cima <strong>da</strong> secretária</em>, <em>dentro <strong>do</strong> bolso</em>, <em>atrás <strong>dos</strong> Correios</em>). With a place name or <em>casa</em> there is no article, so you just say <em>longe de Lisboa</em>, <em>fora de casa</em>. <em>Entre</em> never takes <em>de</em>. For the verb, use <em>ficar</em> or <em>ser</em> for fixed places (<em>Onde fica o banco?</em>) and <em>estar</em> for things or people that can move (<em>Onde está o cão?</em>).</p>
+
+  <hr class="desc-divider">
+
+  <p><strong>1. Posição</strong> <span class="en">(position)</span></p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Locução</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="em cima de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em cima de</span></td><td>on top of</td><td>के ऊपर</td></tr>
+      <tr><td class="spk-wrap" data-pt="debaixo de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">debaixo de</span></td><td>under</td><td>के नीचे</td></tr>
+      <tr><td class="spk-wrap" data-pt="à frente de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à frente de</span></td><td>ahead of, in front of</td><td>के आगे</td></tr>
+      <tr><td class="spk-wrap" data-pt="em frente de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em frente de</span> <span class="en">(cara a cara)</span></td><td>opposite, facing</td><td>के सामने</td></tr>
+      <tr><td class="spk-wrap" data-pt="atrás de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">atrás de</span></td><td>behind</td><td>के पीछे</td></tr>
+      <tr><td class="spk-wrap" data-pt="dentro de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dentro de</span></td><td>inside</td><td>के अंदर</td></tr>
+      <tr><td class="spk-wrap" data-pt="fora de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fora de</span></td><td>outside</td><td>के बाहर</td></tr>
+      <tr><td class="spk-wrap" data-pt="ao lado de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ao lado de</span></td><td>next to, beside</td><td>की बगल में / (की) तरफ या ओर</td></tr>
+      <tr><td class="spk-wrap" data-pt="no centro de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">no centro de</span></td><td>in the centre of</td><td>के केंद्र में</td></tr>
+      <tr><td class="spk-wrap" data-pt="ao lado esquerdo, à esquerda de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ao lado esquerdo</span> (<span class="pt-word">à esquerda de</span>)</td><td>on the left side (to the left of)</td><td>(की) बायीं तरफ</td></tr>
+      <tr><td class="spk-wrap" data-pt="ao lado direito, à direita de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ao lado direito</span> (<span class="pt-word">à direita de</span>)</td><td>on the right side (to the right of)</td><td>(की) दायीं तरफ</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Lados e proximidade</strong> <span class="en">(sides and distance)</span></p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Locução</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="de um lado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de um lado</span></td><td>on one side</td><td>एक तरफ से</td></tr>
+      <tr><td class="spk-wrap" data-pt="de outro lado"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de outro lado</span></td><td>on the other side</td><td>दूसरी तरफ से</td></tr>
+      <tr><td class="spk-wrap" data-pt="perto de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">perto de</span></td><td>near, close to</td><td>के पास / के नज़दीक</td></tr>
+      <tr><td class="spk-wrap" data-pt="longe de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">longe de</span></td><td>far from</td><td>से दूर</td></tr>
+      <tr><td class="spk-wrap" data-pt="entre, no meio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">entre</span>, <span class="pt-word">no meio</span></td><td>between, in the middle</td><td>के बीच (में)</td></tr>
+      <tr><td class="spk-wrap" data-pt="à volta de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">à volta de</span></td><td>around</td><td>के आस-पास</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — perguntas e respostas</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Onde fica o banco? Na rua em frente da Faculdade."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde fica o banco? Na Rua <span class="pt-word">em frente da</span> Faculdade.<span class="en-eq">Where is the bank? On the street opposite the Faculty.</span></p>
+    <p class="ex-line" data-pt="Onde é a estação? Na avenida ao lado da pastelaria."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde é a estação? Na Avenida <span class="pt-word">ao lado da</span> pastelaria.<span class="en-eq">Where is the station? On the avenue next to the café.</span></p>
+    <p class="ex-line" data-pt="Onde está o cão? Está atrás dos Correios."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde está o cão? Está <span class="pt-word">atrás dos</span> Correios.<span class="en-eq">Where is the dog? Behind the post office.</span></p>
+    <p class="ex-line" data-pt="Onde fica o cinema? O cinema fica entre os Restauradores e o Marquês de Pombal."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde fica o cinema? O cinema fica <span class="pt-word">entre</span> os Restauradores e o Marquês de Pombal.<span class="en-eq">Where is the cinema? Between Restauradores and Marquês de Pombal.</span></p>
+    <p class="ex-line" data-pt="Onde está a caneta? A caneta está em cima da secretária."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde está a caneta? A caneta está <span class="pt-word">em cima da</span> secretária.<span class="en-eq">Where is the pen? On top of the desk.</span></p>
+    <p class="ex-line" data-pt="Onde está o porta-moedas? Está dentro do bolso."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde está o porta-moedas? Está <span class="pt-word">dentro do</span> bolso.<span class="en-eq">Where is the coin purse? Inside the pocket.</span></p>
+    <p class="ex-line" data-pt="Onde fica a Faculdade de Letras? Fica perto do Hospital de Santa Maria."><button class="spk-btn" aria-label="Ouvir">🔊</button>Onde fica a Faculdade de Letras? Fica <span class="pt-word">perto do</span> Hospital de Santa Maria.<span class="en-eq">Where is the Faculty of Letters? Near Santa Maria Hospital.</span></p>
+    <p class="ex-line" data-pt="Trabalhas em Lisboa? Não. Trabalho longe de Lisboa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Trabalhas em Lisboa? Não. Trabalho <span class="pt-word">longe de</span> Lisboa.<span class="en-eq">Do you work in Lisbon? No. I work far from Lisbon.</span></p>
+  </div>
+  <div class="example-list">
+    <h5>Mais exemplos</h5>
+    <p class="ex-line" data-pt="A caneta está debaixo da mesa."><button class="spk-btn" aria-label="Ouvir">🔊</button>A caneta está <span class="pt-word">debaixo da</span> mesa.<span class="en-eq">The pen is under the table.</span></p>
+    <p class="ex-line" data-pt="O banco fica à esquerda da farmácia."><button class="spk-btn" aria-label="Ouvir">🔊</button>O banco fica <span class="pt-word">à esquerda da</span> farmácia.<span class="en-eq">The bank is to the left of the pharmacy.</span></p>
+    <p class="ex-line" data-pt="A mesa está no centro da sala."><button class="spk-btn" aria-label="Ouvir">🔊</button>A mesa está <span class="pt-word">no centro da</span> sala.<span class="en-eq">The table is in the centre of the room.</span></p>
+    <p class="ex-line" data-pt="O cão está fora de casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>O cão está <span class="pt-word">fora de</span> casa.<span class="en-eq">The dog is outside the house.</span></p>
+    <p class="ex-line" data-pt="O restaurante fica à volta da praça."><button class="spk-btn" aria-label="Ouvir">🔊</button>O restaurante fica <span class="pt-word">à volta da</span> praça.<span class="en-eq">The restaurant is around the square.</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Complete com a locução correta.</p>
+    <p class="ex-note">Words: em cima de · atrás de · dentro de · ao lado de · em frente de · perto de · longe de · entre (join with the article, e.g. de + a = da)</p>
+    <p class="question">
+      A caneta está <span class="blank-word"><span class="underscore">_______</span><span class="fill">em cima da</span></span> (on top of) secretária.<br>
+      O cão está <span class="blank-word"><span class="underscore">_______</span><span class="fill">atrás dos</span></span> (behind) Correios.<br>
+      O porta-moedas está <span class="blank-word"><span class="underscore">_______</span><span class="fill">dentro do</span></span> (inside) bolso.<br>
+      A estação fica <span class="blank-word"><span class="underscore">_______</span><span class="fill">ao lado da</span></span> (next to) pastelaria.<br>
+      O banco fica <span class="blank-word"><span class="underscore">_______</span><span class="fill">em frente da</span></span> (opposite) Faculdade.<br>
+      A Faculdade fica <span class="blank-word"><span class="underscore">_______</span><span class="fill">perto do</span></span> (near) Hospital.<br>
+      Eu trabalho <span class="blank-word"><span class="underscore">_______</span><span class="fill">longe de</span></span> (far from) Lisboa.<br>
+      O cinema fica <span class="blank-word"><span class="underscore">_______</span><span class="fill">entre</span></span> (between) os Restauradores e o Marquês de Pombal.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Liga o hindi à locução em português.</p>
+    <ol class="cue-list">
+      <li><span class="cue">के ऊपर</span> <span class="reveal">em cima de</span></li>
+      <li><span class="cue">के नीचे</span> <span class="reveal">debaixo de</span></li>
+      <li><span class="cue">के सामने</span> <span class="reveal">em frente de</span></li>
+      <li><span class="cue">के पीछे</span> <span class="reveal">atrás de</span></li>
+      <li><span class="cue">के अंदर</span> <span class="reveal">dentro de</span></li>
+      <li><span class="cue">के बाहर</span> <span class="reveal">fora de</span></li>
+      <li><span class="cue">के बीच (में)</span> <span class="reveal">entre</span></li>
+      <li><span class="cue">(की) बायीं तरफ</span> <span class="reveal">à esquerda de</span></li>
+      <li><span class="cue">के आस-पास</span> <span class="reveal">à volta de</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Faça frases completas.</p>
+    <ol class="cue-list">
+      <li><span class="cue">(a caneta / estar / debaixo / a mesa)</span> <span class="reveal">A caneta está debaixo da mesa.</span></li>
+      <li><span class="cue">(o banco / ficar / ao lado / a farmácia)</span> <span class="reveal">O banco fica ao lado da farmácia.</span></li>
+      <li><span class="cue">(os livros / estar / dentro / a mala)</span> <span class="reveal">Os livros estão dentro da mala.</span></li>
+      <li><span class="cue">(o restaurante / ficar / perto / a estação)</span> <span class="reveal">O restaurante fica perto da estação.</span></li>
+      <li><span class="cue">(a escola / ficar / longe / casa)</span> <span class="reveal">A escola fica longe de casa.</span></li>
+      <li><span class="cue">(o cão / estar / fora / casa)</span> <span class="reveal">O cão está fora de casa.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+</div>
