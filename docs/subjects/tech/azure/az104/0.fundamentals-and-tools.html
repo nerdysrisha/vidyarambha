@@ -1,0 +1,143 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Azure Fundamentals and Tools <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">The base ideas every other topic uses: how Azure is organized, how you talk to it, and how deployments are repeated with code. You create the same resource group with the Portal, CLI and PowerShell, then look at a template.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">Subscription</span><span class="lt">billing and access boundary</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg14</span><span class="ld">container for related resources</span></div>
+      <div class="cs"><span class="cp">VM (IaaS)</span><span class="cp">Web App (PaaS)</span><span class="cp">Storage account</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">ARM</span><span class="lt">Azure Resource Manager</span><span class="ld">every tool goes through it</span></div>
+      <div class="cs"><span class="cp cu">Portal</span><span class="cp cu">CLI</span><span class="cp cu">PowerShell</span><span class="cp cu">Template / Bicep</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Every tool sends the same request to ARM, so they all give the same result.</p>
+
+<h3>Key ideas</h3>
+<ul class="az-list">
+  <li><strong>Hierarchy:</strong> management group &rarr; subscription &rarr; resource group &rarr; resource. A resource lives in exactly one resource group.</li>
+  <li><strong>Region</strong> is a geographic area. An <strong>availability zone</strong> is a separate datacenter inside a region, used for resilience.</li>
+  <li><strong>IaaS</strong>: you manage the OS and up (VM). <strong>PaaS</strong>: Azure manages the OS, you manage the app (App Service).</li>
+  <li><strong>Infrastructure as Code</strong>: describe resources in a file (ARM JSON or Bicep) and deploy it repeatedly with the same result.</li>
+  <li><strong>Cloud Shell</strong> is a browser shell with CLI and PowerShell already signed in. It needs a storage account to keep files.</li>
+</ul>
+<div class="az-key"><h3>Exam box</h3><ul>
+  <li>CLI is <span class="az-val">az ...</span>, PowerShell is <span class="az-val">Get-Az... / New-Az...</span>.</li>
+  <li>Deleting a resource group deletes everything inside it.</li>
+  <li>Bicep compiles to an ARM template. Both are declarative and idempotent.</li>
+</ul></div>
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> create the same resource group with the Portal, CLI and PowerShell, then deploy a template. About 25 minutes.</p>
+<div class="az-note"><p>Names used: <span class="az-val">az104-rg14</span>, <span class="az-val">az104-rg14-cli</span>, <span class="az-val">az104-rg14-ps</span>. These are standard lab-style values, change them if you like.</p></div>
+<h3>Task 1: Portal</h3>
+<ol class="az-list">
+  <li>Search <span class="az-ui">Resource groups</span> &rarr; <span class="az-ui">Create</span>. Name <span class="az-val">az104-rg14</span>, a region of your choice, <span class="az-ui">Review + create</span>, <span class="az-ui">Create</span>.</li>
+  <li>Open it and note the subscription, location and the <span class="az-ui">Activity log</span>.</li>
+</ol>
+<h3>Task 2: Cloud Shell</h3>
+<ol class="az-list">
+  <li>Select the <span class="az-ui">Cloud Shell</span> icon in the top bar. Choose <span class="az-ui">Bash</span> and create the storage if asked.</li>
+  <li>Run: <span class="az-val">az group create -n az104-rg14-cli -l eastus</span></li>
+  <li>Switch to <span class="az-ui">PowerShell</span> and run: <span class="az-val">New-AzResourceGroup -Name az104-rg14-ps -Location eastus</span></li>
+  <li>List them: <span class="az-val">az group list -o table</span></li>
+</ol>
+<h3>Task 3: Deploy a template</h3>
+<ol class="az-list">
+  <li>In the portal create a <span class="az-ui">Storage account</span> in <span class="az-val">az104-rg14</span> (do not finish), and on <span class="az-ui">Review + create</span> select <span class="az-ui">Download a template for automation</span>.</li>
+  <li>Review the <span class="az-val">resources</span> and <span class="az-val">parameters</span> sections. Note it is JSON and declarative.</li>
+  <li>Finish creating the account, then open the resource group &rarr; <span class="az-ui">Export template</span> to see the same idea for existing resources.</li>
+</ol>
+<div class="az-check"><p>Check: all three resource groups exist, and you can say which tool you used for each.</p></div>
+<div class="az-note"><p>Clean up: <span class="az-val">az group delete -n az104-rg14-cli --yes</span> and delete the other two groups.</p></div>
+
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>Which scope holds resources, and can a resource be in two of them?</strong>
+    <div class="az-a">The resource group. A resource belongs to exactly one resource group.</div></li>
+  <li><strong>What is Azure Resource Manager?</strong>
+    <div class="az-a">The deployment and management layer. The Portal, CLI, PowerShell and templates all call it, so they behave the same.</div></li>
+  <li><strong>IaaS or PaaS: a web app where Azure patches the OS?</strong>
+    <div class="az-a">PaaS (App Service). With a VM (IaaS) you patch the OS yourself.</div></li>
+  <li><strong>What is the difference between a region and an availability zone?</strong>
+    <div class="az-a">A region is a geographic area. An availability zone is a physically separate datacenter inside a region.</div></li>
+  <li><strong>What does declarative mean for an ARM template or Bicep file?</strong>
+    <div class="az-a">You describe the end state, not the steps. Redeploying the same file gives the same result.</div></li>
+  <li><strong>What happens when you delete a resource group?</strong>
+    <div class="az-a">Every resource inside it is deleted too.</div></li>
+  <li><strong>What does Cloud Shell need to keep your files?</strong>
+    <div class="az-a">A storage account (an Azure Files share) mounted to the shell.</div></li>
+  <li><strong>Which command creates a resource group in PowerShell?</strong>
+    <div class="az-a"><span class="az-val">New-AzResourceGroup</span>. The CLI equivalent is <span class="az-val">az group create</span>.</div></li>
+</ol>
+</div>

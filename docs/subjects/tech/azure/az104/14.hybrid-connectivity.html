@@ -1,0 +1,145 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Hybrid Connectivity: VPN, ExpressRoute and Virtual WAN <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">How an on-premises network connects to Azure. You build the Azure side of a VPN (VNet, GatewaySubnet, VPN gateway) and learn when to choose Site-to-Site, Point-to-Site, ExpressRoute or Virtual WAN.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">On-premises</span><span class="lt">Office network</span><span class="ld">VPN device / ExpressRoute router</span></div>
+  </div>
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">Link</span><span class="lt">VPN over Internet</span><span class="ld">or private ExpressRoute circuit</span></div>
+  </div>
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">VNet</span><span class="lt">Azure virtual network</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Subnet</span><span class="lt">GatewaySubnet</span><span class="ld">must have this exact name</span></div>
+      <div class="cs"><span class="cp cu">VPN gateway</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">The gateway is the Azure end of the connection.</p>
+
+<h3>Key ideas</h3>
+<ul class="az-list">
+  <li><strong>Site-to-Site (S2S):</strong> connects a whole office network to a VNet through an IPsec tunnel over the Internet. Needs a VPN device on-premises with a public IP.</li>
+  <li><strong>Point-to-Site (P2S):</strong> connects a single computer to a VNet. Good for remote workers.</li>
+  <li><strong>ExpressRoute:</strong> a private connection through a provider that does not use the public Internet. More predictable and faster, but costs more.</li>
+  <li><strong>Virtual WAN:</strong> a managed hub for connecting many branches, users and VNets at large scale.</li>
+  <li>The VPN gateway needs a <span class="az-val">GatewaySubnet</span>, a public IP, and a VPN type (route-based is the usual choice).</li>
+  <li>Address spaces on-premises and in Azure must not overlap.</li>
+</ul>
+<div class="az-key"><h3>Exam box</h3><ul>
+  <li>Whole office &rarr; S2S. One laptop &rarr; P2S. Private, not over Internet &rarr; ExpressRoute.</li>
+  <li>Gateway subnet name must be exactly <span class="az-val">GatewaySubnet</span>.</li>
+  <li>A gateway takes about 30 to 45 minutes to deploy.</li>
+</ul></div>
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> build the Azure side of a VPN: VNet, GatewaySubnet and VPN gateway, then inspect connection options. About 20 minutes of work plus gateway wait time.</p>
+<div class="az-note"><p>Cost warning: a VPN gateway bills while it exists. Delete the resource group when done. Names are standard lab-style values: <span class="az-val">az104-rg15</span>, <span class="az-val">az104-vnet15</span>, <span class="az-val">az104-vpngw15</span>.</p></div>
+<h3>Task 1: Virtual network</h3>
+<ol class="az-list">
+  <li>Create a resource group <span class="az-val">az104-rg15</span>.</li>
+  <li>Create a VNet <span class="az-val">az104-vnet15</span> with address space <span class="az-val">10.15.0.0/16</span> and a subnet <span class="az-val">10.15.1.0/24</span>.</li>
+  <li>Open the VNet &rarr; <span class="az-ui">Subnets</span> &rarr; <span class="az-ui">+ Gateway subnet</span>. Accept the name <span class="az-val">GatewaySubnet</span> and a <span class="az-val">/27</span> range.</li>
+</ol>
+<h3>Task 2: VPN gateway</h3>
+<ol class="az-list">
+  <li>Search <span class="az-ui">Virtual network gateways</span> &rarr; <span class="az-ui">Create</span>.</li>
+  <li>Name <span class="az-val">az104-vpngw15</span>, gateway type <span class="az-ui">VPN</span>, VPN type <span class="az-ui">Route-based</span>, select the VNet, create a new public IP.</li>
+  <li>Select <span class="az-ui">Review + create</span>, <span class="az-ui">Create</span>, and wait for deployment.</li>
+</ol>
+<h3>Task 3: Inspect</h3>
+<ol class="az-list">
+  <li>Open the gateway &rarr; <span class="az-ui">Connections</span> and <span class="az-ui">Point-to-site configuration</span>. Note where S2S and P2S are set up.</li>
+  <li>Search <span class="az-ui">ExpressRoute circuits</span> and <span class="az-ui">Virtual WANs</span> and read the create forms without creating.</li>
+</ol>
+<div class="az-check"><p>Check: the gateway shows <em>Succeeded</em> and the subnet is named <span class="az-val">GatewaySubnet</span>.</p></div>
+<div class="az-note"><p>Clean up: delete <span class="az-val">az104-rg15</span>.</p></div>
+
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>Connect a whole branch office to a VNet over the Internet. Which option?</strong>
+    <div class="az-a">Site-to-Site VPN.</div></li>
+  <li><strong>Connect one remote laptop to a VNet. Which option?</strong>
+    <div class="az-a">Point-to-Site VPN.</div></li>
+  <li><strong>Why choose ExpressRoute over a VPN?</strong>
+    <div class="az-a">It is a private connection that does not cross the public Internet, with more predictable performance.</div></li>
+  <li><strong>What must the gateway subnet be named?</strong>
+    <div class="az-a"><span class="az-val">GatewaySubnet</span>, exactly.</div></li>
+  <li><strong>What is Virtual WAN for?</strong>
+    <div class="az-a">A managed hub that connects many branches, users and VNets at large scale.</div></li>
+  <li><strong>Your on-premises network is 10.0.0.0/16 and the VNet is also 10.0.0.0/16. What is the problem?</strong>
+    <div class="az-a">Overlapping address spaces. Routing cannot work, so one side must be changed.</div></li>
+  <li><strong>What does the on-premises side need for Site-to-Site?</strong>
+    <div class="az-a">A VPN device with a public IP address.</div></li>
+  <li><strong>The gateway deployment is still running after 10 minutes. Is something wrong?</strong>
+    <div class="az-a">No. A VPN gateway normally takes 30 to 45 minutes.</div></li>
+</ol>
+</div>
