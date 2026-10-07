@@ -56,7 +56,8 @@
 <h1>Implement Intersite Connectivity <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">By default, two VNets cannot talk to each other. This topic covers how to connect them (peering), how to check the link (Network Watcher) and how to steer traffic (custom routes).</p>
 
-<span class="az-part">Part 1</span>
+<details open>
+<summary><span class="az-part">Part 1</span></summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -89,7 +90,7 @@
 <ul class="az-list">
   <li>Peering connects two VNets so they act as <strong>one network</strong> for connectivity. VMs talk using <strong>private IPs</strong>.</li>
   <li>Traffic stays on the <strong>Microsoft backbone</strong>. It does not cross the public Internet.</li>
-  <li>Works in the same region, across regions (global peering) and across subscriptions.</li>
+  <li>Works in the same region, across regions through <strong>global VNet peering</strong>, and across subscriptions.</li>
   <li>Address spaces must <strong>not overlap</strong>.</li>
   <li>Peering is <strong>two links</strong>, one on each VNet. The portal creates both when you add it. Status shows <span class="az-val">Connected</span> only when both exist.</li>
   <li>Peering is <strong>not transitive</strong>. If A peers with B and B peers with C, A still cannot reach C.</li>
@@ -110,7 +111,7 @@
 <ul class="az-list">
   <li><strong>Allow access to the peered VNet:</strong> on by default. Turn it off and the VNets stop talking.</li>
   <li><strong>Allow forwarded traffic:</strong> accept traffic that did not start in the peered VNet, for example traffic sent through an NVA.</li>
-  <li><strong>Gateway transit / use remote gateway:</strong> lets one VNet share the other's VPN or ExpressRoute gateway.</li>
+  <li><strong>Gateway transit / use remote gateway:</strong> lets one VNet share the other's VPN or ExpressRoute gateway. This is different from ordinary VNet peering and is relevant when on-premises connectivity is reached through a gateway.</li>
 </ul>
 
 <h3>Peering is not transitive</h3>
@@ -133,14 +134,28 @@
   <li>Other ways to test: <span class="az-ui">Run command</span> on the VM, or RDP in and use <span class="az-val">Test-NetConnection</span>.</li>
 </ul>
 
+<h3>Network Watcher diagnostics</h3>
+<ul class="az-list">
+  <li><strong>IP flow verify</strong> checks whether a specific inbound or outbound flow is allowed or denied by the effective NSG rules. It is useful when connectivity exists but an NSG may be blocking the flow.</li>
+  <li><strong>Network topology</strong> gives a visual view of the resources and network relationships in a region, helping you spot missing or unexpected connections.</li>
+  <li><strong>NSG diagnostics</strong> should be separated from connectivity-path testing: <em>Connection troubleshoot</em> tests reachability, while IP flow verification helps identify an NSG allow/deny decision.</li>
+</ul>
+
+<h3>NSG vs firewall</h3>
+<ul class="az-list">
+  <li>An <strong>NSG</strong> filters traffic at the network interface or subnet boundary using security rules and priorities. It is a distributed access-control layer.</li>
+  <li>An <strong>Azure Firewall</strong> is a managed, centralized firewall service that can inspect and control traffic as a network security appliance. A UDR can send traffic to it using next hop type <span class="az-val">Virtual appliance</span>.</li>
+  <li>When troubleshooting, first establish the path with <em>Connection troubleshoot</em>, then inspect effective NSG rules/IP flow verification and any firewall policy that sits in the path.</li>
+</ul>
+
 <h3>Routes: system and custom</h3>
 <ul class="az-list">
   <li>Azure creates <strong>system routes</strong> for every subnet automatically (VNet, Internet, peering).</li>
-  <li>A <strong>user-defined route (UDR)</strong> adds to or overrides the system routes.</li>
+  <li>A <strong>user-defined route (UDR)</strong>, also called a <strong>custom route</strong>, adds to or overrides the system routes.</li>
   <li>Routes live in a <strong>route table</strong>. The table only takes effect once <strong>associated with a subnet</strong>. It controls traffic <em>leaving</em> that subnet.</li>
   <li>A route has: a destination (CIDR), a next hop type, and a next hop address.</li>
   <li>Next hop types: <span class="az-val">Virtual appliance</span>, <span class="az-val">Virtual network gateway</span>, <span class="az-val">Virtual network</span>, <span class="az-val">Internet</span>, <span class="az-val">None</span>.</li>
-  <li><strong>Virtual appliance</strong> = an NVA (firewall or similar). Give its private IP as the next hop address. The NVA's NIC needs <strong>IP forwarding</strong> turned on.</li>
+  <li><strong>Virtual appliance</strong> = an NVA (for example an Azure Firewall or another firewall appliance). Give its private IP as the next hop address. The NVA's NIC needs <strong>IP forwarding</strong> turned on.</li>
   <li><strong>Propagate gateway routes:</strong> if <span class="az-val">No</span>, routes learned from a VPN or ExpressRoute gateway (BGP) are not added to this table.</li>
   <li>Same destination as a system route? The UDR wins.</li>
 </ul>
@@ -169,9 +184,12 @@
 </div>
 <p class="az-cap">Traffic leaving snet-core for the VNet range is sent to the NVA in snet-perimeter.</p>
 
+</details>
+
 <hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
 
-<span class="az-part">Part 2</span>
+<details open>
+<summary><span class="az-part">Part 2</span></summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> build two VNets with a VM each, prove they cannot talk, peer them, prove they can, then add a custom route. About 50 minutes.</p>
 <div class="az-dg">
@@ -278,7 +296,12 @@
 
 <hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
 
-<span class="az-part">Part 3</span>
+</details>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<details open>
+<summary><span class="az-part">Part 3</span></summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -318,5 +341,25 @@
 
   <li><strong>You created <span class="az-val">rt-core</span> with a route to an NVA, but traffic still takes the old path. What is the most likely cause?</strong>
     <div class="az-a">The route table is not associated with the subnet the traffic leaves from. A route table only works once associated with a subnet. (Also check that the NVA exists and has IP forwarding enabled.)</div></li>
+
+  <li><strong>Which Network Watcher feature is useful when you suspect an NSG rule is allowing or denying a particular flow?</strong>
+    <ol class="az-opts"><li>Network topology</li><li>IP flow verify</li><li>VNet peering</li><li>Route table association</li></ol>
+    <div class="az-a"><strong>B.</strong> <em>IP flow verify</em> checks a specific inbound or outbound flow against the effective NSG rules and reports whether it is allowed or denied.</div></li>
+
+  <li><strong>What is the difference between <em>Connection troubleshoot</em> and <em>IP flow verify</em>?</strong>
+    <div class="az-a"><em>Connection troubleshoot</em> checks whether a source can reach a destination on a port/protocol. <em>IP flow verify</em> focuses on whether NSG rules allow or deny a particular flow.</div></li>
+
+  <li><strong>Why might a route use next hop type <span class="az-val">Virtual appliance</span> with an address such as <span class="az-val">10.20.30.7</span>?</strong>
+    <div class="az-a">The destination traffic is being steered through an NVA, such as a firewall. The appliance's private IP is the next hop, and IP forwarding must be enabled on its NIC.</div></li>
+
+  <li><strong>VNet A peers with VNet B and B peers with C. What does <em>transitive</em> mean here, and what should you do if A must reach C?</strong>
+    <div class="az-a">VNet peering is not transitive: A does not automatically reach C through B. Peer A and C directly, or deliberately route traffic through an NVA/firewall with the required forwarded-traffic and routing configuration.</div></li>
+
+  <li><strong>What does Network Watcher's <em>Network topology</em> help you understand?</strong>
+    <div class="az-a">It provides a visual view of network resources and their relationships, which can help identify unexpected or missing connectivity paths during troubleshooting.</div></li>
+
+  <li><strong>How is an NSG different from Azure Firewall in a troubleshooting scenario?</strong>
+    <div class="az-a">An NSG provides distributed subnet/NIC-level traffic filtering through security rules and priorities. Azure Firewall is a centralized managed firewall service that can inspect and control traffic in the path. Check both when traffic crosses a firewall path and an NSG may also apply.</div></li>
 </ol>
+</details>
 </div>
