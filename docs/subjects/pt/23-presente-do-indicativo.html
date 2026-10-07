@@ -1,0 +1,339 @@
+<div class="pt-presente">
+<style>
+.pt-presente { color: #2b2b2b; font-family: inherit; }
+.pt-presente h2, .pt-presente h4, .pt-presente h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-presente .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-presente .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-presente .desc-box p:last-child { margin-bottom: 0; }
+.pt-presente .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-presente .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-presente .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-presente .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-presente .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-presente .spk-wrap, .pt-presente .ex-line { position: relative; padding-left: 1.9em; }
+.pt-presente .spk-wrap:hover .spk-btn,
+.pt-presente .ex-line:hover .spk-btn,
+.pt-presente .spk-btn:focus-visible { opacity: 1; }
+.pt-presente .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-presente .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-presente .desc-box > p:hover .spk-inline,
+.pt-presente .spk-inline:focus-visible,
+.pt-presente .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-presente .spk-btn, .pt-presente .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-presente .table-scroll { overflow-x: auto; }
+.pt-presente .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-presente .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-presente .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-presente .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-presente .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-presente .compare-table tr:last-child td { border-bottom: none; }
+.pt-presente .compare-table td.spk-wrap, .pt-presente .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-presente .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-presente .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-presente .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-presente .example-list { margin: 0 0 12px 0; }
+.pt-presente .example-list:last-child { margin-bottom: 0; }
+.pt-presente .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-presente .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-presente .ex-line:last-child { margin-bottom: 0; }
+.pt-presente .example-box .pt-word { color: #d8b46a !important; }
+.pt-presente .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-presente .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-presente .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-presente .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-presente .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-presente .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-presente .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-presente .exercise-item:last-child { margin-bottom: 0; }
+.pt-presente .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-presente .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-presente .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-presente .blank-word { display: inline-block; }
+.pt-presente .underscore { color: #999 !important; }
+.pt-presente .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-presente .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-presente .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-presente .cue-list li:last-child { border-bottom: none; }
+.pt-presente .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-presente .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-presente .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-presente .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-presente .check-btn:hover { background: #245640 !important; }
+</style>
+
+<h2>22. Presente do indicativo <span class="en">(Simple present)</span></h2>
+
+<div class="desc-box">
+  <p>The <strong>presente do indicativo</strong> is the tense for what you do regularly, facts, what is happening now, and the near future (<em>Nós falamos amanhã</em>). Verbs fall into two kinds: <strong>regular</strong> verbs follow one fixed pattern (see Section 21), while <strong>irregular</strong> verbs change their forms and have to be memorised. This page starts with four very common irregular verbs, then <em>poder + infinitivo</em>, then revises the regular -ar / -er / -ir pattern with more verbs, and ends with the contractions you need to build full sentences.</p>
+
+  <hr class="desc-divider">
+
+  <p><strong>1. Verbos muito utilizados</strong> <span class="en">(very common verbs)</span> — <span class="pt-word">fazer</span><button class="spk-inline" data-pt="fazer" aria-label="Ouvir">🔊</button>, <span class="pt-word">dizer</span><button class="spk-inline" data-pt="dizer" aria-label="Ouvir">🔊</button>, <span class="pt-word">poder</span><button class="spk-inline" data-pt="poder" aria-label="Ouvir">🔊</button> and <span class="pt-word">querer</span><button class="spk-inline" data-pt="querer" aria-label="Ouvir">🔊</button>. The highlighted forms break the regular pattern (the <em>eu</em> form, and the short <em>faz / diz / quer</em>); the rest use normal -er endings.</p>
+
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Pessoa</th>
+        <th><span class="pt-word">fazer</span> <span class="en">(to do / to make, करना)</span></th>
+        <th><span class="pt-word">dizer</span> <span class="en">(to say, कहना)</span></th>
+        <th><span class="pt-word">poder</span> <span class="en">(can, सकना)</span></th>
+        <th><span class="pt-word">querer</span> <span class="en">(to want, चाहना)</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>eu <span class="hi">(मैं)</span></td>
+        <td class="spk-wrap" data-pt="Eu faço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faço</span></td>
+        <td class="spk-wrap" data-pt="Eu digo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">digo</span></td>
+        <td class="spk-wrap" data-pt="Eu posso"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">posso</span></td>
+        <td class="spk-wrap" data-pt="Eu quero"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quero</span></td></tr>
+      <tr><td>tu <span class="hi">(तुम)</span></td>
+        <td class="spk-wrap" data-pt="Tu fazes"><button class="spk-btn" aria-label="Ouvir">🔊</button>fazes</td>
+        <td class="spk-wrap" data-pt="Tu dizes"><button class="spk-btn" aria-label="Ouvir">🔊</button>dizes</td>
+        <td class="spk-wrap" data-pt="Tu podes"><button class="spk-btn" aria-label="Ouvir">🔊</button>podes</td>
+        <td class="spk-wrap" data-pt="Tu queres"><button class="spk-btn" aria-label="Ouvir">🔊</button>queres</td></tr>
+      <tr><td>você / ele / ela <span class="hi">(आप / वह)</span></td>
+        <td class="spk-wrap" data-pt="Ele faz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faz</span></td>
+        <td class="spk-wrap" data-pt="Ele diz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">diz</span></td>
+        <td class="spk-wrap" data-pt="Ele pode"><button class="spk-btn" aria-label="Ouvir">🔊</button>pode</td>
+        <td class="spk-wrap" data-pt="Ele quer"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quer</span></td></tr>
+      <tr><td>nós <span class="hi">(हमलोग)</span></td>
+        <td class="spk-wrap" data-pt="Nós fazemos"><button class="spk-btn" aria-label="Ouvir">🔊</button>fazemos</td>
+        <td class="spk-wrap" data-pt="Nós dizemos"><button class="spk-btn" aria-label="Ouvir">🔊</button>dizemos</td>
+        <td class="spk-wrap" data-pt="Nós podemos"><button class="spk-btn" aria-label="Ouvir">🔊</button>podemos</td>
+        <td class="spk-wrap" data-pt="Nós queremos"><button class="spk-btn" aria-label="Ouvir">🔊</button>queremos</td></tr>
+      <tr><td>vocês <span class="hi">(आपलोग)</span></td>
+        <td class="spk-wrap" data-pt="Vocês fazem"><button class="spk-btn" aria-label="Ouvir">🔊</button>fazem</td>
+        <td class="spk-wrap" data-pt="Vocês dizem"><button class="spk-btn" aria-label="Ouvir">🔊</button>dizem</td>
+        <td class="spk-wrap" data-pt="Vocês podem"><button class="spk-btn" aria-label="Ouvir">🔊</button>podem</td>
+        <td class="spk-wrap" data-pt="Vocês querem"><button class="spk-btn" aria-label="Ouvir">🔊</button>querem</td></tr>
+      <tr><td>eles / elas <span class="hi">(वे लोग)</span></td>
+        <td class="spk-wrap" data-pt="Eles fazem"><button class="spk-btn" aria-label="Ouvir">🔊</button>fazem</td>
+        <td class="spk-wrap" data-pt="Eles dizem"><button class="spk-btn" aria-label="Ouvir">🔊</button>dizem</td>
+        <td class="spk-wrap" data-pt="Eles podem"><button class="spk-btn" aria-label="Ouvir">🔊</button>podem</td>
+        <td class="spk-wrap" data-pt="Eles querem"><button class="spk-btn" aria-label="Ouvir">🔊</button>querem</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — fazer, dizer, poder, querer</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Eu faço o almoço todos os dias."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">faço</span> o almoço todos os dias.<span class="en-eq">I make lunch every day.</span></p>
+    <p class="ex-line" data-pt="Tu dizes a verdade."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">dizes</span> a verdade.<span class="en-eq">You tell the truth.</span></p>
+    <p class="ex-line" data-pt="Nós podemos falar português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">podemos</span> falar português.<span class="en-eq">We can speak Portuguese.</span></p>
+    <p class="ex-line" data-pt="Eles querem aprender português."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles <span class="pt-word">querem</span> aprender português.<span class="en-eq">They want to learn Portuguese.</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Poder + infinitivo</strong> — <em>poder</em> works as a helper verb: conjugate <em>poder</em> for the person and leave the second verb in the infinitive (<em>posso falar</em>, <em>podemos pagar</em>). It expresses ability or permission, and the negative <em>não</em> goes before <em>poder</em>.</p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — poder + infinitivo</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Eu posso falar português um pouco."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">posso falar</span> português um pouco.<span class="en-eq">I can speak a little Portuguese.</span></p>
+    <p class="ex-line" data-pt="Tu podes brincar no parque, mas não podes brincar em casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">podes brincar</span> no parque, mas não (<span class="pt-word">podes brincar</span>) em casa.<span class="en-eq">You can play in the park, but not at home.</span></p>
+    <p class="ex-line" data-pt="Você pode trabalhar das 10 horas às 18 horas?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Você / Ele / Ela <span class="pt-word">pode trabalhar</span> das 10h às 18h (6h da tarde)?<span class="en-eq">Can you / he / she work from 10 to 6 pm?</span></p>
+    <p class="ex-line" data-pt="Nós não podemos pagar tanto pela casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós não <span class="pt-word">podemos pagar</span> tanto pela casa.<span class="en-eq">We can't pay so much for the house.</span></p>
+    <p class="ex-line" data-pt="Vocês podem correr cinco quilómetros."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vocês / Eles / Elas <span class="pt-word">podem correr</span> 5 km.<span class="en-eq">You / they can run 5 km.</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>3. Verbos regulares em -ar, -er e -ir</strong> <span class="en">(revision)</span> — regular verbs keep the stem and only change the ending. Here is the pattern again with three new verbs: <span class="pt-word">estudar</span> <span class="en">(to study, पढ़ना)</span>, <span class="pt-word">escrever</span> <span class="en">(to write, लिखना)</span> and <span class="pt-word">partir</span> <span class="en">(to leave / to break, तोड़ना)</span>.</p>
+
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Pronome pessoal</th>
+        <th><span class="pt-word">estudar</span> <span class="en">(-ar)</span></th>
+        <th><span class="pt-word">escrever</span> <span class="en">(-er)</span></th>
+        <th><span class="pt-word">partir</span> <span class="en">(-ir)</span></th>
+      </tr>
+      <tr><th>&nbsp;</th><th>o, as, a, amos, am</th><th>o, es, e, emos, em</th><th>o, es, e, imos, em</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>eu <span class="hi">(मैं)</span></td>
+        <td class="spk-wrap" data-pt="Eu estudo"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">o</span></td>
+        <td class="spk-wrap" data-pt="Eu escrevo"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">o</span></td>
+        <td class="spk-wrap" data-pt="Eu parto"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">o</span></td></tr>
+      <tr><td>tu <span class="hi">(तुम)</span></td>
+        <td class="spk-wrap" data-pt="Tu estudas"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">as</span></td>
+        <td class="spk-wrap" data-pt="Tu escreves"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">es</span></td>
+        <td class="spk-wrap" data-pt="Tu partes"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">es</span></td></tr>
+      <tr><td>você <span class="hi">(आप)</span></td>
+        <td class="spk-wrap" data-pt="Você estuda"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">a</span></td>
+        <td class="spk-wrap" data-pt="Você escreve"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">e</span></td>
+        <td class="spk-wrap" data-pt="Você parte"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">e</span></td></tr>
+      <tr><td>ele / ela <span class="hi">(वह)</span></td>
+        <td class="spk-wrap" data-pt="Ele estuda"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">a</span></td>
+        <td class="spk-wrap" data-pt="Ele escreve"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">e</span></td>
+        <td class="spk-wrap" data-pt="Ele parte"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">e</span></td></tr>
+      <tr><td>nós <span class="hi">(हमलोग)</span></td>
+        <td class="spk-wrap" data-pt="Nós estudamos"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">amos</span></td>
+        <td class="spk-wrap" data-pt="Nós escrevemos"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">emos</span></td>
+        <td class="spk-wrap" data-pt="Nós partimos"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">imos</span></td></tr>
+      <tr><td>vocês <span class="hi">(आपलोग)</span></td>
+        <td class="spk-wrap" data-pt="Vocês estudam"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">am</span></td>
+        <td class="spk-wrap" data-pt="Vocês escrevem"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">em</span></td>
+        <td class="spk-wrap" data-pt="Vocês partem"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">em</span></td></tr>
+      <tr><td>eles / elas <span class="hi">(वे लोग)</span></td>
+        <td class="spk-wrap" data-pt="Eles estudam"><button class="spk-btn" aria-label="Ouvir">🔊</button>estud<span class="pt-word">am</span></td>
+        <td class="spk-wrap" data-pt="Eles escrevem"><button class="spk-btn" aria-label="Ouvir">🔊</button>escrev<span class="pt-word">em</span></td>
+        <td class="spk-wrap" data-pt="Eles partem"><button class="spk-btn" aria-label="Ouvir">🔊</button>part<span class="pt-word">em</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>4. Mais verbos em -ar</strong> <span class="en">(more -ar verbs)</span> — all of these are regular, so conjugate them with the -ar endings (<em>o, as, a, amos, am</em>).</p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Verbo</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="trabalhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhar</span></td><td>to work</td><td>काम करना</td></tr>
+      <tr><td class="spk-wrap" data-pt="estudar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudar</span></td><td>to study</td><td>पढ़ना</td></tr>
+      <tr><td class="spk-wrap" data-pt="brincar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">brincar</span></td><td>to play, to have fun</td><td>मज़ाक करना / खेलना</td></tr>
+      <tr><td class="spk-wrap" data-pt="voltar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">voltar</span></td><td>to return</td><td>वापस आना</td></tr>
+      <tr><td class="spk-wrap" data-pt="chegar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">chegar</span></td><td>to arrive</td><td>पहुँचना</td></tr>
+      <tr><td class="spk-wrap" data-pt="falar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falar</span></td><td>to speak</td><td>बोलना</td></tr>
+      <tr><td class="spk-wrap" data-pt="faltar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faltar</span></td><td>to miss (a class), to be missing / to remain</td><td>बाकी होना</td></tr>
+      <tr><td class="spk-wrap" data-pt="jantar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">jantar</span></td><td>to have dinner</td><td>रात का खाना खाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="nadar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">nadar</span></td><td>to swim</td><td>तैरना</td></tr>
+      <tr><td class="spk-wrap" data-pt="ensinar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ensinar</span></td><td>to teach</td><td>पढ़ाना</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — verbos regulares em -ar</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Eu trabalho numa empresa das 10 horas às 18 horas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">trabalho</span> numa empresa das 10h às 18h.<span class="en-eq">I work at a company from 10 to 6.</span></p>
+    <p class="ex-line" data-pt="Eu trabalho na escola Maple Bear."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">trabalho</span> na escola Maple Bear.<span class="en-eq">I work at the Maple Bear school.</span></p>
+    <p class="ex-line" data-pt="Tu estudas português na Casa da Índia."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">estudas</span> português na Casa da Índia.<span class="en-eq">You study Portuguese at Casa da Índia.</span></p>
+    <p class="ex-line" data-pt="Você brinca com os seus sobrinhos aos fins de semana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Você <span class="pt-word">brinca</span> com os seus sobrinhos aos fins de semana.<span class="en-eq">You play with your nephews at weekends.</span></p>
+    <p class="ex-line" data-pt="Ele volta para Portugal em 2028."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ele <span class="pt-word">volta</span> para Portugal em 2028.<span class="en-eq">He returns to Portugal in 2028.</span></p>
+    <p class="ex-line" data-pt="Ela chega à estação do comboio às dezoito e meia."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ela <span class="pt-word">chega</span> à estação do comboio às 18h30 (dezoito e meia).<span class="en-eq">She arrives at the train station at 6:30 pm.</span></p>
+    <p class="ex-line" data-pt="Nós falamos sobre o salário com o patrão."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">falamos</span> sobre o salário com o patrão.<span class="en-eq">We talk about the salary with the boss.</span></p>
+    <p class="ex-line" data-pt="Vocês faltam a muitas aulas durante o mês de agosto."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vocês <span class="pt-word">faltam</span> a muitas aulas durante o mês de agosto.<span class="en-eq">You miss many classes during August.</span></p>
+    <p class="ex-line" data-pt="Eles jantam aos fins de semana dentro de casa ou fora de casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles <span class="pt-word">jantam</span> aos fins de semana dentro / fora de casa.<span class="en-eq">They have dinner at weekends inside / outside the house.</span></p>
+    <p class="ex-line" data-pt="Elas nadam como os atletas internacionais."><button class="spk-btn" aria-label="Ouvir">🔊</button>Elas <span class="pt-word">nadam</span> como os atletas internacionais.<span class="en-eq">They swim like international athletes.</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p><strong>5. Contrações</strong> <span class="en">(preposition + article)</span> — the prepositions <em>por</em>, <em>de</em> and <em>em</em> merge with the articles <em>a, as, o, os</em>, while <em>para</em> stays separate. This is why you see <em>pela casa</em>, <em>na escola</em> and <em>do patrão</em> in the examples above.</p>
+  <div class="table-scroll">
+  <table class="compare-table">
+    <thead><tr><th>Preposição</th><th>+ a</th><th>+ as</th><th>+ o</th><th>+ os</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="pela, pelas, pelo, pelos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">por</span> <span class="en">(by, for)</span></td><td>pela</td><td>pelas</td><td>pelo</td><td>pelos</td></tr>
+      <tr><td class="spk-wrap" data-pt="da, das, do, dos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">de</span> <span class="en">(of, from)</span></td><td>da</td><td>das</td><td>do</td><td>dos</td></tr>
+      <tr><td class="spk-wrap" data-pt="na, nas, no, nos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">em</span> <span class="en">(in, at, on)</span></td><td>na</td><td>nas</td><td>no</td><td>nos</td></tr>
+      <tr><td class="spk-wrap" data-pt="para a, para as, para o, para os"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">para</span> <span class="en">(to, for)</span></td><td>para a</td><td>para as</td><td>para o</td><td>para os</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Complete com fazer, dizer, poder ou querer.</p>
+    <p class="question">
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">faço</span></span> (fazer) o almoço todos os dias.<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">dizes</span></span> (dizer) a verdade.<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">podemos</span></span> (poder) falar português.<br>
+      Eles <span class="blank-word"><span class="underscore">___</span><span class="fill">querem</span></span> (querer) aprender português.<br>
+      Ele <span class="blank-word"><span class="underscore">___</span><span class="fill">faz</span></span> (fazer) o jantar.<br>
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">digo</span></span> (dizer) bom dia.<br>
+      Vocês <span class="blank-word"><span class="underscore">___</span><span class="fill">podem</span></span> (poder) correr 5 km?<br>
+      Ela não <span class="blank-word"><span class="underscore">___</span><span class="fill">quer</span></span> (querer) pagar tanto.<br>
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">posso</span></span> (poder) falar um pouco.<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">queremos</span></span> (querer) jantar fora.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Liga corretamente: pessoa → forma de <em>trabalhar</em>.</p>
+    <p class="ex-note">Options: trabalham · trabalho · trabalhamos · trabalhas · trabalha</p>
+    <ol class="cue-list">
+      <li><span class="cue">Eu →</span> <span class="reveal">trabalho</span></li>
+      <li><span class="cue">Tu →</span> <span class="reveal">trabalhas</span></li>
+      <li><span class="cue">Ele / Ela →</span> <span class="reveal">trabalha</span></li>
+      <li><span class="cue">Nós →</span> <span class="reveal">trabalhamos</span></li>
+      <li><span class="cue">Vocês / Eles / Elas →</span> <span class="reveal">trabalham</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Conjugue os verbos regulares no presente do indicativo.</p>
+    <p class="question">
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">estudo</span></span> (estudar) português.<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">escreves</span></span> (escrever) um email?<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">partimos</span></span> (partir) amanhã.<br>
+      Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">chega</span></span> (chegar) às 18h30.<br>
+      Eles <span class="blank-word"><span class="underscore">___</span><span class="fill">jantam</span></span> (jantar) fora de casa.<br>
+      Vocês <span class="blank-word"><span class="underscore">___</span><span class="fill">voltam</span></span> (voltar) para Lisboa?<br>
+      Tu <span class="blank-word"><span class="underscore">___</span><span class="fill">nadas</span></span> (nadar) muito bem.<br>
+      Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">ensino</span></span> (ensinar) inglês.<br>
+      Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">falamos</span></span> (falar) com o patrão.<br>
+      Ele <span class="blank-word"><span class="underscore">___</span><span class="fill">brinca</span></span> (brincar) com os sobrinhos.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Complete com a contração correta.</p>
+    <p class="question">
+      Nós não podemos pagar tanto <span class="blank-word"><span class="underscore">___</span><span class="fill">pela</span></span> (por + a) casa.<br>
+      Eu trabalho <span class="blank-word"><span class="underscore">___</span><span class="fill">na</span></span> (em + a) escola.<br>
+      Este livro é <span class="blank-word"><span class="underscore">___</span><span class="fill">do</span></span> (de + o) professor.<br>
+      Os livros são <span class="blank-word"><span class="underscore">___</span><span class="fill">das</span></span> (de + as) alunas.<br>
+      Eles jantam <span class="blank-word"><span class="underscore">___</span><span class="fill">nos</span></span> (em + os) restaurantes.<br>
+      Nós falamos <span class="blank-word"><span class="underscore">___</span><span class="fill">pelo</span></span> (por + o) telefone.<br>
+      Eu escrevo um email <span class="blank-word"><span class="underscore">___</span><span class="fill">para a</span></span> (para + a) professora.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+</div>
+
+</div>
