@@ -1,0 +1,259 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Azure Container Apps <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Azure Container Apps (ACA) runs your containers on a serverless platform. Behind the scenes it uses Kubernetes, but Azure manages the cluster for you. You bring the image, ACA gives you a web address and handles scaling. This topic covers environments, container apps, ingress, revisions, scaling and how ACA compares with ACI and AKS.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg9</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">Environment</span><span class="lt">my-environment</span><span class="lp">shared boundary</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Container app</span><span class="lt">my-app</span><span class="ld">Quickstart hello world image</span></div>
+        <div class="cs"><span class="cp">revision</span><span class="cp">replicas</span><span class="cp">port 80</span></div>
+      </div>
+      <div class="ly c-y">
+        <div class="lh"><span class="lv">Ingress</span><span class="lt">public HTTPS address</span></div>
+        <div class="cs"><span class="cp cu">name.region.azurecontainerapps.io</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. One app inside one environment, reachable by its Application URL.</p>
+
+<h3>What ACA is</h3>
+<ul class="az-list">
+  <li><strong>ACA</strong> is a <strong>serverless</strong> platform for running containers. You do not manage servers, VMs or a Kubernetes cluster.</li>
+  <li>It is built on <strong>Kubernetes</strong>, but Azure runs the cluster and adds managed extras on top (scaling, ingress, secrets, monitoring).</li>
+  <li>Good for <strong>microservices, web apps, APIs and background workers</strong>. Workloads are usually long-running, like a web app.</li>
+  <li>Lab scenario: a web app on an on-premises VM moves to the cloud, with no large fleet of servers to look after.</li>
+  <li>You can scale to <strong>zero</strong> replicas when there is no traffic, so you can save cost.</li>
+</ul>
+
+<h3>Environment and container app</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Environment</span><span class="lt">my-environment</span><span class="ld">secure boundary</span></div>
+    <div class="cs"><span class="cp cu">shared virtual network</span><span class="cp cu">shared logs</span></div>
+    <div class="ly c-g"><div class="lh"><span class="lv">App 1</span><span class="lt">web front end</span></div></div>
+    <div class="ly c-g"><div class="lh"><span class="lv">App 2</span><span class="lt">orders API</span></div></div>
+  </div>
+</div>
+<p class="az-cap">Apps in the same environment can talk to each other and send logs to the same place.</p>
+<ul class="az-list">
+  <li>A <strong>Container Apps environment</strong> is the secure boundary around one or more container apps. Apps in it share a virtual network and a Log Analytics workspace.</li>
+  <li>A <strong>container app</strong> is your running application. It lives inside exactly one environment.</li>
+  <li>In the portal you can pick an existing environment or choose <span class="az-ui">Create new environment</span> (the lab creates <span class="az-val">my-environment</span>).</li>
+  <li>Plan type: <strong>Consumption</strong> (pay for what you use, can scale to zero) or <strong>Dedicated</strong> workload profiles (reserved compute).</li>
+</ul>
+
+<h3>Ingress</h3>
+<ul class="az-list">
+  <li><strong>Ingress</strong> controls how traffic reaches your app. Turn it on to get a web address (FQDN).</li>
+  <li><strong>External</strong>: reachable from the internet. <strong>Internal</strong>: only reachable from inside the environment or its virtual network.</li>
+  <li>You set the <strong>target port</strong>, the port the container listens on. The Hello World image uses port <span class="az-val">80</span>.</li>
+  <li>Azure gives the app a DNS name, shown as the <strong>Application URL</strong> on the Overview page.</li>
+  <li>No ingress means the app is not reachable by HTTP. That fits background workers.</li>
+</ul>
+
+<h3>Revisions and scaling</h3>
+<div class="az-dg">
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Revision</span><span class="lt">my-app--abc123</span><span class="ld">snapshot of one version</span></div>
+    <div class="cs"><span class="cp cu">replica 1</span><span class="cp cu">replica 2</span><span class="cp">...up to max</span></div>
+  </div>
+</div>
+<p class="az-cap">A new revision is created when you change the container settings. Scaling adds or removes replicas.</p>
+<ul class="az-list">
+  <li>A <strong>revision</strong> is an immutable snapshot of a version of your app. Changing the container or image creates a new one.</li>
+  <li>Revision modes: <strong>Single</strong> (default, only the latest is active) or <strong>Multiple</strong> (run several and split traffic, useful for blue-green and testing).</li>
+  <li>A <strong>replica</strong> is one running copy of a revision.</li>
+  <li><strong>Scale rules</strong> decide how many replicas run: HTTP requests, TCP connections, CPU or memory, or custom event sources (KEDA, for example a queue length).</li>
+  <li>You set a <strong>minimum</strong> and <strong>maximum</strong> replica count. A minimum of 0 means scale to zero.</li>
+</ul>
+
+<h3>Image source</h3>
+<ul class="az-list">
+  <li><strong>Quickstart image:</strong> a Microsoft sample. The lab uses <span class="az-val">Simple hello world container</span>.</li>
+  <li>Untick <em>Use quickstart image</em> to use your own image from <strong>Azure Container Registry</strong>, Docker Hub or another registry.</li>
+  <li>Other settings on the Container tab: CPU and memory, environment variables, commands.</li>
+</ul>
+
+<h3>ACA, ACI, AKS or Web Apps?</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Less to manage &rarr; more control</span></div>
+    <div class="cs"><span class="cp cu">ACI (single containers)</span><span class="cp">&rarr;</span><span class="cp cu">ACA (serverless apps)</span><span class="cp">&rarr;</span><span class="cp cu">AKS (full Kubernetes)</span></div>
+  </div>
+</div>
+<p class="az-cap">A rough guide for the exam. All of them can run containers.</p>
+<ul class="az-list">
+  <li><strong>ACI:</strong> quick single containers or jobs. No built-in scaling or revisions.</li>
+  <li><strong>ACA:</strong> microservices and web apps with autoscaling (even to zero), revisions and ingress, without managing Kubernetes.</li>
+  <li><strong>AKS:</strong> you manage the cluster. Choose it when you need full Kubernetes control.</li>
+  <li><strong>App Service:</strong> web apps with slots and custom domains. It can also run a container.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> create a container app and its environment from a Quickstart image, then open the Application URL to prove it works. About 15 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Create app + environment</span><span class="cp cu">2 Test and verify</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg9</span>, <span class="az-val">my-app</span> and <span class="az-val">my-environment</span>. Region is <span class="az-val">East US</span>, but you may change it.</p></div>
+
+<h3>Task 1: Create and configure an Azure Container App and environment</h3>
+<ol class="az-list">
+  <li>Portal &rarr; search for and select <span class="az-ui">Container Apps</span>.</li>
+  <li><span class="az-ui">+ Create</span> &rarr; <span class="az-ui">Container App</span> (look at the other choices in the menu).</li>
+  <li>On <span class="az-ui">Basics</span>:
+    <ul>
+      <li>Subscription: your subscription</li>
+      <li>Resource group <span class="az-val">az104-rg9</span></li>
+      <li>Container app name <span class="az-val">my-app</span></li>
+      <li>Region <span class="az-val">East US</span></li>
+      <li>Container Apps Environment: <span class="az-ui">Create new environment</span>, name it <span class="az-val">my-environment</span>, then <span class="az-ui">Create</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Next: Container</span>. Make sure <em>Use quickstart image</em> is ticked (scroll up if you cannot see it).</li>
+  <li>Set Quickstart image to <span class="az-val">Simple hello world container</span>.</li>
+  <li>Under <strong>Application ingress settings</strong>, set the ingress options as needed, then <span class="az-ui">Next: Tags</span>.</li>
+  <li><span class="az-ui">Review and create</span>, then <span class="az-ui">Create</span>. Wait a couple of minutes.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the deployment completes without errors.</p></div>
+
+<h3>Task 2: Test and verify deployment of the Azure Container App</h3>
+<ol class="az-list">
+  <li>Select <span class="az-ui">Go to resource</span> to open <span class="az-val">my-app</span>.</li>
+  <li>On <span class="az-ui">Overview</span>, select the link next to <strong>Application URL</strong>. It opens in a new tab and is served on port 80.</li>
+  <li>Check that you see the message <em>Your container app is running with a Hello World image</em>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the Application URL loads and shows the Hello World message.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg9</span> when you finish (select the resource group, <em>Delete the resource group</em>, type its name, <em>Delete</em>). PowerShell: <span class="az-val">Remove-AzResourceGroup -Name az104-rg9</span>. CLI: <span class="az-val">az group delete --name az104-rg9</span>. This also removes other labs' resources in the same group.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>ACA = serverless containers on managed Kubernetes. You do not manage the cluster.</li>
+  <li>Hierarchy: <strong>environment</strong> contains <strong>container apps</strong>. Apps in one environment share a virtual network and logs.</li>
+  <li>Ingress <strong>External</strong> = internet, <strong>Internal</strong> = environment or VNet only. You set the target port.</li>
+  <li>A <strong>revision</strong> is an immutable version. Multiple revision mode allows traffic splitting.</li>
+  <li>Scale rules: HTTP, TCP, CPU, memory or custom (KEDA). Min replicas 0 = scale to zero (Consumption plan).</li>
+  <li>ACA suits long-running apps (web, API, microservices). ACI suits simple one-off containers. AKS gives full Kubernetes control.</li>
+  <li>The quickstart image is for testing. Use Azure Container Registry for your own images.</li>
+  <li>The Application URL is on the app's Overview page.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>What does "serverless" mean for Azure Container Apps?</strong>
+    <div class="az-a">You do not manage servers, VMs or the Kubernetes cluster. You supply the container and ACA handles hosting and scaling, and can scale to zero when idle.</div></li>
+
+  <li><strong>What is a Container Apps environment?</strong>
+    <div class="az-a">A secure boundary around one or more container apps. Apps in it share a virtual network and a Log Analytics workspace.</div></li>
+
+  <li><strong>In the lab you created <span class="az-val">my-environment</span>. Where does the container app itself live?</strong>
+    <ol class="az-opts"><li>Inside the environment</li><li>Inside a VM scale set</li><li>Inside a storage account</li><li>Outside any environment</li></ol>
+    <div class="az-a"><strong>A.</strong> Every container app belongs to exactly one environment.</div></li>
+
+  <li><strong>Which image option did the lab use, and how do you use your own image instead?</strong>
+    <div class="az-a">The <em>Simple hello world container</em> Quickstart image. Untick <em>Use quickstart image</em> and pick an image from Azure Container Registry or another registry.</div></li>
+
+  <li><strong>What does ingress do?</strong>
+    <div class="az-a">It controls how traffic reaches the app and gives it a web address (FQDN). It can be External (internet) or Internal (inside the environment or VNet only).</div></li>
+
+  <li><strong>An app must only be reachable by other apps in the same environment. Which ingress setting?</strong>
+    <ol class="az-opts"><li>External</li><li>Internal</li><li>Public IP</li><li>No setting is possible</li></ol>
+    <div class="az-a"><strong>B.</strong> Internal ingress limits access to the environment or its virtual network.</div></li>
+
+  <li><strong>Where do you find the address to test the app, and which port does the Hello World app use?</strong>
+    <div class="az-a">The <strong>Application URL</strong> on the app's Overview page. The sample listens on port 80.</div></li>
+
+  <li><strong>What is a revision?</strong>
+    <div class="az-a">An immutable snapshot of one version of the app. Changing the container settings creates a new revision. With Multiple revision mode you can run several and split traffic between them.</div></li>
+
+  <li><strong>You want a web API that runs no replicas when nobody uses it, then scales up with HTTP traffic. Which service fits best?</strong>
+    <ol class="az-opts"><li>Azure Container Apps</li><li>A single VM</li><li>Azure Container Instances with no scaling</li><li>Azure Files</li></ol>
+    <div class="az-a"><strong>A.</strong> ACA supports scale rules (HTTP, CPU, custom) and a minimum of 0 replicas on the Consumption plan.</div></li>
+
+  <li><strong>What is a replica, and what sets how many run?</strong>
+    <div class="az-a">A replica is one running copy of a revision. The minimum and maximum replica counts and the scale rules decide how many run.</div></li>
+
+  <li><strong>Compare ACA with AKS in one sentence.</strong>
+    <div class="az-a">ACA is serverless and hides the Kubernetes cluster, so there is less to manage. AKS gives full Kubernetes control, but you manage the cluster.</div></li>
+
+  <li><strong>How do you clean up after the lab?</strong>
+    <div class="az-a">Delete the resource group <span class="az-val">az104-rg9</span> in the portal, or run <span class="az-val">az group delete --name az104-rg9</span>.</div></li>
+</ol>
+</div>
