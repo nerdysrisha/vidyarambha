@@ -1,0 +1,470 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-figure { margin: 14px 0 22px 0; text-align: center; }
+.az-topic .az-figure a { display: block; border-bottom: none; }
+.az-topic .az-figure img { width: 100%; max-width: 980px; height: auto; border: 1px solid #e8e2d5; border-radius: 8px;
+    background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.az-topic .az-figure figcaption { margin-top: 6px; font-size: 0.82em; color: #8a8a8a; font-style: italic; }
+.az-topic .az-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.az-topic .az-scroll table { min-width: 520px; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-code { font-family: Consolas, Menlo, monospace; font-size: 0.85em; background: #f4efe2; border: 1px solid #e3d9bf; border-radius: 6px; padding: 8px 12px; margin: 6px 0 10px 0; overflow-x: auto; white-space: pre; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 14px 20px; margin: 22px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Building Virtual Machines <span class="az-tag">AZ-104</span></h1>
+
+<p class="az-lead">An Azure VM is never just "a server". It is a virtual machine plus a small set of networking and storage resources that sit around it: a virtual network to live in, a network card to connect, disks to boot from, and rules to decide what traffic gets in. Then you choose an image, a size, a security type, where it runs, and how it scales.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h2>The Big Picture 1</h2>
+<figure class="az-figure">
+  <a href="subjects/tech/azure/az104/img/az104-vms.webp" target="_blank" rel="noopener">
+    <img src="subjects/tech/azure/az104/img/az104-vms.webp" alt="Diagram of an Azure virtual machine inside a resource group, virtual network and subnet, with its network interface, NSG, OS disk, private and public IP, next to the AWS equivalents (VPC, EC2, ENI, Security Group, EBS, Elastic IP)" loading="lazy">
+  </a>
+  <figcaption>Tap or click the image to open it full size, then zoom in.</figcaption>
+</figure>
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2.5rem 0;">
+
+<h2>The Big Picture 2</h2>
+<figure class="az-figure">
+  <a href="subjects/tech/azure/az104/img/az104-vms-region.webp" target="_blank" rel="noopener">
+    <img src="subjects/tech/azure/az104/img/az104-vms-region.webp" alt="Diagram of an Azure virtual machine inside a resource group, virtual network and subnet, with its network interface, NSG, OS disk, private and public IP, next to the AWS equivalents (VPC, EC2, ENI, Security Group, EBS, Elastic IP)" loading="lazy">
+  </a>
+  <figcaption>Tap or click the image to open it full size, then zoom in.</figcaption>
+</figure>
+
+<h2>The pieces</h2>
+<div class="az-scroll">
+<table>
+  <tr><th>Piece</th><th>What it does</th></tr>
+  <tr><td><strong>Resource group</strong></td><td>The folder that holds everything for the VM, so it can be managed, tagged and deleted together.</td></tr>
+  <tr><td><strong>Virtual network (VNet)</strong></td><td>The private network space the VM lives in, for example <code>172.16.0.0/16</code>.</td></tr>
+  <tr><td><strong>Subnet</strong></td><td>A slice of the VNet, for example <code>172.16.0.0/24</code>. The VM's network card is attached to one subnet.</td></tr>
+  <tr><td><strong>Network interface (NIC)</strong></td><td>The VM's network card. It carries the IP configuration and is bound to the subnet.</td></tr>
+  <tr><td><strong>Private IP</strong></td><td>The internal address inside the VNet, such as <code>172.16.0.4</code>. It is handed out from the subnet range.</td></tr>
+  <tr><td><strong>Public IP</strong></td><td>Optional. A separate resource that lets the Internet reach the VM. It is linked through the NIC's IP configuration.</td></tr>
+  <tr><td><strong>Network security group (NSG)</strong></td><td>A list of allow/deny rules for traffic. It can be attached to the subnet, to the NIC, or both.</td></tr>
+  <tr><td><strong>OS disk</strong></td><td>The disk the operating system boots from. Extra data disks are optional.</td></tr>
+  <tr><td><strong>Image</strong></td><td>The template the OS disk is built from, for example Windows Server or Ubuntu.</td></tr>
+  <tr><td><strong>Size (SKU)</strong></td><td>How much CPU, memory, disk and network the VM gets. It also sets the price.</td></tr>
+</table>
+</div>
+
+<h2>Azure vs AWS</h2>
+<div class="az-scroll">
+<table>
+  <tr><th>Azure</th><th>AWS equivalent</th><th>Role</th></tr>
+  <tr><td>Virtual machine</td><td>EC2 instance</td><td>The compute itself</td></tr>
+  <tr><td>Virtual network (VNet)</td><td>VPC</td><td>The private network space</td></tr>
+  <tr><td>Subnet</td><td>Subnet</td><td>A slice of that network</td></tr>
+  <tr><td>Network interface (NIC)</td><td>Elastic network interface (ENI)</td><td>The network card</td></tr>
+  <tr><td>Network security group (NSG)</td><td>Security group</td><td>Traffic allow/deny rules</td></tr>
+  <tr><td>OS disk (managed disk)</td><td>EBS root volume</td><td>The boot disk</td></tr>
+  <tr><td>Public IP address</td><td>Elastic IP / public IP</td><td>Internet-facing address</td></tr>
+  <tr><td>Private IP</td><td>Private IP (inside the VPC)</td><td>Internal address</td></tr>
+  <tr><td>Resource group</td><td>No direct match (tags and resource groups come closest)</td><td>Grouping for management</td></tr>
+</table>
+</div>
+
+<h3>Base images</h3>
+<ul class="az-list">
+  <li>An <strong>image</strong> is the starting point for the OS disk. You pick it on the Basics tab.</li>
+  <li><strong>Marketplace images:</strong> ready-made by Microsoft and partners. Windows Server (2019, 2022 and so on), Ubuntu Server, Red Hat, SUSE, Debian and more.</li>
+  <li><strong>Custom images:</strong> your own, captured from a configured VM, so every new VM starts with your software already on it.</li>
+  <li><strong>Azure Compute Gallery:</strong> a store for your images that lets you version them and share them across regions and subscriptions.</li>
+  <li><strong>Gen1 or Gen2:</strong> Gen2 VMs use UEFI boot and are needed for Trusted launch and Confidential VMs. The lab uses <span class="az-val">Windows Server 2019 Datacenter - x64 Gen2</span>.</li>
+  <li>Windows VMs are reached with a username and password over RDP (port 3389). Linux VMs usually use an SSH key (port 22).</li>
+  <li><em>Already have a Windows Server license?</em> Tick it to reuse your license (Azure Hybrid Benefit) and pay less. The lab leaves it unticked.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">Image</span><span class="lt">Where the OS comes from</span></div>
+    <div class="cs"><span class="cp cu">Windows Server 2019 Datacenter Gen2</span><span class="cp cu">Ubuntu Server 22.04</span><span class="cp">Marketplace</span><span class="cp">Custom image</span><span class="cp">Compute Gallery</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">VM</span><span class="lt">OS disk is built from the image</span></div>
+    <div class="cs"><span class="cp">Portal: pick the image</span><span class="cp">PowerShell: -Image 'Win2019Datacenter'</span><span class="cp">CLI: --image Ubuntu2204</span></div>
+  </div>
+</div>
+<p class="az-cap">Same idea in the portal, PowerShell and the CLI: pick an image, get an OS disk.</p>
+
+<h3>VM sizes</h3>
+<ul class="az-list">
+  <li>The <strong>size</strong> sets vCPUs, memory, number of disks and network speed. Pick it for the workload.</li>
+  <li>Sizes are grouped into <strong>families</strong> (see the diagram).</li>
+  <li>Reading a name such as <span class="az-val">Standard_D2ds_v4</span>: <strong>D</strong> = family, <strong>2</strong> = vCPUs, <strong>s</strong> = supports premium SSD, <strong>d</strong> = has a local temp disk, <strong>v4</strong> = hardware version.</li>
+  <li><strong>Resizing</strong> a VM to another size is <strong>vertical scaling</strong> (up or down). It usually restarts the VM, and the new size must be available in that region and hardware cluster.</li>
+  <li><strong>Azure Spot</strong> VMs use spare capacity at a big discount, but Azure can take them back (evict them) at any time. Good for work that can be interrupted. The lab leaves Spot unticked.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Size families</span><span class="lt">Pick by workload</span></div>
+    <div class="cs"><span class="cp cu">B, D: general purpose</span><span class="cp cu">F: compute optimized</span><span class="cp cu">E, M: memory optimized</span><span class="cp cu">L: storage optimized</span><span class="cp cu">N: GPU</span><span class="cp cu">H: high performance computing</span></div>
+  </div>
+</div>
+<p class="az-cap">The lab uses D (general purpose): Standard_D2s_v3 first, then D2ds_v4.</p>
+
+<h3>VM security types</h3>
+<ul class="az-list">
+  <li><strong>Standard:</strong> no extra security features. This is what the lab uses.</li>
+  <li><strong>Trusted launch:</strong> protects the VM from boot-level attacks (rootkits and bootkits). Gen2 only.</li>
+  <li><strong>Confidential:</strong> hardware-based protection that keeps data encrypted even <em>while it is being processed</em> in memory. Even Azure operators cannot see it. Needs special sizes (such as DC and EC series) and Gen2 images.</li>
+  <li>In short: Standard = none, Trusted launch = protects <em>boot</em>, Confidential = protects <em>data in use</em>.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">Standard</span><span class="lt">No extra protection</span></div>
+    <div class="ly c-y">
+      <div class="lh"><span class="lv">Trusted launch</span><span class="lt">Adds boot protection</span></div>
+      <div class="cs"><span class="cp">Secure Boot</span><span class="cp">vTPM</span><span class="cp">boot integrity monitoring</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Confidential</span><span class="lt">Adds protection for data in use</span></div>
+        <div class="cs"><span class="cp">memory encrypted by the hardware</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Each level adds protection on top of the one outside it.</p>
+
+<h3>Availability: zones and sets</h3>
+<ul class="az-list">
+  <li><strong>Availability zones:</strong> separate datacenters inside one region, each with its own power, cooling and network.</li>
+  <li><strong>99.99% SLA</strong> needs at least <strong>two VMs in different zones</strong>. Even for one VM it is best practice to choose a zone.</li>
+  <li>In the portal, ticking <em>Zone 1</em> and <em>Zone 2</em> creates <strong>two VMs</strong>, one per zone.</li>
+  <li><strong>Availability set:</strong> spreads VMs across fault domains (separate racks) and update domains (staggered maintenance) in one datacenter. SLA 99.95%.</li>
+  <li>A single VM using Premium SSD for all its disks has a 99.9% SLA.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">Region</span><span class="lt">East US</span><span class="lp">99.99% SLA</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">Zone 1</span></div>
+      <div class="cs"><span class="cp cu">az104-vm1</span></div>
+    </div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">Zone 2</span></div>
+      <div class="cs"><span class="cp cu">az104-vm2</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">One VM per zone. If one zone fails, the other keeps running.</p>
+
+<h3>Disks</h3>
+<ul class="az-list">
+  <li>Every VM has an <strong>OS disk</strong>. You can add <strong>data disks</strong>. All are managed disks.</li>
+  <li>Disk types: <strong>Standard HDD</strong> (cheapest, infrequent use), <strong>Standard SSD</strong> (light workloads), <strong>Premium SSD</strong> (production), <strong>Ultra Disk</strong> (highest performance).</li>
+  <li><strong>Delete with VM:</strong> when ticked, the disk is deleted when the VM is deleted. The same option exists for the NIC and public IP. This avoids leftover resources that keep costing money.</li>
+  <li><strong>Detach</strong> removes a disk from the VM but keeps it, so you can attach it later or to another VM.</li>
+  <li>You can change a disk's type and size in the <span class="az-ui">Disks</span> resource. Change the type while the disk is detached (or the VM is deallocated).</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Data disk</span><span class="lt">vm1-disk1 in the lab</span></div>
+    <div class="cs"><span class="cp cu">1 Create + attach: Standard HDD, 32 GiB</span><span class="cp cu">2 Detach</span><span class="cp cu">3 Change to Standard SSD</span><span class="cp cu">4 Attach existing disk</span></div>
+  </div>
+</div>
+<p class="az-cap">The disk survives the detach, so the same data can be re-attached with a faster type.</p>
+
+<h3>Running, stopped and deallocated</h3>
+<ul class="az-list">
+  <li>Stopping a VM <strong>from Azure</strong> (portal, <span class="az-val">Stop-AzVM</span>, <span class="az-val">az vm deallocate</span>) makes its status <strong>deallocated</strong>.</li>
+  <li>Deallocated: you <strong>stop paying for compute</strong>, and a non-static public IP is released. Disks are still billed.</li>
+  <li>Shutting down <strong>from inside</strong> the OS (for example Windows Shut down) only stops the OS. The VM stays allocated and you keep paying for compute.</li>
+</ul>
+
+<h3>Scaling: up and out</h3>
+<ul class="az-list">
+  <li><strong>Vertical scaling (scale up/down):</strong> change the size of one VM (resize), or the disk type and size.</li>
+  <li><strong>Horizontal scaling (scale out/in):</strong> change the <em>number</em> of VMs. Done with a Virtual Machine Scale Set.</li>
+</ul>
+
+<h3>Virtual Machine Scale Sets (VMSS)</h3>
+<ul class="az-list">
+  <li>A <strong>scale set</strong> is a group of VMs created from the <strong>same image and configuration</strong>, usually behind a load balancer.</li>
+  <li>The number of instances can grow and shrink automatically, based on demand or a schedule.</li>
+  <li><strong>Orchestration mode:</strong> <em>Uniform</em> = identical instances managed as one group (lab). <em>Flexible</em> = more freedom, can mix VM types.</li>
+  <li>Can spread instances across zones (the lab uses Zones 1, 2 and 3).</li>
+  <li>The lab adds an <strong>NSG</strong> that allows HTTP, and a public <strong>load balancer</strong>.</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">Load balancer</span><span class="lt">vmss-lb</span><span class="ld">public IP in front</span></div>
+  </div>
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">VNet</span><span class="lt">vmss-vnet</span><span class="ld">10.82.0.0/20</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Subnet</span><span class="lt">subnet0</span><span class="ld">10.82.0.0/24</span><span class="lp">NSG vmss1-nsg: allow-http</span></div>
+      <div class="cs"><span class="cp cu">vmss1: Uniform, Zones 1,2,3</span><span class="cp">instance</span><span class="cp">instance</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Traffic enters at the load balancer and is spread across the scale set instances.</p>
+
+<h3>Autoscale</h3>
+<ul class="az-list">
+  <li><strong>Manual scale:</strong> you set the instance count. Fine for a small number of instances.</li>
+  <li><strong>Custom autoscale:</strong> rules react to a metric (such as CPU) or a schedule. Better for many instances.</li>
+  <li>Always make a <strong>scale out</strong> rule and a matching <strong>scale in</strong> rule, otherwise you never shrink and keep paying.</li>
+  <li><strong>Duration</strong> = the time window the metric is checked over. <strong>Cool down</strong> = the wait after a scale action before another one is allowed.</li>
+  <li><strong>Instance limits</strong> stop runaway scaling: <em>minimum</em>, <em>maximum</em> and <em>default</em> (the count used if metric data is missing).</li>
+</ul>
+<div class="az-dg">
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">Scale out</span><span class="lt">Add instances</span></div>
+    <div class="cs"><span class="cp cu">avg Percentage CPU &gt; 70 for 10 min</span><span class="cp cu">increase by 50%</span><span class="cp">cool down 5 min</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Scale in</span><span class="lt">Remove instances</span></div>
+    <div class="cs"><span class="cp cu">avg Percentage CPU &lt; 30 for 10 min</span><span class="cp cu">decrease by a percentage</span></div>
+  </div>
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">Limits</span><span class="lt">Instance count</span></div>
+    <div class="cs"><span class="cp cu">minimum 2</span><span class="cp cu">maximum 10</span><span class="cp cu">default 2</span></div>
+  </div>
+</div>
+<p class="az-cap">The lab's two rules plus the limits that fence them in.</p>
+
+<h3>Connecting and managing</h3>
+<ul class="az-list">
+  <li>The lab sets <strong>Public inbound ports: None</strong>. No port is open to the Internet. Connect through other means, such as <strong>Azure Bastion</strong> (RDP or SSH in the portal over TLS, no public IP needed on the VM).</li>
+  <li><strong>Patch orchestration: Azure orchestrated</strong> lets Azure apply guest OS patches.</li>
+  <li><strong>Boot diagnostics</strong> is disabled in the lab to save cost. Turn it on to see the VM's screen and serial output when troubleshooting.</li>
+  <li>You can create VMs from the portal, <strong>Azure PowerShell</strong> (<span class="az-val">New-AzVm</span>) or the <strong>Azure CLI</strong> (<span class="az-val">az vm create</span>), both runnable from Cloud Shell.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> deploy two zone-resilient VMs, resize one and play with its disk, build a scale set with autoscale, then create a VM with PowerShell or the CLI. About 50 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Two VMs in zones</span><span class="cp cu">2 Resize + disk</span><span class="cp cu">3 Scale set</span><span class="cp cu">4 Autoscale</span><span class="cp cu">5 PowerShell (optional)</span><span class="cp cu">6 CLI (optional)</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg8</span>, <span class="az-val">az104-vm1</span>, <span class="az-val">az104-vm2</span>, <span class="az-val">vmss1</span>.</p></div>
+
+<h3>Task 1: Deploy zone-resilient VMs</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Virtual machines</span> &rarr; <span class="az-ui">+ Create</span> &rarr; <span class="az-ui">Azure virtual machine</span>.</li>
+  <li>Basics: open <em>Availability zone</em> and tick <strong>Zone 2</strong>. That selects Zone 1 and Zone 2, so you get two VMs.</li>
+  <li>Continue Basics:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg8</span> (create new), region <span class="az-val">East US</span></li>
+      <li>Names: <span class="az-ui">Edit names</span> &rarr; <span class="az-val">az104-vm1</span> and <span class="az-val">az104-vm2</span></li>
+      <li>Availability options <em>Availability zone</em>, zones <em>1, 2</em>, security type <em>Standard</em></li>
+      <li>Image <span class="az-val">Windows Server 2019 Datacenter - x64 Gen2</span>, Spot unticked, size <span class="az-val">Standard D2s v3</span></li>
+      <li>Username <span class="az-val">localadmin</span>, secure password, public inbound ports <em>None</em>, existing Windows Server license unticked</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Disks</span>: OS disk type <em>Premium SSD</em>, <em>Delete with VM</em> ticked, Ultra Disk compatibility unticked.</li>
+  <li><span class="az-ui">Networking</span>: defaults, tick <em>Delete public IP and NIC when VM is deleted</em>, load balancing options <em>None</em>.</li>
+  <li><span class="az-ui">Management</span>: patch orchestration <em>Azure orchestrated</em>.</li>
+  <li><span class="az-ui">Monitoring</span>: boot diagnostics <em>Disable</em>.</li>
+  <li><span class="az-ui">Advanced</span>: defaults &rarr; <span class="az-ui">Review + Create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> two VMs exist, one per zone. The NIC, disk and public IP show as separate resources in the resource group.</p></div>
+
+<h3>Task 2: Scale compute and storage</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">az104-vm1</span> &rarr; <span class="az-ui">Availability + scale</span> &rarr; <span class="az-ui">Size</span>. Choose <span class="az-val">D2ds_v4</span> (or another available size) &rarr; <span class="az-ui">Resize</span> &rarr; confirm.</li>
+  <li><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Disks</span> &rarr; <span class="az-ui">+ Create and attach a new disk</span>: name <span class="az-val">vm1-disk1</span>, <em>Standard HDD</em>, <span class="az-val">32</span> GiB &rarr; <span class="az-ui">Apply</span>.</li>
+  <li>Click <span class="az-ui">Detach</span> next to the disk (scroll right if needed) &rarr; <span class="az-ui">Apply</span>. The disk is removed from the VM but kept.</li>
+  <li>Search for <span class="az-ui">Disks</span> &rarr; open <span class="az-val">vm1-disk1</span> &rarr; <span class="az-ui">Size + performance</span> &rarr; type <em>Standard SSD</em> &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Back on <span class="az-val">az104-vm1</span> &rarr; <span class="az-ui">Disks</span> &rarr; <span class="az-ui">Attach existing disks</span> &rarr; pick <span class="az-val">vm1-disk1</span> &rarr; <span class="az-ui">Apply</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the VM shows the new size, and <span class="az-val">vm1-disk1</span> is attached as <em>Standard SSD</em>.</p></div>
+
+<h3>Task 3: Create a scale set</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Virtual machine scale sets</span> &rarr; <span class="az-ui">+ Create</span>. Basics:
+    <ul>
+      <li>Group <span class="az-val">az104-rg8</span>, name <span class="az-val">vmss1</span>, region East US, zones <em>1, 2, 3</em></li>
+      <li>Orchestration mode <em>Uniform</em>, security type <em>Standard</em>, scaling options default</li>
+      <li>Image <span class="az-val">Windows Server 2019 Datacenter - x64 Gen2</span>, Spot unticked, size <span class="az-val">Standard D2s_v3</span>, <span class="az-val">localadmin</span> + password</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Spot</span> and <span class="az-ui">Disks</span>: accept the defaults.</li>
+  <li><span class="az-ui">Networking</span> &rarr; <span class="az-ui">Edit virtual network</span>: name <span class="az-val">vmss-vnet</span>, range <span class="az-val">10.82.0.0/20</span> (delete the old one), subnet <span class="az-val">subnet0</span> <span class="az-val">10.82.0.0/24</span> &rarr; <span class="az-ui">OK</span>.</li>
+  <li>Edit the network interface:
+    <ul>
+      <li>NIC network security group &rarr; <em>Advanced</em> &rarr; <span class="az-ui">Create new</span>: name <span class="az-val">vmss1-nsg</span></li>
+      <li><span class="az-ui">Add an inbound rule</span>: source <em>Any</em>, source ports <span class="az-val">*</span>, destination <em>Any</em>, service <em>HTTP</em>, action <em>Allow</em>, priority <span class="az-val">1010</span>, name <span class="az-val">allow-http</span> &rarr; <span class="az-ui">Add</span> &rarr; <span class="az-ui">OK</span></li>
+      <li>Public IP address &rarr; <em>Enabled</em> &rarr; <span class="az-ui">OK</span></li>
+    </ul>
+  </li>
+  <li>Load balancing options <em>Azure load balancer</em> &rarr; <span class="az-ui">Create a load balancer</span>: name <span class="az-val">vmss-lb</span>, defaults &rarr; <span class="az-ui">Create</span>.</li>
+  <li><span class="az-ui">Management</span>: boot diagnostics <em>Disable</em>. <span class="az-ui">Health</span>: defaults. <span class="az-ui">Advanced</span>: defaults.</li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>. Takes about 5 minutes.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> <span class="az-val">vmss1</span> is deployed with a load balancer and an NSG that allows HTTP.</p></div>
+
+<h3>Task 4: Scale the scale set</h3>
+<ol class="az-list">
+  <li>Open <span class="az-val">vmss1</span> &rarr; <span class="az-ui">Availability + scale</span> &rarr; <span class="az-ui">Scaling</span>. Notice <em>Manual scale</em> and <em>Custom autoscale</em>.</li>
+  <li>Choose <em>Custom autoscale</em>, scale mode <em>Scale based on metric</em>, <span class="az-ui">Add a rule</span> (scale out):
+    <ul>
+      <li>Metric source <em>Current resource (vmss1)</em>, namespace <em>Virtual Machine Host</em>, metric <em>Percentage CPU</em></li>
+      <li>Operator <em>Greater than</em>, threshold <span class="az-val">70</span>, duration <span class="az-val">10</span> min, statistic <em>Average</em></li>
+      <li>Operation <em>Increase percent by</em> <span class="az-val">50</span>, cool down <span class="az-val">5</span> min</li>
+    </ul>
+    <span class="az-ui">Add</span>, then <span class="az-ui">Save</span>.
+  </li>
+  <li><span class="az-ui">Add a rule</span> (scale in): operator <em>Less than</em>, threshold <span class="az-val">30</span>, operation <em>Decrease percent by</em> a percentage &rarr; <span class="az-ui">Add</span> &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Instance limits: minimum <span class="az-val">2</span>, maximum <span class="az-val">10</span>, default <span class="az-val">2</span> &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Open <span class="az-ui">Instances</span> to watch the instance count.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the Scaling page lists both rules and the limits <span class="az-val">2 / 10 / 2</span>.</p></div>
+<div class="az-note"><p>The lab text says the scale in rule decreases by 20%, but its table says 50. Either works for practice.</p></div>
+
+<h3>Task 5: Create a VM with Azure PowerShell (optional)</h3>
+<ol class="az-list">
+  <li>Open <span class="az-ui">Cloud Shell</span> (icon top right) and choose <strong>PowerShell</strong>.</li>
+  <li>Create the VM. Enter a username and password when asked:
+<div class="az-code">New-AzVm `
+-ResourceGroupName 'az104-rg8' `
+-Name 'myPSVM' `
+-Location 'East US' `
+-Image 'Win2019Datacenter' `
+-Zone '1' `
+-Size 'Standard_D2s_v3' `
+-Credential (Get-Credential)</div></li>
+  <li>List the VMs and confirm <span class="az-val">myPSVM</span> is <em>Running</em>:
+<div class="az-code">Get-AzVM -ResourceGroupName 'az104-rg8' -Status</div></li>
+  <li>Stop it (type <em>Yes</em>), which deallocates it:
+<div class="az-code">Stop-AzVM -ResourceGroupName 'az104-rg8' -Name 'myPSVM'</div></li>
+  <li>Run <span class="az-val">Get-AzVM ... -Status</span> again and confirm <em>deallocated</em>.</li>
+</ol>
+
+<h3>Task 6: Create a VM with the CLI (optional)</h3>
+<ol class="az-list">
+  <li>Open <span class="az-ui">Cloud Shell</span> and choose <strong>Bash</strong>.</li>
+  <li>Create a Linux VM from the Ubuntu image:
+<div class="az-code">az vm create --name myCLIVM --resource-group az104-rg8 --image Ubuntu2204 --admin-username localadmin --generate-ssh-keys</div></li>
+  <li>Check it. <span class="az-val">powerState</span> should be <em>VM running</em>:
+<div class="az-code">az vm show --name myCLIVM --resource-group az104-rg8 --show-details</div></li>
+  <li>Deallocate it, then run <span class="az-val">az vm show</span> again to see <em>VM deallocated</em>:
+<div class="az-code">az vm deallocate --resource-group az104-rg8 --name myCLIVM</div></li>
+</ol>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg8</span> when you finish. A scale set, its load balancer and running VMs all cost money.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>A VM needs at least one NIC, and each NIC sits in exactly one subnet. The VM, NIC and VNet must be in the same region.</li>
+  <li>Azure reserves the first four addresses and the last one in every subnet, which is why the first VM in <code>172.16.0.0/24</code> gets <code>172.16.0.4</code>.</li>
+  <li>NSG rules can apply at the subnet level, the NIC level, or both. When both exist, traffic must be allowed by each of them.</li>
+  <li>A public IP is optional. A VM with no public IP can still reach and be reached by other resources inside the VNet.</li>
+  <li>99.99% SLA needs two or more VMs in different availability zones. Availability set = 99.95%. One VM with Premium SSD = 99.9%.</li>
+  <li>Security types: Standard (none), Trusted launch (boot protection), Confidential (data in use is encrypted). Trusted launch and Confidential need Gen2.</li>
+  <li>Image = where the OS disk comes from (Marketplace, custom, Compute Gallery). Size = CPU, memory and price.</li>
+  <li>Resize = vertical scaling. Scale set instances = horizontal scaling.</li>
+  <li>Detach keeps the disk. <em>Delete with VM</em> removes the disk (and NIC or public IP if ticked) when the VM is deleted.</li>
+  <li>Stop from Azure = deallocated = no compute billing. Shutdown from inside the OS = still billed.</li>
+  <li>Scale set instances share one image and configuration. Autoscale needs a scale out rule, a scale in rule and min, max and default limits.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>How do you get the 99.99% uptime SLA for virtual machines?</strong>
+    <div class="az-a">Deploy at least two VMs in different availability zones of the same region. In the lab, ticking Zone 1 and Zone 2 creates two VMs, one per zone.</div></li>
+
+  <li><strong>Which VM security type keeps data encrypted while it is being processed in memory?</strong>
+    <ol class="az-opts"><li>Standard</li><li>Trusted launch</li><li>Confidential</li><li>Azure Spot</li></ol>
+    <div class="az-a"><strong>C.</strong> Confidential VMs use hardware-based protection for data in use. Trusted launch protects the boot process (Secure Boot, vTPM, boot integrity monitoring). Standard has no extra features. Spot is a pricing option, not a security type.</div></li>
+
+  <li><strong>What is the difference between an availability zone and an availability set?</strong>
+    <div class="az-a">A zone is a separate datacenter in a region (SLA 99.99% with two or more VMs across zones). An availability set spreads VMs across fault domains and update domains inside a datacenter (SLA 99.95%).</div></li>
+
+  <li><strong>Give three places a base image can come from, and one example for Windows and Linux.</strong>
+    <div class="az-a">Azure Marketplace, a custom image, and an Azure Compute Gallery. Examples: Windows Server 2019 Datacenter Gen2 (portal and <span class="az-val">Win2019Datacenter</span> in PowerShell), Ubuntu Server 22.04 (<span class="az-val">Ubuntu2204</span> in the CLI).</div></li>
+
+  <li><strong>You change a VM from <span class="az-val">Standard_D2s_v3</span> to <span class="az-val">Standard_D2ds_v4</span>. What kind of scaling is this, and what should you expect?</strong>
+    <div class="az-a">Vertical scaling (resize). The VM usually restarts, and the new size must be available in that region and hardware cluster.</div></li>
+
+  <li><strong>Which action is horizontal scaling?</strong>
+    <ol class="az-opts"><li>Resizing a VM to a larger SKU</li><li>Adding more instances to a scale set</li><li>Changing a data disk from HDD to SSD</li><li>Adding a data disk to a VM</li></ol>
+    <div class="az-a"><strong>B.</strong> Horizontal scaling changes the number of VMs. The others are vertical changes to one VM.</div></li>
+
+  <li><strong>What does "deallocated" mean, and what does shutting down from inside Windows do instead?</strong>
+    <div class="az-a">Deallocated (stopped from Azure) releases the compute: billing for compute stops and a non-static public IP is released. Disks are still billed. Shutting down from inside the OS leaves the VM allocated, so you keep paying for compute.</div></li>
+
+  <li><strong>What does Detach do to a data disk?</strong>
+    <div class="az-a">It removes the disk from the VM but keeps it in storage. You can change its type (the lab changes Standard HDD to Standard SSD) and attach it again, to this VM or another.</div></li>
+
+  <li><strong>What does "Delete with VM" do, and why tick it?</strong>
+    <div class="az-a">The disk (and, with the networking option, the NIC and public IP) is deleted automatically when the VM is deleted. It stops leftover resources from sitting there and costing money.</div></li>
+
+  <li><strong>Explain this rule: Percentage CPU, average, greater than 70, 10 minutes, increase percent by 50, cool down 5.</strong>
+    <div class="az-a">When the average CPU over a 10-minute window is above 70%, the scale set adds 50% more instances. Then it waits 5 minutes (cool down) before another scale action is allowed.</div></li>
+
+  <li><strong>What are the instance limits minimum 2, maximum 10, default 2 for?</strong>
+    <div class="az-a">Minimum: the scale set never scales in below 2 instances. Maximum: it never scales out above 10. Default: the count used when metric data is not available.</div></li>
+
+  <li><strong>What does Uniform orchestration mean for a scale set, and what do its instances share?</strong>
+    <div class="az-a">Uniform means all instances are identical and managed as one group. They are created from the same image and configuration. (Flexible orchestration allows more freedom, such as mixing VM types.)</div></li>
+</ol>
+</div>
