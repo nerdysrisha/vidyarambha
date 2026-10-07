@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Azure Container Instances <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Azure Container Instances (ACI) runs a container in Azure with no server to build or manage. You point it at an image, give it a DNS name, and it is online in a couple of minutes. This topic covers containers, container groups, networking, restart policies and how ACI differs from Web Apps and AKS.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -195,9 +204,10 @@
   <li><strong>AKS:</strong> many containers that need scaling, service discovery and rolling updates.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> deploy a sample web container to ACI from a Quickstart image, open it in a browser, and read its logs. About 15 minutes.</p>
 <div class="az-dg">
@@ -251,9 +261,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -297,4 +308,5 @@
   <li><strong>Which service would you pick for a few simple, short-lived containers, versus many containers needing orchestration?</strong>
     <div class="az-a">ACI for simple, short-lived or bursty containers. AKS when you need orchestration, scaling and rolling updates across many containers.</div></li>
 </ol>
+</details>
 </div>

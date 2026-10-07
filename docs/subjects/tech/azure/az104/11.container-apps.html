@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Azure Container Apps <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Azure Container Apps (ACA) runs your containers on a serverless platform. Behind the scenes it uses Kubernetes, but Azure manages the cluster for you. You bring the image, ACA gives you a web address and handles scaling. This topic covers environments, container apps, ingress, revisions, scaling and how ACA compares with ACI and AKS.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -149,11 +158,13 @@
   <li><strong>ACA:</strong> microservices and web apps with autoscaling (even to zero), revisions and ingress, without managing Kubernetes.</li>
   <li><strong>AKS:</strong> you manage the cluster. Choose it when you need full Kubernetes control.</li>
   <li><strong>App Service:</strong> web apps with slots and custom domains. It can also run a container.</li>
+  <li><strong>Kubernetes terms:</strong> an AKS <strong>cluster</strong> is made of <strong>nodes</strong> (VMs) that run <strong>pods</strong> (one or more containers), managed with Deployments and Services. ACA runs on Kubernetes (with KEDA for scaling) but hides the cluster, nodes and pods. You only work with environments, apps, revisions and replicas.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> create a container app and its environment from a Quickstart image, then open the Application URL to prove it works. About 15 minutes.</p>
 <div class="az-dg">
@@ -206,9 +217,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -256,4 +268,5 @@
   <li><strong>How do you clean up after the lab?</strong>
     <div class="az-a">Delete the resource group <span class="az-val">az104-rg9</span> in the portal, or run <span class="az-val">az group delete --name az104-rg9</span>.</div></li>
 </ol>
+</details>
 </div>
