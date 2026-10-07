@@ -1,0 +1,322 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Implement Azure Web Apps <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Azure App Service is a managed platform for hosting websites and APIs without managing servers. This topic covers the plan that sets your compute, deployment slots for safe releases, pulling code from Git, and scaling when traffic grows.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg9</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">App Service plan</span><span class="lt">Premium V3 P1V3</span><span class="lp">Linux</span></div>
+      <div class="cs"><span class="cp">compute: CPU + memory</span><span class="cp">storage</span><span class="cp">scale: 1 to 2 instances</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Web app</span><span class="lt">unique name</span><span class="ld">PHP 8.2, code</span></div>
+        <div class="ly c-y">
+          <div class="lh"><span class="lv">Slot</span><span class="lt">Production</span><span class="ld">the public site</span></div>
+          <div class="cs"><span class="cp">name.azurewebsites.net</span></div>
+        </div>
+        <div class="ly c-y">
+          <div class="lh"><span class="lv">Slot</span><span class="lt">staging</span><span class="ld">test copy</span></div>
+          <div class="cs"><span class="cp">name-staging.azurewebsites.net</span><span class="cp cu">Deployment Center &rarr; GitHub</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. The plan is the hardware. The web app and its slots run on it.</p>
+
+<h3>App Service basics</h3>
+<ul class="az-list">
+  <li><strong>Azure App Service</strong> is a PaaS for web, mobile and API apps. Azure runs the OS, patching and load balancing. You bring the code.</li>
+  <li>A <strong>web app</strong> is the app itself. It runs on an <strong>App Service plan</strong>, which sets the region, OS, size, features and price.</li>
+  <li>Several apps can share one plan, and then they share the same compute.</li>
+  <li><strong>Publish:</strong> <em>Code</em> (pick a runtime) or <em>Container</em>. <strong>Runtime stack</strong> examples: PHP, .NET, Java, Node, Python.</li>
+  <li><strong>Operating system:</strong> Linux or Windows. It is chosen at creation and the plan is tied to it.</li>
+  <li>Default URL: <span class="az-val">&lt;name&gt;.azurewebsites.net</span>. The web app name must be <strong>globally unique</strong>.</li>
+  <li>Scenario in the lab: an on-premises PHP site on ageing hardware moves to Azure to avoid new hardware costs.</li>
+</ul>
+
+<h3>Pricing plans (tiers)</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Cheaper, fewer features &rarr; costlier, more features</span></div>
+    <div class="cs"><span class="cp cu">Free / Shared</span><span class="cp">&rarr;</span><span class="cp cu">Basic</span><span class="cp">&rarr;</span><span class="cp cu">Standard</span><span class="cp">&rarr;</span><span class="cp cu">Premium V3</span><span class="cp">&rarr;</span><span class="cp cu">Isolated V2</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lt">Where features start</span></div>
+    <div class="cs"><span class="cp">Basic: custom domain, manual scale out</span><span class="cp">Standard: slots, rules-based autoscale</span><span class="cp">Premium: more slots, more instances</span></div>
+  </div>
+</div>
+<p class="az-cap">Free and Shared run on shared machines. Basic and up run on dedicated virtual machines. Isolated V2 is a private environment.</p>
+<ul class="az-list">
+  <li><strong>Deployment slots</strong> need <strong>Standard</strong> or higher. Standard allows <span class="az-val">5</span> slots, Premium <span class="az-val">20</span>.</li>
+  <li><strong>Scale out:</strong> Basic is manual (up to 3 instances). Standard adds <strong>rules-based autoscale</strong>. Premium allows the most instances.</li>
+  <li>The lab picks <strong>P1V3</strong> so every feature in the exercise is available.</li>
+</ul>
+
+<h3>Deployment slots</h3>
+<div class="az-dg">
+  <div class="ly c-g">
+    <div class="lh"><span class="lt">Before the swap</span></div>
+    <div class="cs"><span class="cp cu">Production: default page</span><span class="cp cu">staging: Hello World</span></div>
+  </div>
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Swap</span><span class="ld">warm up staging, then switch the routing</span></div>
+  </div>
+  <div class="ly c-b">
+    <div class="lh"><span class="lt">After the swap</span></div>
+    <div class="cs"><span class="cp cu">Production: Hello World</span><span class="cp cu">staging: previous production</span></div>
+  </div>
+</div>
+<p class="az-cap">Users never hit a half-deployed site. The old version stays in staging, so a second swap is an instant rollback.</p>
+<ul class="az-list">
+  <li>A <strong>deployment slot</strong> is a live copy of the app with its <strong>own URL</strong> and its own settings.</li>
+  <li>Slots run on the <strong>same App Service plan</strong>, so they share its compute with production.</li>
+  <li>Typical use: deploy to <em>staging</em>, test it, then <strong>swap</strong> to production.</li>
+  <li>A swap warms up the source slot first, then switches. This avoids downtime and gives a quick rollback.</li>
+  <li><strong>Clone settings from:</strong> copy configuration from another slot, or <em>Do not clone settings</em> (the lab choice, you get an empty slot).</li>
+  <li>Settings marked as <strong>deployment slot setting</strong> stay with the slot during a swap. Other settings move with the app.</li>
+  <li>Many teams use several slots, for example dev, QA, test and production.</li>
+</ul>
+
+<h3>Deployment settings (Deployment Center)</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Source</span><span class="lt">External Git</span></div>
+    <div class="cs"><span class="cp cu">github.com/Azure-Samples/php-docs-hello-world</span><span class="cp">branch master</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Target</span><span class="lt">staging slot</span></div>
+      <div class="cs"><span class="cp cu">pulls the code, shows Hello World</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Set Deployment Center on the staging slot, not on production.</p>
+<ul class="az-list">
+  <li><strong>Deployment Center</strong> connects the app to a source so code deploys continuously and the app always has the latest version.</li>
+  <li>Sources include <em>GitHub</em>, <em>Azure Repos</em>, <em>Bitbucket</em>, <em>Local Git</em> and <em>External Git</em>.</li>
+  <li><strong>External Git</strong> needs a repository URL and a branch. The sample repo uses <span class="az-val">master</span>.</li>
+  <li>Each slot has its own Deployment Center, so check which blade you are on.</li>
+  <li>The first deployment can take a minute. Refresh the page.</li>
+</ul>
+
+<h3>Scaling: up and out</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lv">Scale up</span><span class="lt">bigger machine</span><span class="ld">change the plan size or tier</span></div>
+    <div class="cs"><span class="cp cu">more CPU, memory, features</span></div>
+  </div>
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Scale out</span><span class="lt">more instances</span><span class="ld">same size, more copies</span></div>
+    <div class="cs"><span class="cp cu">1 instance</span><span class="cp">&rarr;</span><span class="cp cu">2 instances</span><span class="cp">&rarr;</span><span class="cp cu">N instances</span></div>
+  </div>
+</div>
+<p class="az-cap">Scale up changes the plan. Scale out adds instances and is the one you automate.</p>
+<ul class="az-list">
+  <li>Scaling applies to the <strong>App Service plan</strong>, so it affects every app and slot on it. In the portal it lives under <span class="az-ui">Scale out (App Service plan)</span>.</li>
+  <li>Three scale out modes:
+    <ul>
+      <li><strong>Manual:</strong> you set a fixed instance count.</li>
+      <li><strong>Automatic:</strong> App Service adds and removes instances for you. You only set the <strong>Maximum burst</strong> (the lab uses <span class="az-val">2</span>).</li>
+      <li><strong>Rules based:</strong> you define rules on metrics such as CPU, memory or bandwidth, with min, max and default instance counts.</li>
+    </ul>
+  </li>
+  <li>Autoscaling keeps performance steady when traffic rises, and saves cost when it drops.</li>
+</ul>
+
+<h3>Load testing and diagnostics</h3>
+<ul class="az-list">
+  <li><span class="az-ui">Diagnose and solve problems</span> has a <strong>Load Test your App</strong> box that creates an <strong>Azure Load Testing</strong> resource.</li>
+  <li>You add an HTTP request with your app URL (it must start with <span class="az-val">https://</span>) and run the test.</li>
+  <li>Live metrics to watch: <strong>Virtual users</strong>, <strong>Response time</strong>, <strong>Requests/sec</strong>.</li>
+  <li>Test the <strong>production</strong> URL, so you see autoscale react.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> create a Linux PHP web app, add a staging slot, deploy Hello World to it from GitHub, swap it into production, then turn on autoscale and load test it. About 20 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Web app</span><span class="cp cu">2 Staging slot</span><span class="cp cu">3 Deploy from Git</span><span class="cp cu">4 Swap</span><span class="cp cu">5 Autoscale + test</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg9</span> and <span class="az-val">staging</span>. Use any globally unique web app name. If the deployment fails, try another region, because quotas differ by region.</p></div>
+
+<h3>Task 1: Create and configure the web app</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">App services</span> &rarr; <span class="az-ui">+ Create</span> &rarr; <span class="az-ui">Web App</span>. Basics:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg9</span> (create new), unique web app name</li>
+      <li>Publish <em>Code</em>, runtime stack <em>PHP 8.2</em>, operating system <em>Linux</em></li>
+      <li>Region <span class="az-val">East US</span>, pricing plan <em>Premium V3 P1V3</em>, zone redundancy default</li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>. Wait about a minute.</li>
+  <li><span class="az-ui">Go to resource</span>.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the web app is running on a P1V3 Linux plan in <span class="az-val">az104-rg9</span>.</p></div>
+
+<h3>Task 2: Create a deployment slot</h3>
+<ol class="az-list">
+  <li>On the web app, click the <span class="az-ui">Default domain</span> link to see the default page, then close the tab.</li>
+  <li><span class="az-ui">Deployment</span> &rarr; <span class="az-ui">Deployment slots</span> &rarr; <span class="az-ui">Add slot</span>: name <span class="az-val">staging</span>, clone settings <em>Do not clone settings</em> &rarr; <span class="az-ui">Add</span>.</li>
+  <li>Refresh the page. You see the Production and Staging slots.</li>
+  <li>Select the <span class="az-val">staging</span> slot and note that its URL differs from production.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> two slots are listed, and staging has its own URL.</p></div>
+
+<h3>Task 3: Configure deployment settings</h3>
+<ol class="az-list">
+  <li>In the <strong>staging</strong> slot: <span class="az-ui">Deployment Center</span> &rarr; <span class="az-ui">Settings</span>. Make sure you are on the staging blade, not production.</li>
+  <li>Source <em>External Git</em>. Repository <span class="az-val">https://github.com/Azure-Samples/php-docs-hello-world</span>, branch <span class="az-val">master</span> &rarr; <span class="az-ui">Save</span>.</li>
+  <li>Staging slot &rarr; <span class="az-ui">Overview</span> &rarr; click <span class="az-ui">Default domain</span> to open it in a new tab. Refresh if needed.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the staging URL shows <em>Hello World</em>. Production still shows the default page.</p></div>
+
+<h3>Task 4: Swap the slots</h3>
+<ol class="az-list">
+  <li>Go back to <span class="az-ui">Deployment slots</span> &rarr; <span class="az-ui">Swap</span>.</li>
+  <li>Review the defaults &rarr; <span class="az-ui">Start Swap</span>. Wait for the notification that the swap finished.</li>
+  <li>Open <span class="az-ui">App Services</span> and select the web app (this is the production slot). On <span class="az-ui">Overview</span>, open the <span class="az-ui">Default domain</span>.</li>
+  <li>Copy the production <strong>URL</strong>. You need it for the load test.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the production URL now shows <em>Hello World!</em>.</p></div>
+
+<h3>Task 5: Configure and test autoscale</h3>
+<ol class="az-list">
+  <li>On the <strong>production</strong> web app: <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Scale out (App Service plan)</span>.</li>
+  <li>Scaling: <em>Automatic</em> (note the <em>Rules Based</em> option). <strong>Maximum burst</strong> <span class="az-val">2</span> &rarr; <span class="az-ui">Save</span>.</li>
+  <li><span class="az-ui">Diagnose and solve problems</span> &rarr; <strong>Load Test your App</strong> &rarr; <span class="az-ui">Create Load Test</span> &rarr; <span class="az-ui">+ Create</span>, give it a unique name &rarr; <span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span> &rarr; <span class="az-ui">Go to resource</span>.</li>
+  <li>On <span class="az-ui">Overview</span>, under <em>Create by adding HTTP requests</em>, click <span class="az-ui">Create</span>.</li>
+  <li><span class="az-ui">Test plan</span> tab &rarr; <span class="az-ui">Add request</span>, paste the production URL (starts with <span class="az-val">https://</span>) &rarr; <span class="az-ui">Add</span>.</li>
+  <li><span class="az-ui">Review + create</span> &rarr; <span class="az-ui">Create</span>. It can take a couple of minutes.</li>
+  <li>Open the test and refresh. Watch <strong>Virtual users</strong>, <strong>Response time</strong> and <strong>Requests/sec</strong>.</li>
+  <li>Click <span class="az-ui">Stop</span>. You do not need to wait for the run to finish.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> automatic scaling is saved with a maximum burst of 2, and the live metrics show the load test running against your site.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg9</span> when you finish. It removes the web app, plan, slot and load test. A P1V3 plan costs money while it exists.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>The <strong>App Service plan</strong> sets region, OS, size, features and price. Web apps run on it and can share it.</li>
+  <li>Web app names are globally unique: <span class="az-val">&lt;name&gt;.azurewebsites.net</span>.</li>
+  <li><strong>Deployment slots</strong> need Standard or higher. Standard 5, Premium 20. Each has its own URL.</li>
+  <li>Slots <strong>share the plan's compute</strong> with production. Heavy testing in a slot can slow production.</li>
+  <li><strong>Swap</strong> warms up the source and switches with no downtime. Swap again to roll back.</li>
+  <li>Settings marked <em>deployment slot setting</em> stay with the slot. The rest move with the app.</li>
+  <li><strong>Deployment Center</strong> sets continuous deployment per slot: GitHub, Azure Repos, Bitbucket, Local Git, External Git.</li>
+  <li><strong>Scale up</strong> = bigger plan. <strong>Scale out</strong> = more instances. Scaling applies to the whole plan.</li>
+  <li>Scale out modes: manual, automatic (set <em>Maximum burst</em>), rules based (metrics like CPU).</li>
+  <li>Load testing uses <strong>Azure Load Testing</strong>, started from <em>Diagnose and solve problems</em>.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>What is the difference between a web app and an App Service plan?</strong>
+    <div class="az-a">The web app is your application. The App Service plan is the compute behind it: it sets region, OS, size, features and price. Several apps can share one plan.</div></li>
+
+  <li><strong>You need deployment slots for a production web app. Which pricing plan is the lowest that supports them?</strong>
+    <ol class="az-opts"><li>Free</li><li>Shared</li><li>Basic</li><li>Standard</li></ol>
+    <div class="az-a"><strong>D.</strong> Slots start at Standard (5 slots). Premium allows 20. Free, Shared and Basic do not support slots.</div></li>
+
+  <li><strong>You create a staging slot with <em>Do not clone settings</em>. What does the slot contain, and what is its URL like?</strong>
+    <div class="az-a">An empty slot with default settings and no code. It gets its own URL, different from production, for example <span class="az-val">&lt;name&gt;-staging.azurewebsites.net</span>.</div></li>
+
+  <li><strong>You want a slot to pull code from a GitHub repository on every push. Where do you set that up?</strong>
+    <div class="az-a">In that slot's <span class="az-ui">Deployment Center</span> &rarr; <span class="az-ui">Settings</span>. Pick the source, repository and branch. Each slot has its own Deployment Center.</div></li>
+
+  <li><strong>The staging slot shows Hello World and production shows the default page. You swap. What does each slot show afterwards?</strong>
+    <div class="az-a">Production shows <em>Hello World</em>. Staging now holds the previous production content (the default page). Swapping again would roll back.</div></li>
+
+  <li><strong>Why does a swap normally cause no downtime?</strong>
+    <div class="az-a">App Service warms up the source slot first, then switches the routing between the slots. Users keep hitting a running app.</div></li>
+
+  <li><strong>A connection string must always stay with the staging slot and never move to production on a swap. What do you do?</strong>
+    <div class="az-a">Mark the setting as a <strong>deployment slot setting</strong>. Slot settings stay with the slot, other settings swap with the app.</div></li>
+
+  <li><strong>A team runs heavy tests in a staging slot and production gets slower. Why?</strong>
+    <ol class="az-opts"><li>Slots share the App Service plan's compute with production</li><li>Slots use a separate, smaller plan</li><li>Swap copies the load to production</li><li>Staging slots disable autoscale</li></ol>
+    <div class="az-a"><strong>A.</strong> All slots of an app run on the same plan, so they compete for the same CPU and memory.</div></li>
+
+  <li><strong>What is the difference between scale up and scale out?</strong>
+    <div class="az-a">Scale up moves the plan to a bigger size or tier (more CPU, memory, features). Scale out adds more instances of the same size. Autoscale is a scale out feature.</div></li>
+
+  <li><strong>In the lab you choose <em>Automatic</em> scaling with Maximum burst 2. What does that mean, and what is the alternative?</strong>
+    <div class="az-a">App Service adds instances for you as needed, up to 2. The alternative is <strong>Rules based</strong> scaling, where you define metric rules (CPU, memory, bandwidth) and instance limits yourself. A third option is manual, with a fixed count.</div></li>
+
+  <li><strong>You scale out the plan to 3 instances. Which apps are affected?</strong>
+    <div class="az-a">Every app and slot on that App Service plan, because scaling applies to the plan, not to one app.</div></li>
+
+  <li><strong>Where do you start a load test for your web app, and which URL should you test?</strong>
+    <div class="az-a"><span class="az-ui">Diagnose and solve problems</span> &rarr; <em>Load Test your App</em> &rarr; Create Load Test (Azure Load Testing). Use the <strong>production</strong> default domain URL, starting with <span class="az-val">https://</span>, so you can see autoscaling react.</div></li>
+</ol>
+</div>
