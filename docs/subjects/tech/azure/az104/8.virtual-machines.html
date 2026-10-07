@@ -60,13 +60,22 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Building Virtual Machines <span class="az-tag">AZ-104</span></h1>
 
 <p class="az-lead">An Azure VM is never just "a server". It is a virtual machine plus a small set of networking and storage resources that sit around it: a virtual network to live in, a network card to connect, disks to boot from, and rules to decide what traffic gets in. Then you choose an image, a size, a security type, where it runs, and how it scales.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h2>The Big Picture 1</h2>
@@ -209,6 +218,9 @@
   <li><strong>Delete with VM:</strong> when ticked, the disk is deleted when the VM is deleted. The same option exists for the NIC and public IP. This avoids leftover resources that keep costing money.</li>
   <li><strong>Detach</strong> removes a disk from the VM but keeps it, so you can attach it later or to another VM.</li>
   <li>You can change a disk's type and size in the <span class="az-ui">Disks</span> resource. Change the type while the disk is detached (or the VM is deallocated).</li>
+  <li><strong>Disk encryption:</strong> managed disks are encrypted at rest by default (server-side encryption). For more, use <strong>encryption at host</strong> or <strong>Azure Disk Encryption</strong> (BitLocker on Windows, DM-Crypt on Linux), with keys held in Key Vault.</li>
+  <li><strong>Snapshot:</strong> a read-only point-in-time copy of a disk. Create a new managed disk from it to back up or clone a VM.</li>
+  <li><strong>VHD and images:</strong> a managed disk is stored as a VHD behind the scenes. You can upload a VHD to create a disk, and capture a generalized VM as an <strong>image</strong> to create many identical VMs.</li>
 </ul>
 <div class="az-dg">
   <div class="ly c-g">
@@ -223,6 +235,8 @@
   <li>Stopping a VM <strong>from Azure</strong> (portal, <span class="az-val">Stop-AzVM</span>, <span class="az-val">az vm deallocate</span>) makes its status <strong>deallocated</strong>.</li>
   <li>Deallocated: you <strong>stop paying for compute</strong>, and a non-static public IP is released. Disks are still billed.</li>
   <li>Shutting down <strong>from inside</strong> the OS (for example Windows Shut down) only stops the OS. The VM stays allocated and you keep paying for compute.</li>
+  <li><strong>Redeploy</strong> moves the VM to a new Azure host. Use it for connection problems that restarting does not fix. The VM restarts, and data on the temporary disk is lost.</li>
+  <li><strong>Move</strong> a VM to another resource group or subscription with <span class="az-ui">Move</span> in the portal. The resource ID changes, but the region stays the same. Moving to another region needs Azure Resource Mover.</li>
 </ul>
 
 <h3>Scaling: up and out</h3>
@@ -283,11 +297,15 @@
   <li><strong>Patch orchestration: Azure orchestrated</strong> lets Azure apply guest OS patches.</li>
   <li><strong>Boot diagnostics</strong> is disabled in the lab to save cost. Turn it on to see the VM's screen and serial output when troubleshooting.</li>
   <li>You can create VMs from the portal, <strong>Azure PowerShell</strong> (<span class="az-val">New-AzVm</span>) or the <strong>Azure CLI</strong> (<span class="az-val">az vm create</span>), both runnable from Cloud Shell.</li>
+  <li><strong>VM extensions</strong> are small add-ons that run after deployment, for example monitoring agents. The <strong>Custom Script Extension</strong> downloads and runs a script on the VM to install software or configure it.</li>
+  <li>An <strong>ARM template</strong> (JSON) or Bicep file describes the VM and its resources, so you can redeploy the same VM again and again. Use <span class="az-ui">Download a template for automation</span> on the Review + create page, or <span class="az-ui">Export template</span> from an existing VM.</li>
+  <li>Connect with <strong>RDP</strong> (port 3389, Windows) or <strong>SSH</strong> (port 22, Linux), directly or through Bastion.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> deploy two zone-resilient VMs, resize one and play with its disk, build a scale set with autoscale, then create a VM with PowerShell or the CLI. About 50 minutes.</p>
 <div class="az-dg">
@@ -418,9 +436,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -467,4 +486,5 @@
   <li><strong>What does Uniform orchestration mean for a scale set, and what do its instances share?</strong>
     <div class="az-a">Uniform means all instances are identical and managed as one group. They are created from the same image and configuration. (Flexible orchestration allows more freedom, such as mixing VM types.)</div></li>
 </ol>
+</details>
 </div>

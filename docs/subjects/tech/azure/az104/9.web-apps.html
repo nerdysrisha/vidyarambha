@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Implement Azure Web Apps <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Azure App Service is a managed platform for hosting websites and APIs without managing servers. This topic covers the plan that sets your compute, deployment slots for safe releases, pulling code from Git, and scaling when traffic grows.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -90,6 +99,10 @@
   <li><strong>Publish:</strong> <em>Code</em> (pick a runtime) or <em>Container</em>. <strong>Runtime stack</strong> examples: PHP, .NET, Java, Node, Python.</li>
   <li><strong>Operating system:</strong> Linux or Windows. It is chosen at creation and the plan is tied to it.</li>
   <li>Default URL: <span class="az-val">&lt;name&gt;.azurewebsites.net</span>. The web app name must be <strong>globally unique</strong>.</li>
+  <li><strong>App Service vs VM:</strong> App Service is PaaS, so Azure manages the OS, patching, runtime and built-in scaling. A VM is IaaS: you manage the OS and everything on it, but get full control. Choose App Service for standard web apps and APIs, a VM when you need custom software or OS-level access.</li>
+  <li><strong>Application settings</strong> (under <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Environment variables</span>) are key-value pairs passed to the app as environment variables, for example connection strings. They override values in the code's config files and are kept out of the source code.</li>
+  <li><strong>Custom domain:</strong> map your own name (for example <span class="az-val">www.contoso.com</span>) with a CNAME or A record in DNS, then verify it on the web app. Needs Basic tier or higher.</li>
+  <li><strong>TLS/HTTPS:</strong> the default <span class="az-val">azurewebsites.net</span> address already has HTTPS. For a custom domain, add a certificate (App Service managed certificate or your own) and create a <strong>TLS/SSL binding</strong>. Turn on <strong>HTTPS Only</strong> to redirect HTTP to HTTPS, and set the minimum TLS version.</li>
   <li>Scenario in the lab: an on-premises PHP site on ageing hardware moves to Azure to avoid new hardware costs.</li>
 </ul>
 
@@ -188,9 +201,10 @@
   <li>Test the <strong>production</strong> URL, so you see autoscale react.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> create a Linux PHP web app, add a staging slot, deploy Hello World to it from GitHub, swap it into production, then turn on autoscale and load test it. About 20 minutes.</p>
 <div class="az-dg">
@@ -270,9 +284,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -319,4 +334,5 @@
   <li><strong>Where do you start a load test for your web app, and which URL should you test?</strong>
     <div class="az-a"><span class="az-ui">Diagnose and solve problems</span> &rarr; <em>Load Test your App</em> &rarr; Create Load Test (Azure Load Testing). Use the <strong>production</strong> default domain URL, starting with <span class="az-val">https://</span>, so you can see autoscaling react.</div></li>
 </ol>
+</details>
 </div>
