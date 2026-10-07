@@ -1,0 +1,300 @@
+<div class="az-topic">
+<style>
+.az-topic .az-tag { display: inline-block; vertical-align: middle; margin-left: 8px; padding: 2px 10px; font-size: 0.5em; font-weight: 600;
+    letter-spacing: 0.06em; color: #6b4f1d; background: #f4efe2; border: 1px solid #c9a15a; border-radius: 12px; }
+.az-topic .az-lead { font-size: 1.04em; color: #4a4a4a; margin: 14px 0 6px 0; }
+.az-topic .az-list { padding-left: 1.3em; margin: 6px 0 12px 0; }
+.az-topic .az-list li { margin: 5px 0; }
+.az-topic .az-list ul { margin: 4px 0; }
+.az-topic .az-ui { font-weight: 600; color: #005a9e; }
+.az-topic .az-val { font-family: Consolas, Menlo, monospace; font-size: 0.92em; background: #f4efe2; padding: 1px 6px; border-radius: 4px; color: #4a3a14; }
+.az-topic .az-note { background: #eef6fc; border-left: 4px solid #0078d4; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-note p { margin: 0; }
+.az-topic .az-check { background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; padding: 8px 14px; margin: 12px 0; font-size: 0.95em; }
+.az-topic .az-check p { margin: 0; }
+.az-topic .az-key { background: #fbfaf7; border-left: 4px solid #c9a15a; border-radius: 6px; padding: 12px 20px; margin: 22px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.az-topic .az-key h3 { margin: 0 0 8px 0; }
+.az-topic .az-key ul { margin-bottom: 0; }
+.az-topic .az-part { display: inline-block; padding: 2px 12px; margin-bottom: 4px; font-size: 0.85em; font-weight: 600; color: #fff; background: #0078d4; border-radius: 12px; }
+
+/* layered diagrams */
+.az-topic .az-dg { max-width: 460px; margin: 8px 0 4px 0; font-size: 12px; line-height: 1.35; }
+.az-topic .az-cap { max-width: 460px; margin: 0 0 16px 0; font-size: 0.8em; color: #8a8a8a; font-style: italic; }
+.az-topic .ly { border: 2px solid var(--bd); background: var(--bg); border-radius: 10px; padding: 7px 9px 7px 9px; margin: 6px 0; }
+.az-topic .ly .ly { margin: 6px 0 2px 0; }
+.az-topic .lh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.az-topic .lv { font: 600 10px Consolas, Menlo, monospace; padding: 1px 6px; border: 1px solid var(--bd); border-radius: 4px; background: #fff; color: var(--tx); }
+.az-topic .lt { font-weight: 700; font-size: 13px; color: var(--tx); }
+.az-topic .ld { color: #777; font-size: 11px; }
+.az-topic .lp { font: 700 9px Consolas, Menlo, monospace; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--bd); border-radius: 10px; background: #fff; color: var(--tx); }
+.az-topic .cs { display: flex; flex-wrap: wrap; gap: 5px; }
+.az-topic .cp { font: 10.5px Consolas, Menlo, monospace; padding: 2px 7px; border: 1px solid var(--cbd); background: var(--cb); color: var(--ct); border-radius: 5px; }
+.az-topic .cp.cu { font-weight: 700; border-color: var(--bd); background: #fff; }
+.az-topic .c-o { --bd:#e8873a; --bg:#fff4ec; --tx:#b3511a; --cb:#ffe9da; --cbd:#f0b68a; --ct:#8a3b0f; }
+.az-topic .c-y { --bd:#e0b52e; --bg:#fffbea; --tx:#7a5a05; --cb:#fff3c4; --cbd:#ecd27a; --ct:#6b4f06; }
+.az-topic .c-r { --bd:#e05a4f; --bg:#fff1ef; --tx:#b02a1e; --cb:#ffe0dc; --cbd:#f1a39b; --ct:#8a1f15; }
+.az-topic .c-b { --bd:#4a86e8; --bg:#f0f6ff; --tx:#1f55b8; --cb:#dfeaff; --cbd:#9fbdf0; --ct:#1d4a9e; }
+.az-topic .c-g { --bd:#4aa664; --bg:#effaf1; --tx:#1f7a3a; --cb:#d9f3df; --cbd:#98d3a8; --ct:#1a6030; }
+.az-topic .c-r.dash { border-style: dashed; }
+
+/* quiz: one button, answers appear under each question */
+.az-topic details.az-toggle { position: sticky; top: 8px; z-index: 5; width: fit-content; margin: 8px 0 4px 0; }
+.az-topic details.az-toggle > summary { display: inline-block; cursor: pointer; padding: 9px 22px; font-weight: 600; color: #fff; background: #0078d4; border-radius: 6px; list-style: none; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.az-topic details.az-toggle > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-toggle > summary:hover { background: #005a9e; }
+.az-topic details.az-toggle[open] > summary { background: #6b4f1d; }
+.az-topic details.az-toggle .az-s2 { display: none; }
+.az-topic details.az-toggle[open] .az-s1 { display: none; }
+.az-topic details.az-toggle[open] .az-s2 { display: inline; }
+.az-topic .az-qlist { padding-left: 1.3em; }
+.az-topic .az-qlist > li { margin: 14px 0; }
+.az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
+.az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
+.az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+</style>
+
+<h1>Azure Container Instances <span class="az-tag">AZ-104</span></h1>
+<p class="az-lead">Azure Container Instances (ACI) runs a container in Azure with no server to build or manage. You point it at an image, give it a DNS name, and it is online in a couple of minutes. This topic covers containers, container groups, networking, restart policies and how ACI differs from Web Apps and AKS.</p>
+
+<span class="az-part">Part 1</span>
+<h2>Notes</h2>
+
+<h3>The big picture</h3>
+<div class="az-dg">
+  <div class="ly c-o">
+    <div class="lh"><span class="lv">RG</span><span class="lt">az104-rg9</span><span class="ld">resource group, East US</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">Container instance</span><span class="lt">az104-c1</span><span class="lp">Linux</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Container</span><span class="lt">aci-helloworld</span><span class="ld">Quickstart image from mcr.microsoft.com</span></div>
+        <div class="cs"><span class="cp">listens on port 80</span><span class="cp">logs</span></div>
+      </div>
+      <div class="ly c-y">
+        <div class="lh"><span class="lv">Networking</span><span class="lt">public IP + DNS name label</span></div>
+        <div class="cs"><span class="cp cu">label.eastus.azurecontainer.io</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">What the exercise builds. One container, reachable over the internet by its FQDN.</p>
+
+<h3>Containers and Docker</h3>
+<div class="az-dg">
+  <div class="ly c-r">
+    <div class="lh"><span class="lv">Virtual machine</span><span class="ld">heavy: a full OS per app</span></div>
+    <div class="cs"><span class="cp">App</span><span class="cp">Guest OS</span><span class="cp">Hypervisor</span><span class="cp">Hardware</span></div>
+  </div>
+  <div class="ly c-g">
+    <div class="lh"><span class="lv">Container</span><span class="ld">light: shares the host OS kernel</span></div>
+    <div class="cs"><span class="cp">App + libraries</span><span class="cp">Container runtime</span><span class="cp">Host OS</span><span class="cp">Hardware</span></div>
+  </div>
+</div>
+<p class="az-cap">A container packages the app and what it needs, without a guest OS. It starts in seconds and is small.</p>
+<ul class="az-list">
+  <li><strong>Docker</strong> is a platform to package and run apps in isolated environments called <strong>containers</strong>.</li>
+  <li>An <strong>image</strong> is the read-only template. A <strong>container</strong> is a running copy of an image.</li>
+  <li>Images are stored in a <strong>registry</strong>: Azure Container Registry, Docker Hub or another registry.</li>
+  <li>Scenario in the lab: a web app on an on-premises VM moves to the cloud, with no fleet of servers to manage.</li>
+</ul>
+
+<h3>What ACI is</h3>
+<ul class="az-list">
+  <li><strong>ACI</strong> is a serverless way to run containers on Azure. No VMs to provision, patch or scale.</li>
+  <li>Runs <strong>Linux</strong> and <strong>Windows</strong> containers.</li>
+  <li>You choose the <strong>CPU and memory</strong> for the container. Billing is per second for what you allocate, and only while it runs.</li>
+  <li>Starts fast, so it suits <strong>short-lived or bursty</strong> work: a simple web app, a build job, a batch task, a quick test.</li>
+  <li>Workloads are usually started and stopped by some process or trigger.</li>
+  <li>Not the best fit for large apps that need orchestration, rolling updates or autoscaling. That is AKS or App Service.</li>
+</ul>
+
+<h3>Container groups</h3>
+<div class="az-dg">
+  <div class="ly c-b">
+    <div class="lh"><span class="lv">Container group</span><span class="lt">the deployment unit</span><span class="ld">one host machine</span></div>
+    <div class="cs"><span class="cp cu">shared lifecycle</span><span class="cp cu">shared network + IP</span><span class="cp cu">shared volumes</span></div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Container 1</span><span class="lt">web front end</span><span class="ld">port 80</span></div>
+    </div>
+    <div class="ly c-g">
+      <div class="lh"><span class="lv">Container 2</span><span class="lt">sidecar</span><span class="ld">logging, sync</span></div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">Containers in a group talk to each other over localhost. Multi-container groups are Linux only.</p>
+<ul class="az-list">
+  <li>A <strong>container group</strong> is a collection of containers on the same host. It is the top-level ACI resource, like a pod in Kubernetes.</li>
+  <li>They share the <strong>lifecycle</strong>, the <strong>network</strong> (one IP, one DNS label, ports must not clash) and <strong>storage volumes</strong>.</li>
+  <li>The lab creates a group with a <strong>single container</strong>. Portal deployments of several containers or YAML templates are used for bigger groups.</li>
+  <li><strong>Multi-container groups</strong> work with <strong>Linux</strong> containers only. Windows groups have a single container.</li>
+</ul>
+
+<h3>Image source</h3>
+<ul class="az-list">
+  <li><strong>Quickstart images:</strong> Microsoft samples. The lab uses <span class="az-val">mcr.microsoft.com/azuredocs/aci-helloworld:latest</span> (Linux).</li>
+  <li><strong>Azure Container Registry:</strong> your own private images.</li>
+  <li><strong>Other registry:</strong> Docker Hub or any registry, public or private (with credentials).</li>
+  <li>The image name ends with a <strong>tag</strong> such as <span class="az-val">:latest</span>.</li>
+</ul>
+
+<h3>Networking</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Browser</span></div>
+    <div class="cs"><span class="cp cu">http://label.eastus.azurecontainer.io</span></div>
+    <div class="ly c-b">
+      <div class="lh"><span class="lv">DNS name label</span><span class="lt">label</span><span class="ld">+ region + azurecontainer.io = FQDN</span></div>
+      <div class="ly c-g">
+        <div class="lh"><span class="lv">Public IP</span><span class="lt">port 80</span><span class="ld">TCP, open by default</span></div>
+        <div class="cs"><span class="cp cu">container</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="az-cap">The FQDN always follows the pattern label.region.azurecontainer.io.</p>
+<ul class="az-list">
+  <li>Networking type: <strong>Public</strong> (an IP address and optional DNS label), <strong>Private</strong> (inside a virtual network) or <strong>None</strong>.</li>
+  <li>The default exposed port is <span class="az-val">80</span> (TCP). You can add other ports.</li>
+  <li>The <strong>DNS name label</strong> must be unique in the region. If you get <em>DNS name label not available</em>, pick another.</li>
+  <li>The label is optional. Without it you only get the public IP address.</li>
+</ul>
+
+<h3>Restart policy, variables and storage</h3>
+<ul class="az-list">
+  <li><strong>Restart policy:</strong> what ACI does when the container stops.
+    <ul>
+      <li><span class="az-val">Always</span> (default): restart it every time. Fits long-running apps such as a web server.</li>
+      <li><span class="az-val">On failure</span>: restart only if it exits with an error.</li>
+      <li><span class="az-val">Never</span>: run once. Fits batch and task jobs.</li>
+    </ul>
+  </li>
+  <li><strong>Environment variables:</strong> pass settings to the app. Mark one as <strong>secure</strong> to hide its value (for passwords and keys).</li>
+  <li><strong>Storage:</strong> container storage is lost when the container stops. For data that must survive, mount an <strong>Azure Files share</strong>. Other volume types: empty directory, secret, cloned Git repo.</li>
+  <li>These settings sit on the <span class="az-ui">Advanced</span> tab (restart policy, variables, command override).</li>
+</ul>
+
+<h3>Monitoring and logs</h3>
+<ul class="az-list">
+  <li>The <strong>Monitoring</strong> tab can send container instance logs to a <strong>Log Analytics workspace</strong>. The lab turns it off to keep things simple.</li>
+  <li>Without that, you can still read the container's live output in the portal: <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Containers</span> &rarr; <span class="az-ui">Logs</span>.</li>
+  <li>The same <span class="az-ui">Containers</span> page has <span class="az-ui">Events</span> and <span class="az-ui">Connect</span> (open a shell inside the container).</li>
+  <li>The sample app logs each HTTP GET request, so refreshing the page creates entries.</li>
+  <li>The <strong>Overview</strong> blade shows the <strong>Status</strong> (Running) and the <strong>FQDN</strong>.</li>
+</ul>
+
+<h3>ACI, Web Apps or AKS?</h3>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="lh"><span class="lt">Less to manage &rarr; more control</span></div>
+    <div class="cs"><span class="cp cu">Web Apps (code or container)</span><span class="cp">&rarr;</span><span class="cp cu">ACI (single containers)</span><span class="cp">&rarr;</span><span class="cp cu">AKS (orchestrated fleet)</span></div>
+  </div>
+</div>
+<p class="az-cap">A rough guide for the exam. All three can run containers.</p>
+<ul class="az-list">
+  <li><strong>ACI:</strong> simple, short-lived or bursty containers, quick tests, jobs. No orchestration.</li>
+  <li><strong>App Service:</strong> web apps with slots, autoscale and a custom domain. It can also run a container image.</li>
+  <li><strong>AKS:</strong> many containers that need scaling, service discovery and rolling updates.</li>
+</ul>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 2</span>
+<h2>Exercise</h2>
+<p><strong>Goal:</strong> deploy a sample web container to ACI from a Quickstart image, open it in a browser, and read its logs. About 15 minutes.</p>
+<div class="az-dg">
+  <div class="ly c-y">
+    <div class="cs"><span class="cp cu">1 Deploy the container</span><span class="cp cu">2 Test and read logs</span></div>
+  </div>
+</div>
+<div class="az-note"><p>Lab names are kept: <span class="az-val">az104-rg9</span> (the same resource group as the Web Apps lab) and <span class="az-val">az104-c1</span>. Use any valid, unique DNS name label.</p></div>
+
+<h3>Task 1: Deploy a container instance from a Docker image</h3>
+<ol class="az-list">
+  <li>Portal &rarr; <span class="az-ui">Container instances</span> &rarr; <span class="az-ui">+ Create</span>. Basics:
+    <ul>
+      <li>Resource group <span class="az-val">az104-rg9</span> (create new if needed), container name <span class="az-val">az104-c1</span></li>
+      <li>Region <span class="az-val">East US</span> (or one near you)</li>
+      <li>Image source <em>Quickstart images</em>, image <span class="az-val">mcr.microsoft.com/azuredocs/aci-helloworld:latest (Linux)</span></li>
+    </ul>
+  </li>
+  <li><span class="az-ui">Next: Networking</span>: set a <strong>DNS name label</strong> that is unique. The site will be at <span class="az-val">label.region.azurecontainer.io</span>. Change the label if you get <em>DNS name label not available</em>.</li>
+  <li><span class="az-ui">Next: Monitoring</span>: untick <em>Enable container instance logs</em>.</li>
+  <li><span class="az-ui">Next: Advanced</span>: just review, no changes.</li>
+  <li><span class="az-ui">Review + Create</span>, check validation passed, <span class="az-ui">Create</span>. Wait 2 to 3 minutes.</li>
+</ol>
+<div class="az-note"><p>While you wait, you can look at the app's code in the GitHub repo <span class="az-val">Azure-Samples/aci-helloworld</span>, in the <span class="az-val">app</span> folder.</p></div>
+<div class="az-check"><p><strong>Check:</strong> the deployment completes without errors.</p></div>
+
+<h3>Task 2: Test and verify the deployment</h3>
+<ol class="az-list">
+  <li><span class="az-ui">Go to resource</span>. On <span class="az-ui">Overview</span>, check that <strong>Status</strong> is <em>Running</em>.</li>
+  <li>Copy the <strong>FQDN</strong>, open a new browser tab and go to that address. It is served on port 80.</li>
+  <li>You should see <em>Welcome to Azure Container Instance</em>. Refresh several times to create log entries, then close the tab.</li>
+  <li>Back in the portal: <span class="az-ui">Settings</span> &rarr; <span class="az-ui">Containers</span> &rarr; <span class="az-ui">Logs</span>.</li>
+  <li>Look for entries that show the HTTP GET requests from your browser.</li>
+</ol>
+<div class="az-check"><p><strong>Check:</strong> the welcome page loads from the FQDN, and the logs list your GET requests.</p></div>
+<div class="az-note"><p>Cleanup: delete <span class="az-val">az104-rg9</span> when you finish (select the resource group, <em>Delete the resource group</em>, type its name, <em>Delete</em>, confirm). If you did the Web Apps lab in the same group, this removes that too. CLI: <span class="az-val">az group delete --name az104-rg9</span>.</p></div>
+
+<div class="az-key">
+<h3>Good to remember for the exam</h3>
+<ul>
+  <li>ACI = serverless containers. No VMs to manage. Billed per second for the CPU and memory you allocate.</li>
+  <li>Runs Linux and Windows containers. Multi-container groups are <strong>Linux only</strong>.</li>
+  <li>A <strong>container group</strong> shares host, lifecycle, network (one IP, one DNS label) and volumes.</li>
+  <li>FQDN pattern: <span class="az-val">label.region.azurecontainer.io</span>. Default port 80. The label must be unique in the region.</li>
+  <li>Restart policy: <strong>Always</strong> (default), <strong>On failure</strong>, <strong>Never</strong> (for run-once jobs).</li>
+  <li>Container storage is not persistent. Mount an <strong>Azure Files</strong> share to keep data.</li>
+  <li>Secure environment variables hide secrets such as passwords.</li>
+  <li>Images come from Quickstart samples, Azure Container Registry or another registry.</li>
+  <li>Logs: <span class="az-ui">Containers</span> &rarr; <span class="az-ui">Logs</span> in the portal, or send them to Log Analytics.</li>
+  <li>Best for simple, short-lived or bursty work. Use AKS when you need orchestration.</li>
+</ul>
+</div>
+
+<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+
+<span class="az-part">Part 3</span>
+<h2>Test yourself</h2>
+<p>Try each question first. Press the button to show every answer under its question.</p>
+
+<details class="az-toggle">
+  <summary><span class="az-s1">Check answers</span><span class="az-s2">Hide answers</span></summary>
+</details>
+
+<ol class="az-qlist">
+  <li><strong>What does "serverless" mean for Azure Container Instances?</strong>
+    <div class="az-a">You do not provision, patch or scale any VM or host. You give ACI an image and CPU and memory, and Azure runs it. You pay per second only while it runs.</div></li>
+
+  <li><strong>What is the difference between a Docker image and a container?</strong>
+    <div class="az-a">An image is the read-only template that holds the app and its dependencies. A container is a running instance created from that image.</div></li>
+
+  <li><strong>You want to run a container from your own private images. Which image source do you pick?</strong>
+    <ol class="az-opts"><li>Quickstart images</li><li>Azure Container Registry</li><li>An ARM template</li><li>A Log Analytics workspace</li></ol>
+    <div class="az-a"><strong>B.</strong> Azure Container Registry holds your private images. Quickstart images are Microsoft samples. The others are not image sources.</div></li>
+
+  <li><strong>You deploy with DNS name label <span class="az-val">mysite</span> in East US. What address do you use?</strong>
+    <div class="az-a"><span class="az-val">mysite.eastus.azurecontainer.io</span>, served on port 80 by default. If you get <em>DNS name label not available</em>, the label is already used in that region, so choose another.</div></li>
+
+  <li><strong>What is a container group, and what do its containers share?</strong>
+    <div class="az-a">A collection of containers scheduled on the same host, and the top-level ACI resource. They share the lifecycle, the network (one IP address and DNS label, so ports must not clash) and storage volumes.</div></li>
+
+  <li><strong>You need a group with a web container plus a logging sidecar container. Which operating system must you use?</strong>
+    <ol class="az-opts"><li>Windows</li><li>Linux</li><li>Either one</li><li>Neither, ACI allows one container only</li></ol>
+    <div class="az-a"><strong>B.</strong> Multi-container groups are supported for Linux containers only. Windows groups hold a single container.</div></li>
+
+  <li><strong>A batch container should run once and not restart when it finishes. Which restart policy?</strong>
+    <div class="az-a"><span class="az-val">Never</span>. <span class="az-val">Always</span> is the default and suits long-running apps. <span class="az-val">On failure</span> restarts only after an error exit.</div></li>
+
+  <li><strong>The container writes files to its local disk. After it is restarted, the files are gone. How do you keep them?</strong>
+    <div class="az-a">Mount an <strong>Azure Files</strong> share as a volume. Container local storage is not persistent.</div></li>
+
+  <li><strong>How do you pass a database password to the container without showing it in the portal?</strong>
+    <div class="az-a">Add it as an environment variable and mark it <strong>secure</strong>. Its value is hidden from the portal and the API.</div></li>
+
+  <li><strong>The container is Running and you opened the FQDN a few times. Where do you see the HTTP GET requests?</strong>
+    <div class="az-a"><span class="az-ui">Settings</span> &rarr; <span class="az-ui">Containers</span> &rarr; <span class="az-ui">Logs</span> on the container instance. You can also send logs to Log Analytics by enabling container instance logs on the Monitoring tab.</div></li>
+
+  <li><strong>Which service would you pick for a few simple, short-lived containers, versus many containers needing orchestration?</strong>
+    <div class="az-a">ACI for simple, short-lived or bursty containers. AKS when you need orchestration, scaling and rolling updates across many containers.</div></li>
+</ol>
+</div>
