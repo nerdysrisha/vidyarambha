@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Implement Network Traffic Management <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">Spread incoming traffic across several VMs. The Load Balancer does it by IP and port (layer 4). The Application Gateway does it by looking at the web request itself (layer 7).</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -127,6 +136,7 @@
   <li><strong>Path-based routing:</strong> the URL path picks the backend pool, for example <span class="az-val">/image/*</span> to the image servers and <span class="az-val">/video/*</span> to the video servers. Anything else goes to the default pool.</li>
   <li>Backend settings include <em>cookie-based affinity</em> (sticky sessions) and <em>connection draining</em> (finish current requests before a server is removed).</li>
   <li><strong>Standard V2</strong> tier gives all the layer 7 features. The <strong>WAF</strong> tier adds the firewall that checks for malicious traffic.</li>
+  <li><strong>SSL/TLS termination:</strong> the gateway decrypts HTTPS at the listener (using a certificate), so the backend VMs can receive plain HTTP. For <em>end-to-end TLS</em> it re-encrypts to the backend. A Load Balancer does not do this; it passes TCP/UDP through untouched.</li>
   <li>Check the pool with <span class="az-ui">Backend health</span> under Monitoring. Servers should show <span class="az-val">Healthy</span>.</li>
 </ul>
 <div class="az-dg">
@@ -142,9 +152,10 @@
 </div>
 <p class="az-cap">One public address, different VMs depending on the URL path.</p>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> deploy the VMs from a template, put a Load Balancer in front of two of them, then put an Application Gateway in front of two of them with path-based routing. About 50 minutes.</p>
 <div class="az-dg">
@@ -242,9 +253,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -285,4 +297,5 @@
   <li><strong>A Standard public Load Balancer is set up correctly, but nobody on the Internet can reach port 80. What do you check first?</strong>
     <div class="az-a">The NSG. Standard load balancers and Standard public IPs are closed to inbound traffic by default, so an NSG rule must allow port 80. Also check the health probe shows the VMs as healthy.</div></li>
 </ol>
+</details>
 </div>

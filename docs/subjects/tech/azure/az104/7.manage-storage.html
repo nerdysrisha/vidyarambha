@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Manage Azure Storage <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">One storage account holds your blobs, file shares, queues and tables. This topic covers how to pick its redundancy, cut cost with tiers, protect the data, and lock down who can reach it.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 
 <h3>The big picture</h3>
@@ -150,6 +159,14 @@
   <li>Result in the lab: the plain URL fails, the <strong>Blob SAS URL</strong> shows the file.</li>
 </ul>
 
+<h3>Authorization: access keys, Entra ID and RBAC</h3>
+<ul class="az-list">
+  <li><strong>Access keys:</strong> two account keys (<span class="az-val">Key 1</span>, <span class="az-val">Key 2</span>) give full control of the whole account. Keep them secret and rotate them; having two lets you rotate without downtime.</li>
+  <li><strong>Microsoft Entra ID (RBAC):</strong> the recommended way. Assign roles such as <em>Storage Blob Data Reader</em> or <em>Storage Blob Data Contributor</em> to a user, group or managed identity. No key or SAS needed.</li>
+  <li>Management roles (such as Contributor) do not give access to blob data by themselves. Data access needs a <em>data</em> role.</li>
+  <li><strong>Encryption:</strong> data is encrypted at rest by default with Microsoft-managed keys (you can use customer-managed keys), and in transit with HTTPS (<em>secure transfer required</em>).</li>
+</ul>
+
 <h3>Locking down network access</h3>
 <div class="az-dg">
   <div class="ly c-r">
@@ -168,6 +185,7 @@
 <ul class="az-list">
   <li><strong>Public network access</strong> has three settings: <em>Disabled</em>, <em>Enabled from selected networks and IP addresses</em>, <em>Enabled from all networks</em>.</li>
   <li>To allow only a VNet: add a <strong>service endpoint</strong> <span class="az-val">Microsoft.Storage</span> on the subnet, then add that VNet and subnet in the storage account's <span class="az-ui">Networking</span> page.</li>
+  <li><strong>Private endpoint:</strong> gives the storage account a private IP address inside your VNet, so traffic stays on the Microsoft backbone. A service endpoint keeps the public address but limits access to your subnet. A private endpoint also works from on-premises over VPN or ExpressRoute.</li>
   <li>Outside the allowed networks, you get <em>not authorized to perform this operation</em>, even in the portal's Storage browser.</li>
 </ul>
 
@@ -176,12 +194,17 @@
   <li><strong>Azure Files</strong> gives shared file storage in the cloud, organised in folders. Candidate to replace on-premises file shares.</li>
   <li>File share tiers (standard accounts): <em>Transaction optimized</em> (default), <em>Hot</em>, <em>Cool</em>.</li>
   <li><strong>Storage browser</strong> is a portal tool to view and manage blobs, file shares, queues and tables in one place. You can add directories and upload files.</li>
+  <li><strong>Files vs Blob:</strong> use <em>Files</em> when apps or users need a real file share with folders, mounted as a drive. Use <em>Blob</em> for unstructured data accessed by URL or API, such as images, backups and logs.</li>
+  <li><strong>Protocols:</strong> Azure Files supports <strong>SMB</strong> (Windows, also Linux and macOS, port 445) and <strong>NFS</strong> (Linux, Premium). Make sure port 445 is open when mounting from on-premises.</li>
+  <li><strong>Azure File Sync</strong> keeps an on-premises Windows Server in sync with an Azure file share. The server acts as a fast local cache, with cloud tiering for rarely used files.</li>
+  <li><strong>Storage Explorer</strong> is a free desktop app to manage blobs, files, queues and tables. <strong>AzCopy</strong> is a command-line tool to copy data to, from or between storage accounts, signing in with Entra ID or a SAS.</li>
   <li>Backup for the share is optional. The lab turns it off to keep things simple.</li>
 </ul>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> create a GRS storage account, add a cost rule, make a protected blob container, share a file with a SAS, create a file share, then restrict the account to one VNet. About 50 minutes.</p>
 <div class="az-dg">
@@ -266,9 +289,10 @@
 </ul>
 </div>
 
-<hr style="border: none; border-top: 4px dotted #0078d4; margin: 2rem 0;">
+</details>
 
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -309,4 +333,5 @@
   <li><strong>What is the default soft delete retention for blobs, and what does soft delete give you?</strong>
     <div class="az-a">7 days. A deleted blob stays recoverable during that time.</div></li>
 </ol>
+</details>
 </div>
