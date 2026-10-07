@@ -133,15 +133,22 @@
   <li>A common design is one subnet per tier: <span class="az-val">snet-web</span>, <span class="az-val">snet-app</span>, <span class="az-val">snet-db</span>.</li>
 </ul>
 
+<h3>Network interface (NIC) and IP addresses</h3>
+<ul class="az-list">
+  <li>A VM connects to a VNet through a <strong>network interface (NIC)</strong>. The NIC has the VM's private IP configuration and is where a NIC-level NSG can be associated.</li>
+  <li>A <strong>private IP</strong> is used inside the VNet. A <strong>public IP</strong> gives a resource an Internet-facing address when the architecture requires one; it is not the same thing as the VNet address space.</li>
+</ul>
+
 <h3>Network security groups (NSG)</h3>
 <ul class="az-list">
   <li>An NSG is a list of allow and deny rules for traffic.</li>
   <li>A rule has: priority, source, destination, port, protocol, action.</li>
-  <li><strong>Lowest priority number is checked first.</strong> Your rules use 100 to 4096.</li>
+  <li><strong>Rule priority:</strong> the lowest priority number is checked first. Your rules use 100 to 4096.</li>
   <li><strong>Default rules</strong> sit at 65000 and above. You cannot delete them, but a rule with a lower number can override them.</li>
   <li>Defaults: inbound allows traffic from the same VNet and the load balancer, then denies the rest. Outbound allows the VNet and the Internet.</li>
   <li>NSGs are <strong>stateful</strong>. If you allow a request in, the reply is allowed out automatically.</li>
   <li>Attach an NSG to a <strong>subnet</strong>, a <strong>NIC</strong>, or both. If both, traffic must pass both.</li>
+  <li><strong>Effective security rules</strong> show the rules that actually apply to a network interface after subnet- and NIC-level NSGs are considered. Use them when troubleshooting why traffic is allowed or denied.</li>
   <li><strong>Service tags</strong> are Microsoft-managed names for IP groups, such as <span class="az-val">Internet</span>, <span class="az-val">VirtualNetwork</span> and <span class="az-val">Storage</span>.</li>
 </ul>
 
@@ -170,6 +177,12 @@
 </div>
 <p class="az-cap">Bold chips are your rules. The others are the built-in defaults.</p>
 
+<h3>DNS records and name resolution</h3>
+<ul class="az-list">
+  <li>An <strong>A record</strong> maps a DNS name directly to an IPv4 address, for example <span class="az-val">sensorvm</span> &rarr; <span class="az-val">10.30.20.4</span>.</li>
+  <li><strong>Name resolution</strong> lets clients use a DNS name instead of hard-coding an IP address. Public DNS resolves Internet-facing names; Azure Private DNS resolves names for linked VNets.</li>
+</ul>
+
 <h3>Azure DNS</h3>
 <div class="az-dg">
   <div class="ly c-o">
@@ -188,6 +201,7 @@
 <ul class="az-list">
   <li><strong>Public zone:</strong> hosts your domain. You get 4 Azure name servers. At your domain registrar, set the domain's name servers to those four.</li>
   <li><strong>Private zone:</strong> names that only work inside VNets <em>linked</em> to the zone. Not reachable from the Internet.</li>
+  <li><strong>Link VNet:</strong> create a virtual network link from the private DNS zone to each VNet that should use the zone for name resolution.</li>
   <li>Records map names to targets. Common types: <strong>A</strong> (name to IPv4), <strong>CNAME</strong> (name to name), <strong>MX</strong> (mail), <strong>TXT</strong> (text).</li>
   <li>Real example: apps call <span class="az-val">sensorvm.private.contoso.com</span> and never hard-code an IP address.</li>
 </ul>
