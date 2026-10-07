@@ -51,12 +51,21 @@
 .az-topic .az-opts { margin: 4px 0 0 0; padding-left: 1.2em; list-style: upper-alpha; }
 .az-topic .az-a { display: none; margin-top: 6px; padding: 7px 12px; background: #f1f8f1; border-left: 4px solid #4a9b5a; border-radius: 6px; font-size: 0.95em; }
 .az-topic details.az-toggle[open] ~ .az-qlist .az-a { display: block; }
+
+/* collapsible parts */
+.az-topic details.az-sec { margin: 18px 0; }
+.az-topic details.az-sec > summary { display: inline-block; cursor: pointer; list-style: none; user-select: none; }
+.az-topic details.az-sec > summary::-webkit-details-marker { display: none; }
+.az-topic details.az-sec > summary.az-part::after { content: "  \2212  collapse"; font-weight: 400; opacity: .85; }
+.az-topic details.az-sec:not([open]) > summary.az-part::after { content: "  +  expand"; }
+.az-topic details.az-sec:not([open]) > summary.az-part { background: #6b4f1d; }
 </style>
 
 <h1>Hybrid Connectivity: VPN, ExpressRoute and Virtual WAN <span class="az-tag">AZ-104</span></h1>
 <p class="az-lead">How an on-premises network connects to Azure. You build the Azure side of a VPN (VNet, GatewaySubnet, VPN gateway) and learn when to choose Site-to-Site, Point-to-Site, ExpressRoute or Virtual WAN.</p>
 
-<span class="az-part">Part 1</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 1 &middot; Notes</summary>
 <h2>Notes</h2>
 <h3>The big picture</h3>
 <div class="az-dg">
@@ -85,13 +94,24 @@
   <li>The VPN gateway needs a <span class="az-val">GatewaySubnet</span>, a public IP, and a VPN type (route-based is the usual choice).</li>
   <li>Address spaces on-premises and in Azure must not overlap.</li>
 </ul>
+<h3>VPN troubleshooting</h3>
+<ul class="az-list">
+  <li>Start with the <strong>connection status</strong> (<span class="az-ui">Connections</span> on the gateway). <em>Connected</em> means the IPsec tunnel is up. <em>Not connected</em> or <em>Connecting</em> means it is not.</li>
+  <li><strong>Shared key mismatch:</strong> the pre-shared key must be identical on the Azure connection and the on-premises VPN device. Reset it in the connection's <span class="az-ui">Authentication</span> settings.</li>
+  <li><strong>IPsec/IKE settings:</strong> both ends must agree on encryption, integrity and the VPN type. A route-based gateway needs a device that supports route-based VPN.</li>
+  <li><strong>Overlapping address spaces</strong> or a wrong local network gateway (on-premises public IP or address prefixes) stop traffic even when the tunnel is up.</li>
+  <li>Check the on-premises device and its firewall allow the VPN (UDP 500 and 4500, and ESP). Also check NSGs and routes on the Azure side.</li>
+  <li>Tools: <span class="az-ui">Connection troubleshoot</span> and <span class="az-ui">VPN troubleshoot</span> in Network Watcher, and gateway diagnostic logs in Log Analytics.</li>
+</ul>
 <div class="az-key"><h3>Exam box</h3><ul>
   <li>Whole office &rarr; S2S. One laptop &rarr; P2S. Private, not over Internet &rarr; ExpressRoute.</li>
   <li>Gateway subnet name must be exactly <span class="az-val">GatewaySubnet</span>.</li>
   <li>A gateway takes about 30 to 45 minutes to deploy.</li>
 </ul></div>
+</details>
 
-<span class="az-part">Part 2</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 2 &middot; Exercise</summary>
 <h2>Exercise</h2>
 <p><strong>Goal:</strong> build the Azure side of a VPN: VNet, GatewaySubnet and VPN gateway, then inspect connection options. About 20 minutes of work plus gateway wait time.</p>
 <div class="az-note"><p>Cost warning: a VPN gateway bills while it exists. Delete the resource group when done. Names are standard lab-style values: <span class="az-val">az104-rg15</span>, <span class="az-val">az104-vnet15</span>, <span class="az-val">az104-vpngw15</span>.</p></div>
@@ -114,9 +134,10 @@
 </ol>
 <div class="az-check"><p>Check: the gateway shows <em>Succeeded</em> and the subnet is named <span class="az-val">GatewaySubnet</span>.</p></div>
 <div class="az-note"><p>Clean up: delete <span class="az-val">az104-rg15</span>.</p></div>
+</details>
 
-
-<span class="az-part">Part 3</span>
+<details class="az-sec" open>
+<summary class="az-part">Part 3 &middot; Test yourself</summary>
 <h2>Test yourself</h2>
 <p>Try each question first. Press the button to show every answer under its question.</p>
 
@@ -142,4 +163,5 @@
   <li><strong>The gateway deployment is still running after 10 minutes. Is something wrong?</strong>
     <div class="az-a">No. A VPN gateway normally takes 30 to 45 minutes.</div></li>
 </ol>
+</details>
 </div>
