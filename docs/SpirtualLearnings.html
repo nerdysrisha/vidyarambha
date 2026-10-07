@@ -496,11 +496,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
 #navbar { position: relative; }
-#fsBtn {
+/* Fullscreen: gold outline circle (matches lock + speed pill), YouTube-style corner icons */
+#navbar #fsBtn {
     position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #fsBtn:hover { background: #d8b46a33 !important; }
+#navbar #fsBtn svg { width: 17px; height: 17px; flex: 0 0 auto; display: block; }
 #menuBtn {
     display: none;                       /* shown on phones only */
     position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
@@ -512,7 +516,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* Touch lock: sits just left of the fullscreen/X button. While locked, taps on verses,
    the seek bar and text swipes are ignored (see body.touch-locked in the script). */
 #navbar #lockBtn {
-    position: absolute; right: 48px; top: 50%; transform: translateY(-50%);
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
     width: 31px; height: 31px; padding: 0; border-radius: 50%;
     background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
     display: inline-flex; align-items: center; justify-content: center;
@@ -613,7 +617,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         </div>
     </div>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="fsBtn" title="Full screen / reading mode" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
 <!-- Hover tooltip for sidebar items (text comes from each topic's description) -->
@@ -1215,10 +1219,13 @@ toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classLi
 
 // ── FULLSCREEN / READING MODE ─────────────────────────────────────────
 const fsBtn = document.getElementById("fsBtn");
+const FS_ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';   // corners pointing out = go full screen
+const FS_EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';   // corners pointing in = leave full screen
 function setReading(on) {
     document.body.classList.toggle("reading", on);
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.innerHTML = on ? FS_EXIT : FS_ENTER;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
     setTimeout(fitVerses, 250);
 }
 fsBtn.addEventListener("click", () => {
