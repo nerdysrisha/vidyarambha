@@ -1037,7 +1037,10 @@ function initAudioSync() {
     function update(forceScroll) {
         if (syncDisabled) return;
         const i = blockAt(audio.currentTime);
-        if (i === active) return;
+        if (i === active) {                                  // same stanza: only re-align it when forced (tap / seek)
+            if (forceScroll && i >= 0) scrollToBlock(blocks[i]);
+            return;
+        }
         if (active >= 0) blocks[active].classList.remove("verse-active");
         active = i;
         if (i < 0) { if (window.refreshPurport) window.refreshPurport(); return; }
@@ -1058,6 +1061,8 @@ function initAudioSync() {
             if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore taps on verses
             if (syncDisabled) return;
             audio.currentTime = starts[i] + 0.01;
+            syncUserScrollUntil = 0;     // the tap itself must not pause auto-scroll
+            update(true);                // move the tapped stanza into place right away (same spot as normal playback)
             const p = audio.play();
             if (p && p.catch) p.catch(() => {});
         });
