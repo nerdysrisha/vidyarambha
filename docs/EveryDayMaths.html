@@ -125,6 +125,10 @@ button:active { transform: scale(0.97); }
 #maxBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
 #maxBtn svg { width: 20px; height: 20px; display: block; }
 
+
+/*
+
+DATEREMOVAL--
 #dateBox {
     font-size: 14px;
     font-weight: bold;
@@ -136,6 +140,9 @@ button:active { transform: scale(0.97); }
     letter-spacing: 0.5px;
     white-space: nowrap;
 }
+*/
+
+
 #analogClock {
     flex-shrink: 0;
 }
@@ -575,7 +582,7 @@ button:active { transform: scale(0.97); }
     #control-top-bar label, #control-top-bar span { font-size: 13px !important; }
     #control-top-bar label { gap: 5px !important; }
     #answersShownBadge { font-size: 11px !important; padding: 3px 7px !important; }
-    #dateBox { font-size: 11px; padding: 3px 6px; }
+    /* #dateBox { font-size: 11px; padding: 3px 6px; }  DATEREMOVAL-- */
     #selectAllBtn { order: -2; }
     #maxBtn { order: -1; width: 32px; height: 32px; margin-left: 0; }
     #maxBtn svg { width: 17px; height: 17px; }
@@ -641,7 +648,7 @@ button:active { transform: scale(0.97); }
             <button id="toggleAll">Show</button>
             <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128275; ANSWERS SHOWN</span>
             <button id="goTopBtn" class="nav-btn">&#11014; Top Q</button>
-            <span id="dateBox"></span>
+            <!--<span id="dateBox"></span>  DATEREMOVAL-->
             <button id="maxBtn" title="Maximize (full screen)" aria-label="Maximize"></button>
         </div>
         <fieldset id="control">
@@ -664,17 +671,17 @@ button:active { transform: scale(0.97); }
 const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/maths/questions/";
 
 // ── Date box (date text only) ─────────────────────────────────────────────────
-(function() {
-    const dateBox = document.getElementById("dateBox");
-    function updateDate() {
-        const now = new Date();
-        const days   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        dateBox.textContent = "\uD83D\uDCC5 " + days[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
-    }
-    updateDate();
-    setInterval(updateDate, 60000);
-})();
+//(function() {
+//    const dateBox = document.getElementById("dateBox");
+//    function updateDate() {
+//        const now = new Date();
+//        const days   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+//        const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+//        dateBox.textContent = "\uD83D\uDCC5 " + days[now.getDay()] + " " + now.getDate() + " " + months[now.getMonth()] + " " + now.getFullYear();
+//    }
+//    updateDate();
+//    setInterval(updateDate, 60000);
+//})();
 
 const options = [
     ["number-names",         "1. Number Names"],
@@ -2409,9 +2416,9 @@ function generate(box, val) {
                 ].join(";");
                 nameSpan.textContent = capitalise(shape.name);
 
-                const hint = document.createElement("span");
-                hint.style.cssText = "color:#555;font-size:16px;flex-shrink:0;white-space:nowrap;";
-                hint.textContent = "\u2190 draw on paper";
+                //const hint = document.createElement("span");
+                //hint.style.cssText = "color:#555;font-size:16px;flex-shrink:0;white-space:nowrap;";
+                //hint.textContent = "\u2190 draw on paper";
 
                 const canvas = document.createElement("canvas");
                 canvas.width = SIZE; canvas.height = SIZE;
@@ -2423,7 +2430,7 @@ function generate(box, val) {
                 row.appendChild(letter);
                 row.appendChild(badge);
                 row.appendChild(nameSpan);
-                row.appendChild(hint);
+                //row.appendChild(hint);
                 row.appendChild(canvas);
                 box.appendChild(row);
             });
