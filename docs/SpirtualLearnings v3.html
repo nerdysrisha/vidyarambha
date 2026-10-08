@@ -50,8 +50,7 @@
    - Content page contract: <h1>, optional <p class="topic-tagline">, verse
      cards as <div class="verse-block"><span class="verse-label">..</span><br>
      line<br>line</div>, optional <audio data-ends="..."> (one end time per
-     .verse-block, in order), optional data-purport="meaning" on any .verse-block
-     (shown in a floating card while that stanza plays; the "i" button toggles it). Scripts inside fetched pages do NOT run.
+     .verse-block, in order). Scripts inside fetched pages do NOT run.
    - Must be served over http(s); fetch() is blocked on file://.
 ================================================================================
 -->
@@ -524,37 +523,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar #lockBtn:hover { background: #d8b46a33 !important; }
 #navbar #lockBtn svg { width: 18px; height: 18px; flex: 0 0 auto; display: block; }
-
-/* Purport toggle ("i" icon, slashed when off): sits just left of the lock button */
-#navbar #ppBtn {
-    position: absolute; right: 80px; top: 50%; transform: translateY(-50%);
-    width: 31px; height: 31px; padding: 0; border-radius: 50%;
-    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
-    display: inline-flex; align-items: center; justify-content: center;
-}
-#navbar #ppBtn:hover { background: #d8b46a33 !important; }
-#navbar #ppBtn:disabled { opacity: 0.3; cursor: default; background: transparent !important; }
-#navbar #ppBtn svg { width: 18px; height: 18px; flex: 0 0 auto; display: block; }
-
-/* Purport card: floats above the nav bar and shows the meaning of the stanza being played.
-   Text comes from data-purport on each .verse-block. Height is capped (--pp-cap, set in the script). */
-#purportCard {
-    position: fixed; left: 50%; z-index: 35; box-sizing: border-box;
-    max-height: var(--pp-cap, 200px); overflow-y: auto; padding: 9px 16px 11px; text-align: center;
-    background: rgba(17,17,17,0.96); border: 1px solid #d8b46a99; border-radius: 14px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.45); color: #f1e6cc; font-family: inherit;
-    opacity: 0; visibility: hidden; transform: translate(-50%, 8px);
-    transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
-}
-#purportCard.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .25s ease, transform .25s ease; }
-#purportCard .pp-label { font: 700 10px/1 system-ui, sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #d8b46a; margin-bottom: 6px; }
-#purportCard .pp-text { line-height: 1.45; }
-/* keep room under the last verse (and under the centred verse) while the card is on */
-#content-box.purport-on::after { content: ""; display: block; height: var(--pp-reserve, 0px); }
-@media (max-width: 700px) { body.side-open #purportCard { display: none; } }
-@media (prefers-reduced-motion: reduce) { #purportCard, #purportCard.show { transition: none; } }
 /* leave room on the right for lock + fullscreen, so Prev / counter / Next / speed pill shift left */
-#navbar { padding-right: 126px; }
+#navbar { padding-right: 90px; }
 /* "Unlock to swipe" hint: small pill that fades in above the nav bar after a swipe while locked */
 #lockHint {
     position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
@@ -572,7 +542,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 124px; }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 88px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
   #counter { min-width: 40px; font-size: 12px; }
@@ -658,8 +628,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         </div>
     </div>
     <div id="lockHint" role="status" aria-live="polite"></div>
-    <div id="purportCard" role="status" aria-live="polite"><div class="pp-label"></div><div class="pp-text"></div></div>
-    <button id="ppBtn" title="Show meaning of each stanza" aria-label="Show meaning of each stanza" aria-pressed="true" disabled></button>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
     <button id="fsBtn" title="Full screen / reading mode" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
@@ -824,8 +792,6 @@ function stopAudioSync() {
         b.disabled = true; b.classList.remove("active"); b.onclick = null;
     });
     if (window.resetSpeedUI) window.resetSpeedUI();
-    if (window.resetPurports) window.resetPurports();
-    window.syncRescroll = null;
     contentPanel.classList.remove("has-dock");
     scrollAnim = null;
 }
@@ -1006,7 +972,6 @@ function initAudioSync() {
         syncDisabled = true;
         if (active >= 0) blocks[active].classList.remove("verse-active");
         active = -1;
-        if (window.resetPurports) window.resetPurports();
         contentBox.classList.remove("sync-on", "sync-playing");
         audioDock.innerHTML = '<div class="audio-missing">\uD83D\uDD07 Audio not available for this page</div>';
         scrollAnim = null;
@@ -1020,9 +985,6 @@ function initAudioSync() {
         if (audio.readyState === 0 && audio.networkState === 3) disableSync();
     }, 5000);
 
-    window.syncRescroll = () => { if (active >= 0) scrollToBlock(blocks[active]); };   // used when the purport card is toggled
-    if (window.initPurports) window.initPurports(blocks);
-
     function blockAt(t) {
         for (let i = 0; i < n; i++) if (t < ends[i]) return i;
         return -1;   // after the last block: nothing highlighted
@@ -1031,7 +993,7 @@ function initAudioSync() {
     function scrollToBlock(block) {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
-        const avail = contentBox.clientHeight - (window.purportReserve ? window.purportReserve() : 0);   // minus the area the purport card covers
+        const avail = contentBox.clientHeight;
         // block taller than the visible area: align its top; otherwise centre it
         const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
         smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 900);
@@ -1043,9 +1005,8 @@ function initAudioSync() {
         if (i === active) return;
         if (active >= 0) blocks[active].classList.remove("verse-active");
         active = i;
-        if (i < 0) { if (window.refreshPurport) window.refreshPurport(); return; }
+        if (i < 0) return;
         blocks[i].classList.add("verse-active");
-        if (window.refreshPurport) window.refreshPurport();      // swap the purport card to this stanza
         if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
     }
 
@@ -1297,79 +1258,6 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     setTimeout(fitVerses, 250);
 });
 
-// ── PURPORT CARD ───────────────────────────────────────────────────────
-// Each .verse-block may carry  data-purport="meaning text".  While that stanza is playing, the card
-// above the nav bar fades in with its meaning; when the next stanza starts it cross-fades to the new one.
-// The "i" button in the nav bar turns it on/off (remembered). Text shrinks to fit, then scrolls.
-const ppBtn  = document.getElementById("ppBtn");
-const ppCard = document.getElementById("purportCard");
-const PP_I   = '<path d="M12 11v6"/><path d="M12 7.2h.01"/>';
-const PP_SVG = inner => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
-let ppEnabled = true, ppTopicHas = false, ppShownFor = null, ppToken = 0, ppCap = 200;
-try { if (localStorage.getItem("purport") === "0") ppEnabled = false; } catch (e) {}
-
-function ppIsPhone() { return window.matchMedia("(max-width: 700px)").matches; }
-function ppLayout() {                                   // size + place the card over the content area
-    ppCap = Math.round(Math.min(window.innerHeight * (ppIsPhone() ? 0.30 : 0.26), ppIsPhone() ? 230 : 210));
-    document.documentElement.style.setProperty("--pp-cap", ppCap + "px");
-    document.documentElement.style.setProperty("--pp-reserve", (ppCap + 18) + "px");
-    const r = contentPanel.getBoundingClientRect();
-    ppCard.style.width = Math.max(200, Math.min(760, r.width - 16)) + "px";
-    ppCard.style.left = (r.left + r.width / 2) + "px";
-    ppCard.style.bottom = (window.innerHeight - document.getElementById("navbar").getBoundingClientRect().top + 8) + "px";
-}
-function ppFit() {                                      // biggest font that fits the cap; below the minimum it scrolls
-    const t = ppCard.querySelector(".pp-text");
-    const max = ppIsPhone() ? 15 : 17, min = ppIsPhone() ? 11.5 : 13;
-    let fs = max; t.style.fontSize = fs + "px";
-    while (fs > min && ppCard.scrollHeight > ppCard.clientHeight + 1) { fs -= 0.5; t.style.fontSize = fs + "px"; }
-    ppCard.scrollTop = 0;
-}
-function ppPaintBtn() {
-    ppBtn.innerHTML = PP_SVG(ppEnabled ? PP_I : PP_I + '<path d="M4 4l16 16"/>');
-    ppBtn.setAttribute("aria-pressed", ppEnabled ? "true" : "false");
-    ppBtn.title = ppEnabled ? "Meaning on: tap to hide" : "Meaning off: tap to show";
-}
-window.purportReserve = () => contentBox.classList.contains("purport-on") ? ppCap + 18 : 0;
-window.refreshPurport = () => {
-    ppLayout();
-    contentBox.classList.toggle("purport-on", ppEnabled && ppTopicHas);
-    const block = (ppEnabled && ppTopicHas) ? contentBox.querySelector(".verse-block.verse-active") : null;
-    const txt = block && block.dataset.purport;
-    const my = ++ppToken;
-    if (!txt) { ppCard.classList.remove("show"); ppShownFor = null; return; }
-    if (block === ppShownFor && ppCard.classList.contains("show")) return;   // same stanza: nothing to do
-    const swap = () => {
-        if (my !== ppToken) return;
-        const lab = block.querySelector(".verse-label");
-        ppCard.querySelector(".pp-label").textContent = (lab ? lab.textContent.trim() + " \u00B7 " : "") + "Meaning";
-        ppCard.querySelector(".pp-text").textContent = txt;
-        ppLayout(); ppFit();
-        ppCard.classList.add("show"); ppShownFor = block;
-    };
-    if (ppCard.classList.contains("show")) { ppCard.classList.remove("show"); setTimeout(swap, 230); }   // fade out, then in
-    else swap();
-};
-window.initPurports = blocks => {
-    ppTopicHas = blocks.some(b => b.dataset && b.dataset.purport);
-    ppBtn.disabled = !ppTopicHas;
-    window.refreshPurport();
-};
-window.resetPurports = () => {
-    ppTopicHas = false; ppShownFor = null; ++ppToken;
-    ppBtn.disabled = true; ppCard.classList.remove("show");
-    contentBox.classList.remove("purport-on");
-};
-ppBtn.addEventListener("click", () => {
-    ppEnabled = !ppEnabled;
-    try { localStorage.setItem("purport", ppEnabled ? "1" : "0"); } catch (e) {}
-    ppPaintBtn();
-    window.refreshPurport();
-    if (window.syncRescroll) setTimeout(window.syncRescroll, 60);   // re-centre the playing stanza in the visible area
-});
-window.addEventListener("resize", () => { if (ppTopicHas) { window.refreshPurport(); } });
-ppPaintBtn(); ppLayout();
-
 // ── SPEED PILL + POPUP ────────────────────────────────────────────────
 // The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two.
 const speedMain = document.getElementById("speedMain");
@@ -1403,8 +1291,7 @@ const lockHint = document.getElementById("lockHint");
 let lockHintTimer = null;
 window.showLockHint = () => {
     const nav = document.getElementById("navbar");
-    const above = ppCard.classList.contains("show") ? ppCard.offsetHeight + 8 : 0;   // clear of the purport card
-    lockHint.style.bottom = (window.innerHeight - nav.getBoundingClientRect().top + 10 + above) + "px";
+    lockHint.style.bottom = (window.innerHeight - nav.getBoundingClientRect().top + 10) + "px";
     lockHint.innerHTML = UNLOCK_SVG + "<span>Unlock to swipe</span>";
     lockHint.classList.add("show");
     clearTimeout(lockHintTimer);
