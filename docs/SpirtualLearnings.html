@@ -418,10 +418,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .ap-thumb { position: absolute; top: 50%; left: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
     background: #d8b46a; border: 2px solid #111; box-sizing: border-box; pointer-events: none; }
 .ap-bar:focus-visible .ap-thumb { box-shadow: 0 0 0 2px #d8b46a88; }
-/* Speed tag: sits to the right of the player, shown only at 1.5x / 1.75x */
-.speed-badge { flex: none; display: none; align-items: center; height: 22px; padding: 0 8px;
-    border-radius: 11px; background: #d8b46a; color: #111; pointer-events: none;
-    font: 700 11px/1 system-ui, sans-serif; }
 
 /* Playback-speed buttons now live in the nav bar (see #speedGroup) */
 
@@ -538,7 +534,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* Purport card: floats above the nav bar and shows the meaning of the stanza being played.
    Text comes from data-purport on each .verse-block. Height is capped (--pp-cap, set in the script). */
-#purportCard {
+#purportCard, #purportMeasure {
     position: fixed; left: 50%; z-index: 35; box-sizing: border-box;
     max-height: var(--pp-cap, 200px); overflow-y: auto; padding: 9px 16px 11px; text-align: center;
     background: rgba(17,17,17,0.96); border: 1px solid #d8b46a99; border-radius: 14px;
@@ -547,8 +543,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s;
 }
 #purportCard.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .25s ease, transform .25s ease; }
-#purportCard .pp-label { font: 700 10px/1 system-ui, sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #d8b46a; margin-bottom: 6px; }
-#purportCard .pp-text { line-height: 1.45; }
+#purportCard .pp-label, #purportMeasure .pp-label { font: 700 10px/1 system-ui, sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #d8b46a; margin-bottom: 6px; }
+#purportCard .pp-text, #purportMeasure .pp-text { line-height: 1.45; }
+/* invisible twin used to measure a stanza's card before it is shown */
+#purportMeasure { visibility: hidden !important; opacity: 0; transition: none !important; transform: none !important;
+    top: -9999px; left: 0 !important; pointer-events: none; }
 /* keep room under the last verse (and under the centred verse) while the card is on */
 #content-box.purport-on::after { content: ""; display: block; height: var(--pp-reserve, 0px); }
 @media (max-width: 700px) { body.side-open #purportCard { display: none; } }
@@ -659,6 +658,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     </div>
     <div id="lockHint" role="status" aria-live="polite"></div>
     <div id="purportCard" role="status" aria-live="polite"><div class="pp-label"></div><div class="pp-text"></div></div>
+    <div id="purportMeasure" aria-hidden="true"><div class="pp-label"></div><div class="pp-text"></div></div>
     <button id="ppBtn" title="Show meaning of each stanza" aria-label="Show meaning of each stanza" aria-pressed="true" disabled></button>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
     <button id="fsBtn" title="Full screen / reading mode" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
@@ -973,15 +973,9 @@ function initAudioSync() {
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
     try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
-    const badgeHost = holder;
-    const badge = document.createElement("span");
-    badge.className = "speed-badge";
-    badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
     function paintSpeed() {
         SPEED_BTNS.forEach(b => { b.classList.toggle("active", parseFloat(b.dataset.rate) === rate); b.hidden = parseFloat(b.dataset.rate) === rate; });   // popup lists only the OTHER speeds
         if (window.setSpeedLabel) window.setSpeedLabel(rate);
-        badge.textContent = rate + "x";
-        badge.style.display = rate === 1 ? "none" : "flex";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
     document.getElementById("speedMain").disabled = false;
@@ -1031,9 +1025,10 @@ function initAudioSync() {
     function scrollToBlock(block) {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
-        const avail = contentBox.clientHeight - (window.purportReserve ? window.purportReserve() : 0);   // minus the area the purport card covers
-        // block taller than the visible area: align its top; otherwise centre it
-        const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
+        const reserve = window.purportReserve ? window.purportReserve() : 0;   // area the purport card covers under this stanza
+        const avail = contentBox.clientHeight - reserve;
+        // block taller than the visible area: align its top (a little lower when the card is on); otherwise centre it
+        const wantTop = blkRect.height > avail - 16 ? (reserve ? 12 : 8) : (avail - blkRect.height) / 2;
         smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 900);
     }
 
@@ -1303,9 +1298,10 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
 // The "i" button in the nav bar turns it on/off (remembered). Text shrinks to fit, then scrolls.
 const ppBtn  = document.getElementById("ppBtn");
 const ppCard = document.getElementById("purportCard");
+const ppMeasure = document.getElementById("purportMeasure");
 const PP_I   = '<path d="M12 11v6"/><path d="M12 7.2h.01"/>';
 const PP_SVG = inner => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
-let ppEnabled = true, ppTopicHas = false, ppShownFor = null, ppToken = 0, ppCap = 200;
+let ppEnabled = true, ppTopicHas = false, ppShownFor = null, ppToken = 0, ppCap = 200, ppReserveNow = 0;
 try { if (localStorage.getItem("purport") === "0") ppEnabled = false; } catch (e) {}
 
 function ppIsPhone() { return window.matchMedia("(max-width: 700px)").matches; }
@@ -1314,39 +1310,49 @@ function ppLayout() {                                   // size + place the card
     document.documentElement.style.setProperty("--pp-cap", ppCap + "px");
     document.documentElement.style.setProperty("--pp-reserve", (ppCap + 18) + "px");
     const r = contentPanel.getBoundingClientRect();
-    ppCard.style.width = Math.max(200, Math.min(760, r.width - 16)) + "px";
+    ppCard.style.width = ppMeasure.style.width = Math.max(200, Math.min(760, r.width - 16)) + "px";
     ppCard.style.left = (r.left + r.width / 2) + "px";
     ppCard.style.bottom = (window.innerHeight - document.getElementById("navbar").getBoundingClientRect().top + 8) + "px";
 }
-function ppFit() {                                      // biggest font that fits the cap; below the minimum it scrolls
-    const t = ppCard.querySelector(".pp-text");
-    const max = ppIsPhone() ? 15 : 17, min = ppIsPhone() ? 11.5 : 13;
+function ppPlan(block) {                                // font size + card height for THIS stanza, from the room under it
+    const m = ppMeasure, t = m.querySelector(".pp-text");
+    const phone = ppIsPhone();
+    const max = phone ? 15 : 17, min = phone ? 11.5 : 13, minH = phone ? 92 : 100;
+    const room = contentBox.clientHeight - (block.offsetHeight + 16) - 12 - 14;   // box - stanza - top gap - gap above the nav bar
+    const allowed = Math.max(minH, Math.min(ppCap, room));
+    const lab = block.querySelector(".verse-label");
+    const label = (lab ? lab.textContent.trim() + " \u00B7 " : "") + "Meaning";
+    m.style.maxHeight = allowed + "px";
+    m.querySelector(".pp-label").textContent = label;
+    t.textContent = block.dataset.purport;
     let fs = max; t.style.fontSize = fs + "px";
-    while (fs > min && ppCard.scrollHeight > ppCard.clientHeight + 1) { fs -= 0.5; t.style.fontSize = fs + "px"; }
-    ppCard.scrollTop = 0;
+    while (fs > min && m.scrollHeight > m.clientHeight + 1) { fs -= 0.5; t.style.fontSize = fs + "px"; }
+    const h = Math.ceil(Math.min(m.scrollHeight + 2, allowed));
+    return { fs, h, label, text: block.dataset.purport, reserve: h + 14 };
 }
 function ppPaintBtn() {
     ppBtn.innerHTML = PP_SVG(ppEnabled ? PP_I : PP_I + '<path d="M4 4l16 16"/>');
     ppBtn.setAttribute("aria-pressed", ppEnabled ? "true" : "false");
     ppBtn.title = ppEnabled ? "Meaning on: tap to hide" : "Meaning off: tap to show";
 }
-window.purportReserve = () => contentBox.classList.contains("purport-on") ? ppCap + 18 : 0;
+window.purportReserve = () => ppReserveNow;           // space under the playing stanza taken by its card (0 = none)
 window.refreshPurport = () => {
     ppLayout();
-    contentBox.classList.toggle("purport-on", ppEnabled && ppTopicHas);
-    const block = (ppEnabled && ppTopicHas) ? contentBox.querySelector(".verse-block.verse-active") : null;
-    const txt = block && block.dataset.purport;
+    const on = ppEnabled && ppTopicHas;
+    contentBox.classList.toggle("purport-on", on);
+    const block = on ? contentBox.querySelector(".verse-block.verse-active") : null;
     const my = ++ppToken;
-    if (!txt) { ppCard.classList.remove("show"); ppShownFor = null; return; }
-    if (block === ppShownFor && ppCard.classList.contains("show")) return;   // same stanza: nothing to do
-    const swap = () => {
-        if (my !== ppToken) return;
-        const lab = block.querySelector(".verse-label");
-        ppCard.querySelector(".pp-label").textContent = (lab ? lab.textContent.trim() + " \u00B7 " : "") + "Meaning";
-        ppCard.querySelector(".pp-text").textContent = txt;
-        ppLayout(); ppFit();
-        ppCard.classList.add("show"); ppShownFor = block;
+    if (!(block && block.dataset.purport)) { ppReserveNow = 0; ppCard.classList.remove("show"); ppShownFor = null; return; }
+    const plan = ppPlan(block);                        // card sized to what is left under this stanza
+    ppReserveNow = plan.reserve;
+    const apply = () => {
+        ppCard.querySelector(".pp-label").textContent = plan.label;
+        const t = ppCard.querySelector(".pp-text");
+        t.textContent = plan.text; t.style.fontSize = plan.fs + "px";
+        ppCard.style.maxHeight = plan.h + "px"; ppCard.scrollTop = 0;
     };
+    if (block === ppShownFor && ppCard.classList.contains("show")) { apply(); return; }   // same stanza (e.g. resize): just refit
+    const swap = () => { if (my !== ppToken) return; apply(); ppCard.classList.add("show"); ppShownFor = block; };
     if (ppCard.classList.contains("show")) { ppCard.classList.remove("show"); setTimeout(swap, 230); }   // fade out, then in
     else swap();
 };
@@ -1356,7 +1362,7 @@ window.initPurports = blocks => {
     window.refreshPurport();
 };
 window.resetPurports = () => {
-    ppTopicHas = false; ppShownFor = null; ++ppToken;
+    ppTopicHas = false; ppShownFor = null; ppReserveNow = 0; ++ppToken;
     ppBtn.disabled = true; ppCard.classList.remove("show");
     contentBox.classList.remove("purport-on");
 };
