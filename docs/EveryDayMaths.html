@@ -22,6 +22,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     margin: 20px;
     margin-bottom: 0;
     height: calc(100vh - 40px - 64px);
+    height: calc(100dvh - 40px - 64px);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -97,7 +98,7 @@ button {
     transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
 }
 
-button:hover  { transform: scale(1.06); filter: brightness(1.2); }
+@media (hover:hover) { button:hover { transform: scale(1.06); filter: brightness(1.2); } }
 button:active { transform: scale(0.97); }
 
 #selectAllBtn, #toggleAll {
@@ -568,41 +569,50 @@ button:active { transform: scale(0.97); }
 .urc-emoji-shimmer { animation:urc-shimmer 2s ease-in-out infinite; }
 
 
-/* ── MOBILE (phones): bigger text and buttons, tighter margins. Desktop is untouched. ── */
+/* ── MOBILE (phones): compact text and buttons. Desktop is untouched. ── */
 @media (max-width: 700px) {
-    #outer { margin: 8px 8px 0 8px; gap: 10px; height: calc(100vh - 8px - 74px); height: calc(100dvh - 8px - 74px); }
-    #control-container.shrink { padding: 6px 8px; }
-    #control-top-bar { margin: 2px 0 !important; gap: 10px; }
-    #control-top-bar label, #control-top-bar span { font-size: 18px; }
-    #answersShownBadge { font-size: 16px !important; padding: 6px 12px !important; }
+    #outer { margin: 6px 6px 0 6px; gap: 6px; height: calc(100vh - 6px - 56px); height: calc(100dvh - 6px - 56px); }
+    #control-container.shrink { padding: 3px 6px; min-height: 0; }
+    #control-top-bar { margin: 0 !important; gap: 6px; min-height: 0; }
+    #control-top-bar label, #control-top-bar span { font-size: 13px !important; }
+    #control-top-bar label { gap: 5px !important; }
+    #answersShownBadge { font-size: 11px !important; padding: 3px 7px !important; }
+    #dateBox { font-size: 11px; padding: 3px 6px; }
     #selectAllBtn { order: -2; }
-    #maxBtn { order: -1; width: 46px; height: 46px; }
-    #maxBtn svg { width: 24px; height: 24px; }
-    button { padding: 12px 20px; font-size: 17px; border-radius: 10px; }
-    #control-top-bar input[type="checkbox"] { width: 22px; height: 22px; }
-    #jumpSelect { font-size: 17px; padding: 10px 12px; min-width: 0; max-width: none; flex: 1 1 180px; }
+    #maxBtn { order: -1; width: 32px; height: 32px; margin-left: 0; }
+    #maxBtn svg { width: 17px; height: 17px; }
+    button { padding: 7px 11px; font-size: 13px; border-radius: 8px; }
+    #control-top-bar input[type="checkbox"] { width: 16px; height: 16px; }
+    #jumpSelect { font-size: 16px; padding: 5px 8px; min-width: 0; max-width: none; flex: 1 1 130px; }
 
-    #control { grid-template-columns: repeat(2, 1fr); max-height: 45vh; max-height: 45dvh; overflow-y: auto; min-width: 0; }
-    .ctrl-item { font-size: 16px; white-space: normal; padding: 7px 0; gap: 10px; }
-    .ctrl-item input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
+    #control { grid-template-columns: repeat(2, 1fr); max-height: 40vh; max-height: 40dvh; overflow-y: auto; min-width: 0; padding: 6px 8px; }
+    .ctrl-item { font-size: 13px; white-space: normal; padding: 4px 0; gap: 7px; }
+    .ctrl-item input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
 
-    #questions { padding: 4px; }
-    .stack-wrapper { top: 4px; left: 4px; right: 4px; bottom: 4px; }
-    .stack-box { padding: 12px 10px; }
-    .problem-title { font-size: 27px; padding-right: 50px; }
-    .refresh-btn { top: 8px; right: 8px; width: 44px; height: 40px; padding: 0 !important; font-size: 24px !important; }
-    .question-row { padding-left: 8px; }
-    .question-letter { width: 44px; margin-right: 10px; }
-    .answer-input { height: 46px; font-size: 24px; width: 130px; }
-    .stacked-row .stacked-answer-line { flex-wrap: wrap; }
-    .question-row.word-row .word-answer-line { padding-left: 12px; flex-wrap: wrap; }
-    .working-block { padding: 10px 12px; font-size: 19px; }
-    .col-annotation { font-size: 16px; }
+    #questions { padding: 2px; }
+    .stack-wrapper { top: 2px; left: 2px; right: 2px; bottom: 2px; }
+    .stack-box { padding: 8px 8px; }
+    .problem-title { font-size: 18px; padding-right: 42px; margin-bottom: 4px; }
+    .refresh-btn { top: 6px; right: 6px; width: 34px; height: 30px; padding: 0 !important; font-size: 18px !important; }
+    .question-row { padding-left: 4px; font-size: 24px; line-height: 1.6; }
+    .question-letter { width: 36px; margin-right: 6px; }
+    .answer-input { height: 36px; font-size: 18px; width: 100px; }
+    .inline-answer-wrap { margin-left: 8px; gap: 6px; }
+    .stacked-row .stacked-numbers { font-size: 28px; }
+    .stacked-row .stacked-top .question-letter { font-size: 20px; }
+    .stacked-row .stacked-hint { font-size: 14px; }
+    .stacked-row .stacked-answer-line, .stacked-row .stacked-answer-line .answer { font-size: 20px; flex-wrap: wrap; }
+    .stacked-row .stacked-answer-line .answer-input { width: 150px !important; }
+    .question-row.word-row .word-answer-line { padding-left: 8px; flex-wrap: wrap; font-size: 20px; }
+    .working-block { padding: 8px 10px; font-size: 15px; }
+    .col-work { font-size: 17px; }
+    .col-digit, .col-result-digit, .col-digit-wrap { width: 22px; }
+    .col-annotation { font-size: 13px; }
     .urc-grid { grid-template-columns: 1fr !important; }   /* units reference card: stack the 3 columns */
 
-    #bottom-nav { height: 74px; gap: 14px; padding: 8px 10px; }
-    #bottom-nav button { padding: 14px 22px; font-size: 20px; }
-    #bottom-qCounter { font-size: 22px; min-width: 70px; }
+    #bottom-nav { height: 56px; gap: 10px; padding: 6px 10px; }
+    #bottom-nav button { padding: 9px 18px; font-size: 15px; border-radius: 10px; }
+    #bottom-qCounter { font-size: 16px; min-width: 56px; letter-spacing: 1px; }
 }
 </style>
 </head>
@@ -877,12 +887,14 @@ function subtractBorrowWorking(qText) {
         );
     }).join("");
 
-    const botHTML = bD.map(d =>
-        '<span class="col-digit">' + d + '</span>'
+    const bLen = String(B).length;
+    const botHTML = bD.map((d, i) =>
+        '<span class="col-digit">' + (i < len - bLen ? '\u00a0' : d) + '</span>'
     ).join("");
+    let firstNZ = result.findIndex(d => d !== 0); if (firstNZ < 0) firstNZ = len - 1;
 
     const resHTML = result.map((d, i) => {
-        if (i === 0 && d === 0 && result.length > 1)
+        if (i < firstNZ)
             return '<span class="col-result-digit">\u00a0</span>';
         return '<span class="col-result-digit">' + d + '</span>';
     }).join("");
@@ -925,7 +937,8 @@ function multiplyCarryWorking(qText) {
         annotations.push('<span class="ca-col">× ' + bDig + ' (' + bColName + ' digit):</span>');
 
         for (let ai = aDigits.length - 1; ai >= 0; ai--) {
-            const prod = aDigits[ai] * bDig + carry;
+            const carryIn = carry;
+            const prod = aDigits[ai] * bDig + carryIn;
             carry = Math.floor(prod / 10);
             const digit = prod % 10;
             rowDigs.unshift(digit);
@@ -933,7 +946,7 @@ function multiplyCarryWorking(qText) {
             if (carry > 0 || bDig > 1) {
                 annotations.push(
                     '&nbsp;&nbsp;' + aColName + ': ' + aDigits[ai] + '×' + bDig +
-                    (carry > 0 && prod >= 10 ? ' + carry ' + Math.floor((prod - digit)/10) : '') +
+                    (carryIn > 0 ? ' + carry ' + carryIn : '') +
                     ' = <span class="ca-ans">' + prod + '</span>' +
                     (carry > 0 ? ' → write <span class="ca-ans">' + digit + '</span>, carry <span class="ca-carry">' + carry + '</span>' : '')
                 );
@@ -1219,33 +1232,12 @@ function playRevealChime() {
     } catch(e) {}
 }
 
-toggleAll.onclick = () => {
-    showAll = !showAll;
-    if (showAll) playRevealChime();
-    const badge = document.getElementById("answersShownBadge");
-    if (badge && showAll) {
-        badge.style.display = "inline-block";
-        badge.style.opacity = "1";
-        badge.style.animation = "answersBlink 2s ease-in-out infinite";
-        badge.innerHTML = "&#128275; ANSWERS SHOWN";
-        badge.style.color = "#ff4444";
-        badge.style.border = "1px solid #ff4444";
-        badge.style.background = "#1a0000";
-    }
-    if (badge && !showAll) {
-        badge.style.animation = "none";
-        badge.style.opacity = "0.65";
-        badge.style.color = "#cc7700";
-        badge.style.border = "1px solid #cc7700";
-        badge.style.background = "#1a1000";
-        badge.innerHTML = "&#128275; answers were shown";
-    }
-
+function applyAnswers() {
     document.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
     document.querySelectorAll(".num-word").forEach(el => { el.style.visibility = showAll ? "visible" : "hidden"; });
     document.querySelectorAll("#questions .question-row img").forEach(img => { img.style.display = showAll ? "block" : "none"; });
     document.querySelectorAll("canvas.clock-answer").forEach(canvas => {
-        if (showAll) { canvas.style.display="block"; animateClock(canvas, canvas.dataset.time); }
+        if (showAll) { if (canvas.style.display !== "block") { canvas.style.display="block"; animateClock(canvas, canvas.dataset.time); } }
         else {
             if (canvas._clockRaf) { cancelAnimationFrame(canvas._clockRaf); canvas._clockRaf = null; }
             canvas.style.display="none";
@@ -1254,8 +1246,7 @@ toggleAll.onclick = () => {
     });
     document.querySelectorAll("canvas.shape-answer-canvas").forEach(canvas => {
         if (showAll) {
-            canvas.style.display="block";
-            if (window._drawShape) window._drawShape(canvas, canvas.dataset.shapeName);
+            if (canvas.style.display !== "block") { canvas.style.display="block"; if (window._drawShape) window._drawShape(canvas, canvas.dataset.shapeName); }
         } else {
             canvas.style.display="none";
             canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
@@ -1326,6 +1317,31 @@ toggleAll.onclick = () => {
             row.appendChild(wb);
         });
     }
+}
+
+toggleAll.onclick = () => {
+    showAll = !showAll;
+    if (showAll) playRevealChime();
+    const badge = document.getElementById("answersShownBadge");
+    if (badge && showAll) {
+        badge.style.display = "inline-block";
+        badge.style.opacity = "1";
+        badge.style.animation = "answersBlink 2s ease-in-out infinite";
+        badge.innerHTML = "&#128275; ANSWERS SHOWN";
+        badge.style.color = "#ff4444";
+        badge.style.border = "1px solid #ff4444";
+        badge.style.background = "#1a0000";
+    }
+    if (badge && !showAll) {
+        badge.style.animation = "none";
+        badge.style.opacity = "0.65";
+        badge.style.color = "#cc7700";
+        badge.style.border = "1px solid #cc7700";
+        badge.style.background = "#1a1000";
+        badge.innerHTML = "&#128275; answers were shown";
+    }
+
+    applyAnswers();
     toggleAll.textContent = showAll ? "Hide Answers" : "Show";
     toggleAll.style.background = showAll ? "#cc3300" : "#28a745";
     toggleAll.style.boxShadow  = showAll ? "0 0 12px rgba(204,51,0,0.7)" : "0 0 8px rgba(40,167,69,0.5)";
@@ -2039,10 +2055,6 @@ function refreshStack(val) {
     oldBox.innerHTML = "";
     generate(oldBox, val);
 
-    setTimeout(() => {
-        oldBox.querySelectorAll(".answer").forEach(a => a.classList.toggle("show", showAll));
-        oldBox.querySelectorAll(".num-word").forEach(el => { el.style.visibility = showAll ? "visible" : "hidden"; });
-    }, 900);
 }
 
 function addStack(val) {
@@ -2664,10 +2676,10 @@ function generate(box, val) {
 
     // ── AVERAGE ──────────────────────────────────────────────────────────────────
     if (val === "average-numbers") {
-        const rng = mulberry32(dailySeed("average-numbers"));
+        const rng = mulberry32(refreshSeeds[val] || dailySeed("average-numbers"));
         function ri(a,b){ return a + Math.floor(rng()*(b-a+1)); }
 
-        const questions = [];
+        const avgQs = [];
         for (let q = 0; q < 1; q++) {
             let nums, avg;
             let tries = 0;
@@ -2677,10 +2689,10 @@ function generate(box, val) {
                 avg = sum / 4;
                 tries++;
             } while (avg !== Math.floor(avg) && tries < 200);
-            questions.push({ nums, sum: nums.reduce((a,b)=>a+b,0), avg });
+            avgQs.push({ nums, sum: nums.reduce((a,b)=>a+b,0), avg });
         }
 
-        questions.forEach((q, j) => {
+        avgQs.forEach((q, j) => {
             const letter = String.fromCharCode(97+j);
             const row = document.createElement("div");
             row.className = "question-row";
@@ -2743,9 +2755,9 @@ function generate(box, val) {
                 const aDisplay   = qCode ? aText + ' <span style="color:#555;font-size:0.7em;margin-left:6px;">' + qCode + '</span>' : aText;
 
                 if (val === "number-names") {
-                    const numMatch = qText.match(/\d+/);
+                    const numMatch = qText.match(/\d[\d,]*/);
                     if (numMatch) {
-                        const word = numberToWords(parseInt(numMatch[0]));
+                        const word = numberToWords(parseInt(numMatch[0].replace(/,/g, ""), 10));
                         qText = qText + ' <span class="num-word">' + word + '</span>';
                     }
                     box.innerHTML += '<div class="question-row">' +
@@ -2787,7 +2799,7 @@ const controlToggle    = document.getElementById("control-toggle");
 controlToggle.checked  = false;
 controlToggle.onchange = () => controlContainer.classList.toggle("shrink", !controlToggle.checked);
 
- ───────────────────────────────────────────────────────
+// ── STACK STATE ───────────────────────────────────────────────────────────────
 const stackOrder   = [];
 let   currentIndex = 0;
 let   isAnimating  = false;
@@ -2904,6 +2916,15 @@ document.addEventListener("keydown", e => {
         if (sel && !sel.isCollapsed) return;                                    // selecting text
         navigate(dx < 0 ? "next" : "prev");
     }, { passive: true });
+})();
+
+// New or refreshed topics (loaded asynchronously) pick up the current Show/Hide state
+(function () {
+    let t = null;
+    new MutationObserver(() => {
+        clearTimeout(t);
+        t = setTimeout(() => { if (showAll) applyAnswers(); }, 80);
+    }).observe(questions, { childList: true, subtree: true });
 })();
 
 const allCheckboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
