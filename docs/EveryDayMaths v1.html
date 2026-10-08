@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EveryDayMaths</title>
-<!--v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
+<!--v18: Scales for Liquids and Weights -->
 <style>
 html, body {
     margin: 0;
@@ -115,14 +114,15 @@ button:active { transform: scale(0.97); }
 }
 .nav-btn:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
 
-/* MAXIMIZE (full screen) button in the top panel */
-#maxBtn {
-    width: 38px; height: 38px; padding: 0; margin-left: auto; flex-shrink: 0;
-    border-radius: 50%; background: transparent; border: 1.5px solid #00c8ff; color: #00c8ff;
-    display: inline-flex; align-items: center; justify-content: center; box-shadow: none;
+#timerBtn { background: #28a745; color: #fff; box-shadow: 0 0 8px rgba(40,167,69,0.5); }
+#resetTimer { background: #555; color: #fff; }
+#timerDisplay {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00c8ff;
+    min-width: 56px;
+    letter-spacing: 2px;
 }
-#maxBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
-#maxBtn svg { width: 20px; height: 20px; display: block; }
 
 #dateBox {
     font-size: 14px;
@@ -567,43 +567,21 @@ button:active { transform: scale(0.97); }
 .urc-emoji-tick    { animation:urc-tick 3s linear infinite; }
 .urc-emoji-shimmer { animation:urc-shimmer 2s ease-in-out infinite; }
 
-
-/* ── MOBILE (phones): bigger text and buttons, tighter margins. Desktop is untouched. ── */
-@media (max-width: 700px) {
-    #outer { margin: 8px 8px 0 8px; gap: 10px; height: calc(100vh - 8px - 74px); height: calc(100dvh - 8px - 74px); }
-    #control-container.shrink { padding: 6px 8px; }
-    #control-top-bar { margin: 2px 0 !important; gap: 10px; }
-    #control-top-bar label, #control-top-bar span { font-size: 18px; }
-    #answersShownBadge { font-size: 16px !important; padding: 6px 12px !important; }
-    #selectAllBtn { order: -2; }
-    #maxBtn { order: -1; width: 46px; height: 46px; }
-    #maxBtn svg { width: 24px; height: 24px; }
-    button { padding: 12px 20px; font-size: 17px; border-radius: 10px; }
-    #control-top-bar input[type="checkbox"] { width: 22px; height: 22px; }
-    #jumpSelect { font-size: 17px; padding: 10px 12px; min-width: 0; max-width: none; flex: 1 1 180px; }
-
-    #control { grid-template-columns: repeat(2, 1fr); max-height: 45vh; max-height: 45dvh; overflow-y: auto; min-width: 0; }
-    .ctrl-item { font-size: 16px; white-space: normal; padding: 7px 0; gap: 10px; }
-    .ctrl-item input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; }
-
-    #questions { padding: 4px; }
-    .stack-wrapper { top: 4px; left: 4px; right: 4px; bottom: 4px; }
-    .stack-box { padding: 12px 10px; }
-    .problem-title { font-size: 27px; padding-right: 50px; }
-    .refresh-btn { top: 8px; right: 8px; width: 44px; height: 40px; padding: 0 !important; font-size: 24px !important; }
-    .question-row { padding-left: 8px; }
-    .question-letter { width: 44px; margin-right: 10px; }
-    .answer-input { height: 46px; font-size: 24px; width: 130px; }
-    .stacked-row .stacked-answer-line { flex-wrap: wrap; }
-    .question-row.word-row .word-answer-line { padding-left: 12px; flex-wrap: wrap; }
-    .working-block { padding: 10px 12px; font-size: 19px; }
-    .col-annotation { font-size: 16px; }
-    .urc-grid { grid-template-columns: 1fr !important; }   /* units reference card: stack the 3 columns */
-
-    #bottom-nav { height: 74px; gap: 14px; padding: 8px 10px; }
-    #bottom-nav button { padding: 14px 22px; font-size: 20px; }
-    #bottom-qCounter { font-size: 22px; min-width: 70px; }
+/* ── FLOATING ANALOG CLOCK ───────────────────────────────────────── */
+#floatingClock {
+    position: fixed;
+    bottom: 80px;
+    right: 18px;
+    z-index: 200;
+    width: 130px;
+    height: 130px;
+    cursor: grab;
+    border-radius: 50%;
+    outline: 3px solid transparent;
+    outline-offset: 2px;
 }
+#floatingClock:hover { filter: brightness(1.15); }
+#floatingClock.dragging { cursor: grabbing; }
 </style>
 </head>
 <body>
@@ -621,9 +599,11 @@ button:active { transform: scale(0.97); }
             </select>
             <button id="toggleAll">Show</button>
             <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128275; ANSWERS SHOWN</span>
+            <button id="timerBtn">Start Timer</button>
+            <button id="resetTimer">Reset</button>
+            <span id="timerDisplay">00:00</span>
             <button id="goTopBtn" class="nav-btn">&#11014; Top Q</button>
             <span id="dateBox"></span>
-            <button id="maxBtn" title="Maximize (full screen)" aria-label="Maximize"></button>
         </div>
         <fieldset id="control">
             <legend>Control Panel</legend>
@@ -1097,9 +1077,11 @@ function getDailyClockScheme() {
     return CLOCK_SCHEMES[day % CLOCK_SCHEMES.length];
 }
 
-// ── Live analog clock (shows the CURRENT time) - built only inside the "Identify Time" topic ──
-function buildLiveClock(sc) {
+// ── Floating analog clock ─────────────────────────────────────────────────────
+(function() {
     const CX = 65, CY = 65, R = 58;
+    const sc = getDailyClockScheme();
+
     let ticks = '';
     for (let i = 0; i < 60; i++) {
         const a = (i * 6 - 90) * Math.PI / 180;
@@ -1109,30 +1091,35 @@ function buildLiveClock(sc) {
                  '" x2="' + (CX + R*Math.cos(a)).toFixed(2)  + '" y2="' + (CY + R*Math.sin(a)).toFixed(2) +
                  '" stroke="' + (isHour ? sc.tick : sc.face === '#0d0d2b' ? '#2a1a4a' : sc.tick + '55') + '" stroke-width="' + (isHour ? '2' : '1') + '"/>';
     }
+    const nums = [12,1,2,3,4,5,6,7,8,9,10,11];
     let labels = '';
-    [12,1,2,3,4,5,6,7,8,9,10,11].forEach((n, i) => {
+    nums.forEach((n, i) => {
         const a = (i * 30 - 90) * Math.PI / 180;
         const nr = R - 20;
         labels += '<text x="' + (CX + nr*Math.cos(a)).toFixed(1) + '" y="' + (CY + nr*Math.sin(a) + 4).toFixed(1) +
                   '" text-anchor="middle" fill="' + sc.num + '" font-size="10" font-family="Arial" font-weight="bold">' + n + '</text>';
     });
+
     const svg =
-        '<svg width="170" height="170" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 0 8px ' + sc.rim + '99);">' +
+        '<svg id="floatingClock" width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">' +
             '<circle cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="' + sc.face + '" stroke="' + sc.rim + '" stroke-width="2.5"/>' +
             '<circle cx="' + CX + '" cy="' + CY + '" r="' + (R+4) + '" fill="none" stroke="' + sc.rim + '" stroke-width="1" opacity="0.3"/>' +
             ticks + labels +
-            '<line class="fc-h" x1="' + CX + '" y1="' + CY + '" x2="' + CX + '" y2="' + (CY-28) + '" stroke="' + sc.hour + '" stroke-width="4.5" stroke-linecap="round"/>' +
-            '<line class="fc-m" x1="' + CX + '" y1="' + CY + '" x2="' + CX + '" y2="' + (CY-42) + '" stroke="' + sc.min  + '" stroke-width="3"   stroke-linecap="round"/>' +
-            '<line class="fc-s" x1="' + CX + '" y1="' + (CY+10) + '" x2="' + CX + '" y2="' + (CY-48) + '" stroke="#ff4444" stroke-width="1.5" stroke-linecap="round"/>' +
+            '<line id="fc-h" x1="' + CX + '" y1="' + CY + '" x2="' + CX + '" y2="' + (CY-28) + '" stroke="' + sc.hour + '" stroke-width="4.5" stroke-linecap="round"/>' +
+            '<line id="fc-m" x1="' + CX + '" y1="' + CY + '" x2="' + CX + '" y2="' + (CY-42) + '" stroke="' + sc.min  + '" stroke-width="3"   stroke-linecap="round"/>' +
+            '<line id="fc-s" x1="' + CX + '" y1="' + (CY+10) + '" x2="' + CX + '" y2="' + (CY-48) + '" stroke="#ff4444" stroke-width="1.5" stroke-linecap="round"/>' +
             '<circle cx="' + CX + '" cy="' + CY + '" r="4" fill="' + sc.rim + '"/>' +
             '<circle cx="' + CX + '" cy="' + CY + '" r="2" fill="' + sc.dot + '"/>' +
         '</svg>';
 
-    const wrap = document.createElement("div");
-    wrap.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:10px;padding-top:16px;border-top:1px solid #222;width:100%;max-width:420px;";
-    wrap.innerHTML = '<div style="font-size:14px;color:#888;letter-spacing:1px;text-transform:uppercase;">Clock showing the time now</div>' + svg;
+    document.body.insertAdjacentHTML('beforeend', svg);
 
-    const hHand = wrap.querySelector(".fc-h"), mHand = wrap.querySelector(".fc-m"), sHand = wrap.querySelector(".fc-s");
+    const el    = document.getElementById("floatingClock");
+    el.style.filter = 'drop-shadow(0 0 8px ' + sc.rim + '99)';
+    const hHand = document.getElementById("fc-h");
+    const mHand = document.getElementById("fc-m");
+    const sHand = document.getElementById("fc-s");
+
     function setHand(hand, angleDeg, length, tail) {
         tail = tail || 0;
         const rad = (angleDeg - 90) * Math.PI / 180;
@@ -1151,9 +1138,37 @@ function buildLiveClock(sc) {
         setHand(sHand, secs  * 6,  48, 10);
     }
     tick();
-    const iv = setInterval(() => { if (!wrap.isConnected) { clearInterval(iv); return; } tick(); }, 1000);   // stops itself when the topic is refreshed/removed
-    return wrap;
-}
+    setInterval(tick, 1000);
+
+    let dragging = false, ox = 0, oy = 0;
+    el.addEventListener("mousedown", e => {
+        dragging = true;
+        ox = e.clientX - el.getBoundingClientRect().left;
+        oy = e.clientY - el.getBoundingClientRect().top;
+        el.classList.add("dragging"); e.preventDefault();
+    });
+    document.addEventListener("mousemove", e => {
+        if (!dragging) return;
+        el.style.right = "auto"; el.style.bottom = "auto";
+        el.style.left = (e.clientX - ox) + "px";
+        el.style.top  = (e.clientY - oy) + "px";
+    });
+    document.addEventListener("mouseup", () => { dragging = false; el.classList.remove("dragging"); });
+    el.addEventListener("touchstart", e => {
+        const t = e.touches[0]; dragging = true;
+        ox = t.clientX - el.getBoundingClientRect().left;
+        oy = t.clientY - el.getBoundingClientRect().top;
+        el.classList.add("dragging"); e.preventDefault();
+    }, {passive:false});
+    document.addEventListener("touchmove", e => {
+        if (!dragging) return;
+        const t = e.touches[0];
+        el.style.right = "auto"; el.style.bottom = "auto";
+        el.style.left = (t.clientX - ox) + "px";
+        el.style.top  = (t.clientY - oy) + "px";
+    });
+    document.addEventListener("touchend", () => { dragging = false; el.classList.remove("dragging"); });
+})();
 
 // ── TOGGLE SHOW/HIDE ──────────────────────────────────────────────────────────
 function playRevealChime() {
@@ -2248,7 +2263,6 @@ function generate(box, val) {
                 block.appendChild(canvas);
                 block.appendChild(playBtn);
                 block.appendChild(ansRow);
-                block.appendChild(buildLiveClock(scheme));   // live "current time" clock, shown only in this topic
                 box.appendChild(block);
             })
             .catch(err => { box.innerHTML += '<div style="color:#f66;padding:20px;">' + err.message + '</div>'; });
@@ -2787,7 +2801,32 @@ const controlToggle    = document.getElementById("control-toggle");
 controlToggle.checked  = false;
 controlToggle.onchange = () => controlContainer.classList.toggle("shrink", !controlToggle.checked);
 
- ───────────────────────────────────────────────────────
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+let timer = null, seconds = 0;
+const timerBtn     = document.getElementById("timerBtn");
+const resetTimerBtn= document.getElementById("resetTimer");
+const timerDisplay = document.getElementById("timerDisplay");
+
+function updateTimerDisplay() {
+    timerDisplay.textContent = String(Math.floor(seconds/60)).padStart(2,"0") + ":" + String(seconds%60).padStart(2,"0");
+}
+
+timerBtn.onclick = () => {
+    if (!timer) {
+        timer = setInterval(()=>{seconds++;updateTimerDisplay();},1000);
+        timerBtn.textContent="Pause"; timerBtn.style.background="#cc3300"; timerBtn.style.boxShadow="0 0 12px rgba(204,51,0,0.8)";
+    } else {
+        clearInterval(timer); timer=null;
+        timerBtn.textContent="Start Timer"; timerBtn.style.background="#28a745"; timerBtn.style.boxShadow="0 0 8px rgba(40,167,69,0.5)";
+    }
+};
+
+resetTimerBtn.onclick = () => {
+    clearInterval(timer); timer=null; seconds=0; updateTimerDisplay();
+    timerBtn.textContent="Start Timer"; timerBtn.style.background="#28a745"; timerBtn.style.boxShadow="0 0 8px rgba(40,167,69,0.5)";
+};
+
+// ── CAROUSEL NAVIGATION ───────────────────────────────────────────────────────
 const stackOrder   = [];
 let   currentIndex = 0;
 let   isAnimating  = false;
@@ -2850,61 +2889,6 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") { e.preventDefault(); navigate("next"); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); navigate("prev"); }
 });
-
-// ── MAXIMIZE (full screen) button, top panel ─────────────────────────────────
-(function () {
-    const maxBtn = document.getElementById("maxBtn");
-    const de  = document.documentElement;
-    const req = de.requestFullscreen || de.webkitRequestFullscreen;
-    const ext = document.exitFullscreen || document.webkitExitFullscreen;
-    const ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
-    const EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
-    if (!req) { maxBtn.style.display = "none"; return; }       // e.g. iPhone Safari has no full-screen API for pages
-    const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-    function paint() {
-        maxBtn.innerHTML = isFS() ? EXIT : ENTER;
-        maxBtn.title = isFS() ? "Exit full screen" : "Maximize (full screen)";
-        maxBtn.setAttribute("aria-label", isFS() ? "Exit full screen" : "Maximize");
-    }
-    maxBtn.onclick = () => {
-        if (!isFS()) { const p = req.call(de); if (p && p.catch) p.catch(() => {}); }
-        else ext.call(document);
-    };
-    document.addEventListener("fullscreenchange", paint);
-    document.addEventListener("webkitfullscreenchange", paint);
-    paint();
-})();
-
-// ── SWIPE: left = Next, right = Prev (touch screens) ─────────────────────────
-(function () {
-    let sx = 0, sy = 0, st = 0, tracking = false, blocked = false;
-    function hScrollable(el) {      // a sideways-scrolling element must keep its own swipe
-        for (; el && el !== questions; el = el.parentElement) {
-            const cs = getComputedStyle(el);
-            if ((cs.overflowX === "auto" || cs.overflowX === "scroll") && el.scrollWidth > el.clientWidth + 1) return true;
-        }
-        return false;
-    }
-    questions.addEventListener("touchstart", e => {
-        tracking = e.touches.length === 1;
-        if (!tracking) return;
-        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
-        blocked = !!(e.target.closest && e.target.closest("input,select,textarea")) || hScrollable(e.target);
-    }, { passive: true });
-    questions.addEventListener("touchcancel", () => { tracking = false; }, { passive: true });
-    questions.addEventListener("touchend", e => {
-        if (!tracking) return;
-        tracking = false;
-        if (blocked) return;
-        const t = e.changedTouches[0];
-        const dx = t.clientX - sx, dy = t.clientY - sy;
-        if (Date.now() - st > 700) return;                                      // slow drag: not a swipe
-        if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;    // too short, or mostly vertical (scrolling)
-        const sel = window.getSelection && window.getSelection();
-        if (sel && !sel.isCollapsed) return;                                    // selecting text
-        navigate(dx < 0 ? "next" : "prev");
-    }, { passive: true });
-})();
 
 const allCheckboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
 document.getElementById("selectAllBtn").onclick = async () => {
