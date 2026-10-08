@@ -35,7 +35,7 @@
       not fetched yet, and a mute button.
    6. Bottom nav bar: Prev / Next (wrap around), counter, speed buttons
       (disabled when the topic has no audio), full-screen "reading mode" button.
-   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text (all swipes and verse taps can be blocked with the lock button)
+   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text (while touch-locked, swipes are blocked and show an "Unlock to swipe" hint; the lock also blocks verse taps and the seek bar)
       (swipe left = Next, swipe right = Prev). Check here carefully for 'scrollable texts'
 	  that do not conflict with swiping. 
    8. Copy button: copies the page's plain text (no audio/labels) to clipboard.
@@ -514,7 +514,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #menuBtn.open { background: #d8b46a !important; color: #111 !important; }
 
 /* Touch lock: sits just left of the fullscreen/X button. While locked, taps on verses,
-   the seek bar and text swipes are ignored (see body.touch-locked in the script). */
+   the seek bar are ignored; left/right swipes only show an "Unlock to swipe" hint (see body.touch-locked in the script). */
 #navbar #lockBtn {
     position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
     width: 31px; height: 31px; padding: 0; border-radius: 50%;
@@ -525,6 +525,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar #lockBtn svg { width: 18px; height: 18px; flex: 0 0 auto; display: block; }
 /* leave room on the right for lock + fullscreen, so Prev / counter / Next / speed pill shift left */
 #navbar { padding-right: 90px; }
+/* "Unlock to swipe" hint: small pill that fades in above the nav bar after a swipe while locked */
+#lockHint {
+    position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+    display: flex; align-items: center; gap: 7px; padding: 7px 14px;
+    background: #111; border: 1px solid #d8b46a; border-radius: 16px;
+    color: #d8b46a; font: 600 13px/1 system-ui, sans-serif; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4); pointer-events: none;
+    opacity: 0; transition: opacity .2s;
+}
+#lockHint.show { opacity: 1; }
+#lockHint svg { width: 16px; height: 16px; flex: 0 0 auto; }
 body.touch-locked #content-box .verse-block { cursor: default; }
 @media (min-width: 701px) { body.reading #sidebar { display: none; } }
 
@@ -616,6 +627,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
             <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
         </div>
     </div>
+    <div id="lockHint" role="status" aria-live="polite"></div>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
     <button id="fsBtn" title="Full screen / reading mode" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
@@ -1150,13 +1162,16 @@ document.addEventListener("keydown", e => {
     contentBox.addEventListener("touchend", e => {
         if (!tracking) return;
         tracking = false;
-        if (document.body.classList.contains("touch-locked")) return;   // touch lock: no swipe-to-change-topic
         const t = e.changedTouches[0];
         const dx = t.clientX - sx, dy = t.clientY - sy;
         if (Date.now() - st > 700) return;                          // slow drag: not a swipe
         if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;   // too short, or mostly vertical (scrolling)
         const sel = window.getSelection && window.getSelection();
         if (sel && !sel.isCollapsed) return;                        // user is selecting text
+        if (document.body.classList.contains("touch-locked")) {     // touch lock: a real swipe only shows the hint
+            if (window.showLockHint) window.showLockHint();
+            return;
+        }
         document.getElementById(dx < 0 ? "nextBtn" : "prevBtn").click();
     }, { passive: true });
 })();
@@ -1260,7 +1275,7 @@ document.addEventListener("click", e => { if (!speedPop.hidden && !speedPop.cont
 document.addEventListener("keydown", e => { if (e.key === "Escape") window.closeSpeedPop(); });
 
 // ── TOUCH LOCK ────────────────────────────────────────────────────────
-// While locked: verse taps, the seek bar and topic swipes are ignored. Scrolling, Play/Pause,
+// While locked: verse taps and the seek bar are ignored. Scrolling, left/right swipe to change topic, Play/Pause,
 // Prev/Next buttons and speed still work. It starts LOCKED each time the page opens.
 const lockBtn = document.getElementById("lockBtn");
 const LOCK_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';   // closed padlock = locked
@@ -1271,6 +1286,17 @@ function setTouchLock(on) {
     lockBtn.innerHTML = on ? LOCK_SVG : UNLOCK_SVG;
     lockBtn.title = on ? "Touch locked: tap to unlock" : "Lock touch (ignore accidental taps)";
 }
+// Hint shown when the user swipes left/right while locked (taps and up/down scrolling show nothing)
+const lockHint = document.getElementById("lockHint");
+let lockHintTimer = null;
+window.showLockHint = () => {
+    const nav = document.getElementById("navbar");
+    lockHint.style.bottom = (window.innerHeight - nav.getBoundingClientRect().top + 10) + "px";
+    lockHint.innerHTML = UNLOCK_SVG + "<span>Unlock to swipe</span>";
+    lockHint.classList.add("show");
+    clearTimeout(lockHintTimer);
+    lockHintTimer = setTimeout(() => lockHint.classList.remove("show"), 1600);
+};
 lockBtn.addEventListener("click", () => setTouchLock(!document.body.classList.contains("touch-locked")));
 setTouchLock(true);   // locked by default every time the page opens; tap the lock to unlock
 

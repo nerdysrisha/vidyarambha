@@ -12,7 +12,7 @@
                                                  |  #audio-dock  (TOP bar)     |  dark #111 strip: custom audio player
                                                  |  #content-box (MIDDLE)      |  cream area, the ONLY part that scrolls
                                                  +-----------------------------+
-   [ #navbar ]  (BOTTOM bar)  Prev | n / total | Next | speed 1 2 3 | fullscreen
+   [ #navbar ]  (BOTTOM bar)  Prev | n / total | Next | speed pill (1x, tap for 1.5x / 1.75x) | lock | fullscreen
    The content scrolls BETWEEN the two black bars; both stay fixed.
 
  DESIGN TOKENS (search & replace to re-theme)
@@ -35,7 +35,7 @@
       not fetched yet, and a mute button.
    6. Bottom nav bar: Prev / Next (wrap around), counter, speed buttons
       (disabled when the topic has no audio), full-screen "reading mode" button.
-   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text
+   7. Navigation: buttons, left/right arrow keys, and touch swipe on the text (all swipes and verse taps can be blocked with the lock button)
       (swipe left = Next, swipe right = Prev). Check here carefully for 'scrollable texts'
 	  that do not conflict with swiping. 
    8. Copy button: copies the page's plain text (no audio/labels) to clipboard.
@@ -470,26 +470,41 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* Speed: three round buttons. Filled gold = current speed.
    Dimmed + disabled when the current topic has no audio. */
-#speedGroup { display: flex; align-items: center; gap: 11px; margin-left: 4px; }
+#speedGroup { position: relative; display: flex; align-items: center; margin-left: 4px; }
+/* One pill shows the current speed. Tap it and the other two speeds pop up above it. */
+#navbar #speedGroup button.speed-main,
 #navbar #speedGroup button.speed-btn {
-    width: 26px; height: 26px; padding: 0; border-radius: 50%;
+    min-width: 42px; height: 30px; padding: 0 8px; border-radius: 15px;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
     font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #speedGroup button.speed-main:hover,
 #navbar #speedGroup button.speed-btn:hover { background: #d8b46a33; }
-#navbar #speedGroup button.speed-btn.active { background: #d8b46a; color: #111; }
+#navbar #speedGroup button.speed-main[aria-expanded="true"] { background: #d8b46a33; }
+#navbar #speedGroup button.speed-main:disabled,
 #navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+#navbar #speedGroup button.speed-btn[hidden] { display: none; }
+#speedPop {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; padding: 6px; z-index: 30;
+    background: #111; border: 1px solid #333; border-radius: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+#speedPop[hidden] { display: none; }
 
 .audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
 
 /* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
 #navbar { position: relative; }
-#fsBtn {
+/* Fullscreen: gold outline circle (matches lock + speed pill), YouTube-style corner icons */
+#navbar #fsBtn {
     position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #fsBtn:hover { background: #d8b46a33 !important; }
+#navbar #fsBtn svg { width: 17px; height: 17px; flex: 0 0 auto; display: block; }
 #menuBtn {
     display: none;                       /* shown on phones only */
     position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
@@ -497,16 +512,30 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     color: #d8b46a !important; border-color: #d8b46a66 !important;
 }
 #menuBtn.open { background: #d8b46a !important; color: #111 !important; }
+
+/* Touch lock: sits just left of the fullscreen/X button. While locked, taps on verses,
+   the seek bar and text swipes are ignored (see body.touch-locked in the script). */
+#navbar #lockBtn {
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+#navbar #lockBtn:hover { background: #d8b46a33 !important; }
+#navbar #lockBtn svg { width: 18px; height: 18px; flex: 0 0 auto; display: block; }
+/* leave room on the right for lock + fullscreen, so Prev / counter / Next / speed pill shift left */
+#navbar { padding-right: 90px; }
+body.touch-locked #content-box .verse-block { cursor: default; }
 @media (min-width: 701px) { body.reading #sidebar { display: none; } }
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
-  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 88px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
   #counter { min-width: 40px; font-size: 12px; }
-  #speedGroup { gap: 8px; margin-left: 0; }
+  #speedGroup { margin-left: 0; }
 
   /* Menu button lives in the nav bar. Sidebar = full-width list when open,
      completely gone when closed. */
@@ -529,6 +558,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
   #copyBtn { right: 6px; width: 28px; height: 28px; }
+}
+/* very narrow phones: tighten the centre group so it still fits between menu and lock */
+@media (max-width: 380px) {
+  #navbar { gap: 2px; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 34px; }
+  #counter { min-width: 30px; }
 }
 </style>
 </head>
@@ -567,18 +602,22 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     </div>
 </div>
 
-<!-- BOTTOM BAR: menu (phone only) | Prev | counter | Next | speed 1/2/3 = 1x/1.5x/1.75x | fullscreen -->
+<!-- BOTTOM BAR: menu (phone only) | Prev | counter | Next | speed 1/2/3 = 1x/1.5x/1.75x | touch lock | fullscreen -->
 <div id="navbar">
     <button id="menuBtn" title="Topics list">&#9776;</button>
     <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
-        <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1</button>
-        <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
-        <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
+        <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1&times;</button>
+        <div id="speedPop" hidden>
+            <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1&times;</button>
+            <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5&times;</button>
+            <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
+        </div>
     </div>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+    <button id="fsBtn" title="Full screen / reading mode" aria-label="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
 <!-- Hover tooltip for sidebar items (text comes from each topic's description) -->
@@ -740,6 +779,7 @@ function stopAudioSync() {
     document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
         b.disabled = true; b.classList.remove("active"); b.onclick = null;
     });
+    if (window.resetSpeedUI) window.resetSpeedUI();
     contentPanel.classList.remove("has-dock");
     scrollAnim = null;
 }
@@ -833,6 +873,7 @@ function buildCustomPlayer(audio, holder) {
         return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     }
     bar.addEventListener("pointerdown", e => {
+        if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore the seek bar
         if (!(audio.duration > 0)) return;
         dragging = true; dragT = ratioFrom(e) * audio.duration;
         try { bar.setPointerCapture(e.pointerId); } catch (err) {}
@@ -880,7 +921,7 @@ function initAudioSync() {
     contentPanel.classList.add("has-dock");
     buildCustomPlayer(audio, holder);   // replaces the browser's native controls
 
-    // Playback speed: circles 1 / 2 / 3 in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
+    // Playback speed: one pill in the nav bar (tap for the other two) = 1x / 1.5x / 1.75x. Choice is remembered.
     audio.setAttribute("controlsList", "nodownload noplaybackrate");   // hide the browser's own speed menu
     const SPEED_BTNS = Array.from(document.querySelectorAll("#speedGroup .speed-btn"));
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
@@ -891,15 +932,18 @@ function initAudioSync() {
     badge.className = "speed-badge";
     badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
     function paintSpeed() {
-        SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
+        SPEED_BTNS.forEach(b => { b.classList.toggle("active", parseFloat(b.dataset.rate) === rate); b.hidden = parseFloat(b.dataset.rate) === rate; });   // popup lists only the OTHER speeds
+        if (window.setSpeedLabel) window.setSpeedLabel(rate);
         badge.textContent = rate + "x";
         badge.style.display = rate === 1 ? "none" : "flex";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
+    document.getElementById("speedMain").disabled = false;
     SPEED_BTNS.forEach(b => {
         b.disabled = false;
         b.onclick = () => {          // onclick (not addEventListener) so topics don't stack handlers
             rate = parseFloat(b.dataset.rate); applyRate(); paintSpeed();
+            if (window.closeSpeedPop) window.closeSpeedPop();
             try { localStorage.setItem("audioRate", String(rate)); } catch (e) {}
         };
     });
@@ -963,6 +1007,7 @@ function initAudioSync() {
     // Tap a block to jump to its start and play
     blocks.slice(0, n).forEach((block, i) => {
         block.addEventListener("click", () => {
+            if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore taps on verses
             if (syncDisabled) return;
             audio.currentTime = starts[i] + 0.01;
             const p = audio.play();
@@ -1105,6 +1150,7 @@ document.addEventListener("keydown", e => {
     contentBox.addEventListener("touchend", e => {
         if (!tracking) return;
         tracking = false;
+        if (document.body.classList.contains("touch-locked")) return;   // touch lock: no swipe-to-change-topic
         const t = e.changedTouches[0];
         const dx = t.clientX - sx, dy = t.clientY - sy;
         if (Date.now() - st > 700) return;                          // slow drag: not a swipe
@@ -1173,10 +1219,13 @@ toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classLi
 
 // ── FULLSCREEN / READING MODE ─────────────────────────────────────────
 const fsBtn = document.getElementById("fsBtn");
+const FS_ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';   // corners pointing out = go full screen
+const FS_EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';   // corners pointing in = leave full screen
 function setReading(on) {
     document.body.classList.toggle("reading", on);
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.innerHTML = on ? FS_EXIT : FS_ENTER;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
     setTimeout(fitVerses, 250);
 }
 fsBtn.addEventListener("click", () => {
@@ -1193,6 +1242,37 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     if (!document.fullscreenElement) setReading(false);
     setTimeout(fitVerses, 250);
 });
+
+// ── SPEED PILL + POPUP ────────────────────────────────────────────────
+// The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two.
+const speedMain = document.getElementById("speedMain");
+const speedPop  = document.getElementById("speedPop");
+window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
+window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
+window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
+speedMain.addEventListener("click", e => {
+    e.stopPropagation();
+    if (speedMain.disabled) return;
+    speedPop.hidden = !speedPop.hidden;
+    speedMain.setAttribute("aria-expanded", speedPop.hidden ? "false" : "true");
+});
+document.addEventListener("click", e => { if (!speedPop.hidden && !speedPop.contains(e.target)) window.closeSpeedPop(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") window.closeSpeedPop(); });
+
+// ── TOUCH LOCK ────────────────────────────────────────────────────────
+// While locked: verse taps, the seek bar and topic swipes are ignored. Scrolling, Play/Pause,
+// Prev/Next buttons and speed still work. It starts LOCKED each time the page opens.
+const lockBtn = document.getElementById("lockBtn");
+const LOCK_SVG   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';   // closed padlock = locked
+const UNLOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';   // open padlock = unlocked
+function setTouchLock(on) {
+    document.body.classList.toggle("touch-locked", on);
+    lockBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    lockBtn.innerHTML = on ? LOCK_SVG : UNLOCK_SVG;
+    lockBtn.title = on ? "Touch locked: tap to unlock" : "Lock touch (ignore accidental taps)";
+}
+lockBtn.addEventListener("click", () => setTouchLock(!document.body.classList.contains("touch-locked")));
+setTouchLock(true);   // locked by default every time the page opens; tap the lock to unlock
 
 document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
