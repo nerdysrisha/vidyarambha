@@ -484,10 +484,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar #speedGroup button.speed-btn[hidden] { display: none; }
 #speedPop {
     position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-    display: flex; gap: 8px; padding: 6px; z-index: 30;
+    display: flex; gap: 8px; padding: 6px; z-index: 45;   /* above the purport card (z 35) */
     background: #111; border: 1px solid #333; border-radius: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
 }
 #speedPop[hidden] { display: none; }
+/* while the speed popup is open, fade the meaning card so the choices are clearly in front */
+body.speed-open #purportCard.show { opacity: 0.25; }
 
 .audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
 
@@ -1380,7 +1382,7 @@ ppPaintBtn(); ppLayout();
 // The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two.
 const speedMain = document.getElementById("speedMain");
 const speedPop  = document.getElementById("speedPop");
-window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
+window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); document.body.classList.remove("speed-open"); };
 window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
 window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
 speedMain.addEventListener("click", e => {
@@ -1388,6 +1390,7 @@ speedMain.addEventListener("click", e => {
     if (speedMain.disabled) return;
     speedPop.hidden = !speedPop.hidden;
     speedMain.setAttribute("aria-expanded", speedPop.hidden ? "false" : "true");
+    document.body.classList.toggle("speed-open", !speedPop.hidden);
 });
 document.addEventListener("click", e => { if (!speedPop.hidden && !speedPop.contains(e.target)) window.closeSpeedPop(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") window.closeSpeedPop(); });
