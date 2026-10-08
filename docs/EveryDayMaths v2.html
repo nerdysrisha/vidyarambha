@@ -2251,12 +2251,6 @@ const NUM_MAP = {
 // Files live in the same repo:  english/index.json, english/lesson-01.json …, english/images/01-p1.jpg …
 const ENGLISH_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/";
 
-// Cache-busting (English only): GitHub's raw files are cached for a few minutes, so every JSON fetch
-// gets a unique ?t=<time> and cache:"no-store". Images use one value per page load (reload = fresh images).
-const ENG_PAGE_LOAD = Date.now();
-function engFetch(file) {
-    return fetch(ENGLISH_URL + file + "?t=" + Date.now(), { cache: "no-store" });
-}
 function engStop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
 function engEl(tag, cls, text) {
     const e = document.createElement(tag);
@@ -2287,7 +2281,7 @@ function renderEnglishDaily(box) {
     const root = engEl("div", "eng-root");
     box.appendChild(root);
     root.appendChild(engEl("div", "eng-intro", "Loading lessons…"));
-    engFetch("index.json")
+    fetch(ENGLISH_URL + "index.json")
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for english/index.json"); return r.json(); })
         .then(idx => engShowPicker(root, idx))
         .catch(err => { root.innerHTML = ""; root.appendChild(engEl("div", "eng-err", err.message)); });
@@ -2318,7 +2312,7 @@ function engOpenLesson(root, idx, n) {
     root.innerHTML = "";
     root.appendChild(engEl("div", "eng-intro", "Loading lesson " + n + "…"));
     const file = "lesson-" + String(n).padStart(2, "0") + ".json";
-    engFetch(file)
+    fetch(ENGLISH_URL + file)
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for english/" + file); return r.json(); })
         .then(L => engRenderLesson(root, idx, n, L))
         .catch(err => {
@@ -2330,55 +2324,6 @@ function engOpenLesson(root, idx, n) {
         });
 }
 
-// Builds one context card (paras + optional images) from a list of parts; returns {card, plain}
-function engStoryCard(parts) {
-    const card = engEl("div", "eng-story");
-    const plain = [];
-    parts.forEach(part => {
-        const paras = part.paras || (part.text ? [part.text] : []);
-        paras.forEach(t => { card.appendChild(engEl("p", null, t)); plain.push(t); });
-        if (part.image) {
-            const im = document.createElement("img");
-            im.className = "eng-img";
-            im.src = ENGLISH_URL + "images/" + part.image + "?t=" + ENG_PAGE_LOAD;
-            im.alt = "";
-            im.onerror = () => im.remove();            // image is optional
-            im.onclick = () => engOpenImage(im.src);   // tap to enlarge
-            card.appendChild(im);
-        }
-    });
-    return { card, plain };
-}
-
-function engReadBtn(plain) {
-    if (!window.speechSynthesis || !plain.length) return null;
-    let reading = false;
-    const rb = engEl("button", "eng-btn alt", "🔊 Read aloud");
-    const reset = () => { reading = false; rb.textContent = "🔊 Read aloud"; };
-    rb.onclick = () => {
-        if (reading) { speechSynthesis.cancel(); reset(); return; }
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(plain.join(" "));
-        u.lang = "en-IN"; u.rate = 0.85;
-        u.onend = reset; u.onerror = reset;
-        reading = true; rb.textContent = "⏹ Stop";
-        speechSynthesis.speak(u);
-    };
-    return rb;
-}
-
-function engRenderSections(root, sections, n, bi) {
-    sections.forEach((sec, si) => {
-        const wrap = engEl("div", "eng-sec");
-        wrap.appendChild(engEl("div", "eng-sec-title", sec.heading || ""));
-        if (sec.note) wrap.appendChild(engEl("div", "eng-sec-note", sec.note));
-        const list = document.createElement("div");
-        engRenderSection(list, sec, n, bi * 100 + si);   // unique shuffle seed per block + section
-        wrap.appendChild(list);
-        root.appendChild(wrap);
-    });
-}
-
 function engRenderLesson(root, idx, n, L) {
     root.innerHTML = "";
 
@@ -2387,26 +2332,51 @@ function engRenderLesson(root, idx, n, L) {
     bar.appendChild(engEl("div", "eng-lesson-title", "Lesson " + n + " · " + (L.title || "")));
     root.appendChild(bar);
 
-    if (Array.isArray(L.blocks)) {
-        // NEW layout: each block = its own context (text + image) followed by ITS OWN questions
-        L.blocks.forEach((blk, bi) => {
-            const ctx = blk.context ? (Array.isArray(blk.context) ? blk.context : [blk.context]) : [];
-            if (ctx.length) {
-                const { card, plain } = engStoryCard(ctx);
-                const rb = engReadBtn(plain);
-                if (rb) { const row = engEl("div", "eng-bar"); row.appendChild(rb); root.appendChild(row); }
-                root.appendChild(card);
-            }
-            engRenderSections(root, blk.sections || [], n, bi);
-        });
-    } else {
-        // ORIGINAL layout: whole story first, then all questions (lesson 1 style)
-        const { card, plain } = engStoryCard(L.story || []);
-        root.appendChild(card);
-        const rb = engReadBtn(plain);
-        if (rb) bar.appendChild(rb);
-        engRenderSections(root, L.sections || [], n, 0);
+    // story (parts, each with an optional image after it)
+    const story = engEl("div", "eng-story");
+    const plain = [];
+    (L.story || []).forEach(part => {
+        const paras = part.paras || (part.text ? [part.text] : []);
+        paras.forEach(t => { story.appendChild(engEl("p", null, t)); plain.push(t); });
+        if (part.image) {
+            const im = document.createElement("img");
+            im.className = "eng-img";
+            im.src = ENGLISH_URL + "images/" + part.image;
+            im.alt = "";
+            im.onerror = () => im.remove();            // image is optional
+            im.onclick = () => engOpenImage(im.src);   // tap to enlarge
+            story.appendChild(im);
+        }
+    });
+    root.appendChild(story);
+
+    // read aloud
+    if (window.speechSynthesis && plain.length) {
+        let reading = false;
+        const rb = engEl("button", "eng-btn alt", "🔊 Read aloud");
+        const reset = () => { reading = false; rb.textContent = "🔊 Read aloud"; };
+        rb.onclick = () => {
+            if (reading) { speechSynthesis.cancel(); reset(); return; }
+            speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(plain.join(" "));
+            u.lang = "en-IN"; u.rate = 0.85;
+            u.onend = reset; u.onerror = reset;
+            reading = true; rb.textContent = "⏹ Stop";
+            speechSynthesis.speak(u);
+        };
+        bar.appendChild(rb);
     }
+
+    // question sections
+    (L.sections || []).forEach((sec, si) => {
+        const wrap = engEl("div", "eng-sec");
+        wrap.appendChild(engEl("div", "eng-sec-title", sec.heading || ""));
+        if (sec.note) wrap.appendChild(engEl("div", "eng-sec-note", sec.note));
+        const list = document.createElement("div");
+        engRenderSection(list, sec, n, si);
+        wrap.appendChild(list);
+        root.appendChild(wrap);
+    });
 
     // footer
     const foot = engEl("div", "eng-foot");
