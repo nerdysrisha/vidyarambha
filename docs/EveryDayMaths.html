@@ -140,6 +140,22 @@ button:active { transform: scale(0.97); }
     flex-shrink: 0;
 }
 
+/* TIP (units conversion info, hidden until asked) */
+.tip-wrap { margin: 14px 0 6px 20px; }
+.tip-btn {
+    background: rgba(255,200,0,0.12);
+    color: #ffc800;
+    border: 1px solid rgba(255,200,0,0.45);
+    border-radius: 16px;
+    padding: 5px 14px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.tip-btn.on { background: rgba(255,200,0,0.25); }
+.tip-body { display: none; margin-top: 12px; }
+.tip-body.open { display: block; }
+
 /* QUESTIONS PANEL */
 #questions {
     position: relative;
@@ -599,6 +615,8 @@ button:active { transform: scale(0.97); }
     .col-work { font-size: 17px; }
     .col-digit, .col-result-digit, .col-digit-wrap { width: 22px; }
     .col-annotation { font-size: 13px; }
+    .tip-wrap { margin-left: 4px; }
+    .tip-btn { padding: 4px 11px; font-size: 13px; }
     .urc-grid { grid-template-columns: 1fr !important; }   /* units reference card: stack the 3 columns */
 
     #bottom-nav { height: 56px; gap: 10px; padding: 6px 10px; }
@@ -1365,9 +1383,9 @@ function renderWordRow(letter, question, answer) {
 }
 
 function renderStackedRow(letter, question, answer, val) {
-    const hint = val === "neg-pos-numbers"  ? "  Fill in the missing numbers:" :
-                 val === "ascending-order"  ? "  Arrange in ascending order:" :
-                 val === "descending-order" ? "  Arrange in descending order:" : "";
+    const hint = val === "neg-pos-numbers"  ? "->" :
+                 val === "ascending-order"  ? "->" :
+                 val === "descending-order" ? "->" : "";
     return '<div class="question-row stacked-row">' +
         '<div class="stacked-top">' +
             '<span class="question-letter">(' + letter + ')</span>' +
@@ -2461,8 +2479,7 @@ function generate(box, val) {
                     row.className = "question-row";
                     row.style.cssText = "align-items:center;gap:20px;padding:12px 0 12px 20px;flex-wrap:wrap;";
                     row.innerHTML = '<span class="question-letter">(' + letter + ')</span>' +
-                        '<span class="question-text" style="font-size:44px;font-weight:bold;">' + time + '</span>' +
-                        '<span style="color:#aaa;font-size:22px;">Draw this on paper</span>';
+                        '<span class="question-text" style="font-size:34px;font-weight:bold;">' + time + '</span>';
                     const canvas = document.createElement("canvas");
                     canvas.className="clock-answer"; canvas.width=180; canvas.height=180;
                     canvas.dataset.time=time; canvas.style.cssText="display:none;border-radius:50%;margin-left:20px;";
@@ -2706,10 +2723,6 @@ function generate(box, val) {
         return;
     }
 
-    if (val.startsWith("units-")) {
-        box.appendChild(buildUnitsRefCard(val));
-    }
-
     const numQuestions = NUM_MAP[val] || 2;
     fetch(BASE_URL + val + ".json")
         .then(r=>{ if(!r.ok) throw new Error("HTTP " + r.status + " for " + val + ".json"); return r.json(); })
@@ -2759,11 +2772,35 @@ function generate(box, val) {
                     box.innerHTML += renderInlineRow(letter, qText, aDisplay, dataType);
                 }
             });
+
+            // Units topics: conversion info hidden behind a small Tip button, shown below the questions
+            if (val.startsWith("units-")) {
+                const tip = document.createElement("div");
+                tip.className = "tip-wrap";
+                const btn = document.createElement("button");
+                btn.type = "button"; btn.className = "tip-btn"; btn.textContent = "\uD83D\uDCA1 Tip";
+                const body = document.createElement("div");
+                body.className = "tip-body";
+                body.appendChild(buildUnitsRefCard(val));
+                tip.appendChild(btn); tip.appendChild(body);
+                box.appendChild(tip);
+            }
         })
         .catch(err=>{
             box.innerHTML += '<div style="color:#f66;padding:12px;font-size:18px;">' + err.message + '</div>';
         });
 }
+
+// ── TIP BUTTON (delegated, so it survives innerHTML re-renders) ───────────────
+document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest(".tip-btn");
+    if (!b) return;
+    const body = b.nextElementSibling;
+    if (!body) return;
+    const open = body.classList.toggle("open");
+    b.classList.toggle("on", open);
+    b.textContent = open ? "\uD83D\uDCA1 Hide Tip" : "\uD83D\uDCA1 Tip";
+});
 
 // ── CONTROL TOGGLE ────────────────────────────────────────────────────────────
 const controlContainer = document.getElementById("control-container");
