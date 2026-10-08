@@ -2129,19 +2129,6 @@ function addStack(val) {
     box.className = "stack-box";
     wrapper.appendChild(box);
 
-    const refreshBtn = document.createElement("button");
-    refreshBtn.className = "refresh-btn";
-    refreshBtn.title = "Load a fresh set of questions";
-    refreshBtn.innerHTML = '<span class="refresh-icon">↻</span>';
-    refreshBtn.style.cssText = "padding:4px 9px;font-size:20px;line-height:1;";
-    refreshBtn.onclick = (e) => {
-        e.stopPropagation();
-        refreshBtn.classList.add("spinning");
-        setTimeout(() => refreshBtn.classList.remove("spinning"), 550);
-        refreshStack(val);
-    };
-    wrapper.appendChild(refreshBtn);
-
     stacks[val] = wrapper;
     stackOrder.push(val);
     questions.appendChild(wrapper);
@@ -2264,8 +2251,6 @@ const NUM_MAP = {
 // Files live in the same repo:  english/index.json, english/lesson-01.json …, english/images/01-p1.jpg …
 const ENGLISH_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/";
 
-function engGetDone() { try { return JSON.parse(localStorage.getItem("eng.done") || "[]"); } catch (e) { return []; } }
-function engSetDone(a) { try { localStorage.setItem("eng.done", JSON.stringify(a)); } catch (e) {} }
 function engStop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
 function engEl(tag, cls, text) {
     const e = document.createElement(tag);
@@ -2307,16 +2292,12 @@ function engShowPicker(root, idx) {
     root.innerHTML = "";
     const titles = idx.lessons || {};
     const total  = idx.total || Object.keys(titles).length;
-    const done   = engGetDone();
-    let next = 0;
-    for (let n = 1; n <= total; n++) { if (titles[n] && !done.includes(n)) { next = n; break; } }
 
-    root.appendChild(engEl("div", "eng-intro", "Choose a lesson. Go in order — one a day. (" + done.length + " of " + total + " done)"));
     const grid = engEl("div", "eng-grid");
     for (let n = 1; n <= total; n++) {
         const avail = !!titles[n];
-        const b = engEl("button", "eng-lbtn" + (done.includes(n) ? " done" : "") + (n === next ? " next" : "") + (avail ? "" : " off"));
-        b.appendChild(engEl("span", "eng-lnum", (done.includes(n) ? "✓ " : "") + n));
+        const b = engEl("button", "eng-lbtn" + (avail ? "" : " off"));
+        b.appendChild(engEl("span", "eng-lnum", n));
         b.appendChild(engEl("span", "eng-ltitle", avail ? titles[n] : "Coming soon"));
         if (avail) b.onclick = () => engOpenLesson(root, idx, n);
         else b.disabled = true;
@@ -2348,9 +2329,6 @@ function engRenderLesson(root, idx, n, L) {
 
     // header bar
     const bar = engEl("div", "eng-bar");
-    const back = engEl("button", "eng-btn alt", "← Lessons");
-    back.onclick = () => engShowPicker(root, idx);
-    bar.appendChild(back);
     bar.appendChild(engEl("div", "eng-lesson-title", "Lesson " + n + " · " + (L.title || "")));
     root.appendChild(bar);
 
@@ -2402,25 +2380,6 @@ function engRenderLesson(root, idx, n, L) {
 
     // footer
     const foot = engEl("div", "eng-foot");
-    const doneBtn = engEl("button", "eng-btn");
-    const isDone = () => engGetDone().includes(n);
-    const paint = () => { doneBtn.textContent = isDone() ? "✓ Done (tap to undo)" : "✓ Mark as done"; doneBtn.classList.toggle("on", isDone()); };
-    doneBtn.onclick = () => {
-        const d = engGetDone();
-        engSetDone(isDone() ? d.filter(x => x !== n) : d.concat(n));
-        paint();
-    };
-    paint();
-    foot.appendChild(doneBtn);
-    if (idx.lessons && idx.lessons[n + 1]) {
-        const nb = engEl("button", "eng-btn", "Next lesson →");
-        nb.onclick = () => {
-            if (!isDone()) engSetDone(engGetDone().concat(n));
-            engOpenLesson(root, idx, n + 1);
-            engTop(root);
-        };
-        foot.appendChild(nb);
-    }
     const all = engEl("button", "eng-btn alt", "☰ All lessons");
     all.onclick = () => engShowPicker(root, idx);
     foot.appendChild(all);
