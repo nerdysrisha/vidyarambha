@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guru Charitra</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 54px);
+    height: calc(100dvh - 40px - 54px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+#sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed { width: 42px; }
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+    z-index: 2;
+}
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; }
+#sidebar-title .title-text { overflow: hidden; }
+#sidebar.collapsed #sidebar-title .title-text { display: none; }
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
+#sidebar.collapsed #sidebar-body { display: none; }
+#sidebar.collapsed #sidebar-search-row { display: none; }
+
+/* SEARCH */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 28px 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #00c8ff88; }
+#search-wrap { position: relative; }
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+#search-clear.visible { display: flex; }
+#search-clear:hover { background: #3a3a3a; color: #fff; }
+#search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
+
+/* SECTION HEADERS (Bookmarks / Chapters) */
+.sec-head {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    color: #8a8a8a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1a1a1a;
+    user-select: none;
+}
+.sec-head .count { font-weight: normal; color: #555; font-size: 11px; }
+#bm-head { cursor: pointer; color: #d9a441; }
+#bm-head:hover { background: #1a1a1a; }
+#bm-wrap.folded #bm-list { display: none; }
+
+/* CHAPTER ITEMS */
+.ch-item {
+    padding: 8px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #bbb;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.ch-item:hover { background: #1a1a1a; color: #fff; }
+.ch-item .num { flex: 0 0 26px; text-align: right; font-size: 12px; color: #666; }
+.ch-item .nm { flex: 1; min-width: 0; }
+.ch-item .star { flex: 0 0 auto; color: #d9a441; font-size: 12px; }
+.ch-item.active {
+    background: #0d1f2b;
+    color: #00c8ff;
+    border-left-color: #00c8ff;
+    font-weight: bold;
+}
+.ch-item.active .num { color: #00c8ff; }
+
+/* RIGHT COLUMN */
+#main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+    background: #faf8f4;
+}
+#content-box {
+    position: relative; /* so chapter.offsetTop is measured from this box */
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 30px 40px;
+    background: #faf8f4;
+    color: #2b2b2b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+#content-box::after { content: ""; display: block; height: 40vh; } /* lets the last chapters scroll to the top */
+#content-box::-webkit-scrollbar { width: 9px; }
+#content-box::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 5px; }
+
+/* chapter bar injected above every chapter: number badge + bookmark button */
+#content-box .ch-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 760px;
+    margin: 0 auto;
+}
+#content-box .ch-badge {
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    font-weight: bold;
+    color: #6b4f1d;
+    background: #f4efe2;
+    border: 1px solid #e3d7b8;
+    border-radius: 4px;
+    padding: 2px 9px;
+}
+#content-box .bm-btn {
+    font-family: inherit;
+    font-size: 12px;
+    color: #8a6d3b;
+    background: #fff;
+    border: 1px solid #e3d7b8;
+    border-radius: 14px;
+    padding: 3px 12px;
+    cursor: pointer;
+}
+#content-box .bm-btn:hover { background: #fbf6ea; }
+#content-box .bm-btn.on { color: #fff; background: #c9a15a; border-color: #c9a15a; }
+
+/* NAV BAR */
+#navbar {
+    height: 40px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 0 20px 20px 20px;
+}
+#navbar button {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+#navbar button:hover { background: #222; color: #00c8ff; }
+#navbar button:disabled { opacity: 0.35; cursor: default; }
+#counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">Guru Charitra</span>
+            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <div id="search-wrap">
+                <input id="topic-search" type="text" placeholder="Search chapters or text...">
+                <button id="search-clear">&#10005;</button>
+            </div>
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-body">
+            <div id="bm-wrap" style="display:none">
+                <div class="sec-head" id="bm-head"><span>&#9733; Bookmarks</span><span class="count" id="bm-count">0</span></div>
+                <div id="bm-list"></div>
+            </div>
+            <div class="sec-head"><span>Chapters</span><span class="count" id="ch-count"></span></div>
+            <div id="ch-list"></div>
+        </div>
+    </div>
+
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box">
+                <div style="color:#8a7a5a;">Loading chapters…</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="navbar">
+    <button id="prevBtn">&#8592; Prev</button>
+    <span id="counter">–</span>
+    <button id="nextBtn">Next &#8594;</button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// The single child file that holds all 56 chapters (same folder as this page).
+const CHAPTERS_URL = "subjects/gurucharitra/Chapters.html";
+const BOOK_TITLE = "Guru Charitra";
+
+// ── ELEMENTS ────────────────────────────────────────────────────────────
+const sidebarEl   = document.getElementById("sidebar");
+const chList      = document.getElementById("ch-list");
+const bmWrap      = document.getElementById("bm-wrap");
+const bmList      = document.getElementById("bm-list");
+const bmCount     = document.getElementById("bm-count");
+const chCount     = document.getElementById("ch-count");
+const contentBox  = document.getElementById("content-box");
+const counterEl   = document.getElementById("counter");
+const prevBtn     = document.getElementById("prevBtn");
+const nextBtn     = document.getElementById("nextBtn");
+
+// ── STORAGE (falls back to memory if the browser blocks localStorage) ────
+const mem = {};
+function lsGet(key, def) {
+    try { const v = localStorage.getItem(key); return v === null ? def : JSON.parse(v); }
+    catch (e) { return (key in mem) ? mem[key] : def; }
+}
+function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); }
+    catch (e) { mem[key] = val; }
+}
+
+// ── STATE ───────────────────────────────────────────────────────────────
+let chapters = [];          // { id, num, title, el, item, btn, search }
+let current = -1;
+let bookmarks = lsGet("gc_bookmarks", []);
+let lockUntil = 0;          // ignore scroll-tracking briefly right after a jump
+let userMoved = false;
+
+const isNarrow = () => window.innerWidth < 760;
+
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// ── LOAD THE CHILD FILE ─────────────────────────────────────────────────
+fetch(CHAPTERS_URL)
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + CHAPTERS_URL); return r.text(); })
+    .then(html => {
+        contentBox.innerHTML = html;
+        initChapters();
+    })
+    .catch(err => {
+        contentBox.innerHTML =
+            '<div style="color:#b5432f;padding:12px 0;">' + err.message +
+            '<br><br>Make sure Chapters.html sits next to this page and that the page is served over http(s) ' +
+            '(e.g. GitHub Pages or a local server) — opening it directly (file://) blocks fetch().</div>';
+    });
+
+function initChapters() {
+    const els = contentBox.querySelectorAll("section.chapter");
+    if (!els.length) {
+        contentBox.innerHTML = '<div style="color:#b5432f;">No <code>&lt;section class="chapter"&gt;</code> blocks found in ' + CHAPTERS_URL + '.</div>';
+        return;
+    }
+
+    els.forEach((el, i) => {
+        const text = el.textContent;                       // read before the bar is injected
+        const id = el.id || ("ch" + (i + 1));
+        el.id = id;
+        const num = el.dataset.num || (i + 1);
+        const titleEl = el.querySelector(".ch-title");
+        const title = (titleEl ? titleEl.textContent.trim() : "") || ("Chapter " + num);
+
+        // bar above the chapter: badge + bookmark button
+        const bar = document.createElement("div");
+        bar.className = "ch-bar";
+        bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span><button class="bm-btn" type="button"></button>';
+        el.insertBefore(bar, el.firstChild);
+        const btn = bar.querySelector(".bm-btn");
+        btn.addEventListener("click", () => toggleBookmark(id));
+
+        // sidebar entry
+        const item = document.createElement("div");
+        item.className = "ch-item";
+        item.innerHTML = '<span class="num"></span><span class="nm"></span><span class="star"></span>';
+        item.querySelector(".num").textContent = num;
+        item.querySelector(".nm").textContent = title;
+        item.addEventListener("click", () => goTo(i, true));
+        chList.appendChild(item);
+
+        chapters.push({ id, num, title, el, item, btn, search: normalizeSearch(num + " " + title + " " + text) });
+    });
+
+    chCount.textContent = chapters.length;
+    bookmarks = bookmarks.filter(id => chapters.some(c => c.id === id));   // drop stale ids
+    renderBookmarks();
+
+    // where to start: URL hash (#ch23) → last read → top
+    const fromHash = chapters.findIndex(c => c.id === location.hash.slice(1));
+    const fromLast = chapters.findIndex(c => c.id === lsGet("gc_last", null));
+    const start = fromHash >= 0 ? fromHash : (fromLast >= 0 ? fromLast : 0);
+    goTo(start, false);
+
+    // web fonts shift the layout slightly once loaded — re-align if the reader hasn't moved yet
+    ["wheel", "touchstart", "mousedown", "keydown"].forEach(ev =>
+        contentBox.addEventListener(ev, () => { userMoved = true; }, { passive: true, once: true }));
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { if (!userMoved && current >= 0) { current = -1; goTo(start, false); } });
+    }
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────
+function goTo(i, fromSidebar) {
+    if (i < 0 || i >= chapters.length) return;
+    lockUntil = Date.now() + 200;
+    contentBox.scrollTop = chapters[i].el.offsetTop - 12;
+    setCurrent(i);
+    if (fromSidebar && isNarrow()) setCollapsed(true);
+}
+
+function setCurrent(i) {
+    if (i === current) return;
+    current = i;
+    const c = chapters[i];
+    chapters.forEach((x, k) => x.item.classList.toggle("active", k === i));
+    bmList.querySelectorAll(".ch-item").forEach(d => d.classList.toggle("active", d.dataset.id === c.id));
+    c.item.scrollIntoView({ block: "nearest" });
+    counterEl.textContent = (i + 1) + " / " + chapters.length;
+    prevBtn.disabled = (i === 0);
+    nextBtn.disabled = (i === chapters.length - 1);
+    scheduleSave();
+}
+
+// remember position + keep the URL on the current chapter (so a browser bookmark of the page lands here)
+let saveTimer;
+function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        const c = chapters[current];
+        if (!c) return;
+        try { history.replaceState(null, "", "#" + c.id); } catch (e) {}
+        document.title = BOOK_TITLE + " — Chapter " + c.num + ": " + c.title;
+        lsSet("gc_last", c.id);
+    }, 250);
+}
+
+// scroll tracking: highlight whichever chapter is at the top of the reading area
+let ticking = false;
+contentBox.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+        ticking = false;
+        if (!chapters.length || Date.now() < lockUntil) return;
+        const y = contentBox.scrollTop + 40;
+        let idx = 0;
+        for (let k = 0; k < chapters.length; k++) {
+            if (chapters[k].el.offsetTop <= y) idx = k; else break;
+        }
+        setCurrent(idx);
+    });
+});
+
+window.addEventListener("hashchange", () => {
+    const k = chapters.findIndex(c => c.id === location.hash.slice(1));
+    if (k >= 0 && k !== current) goTo(k, false);
+});
+
+prevBtn.onclick = () => goTo(current - 1, false);
+nextBtn.onclick = () => goTo(current + 1, false);
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); nextBtn.click(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); prevBtn.click(); }
+});
+
+// ── BOOKMARKS ───────────────────────────────────────────────────────────
+function toggleBookmark(id) {
+    const at = bookmarks.indexOf(id);
+    if (at >= 0) bookmarks.splice(at, 1); else bookmarks.push(id);
+    lsSet("gc_bookmarks", bookmarks);
+    renderBookmarks();
+}
+
+function renderBookmarks() {
+    chapters.forEach(c => {
+        const on = bookmarks.includes(c.id);
+        c.btn.textContent = on ? "\u2605 Bookmarked" : "\u2606 Bookmark";
+        c.btn.classList.toggle("on", on);
+        c.item.querySelector(".star").textContent = on ? "\u2605" : "";
+    });
+
+    bmList.innerHTML = "";
+    const marked = chapters
+        .map((c, i) => ({ c, i }))
+        .filter(x => bookmarks.includes(x.c.id))
+        .sort((a, b) => a.i - b.i);
+    bmWrap.style.display = marked.length ? "" : "none";
+    bmCount.textContent = marked.length;
+    marked.forEach(({ c, i }) => {
+        const d = document.createElement("div");
+        d.className = "ch-item" + (i === current ? " active" : "");
+        d.dataset.id = c.id;
+        d.innerHTML = '<span class="num"></span><span class="nm"></span>';
+        d.querySelector(".num").textContent = c.num;
+        d.querySelector(".nm").textContent = c.title;
+        d.addEventListener("click", () => goTo(i, true));
+        bmList.appendChild(d);
+    });
+}
+
+document.getElementById("bm-head").addEventListener("click", () => bmWrap.classList.toggle("folded"));
+
+// ── SEARCH (chapter number, heading and full chapter text) ──────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+const searchClear = document.getElementById("search-clear");
+
+function runSearch() {
+    const q = normalizeSearch(searchInput.value.trim());
+    searchClear.classList.toggle("visible", searchInput.value.length > 0);
+    let n = 0;
+    chapters.forEach(c => {
+        const ok = !q || c.search.includes(q);
+        c.item.style.display = ok ? "" : "none";
+        if (ok) n++;
+    });
+    searchCount.textContent = q ? (n ? n + " chapter" + (n === 1 ? "" : "s") + " found" : "No chapters found") : "";
+}
+searchInput.addEventListener("input", runSearch);
+searchClear.addEventListener("click", () => { searchInput.value = ""; runSearch(); searchInput.focus(); });
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
+});
+
+// ── SIDEBAR COLLAPSE ────────────────────────────────────────────────────
+const toggleBtn = document.getElementById("sidebar-toggle");
+function setCollapsed(collapsed) {
+    sidebarEl.classList.toggle("collapsed", collapsed);
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+}
+toggleBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
+if (isNarrow()) setCollapsed(true);   // phones start with the sidebar tucked away
+</script>
+
+</body>
+</html>
