@@ -22,7 +22,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 #outer {
     margin: 20px;
-    margin-bottom: 0;
+    margin-bottom: 10px;                 /* panels end just above the nav bar, never touching it */
     height: calc(100vh - 40px - 54px);
     display: flex;
     flex-direction: row;
@@ -38,17 +38,22 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     background:
         url("subjects/bhagavadgita/icons/saffron-bg.webp") center / cover no-repeat,
         linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
-    border: 1px solid #333;
-    border-radius: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #333 #0a0a0a;
+    border: 1px solid #d8b46a88;
+    border-radius: 16px;                 /* the saffron panel: rounded on all four corners */
+    display: flex; flex-direction: column;
+    overflow: hidden;                    /* clips the banner and the scrolling list to the rounded corners */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
     transition: width 0.2s ease;
 }
 #sidebar.collapsed { width: 42px; background: #111; }
-#sidebar::-webkit-scrollbar { width: 8px; }
-#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+/* ONLY the chapter list scrolls; the banner above it stays put */
+#sidebar-list {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
+    padding: 6px 0 10px 0;
+    scrollbar-width: thin; scrollbar-color: #c9922e88 transparent;
+}
+#sidebar-list::-webkit-scrollbar { width: 6px; }
+#sidebar-list::-webkit-scrollbar-thumb { background: #c9922e88; border-radius: 3px; }
 
 #sidebar-title {
     padding: 14px 16px 10px 16px;
@@ -136,12 +141,23 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #search-clear:hover { background: #3a3a3a; color: #fff; }
 #search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
-/* Heading + search removed: only the collapse button remains, on a slim transparent strip */
-#sidebar-title { padding: 6px 8px 0 8px; border-bottom: none; background: transparent; justify-content: flex-end; }
-#sidebar-title .title-text { display: none; }
+/* BANNER: full-width bar stuck to the top of the panel (static). Title + chapter count + collapse button.
+   It is a separate block above the scrolling list, so chapters never slide behind or beside it. */
+#sidebar-title {
+    flex: none; position: static;
+    padding: 13px 12px 12px 18px; gap: 10px;
+    background: linear-gradient(180deg, #1c130a 0%, #111 100%);
+    border-bottom: 2px solid #d8b46a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 3;
+    text-transform: none; letter-spacing: 0.02em;
+}
+#sidebar-title .title-text { display: flex; flex-direction: column; gap: 2px; font-size: 18px; font-weight: 700; color: #d8b46a; line-height: 1.15; }
+#sidebar-title .title-text small { font-size: 11.5px; font-weight: 400; color: #bbb; letter-spacing: 0.04em; }
+#sidebar-title #sidebar-toggle { border-color: #d8b46a66; color: #d8b46a; }
 #sidebar-search-row { display: none; }
-#sidebar.collapsed #sidebar-title { background: #111; padding: 14px 0; justify-content: center; }
-@media (max-width: 700px) { #sidebar-title { display: none; } }
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; border-bottom: none; box-shadow: none; background: transparent; }
+#sidebar-list.single .category-header { display: none; }   /* one book only: the banner already says it */
 
 /* CATEGORY = the book heading, as a dark pill: "Bhagavad Gita  18 Chapters" */
 .category-block { padding-bottom: 6px; }
@@ -535,7 +551,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
-  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #outer { margin: 4px 4px 4px 4px; gap: 4px; height: calc(100dvh - 56px); }
   #navbar { margin: 0 4px 4px 4px; gap: 4px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
@@ -605,7 +621,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 <div id="outer">
     <div id="sidebar">
         <div id="sidebar-title">
-            <span class="title-text">Bhagavad Gita</span>
+            <span class="title-text">Bhagavad Gita<small id="sidebar-count"></small></span>
             <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
         </div>
         <div id="sidebar-search-row">
@@ -774,6 +790,8 @@ categories.forEach((cat) => {
     block.appendChild(list);
     sidebarList.appendChild(block);
 });
+if (categories.length === 1) sidebarList.classList.add("single");
+document.getElementById("sidebar-count").textContent = flatTopics.length + " Chapters";
 
 // ── AUDIO SYNC (added) ──────────────────────────────────────────────────
 // A topic page opts in by having  <audio data-ends="35,69,105,...">  where the

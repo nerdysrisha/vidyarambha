@@ -34,7 +34,10 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #sidebar {
     width: 300px;
     flex-shrink: 0;
-    background: #111;
+    /* LIGHT SAFFRON BACKDROP: drop your image at subjects/bhagavadgita/icons/saffron-bg.webp (gradient is the fallback) */
+    background:
+        url("subjects/bhagavadgita/icons/saffron-bg.webp") center / cover no-repeat,
+        linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
     border: 1px solid #333;
     border-radius: 8px;
     overflow-y: auto;
@@ -43,7 +46,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     scrollbar-color: #333 #0a0a0a;
     transition: width 0.2s ease;
 }
-#sidebar.collapsed { width: 42px; }
+#sidebar.collapsed { width: 42px; background: #111; }
 #sidebar::-webkit-scrollbar { width: 8px; }
 #sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 
@@ -133,54 +136,57 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #search-clear:hover { background: #3a3a3a; color: #fff; }
 #search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
-/* CATEGORY */
-.category-block { border-bottom: 1px solid #1a1a1a; }
+/* Heading + search removed: only the collapse button remains, on a slim transparent strip */
+#sidebar-title { padding: 6px 8px 0 8px; border-bottom: none; background: transparent; justify-content: flex-end; }
+#sidebar-title .title-text { display: none; }
+#sidebar-search-row { display: none; }
+#sidebar.collapsed #sidebar-title { background: #111; padding: 14px 0; justify-content: center; }
+@media (max-width: 700px) { #sidebar-title { display: none; } }
+
+/* CATEGORY = the book heading, as a dark pill: "Bhagavad Gita  18 Chapters" */
+.category-block { padding-bottom: 6px; }
 .category-header {
-    padding: 11px 16px;
-    font-size: 13.5px;
-    font-weight: bold;
-    color: #aaa;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    user-select: none;
+    margin: 8px 8px 4px 8px; padding: 10px 14px; border-radius: 10px;
+    background: rgba(17,17,17,0.9); border: 1px solid #d8b46a66;
+    font-size: 15px; font-weight: bold; color: #d8b46a;
+    cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none;
 }
-.category-header:hover { background: #1a1a1a; color: #fff; }
-.category-header .chev {
-    font-size: 11px;
-    color: #555;
-    transition: transform 0.15s ease;
-}
+.category-header:hover { background: #111; color: #f0d18a; }
+.category-header .chev { font-size: 11px; color: #d8b46a99; transition: transform 0.15s ease; }
 .category-block.collapsed .chev { transform: rotate(-90deg); }
-.category-header .count {
-    font-size: 11px;
-    color: #555;
-    font-weight: normal;
-    margin-left: auto;
-    margin-right: 8px;
-}
+.category-header .count { font-size: 11.5px; color: #bbb; font-weight: normal; margin-left: auto; margin-right: 8px; }
 .category-block.collapsed .topic-list { display: none; }
 
+/* CHAPTER ROW: gold-ringed round icon (chapter number, or your picture) + 2 lines */
 .topic-item {
-    padding: 8px 16px 8px 30px;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #bbb;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    margin: 5px 8px; padding: 8px 10px;
+    display: flex; align-items: center; gap: 12px;
+    background: #fffdf8; color: #3a2208;
+    border-radius: 14px; cursor: pointer;
+    box-shadow: inset 0 0 0 1px rgba(122,74,18,0.35), 0 1px 3px rgba(0,0,0,0.18);
+    transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
 }
-.topic-item:hover { background: #1a1a1a; color: #fff; }
-.topic-item.active {
-    background: #241a0d;
-    color: #d8b46a;
-    border-left-color: #d8b46a;
-    font-weight: bold;
+.topic-item:hover { background: #fff; transform: translateX(2px); }
+.t-icon {
+    position: relative; flex: 0 0 56px; width: 56px; height: 56px; border-radius: 50%;
+    border: 3px solid #d8b46a; box-sizing: border-box; overflow: hidden;
+    background: linear-gradient(145deg, var(--g1, #e8590c), var(--g2, #7a1f1f));
+    box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff6dc; font: 700 24px/1 Georgia, "Times New Roman", serif; text-shadow: 0 1px 2px rgba(0,0,0,0.45);
 }
-.topic-item.search-match { background: #241a0d; border-left-color: #d8b46a; color: #fff; }
-.topic-item.search-dim { opacity: 0.25; }
-.category-block.search-dim-all { opacity: 0.25; }
+.t-icon img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.t-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.t-sub { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #9a6a1c; }
+.t-title { font-size: 15px; font-weight: 700; line-height: 1.25; color: #3a2208; }
+/* Search hit (search box is hidden, kept for later) */
+.topic-item.search-match { background: #fff0cc; box-shadow: inset 4px 0 0 #d8b46a, inset 0 0 0 1px rgba(122,74,18,0.35); }
+/* SELECTED chapter: gold ring around the row + thicker gold ring on the icon */
+.topic-item.active { background: #fff0cc; box-shadow: inset 0 0 0 2px #c9922e, 0 1px 4px rgba(0,0,0,0.3); }
+.topic-item.active .t-icon { box-shadow: 0 0 0 2px #fff0cc, 0 0 0 4px #c9922e; }
+.topic-item.search-dim { opacity: 0.35; }
+.category-block.search-dim-all { opacity: 0.35; }
+@media (max-width: 700px) { .t-title { font-size: 16px; } }
 
 /* TOOLTIP */
 #topic-tooltip {
@@ -482,28 +488,42 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
 #navbar .nav-label { font-size: 13px; font-weight: 400; }
 
-/* Speed: three round buttons. Filled gold = current speed.
-   Dimmed + disabled when the current topic has no audio. */
-#speedGroup { display: flex; align-items: center; gap: 11px; margin-left: 4px; }
+/* Speed: ONE pill shows the current speed; tap it and the other two speeds pop up above it.
+   Dimmed + disabled when the current chapter has no audio. */
+#speedGroup { position: relative; display: flex; align-items: center; margin-left: 4px; }
+#navbar #speedGroup button.speed-main,
 #navbar #speedGroup button.speed-btn {
-    width: 26px; height: 26px; padding: 0; border-radius: 50%;
+    min-width: 42px; height: 30px; padding: 0 8px; border-radius: 15px;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
     font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #speedGroup button.speed-main:hover,
 #navbar #speedGroup button.speed-btn:hover { background: #d8b46a33; }
-#navbar #speedGroup button.speed-btn.active { background: #d8b46a; color: #111; }
+#navbar #speedGroup button.speed-main[aria-expanded="true"] { background: #d8b46a33; }
+#navbar #speedGroup button.speed-main:disabled,
 #navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+#navbar #speedGroup button.speed-btn[hidden] { display: none; }
+#speedPop {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; padding: 6px; z-index: 45;
+    background: #111; border: 1px solid #333; border-radius: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+#speedPop[hidden] { display: none; }
 
 .audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
 
 /* ── FULLSCREEN / READING MODE ─────────────────────────────────────────── */
 #navbar { position: relative; }
-#fsBtn {
+/* Fullscreen: gold outline circle (matches the speed pill), YouTube-style corner icons */
+#navbar #fsBtn {
     position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
-    color: #d8b46a !important; border-color: #d8b46a66 !important;
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #fsBtn:hover { background: #d8b46a33 !important; }
+#navbar #fsBtn svg { width: 17px; height: 17px; flex: 0 0 auto; display: block; }
 #menuBtn {
     display: none;                       /* shown on phones only */
     position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
@@ -520,7 +540,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
   #counter { min-width: 40px; font-size: 12px; }
-  #speedGroup { gap: 8px; margin-left: 0; }
+  #speedGroup { margin-left: 0; }
 
   /* Menu button lives in the nav bar. Sidebar = full-width list when open,
      completely gone when closed. */
@@ -617,12 +637,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
-        <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1</button>
-        <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>2</button>
-        <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>3</button>
+        <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1&times;</button>
+        <div id="speedPop" hidden>
+            <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1&times;</button>
+            <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5&times;</button>
+            <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
+        </div>
     </div>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
 <div id="bm-toast" role="status"></div>
@@ -692,7 +715,7 @@ categories.forEach((cat) => {
     header.className = "category-header";
     header.innerHTML =
         '<span>' + cat.name + '</span>' +
-        '<span class="count">' + (cat.topics.length || "") + '</span>' +
+        '<span class="count">' + (cat.topics.length ? cat.topics.length + " Chapters" : "") + '</span>' +
         '<span class="chev">&#9662;</span>';
     header.addEventListener("click", () => {
         block.classList.toggle("collapsed");
@@ -706,7 +729,26 @@ categories.forEach((cat) => {
         const item = document.createElement("div");
 
         item.className = "topic-item";
-        item.textContent = label;
+        // label "Ch 1 — Arjuna Vishada Yoga" -> icon "1", small line "Chapter 1", bold line "Arjuna Vishada Yoga"
+        const lm = label.match(/^\s*Ch\s*(\d+)\s*[—–-]\s*(.+)$/i);
+        const chNo = lm ? lm[1] : "", chName = lm ? lm[2].trim() : label;
+        const icon = document.createElement("div");
+        icon.className = "t-icon";
+        const pal = [["#ff9933","#c2410c"],["#f06595","#a61e4d"],["#4dabf7","#1c4fa0"],["#69db7c","#2b8a3e"],["#9775fa","#5f3dc4"],["#ffa94d","#a8420a"]];
+        const pc = pal[((parseInt(chNo, 10) || 1) - 1) % pal.length];
+        icon.style.setProperty("--g1", pc[0]); icon.style.setProperty("--g2", pc[1]);
+        icon.textContent = chNo;
+        const img = new Image();                      // optional picture: subjects/bhagavadgita/icons/<slug>.webp (e.g. chapter1.webp)
+        img.alt = ""; img.loading = "lazy";
+        img.onload = () => icon.appendChild(img);
+        img.src = BASE_URL + cat.slug + "/icons/" + slug + ".webp";
+        const body = document.createElement("div");
+        body.className = "t-body";
+        if (chNo) { const sub = document.createElement("div"); sub.className = "t-sub"; sub.textContent = "Chapter " + chNo; body.appendChild(sub); }
+        const ttl = document.createElement("div");
+        ttl.className = "t-title"; ttl.textContent = chName;
+        body.appendChild(ttl);
+        item.appendChild(icon); item.appendChild(body);
         item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
 
         const fileExt = ext || "html";
@@ -782,6 +824,7 @@ function stopAudioSync() {
     document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
         b.disabled = true; b.classList.remove("active"); b.onclick = null;
     });
+    if (window.resetSpeedUI) window.resetSpeedUI();
     contentPanel.classList.remove("has-dock");
     scrollAnim = null;
 }
@@ -807,7 +850,7 @@ function initAudioSync() {
     audioDock.appendChild(holder);
     contentPanel.classList.add("has-dock");
 
-    // Playback speed: circles 1 / 2 / 3 in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
+    // Playback speed: one pill in the nav bar (tap for the other two) = 1x / 1.5x / 1.75x. Choice is remembered.
     audio.setAttribute("controlsList", "nodownload noplaybackrate");   // hide the browser's own speed menu
     const SPEED_BTNS = Array.from(document.querySelectorAll("#speedGroup .speed-btn"));
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
@@ -818,15 +861,18 @@ function initAudioSync() {
     badge.className = "speed-badge";
     badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
     function paintSpeed() {
-        SPEED_BTNS.forEach(b => b.classList.toggle("active", parseFloat(b.dataset.rate) === rate));
+        SPEED_BTNS.forEach(b => { b.classList.toggle("active", parseFloat(b.dataset.rate) === rate); b.hidden = parseFloat(b.dataset.rate) === rate; });   // popup lists only the OTHER speeds
+        if (window.setSpeedLabel) window.setSpeedLabel(rate);
         badge.textContent = rate + "x";
         badge.style.display = rate === 1 ? "none" : "flex";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
+    document.getElementById("speedMain").disabled = false;
     SPEED_BTNS.forEach(b => {
         b.disabled = false;
         b.onclick = () => {          // onclick (not addEventListener) so topics don't stack handlers
             rate = parseFloat(b.dataset.rate); applyRate(); paintSpeed();
+            if (window.closeSpeedPop) window.closeSpeedPop();
             try { localStorage.setItem("audioRate", String(rate)); } catch (e) {}
         };
     });
@@ -1210,12 +1256,31 @@ document.getElementById("menuBtn").addEventListener("click",
     () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
 toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
 
+// ── SPEED PILL + POPUP ────────────────────────────────────────────────
+// The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two.
+const speedMain = document.getElementById("speedMain");
+const speedPop  = document.getElementById("speedPop");
+window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
+window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
+window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
+speedMain.addEventListener("click", e => {
+    e.stopPropagation();
+    if (speedMain.disabled) return;
+    speedPop.hidden = !speedPop.hidden;
+    speedMain.setAttribute("aria-expanded", speedPop.hidden ? "false" : "true");
+});
+document.addEventListener("click", e => { if (!speedPop.hidden && !speedPop.contains(e.target)) window.closeSpeedPop(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") window.closeSpeedPop(); });
+
 // ── FULLSCREEN / READING MODE ─────────────────────────────────────────
 const fsBtn = document.getElementById("fsBtn");
+const FS_ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';   // corners pointing out = go full screen
+const FS_EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';   // corners pointing in = leave full screen
 function setReading(on) {
     document.body.classList.toggle("reading", on);
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.innerHTML = on ? FS_EXIT : FS_ENTER;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
     setTimeout(fitVerses, 250);
 }
 fsBtn.addEventListener("click", () => {
