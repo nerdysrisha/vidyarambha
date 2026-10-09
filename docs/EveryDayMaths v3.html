@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
 <title>EveryDayMaths</title>
-<!--v21: shared lesson engine + Telugu & Hindi | v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+<!--v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
 <style>
 html, body {
     margin: 0;
@@ -667,34 +664,6 @@ DATEREMOVAL--
 .eng-m-row { display:flex; gap:10px; align-items:baseline; font-size:28px; line-height:1.6; }
 .eng-m-row .eng-blank { margin-left:auto; }
 .eng-foot { display:flex; flex-wrap:wrap; gap:12px; margin:26px 0 14px; }
-/* Telugu / Hindi lessons (shared engine): fonts with fallbacks, bigger text, letter cards */
-.eng-te { font-family:"Noto Sans Telugu","Nirmala UI","Gautami","Vani",Arial,sans-serif; }
-.eng-hi { font-family:"Noto Sans Devanagari","Nirmala UI","Mangal","Kokila",Arial,sans-serif; }
-.eng-root.eng-lang .eng-story, .eng-root.eng-lang .question-row, .eng-root.eng-lang .eng-seq-row, .eng-root.eng-lang .eng-m-row { font-size:34px; line-height:1.7; }
-.eng-root.eng-lang .eng-sec-title { line-height:1.5; }
-.eng-bigl { font-size:2.4em; line-height:1.3; vertical-align:middle; }
-.eng-letters { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
-.eng-lcard { background:#161616; border:2px solid #333; border-radius:12px; padding:6px 14px 10px; overflow:hidden; }
-.eng-lrow { display:flex; align-items:center; gap:18px; }
-.eng-lbig, .eng-ltrace { font-size:88px; line-height:1.4; white-space:nowrap; }
-.eng-lbig { color:#fff; cursor:pointer; }
-.eng-ltrace { color:rgba(255,255,255,0.08); -webkit-text-stroke:2px #8a8a8a; }
-.eng-lname { font-size:16px; color:#ffc800; margin-top:-6px; }
-.eng-lex { display:flex; align-items:center; gap:12px; margin-top:6px; border-top:1px solid #2a2a2a; padding-top:6px; }
-.eng-lword { font-size:30px; line-height:1.5; }
-.eng-lmean { font-size:16px; color:#aaa; font-family:Arial,sans-serif; }
-.eng-limg { height:84px; max-width:120px; object-fit:contain; border-radius:8px; cursor:zoom-in; }
-.eng-wq { font-size:28px; line-height:1.5; padding:6px 0 0 20px; }
-.eng-wline { height:84px; border-bottom:2px solid #555; margin:0 0 4px 20px; }
-.eng-wsample { padding-left:20px; color:#aaa; font-size:24px; }
-@media (max-width: 700px) {
-    .eng-root.eng-lang .eng-story, .eng-root.eng-lang .question-row, .eng-root.eng-lang .eng-seq-row, .eng-root.eng-lang .eng-m-row { font-size:24px; }
-    .eng-letters { grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); }
-    .eng-lbig, .eng-ltrace { font-size:64px; }
-    .eng-lword { font-size:24px; }
-    .eng-wq { font-size:19px; padding-left:4px; }
-    .eng-wline { height:68px; margin-left:4px; }
-}
 #eng-lightbox { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.92); z-index:9999; display:flex; align-items:center; justify-content:center; cursor:zoom-out; }
 #eng-lightbox img { max-width:96vw; max-height:96vh; border-radius:8px; }
 @media (max-width: 700px) {
@@ -796,9 +765,7 @@ const options = [
     ["shapes-draw",          "35. Shapes - Draw"],
     ["perimeter-shapes",     "36. Perimeter"],
     ["average-numbers",      "37. Average"],
-    ["english-daily",        "38. Daily English"],
-    ["telugu-daily",         "39. Telugu"],
-    ["hindi-daily",          "40. Hindi"]
+    ["english-daily",        "38. Daily English"]
 ];
 
 const control   = document.getElementById("control");
@@ -2136,7 +2103,7 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time","shapes-draw","english-daily","telugu-daily","hindi-daily"]);
+    "number-names","draw-clock","identify-time","shapes-draw","english-daily"]);
 
 // ── FIX 2: refreshStack for perimeter calls generatePerimeter with a new seed ─
 function refreshStack(val) {
@@ -2171,7 +2138,7 @@ function addStack(val) {
 }
 
 function removeStack(val) {
-    if (ENG_LANGS[val]) engStop();
+    if (val === "english-daily") engStop();
     stacks[val]?.remove();
     delete stacks[val];
     const idx = stackOrder.indexOf(val);
@@ -2280,21 +2247,15 @@ const NUM_MAP = {
     "units-length":1,"units-weight":1,"units-liquid":1,"units-time":1,"units-money":1
 };
 
-// ── DAILY LESSONS (English, Telugu, Hindi share one engine) ──────────────────
-// Each topic has its own folder in the repo:  <dir>/index.json, <dir>/lesson-01.json …, <dir>/images/01-p1.jpg …
-const ENG_ROOT = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/";
-const ENG_LANGS = {
-    "english-daily": { dir: "english", speech: "en-IN", cls: "" },
-    "telugu-daily":  { dir: "telugu",  speech: "te-IN", cls: "eng-lang eng-te" },
-    "hindi-daily":   { dir: "hindi",   speech: "hi-IN", cls: "eng-lang eng-hi" }
-};
-Object.values(ENG_LANGS).forEach(c => { c.url = ENG_ROOT + c.dir + "/"; });
+// ── DAILY ENGLISH (sequential lessons) ───────────────────────────────────────
+// Files live in the same repo:  english/index.json, english/lesson-01.json …, english/images/01-p1.jpg …
+const ENGLISH_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/english/";
 
-// Cache-busting (all lesson topics): GitHub's raw files are cached for a few minutes, so every JSON fetch
+// Cache-busting (English only): GitHub's raw files are cached for a few minutes, so every JSON fetch
 // gets a unique ?t=<time> and cache:"no-store". Images use one value per page load (reload = fresh images).
 const ENG_PAGE_LOAD = Date.now();
-function engFetch(cfg, file) {
-    return fetch(cfg.url + file + "?t=" + Date.now(), { cache: "no-store" });
+function engFetch(file) {
+    return fetch(ENGLISH_URL + file + "?t=" + Date.now(), { cache: "no-store" });
 }
 function engStop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
 function engEl(tag, cls, text) {
@@ -2313,16 +2274,6 @@ function engShuffle(arr, seedStr) {
     return out;   // original indexes, in display order
 }
 
-function engSpeak(text, cfg) {
-    if (!window.speechSynthesis) return;
-    try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = cfg.speech; u.rate = 0.8;
-        speechSynthesis.speak(u);
-    } catch (e) {}
-}
-
 function engOpenImage(src) {
     const lb = engEl("div"); lb.id = "eng-lightbox";
     const im = document.createElement("img"); im.src = src;
@@ -2331,19 +2282,18 @@ function engOpenImage(src) {
     document.body.appendChild(lb);
 }
 
-function renderLessons(box, val) {
+function renderEnglishDaily(box) {
     engStop();
-    const cfg = ENG_LANGS[val];
-    const root = engEl("div", "eng-root" + (cfg.cls ? " " + cfg.cls : ""));
+    const root = engEl("div", "eng-root");
     box.appendChild(root);
     root.appendChild(engEl("div", "eng-intro", "Loading lessons…"));
-    engFetch(cfg, "index.json")
-        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + cfg.dir + "/index.json"); return r.json(); })
-        .then(idx => engShowPicker(root, idx, cfg))
+    engFetch("index.json")
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for english/index.json"); return r.json(); })
+        .then(idx => engShowPicker(root, idx))
         .catch(err => { root.innerHTML = ""; root.appendChild(engEl("div", "eng-err", err.message)); });
 }
 
-function engShowPicker(root, idx, cfg) {
+function engShowPicker(root, idx) {
     engStop();
     root.innerHTML = "";
     const titles = idx.lessons || {};
@@ -2355,7 +2305,7 @@ function engShowPicker(root, idx, cfg) {
         const b = engEl("button", "eng-lbtn" + (avail ? "" : " off"));
         b.appendChild(engEl("span", "eng-lnum", n));
         b.appendChild(engEl("span", "eng-ltitle", avail ? titles[n] : "Coming soon"));
-        if (avail) b.onclick = () => engOpenLesson(root, idx, n, cfg);
+        if (avail) b.onclick = () => engOpenLesson(root, idx, n);
         else b.disabled = true;
         grid.appendChild(b);
     }
@@ -2363,25 +2313,25 @@ function engShowPicker(root, idx, cfg) {
     engTop(root);
 }
 
-function engOpenLesson(root, idx, n, cfg) {
+function engOpenLesson(root, idx, n) {
     engStop();
     root.innerHTML = "";
     root.appendChild(engEl("div", "eng-intro", "Loading lesson " + n + "…"));
     const file = "lesson-" + String(n).padStart(2, "0") + ".json";
-    engFetch(cfg, file)
-        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + cfg.dir + "/" + file); return r.json(); })
-        .then(L => engRenderLesson(root, idx, n, L, cfg))
+    engFetch(file)
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for english/" + file); return r.json(); })
+        .then(L => engRenderLesson(root, idx, n, L))
         .catch(err => {
             root.innerHTML = "";
             root.appendChild(engEl("div", "eng-err", err.message));
             const back = engEl("button", "eng-btn alt", "← Lessons");
-            back.onclick = () => engShowPicker(root, idx, cfg);
+            back.onclick = () => engShowPicker(root, idx);
             root.appendChild(back);
         });
 }
 
 // Builds one context card (paras + optional images) from a list of parts; returns {card, plain}
-function engStoryCard(parts, cfg) {
+function engStoryCard(parts) {
     const card = engEl("div", "eng-story");
     const plain = [];
     parts.forEach(part => {
@@ -2390,7 +2340,7 @@ function engStoryCard(parts, cfg) {
         if (part.image) {
             const im = document.createElement("img");
             im.className = "eng-img";
-            im.src = cfg.url + "images/" + part.image + "?t=" + ENG_PAGE_LOAD;
+            im.src = ENGLISH_URL + "images/" + part.image + "?t=" + ENG_PAGE_LOAD;
             im.alt = "";
             im.onerror = () => im.remove();            // image is optional
             im.onclick = () => engOpenImage(im.src);   // tap to enlarge
@@ -2400,7 +2350,7 @@ function engStoryCard(parts, cfg) {
     return { card, plain };
 }
 
-function engReadBtn(plain, cfg) {
+function engReadBtn(plain) {
     if (!window.speechSynthesis || !plain.length) return null;
     let reading = false;
     const rb = engEl("button", "eng-btn alt", "🔊 Read aloud");
@@ -2409,7 +2359,7 @@ function engReadBtn(plain, cfg) {
         if (reading) { speechSynthesis.cancel(); reset(); return; }
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(plain.join(" "));
-        u.lang = cfg.speech; u.rate = 0.85;
+        u.lang = "en-IN"; u.rate = 0.85;
         u.onend = reset; u.onerror = reset;
         reading = true; rb.textContent = "⏹ Stop";
         speechSynthesis.speak(u);
@@ -2417,19 +2367,19 @@ function engReadBtn(plain, cfg) {
     return rb;
 }
 
-function engRenderSections(root, sections, n, bi, cfg) {
+function engRenderSections(root, sections, n, bi) {
     sections.forEach((sec, si) => {
         const wrap = engEl("div", "eng-sec");
         wrap.appendChild(engEl("div", "eng-sec-title", sec.heading || ""));
         if (sec.note) wrap.appendChild(engEl("div", "eng-sec-note", sec.note));
         const list = document.createElement("div");
-        engRenderSection(list, sec, n, bi * 100 + si, cfg);   // unique shuffle seed per block + section
+        engRenderSection(list, sec, n, bi * 100 + si);   // unique shuffle seed per block + section
         wrap.appendChild(list);
         root.appendChild(wrap);
     });
 }
 
-function engRenderLesson(root, idx, n, L, cfg) {
+function engRenderLesson(root, idx, n, L) {
     root.innerHTML = "";
 
     // header bar
@@ -2442,33 +2392,33 @@ function engRenderLesson(root, idx, n, L, cfg) {
         L.blocks.forEach((blk, bi) => {
             const ctx = blk.context ? (Array.isArray(blk.context) ? blk.context : [blk.context]) : [];
             if (ctx.length) {
-                const { card, plain } = engStoryCard(ctx, cfg);
-                const rb = engReadBtn(plain, cfg);
+                const { card, plain } = engStoryCard(ctx);
+                const rb = engReadBtn(plain);
                 if (rb) { const row = engEl("div", "eng-bar"); row.appendChild(rb); root.appendChild(row); }
                 root.appendChild(card);
             }
-            engRenderSections(root, blk.sections || [], n, bi, cfg);
+            engRenderSections(root, blk.sections || [], n, bi);
         });
     } else {
         // ORIGINAL layout: whole story first, then all questions (lesson 1 style)
-        const { card, plain } = engStoryCard(L.story || [], cfg);
+        const { card, plain } = engStoryCard(L.story || []);
         root.appendChild(card);
-        const rb = engReadBtn(plain, cfg);
+        const rb = engReadBtn(plain);
         if (rb) bar.appendChild(rb);
-        engRenderSections(root, L.sections || [], n, 0, cfg);
+        engRenderSections(root, L.sections || [], n, 0);
     }
 
     // footer
     const foot = engEl("div", "eng-foot");
     const all = engEl("button", "eng-btn alt", "☰ All lessons");
-    all.onclick = () => engShowPicker(root, idx, cfg);
+    all.onclick = () => engShowPicker(root, idx);
     foot.appendChild(all);
     root.appendChild(foot);
     engTop(root);
 }
 
 // One renderer per question type. Unknown types fall back to the generic question/answer list.
-function engRenderSection(list, sec, n, si, cfg) {
+function engRenderSection(list, sec, n, si) {
     const items = sec.items || [];
     const letter = i => String.fromCharCode(97 + (i % 26));
     const row = html => list.insertAdjacentHTML("beforeend", html);
@@ -2476,57 +2426,6 @@ function engRenderSection(list, sec, n, si, cfg) {
         '<span class="question-letter">' + mark + '</span><span class="question-text">' + q + '</span></div></div>';
 
     switch (sec.type) {
-        case "letters": {           // items: "అ" or {l, w, m, name, image}; sec.trace = number of tracing copies (default 1, 0 = none)
-            const traces = sec.trace != null ? sec.trace : 1;
-            const g = engEl("div", "eng-letters");
-            items.forEach(it => {
-                const o = typeof it === "string" ? { l: it } : it;
-                const card = engEl("div", "eng-lcard");
-                const r = engEl("div", "eng-lrow");
-                const big = engEl("span", "eng-lbig", o.l);
-                big.onclick = () => engSpeak(o.l, cfg);            // tap the letter to hear it (bonus)
-                r.appendChild(big);
-                for (let k = 0; k < traces; k++) r.appendChild(engEl("span", "eng-ltrace", o.l));
-                card.appendChild(r);
-                if (o.name) card.appendChild(engEl("div", "eng-lname", o.name));
-                if (o.w || o.image) {
-                    const ex = engEl("div", "eng-lex");
-                    if (o.image) {
-                        const im = document.createElement("img");
-                        im.className = "eng-limg";
-                        im.src = cfg.url + "images/" + o.image + "?t=" + ENG_PAGE_LOAD;
-                        im.alt = "";
-                        im.onerror = () => im.remove();            // image is optional
-                        im.onclick = () => engOpenImage(im.src);
-                        ex.appendChild(im);
-                    }
-                    if (o.w) {
-                        const wd = engEl("div");
-                        wd.appendChild(engEl("div", "eng-lword", o.w));
-                        if (o.m) wd.appendChild(engEl("div", "eng-lmean", o.m));
-                        ex.appendChild(wd);
-                    }
-                    card.appendChild(ex);
-                }
-                g.appendChild(card);
-            });
-            list.appendChild(g);
-            break;
-        }
-
-        case "write":               // items: "prompt" or {q, lines (default 1), a (optional sample, hidden)}
-            items.forEach(it => {
-                const o = typeof it === "string" ? { q: it } : it;
-                list.appendChild(engEl("div", "eng-wq")).innerHTML = o.q || "";
-                for (let k = 0; k < (o.lines || 1); k++) list.appendChild(engEl("div", "eng-wline"));
-                if (o.a) {
-                    const s = engEl("div", "eng-wsample", "Sample: ");
-                    s.appendChild(engEl("span", "answer", o.a));
-                    list.appendChild(s);
-                }
-            });
-            break;
-
         case "tf":
             items.forEach((it, i) => {
                 const a = (engIsTrue(it.a) ? "True" : "False") + (it.why ? " — " + it.why : "");
@@ -2597,7 +2496,7 @@ function generate(box, val) {
     const opt = options.find(o=>o[0]===val);
     if (opt) { const t = document.createElement("div"); t.className="problem-title"; t.textContent=opt[1]; box.appendChild(t); }
 
-    if (ENG_LANGS[val]) { renderLessons(box, val); return; }
+    if (val === "english-daily") { renderEnglishDaily(box); return; }
 
     if (val === "identify-time") {
         const scheme = getDailyClockScheme();
