@@ -165,7 +165,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .ch-item:hover { background: #1a1a1a; color: #fff; }
 .ch-item .num { flex: 0 0 26px; text-align: right; font-size: 12px; color: #666; }
 .ch-item .nm { flex: 1; min-width: 0; }
-.ch-item .star { flex: 0 0 auto; color: #d9a441; font-size: 12px; }
 .ch-item.active {
     background: #0d1f2b;
     color: #00c8ff;
@@ -220,20 +219,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border-radius: 4px;
     padding: 2px 9px;
 }
-#content-box .bm-btn {
-    font-family: inherit;
-    font-size: 12px;
-    color: #8a6d3b;
-    background: #fff;
-    border: 1px solid #e3d7b8;
-    border-radius: 14px;
-    padding: 3px 12px;
-    cursor: pointer;
-}
-#content-box .bm-btn:hover { background: #fbf6ea; }
-#content-box .bm-btn.on { color: #fff; background: #c9a15a; border-color: #c9a15a; }
 
-/* NAV BAR */
+/* NAV BAR (same as Bhagavad Gita) */
 #navbar {
     height: 40px;
     flex-shrink: 0;
@@ -245,6 +232,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     justify-content: center;
     gap: 16px;
     margin: 0 20px 20px 20px;
+    position: relative;
 }
 #navbar button {
     background: #1a1a1a;
@@ -255,9 +243,73 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 13px;
     cursor: pointer;
 }
-#navbar button:hover { background: #222; color: #00c8ff; }
-#navbar button:disabled { opacity: 0.35; cursor: default; }
+#navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+#navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
+#navbar .nav-label { font-size: 13px; font-weight: 400; }
+
+/* FULLSCREEN / READING MODE + MENU BUTTON */
+#fsBtn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
+    color: #d8b46a !important; border-color: #d8b46a66 !important;
+}
+#menuBtn {
+    display: none;                       /* shown on phones only */
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 30px; padding: 0; font-size: 19px; line-height: 1;
+    color: #d8b46a !important; border-color: #d8b46a66 !important;
+}
+#menuBtn.open { background: #d8b46a !important; color: #111 !important; }
+@media (min-width: 701px) { body.reading #sidebar { display: none; } }
+
+/* MOBILE (portrait phones): edge-to-edge, list opens full width */
+@media (max-width: 700px) {
+  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
+  #navbar .nav-label { display: none; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #menuBtn { display: block; }
+  #sidebar-toggle { display: none; }
+  #sidebar { width: 100%; }
+  #sidebar.collapsed { display: none; }
+  body.side-open #main-col { display: none; }
+  #content-box { padding: 12px 8px 40px 8px; }
+  #content-box .ch-bar { max-width: none; }
+}
+
+/* BOOKMARK ("dog-ear") + nav-bar bookmark button (same as Bhagavad Gita) */
+#content-box { touch-action: manipulation; }          /* no double-tap zoom, so double-tap can mean "bookmark" */
+#content-box .bookmarked { position: relative; }
+#content-box .bookmarked::after {                       /* folded top-right corner */
+    content: ""; position: absolute; top: -1px; right: -1px; width: 32px; height: 32px;
+    background: linear-gradient(225deg, #faf8f4 0%, #faf8f4 50%, #ecd08a 50%, #b88a3a 100%);
+    border-radius: 0 0 8px 0 / 0 0 8px 0; pointer-events: none;
+}
+#content-box .bm-flash { box-shadow: 0 0 0 3px #d8b46acc, 0 4px 16px rgba(201,161,90,0.5) !important; }
+#navbar #bmBtn {
+    width: 34px; height: 30px; padding: 0; margin-left: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #d8b46a; border-color: #d8b46a66; opacity: 0.5;
+}
+#navbar #bmBtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+#navbar #bmBtn.has { opacity: 1; background: #d8b46a; color: #111; }
+#navbar #bmBtn.has svg { fill: currentColor; }
+#bm-toast {
+    position: fixed; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 60;
+    background: #111; color: #d8b46a; border: 1px solid #d8b46a66; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; max-width: 86vw; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+#bm-toast.show { opacity: 1; }
+
+/* tablet / desktop height fix: nav bar always sits at the bottom of the visible window */
+@media (min-width: 701px) {
+  body { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+  #outer { flex: 1 1 auto; min-height: 0; height: auto; }
+  #navbar { flex: none; }
+}
 </style>
 </head>
 <body>
@@ -276,10 +328,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
             <div id="search-count"></div>
         </div>
         <div id="sidebar-body">
-            <div id="bm-wrap" style="display:none">
-                <div class="sec-head" id="bm-head"><span>&#9733; Bookmarks</span><span class="count" id="bm-count">0</span></div>
-                <div id="bm-list"></div>
-            </div>
             <div class="sec-head"><span>Chapters</span><span class="count" id="ch-count"></span></div>
             <div id="ch-list"></div>
         </div>
@@ -295,10 +343,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 </div>
 
 <div id="navbar">
-    <button id="prevBtn">&#8592; Prev</button>
+    <button id="menuBtn" title="Chapter list">&#9776;</button>
+    <button id="prevBtn" aria-label="Previous chapter" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
-    <button id="nextBtn">Next &#8594;</button>
+    <button id="nextBtn" aria-label="Next chapter" title="Next"><span class="nav-label">Next </span>&gt;</button>
+    <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a paragraph or chapter heading to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
 </div>
+
+<div id="bm-toast" role="status"></div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
@@ -309,9 +362,6 @@ const BOOK_TITLE = "Guru Charitra";
 // ── ELEMENTS ────────────────────────────────────────────────────────────
 const sidebarEl   = document.getElementById("sidebar");
 const chList      = document.getElementById("ch-list");
-const bmWrap      = document.getElementById("bm-wrap");
-const bmList      = document.getElementById("bm-list");
-const bmCount     = document.getElementById("bm-count");
 const chCount     = document.getElementById("ch-count");
 const contentBox  = document.getElementById("content-box");
 const counterEl   = document.getElementById("counter");
@@ -330,13 +380,12 @@ function lsSet(key, val) {
 }
 
 // ── STATE ───────────────────────────────────────────────────────────────
-let chapters = [];          // { id, num, title, el, item, btn, search }
+let chapters = [];          // { id, num, title, el, item, search }
 let current = -1;
-let bookmarks = lsGet("gc_bookmarks", []);
 let lockUntil = 0;          // ignore scroll-tracking briefly right after a jump
 let userMoved = false;
 
-const isNarrow = () => window.innerWidth < 760;
+const isNarrow = () => window.innerWidth <= 700;
 
 function normalizeSearch(s) {
     return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -374,26 +423,23 @@ function initChapters() {
         // bar above the chapter: badge + bookmark button
         const bar = document.createElement("div");
         bar.className = "ch-bar";
-        bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span><button class="bm-btn" type="button"></button>';
+        bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span>';
         el.insertBefore(bar, el.firstChild);
-        const btn = bar.querySelector(".bm-btn");
-        btn.addEventListener("click", () => toggleBookmark(id));
 
         // sidebar entry
         const item = document.createElement("div");
         item.className = "ch-item";
-        item.innerHTML = '<span class="num"></span><span class="nm"></span><span class="star"></span>';
+        item.innerHTML = '<span class="num"></span><span class="nm"></span>';
         item.querySelector(".num").textContent = num;
         item.querySelector(".nm").textContent = title;
         item.addEventListener("click", () => goTo(i, true));
         chList.appendChild(item);
 
-        chapters.push({ id, num, title, el, item, btn, search: normalizeSearch(num + " " + title + " " + text) });
+        chapters.push({ id, num, title, el, item, search: normalizeSearch(num + " " + title + " " + text) });
     });
 
     chCount.textContent = chapters.length;
-    bookmarks = bookmarks.filter(id => chapters.some(c => c.id === id));   // drop stale ids
-    renderBookmarks();
+    markBookmark(); paintBmBtn();
 
     // where to start: URL hash (#ch23) → last read → top
     const fromHash = chapters.findIndex(c => c.id === location.hash.slice(1));
@@ -412,10 +458,10 @@ function initChapters() {
 // ── NAVIGATION ──────────────────────────────────────────────────────────
 function goTo(i, fromSidebar) {
     if (i < 0 || i >= chapters.length) return;
+    if (fromSidebar && isNarrow()) setCollapsed(true);   // show the text first so offsets are measurable
     lockUntil = Date.now() + 200;
     contentBox.scrollTop = chapters[i].el.offsetTop - 12;
     setCurrent(i);
-    if (fromSidebar && isNarrow()) setCollapsed(true);
 }
 
 function setCurrent(i) {
@@ -423,11 +469,8 @@ function setCurrent(i) {
     current = i;
     const c = chapters[i];
     chapters.forEach((x, k) => x.item.classList.toggle("active", k === i));
-    bmList.querySelectorAll(".ch-item").forEach(d => d.classList.toggle("active", d.dataset.id === c.id));
     c.item.scrollIntoView({ block: "nearest" });
     counterEl.textContent = (i + 1) + " / " + chapters.length;
-    prevBtn.disabled = (i === 0);
-    nextBtn.disabled = (i === chapters.length - 1);
     scheduleSave();
 }
 
@@ -466,50 +509,99 @@ window.addEventListener("hashchange", () => {
     if (k >= 0 && k !== current) goTo(k, false);
 });
 
-prevBtn.onclick = () => goTo(current - 1, false);
-nextBtn.onclick = () => goTo(current + 1, false);
+// Prev / Next: one chapter at a time, wrapping round at the ends (same as Bhagavad Gita)
+prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false); };
+nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false); };
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); nextBtn.click(); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); prevBtn.click(); }
 });
 
-// ── BOOKMARKS ───────────────────────────────────────────────────────────
-function toggleBookmark(id) {
-    const at = bookmarks.indexOf(id);
-    if (at >= 0) bookmarks.splice(at, 1); else bookmarks.push(id);
-    lsSet("gc_bookmarks", bookmarks);
-    renderBookmarks();
+// ── BOOKMARK (same as Bhagavad Gita) ────────────────────────────────────
+// Double-tap / double-click a paragraph (or a chapter heading): a gold folded corner appears = THE bookmark
+// (only one; a new one replaces the old; double-tap it again to remove). Saved as chapter id + block number.
+// The bookmark button in the bottom bar jumps back to it.
+const BM_KEY = "gc_bookmark", DOUBLE_TAP_MS = 320;
+const BLOCK_SEL = ".ch-title, .ch-text p";
+let bookmark = lsGet(BM_KEY, null);                  // { id, index }
+if (!bookmark || typeof bookmark.id !== "string" || typeof bookmark.index !== "number") bookmark = null;
+let bmUserMoved = false, toastTimer;
+const bmBtn = document.getElementById("bmBtn");
+const bmToast = document.getElementById("bm-toast");
+
+function showToast(msg) {
+    bmToast.textContent = msg; bmToast.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => bmToast.classList.remove("show"), 2200);
+}
+function paintBmBtn() { bmBtn.classList.toggle("has", !!bookmark); }
+function blocksOf(c) { return Array.from(c.el.querySelectorAll(BLOCK_SEL)); }
+function blockFromTarget(t) {
+    if (!t || !t.closest || t.closest("button, a")) return null;
+    const el = t.closest(BLOCK_SEL);
+    return el && el.closest("section.chapter") ? el : null;
+}
+function markBookmark() {
+    contentBox.querySelectorAll(".bookmarked").forEach(n => n.classList.remove("bookmarked"));
+    if (!bookmark) return;
+    const c = chapters.find(x => x.id === bookmark.id);
+    const el = c && blocksOf(c)[bookmark.index];
+    if (el) el.classList.add("bookmarked");
+}
+function toggleBookmark(block) {
+    const c = chapters.find(x => x.el.contains(block));
+    if (!c) return;
+    const idx = blocksOf(c).indexOf(block);
+    if (idx < 0) return;
+    if (bookmark && bookmark.id === c.id && bookmark.index === idx) {
+        bookmark = null; showToast("Bookmark removed");
+    } else {
+        bookmark = { id: c.id, index: idx };
+        showToast("Bookmarked — tap the ribbon below to return here");
+    }
+    lsSet(BM_KEY, bookmark);
+    markBookmark(); paintBmBtn();
+    if (window.getSelection) window.getSelection().removeAllRanges();
 }
 
-function renderBookmarks() {
-    chapters.forEach(c => {
-        const on = bookmarks.includes(c.id);
-        c.btn.textContent = on ? "\u2605 Bookmarked" : "\u2606 Bookmark";
-        c.btn.classList.toggle("on", on);
-        c.item.querySelector(".star").textContent = on ? "\u2605" : "";
-    });
+let lastTapEl = null, lastTapAt = 0;
+contentBox.addEventListener("click", e => {
+    const block = blockFromTarget(e.target);
+    if (!block) { lastTapEl = null; return; }
+    const now = Date.now();
+    if (lastTapEl === block && now - lastTapAt < DOUBLE_TAP_MS) {
+        lastTapEl = null;
+        toggleBookmark(block);
+        return;
+    }
+    lastTapEl = block; lastTapAt = now;
+}, true);
+contentBox.addEventListener("mousedown", e => {      // desktop: stop the double-click from selecting a word
+    if (e.detail > 1 && blockFromTarget(e.target)) e.preventDefault();
+});
+["wheel", "touchstart", "mousedown"].forEach(evt =>
+    contentBox.addEventListener(evt, () => { bmUserMoved = true; }, { passive: true }));
 
-    bmList.innerHTML = "";
-    const marked = chapters
-        .map((c, i) => ({ c, i }))
-        .filter(x => bookmarks.includes(x.c.id))
-        .sort((a, b) => a.i - b.i);
-    bmWrap.style.display = marked.length ? "" : "none";
-    bmCount.textContent = marked.length;
-    marked.forEach(({ c, i }) => {
-        const d = document.createElement("div");
-        d.className = "ch-item" + (i === current ? " active" : "");
-        d.dataset.id = c.id;
-        d.innerHTML = '<span class="num"></span><span class="nm"></span>';
-        d.querySelector(".num").textContent = c.num;
-        d.querySelector(".nm").textContent = c.title;
-        d.addEventListener("click", () => goTo(i, true));
-        bmList.appendChild(d);
-    });
+function scrollToBookmarkBlock(flash) {
+    const c = bookmark && chapters.find(x => x.id === bookmark.id);
+    const el = c && blocksOf(c)[bookmark.index];
+    if (!el) return false;
+    lockUntil = Date.now() + 300;
+    setCurrent(chapters.indexOf(c));
+    const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
+    const want = r.height > contentBox.clientHeight - 16 ? 8 : (contentBox.clientHeight - r.height) / 2;
+    contentBox.scrollTop += (r.top - box.top) - want;
+    if (flash) { el.classList.add("bm-flash"); setTimeout(() => el.classList.remove("bm-flash"), 1500); }
+    return true;
 }
-
-document.getElementById("bm-head").addEventListener("click", () => bmWrap.classList.toggle("folded"));
+bmBtn.addEventListener("click", () => {
+    if (!bookmark) { showToast("No bookmark yet — double-tap a paragraph to place one"); return; }
+    if (isNarrow() && !sidebarEl.classList.contains("collapsed")) setCollapsed(true);
+    if (!scrollToBookmarkBlock(true)) { showToast("Couldn't find the bookmarked place"); return; }
+    bmUserMoved = false;                              // web fonts may shift the layout: aim again if the reader hasn't moved
+    const again = () => { if (!bmUserMoved) scrollToBookmarkBlock(false); };
+    setTimeout(again, 350); setTimeout(again, 900);
+});
 
 // ── SEARCH (chapter number, heading and full chapter text) ──────────────
 const searchInput = document.getElementById("topic-search");
@@ -535,13 +627,46 @@ searchInput.addEventListener("keydown", e => {
 
 // ── SIDEBAR COLLAPSE ────────────────────────────────────────────────────
 const toggleBtn = document.getElementById("sidebar-toggle");
+const menuBtn = document.getElementById("menuBtn");
+let savedScroll = 0;
 function setCollapsed(collapsed) {
+    const wasOpen = !sidebarEl.classList.contains("collapsed");
+    // phones hide the text while the list is open, which resets its scroll: remember and restore it
+    if (isNarrow() && wasOpen === false && !collapsed) savedScroll = contentBox.scrollTop;
     sidebarEl.classList.toggle("collapsed", collapsed);
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    document.body.classList.toggle("side-open", !collapsed);
+    menuBtn.classList.toggle("open", !collapsed);
+    if (isNarrow() && collapsed && wasOpen && chapters.length) {
+        lockUntil = Date.now() + 300;
+        contentBox.scrollTop = savedScroll;
+    }
 }
 toggleBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
-if (isNarrow()) setCollapsed(true);   // phones start with the sidebar tucked away
+menuBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
+if (isNarrow()) setCollapsed(true);   // phones start with the list tucked away
+
+// ── FULLSCREEN / READING MODE ───────────────────────────────────────────
+const fsBtn = document.getElementById("fsBtn");
+function setReading(on) {
+    document.body.classList.toggle("reading", on);
+    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+}
+fsBtn.addEventListener("click", () => {
+    if (!document.body.classList.contains("reading")) {
+        setReading(true);
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    } else {
+        setReading(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+});
+document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
+    if (!document.fullscreenElement) setReading(false);
+});
 </script>
 
 </body>

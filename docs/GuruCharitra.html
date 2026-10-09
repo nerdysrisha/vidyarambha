@@ -131,7 +131,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #search-clear:hover { background: #3a3a3a; color: #fff; }
 #search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
-/* SECTION HEADERS (Bookmarks / Chapters) */
+/* SECTION HEADER (Chapters) */
 .sec-head {
     padding: 10px 16px;
     font-size: 12px;
@@ -145,9 +145,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     user-select: none;
 }
 .sec-head .count { font-weight: normal; color: #555; font-size: 11px; }
-#bm-head { cursor: pointer; color: #d9a441; }
-#bm-head:hover { background: #1a1a1a; }
-#bm-wrap.folded #bm-list { display: none; }
 
 /* CHAPTER ITEMS */
 .ch-item {
@@ -201,7 +198,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box::-webkit-scrollbar { width: 9px; }
 #content-box::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 5px; }
 
-/* chapter bar injected above every chapter: number badge + bookmark button */
+/* chapter bar injected above every chapter: number badge */
 #content-box .ch-bar {
     display: flex;
     align-items: center;
@@ -251,9 +248,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* FULLSCREEN / READING MODE + MENU BUTTON */
 #fsBtn {
     position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-    width: 34px; height: 30px; padding: 0; font-size: 18px; line-height: 1;
+    width: 34px; height: 30px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
     color: #d8b46a !important; border-color: #d8b46a66 !important;
 }
+#fsBtn svg { width: 20px; height: 20px; fill: currentColor; }
 #menuBtn {
     display: none;                       /* shown on phones only */
     position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
@@ -348,14 +347,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next chapter" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a paragraph or chapter heading to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></button>
 </div>
 
 <div id="bm-toast" role="status"></div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-// The single child file that holds all 56 chapters (same folder as this page).
+// The single child file that holds all 56 chapters (path is relative to this page).
 const CHAPTERS_URL = "subjects/gurucharitra/Chapters.html";
 const BOOK_TITLE = "Guru Charitra";
 
@@ -401,7 +400,7 @@ fetch(CHAPTERS_URL)
     .catch(err => {
         contentBox.innerHTML =
             '<div style="color:#b5432f;padding:12px 0;">' + err.message +
-            '<br><br>Make sure Chapters.html sits next to this page and that the page is served over http(s) ' +
+            '<br><br>Make sure ' + CHAPTERS_URL + ' exists and that the page is served over http(s) ' +
             '(e.g. GitHub Pages or a local server) — opening it directly (file://) blocks fetch().</div>';
     });
 
@@ -420,7 +419,7 @@ function initChapters() {
         const titleEl = el.querySelector(".ch-title");
         const title = (titleEl ? titleEl.textContent.trim() : "") || ("Chapter " + num);
 
-        // bar above the chapter: badge + bookmark button
+        // bar above the chapter: number badge
         const bar = document.createElement("div");
         bar.className = "ch-bar";
         bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span>';
@@ -456,11 +455,49 @@ function initChapters() {
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────────────────
-function goTo(i, fromSidebar) {
+// Smooth, eased scroll (used by Prev / Next). Longer trips take a little longer, capped at 1.4s.
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null;
+function cancelAnim() {
+    if (!anim) return;
+    cancelAnimationFrame(anim.raf);
+    anim = null;
+    lockUntil = Date.now() + 100;
+}
+function smoothScrollTo(top) {
+    cancelAnim();
+    const from = contentBox.scrollTop, dist = top - from;
+    if (Math.abs(dist) < 2) { contentBox.scrollTop = top; return; }
+    const dur = Math.min(1400, Math.max(600, Math.abs(dist) * 0.6));
+    const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // easeInOutCubic
+    const t0 = performance.now();
+    const a = anim = { raf: 0 };
+    lockUntil = Infinity;                       // keep scroll-tracking quiet until we arrive
+    const step = now => {
+        if (anim !== a) return;
+        const t = Math.min(1, (now - t0) / dur);
+        contentBox.scrollTop = from + dist * ease(t);
+        if (t < 1) a.raf = requestAnimationFrame(step);
+        else { anim = null; lockUntil = Date.now() + 200; }
+    };
+    a.raf = requestAnimationFrame(step);
+}
+// the reader taking over (wheel / touch / scrollbar drag) stops the animation
+["wheel", "touchstart", "mousedown"].forEach(ev =>
+    contentBox.addEventListener(ev, () => cancelAnim(), { passive: true }));
+
+function goTo(i, fromSidebar, animate) {
     if (i < 0 || i >= chapters.length) return;
     if (fromSidebar && isNarrow()) setCollapsed(true);   // show the text first so offsets are measurable
+    const top = chapters[i].el.offsetTop - 12;
+    if (animate && !reduceMotion) {
+        setCurrent(i);                                   // counter / highlight switch straight away
+        smoothScrollTo(top);
+        return;
+    }
+    cancelAnim();
     lockUntil = Date.now() + 200;
-    contentBox.scrollTop = chapters[i].el.offsetTop - 12;
+    contentBox.scrollTop = top;
     setCurrent(i);
 }
 
@@ -509,9 +546,10 @@ window.addEventListener("hashchange", () => {
     if (k >= 0 && k !== current) goTo(k, false);
 });
 
-// Prev / Next: one chapter at a time, wrapping round at the ends (same as Bhagavad Gita)
-prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false); };
-nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false); };
+// Prev / Next: one chapter at a time with a smooth scroll; wrapping round at the ends (same as Bhagavad Gita)
+// jumps straight there instead, since gliding through all 56 chapters would just be a blur
+prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false, current > 0); };
+nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false, current < chapters.length - 1); };
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); nextBtn.click(); }
@@ -586,6 +624,7 @@ function scrollToBookmarkBlock(flash) {
     const c = bookmark && chapters.find(x => x.id === bookmark.id);
     const el = c && blocksOf(c)[bookmark.index];
     if (!el) return false;
+    cancelAnim();
     lockUntil = Date.now() + 300;
     setCurrent(chapters.indexOf(c));
     const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -649,10 +688,14 @@ if (isNarrow()) setCollapsed(true);   // phones start with the list tucked away
 
 // ── FULLSCREEN / READING MODE ───────────────────────────────────────────
 const fsBtn = document.getElementById("fsBtn");
+// YouTube-style icons: corners pointing out = maximize, corners pointing in = minimize
+const ICON_MAX = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
+const ICON_MIN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>';
 function setReading(on) {
     document.body.classList.toggle("reading", on);
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
+    fsBtn.innerHTML = on ? ICON_MIN : ICON_MAX;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    fsBtn.setAttribute("aria-label", fsBtn.title);
 }
 fsBtn.addEventListener("click", () => {
     if (!document.body.classList.contains("reading")) {
