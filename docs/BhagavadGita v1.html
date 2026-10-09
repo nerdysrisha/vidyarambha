@@ -22,7 +22,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 #outer {
     margin: 20px;
-    margin-bottom: 0;
+    margin-bottom: 10px;                 /* panels end just above the nav bar, never touching it */
     height: calc(100vh - 40px - 54px);
     display: flex;
     flex-direction: row;
@@ -38,17 +38,23 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     background:
         url("subjects/bhagavadgita/icons/saffron-bg.webp") center / cover no-repeat,
         linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
-    border: 1px solid #333;
-    border-radius: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #333 #0a0a0a;
+    box-sizing: border-box;              /* width:100% on phones must INCLUDE the border, or the right edge gets cut off */
+    border: 1px solid #d8b46a88;
+    border-radius: 16px;                 /* the saffron panel: rounded on all four corners */
+    display: flex; flex-direction: column;
+    overflow: hidden;                    /* clips the banner and the scrolling list to the rounded corners */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
     transition: width 0.2s ease;
 }
 #sidebar.collapsed { width: 42px; background: #111; }
-#sidebar::-webkit-scrollbar { width: 8px; }
-#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+/* ONLY the chapter list scrolls; the banner above it stays put */
+#sidebar-list {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
+    padding: 6px 0 10px 0;
+    scrollbar-width: thin; scrollbar-color: #c9922e88 transparent;
+}
+#sidebar-list::-webkit-scrollbar { width: 6px; }
+#sidebar-list::-webkit-scrollbar-thumb { background: #c9922e88; border-radius: 3px; }
 
 #sidebar-title {
     padding: 14px 16px 10px 16px;
@@ -136,12 +142,23 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #search-clear:hover { background: #3a3a3a; color: #fff; }
 #search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
-/* Heading + search removed: only the collapse button remains, on a slim transparent strip */
-#sidebar-title { padding: 6px 8px 0 8px; border-bottom: none; background: transparent; justify-content: flex-end; }
-#sidebar-title .title-text { display: none; }
+/* BANNER: full-width bar stuck to the top of the panel (static). Title + chapter count + collapse button.
+   It is a separate block above the scrolling list, so chapters never slide behind or beside it. */
+#sidebar-title {
+    flex: none; position: static;
+    padding: 13px 12px 12px 18px; gap: 10px;
+    background: linear-gradient(180deg, #1c130a 0%, #111 100%);
+    border-bottom: 2px solid #d8b46a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 3;
+    text-transform: none; letter-spacing: 0.02em;
+}
+#sidebar-title .title-text { display: flex; flex-direction: column; gap: 2px; font-size: 18px; font-weight: 700; color: #d8b46a; line-height: 1.15; }
+#sidebar-title .title-text small { font-size: 11.5px; font-weight: 400; color: #bbb; letter-spacing: 0.04em; }
+#sidebar-title #sidebar-toggle { border-color: #d8b46a66; color: #d8b46a; }
 #sidebar-search-row { display: none; }
-#sidebar.collapsed #sidebar-title { background: #111; padding: 14px 0; justify-content: center; }
-@media (max-width: 700px) { #sidebar-title { display: none; } }
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; border-bottom: none; box-shadow: none; background: transparent; }
+#sidebar-list.single .category-header { display: none; }   /* one book only: the banner already says it */
 
 /* CATEGORY = the book heading, as a dark pill: "Bhagavad Gita  18 Chapters" */
 .category-block { padding-bottom: 6px; }
@@ -438,11 +455,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* Longer seek bar: fills the row, up to 900px */
 #audio-dock audio { flex: 1 1 auto; min-width: 0; width: 100% !important; max-width: 900px !important;
                     display: block; margin: 0 !important; }
-/* Speed tag: sits to the right of the player, shown only at 1.5x / 1.75x */
-.speed-badge { flex: none; display: none; align-items: center; height: 22px; padding: 0 8px;
-    border-radius: 11px; background: #d8b46a; color: #111; pointer-events: none;
-    font: 700 11px/1 system-ui, sans-serif; }
-
 /* Playback-speed buttons now live in the nav bar (see #speedGroup) */
 
 /* Smooth highlight: slow cross-fade between blocks (only for pages with data-ends) */
@@ -460,6 +472,22 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     box-shadow: 0 4px 16px rgba(201,161,90,0.38);
     transform: scale(1.02);
 }
+
+/* MEANINGS: hidden by default; a small gold chip under each verse unfolds that verse's own meaning (English + Telugu) */
+#content-box .mw-chip {
+    display: block; width: fit-content; margin: 10px auto 0 auto; padding: 2px 22px; min-height: 32px;
+    border: 1px solid #c9a35a; border-radius: 16px; background: #fff8e8; color: #7a4a12;
+    font: 700 20px/1 system-ui, sans-serif; white-space: nowrap; cursor: pointer;
+}
+#content-box .mw-chip:hover { background: #fdeec8; }
+#content-box .mw-chip[aria-expanded="true"] { background: #d8b46a; border-color: #c9922e; color: #111; }
+#content-box .mw { display: none; white-space: normal; text-align: left; }
+/* Telugu meaning: always visible under the verse */
+#content-box .verse-block > .verse-purport { white-space: normal; text-align: left; margin-top: 12px; }
+#content-box .mw.open { display: block; animation: mwDrop .28s ease; }
+@keyframes mwDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 700px) { #content-box .mw-chip { min-height: 38px; padding: 4px 26px; font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { #content-box .mw.open { animation: none; } }
 
 /* NAV BAR */
 #navbar {
@@ -535,7 +563,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
-  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #outer { margin: 4px 4px 4px 4px; gap: 4px; height: calc(100dvh - 56px); }
   #navbar { margin: 0 4px 4px 4px; gap: 4px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
@@ -605,7 +633,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 <div id="outer">
     <div id="sidebar">
         <div id="sidebar-title">
-            <span class="title-text">Bhagavad Gita</span>
+            <span class="title-text">Bhagavad Gita<small id="sidebar-count"></small></span>
             <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
         </div>
         <div id="sidebar-search-row">
@@ -774,6 +802,8 @@ categories.forEach((cat) => {
     block.appendChild(list);
     sidebarList.appendChild(block);
 });
+if (categories.length === 1) sidebarList.classList.add("single");
+document.getElementById("sidebar-count").textContent = flatTopics.length + " Chapters";
 
 // ── AUDIO SYNC (added) ──────────────────────────────────────────────────
 // A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
@@ -843,7 +873,7 @@ function initAudioSync() {
     const starts = ends.slice(0, n).map((_, i) => (i === 0 ? 0 : ends[i - 1]));
     // Pin the player in the static dock above the scrolling text
     let holder = audio.closest(".audio-player");
-    if (!holder) {   // page had a bare <audio>: wrap it so the speed tag can sit beside it
+    if (!holder) {   // page had a bare <audio>: wrap it so it sits in the pinned player
         holder = document.createElement("div"); holder.className = "audio-player";
         audio.parentNode.insertBefore(holder, audio); holder.appendChild(audio);
     }
@@ -856,15 +886,9 @@ function initAudioSync() {
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
     try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
-    const badgeHost = holder;
-    const badge = document.createElement("span");
-    badge.className = "speed-badge";
-    badgeHost.appendChild(badge);          // right of the player; removed together with the player when the topic changes
     function paintSpeed() {
         SPEED_BTNS.forEach(b => { b.classList.toggle("active", parseFloat(b.dataset.rate) === rate); b.hidden = parseFloat(b.dataset.rate) === rate; });   // popup lists only the OTHER speeds
         if (window.setSpeedLabel) window.setSpeedLabel(rate);
-        badge.textContent = rate + "x";
-        badge.style.display = rate === 1 ? "none" : "flex";
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
     document.getElementById("speedMain").disabled = false;
@@ -951,6 +975,31 @@ function initAudioSync() {
 // ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
 const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
 const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
+// ── MEANINGS: fold each verse's ENGLISH purport (.verse-translation) behind a small chip; the Telugu meaning (.verse-purport) stays visible ──
+// Runs on every chapter load, so every verse starts closed. Opening one never touches the others.
+function enhanceMeanings() {
+    contentBox.querySelectorAll(".verse-block").forEach(block => {
+        const parts = Array.from(block.children).filter(c => c.matches(".verse-translation"));
+        if (!parts.length) return;
+        const wrap = document.createElement("div");
+        wrap.className = "mw";
+        block.insertBefore(wrap, parts[0]);
+        parts.forEach(p => wrap.appendChild(p));
+        const chip = document.createElement("button");
+        chip.type = "button"; chip.className = "mw-chip";
+        const paint = open => { chip.textContent = open ? "▴" : "▾"; chip.setAttribute("aria-expanded", open ? "true" : "false"); chip.setAttribute("aria-label", open ? "Hide meaning" : "Show meaning"); chip.title = open ? "Hide meaning" : "Show meaning"; };
+        paint(false);
+        chip.addEventListener("click", e => {
+            e.stopPropagation();                       // opening a meaning must not start the audio
+            const open = !wrap.classList.contains("open");
+            wrap.classList.toggle("open", open);
+            paint(open);
+        });
+        wrap.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
+        block.insertBefore(chip, wrap);
+    });
+}
+
 function fitVerses() {
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
     if (!window.matchMedia("(max-width: 700px)").matches) {
@@ -964,7 +1013,9 @@ function fitVerses() {
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        range.selectNodeContents(b);
+        const chipEl = b.querySelector(":scope > .mw-chip");
+        if (chipEl) { range.setStart(b, 0); range.setEndBefore(chipEl); }   // measure only the verse itself (not the chip, English purport or Telugu meaning)
+        else range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line
         return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;
     });
@@ -1116,6 +1167,7 @@ function loadTopic(flatIndex) {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
+            enhanceMeanings();   // fold the meanings behind chips (before audio sync / fitting look at the blocks)
             wireCopyButtons();
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
             initAudioSync();   // (added) wire up audio highlighting if the page has it
