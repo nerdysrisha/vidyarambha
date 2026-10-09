@@ -475,18 +475,16 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* MEANINGS: hidden by default; a small gold chip under each verse unfolds that verse's own meaning (English + Telugu) */
 #content-box .mw-chip {
-    display: block; width: fit-content; margin: 10px auto 0 auto; padding: 2px 22px; min-height: 32px;
-    border: 1px solid #c9a35a; border-radius: 16px; background: #fff8e8; color: #7a4a12;
-    font: 700 20px/1 system-ui, sans-serif; white-space: nowrap; cursor: pointer;
+    display: block; width: fit-content; margin: 10px auto 0 auto; padding: 4px 14px; min-height: 28px;
+    border: 1px solid #c9a35a; border-radius: 14px; background: #fff8e8; color: #7a4a12;
+    font: 600 12.5px/1.2 system-ui, sans-serif; letter-spacing: 0.02em; white-space: nowrap; cursor: pointer;
 }
 #content-box .mw-chip:hover { background: #fdeec8; }
 #content-box .mw-chip[aria-expanded="true"] { background: #d8b46a; border-color: #c9922e; color: #111; }
 #content-box .mw { display: none; white-space: normal; text-align: left; }
-/* Telugu meaning: always visible under the verse */
-#content-box .verse-block > .verse-purport { white-space: normal; text-align: left; margin-top: 12px; }
 #content-box .mw.open { display: block; animation: mwDrop .28s ease; }
 @keyframes mwDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 700px) { #content-box .mw-chip { min-height: 38px; padding: 4px 26px; font-size: 22px; } }
+@media (max-width: 700px) { #content-box .mw-chip { min-height: 32px; padding: 6px 16px; } }
 @media (prefers-reduced-motion: reduce) { #content-box .mw.open { animation: none; } }
 
 /* NAV BAR */
@@ -975,11 +973,11 @@ function initAudioSync() {
 // ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
 const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
 const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
-// ── MEANINGS: fold each verse's ENGLISH purport (.verse-translation) behind a small chip; the Telugu meaning (.verse-purport) stays visible ──
+// ── MEANINGS: fold each verse's English + Telugu meaning behind a small chip ──
 // Runs on every chapter load, so every verse starts closed. Opening one never touches the others.
 function enhanceMeanings() {
     contentBox.querySelectorAll(".verse-block").forEach(block => {
-        const parts = Array.from(block.children).filter(c => c.matches(".verse-translation"));
+        const parts = Array.from(block.children).filter(c => c.matches(".verse-translation, .verse-purport"));
         if (!parts.length) return;
         const wrap = document.createElement("div");
         wrap.className = "mw";
@@ -987,7 +985,7 @@ function enhanceMeanings() {
         parts.forEach(p => wrap.appendChild(p));
         const chip = document.createElement("button");
         chip.type = "button"; chip.className = "mw-chip";
-        const paint = open => { chip.textContent = open ? "▴" : "▾"; chip.setAttribute("aria-expanded", open ? "true" : "false"); chip.setAttribute("aria-label", open ? "Hide meaning" : "Show meaning"); chip.title = open ? "Hide meaning" : "Show meaning"; };
+        const paint = open => { chip.textContent = open ? "▴ Hide meaning" : "▾ Meaning"; chip.setAttribute("aria-expanded", open ? "true" : "false"); };
         paint(false);
         chip.addEventListener("click", e => {
             e.stopPropagation();                       // opening a meaning must not start the audio
@@ -1013,8 +1011,8 @@ function fitVerses() {
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        const chipEl = b.querySelector(":scope > .mw-chip");
-        if (chipEl) { range.setStart(b, 0); range.setEndBefore(chipEl); }   // measure only the verse itself (not the chip, English purport or Telugu meaning)
+        const mw = b.querySelector(":scope > .mw");
+        if (mw) { range.setStart(b, 0); range.setEndBefore(mw); }   // an unfolded meaning must not affect the verse size
         else range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line
         return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;

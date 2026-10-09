@@ -1,0 +1,767 @@
+
+Table of Contents	2
+1 Approval	25
+2 Revision History	25
+3 Entra-ID	26
+3.1 High-level understanding of Tenants	26
+3.2 Create Tenant 1	28
+3.2.1 Search for Entra Id in search location	28
+3.2.2 Click Create to proceed further	28
+3.2.3 Select Tenant Type	28
+3.2.4 Key-in Org Details – Review and Create	29
+3.2.5 First Tenant Created	30
+3.3 Create Tenant 2	31
+3.3.1 Switch the Directory	31
+3.3.2 Switch the directory to ‘Main’.	31
+3.3.3 Search for Entra ID -  Select the base Entra	32
+3.3.4 Click the Manage Tenant	33
+3.3.5 Provide Tenant Details	33
+3.4 Manage Identities	35
+3.4.1 2 Ways to create user	36
+3.4.2 Internal User - Create a new user	37
+3.4.3 Internal User - Provide Details	37
+3.4.4 Internal User - Assign Properties	38
+3.4.5 Internal User - User is created	39
+3.4.6 External User - Invite	39
+3.4.7 External User – Review and Invite	40
+3.4.8 External User - Listing	40
+3.4.9 External User – Email invitation	41
+3.4.10 External User – Provide permissions	41
+3.4.11 Bulk User – Creation	42
+3.5 Azure AD Join and Azure AD Connect - PENDING	45
+3.6 Manage Groups	46
+3.6.1 Navigate to Entra ID – Eg. Sridhara is a Tenant	46
+3.6.2 Understand Expiration and Naming Policy	46
+3.6.3 Create new group – Select Group Type	47
+3.6.4 Provide a Group Name and Desc	48
+3.6.5 Add an Owner – Click No owners Selected option	49
+3.6.6 Add members – Select ‘No members selected’ option	49
+3.6.7 Post Selection of Owners and Members	50
+3.6.8 List the created groups	50
+
+
+
+4 EntraID - Implment MFA for USER	52
+4.1 Login using Temporary Pass	53
+4.2 Create two New Users (Test and MFAUser)	55
+4.3 Enable MFA for MFAuser	56
+4.4 Login to MFA user - Different Browser or Incognito	57
+4.5 Check Audit Logs - Using Admin User	59
+4.6 Check Sign-In Logs - In the Admin User	61
+
+
+
+5 Management Groups and Subscriptions	62
+5.1 Switch to correct Directory	64
+5.2 Check Permissions for the user	64
+5.3 Create Management Group	65
+5.4 Check Built-in Roles (Eg. Owner / Contributor)	67
+
+
+
+6 RBAC: Role Assignment [VM Contributor] - Portal	69
+6.1 Add Role Assignments	69
+6.2 Search for – Virtual Machine Contributor – Select and Next	70
+6.3 Assign Members to the Role choosen.	71
+6.4 Select Members and Search for ‘helpdesk’	71
+6.5 Review + Assign	72
+6.6 Role Assignment to User - Example 2 - Domain Sridhara (ADDITIONAL EXAMPLE)	74
+7 RBAC: Role Assignments - [Reader and Network Admin] - Portal	78
+7.1 Add Role Assignments (At RG Level)	79
+7.2 Test Reader role	83
+7.3 Assign Network Contributor	84
+7.4 Test Network Contributor Role Assignment	90
+7.5 Create VNET in ‘test user’	90
+
+
+8 RBAC: Elevate role  [Global Admin Role] - Portal	91
+8.1 Navigate to User in question	91
+8.2 Add Assignments	93
+
+
+9 RBAC: Custom Role [Custom Support Role] - Portal	95
+9.1 Add a custom role	96
+9.2 Provide Basic details	96
+9.3 Configure Permissions to exclude	96
+9.3.1 Notice multiple permissions	97
+9.3.2 Filter by word support and select the option	97
+9.3.3 Check the box as shown	98
+9.4 Notice the permission that is added for role	98
+9.5 Define Assinable Scopes for the role - Eg. Mangament Group	98
+9.6 Review + Create and ‘create’	99
+9.7 Role Assignments to Users against certain Resources	99
+
+
+10 RBAC: Custom Role [VM Contributor Role] - Powershell	107
+10.1 Configure Cloud Shell  (Steps from Lab)	110
+10.2 Get Resource ID	112
+10.3 Identify operations associated with VMs	112
+10.4 Retreive role definition and save	112
+10.5 Open the json - We may need to switch the shell	113
+10.6 Execute the command to create the custom role	116
+
+
+11 RBAC: Custom Role - [Stg Acct Contributor] - Portal	116
+11.1 View Storage Account Contributor Role - Understand	121
+11.2 Create Custom Role	123
+11.2.1 Edit the JSON	124
+11.3 Validate on the Portal - Roles section	126
+
+
+12 RBAC: Custom Role - Using Subscription ID  - Powershell	127
+12.1 Custom Role Definition	128
+12.2 Create User	129
+12.3 Role Assignment - At Management Group Level	130
+12.4 Login to User and check permissions	132
+
+
+13 Manage Governance via Azure Policy	134
+13.1 Create a resource group	135
+13.2 Create a policyand attach to a resource	136
+13.2.1 Search for policy	136
+13.2.2 Navigate to AuthoringDefinitions	136
+13.2.3 Search for specific name ‘require a tag …’	137
+13.2.4 Assign Policy	137
+13.2.5 Specify the scope	137
+13.2.6 Specify assignment name and description	138
+13.2.7 Set parameters	138
+13.2.8 Validate Remediation	139
+13.2.9 Final step : create	139
+13.3 Create Storage Account	139
+13.3.1 Search for Storage Account	140
+13.3.2 Navigate to Tags – DO NOT PROVIDE TAGS	140
+13.3.3 Review and Create – Should result in failure	140
+13.4 Assign Policy	140
+13.4.1 Search for Policy	141
+13.4.2 Delete Existing assignments - Control using Different Policy	141
+13.4.3 Assign New Policy	142
+13.4.4 Specify the scope	142
+13.4.5 Configure Policy Definition	143
+13.4.6 Provide Assignment name and description	143
+13.4.7 Configure Parameters	143
+13.4.8 Configure Remediation	144
+13.5 Create Storage Account	145
+13.5.1 Search for Storage Account	145
+13.5.2 Provide details in Basic and Tags tabs	145
+13.5.3 Finalize – review + create + create	146
+13.5.4 Check the resource – Notice Tags	146
+13.5.5 Confirm from Tags	147
+13.6 Resource Locking	147
+13.6.1 Select the RG	147
+13.6.2 Add a lock	148
+13.7 Delete a resource	149
+13.7.1 Delete RG itself	149
+13.7.2 Delete a Resource (Eg. Storage Account)	150
+13.8 Resource Unlocking	151
+13.8.1 Edit Lock	151
+
+
+
+14 ARM Templates - Basics	152
+14.1 Create Storage Account - Azure Portal	153
+14.2 Create VMs (with parameters file) - Powershell	157
+14.2.1 Create RG	158
+14.2.2 Create Resource using Powershell command	158
+14.2.3 Notice the output of creation on portal	158
+14.3 Create VMs (with parameters file) - Azure Portal	159
+15 ARM Templates - BICEP Templates	164
+15.1 Introduction	164
+15.1.1 Architecture	164
+15.1.2 Simulator Links	164
+15.2 Create Disk 1 – From Portal	165
+15.3 Export the template – From existing disk	167
+15.4 Create Disk 2 – Using Deploy Custom templates	170
+15.4.1 Check Deployments at Resource group level	173
+15.5 Create Disk 3 – Using Cloud Shell	173
+15.6 Create Disk 4 – Using Bash	176
+15.7 Create Disk 5 – Using Bicep	177
+16 Networking – Basics	179
+16.1 Understanding IP Address	180
+16.2 Reserved Private Addresses Range	181
+16.3 Simplifying CIDR	181
+16.3.1 CIDR Block – Overall IP range calculation	182
+16.3.2 Usable IP Range – Minus 2 for OnPrem and Minus 5 for Cloud	182
+16.4 Subnet masks	182
+16.5 Subnet	183
+16.5.1 Private Subnet Range - 10.0.0.0/8	183
+16.5.2 Private Subnet Range - 172.16.0.0/12	184
+16.5.3 Private Subnet Range - 192.168.0.0/16	185
+16.5.4 Case 1: Representing CIDR 24 for subnet	186
+16.5.5 Case 2: Representing CIDR 23 for subnet	187
+16.5.6 Criteria to chose correct range	188
+16.6 Private IP Address	188
+16.7 Public IP Address	189
+16.8 Network Address Translation (NAT)	189
+16.9 Ports	190
+16.10 Firewall	190
+16.11 Azure VNET	190
+16.12 Azure VNET – Address Space	191
+16.13 Azure Subnet configuration	191
+16.14 Azure Network Security Groups (NSG)	192
+16.15 NSG Association with Subnet	193
+16.16 Azure Application Security Groups (ASG)	194
+16.17 Azure VNET Peering	195
+17 Vnet - Creation with Portal - NSG - ASG	196
+17.1 Introduction	196
+17.1.1 Architecture	196
+17.1.2 Simulator Links	197
+17.1.3 Tasks	197
+17.2 Download the lab files	197
+17.3 Create VNET – Core Services	198
+17.3.1 Search and Create	198
+17.3.2 Create two Subnets	199
+17.3.3 Finalize – Review + Create + Create	199
+17.3.4 Verify VNET configurations	200
+17.3.5 Verify Subnets	201
+17.3.6 Export the VNET configuration as template	201
+17.4 Create VNET – Manufacturing Services	201
+17.4.1 Modify the template	202
+17.4.2 Deploy the template - Custom Deployment from Portal	205
+17.4.3 Create Application Security Group (ASG)	207
+17.4.4 Create Network Security Group (NSG)	208
+17.4.5 Associate a Subnet	209
+17.4.6 Configure DNS Zones (Public)	212
+17.4.7 Configure DNS Zones (Private)	214
+18 Vnet - Creation with Portal - Powershell - AZ	217
+18.1 VNET Creation Details	217
+18.2 Create VNET using Portal	219
+18.2.1 Basic Details	219
+18.2.2 IP Address Configuration	220
+18.2.3 Review and Create	221
+18.2.4 Add another subnet range to VNET	221
+18.2.5 Create another Subnet for Development	223
+18.3 Create VNET using Powershell	225
+18.3.1 Start Powershell without Storage	225
+18.4 Create VNET using CLI (Using az commands)	226
+18.4.1 Create VNET	227
+18.5 Final VNET view (All the VNets)	228
+19 Vnet - Creation with Portal - Simplest implementation	228
+19.1 Provide Basic Details	229
+19.2 Provide Address Space	230
+19.3 Create First Subnet	231
+19.4 Create Second Subnet	231
+19.5 Create Second Subnet	232
+19.6 Review and Create	232
+20 Vnet peering - Route Tables - UDR	233
+20.1 Introduction	233
+20.1.1 Architecture	234
+20.1.2 Simulator Links	235
+20.1.3 Tasks	235
+20.2 Create Two VMs (VM 1 and 2)	235
+20.2.1 Create Vnets (one for each VM)	237
+20.2.2 Review + Create	239
+20.3 Test Connection via Network Watcher	240
+20.4 VNET Peering	241
+20.4.1 Add Peering in CoreServices VNET	241
+20.4.2 Verify peering – Using Network Watcher	243
+20.4.3 Verify peering – Using Bash	244
+20.5 Create a Subnet  (for Perimeter)	245
+20.6 Create Route Table (for Perimeter)	246
+20.7 Create a Route (UDR)	247
+20.8 Associate Subnet to the Route Table	248
+21 Vnet peering  - with VM testing	250
+21.1 Review Existing Objects	250
+21.2 Navigate to VNET1	251
+21.3 Navigate to VNET2	251
+21.4 Configure Peering	252
+21.4.1 VNET2: Navigate to Peering	253
+21.5 Create Azure VM using PowerShell	255
+21.5.1 Open PowerShell - without Storage	258
+21.5.2 Create VM1 using command line on powershell	258
+21.5.3 Create VM2 using command line on Powershell	259
+21.6 Verify on Portal	259
+21.7 Test Peering	260
+21.8 Connect using RDP - VM1	261
+21.8.1 Open Powershell inside the VM1	263
+21.9 Connect using RDP - VM2	264
+21.10 Ping Test from VM2 to VM1	267
+21.11 Ping Test from VM1	267
+22 Vnet peering - Routes - UDR - NVA - Traffic forwarding	268
+22.1 Configure Route table - Fronend	269
+22.1.1 Create route Table	270
+22.1.2 Create route	271
+22.1.3 Associate a Subnet	272
+22.2 Configure Route table - Backend	273
+Configure a back-end route table	274
+22.2.1 Create RouteTable	274
+22.2.2 Add route	276
+22.2.3 Associate a subnet	277
+22.3 Enable IP Forwarding	277
+22.4 Test routes- traceroute	279
+23 Vnet peering - Network Watcher	282
+23.1 Create VNET1	282
+23.1.1 Provide Address Space	283
+23.2 Create VNET2	284
+23.2.1 Provide Address Space for VNET 2	285
+23.3 Create VM1- Use VNET1 in networking	286
+23.4 Create VM2 – Use VNET2 in networking	288
+23.5 Start Peering – VNET1	290
+23.6 Network Ping Test	293
+23.7 Network Watcher	294
+24 Vnet peering - Hub-n-Spoke - PENDING	295
+24.1 Example 1	295
+24.2 Example 2	296
+24.3 Example 3 - AKS	300
+24.4 Example 4 - AKS	301
+24.5 xxx	302
+25 Vnet peering - VPN Gateways – ONPREM TO AZURE | AZURE TO AZURE	302
+25.1 What is needed on both sides (Azure and On-Prem)	304
+25.2 Encryption	304
+25.3 High level Steps	305
+25.4 Create VNETS – VNET1 & VNET2	305
+25.5 Create VMs – In VNET1 & VNET2	307
+25.6 Create VNGW – In VNET1 & VNET2	309
+25.7 Create Connections	311
+26 Traffic Management (LB and AAG)	314
+26.1 Architecture	315
+26.1.1 Simulator Links	316
+26.1.2 Tasks	316
+26.1.3 Download lab files – template and parameters json files	316
+26.2 Create VMs and associated services using Template	316
+26.3 Create Loadbalancer	319
+26.3.1 Provide Basic Details	319
+26.3.2 Provide Frontend Configuration	320
+26.3.3 Provide Backend pool	320
+26.3.4 Review + Create	322
+26.3.5 Add LB Rules	322
+26.3.6 Test on Browser	324
+26.4 Create Application Gateway	324
+26.4.1 Create dedicate subnet under existing VNET	324
+26.4.2 Provide Basic Information	325
+26.4.3 Provide Frontend information	326
+26.4.4 Provide Backend Information (Image and Video Pool)	327
+26.4.5 Check BE Health and Test Endpoints	331
+27 Traffic Management - Load Balancer	332
+27.1 Create LB using Portal	334
+27.1.1 Provide Basic Details	336
+27.1.2 Frontend IP configuration	336
+27.1.3 Review + Create	339
+27.2 Existing Infra as part of Lab - Review	339
+27.2.1 Steps as per the Lab instructions	340
+27.3 Configure Backend Pools	342
+27.4 Create HTTP Health Probe	345
+27.5 Create LB Rule	346
+28 Traffic Management - LB - Layer 4 - IIS Server Script	349
+28.1 Create Virtual Machines as Backend Pools	349
+28.2 Load an IIS Script in BOTH Windows VM	351
+28.3 Create Load balancer	353
+28.3.1 Add frontend IP	353
+28.3.2 Add backendpool	355
+28.3.3 Add LB Rules and Health Probe	356
+28.3.4 Overview after creation	358
+28.3.5 Access LB using IP	358
+28.4 Modify the A Record in DNS Zones to point to LB	358
+29 Traffic Management - AAG - Layer 7 - With DNS Routing	360
+29.1 Create a Virtual Network	362
+29.2 Create 2 VMs in SUBNET1	363
+29.3 Create 2 VMs in SUBNET 2	366
+29.4 Listing of VMs created	368
+29.5 Run Scripts in all the FOUR VMS.	369
+29.6 Create DNS Zone 2	370
+29.6.1 Purchase the domain – Eg. gnfcloudtech.xyz (from BigRock)	371
+29.6.2 Create DNS Zone on Azure	371
+29.6.3 Check Record Sets – Copy the same to be used ahead.	372
+29.6.4 Use the copied NS Details in the Domain Registrar	373
+29.7 Access the VMs using Public IP	374
+29.8 Create Application Gateway	375
+29.9 Configure the network	376
+29.10 Configure Public IP	376
+29.11 Configure the backends pools – Pool 1 (two VMs) & Pool 2 (two VMs)	377
+29.12 Configure Routing Rules	378
+29.13 Ensure the RG has owner permission to execute the ‘create’  - THIS STEP TO BE DONE AHEAD OF ALL	381
+29.14 Finalize Creation – Review + Create	383
+29.15 Map the Public IP of AG in the DNS Zone – A Record.	383
+29.16 Test from browser	385
+29.17 Check DNS Propagation	386
+30 Traffic Management - AAG - Layer 7 - With AKS	386
+30.1 Create	388
+31 Azure Storage - Blob - File Share	391
+31.1 Architecture	391
+31.1.1 Simulator Links	392
+31.1.2 Tasks	392
+31.2 Create Storage Account	392
+31.2.1 Search and Create	392
+31.2.2 Configure Networking	394
+31.2.3 Check redundancy	395
+31.2.4 Create Lifecycle Management Rules	396
+31.2.5 Create containers and apply retention policy	397
+31.2.6 Upload a blob	398
+31.2.7 Access stored file	400
+31.2.8 Create Fileshares	401
+31.2.9 Upload a file to File Share	402
+31.2.10 Restrict storage account access - Using Vnet	403
+31.2.11 Create Service Endpoint	404
+31.2.12 Add Vnet	404
+31.2.13 Storage browser – Access Denied	406
+32 Azure Storage - Service Endpoint - Private Endpoint	406
+32.1 Portal - Create a VNET	407
+32.2 Portal - Create VM	408
+32.3 Portal - Create Storage Account	411
+32.4 Storage Account - Allow Annoymous Access (Enable it)	412
+32.5 Storage Account - Create a Container inside Storage Account	413
+32.6 Container - Upload content to Container	414
+32.7 Container - Get public url for uploaded image	414
+32.8 Perform N/S Look up of public URL on local laptop	415
+32.9 Vnet - Add Service Endpoint and Link to subnet	415
+32.10 Storage Account - Add Private Endpoint	418
+32.11 Resource Group - Check all resources including Private endpoint	420
+32.12 Connect to VM via Bastion	421
+32.13 Perform NS Look up of public URL	423
+32.14 Change Public Network Access	423
+32.15 Access from public network	424
+33 Azure Storage - Customer Managed Key on AKV	425
+33.1 Lab Steps	426
+33.2 Create Customer-managed Key in AKV	428
+33.3 Enable Disk Encryption - AKV Configuration	430
+33.4 Configure Storage Account - For Encryption using AKV	431
+33.5 Configure Storage Account for Secure Transfer	434
+33.6 Configure Storage Account for IP Address	435
+33.7 Generate SAS for Account	436
+33.8 Test Shared Key - Using Storage Explorer Tool (Windows)	440
+34 Azure Storage - Secure File Transfer	447
+34.1 Task Listing	447
+34.2 Create Storage Account	447
+34.3 Upload a same data (File)	452
+34.4 Configure Security for Storage Account	454
+34.4.1 Create a Key in AKV	455
+34.4.2 Enable Secure Transfer	456
+34.4.3 Enable IP Address driven restriction	457
+34.4.4 Generate SAS	460
+34.5 Secure Storage Acount	462
+34.5.1 Navigate to Storage Account	463
+34.6 Configure Monitoring for Storage Account	465
+34.6.1 Configure Monitoring	466
+34.6.2 Create Alert Rule	468
+34.6.3 Create Action Group	471
+34.6.4 Create alert rule - with correct name	473
+35 Azure Storage - Explorer - Create Snapshot	480
+35.1 Create Storage Account	481
+35.2 Create a container	484
+35.3 Install Azure Explorer	486
+35.3.1 Install Azure Explorer	487
+35.3.2 Sign-in to Azure	488
+35.3.3 Create a Blob Container using Azure Storage Explorer	492
+35.3.4 Create Snapshot	497
+35.3.5 Get SAS	500
+36 Azure Storage - Queues - Tables - Rehydration	504
+36.1 Storage account Page – Bring	504
+36.2 Storage Hierarchy – BLOB | TABLE | FILE SHARE | QUEUE	505
+36.3 Storage Overview	507
+36.4 Storage Security	508
+36.5 Storage Replication – Availability	509
+36.6 Durability Options - LRS | ZRS | GRS | RA-GRS	510
+36.7 Durability Options – GZRS | RA-GZRS	511
+36.8 Create Storage Account	511
+36.9 Key Considerations for Storage Account	513
+36.10 Create Blob Storage | Container	515
+36.10.1 Upload Blob File	516
+36.10.2 Access Permission	519
+36.10.3 Provide Key based access – Shared Access Signature (SAS)	521
+36.11 Create Tables	523
+36.12 Rehydration	525
+36.13 Create File Share	526
+36.14 Create Queue	530
+37 Azure Storage - Disk Encryption	532
+37.1 Create AKV	532
+37.2 Assign Role	534
+37.3 Configure Azure Disk	536
+37.4 Verify Azure Encryption	537
+38 Azure Storage - Cosmos DB with HA	539
+38.1 Create Cosmos DB	539
+38.2 Create Container	541
+38.3 Create items in container (JSON Content of a Customer)	542
+38.4 Create second item in the container (Another JSON content)	544
+38.5 Create SQL Query	544
+38.6 Enable HA	545
+38.7 Perform a manual failover	547
+38.8 Create SQL Query	548
+38.9 What we achieved	549
+39 Azure Storage - SQL DB DR (Disaster Recovery)	550
+39.1 Create SQL Database	550
+39.2 Update network Settings	555
+39.3 Create Failover group	557
+39.4 Test a failover	559
+40 Azure Storage - SQL DB - Encrypt Data	561
+40.1 Access Azure SQL Database from Portal	562
+40.2 Access Secure DB from Portal	565
+40.3 Access SQL DB by using SQL Server in Azure VM - via RDP	568
+40.4 Enable Always encrypted - Column specific sensitive data	572
+40.5 Decrypt Connection and Access data normally	579
+41 Azure Storage - Service Endpoint - SQL DB	584
+41.1 Create VM - Host SQL Server	585
+41.2 Create VNET RULE (Service Endpoint)	588
+41.3 Connect to VM - Test Secure Access (While inside the VM)	590
+41.4 Connect to Database from Portal (Outside of VM) - Will result in Failure	593
+42 Compute: Virtual Machines	595
+42.1 Introduction	595
+42.1.1 Architecture	595
+42.1.2 Simulator Links	595
+42.1.3 Tasks	596
+42.2 VM – Create	596
+42.3 VM – Resize	598
+42.4 VM – Create, Attach and Detach a disk	599
+42.5 VM – Reattach	600
+43 Computer: VMSS	602
+43.1 Create VMSS	602
+43.2 VMSS – Scaling  (Custom autoscale)	607
+43.2.1 Scale Out Rule	607
+43.2.2 Scale Down Rule	609
+43.3 Testing VMSS	609
+44 Compute - VMSS - HA - Sacling - LB	611
+44.1 Create VMSS - FRONT END	615
+44.1.1 Configure Basic Details	615
+44.1.2 Configure Disks	616
+44.1.3 Configure Networking  - VNET	617
+44.1.4 Configure Networking  - VNET (Load Balancer)	618
+44.1.5 Finalize - Review + Create	621
+44.1.6 Configure custom autoscale	623
+44.2 CreateVMSS - APP TIER	630
+44.2.1 Open GitHub resource	633
+44.2.2 Configure Scale-Out / Scale-In Rules	638
+44.3 Configure NSG on FE VMSS	639
+44.3.1 Capture IP Address	640
+44.3.2 Configure NSG	640
+45 Compute - VMSS - Enable HA - Scalabilty	643
+45.1 Create VMSS	644
+45.2 Configure AutoScale	647
+45.3 Create AZ VMSS for App Tier	653
+45.4 Configure AutoScaling	655
+45.5 Configure NSG	659
+46 Compute - VM - HA - Availability Sets	662
+46.1 Create VM 1	663
+46.2 Create VM 2	665
+46.3 Validate Placement	666
+46.4 Quiz	667
+47 Compute - VM - HA - Vnet - Availability Sets	668
+47.1 Create Availability Set	668
+47.2 Create a VNET	671
+47.3 Create 2 Azure VMs (VM1 & VM2)	673
+47.4 Create LB	675
+47.5 Add BE Pool	677
+47.6 Add Health probe	679
+47.7 Add LB Rule	680
+Looking for your next Challenge Lab?	681
+48 Compute - VM using Powershell and install WebServer (First Attempt)	682
+48.1 Install Webserver and test	688
+48.2 Test WebServer if it is running or not	691
+49 Compute - VM using Powershell and install WebServer (Second Attempt)	692
+49.1 Create FileShare	700
+49.2 Install Webserver	706
+49.3 Test WebServer if it is running or not	709
+49.4 Allow HTTP Rule	710
+49.5 Test Connection	712
+49.6 Finalize	713
+50 Compute - VM using Powershell - VNET (First Attempt)	714
+50.1 Configure Azure Cloud Shell	714
+50.2 Create Storage Account	716
+50.3 Create a File Share	717
+50.4 Set Quota for File Share	719
+50.5 Configure Power shell Session	720
+50.6 Create a Variables	724
+50.7 Configure VNET	725
+50.8 Configure Network Interface / NSG	726
+50.9 Create VM - Command Line	728
+50.10 Finalize	730
+50.11 xxxx	730
+51 Compute - VM using Powershell - VNET (Second Attempt)	731
+51.1 Configure Azure Cloud Shell	731
+51.2 Create Storage Account	733
+51.3 Create a File Share	733
+51.4 Set Quota for File Share	736
+51.5 Configure Power shell Session	738
+51.6 Create a Variables	742
+51.7 Configure VNET	744
+51.8 Configure Network Interface / NSG	745
+51.9 Create VM	746
+51.10 xxxx	748
+51.11 xxxx	749
+52 Entra ID - App Registrations - Managed Identity	749
+52.1 Typical user and their access	749
+52.2 Managed Identity (or Service Principal)	750
+52.3 Create Secret in AKV (in this case it is already created)	751
+52.4 Sample Application (Eg. Logic App, which is already created)	753
+52.5 App Registration (Some background about this)	755
+52.5.1 Create Ent App - For Azure Services Usage (Example 1)	758
+52.5.2 Create Ent App - For Graph API usage (Example 2)	769
+52.5.3 ADDITIONAL: Existing Enterprise Application - Understanding	780
+52.5.4 ADDITIONAL : Bring - App Registrations	781
+52.6 Management APIs vs Graph APIs	784
+53 WebApp Implementation	787
+53.1 Introduction	787
+53.1.1 Architecture	787
+53.1.2 Simulator Links	787
+53.1.3 Tasks	787
+53.2 Create App	788
+53.3 Create Deployment Slots – Staging	790
+53.4 Update Codebase – external GIT	791
+53.5 Swap the Staging to Production	792
+53.6 Apply Scaling Logic	794
+53.7 Load Test the Application (for Diagnose and solve issues)	795
+54 DNS – Website Registration - DNS Zones	798
+54.1 Purchase a domain – Eg. cloudcognoscente.co.in (from GoDaddy)	798
+54.2 Create DNS Zone	799
+54.3 Check Record Sets – Copy the same to be used ahead.	800
+54.4 Use the copied NS Details in the Domain Registrar	801
+54.5 Create a VM	804
+54.6 Add a record set – Type ‘a’	807
+54.7 Add a record set – Tpe ‘c’	810
+55 Container Instances	811
+55.1 Introduction	811
+55.1.1 Architecture	811
+55.1.2 Comparision between Container Apps vs Container Instances	812
+55.1.3 Simulator Links	812
+55.1.4 Tasks	813
+55.2 Create container instance	813
+55.3 Logs monitoring	815
+56 Azure Container Registry - Load Images	816
+56.1 Get Tenant ID	816
+56.2 Login to Tenant	818
+56.3 Check Tenant Details	820
+56.4 Create ACR	822
+56.5 Login to ACR from powershell	825
+56.6 Pull Nginx image to Local Docker from Docker Hub	825
+56.7 Run the Docker Image (Nginx)	826
+56.8 Access on Browser - Localhost	826
+56.9 Enable Admin user Access Keys (If we want a Credentials based login to ACR)	826
+56.10 Tag the local Image on local docker	827
+56.11 Push the tagged image to ACR	828
+56.12 Validate the Image storage on ACR	828
+56.13 Run the Nginx instance	829
+56.14 Access on Browser - Azure instance	831
+57 Container Apps	832
+57.1 Intro	832
+57.2 Comparision between Container Apps vs Container Instances	832
+57.3 Architecture	833
+57.4 Create Container Apps	834
+58 Compute - AKS	840
+58.1 Subscription - RG - Cluster Preset	840
+58.2 Login to AKS	845
+58.3 Validate Node Pools on UI	846
+58.4 Deploy a POD to AKS using image on ACR.	847
+58.5 Check the PODs and Service Details	849
+59 Compute - AKS - RBAC	850
+59.1 Create AKS using the Admin user	853
+59.1.1 Basic Configuration	853
+59.1.2 Node Pools	854
+59.1.3 Monitoring Configuration	857
+59.1.4 Review + Create	858
+59.2 Assign Cluster role to User1	859
+59.2.1 Validate the Assignment	863
+59.3 Connect to AKS as Admin	864
+59.3.1 Connect to Bash	865
+59.3.2 Connect to AKS	867
+59.4 Connect and Deploy to AKS - as Normal User	868
+59.4.1 Login in Incoginito and execute commands in ‘bash’	870
+60 Backup and Recover VMs	874
+60.1 Introduction	874
+60.1.1 Architecture	875
+60.1.2 Simulator Links	875
+60.1.3 Tasks	875
+60.2 Deploy VMs – configure backup – execute backup	875
+60.2.1 Deploy using custom template	876
+60.2.2 Configure Recovery Service Vaults	878
+60.2.3 Configure Properties required for backup - RSV	879
+60.2.4 Configure Backup policy	881
+60.2.5 Execute Backup	883
+60.3 Monitor Backup	884
+60.3.1 Create Storage account	885
+60.3.2 Configure Diagnostic Settings in RSV	886
+60.3.3 View Backup Jobs status	888
+60.4 VM Replication - Recover Service Vault (RSV)	888
+60.4.1 Create RSV	889
+60.4.2 Configure DR on VM	890
+60.4.3 Review - Using Recovery Service Vault (RSV)	891
+61 Backup - VMs	892
+61.1 Portal - Configure Backup	893
+61.1.1 Execute Backup Now	897
+61.2 Powershell - Configure Backup	898
+61.2.1 Using Powershell	899
+61.3 Bash - Configure Backup using AZ	900
+61.3.1 Execute the command	900
+61.4 Check backup statuses (Eg. VM1)	900
+62 Backup recovery	901
+62.1 Create VM - SQL Server Image	904
+62.1.1 Configure Basics	906
+62.1.2 Configure Disks	908
+62.1.3 Configure Monitoring	909
+62.1.4 Configure SQL Server Settings	910
+62.1.5 Review + Create	911
+62.2 Create RSV (Recovery Services Vaults)	912
+62.2.1 Provide Basic Details	912
+62.2.2 Review + Create	913
+62.3 Login to VM using RDP	913
+62.4 Create New DB - Access SQL Server Management	915
+62.5 Enable Back up on Azure VM	918
+62.5.1 Create a backup goal - choose VM	919
+62.5.2 Configure Backup Policy	920
+62.5.3 Finalize	924
+62.6 Enable SQL Server Backup	924
+62.6.1 Create a backup goal - choose SQL DB	925
+62.6.2 Configure Backup Policy	926
+62.6.3 Validate DBs for backup as listings	931
+62.6.4 Start backup - Pick one DB	931
+63 Backup - Attach Disks - Snaptshot - Recover	932
+63.1 Create VM - Hosting Visual Studio	933
+63.2 Connect to VM 1 via RDP	937
+63.3 Open Visual Studio	938
+63.4 Add Disk	939
+63.5 Open Disk Management - RDP Session	941
+63.6 Create a folder and test	948
+63.7 Generalized Virtual Machine - making it ready for Image Capture	949
+63.8 Verify VM Status	950
+63.9 Capture Image	951
+63.10 Create VM from Captured Image	953
+63.11 Connect to VM 2 via RDP	960
+63.12 Create Snapshot	961
+64 Monitor - Alerts - Actions - Rules - Logs	966
+64.1 Introduction	966
+64.1.1 Architecture	967
+64.1.2 Simulator Links	967
+64.1.3 Tasks	967
+64.2 Deploy using custom template	967
+64.3 Configure Insights for VM	969
+64.4 Configure alert rule (Eg. Delete VM - Send Email)	970
+64.5 Configure processing rule - Supress during maintenance.	974
+64.6 Run Query	975
+65 Monitor - Diagnostic Settings on Azure Virtual Machines	977
+65.1 Create Log Analytics Workspace	979
+65.1.1 Configure Basics and Review + Create	980
+65.2 VM1: Enable Azure Monitor Agent (AMA) using Azure Portal	983
+65.2.1 DCR: Basic Details	988
+65.2.2 DCR: Add Resources	990
+65.2.3 DCR: Collect and Deliver  - DataSource (Windows Logs)	992
+65.2.4 DCR: Collect and Deliver - Destination	994
+65.2.5 DCR: Collect and Deliver  - DataSource (Performance Counters)	995
+65.2.6 DCR: Collect and Deliver - Destination	996
+65.2.7 Review + Create	997
+65.2.8 View Post creation	998
+65.3 VM2  Enable Azure Monitor Agent Windows	999
+65.4 Verify both VMs are connected to Log Analytics Space	1000
+65.5 Create Diagnostic Settings for VMs	1001
+65.5.1 Navigate to first VM - Install Diagnostic Extension	1005
+65.5.2 Navigate to Second VM	1011
+65.6 Manage VM Extensions using Powershell	1014
+65.6.1 Add Extension - Powershell	1016
+65.6.2 Remove Extension - Powershell	1016
+65.7 View Metrics	1017
+66 Monitor - Boot Diagnostics	1019
+66.1 Create VM	1019
+66.2 Connect to VM	1024
+66.3 Monitor Boot diagnostics	1026
+66.4 Create a chart to monitor CPU	1027
+66.5 Enable Guest Level Monitoring	1030
+66.6 Create a chart to Monitor Guest Level	1032
+66.7 Create a Alert Rule	1034
+66.8 Create Action Group - via ‘alert rule’	1039
+67 Monitor - Gues Level - Snapshot impl	1046
+67.1 Create VM	1047
+67.2 Create a disk (Under a VM)	1051
+67.3 Attach VM Disk (Under Disk Management of RDP Session)	1053
+67.4 Create a folder (under G Drive created)	1059
+67.5 Create Snapshot (under the Disks)	1060
+67.6 Enable Guest Level Monitoring - Storage Account	1063
+67.7 Check the Guest Level monitoring Logs (Under Storage Account )	1065
+67.8 Create Chart to Monitor (under VM)	1066
+68 LEFT BLANK INTENTIONALLY	1069
+69 xxx	1070
+69.1 xxx	1070
