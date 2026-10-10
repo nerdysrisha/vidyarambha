@@ -504,40 +504,40 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
 #content-box .verse-block > .flag-inline { text-align: left; }
 
-/* MEANINGS: folder-style tabs (Telugu | English) under each verse; Telugu is open by default */
+/* MEANINGS: folder-style tabs (తెలుగు | English) under each verse; Telugu is open by default.
+   Active tab = saffron and slightly bigger; inactive = grey. Panel = white with a golden border, set in the verse's own type. */
 #content-box .mtabs { margin-top: 14px; text-align: left; white-space: normal; }
-#content-box .mtab-bar { display: flex; align-items: flex-end; padding-left: 6px; position: relative; z-index: 1; }
+#content-box .mtab-bar { display: flex; align-items: flex-end; gap: 4px; padding: 0; position: relative; z-index: 3; }
 #content-box .mtab {
-    appearance: none; cursor: pointer; font: 600 13px/1 system-ui, sans-serif; letter-spacing: 0.02em;
-    color: #8a4b08; padding: 9px 22px 8px; margin: 0 -6px 0 0; min-height: 34px;
-    border: 1px solid #efc487; border-bottom: none; border-radius: 12px 12px 0 0; position: relative; top: 1px;
-    transition: padding .15s ease, filter .15s ease;
+    appearance: none; cursor: pointer; margin: 0; letter-spacing: 0.02em;
+    font: 600 12px/1.2 'Noto Sans Telugu', system-ui, sans-serif; padding: 5px 14px; color: #6b6b6b;
+    background: #ececec; border: 1px solid #d2d2d2; border-bottom: none; border-radius: 9px 9px 0 0;
+    transition: background .15s ease, color .15s ease;
 }
-#content-box .mtab-te { background: #ffefd2; }
-#content-box .mtab-en { background: #ffe2b0; margin-left: 0; }
-#content-box .mtab[aria-selected="false"] { filter: saturate(0.8) brightness(0.97); padding-top: 7px; z-index: 1; }
-#content-box .mtab[aria-selected="true"] { z-index: 3; font-weight: 700; color: #6b3a05; padding-top: 11px; }
+#content-box .mtab:hover { background: #e3e3e3; }
+#content-box .mtab[aria-selected="true"] {
+    font-size: 14px; font-weight: 700; padding: 8px 20px 9px; color: #5a2d00;
+    background: #ffbe6b; border-color: #d9903a; margin-bottom: -1px;   /* overlaps the panel's top border so the tab joins the panel */
+}
 #content-box .mtab:focus-visible { outline: 2px solid #c9922e; outline-offset: 1px; }
 #content-box .mtab-panel {
-    border: 1px solid #efc487; border-radius: 0 12px 12px 12px; padding: 14px 16px; position: relative; z-index: 2;
-    font-size: 15px; line-height: 1.8; color: #3a3020; text-align: justify;
+    background: #fff; border: 1px solid #c9a15a; border-radius: 0 12px 12px 12px; padding: 14px 16px;
+    position: relative; z-index: 2; text-align: justify;
+    font-size: 1.08rem; line-height: 1.95; color: #2b2b2b;      /* same size / spacing / colour as the verse */
 }
-#content-box .mtabs[data-active="te"] .mtab-panel { background: #ffefd2; }
-#content-box .mtabs[data-active="en"] .mtab-panel { background: #ffe2b0; }
-#content-box .mtabs[data-first="en"] .mtab-panel { border-top-left-radius: 0; }
-#content-box .mtabs[data-active="en"][data-first="te"] .mtab-panel { border-top-left-radius: 12px; }
 #content-box .mtab-panel[hidden] { display: none; }
 #content-box .mtab-panel .lbl { display: none; }
 #content-box .mtab-panel .verse-translation,
 #content-box .mtab-panel .verse-purport { background: none; border: none; border-radius: 0; padding: 0; margin: 0; text-align: justify; font-size: inherit; line-height: inherit; color: inherit; }
-#content-box .mtab-panel .verse-purport { font-size: 1rem; line-height: 1.9; color: #4a3612; }
+#content-box .mtab-panel .verse-purport { font-family: 'Noto Sans Telugu', sans-serif; }
 #content-box .mtab-panel p { margin: 0 0 10px 0; text-align: justify; }
 #content-box .mtab-panel p:last-child { margin-bottom: 0; }
 #content-box .mtab-panel:not([hidden]) { animation: mwDrop .22s ease; }
 @keyframes mwDrop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (max-width: 700px) {
-  #content-box .mtab { min-height: 40px; font-size: 14px; padding-left: 20px; padding-right: 20px; }
-  #content-box .mtab-panel { padding: 12px 12px; font-size: 14.5px; }
+  #content-box .mtab { font-size: 11.5px; padding: 4px 12px; }
+  #content-box .mtab[aria-selected="true"] { font-size: 13px; padding: 6px 16px 7px; }
+  #content-box .mtab-panel { padding: 12px 12px; }
 }
 @media (prefers-reduced-motion: reduce) { #content-box .mtab-panel:not([hidden]) { animation: none; } #content-box .mtab { transition: none; } }
 
@@ -1186,7 +1186,7 @@ function enhanceMeanings() {
         const te = block.querySelector(":scope > .verse-purport");
         const en = block.querySelector(":scope > .verse-translation");
         const items = [];
-        if (te) items.push({ key: "te", label: "Telugu", el: te });
+        if (te) items.push({ key: "te", label: "తెలుగు", el: te });
         if (en) items.push({ key: "en", label: "English", el: en });
         if (!items.length) return;
         const box = document.createElement("div");
@@ -1220,7 +1220,6 @@ function enhanceMeanings() {
             const next = items.find(it => it.key !== box.dataset.active);
             show(next.key); tabs[next.key].focus(); e.preventDefault();
         });
-        box.dataset.first = items[0].key;
         box.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
         show(items[0].key);
         block.appendChild(box);
