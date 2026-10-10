@@ -504,24 +504,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
 #content-box .verse-block > .flag-inline { text-align: left; }
 
-/* START SCREEN (phones only): your image fills the whole screen with a round saffron "Start" button on top; tapping it goes full screen and the screen fades away.
+/* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Put the image at  subjects/bhagavadgita/images/start.png  (or change the URL on the next line). */
 #start-screen { display: none; --start-img: url("subjects/bhagavadgita/images/start.png"); }
 @media (max-width: 700px) and (pointer: coarse) {
   #start-screen {
-      display: flex; position: fixed; inset: 0; z-index: 10000; align-items: center; justify-content: center;
+      display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
+      padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
       background: var(--start-img) center / cover no-repeat, radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
   }
   #start-btn {
-      appearance: none; cursor: pointer; width: min(40vw, 160px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
+      appearance: none; cursor: pointer; width: min(20vw, 80px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
       border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
-      font: 700 20px/1 system-ui, sans-serif; letter-spacing: 0.1em; text-transform: uppercase;
-      background: linear-gradient(180deg, #ffcb85 0%, #ff9f3d 100%);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.7);
-      animation: startPulse 2.2s ease-in-out infinite;
+      font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      background: radial-gradient(circle at 35% 30%, #ffe2b0 0%, #ffb454 55%, #ff9533 100%);
+      animation: startGlow 1.8s ease-in-out infinite;
   }
-  #start-btn:active { transform: scale(0.97); }
-  @keyframes startPulse { 0%, 100% { box-shadow: 0 6px 18px rgba(0,0,0,0.35), 0 0 0 0 rgba(255,159,61,0.55), inset 0 1px 0 rgba(255,255,255,0.7); } 50% { box-shadow: 0 6px 18px rgba(0,0,0,0.35), 0 0 0 14px rgba(255,159,61,0), inset 0 1px 0 rgba(255,255,255,0.7); } }
+  #start-btn:active { transform: scale(0.95); }
+  /* soft saffron glow that breathes in and out */
+  @keyframes startGlow {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(255,170,60,0.75), 0 0 18px 6px rgba(255,150,40,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+      50%      { box-shadow: 0 0 16px 6px rgba(255,190,90,1),    0 0 34px 14px rgba(255,150,40,0.7),  inset 0 1px 0 rgba(255,255,255,0.7); }
+  }
   /* slow fade (2.5 s) so it is still visible after the browser finishes switching to full screen */
   #start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
   #start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
