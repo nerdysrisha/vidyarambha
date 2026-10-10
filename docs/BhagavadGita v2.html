@@ -490,45 +490,21 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     transform: scale(1.02);
 }
 
-/* VERSE ROW: "Verse 1 :" label on the left; shloka + transliteration hang to its right (same left edge) */
-#content-box .verse-block > .vrow { display: flex; align-items: baseline; gap: 10px; text-align: left; }
-#content-box .vrow > .verse-tag,
-#content-box .vrow > .verse-label {
-    flex: 0 0 72px; margin: 0; padding: 0; background: none; border: none; border-radius: 0;
-    font: 600 12px/1 var(--mono, 'IBM Plex Mono', monospace); letter-spacing: 0; text-transform: none; color: #8a5a1c;
-    white-space: nowrap;
-}
-#content-box .vrow > .verse-tag::after,
-#content-box .vrow > .verse-label::after { content: " :"; }
-#content-box .vrow > .vbody { flex: 1 1 auto; min-width: 0; }
-#content-box .vbody > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 4px; text-align: left; }
-#content-box .vbody > .verse-grid + .verse-grid { margin-top: 10px; }
-#content-box .vbody .verse-telugu, #content-box .vbody .verse-translit { text-align: left; }
-#content-box .verse-block > .flag-inline { text-align: left; }
-@media (max-width: 700px) {
-  #content-box .verse-block > .vrow { gap: 6px; }
-  #content-box .vrow > .verse-tag, #content-box .vrow > .verse-label { flex-basis: 58px; font-size: 10.5px; }
-}
-
 /* MEANINGS: hidden by default; a small gold chip under each verse unfolds that verse's own meaning (English + Telugu) */
-#content-box .verse-block > .mw-chip {
-    display: block; width: fit-content; margin: 12px 0 0 auto; padding: 7px 16px 7px 18px; min-height: 32px;
-    border: 1px solid #d9b873; border-radius: 999px; color: #7a4a12;
-    background: linear-gradient(180deg, #fffaf0 0%, #f7e8c2 100%);
-    box-shadow: 0 1px 2px rgba(122,74,18,0.18), inset 0 1px 0 #fff;
-    font: 600 13px/1 system-ui, sans-serif; letter-spacing: 0.02em; white-space: nowrap; cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+#content-box .mw-chip {
+    display: block; width: fit-content; margin: 10px auto 0 auto; padding: 2px 22px; min-height: 32px;
+    border: 1px solid #c9a35a; border-radius: 16px; background: #fff8e8; color: #7a4a12;
+    font: 700 20px/1 system-ui, sans-serif; white-space: nowrap; cursor: pointer;
 }
-#content-box .mw-chip:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(122,74,18,0.25), inset 0 1px 0 #fff; }
-#content-box .mw-chip:focus-visible { outline: 2px solid #c9922e; outline-offset: 2px; }
-#content-box .mw-chip[aria-expanded="true"] { background: linear-gradient(180deg, #e3c27a 0%, #d3a74f 100%); border-color: #c9922e; color: #2b1b05; }
+#content-box .mw-chip:hover { background: #fdeec8; }
+#content-box .mw-chip[aria-expanded="true"] { background: #d8b46a; border-color: #c9922e; color: #111; }
 #content-box .mw { display: none; white-space: normal; text-align: left; }
 /* Telugu meaning: always visible under the verse */
 #content-box .verse-block > .verse-purport { white-space: normal; text-align: left; margin-top: 12px; }
 #content-box .mw.open { display: block; animation: mwDrop .28s ease; }
 @keyframes mwDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 700px) { #content-box .verse-block > .mw-chip { min-height: 38px; padding: 8px 18px 8px 20px; font-size: 14px; } }
-@media (prefers-reduced-motion: reduce) { #content-box .mw.open { animation: none; } #content-box .mw-chip { transition: none; } #content-box .mw-chip:hover { transform: none; } }
+@media (max-width: 700px) { #content-box .mw-chip { min-height: 38px; padding: 4px 26px; font-size: 22px; } }
+@media (prefers-reduced-motion: reduce) { #content-box .mw.open { animation: none; } }
 
 /* NAV BAR */
 #navbar {
@@ -1167,24 +1143,10 @@ function initAudioSync() {
 // ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
 const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
 const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
-// ── VERSE ROW: wrap the label + the shloka/transliteration grid(s) so the label sits left and the text hangs to its right ──
-function layoutVerseRow(block) {
-    const tag = block.querySelector(":scope > .verse-tag, :scope > .verse-label");
-    const first = block.querySelector(":scope > .verse-grid");
-    if (!tag || !first || block.querySelector(":scope > .vrow")) return;
-    const row = document.createElement("div"); row.className = "vrow";
-    const body = document.createElement("div"); body.className = "vbody";
-    block.insertBefore(row, first);
-    row.appendChild(tag); row.appendChild(body);
-    let g = row.nextElementSibling;
-    while (g && g.matches(".verse-grid")) { const nx = g.nextElementSibling; body.appendChild(g); g = nx; }
-}
-
 // ── MEANINGS: fold each verse's ENGLISH purport (.verse-translation) behind a small chip; the Telugu meaning (.verse-purport) stays visible ──
 // Runs on every chapter load, so every verse starts closed. Opening one never touches the others.
 function enhanceMeanings() {
     contentBox.querySelectorAll(".verse-block").forEach(block => {
-        layoutVerseRow(block);
         const parts = Array.from(block.children).filter(c => c.matches(".verse-translation"));
         if (!parts.length) return;
         const wrap = document.createElement("div");
@@ -1193,7 +1155,7 @@ function enhanceMeanings() {
         parts.forEach(p => wrap.appendChild(p));
         const chip = document.createElement("button");
         chip.type = "button"; chip.className = "mw-chip";
-        const paint = open => { chip.textContent = open ? "Meaning ▴" : "Meaning ▾"; chip.setAttribute("aria-expanded", open ? "true" : "false"); chip.setAttribute("aria-label", open ? "Hide meaning" : "Show meaning"); chip.title = open ? "Hide meaning" : "Show meaning"; };
+        const paint = open => { chip.textContent = open ? "▴" : "▾"; chip.setAttribute("aria-expanded", open ? "true" : "false"); chip.setAttribute("aria-label", open ? "Hide meaning" : "Show meaning"); chip.title = open ? "Hide meaning" : "Show meaning"; };
         paint(false);
         chip.addEventListener("click", e => {
             e.stopPropagation();                       // opening a meaning must not start the audio
