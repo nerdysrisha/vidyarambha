@@ -511,9 +511,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #start-screen {
       display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
       padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
-      background: var(--start-img) center / cover no-repeat, radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
+      background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
   }
+  /* the picture is its own layer: hidden at first, then revealed slowly from the bottom up once it has loaded */
+  #start-screen::before {
+      content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat;
+      clip-path: inset(100% 0 0 0);
+  }
+  #start-screen.ready::before { animation: startReveal 3s cubic-bezier(.25,.6,.3,1) forwards; }
+  @keyframes startReveal { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
   #start-btn {
+      position: relative; z-index: 1;
       appearance: none; cursor: pointer; width: min(20vw, 80px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
       border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
       font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
@@ -532,7 +540,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
 }
-@media (prefers-reduced-motion: reduce) { #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+@media (prefers-reduced-motion: reduce) { #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 
 /* MEANINGS: folder-style tabs (తెలుగు | English) under each verse; Telugu is open by default.
    Active tab = saffron and slightly bigger; inactive = grey. Panel = white with a golden border, set in the verse's own type. */
@@ -1680,6 +1688,10 @@ counterEl.textContent = "– / " + flatTopics.length;
     const btn = document.getElementById("start-btn");
     if (!screenEl || !btn) return;
     if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    // start the bottom-to-top reveal only once the picture has loaded (or after 1.5 s at the latest)
+    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
+    const ready = () => screenEl.classList.add("ready");
+    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
