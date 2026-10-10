@@ -504,30 +504,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
 #content-box .verse-block > .flag-inline { text-align: left; }
 
-/* START SCREEN (phones only): one saffron button; tapping it goes full screen and the screen fades away */
-#start-screen { display: none; }
-@media (max-width: 700px) and (pointer: coarse) {
-  #start-screen {
-      display: flex; position: fixed; inset: 0; z-index: 10000; align-items: center; justify-content: center;
-      background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
-      transition: opacity .6s ease;
-  }
-  #start-screen.leaving { opacity: 0; pointer-events: none; }
-  #start-btn {
-      appearance: none; border: 1px solid #d9903a; cursor: pointer; color: #4a2300;
-      font: 700 20px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
-      padding: 18px 56px; border-radius: 999px;
-      background: linear-gradient(180deg, #ffcb85 0%, #ff9f3d 100%);
-      box-shadow: 0 6px 18px rgba(217,144,58,0.45), inset 0 1px 0 rgba(255,255,255,0.7);
-      animation: startPulse 2.2s ease-in-out infinite;
-      transition: transform .5s ease, opacity .5s ease;
-  }
-  #start-btn:active { transform: scale(0.97); }
-  #start-screen.leaving #start-btn { transform: scale(1.35); opacity: 0; animation: none; }
-  @keyframes startPulse { 0%, 100% { box-shadow: 0 6px 18px rgba(217,144,58,0.45), inset 0 1px 0 rgba(255,255,255,0.7); } 50% { box-shadow: 0 6px 30px rgba(217,144,58,0.8), inset 0 1px 0 rgba(255,255,255,0.7); } }
-}
-@media (prefers-reduced-motion: reduce) { #start-btn { animation: none; } #start-screen, #start-btn { transition: opacity .2s ease; } #start-screen.leaving #start-btn { transform: none; } }
-
 /* MEANINGS: folder-style tabs (తెలుగు | English) under each verse; Telugu is open by default.
    Active tab = saffron and slightly bigger; inactive = grey. Panel = white with a golden border, set in the verse's own type. */
 #content-box .mtabs { margin-top: 14px; text-align: left; white-space: normal; }
@@ -737,7 +713,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 </style>
 </head>
 <body>
-<div id="start-screen"><button id="start-btn" type="button">Start</button></div>
 
 <div id="outer">
     <div id="sidebar">
@@ -1665,22 +1640,6 @@ counterEl.textContent = "– / " + flatTopics.length;
     try { last = localStorage.getItem(LAST_KEY); } catch (e) {}
     const i = flatTopics.findIndex(t => t.path === last);
     if (i >= 0) loadTopic(i);
-})();
-// ── START SCREEN (phones only) ───────────────────────────────────────────
-// Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away.
-// (iPhone Safari does not allow fullscreen for web pages; there the button simply fades away.)
-(function () {
-    const screenEl = document.getElementById("start-screen");
-    const btn = document.getElementById("start-btn");
-    if (!screenEl || !btn) return;
-    if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
-    btn.addEventListener("click", () => {
-        const el = document.documentElement;
-        const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
-        screenEl.classList.add("leaving");
-        setTimeout(() => screenEl.remove(), 700);
-    });
 })();
 </script>
 
