@@ -513,13 +513,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
       padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
       background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
   }
-  /* the picture is its own layer: hidden at first, then revealed slowly from the bottom up once it has loaded */
+  /* the picture is its own layer: fully transparent at first, then fades in over 5 seconds once it has loaded */
   #start-screen::before {
       content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat;
-      clip-path: inset(100% 0 0 0);
+      opacity: 0;
   }
-  #start-screen.ready::before { animation: startReveal 3s cubic-bezier(.25,.6,.3,1) forwards; }
-  @keyframes startReveal { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+  #start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+  @keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
   #start-btn {
       position: relative; z-index: 1;
       appearance: none; cursor: pointer; width: min(20vw, 80px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
