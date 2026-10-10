@@ -490,45 +490,56 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     transform: scale(1.02);
 }
 
-/* VERSE ROW: "Verse 1 :" label on the left; shloka + transliteration hang to its right (same left edge) */
-#content-box .verse-block > .vrow { display: flex; align-items: baseline; gap: 10px; text-align: left; }
-#content-box .vrow > .verse-tag,
-#content-box .vrow > .verse-label {
-    flex: 0 0 72px; margin: 0; padding: 0; background: none; border: none; border-radius: 0;
-    font: 600 12px/1 var(--mono, 'IBM Plex Mono', monospace); letter-spacing: 0; text-transform: none; color: #8a5a1c;
-    white-space: nowrap;
+/* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
+#content-box .verse-block > .verse-tag,
+#content-box .verse-block > .verse-label {
+    display: block; margin: 0 0 8px 0; padding: 0; background: none; border: none; border-radius: 0;
+    font: 600 13px/1.2 var(--mono, 'IBM Plex Mono', monospace); letter-spacing: 0; text-transform: none; color: #8a5a1c; text-align: left;
 }
-#content-box .vrow > .verse-tag::after,
-#content-box .vrow > .verse-label::after { content: " :"; }
-#content-box .vrow > .vbody { flex: 1 1 auto; min-width: 0; }
-#content-box .vbody > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 4px; text-align: left; }
-#content-box .vbody > .verse-grid + .verse-grid { margin-top: 10px; }
-#content-box .vbody .verse-telugu, #content-box .vbody .verse-translit { text-align: left; }
+#content-box .verse-block > .verse-tag::after,
+#content-box .verse-block > .verse-label::after { content: " :"; }
+#content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: left; }
+#content-box .verse-block > .verse-grid + .verse-grid { margin-top: 10px; }
+#content-box .verse-block > .verse-grid .verse-telugu,
+#content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
 #content-box .verse-block > .flag-inline { text-align: left; }
-@media (max-width: 700px) {
-  #content-box .verse-block > .vrow { gap: 6px; }
-  #content-box .vrow > .verse-tag, #content-box .vrow > .verse-label { flex-basis: 58px; font-size: 10.5px; }
-}
 
-/* MEANINGS: hidden by default; a small gold chip under each verse unfolds that verse's own meaning (English + Telugu) */
-#content-box .verse-block > .mw-chip {
-    display: block; width: fit-content; margin: 12px 0 0 auto; padding: 7px 16px 7px 18px; min-height: 32px;
-    border: 1px solid #d9b873; border-radius: 999px; color: #7a4a12;
-    background: linear-gradient(180deg, #fffaf0 0%, #f7e8c2 100%);
-    box-shadow: 0 1px 2px rgba(122,74,18,0.18), inset 0 1px 0 #fff;
-    font: 600 13px/1 system-ui, sans-serif; letter-spacing: 0.02em; white-space: nowrap; cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+/* MEANINGS: folder-style tabs (Telugu | English) under each verse; Telugu is open by default */
+#content-box .mtabs { margin-top: 14px; text-align: left; white-space: normal; }
+#content-box .mtab-bar { display: flex; align-items: flex-end; padding-left: 6px; position: relative; z-index: 1; }
+#content-box .mtab {
+    appearance: none; cursor: pointer; font: 600 13px/1 system-ui, sans-serif; letter-spacing: 0.02em;
+    color: #8a4b08; padding: 9px 22px 8px; margin: 0 -6px 0 0; min-height: 34px;
+    border: 1px solid #efc487; border-bottom: none; border-radius: 12px 12px 0 0; position: relative; top: 1px;
+    transition: padding .15s ease, filter .15s ease;
 }
-#content-box .mw-chip:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(122,74,18,0.25), inset 0 1px 0 #fff; }
-#content-box .mw-chip:focus-visible { outline: 2px solid #c9922e; outline-offset: 2px; }
-#content-box .mw-chip[aria-expanded="true"] { background: linear-gradient(180deg, #e3c27a 0%, #d3a74f 100%); border-color: #c9922e; color: #2b1b05; }
-#content-box .mw { display: none; white-space: normal; text-align: left; }
-/* Telugu meaning: always visible under the verse */
-#content-box .verse-block > .verse-purport { white-space: normal; text-align: left; margin-top: 12px; }
-#content-box .mw.open { display: block; animation: mwDrop .28s ease; }
-@keyframes mwDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-@media (max-width: 700px) { #content-box .verse-block > .mw-chip { min-height: 38px; padding: 8px 18px 8px 20px; font-size: 14px; } }
-@media (prefers-reduced-motion: reduce) { #content-box .mw.open { animation: none; } #content-box .mw-chip { transition: none; } #content-box .mw-chip:hover { transform: none; } }
+#content-box .mtab-te { background: #ffefd2; }
+#content-box .mtab-en { background: #ffe2b0; margin-left: 0; }
+#content-box .mtab[aria-selected="false"] { filter: saturate(0.8) brightness(0.97); padding-top: 7px; z-index: 1; }
+#content-box .mtab[aria-selected="true"] { z-index: 3; font-weight: 700; color: #6b3a05; padding-top: 11px; }
+#content-box .mtab:focus-visible { outline: 2px solid #c9922e; outline-offset: 1px; }
+#content-box .mtab-panel {
+    border: 1px solid #efc487; border-radius: 0 12px 12px 12px; padding: 14px 16px; position: relative; z-index: 2;
+    font-size: 15px; line-height: 1.8; color: #3a3020; text-align: justify;
+}
+#content-box .mtabs[data-active="te"] .mtab-panel { background: #ffefd2; }
+#content-box .mtabs[data-active="en"] .mtab-panel { background: #ffe2b0; }
+#content-box .mtabs[data-first="en"] .mtab-panel { border-top-left-radius: 0; }
+#content-box .mtabs[data-active="en"][data-first="te"] .mtab-panel { border-top-left-radius: 12px; }
+#content-box .mtab-panel[hidden] { display: none; }
+#content-box .mtab-panel .lbl { display: none; }
+#content-box .mtab-panel .verse-translation,
+#content-box .mtab-panel .verse-purport { background: none; border: none; border-radius: 0; padding: 0; margin: 0; text-align: justify; font-size: inherit; line-height: inherit; color: inherit; }
+#content-box .mtab-panel .verse-purport { font-size: 1rem; line-height: 1.9; color: #4a3612; }
+#content-box .mtab-panel p { margin: 0 0 10px 0; text-align: justify; }
+#content-box .mtab-panel p:last-child { margin-bottom: 0; }
+#content-box .mtab-panel:not([hidden]) { animation: mwDrop .22s ease; }
+@keyframes mwDrop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 700px) {
+  #content-box .mtab { min-height: 40px; font-size: 14px; padding-left: 20px; padding-right: 20px; }
+  #content-box .mtab-panel { padding: 12px 12px; font-size: 14.5px; }
+}
+@media (prefers-reduced-motion: reduce) { #content-box .mtab-panel:not([hidden]) { animation: none; } #content-box .mtab { transition: none; } }
 
 /* NAV BAR */
 #navbar {
@@ -1167,42 +1178,52 @@ function initAudioSync() {
 // ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
 const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wrap instead
 const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
-// ── VERSE ROW: wrap the label + the shloka/transliteration grid(s) so the label sits left and the text hangs to its right ──
-function layoutVerseRow(block) {
-    const tag = block.querySelector(":scope > .verse-tag, :scope > .verse-label");
-    const first = block.querySelector(":scope > .verse-grid");
-    if (!tag || !first || block.querySelector(":scope > .vrow")) return;
-    const row = document.createElement("div"); row.className = "vrow";
-    const body = document.createElement("div"); body.className = "vbody";
-    block.insertBefore(row, first);
-    row.appendChild(tag); row.appendChild(body);
-    let g = row.nextElementSibling;
-    while (g && g.matches(".verse-grid")) { const nx = g.nextElementSibling; body.appendChild(g); g = nx; }
-}
-
-// ── MEANINGS: fold each verse's ENGLISH purport (.verse-translation) behind a small chip; the Telugu meaning (.verse-purport) stays visible ──
-// Runs on every chapter load, so every verse starts closed. Opening one never touches the others.
+// ── MEANINGS: folder-style tabs under each verse. Telugu (.verse-purport) is open by default; English (.verse-translation) is the next tab ──
+// Runs on every chapter load. Tapping a tab only switches that verse's own panel.
 function enhanceMeanings() {
     contentBox.querySelectorAll(".verse-block").forEach(block => {
-        layoutVerseRow(block);
-        const parts = Array.from(block.children).filter(c => c.matches(".verse-translation"));
-        if (!parts.length) return;
-        const wrap = document.createElement("div");
-        wrap.className = "mw";
-        block.insertBefore(wrap, parts[0]);
-        parts.forEach(p => wrap.appendChild(p));
-        const chip = document.createElement("button");
-        chip.type = "button"; chip.className = "mw-chip";
-        const paint = open => { chip.textContent = open ? "Meaning ▴" : "Meaning ▾"; chip.setAttribute("aria-expanded", open ? "true" : "false"); chip.setAttribute("aria-label", open ? "Hide meaning" : "Show meaning"); chip.title = open ? "Hide meaning" : "Show meaning"; };
-        paint(false);
-        chip.addEventListener("click", e => {
-            e.stopPropagation();                       // opening a meaning must not start the audio
-            const open = !wrap.classList.contains("open");
-            wrap.classList.toggle("open", open);
-            paint(open);
+        if (block.querySelector(":scope > .mtabs")) return;
+        const te = block.querySelector(":scope > .verse-purport");
+        const en = block.querySelector(":scope > .verse-translation");
+        const items = [];
+        if (te) items.push({ key: "te", label: "Telugu", el: te });
+        if (en) items.push({ key: "en", label: "English", el: en });
+        if (!items.length) return;
+        const box = document.createElement("div");
+        box.className = "mtabs";
+        const bar = document.createElement("div");
+        bar.className = "mtab-bar"; bar.setAttribute("role", "tablist");
+        box.appendChild(bar);
+        const tabs = {}, panels = {};
+        items.forEach(it => {
+            const tab = document.createElement("button");
+            tab.type = "button"; tab.className = "mtab mtab-" + it.key; tab.setAttribute("role", "tab"); tab.textContent = it.label;
+            bar.appendChild(tab);
+            const panel = document.createElement("div");
+            panel.className = "mtab-panel"; panel.setAttribute("role", "tabpanel");
+            panel.appendChild(it.el);
+            box.appendChild(panel);
+            tabs[it.key] = tab; panels[it.key] = panel;
+            tab.addEventListener("click", e => { e.stopPropagation(); show(it.key); });   // switching tabs must not start the audio
         });
-        wrap.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
-        block.insertBefore(chip, wrap);
+        const show = key => {
+            box.dataset.active = key;
+            items.forEach(it => {
+                const on = it.key === key;
+                tabs[it.key].setAttribute("aria-selected", on ? "true" : "false");
+                tabs[it.key].tabIndex = on ? 0 : -1;
+                panels[it.key].hidden = !on;
+            });
+        };
+        bar.addEventListener("keydown", e => {
+            if (items.length < 2 || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
+            const next = items.find(it => it.key !== box.dataset.active);
+            show(next.key); tabs[next.key].focus(); e.preventDefault();
+        });
+        box.dataset.first = items[0].key;
+        box.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
+        show(items[0].key);
+        block.appendChild(box);
     });
 }
 
@@ -1219,8 +1240,8 @@ function fitVerses() {
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        const chipEl = b.querySelector(":scope > .mw-chip");
-        if (chipEl) { range.setStart(b, 0); range.setEndBefore(chipEl); }   // measure only the verse itself (not the chip, English purport or Telugu meaning)
+        const chipEl = b.querySelector(":scope > .mtabs");
+        if (chipEl) { range.setStart(b, 0); range.setEndBefore(chipEl); }   // measure only the verse itself (not the tabs)
         else range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line
         return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;
