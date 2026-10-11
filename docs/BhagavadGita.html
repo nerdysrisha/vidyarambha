@@ -1659,7 +1659,8 @@ fsBtn.addEventListener("click", () => {
     }
 });
 document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
-    if (!document.fullscreenElement) setReading(false);
+    //if (!document.fullscreenElement) setReading(false);
+    setReading(!!document.fullscreenElement);   // icon follows the real state, so Start's full screen shows "shrink"
     setTimeout(fitVerses, 250);
 });
 
