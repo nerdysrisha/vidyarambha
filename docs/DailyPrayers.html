@@ -95,7 +95,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
         url("subjects/spiritual/icons/saffron-bg.webp") center / cover no-repeat,
         linear-gradient(160deg, #ffa733 0%, #f57c00 55%, #e65100 100%);
     border: 1px solid #333;
-    border-radius: 8px;
+    border-radius: 20px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: thin;
@@ -280,7 +280,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     position: relative;
     overflow: hidden;
     border: 1px solid #333;
-    border-radius: 8px;
+    border-radius: 20px;
     flex: 1;
     min-height: 0;
     background: #fbf8f2;
@@ -583,6 +583,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #sidebar, #content-panel { border-radius: 16px; }   /* rounded panels on phones too */
   #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 124px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
@@ -617,9 +618,71 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar #prevBtn, #navbar #nextBtn { width: 34px; }
   #counter { min-width: 30px; }
 }
+
+/* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
+   Put the image at  subjects/spiritual/images/daily-prayers.webp  (or change the URL on the next line). */
+#start-screen { display: none; --start-img: url("subjects/spiritual/images/daily-prayers.webp"); }
+@media (max-width: 700px) and (pointer: coarse) {
+  #start-screen {
+      display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
+      padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
+      background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
+  }
+  /* the picture is its own layer: fully transparent at first, then fades in over 5 seconds once it has loaded */
+  #start-screen::before {
+      content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat;
+      opacity: 0;
+  }
+  #start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+  @keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
+  /* two Telugu lines, centred just above the Start button; each rises slowly from below while fading in */
+  #start-text {
+      position: absolute; left: 0; right: 0; bottom: calc(32px + 80px + 28px + env(safe-area-inset-bottom, 0px));
+      padding: 0 20px; text-align: center; pointer-events: none;
+  }
+  #start-text p {
+      margin: 0 0 8px; color: #fff4dc; font: 600 17px/1.9 'Noto Sans Telugu', system-ui, sans-serif; text-wrap: balance;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
+      opacity: 0; transform: translateY(28px);
+  }
+  #start-screen.ready #start-text p { animation: textRise 2.6s cubic-bezier(.2,.7,.3,1) forwards; }
+  #start-screen.ready #start-text p:nth-child(1) { animation-delay: 1.5s; }
+  #start-screen.ready #start-text p:nth-child(2) { animation-delay: 3s; }
+  @keyframes textRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+  #start-btn {
+      position: relative; z-index: 1;
+      appearance: none; cursor: pointer; width: min(20vw, 80px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
+      border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
+      font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      background: radial-gradient(circle at 35% 30%, #ffe2b0 0%, #ffb454 55%, #ff9533 100%);
+      animation: startGlow 1.8s ease-in-out infinite;
+  }
+  #start-btn:active { transform: scale(0.95); }
+  /* soft saffron glow that breathes in and out */
+  @keyframes startGlow {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(255,170,60,0.75), 0 0 18px 6px rgba(255,150,40,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+      50%      { box-shadow: 0 0 16px 6px rgba(255,190,90,1),    0 0 34px 14px rgba(255,150,40,0.7),  inset 0 1px 0 rgba(255,255,255,0.7); }
+  }
+  /* slow fade (2.5 s) so it is still visible after the browser finishes switching to full screen */
+  #start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
+  #start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
+  @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+}
+@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 </style>
 </head>
 <body>
+
+<!-- START SCREEN (phones only): full-screen picture, glowing Start button; see CSS + script at the end of the page -->
+<div id="start-screen">
+  <div id="start-text" lang="te">
+    <p>ఓం సర్వే భవంతు సుఖినః సర్వే సంతు నిరామయాః ।</p>
+    <p>సర్వే భద్రాణి పశ్యంతు మా కశ్చిద్దుఃఖభాగ్భవేత్ ॥</p>
+  </div>
+  <button id="start-btn" type="button">Start</button>
+</div>
+
 
 <!-- LAYOUT: sidebar | main column (top audio dock + scrolling content), then the bottom nav bar -->
 <div id="outer">
@@ -1516,6 +1579,30 @@ setTouchLock(true);   // locked by default every time the page opens; tap the lo
 document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
+
+// ── START SCREEN (phones only) ───────────────────────────────────────────
+// Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
+// (iPhone Safari does not allow fullscreen for web pages; there the button simply fades away.)
+(function () {
+    const screenEl = document.getElementById("start-screen");
+    const btn = document.getElementById("start-btn");
+    if (!screenEl || !btn) return;
+    if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    // start the bottom-to-top reveal only once the picture has loaded (or after 1.5 s at the latest)
+    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
+    const ready = () => screenEl.classList.add("ready");
+    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+    let done = false;
+    const finish = () => { if (!done) { done = true; screenEl.remove(); } };
+    btn.addEventListener("click", () => {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        screenEl.classList.add("leaving");
+        screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
+        setTimeout(finish, 3200);   // safety net
+    });
+})();
 </script>
 
 <!-- Visit counter (GoatCounter: no cookies, no personal data) -->
