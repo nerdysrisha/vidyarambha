@@ -235,7 +235,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     position: relative;
     overflow: hidden;
     border: 1px solid #333;
-    border-radius: 8px;
+    border-radius: 20px;
     flex: 1;
     min-height: 0;
     background: #fbf8f2;
@@ -260,6 +260,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #copyBtn:hover { opacity: 1; }
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
+/* Verse up/down arrows: bottom-right of the text area, just above the nav bar (thumb reach); only while a chapter with verses is open */
+#verseNav { position: absolute; right: 8px; bottom: 12px; z-index: 5; display: none; flex-direction: column; gap: 6px; }
+#verseNav.show { display: flex; }
+#verseNav button { width: 34px; height: 34px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.65; box-shadow: 0 1px 4px rgba(0,0,0,0.25); -webkit-tap-highlight-color: transparent; }
+#verseNav button:hover, #verseNav button:active { opacity: 1; }
+#verseNav svg { width: 18px; height: 18px; }
 #content-box { scrollbar-width: none; }
 #content-box::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
@@ -728,6 +735,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
   #copyBtn { right: 6px; width: 28px; height: 28px; }
+  #verseNav { right: 6px; bottom: 10px; }
 }
 /* very narrow phones: tighten the centre group so it still fits between menu and lock */
 @media (max-width: 380px) {
@@ -804,6 +812,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
             <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
             </button>
+            <div id="verseNav">
+                <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+                <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+            </div>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chapter from the left to begin.</div>
             </div>
@@ -1010,6 +1022,7 @@ function stopAudioSync() {
     });
     if (window.resetSpeedUI) window.resetSpeedUI();
     contentPanel.classList.remove("has-dock");
+    window.gitaSyncSeek = null;
     scrollAnim = null;
 }
 
@@ -1221,6 +1234,12 @@ function initAudioSync() {
         if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
     }
 
+    // Verse arrows: while the audio is PLAYING, jump playback to verse i (the sync then scrolls + highlights it)
+    window.gitaSyncSeek = i => {
+        if (syncDisabled || audio.paused || i < 0 || i >= n) return false;
+        audio.currentTime = starts[i] + 0.01;
+        return true;
+    };
     audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); });
     audio.addEventListener("pause",      () => contentBox.classList.remove("sync-playing"));
     audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); });
@@ -1453,6 +1472,7 @@ function loadTopic(flatIndex) {
     counterEl.textContent = (flatIndex + 1) + " / " + flatTopics.length;
     contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
     copyBtn.classList.remove("show");
+    document.getElementById("verseNav").classList.remove("show");
 
     fetch(topic.path)
         .then(r => {
@@ -1470,6 +1490,7 @@ function loadTopic(flatIndex) {
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
+            document.getElementById("verseNav").classList.toggle("show", !!contentBox.querySelector(".verse-block"));
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
             pageLoaded = true; markBookmark(topic);   // BOOKMARK: draw the dog-ear if it is in this chapter
@@ -1513,6 +1534,31 @@ function placeCopyBtn() {   // sit just below the audio dock (if any), top-right
 }
 if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
+
+// ── VERSE ARROWS ─────────────────────────────────────────────────────────
+// Down = the next verse below the middle of the reading area, Up = the previous one above it; the verse is centred
+// (or top-aligned if taller than the screen). While the audio is playing, the audio jumps to that verse instead.
+function stepVerse(dir) {
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    if (!blocks.length) return;
+    const mid = contentBox.getBoundingClientRect().top + contentBox.clientHeight / 2, tol = 8;
+    const centers = blocks.map(b => { const r = b.getBoundingClientRect(); return r.top + r.height / 2; });
+    let i = -1;
+    if (dir > 0) {
+        i = contentBox.scrollTop < 5 ? 0 : centers.findIndex(c => c > mid + tol);
+        if (i < 0) return;                                            // already at the last verse
+    } else {
+        for (let k = centers.length - 1; k >= 0; k--) if (centers[k] < mid - tol) { i = k; break; }
+        if (i < 0) { syncUserScrollUntil = 0; smoothScrollTo(0, 450); return; }   // above the first verse: back to the top
+    }
+    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // audio playing: seek; the sync does the scrolling
+    const boxRect = contentBox.getBoundingClientRect(), blkRect = blocks[i].getBoundingClientRect(), avail = contentBox.clientHeight;
+    const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
+    syncUserScrollUntil = 0;
+    smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 450);
+}
+document.getElementById("versePrev").addEventListener("click", () => stepVerse(-1));
+document.getElementById("verseNext").addEventListener("click", () => stepVerse(1));
 
 function topicPlainText() {
     const c = contentBox.cloneNode(true);
