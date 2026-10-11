@@ -500,6 +500,10 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     transform: scale(1.02);
 }
 
+/* verse reached with the up/down arrows (same look as the audio highlight, but no dimming of the others) */
+#content-box .verse-block { transition: background-color .5s ease, border-color .5s ease, box-shadow .5s ease; }
+#content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+
 /* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
 #content-box .verse-block > .verse-tag,
 #content-box .verse-block > .verse-label {
@@ -734,7 +738,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box.sync-on .verse-block.verse-active { transform: none; }
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
-  #copyBtn { right: 6px; width: 28px; height: 28px; }
+  #copyBtn { display: none !important; }   /* phones: no copy button, less clutter */
   #verseNav { right: 6px; bottom: 10px; }
 }
 /* very narrow phones: tighten the centre group so it still fits between menu and lock */
@@ -1231,6 +1235,7 @@ function initAudioSync() {
         active = i;
         if (i < 0) return;
         blocks[i].classList.add("verse-active");
+        contentBox.querySelectorAll(".verse-focus").forEach(b => b.classList.remove("verse-focus"));   // audio highlight takes over from the arrow highlight
         if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
     }
 
@@ -1542,16 +1547,21 @@ function stepVerse(dir) {
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (!blocks.length) return;
     const mid = contentBox.getBoundingClientRect().top + contentBox.clientHeight / 2, tol = 8;
-    const centers = blocks.map(b => { const r = b.getBoundingClientRect(); return r.top + r.height / 2; });
+    const rects = blocks.map(b => b.getBoundingClientRect());
     let i = -1;
-    if (dir > 0) {
-        i = contentBox.scrollTop < 5 ? 0 : centers.findIndex(c => c > mid + tol);
+    if (dir > 0) {   // next = first verse that STARTS below the middle line (a tall verse aligned to the top can't pick itself again)
+        i = contentBox.scrollTop < 5 ? 0 : rects.findIndex(r => r.top > mid + tol);
         if (i < 0) return;                                            // already at the last verse
-    } else {
-        for (let k = centers.length - 1; k >= 0; k--) if (centers[k] < mid - tol) { i = k; break; }
-        if (i < 0) { syncUserScrollUntil = 0; smoothScrollTo(0, 450); return; }   // above the first verse: back to the top
+    } else {         // previous = last verse that ENDS above the middle line
+        for (let k = rects.length - 1; k >= 0; k--) if (rects[k].bottom < mid - tol) { i = k; break; }
+        if (i < 0) {                                                  // above the first verse: back to the top
+            blocks.forEach(b => b.classList.remove("verse-focus"));
+            syncUserScrollUntil = 0; smoothScrollTo(0, 450); return;
+        }
     }
-    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // audio playing: seek; the sync does the scrolling
+    blocks.forEach(b => b.classList.remove("verse-focus"));
+    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // audio playing: seek; the sync does the scrolling + highlight
+    blocks[i].classList.add("verse-focus");                           // otherwise highlight it here
     const boxRect = contentBox.getBoundingClientRect(), blkRect = blocks[i].getBoundingClientRect(), avail = contentBox.clientHeight;
     const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
     syncUserScrollUntil = 0;
