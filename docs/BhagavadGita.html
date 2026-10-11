@@ -1239,9 +1239,9 @@ function initAudioSync() {
         if (forceScroll || Date.now() > syncUserScrollUntil) scrollToBlock(blocks[i]);
     }
 
-    // Verse arrows: while the audio is PLAYING, jump playback to verse i (the sync then scrolls + highlights it)
+    // Verse arrows: jump the audio (playing or paused) to verse i; the sync then scrolls + highlights it, and Play continues from there
     window.gitaSyncSeek = i => {
-        if (syncDisabled || audio.paused || i < 0 || i >= n) return false;
+        if (syncDisabled || i < 0 || i >= n) return false;
         audio.currentTime = starts[i] + 0.01;
         return true;
     };
@@ -1541,31 +1541,34 @@ if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
 
 // ── VERSE ARROWS ─────────────────────────────────────────────────────────
-// Down = the next verse below the middle of the reading area, Up = the previous one above it; the verse is centred
-// (or top-aligned if taller than the screen). While the audio is playing, the audio jumps to that verse instead.
+// Steps by INDEX from the verse you are on (the highlighted one), so it works the same on short and tall chapters, even near the
+// top/bottom where a verse cannot be centred. If that verse is no longer on screen (you scrolled away), it uses the middle line instead.
+// With audio on the page, the audio jumps to the verse (the sync scrolls + highlights); without audio the verse is highlighted here.
 function stepVerse(dir) {
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (!blocks.length) return;
-    const mid = contentBox.getBoundingClientRect().top + contentBox.clientHeight / 2, tol = 8;
+    const box = contentBox.getBoundingClientRect();
+    const mid = box.top + contentBox.clientHeight / 2, tol = 8;
     const rects = blocks.map(b => b.getBoundingClientRect());
-    let i = -1;
-    if (dir > 0) {   // next = first verse that STARTS below the middle line (a tall verse aligned to the top can't pick itself again)
-        i = contentBox.scrollTop < 5 ? 0 : rects.findIndex(r => r.top > mid + tol);
-        if (i < 0) return;                                            // already at the last verse
-    } else {         // previous = last verse that ENDS above the middle line
-        for (let k = rects.length - 1; k >= 0; k--) if (rects[k].bottom < mid - tol) { i = k; break; }
-        if (i < 0) {                                                  // above the first verse: back to the top
-            blocks.forEach(b => b.classList.remove("verse-focus"));
-            syncUserScrollUntil = 0; smoothScrollTo(0, 450); return;
-        }
+    let a = blocks.findIndex(b => b.classList.contains("verse-focus"));
+    if (a < 0) a = blocks.findIndex(b => b.classList.contains("verse-active"));
+    const onScreen = a >= 0 && rects[a].bottom > box.top && rects[a].top < box.bottom;
+    let i;
+    if (onScreen) i = a + dir;
+    else if (dir > 0) i = contentBox.scrollTop < 5 ? 0 : rects.findIndex(r => r.top > mid + tol);   // nothing selected yet: first verse
+    else { i = -1; for (let k = rects.length - 1; k >= 0; k--) if (rects[k].bottom < mid - tol) { i = k; break; } }
+    if (i >= blocks.length || (dir > 0 && i < 0)) return;           // already at the last verse
+    if (i < 0) {                                                    // above the first verse: back to the top
+        blocks.forEach(b => b.classList.remove("verse-focus"));
+        syncUserScrollUntil = 0; smoothScrollTo(0, 450); return;
     }
     blocks.forEach(b => b.classList.remove("verse-focus"));
-    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // audio playing: seek; the sync does the scrolling + highlight
-    blocks[i].classList.add("verse-focus");                           // otherwise highlight it here
-    const boxRect = contentBox.getBoundingClientRect(), blkRect = blocks[i].getBoundingClientRect(), avail = contentBox.clientHeight;
+    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // chapter with audio: jump the audio; the sync scrolls + highlights
+    blocks[i].classList.add("verse-focus");                           // no audio: highlight it here and centre it
+    const blkRect = rects[i], avail = contentBox.clientHeight;
     const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
     syncUserScrollUntil = 0;
-    smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 450);
+    smoothScrollTo(contentBox.scrollTop + (blkRect.top - box.top) - wantTop, 450);
 }
 document.getElementById("versePrev").addEventListener("click", () => stepVerse(-1));
 document.getElementById("verseNext").addEventListener("click", () => stepVerse(1));
