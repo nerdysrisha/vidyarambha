@@ -261,7 +261,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
 /* Verse up/down arrows: bottom-right of the text area, just above the nav bar (thumb reach); only while a chapter with verses is open */
-#content-box .end-spacer { height: 75vh; height: 75dvh; }
+#content-box .end-spacer { height: 0; }
 #verseNav { position: absolute; right: 8px; bottom: 12px; z-index: 5; display: none; flex-direction: column; gap: 16px; }
 #verseNav.show { display: flex; }
 #verseNav button { width: 46px; height: 46px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -503,6 +503,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* verse reached with the up/down arrows (same look as the audio highlight, but no dimming of the others) */
 #content-box .verse-block { transition: background-color .5s ease, border-color .5s ease, box-shadow .5s ease; }
+/* each verse fills the whole reading area (down to the nav bar), so only one verse is on screen and the next one starts below the fold */
+#content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 10px - 16px + 2px); }   /* 10 = TOP_PAD, 16 = gap between verses */
 #content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
 
 /* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
@@ -1540,6 +1542,11 @@ function placeCopyBtn() {   // sit just below the audio dock (if any), top-right
 }
 if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
+
+// keep the reading-area height in a CSS variable (used by .verse-block min-height)
+function setAreaH() { contentBox.style.setProperty("--area-h", contentBox.clientHeight + "px"); }
+setAreaH();
+if (window.ResizeObserver) new ResizeObserver(setAreaH).observe(contentBox); else window.addEventListener("resize", setAreaH);
 
 // ── VERSE ARROWS + SNAP ──────────────────────────────────────────────────
 // A verse sits at the TOP of the reading area. Down = the next verse that starts below the top line, Up = the previous verse
