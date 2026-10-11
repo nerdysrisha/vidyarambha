@@ -51,10 +51,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #sidebar-list {
     flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden;
     padding: 6px 0 10px 0;
-    scrollbar-width: thin; scrollbar-color: #c9922e88 transparent;
+    scrollbar-width: none;
 }
-#sidebar-list::-webkit-scrollbar { width: 6px; }
-#sidebar-list::-webkit-scrollbar-thumb { background: #c9922e88; border-radius: 3px; }
+#sidebar-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 #sidebar-title {
     padding: 14px 16px 10px 16px;
@@ -198,6 +197,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .t-title { font-size: 15px; font-weight: 700; line-height: 1.25; color: #3a2208; }
 /* Search hit (search box is hidden, kept for later) */
 .topic-item.search-match { background: #fff0cc; box-shadow: inset 4px 0 0 #d8b46a, inset 0 0 0 1px rgba(122,74,18,0.35); }
+/* LAST READ (phones, after Start): soft highlight + small tag, the chapter is not opened until you tap it */
+.topic-item.last-read { background: #fff3d6; box-shadow: inset 0 0 0 1.5px #c9922e99, 0 1px 3px rgba(0,0,0,0.18); }
+.topic-item.last-read::after { content: "Last read"; flex: none; font: 700 10.5px/1 system-ui, sans-serif; letter-spacing: 0.04em; color: #7a4a12; background: #ffe3a8; padding: 4px 8px; border-radius: 999px; }
 /* SELECTED chapter: gold ring around the row + thicker gold ring on the icon */
 .topic-item.active { background: #fff0cc; box-shadow: inset 0 0 0 2px #c9922e, 0 1px 4px rgba(0,0,0,0.3); }
 .topic-item.active .t-icon { box-shadow: 0 0 0 2px #fff0cc, 0 0 0 4px #c9922e; }
@@ -257,8 +259,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #copyBtn:hover { opacity: 1; }
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
-#content-box::-webkit-scrollbar { width: 9px; }
-#content-box::-webkit-scrollbar-thumb { background: #e4dcc8; border-radius: 5px; }
+#content-box { scrollbar-width: none; }
+#content-box::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* Title block for a topic */
 #content-box h1 {
@@ -578,6 +580,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 1.08rem; line-height: 1.95; color: #2b2b2b;      /* same size / spacing / colour as the verse */
 }
 #content-box .mtab-panel[hidden] { display: none; }
+/* closed state: the tabs sit on a slim blank strip (one line); tapping a tab opens its text downwards */
+#content-box .mtab-closed { height: 1.6rem; background: #fff; border: 1px solid #c9a15a; border-radius: 0 12px 12px 12px; position: relative; z-index: 2; }
+#content-box .mtab-closed[hidden] { display: none; }
 #content-box .mtab-panel .lbl { display: none; }
 #content-box .mtab-panel .verse-translation,
 #content-box .mtab-panel .verse-purport { background: none; border: none; border-radius: 0; padding: 0; margin: 0; text-align: justify; font-size: inherit; line-height: inherit; color: inherit; }
@@ -1253,6 +1258,9 @@ function enhanceMeanings() {
         const bar = document.createElement("div");
         bar.className = "mtab-bar"; bar.setAttribute("role", "tablist");
         box.appendChild(bar);
+        const closed = document.createElement("div");
+        closed.className = "mtab-closed";
+        box.appendChild(closed);
         const tabs = {}, panels = {};
         items.forEach(it => {
             const tab = document.createElement("button");
@@ -1263,24 +1271,24 @@ function enhanceMeanings() {
             panel.appendChild(it.el);
             box.appendChild(panel);
             tabs[it.key] = tab; panels[it.key] = panel;
-            tab.addEventListener("click", e => { e.stopPropagation(); show(it.key); });   // switching tabs must not start the audio
+            tab.addEventListener("click", e => { e.stopPropagation(); show(box.dataset.active === it.key ? null : it.key); });   // switching tabs must not start the audio
         });
-        const show = key => {
-            box.dataset.active = key;
+        const show = key => {   // key = "te" / "en" to open that meaning, null to fold everything back to the blank strip
+            box.dataset.active = key || "";
+            closed.hidden = !!key;
             items.forEach(it => {
                 const on = it.key === key;
                 tabs[it.key].setAttribute("aria-selected", on ? "true" : "false");
-                tabs[it.key].tabIndex = on ? 0 : -1;
                 panels[it.key].hidden = !on;
             });
         };
         bar.addEventListener("keydown", e => {
             if (items.length < 2 || (e.key !== "ArrowLeft" && e.key !== "ArrowRight")) return;
-            const next = items.find(it => it.key !== box.dataset.active);
-            show(next.key); tabs[next.key].focus(); e.preventDefault();
+            const other = items.find(it => tabs[it.key] !== document.activeElement) || items[0];
+            tabs[other.key].focus(); e.preventDefault();   // arrows only move between the tabs; Enter / Space opens
         });
         box.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
-        show(items[0].key);
+        show(null);   // default: closed
         block.appendChild(box);
     });
 }
@@ -1434,7 +1442,7 @@ function loadTopic(flatIndex) {
     stopAudioSync();   // (added) stop previous topic's audio
     if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
-    flatTopics.forEach(t => t.el.classList.remove("active"));
+    flatTopics.forEach(t => t.el.classList.remove("active", "last-read"));
     topic.el.classList.add("active");
     topic.el.scrollIntoView({ block: "nearest" });
 
@@ -1659,8 +1667,7 @@ fsBtn.addEventListener("click", () => {
     }
 });
 document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
-    //if (!document.fullscreenElement) setReading(false);
-    setReading(!!document.fullscreenElement);   // icon follows the real state, so Start's full screen shows "shrink"
+    if (!document.fullscreenElement) setReading(false);
     setTimeout(fitVerses, 250);
 });
 
@@ -1694,12 +1701,18 @@ document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
 
-// REOPEN: on page open, go straight to the last chapter you were reading (does nothing on a first visit)
+// REOPEN: phones: stay on the chapter list (after Start) with the last-read chapter highlighted and scrolled into view;
+// desktop: go straight to the last chapter (the list is visible beside it). Does nothing on a first visit.
 (function () {
     let last = null;
     try { last = localStorage.getItem(LAST_KEY); } catch (e) {}
     const i = flatTopics.findIndex(t => t.path === last);
-    if (i >= 0) loadTopic(i);
+    if (i < 0) return;
+    if (window.matchMedia("(max-width: 700px)").matches) {
+        const el = flatTopics[i].el;
+        el.classList.add("last-read");
+        el.scrollIntoView({ block: "center" });
+    } else loadTopic(i);
 })();
 // ── START SCREEN (phones only) ───────────────────────────────────────────
 // Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
