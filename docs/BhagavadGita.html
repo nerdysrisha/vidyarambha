@@ -261,12 +261,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
 /* Verse up/down arrows: bottom-right of the text area, just above the nav bar (thumb reach); only while a chapter with verses is open */
-#verseNav { position: absolute; right: 8px; bottom: 12px; z-index: 5; display: none; flex-direction: column; gap: 6px; }
+#content-box .end-spacer { height: 75vh; height: 75dvh; }
+#verseNav { position: absolute; right: 8px; bottom: 12px; z-index: 5; display: none; flex-direction: column; gap: 16px; }
 #verseNav.show { display: flex; }
-#verseNav button { width: 34px; height: 34px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+#verseNav button { width: 46px; height: 46px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.65; box-shadow: 0 1px 4px rgba(0,0,0,0.25); -webkit-tap-highlight-color: transparent; }
 #verseNav button:hover, #verseNav button:active { opacity: 1; }
-#verseNav svg { width: 18px; height: 18px; }
+#verseNav svg { width: 24px; height: 24px; }
 #content-box { scrollbar-width: none; }
 #content-box::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
@@ -983,6 +984,7 @@ document.getElementById("sidebar-count").textContent = flatTopics.length + " Cha
 // (Scripts inside fetched pages do not run, so this logic lives here.)
 let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
 let syncUserScrollUntil = 0;
+const TOP_PAD = 10;   // a verse is aligned this many px below the top of the reading area
 const MANUAL_SCROLL_PAUSE_MS = 5000;
 const contentPanel = document.getElementById("content-panel");
 const audioDock    = document.getElementById("audio-dock");
@@ -1221,10 +1223,7 @@ function initAudioSync() {
     function scrollToBlock(block) {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
-        const avail = contentBox.clientHeight;
-        // block taller than the visible area: align its top; otherwise centre it
-        const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
-        smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - wantTop, 900);
+        smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - TOP_PAD, 900);   // verse goes to the top
     }
 
     function update(forceScroll) {
@@ -1316,7 +1315,7 @@ function enhanceMeanings() {
             tabs[other.key].focus(); e.preventDefault();   // arrows only move between the tabs; Enter / Space opens
         });
         box.addEventListener("click", e => e.stopPropagation());   // reading a meaning must not start the audio either
-        show(null);   // default: closed
+        show(items.some(it => it.key === "te") ? "te" : null);   // default: Telugu open; tap a tab again to fold it
         block.appendChild(box);
     });
 }
@@ -1495,7 +1494,9 @@ function loadTopic(flatIndex) {
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
-            document.getElementById("verseNav").classList.toggle("show", !!contentBox.querySelector(".verse-block"));
+            const hasVerses = !!contentBox.querySelector(".verse-block");
+            document.getElementById("verseNav").classList.toggle("show", hasVerses);
+            if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
             pageLoaded = true; markBookmark(topic);   // BOOKMARK: draw the dog-ear if it is in this chapter
@@ -1540,36 +1541,65 @@ function placeCopyBtn() {   // sit just below the audio dock (if any), top-right
 if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
 
-// ── VERSE ARROWS ─────────────────────────────────────────────────────────
-// Steps by INDEX from the verse you are on (the highlighted one), so it works the same on short and tall chapters, even near the
-// top/bottom where a verse cannot be centred. If that verse is no longer on screen (you scrolled away), it uses the middle line instead.
-// With audio on the page, the audio jumps to the verse (the sync scrolls + highlights); without audio the verse is highlighted here.
+// ── VERSE ARROWS + SNAP ──────────────────────────────────────────────────
+// A verse sits at the TOP of the reading area. Down = the next verse that starts below the top line, Up = the previous verse
+// that starts above it (inside a long verse, Up first returns to its start). With audio on the page the audio jumps to the verse
+// (the sync scrolls + highlights it); without audio the verse is highlighted here.
+function topOf(rect, box) { return contentBox.scrollTop + (rect.top - box.top) - TOP_PAD; }
 function stepVerse(dir) {
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (!blocks.length) return;
-    const box = contentBox.getBoundingClientRect();
-    const mid = box.top + contentBox.clientHeight / 2, tol = 8;
+    const box = contentBox.getBoundingClientRect(), line = box.top + TOP_PAD, tol = 8;
     const rects = blocks.map(b => b.getBoundingClientRect());
-    let a = blocks.findIndex(b => b.classList.contains("verse-focus"));
-    if (a < 0) a = blocks.findIndex(b => b.classList.contains("verse-active"));
-    const onScreen = a >= 0 && rects[a].bottom > box.top && rects[a].top < box.bottom;
-    let i;
-    if (onScreen) i = a + dir;
-    else if (dir > 0) i = contentBox.scrollTop < 5 ? 0 : rects.findIndex(r => r.top > mid + tol);   // nothing selected yet: first verse
-    else { i = -1; for (let k = rects.length - 1; k >= 0; k--) if (rects[k].bottom < mid - tol) { i = k; break; } }
-    if (i >= blocks.length || (dir > 0 && i < 0)) return;           // already at the last verse
-    if (i < 0) {                                                    // above the first verse: back to the top
-        blocks.forEach(b => b.classList.remove("verse-focus"));
-        syncUserScrollUntil = 0; smoothScrollTo(0, 450); return;
+    let i = -1;
+    if (dir > 0) {
+        i = rects.findIndex(r => r.top > line + tol);
+        if (i < 0) return;                                            // already at the last verse
+    } else {
+        for (let k = rects.length - 1; k >= 0; k--) if (rects[k].top < line - tol) { i = k; break; }
+        if (i < 0) {                                                  // above the first verse: back to the very top
+            blocks.forEach(b => b.classList.remove("verse-focus"));
+            syncUserScrollUntil = 0; smoothScrollTo(0, 700); return;
+        }
     }
     blocks.forEach(b => b.classList.remove("verse-focus"));
-    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) return;       // chapter with audio: jump the audio; the sync scrolls + highlights
-    blocks[i].classList.add("verse-focus");                           // no audio: highlight it here and centre it
-    const blkRect = rects[i], avail = contentBox.clientHeight;
-    const wantTop = blkRect.height > avail - 16 ? 8 : (avail - blkRect.height) / 2;
     syncUserScrollUntil = 0;
-    smoothScrollTo(contentBox.scrollTop + (blkRect.top - box.top) - wantTop, 450);
+    if (window.gitaSyncSeek && window.gitaSyncSeek(i)) {              // chapter with audio: the audio jumps, the sync highlights + scrolls
+        if (blocks[i].classList.contains("verse-active")) smoothScrollTo(topOf(rects[i], box), 700);   // same verse already active: scroll ourselves
+        return;
+    }
+    blocks[i].classList.add("verse-focus");
+    smoothScrollTo(topOf(rects[i], box), 700);
 }
+
+// When scrolling stops, glide to the nearest verse top (or the chapter top). Not while a finger is down, and not inside a long
+// verse (e.g. English open): there it only snaps once the next verse is close.
+let touchingBox = false, snapTimer = null;
+function snapToNearest() {
+    if (touchingBox || scrollAnim) return;
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    if (!blocks.length) return;
+    const box = contentBox.getBoundingClientRect(), h = contentBox.clientHeight, cur = contentBox.scrollTop;
+    let best = { target: 0, el: null }, bestD = -cur;                 // the chapter top is a snap point too
+    blocks.forEach(b => {
+        const r = b.getBoundingClientRect(), target = topOf(r, box), d = target - cur;
+        if (d < 0 && r.bottom > box.bottom + 4) return;               // still inside a tall verse: don't pull back to its start
+        if (Math.abs(d) < Math.abs(bestD)) { best = { target, el: b }; bestD = d; }
+    });
+    if (Math.abs(bestD) > h * 0.35) return;                           // not near any verse: leave it where the reader stopped
+    if (!window.gitaSyncSeek) {                                       // no audio: highlight the verse at the top
+        blocks.forEach(b => b.classList.remove("verse-focus"));
+        if (best.el) best.el.classList.add("verse-focus");
+    }
+    if (Math.abs(bestD) < 2) return;
+    syncUserScrollUntil = 0;
+    smoothScrollTo(best.target, 500);
+}
+contentBox.addEventListener("scroll", () => { clearTimeout(snapTimer); snapTimer = setTimeout(snapToNearest, 160); }, { passive: true });
+contentBox.addEventListener("touchstart", () => { touchingBox = true; }, { passive: true });
+["touchend", "touchcancel"].forEach(ev => contentBox.addEventListener(ev, () => {
+    touchingBox = false; clearTimeout(snapTimer); snapTimer = setTimeout(snapToNearest, 160);
+}, { passive: true }));
 document.getElementById("versePrev").addEventListener("click", () => stepVerse(-1));
 document.getElementById("verseNext").addEventListener("click", () => stepVerse(1));
 
