@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1018">
+<title>MyInfo</title>
+<style>
+:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);min-height:56px}
+header h1{flex:1;margin:0;font-size:19px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#count{color:var(--mute);font-size:14px}
+button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
+button:active{background:var(--line)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
+button[hidden]{display:none}
+#list{flex:1;overflow-y:auto;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
+#q{width:100%;height:44px;margin-bottom:10px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
+.cat{margin-bottom:8px}
+.cat>button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-weight:650;font-size:17px;text-align:left}
+.cat>button i{font-style:normal;color:var(--mute);transition:transform .15s}
+.cat.open>button i{transform:rotate(90deg)}
+.topics{display:none;padding:6px 0 4px 14px;border-left:2px solid var(--line);margin-left:10px}
+.cat.open .topics{display:block}
+.topic{display:block;width:100%;height:auto;min-height:52px;margin-top:6px;padding:8px 14px;text-align:left;background:transparent}
+.topic b{display:block;font-weight:600;font-size:16px}
+.topic small{color:var(--mute)}
+.empty{color:var(--mute);padding:8px 14px}
+#viewer{flex:1;min-height:0;position:relative;display:none}
+#slides,#page{height:100%;overflow-y:auto}
+#slides{scroll-snap-type:y mandatory;scrollbar-width:none}
+#slides::-webkit-scrollbar{display:none}
+.slide{height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:grid;place-items:center;padding:6px}
+.slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+#page{padding:12px 14px 24px;line-height:1.5}
+#page img{max-width:100%;height:auto;display:block;margin:10px 0;border-radius:6px}
+#page h1,#page h2,#page h3{margin:.6em 0 .3em}
+#arrows{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
+#arrows button{width:48px;height:48px;border-radius:50%;background:#0a1018cc;font-size:20px}
+footer{display:none;gap:8px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+footer span{flex:1;text-align:center;color:var(--mute);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.view #viewer,body.view footer{display:flex}body.view #viewer{display:block}body.view #list{display:none}
+#zoom{position:fixed;inset:0;background:#000;display:none;touch-action:none;overflow:hidden;z-index:9}
+#zoom img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+#zoom button{position:absolute;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:2;border-radius:50%;background:#0a1018cc}
+.msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <button id="back" aria-label="Back" hidden>&#8249;</button>
+    <h1 id="title">MyInfo</h1>
+    <span id="count"></span>
+  </header>
+  <div id="list"><input id="q" type="search" placeholder="Search topics..." autocomplete="off"><div id="cats"></div></div>
+  <div id="viewer">
+    <div id="slides"></div>
+    <div id="page" hidden></div>
+    <div id="arrows"><button id="up" aria-label="Previous image">&#9650;</button><button id="down" aria-label="Next image">&#9660;</button></div>
+  </div>
+  <footer>
+    <button id="prevT" aria-label="Previous topic">&#8249;</button>
+    <span id="tname"></span>
+    <button id="nextT" aria-label="Next topic">&#8250;</button>
+  </footer>
+</div>
+<div id="zoom"><button id="zclose" aria-label="Close">&#10005;</button><img alt=""></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Everything lives under docs/subjects/myinfo/
+//   "img"  topic -> subjects/myinfo/<cat-slug>/<topic-slug>/1.webp ... N.webp   (N = last item of the row)
+//   "html" topic (optional, only for text/captions) -> subjects/myinfo/<cat-slug>/<topic-slug>.html  (use FULL paths for <img> inside it)
+// Row: [slug, label, desc, keywords, type, count]
+const BASE_URL = "subjects/myinfo/";
+const IMG_EXT = "webp";
+
+const categories = [
+    {
+        name: "Home Designs",
+        slug: "home-designs",
+        topics: [
+            ["balcony-designs", "Balcony Designs", "Balcony ideas", "balcony terrace plants seating", "img", 6]
+            // ["sofa-designs", "Sofa Designs", "", "sofa couch living room", "img", 8]
+        ]
+    },
+    {
+        name: "Lisbon Transport",
+        slug: "lisbon-transport",
+        topics: [
+            ["ferry-timings", "Ferry Timings", "Cacilhas, Montijo, Seixal", "ferry cacilhas montijo seixal timetable boat", "img", 4],
+            ["metro-map", "Metro Map", "", "metro map lines subway", "img", 2]
+        ]
+    }
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const flat = [];
+let cur = -1;
+
+categories.forEach(cat => {
+    const block = document.createElement("div"); block.className = "cat open";
+    const head = document.createElement("button");
+    head.innerHTML = "<span></span><i>&#8250;</i>"; head.firstChild.textContent = cat.name;
+    head.onclick = () => block.classList.toggle("open");
+    const list = document.createElement("div"); list.className = "topics";
+    if (!cat.topics.length) list.innerHTML = '<div class="empty">No topics yet</div>';
+    cat.topics.forEach(([slug, label, desc, kw, ext, n]) => {
+        const t = {cat, slug, label, ext: ext || "html", n: n || 0, key: norm(cat.name + " " + label + " " + (kw || ""))};
+        const b = document.createElement("button"); b.className = "topic";
+        b.innerHTML = "<b></b><small></small>";
+        b.firstChild.textContent = label;
+        b.lastChild.textContent = desc || (t.ext === "img" ? t.n + " images" : "");
+        if (!b.lastChild.textContent) b.lastChild.remove();
+        t.el = b; t.idx = flat.length; flat.push(t);
+        b.onclick = () => { location.hash = cat.slug + "/" + slug; };
+        list.appendChild(b);
+    });
+    block.append(head, list); block.dataset.n = cat.topics.length;
+    $("cats").appendChild(block);
+});
+
+$("q").addEventListener("input", () => {
+    const q = norm($("q").value.trim());
+    document.querySelectorAll(".cat").forEach(b => {
+        let any = false;
+        b.querySelectorAll(".topic").forEach(el => {
+            const t = flat.find(x => x.el === el), hit = !q || t.key.includes(q);
+            el.style.display = hit ? "" : "none"; any = any || hit;
+        });
+        b.style.display = any || (!q && +b.dataset.n === 0) ? "" : "none";
+        if (q && any) b.classList.add("open");
+    });
+});
+
+// ── ROUTING (phone back button works: list -> topic) ────────────────────
+window.addEventListener("hashchange", route);
+function route() {
+    const [c, s] = location.hash.slice(1).split("/");
+    const i = flat.findIndex(t => t.cat.slug === c && t.slug === s);
+    $("zoom").style.display = "none";
+    document.body.classList.toggle("view", i >= 0);
+    $("back").hidden = i < 0;
+    if (i < 0) { cur = -1; $("title").textContent = "MyInfo"; $("count").textContent = ""; return; }
+    show(i);
+}
+$("back").onclick = () => { location.hash = ""; };
+
+function show(i) {
+    cur = i; const t = flat[i], isImg = t.ext === "img";
+    $("title").textContent = t.label;
+    $("tname").textContent = (i + 1) + " / " + flat.length + "  \u00B7  " + t.cat.name;
+    $("prevT").disabled = i === 0; $("nextT").disabled = i === flat.length - 1;
+    $("slides").hidden = !isImg; $("page").hidden = isImg; $("arrows").hidden = !isImg;
+    const s = $("slides"), p = $("page");
+    s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("count").textContent = "";
+    const dir = BASE_URL + t.cat.slug + "/";
+    if (isImg) {
+        if (!t.n) s.innerHTML = '<div class="msg">Add a count to this topic row.</div>';
+        for (let k = 1; k <= t.n; k++) {
+            const d = document.createElement("div"); d.className = "slide";
+            const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
+            if (k > 2) im.loading = "lazy";
+            im.onerror = () => { d.innerHTML = '<div class="msg">' + k + "." + IMG_EXT + " not found</div>"; };
+            im.onclick = () => openZoom(im.src);
+            im.src = dir + t.slug + "/" + k + "." + IMG_EXT;
+            d.appendChild(im); s.appendChild(d);
+        }
+        updateCount();
+    } else {
+        p.innerHTML = '<div class="msg">Loading...</div>';
+        fetch(dir + t.slug + ".html").then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+            .then(h => { if (cur === i) p.innerHTML = h; })
+            .catch(e => { if (cur === i) p.innerHTML = '<div class="msg">' + e.message + "<br>" + dir + t.slug + ".html</div>"; });
+    }
+}
+$("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZoom(e.target.src); });
+
+// ── IMAGE STEPPING (up/down arrows) ─────────────────────────────────────
+function updateCount() {
+    const s = $("slides"), n = s.children.length;
+    const i = Math.round(s.scrollTop / Math.max(1, s.clientHeight));
+    $("count").textContent = n ? (i + 1) + " / " + n : "";
+    $("up").style.visibility = i > 0 ? "visible" : "hidden";
+    $("down").style.visibility = i < n - 1 ? "visible" : "hidden";
+}
+$("slides").addEventListener("scroll", updateCount, {passive: true});
+const step = d => { const s = $("slides"); s.scrollBy({top: d * s.clientHeight, behavior: "smooth"}); };
+$("up").onclick = () => step(-1); $("down").onclick = () => step(1);
+function topicStep(d) {
+    const j = cur + d; if (j < 0 || j >= flat.length) return;
+    location.replace("#" + flat[j].cat.slug + "/" + flat[j].slug);
+}
+$("prevT").onclick = () => topicStep(-1); $("nextT").onclick = () => topicStep(1);
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT") return;
+    if ($("zoom").style.display === "block") { if (e.key === "Escape") $("zoom").style.display = "none"; return; }
+    if (cur < 0) return;
+    const img = flat[cur].ext === "img";
+    if (e.key === "ArrowUp" && img) { e.preventDefault(); step(-1); }
+    else if (e.key === "ArrowDown" && img) { e.preventDefault(); step(1); }
+    else if (e.key === "ArrowLeft") topicStep(-1);
+    else if (e.key === "ArrowRight") topicStep(1);
+    else if (e.key === "Escape") location.hash = "";
+});
+
+// ── ZOOM: pinch, drag, double-tap, wheel ────────────────────────────────
+const Z = $("zoom"), zi = Z.querySelector("img");
+let sc = 1, tx = 0, ty = 0, d0 = 0, s0 = 1, p0 = null, lastTap = 0, md = null;
+const paint = () => { zi.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + sc + ")"; };
+function openZoom(src) { zi.src = src; sc = 1; tx = ty = 0; paint(); Z.style.display = "block"; }
+$("zclose").onclick = () => { Z.style.display = "none"; };
+const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+Z.addEventListener("touchstart", e => {
+    if (e.touches.length === 2) { d0 = dist(e.touches); s0 = sc; p0 = null; }
+    else if (e.touches.length === 1) {
+        p0 = {x: e.touches[0].clientX - tx, y: e.touches[0].clientY - ty};
+        const now = Date.now();
+        if (now - lastTap < 300 && e.target === zi) { sc = sc > 1 ? 1 : 2.5; if (sc === 1) tx = ty = 0; paint(); }
+        lastTap = now;
+    }
+}, {passive: false});
+Z.addEventListener("touchmove", e => {
+    e.preventDefault();
+    if (e.touches.length === 2) sc = Math.min(6, Math.max(1, s0 * dist(e.touches) / d0));
+    else if (p0 && sc > 1) { tx = e.touches[0].clientX - p0.x; ty = e.touches[0].clientY - p0.y; }
+    paint();
+}, {passive: false});
+Z.addEventListener("touchend", () => { if (sc <= 1) { sc = 1; tx = ty = 0; paint(); } });
+Z.addEventListener("wheel", e => { e.preventDefault(); sc = Math.min(6, Math.max(1, sc * (e.deltaY < 0 ? 1.15 : 0.87))); if (sc === 1) tx = ty = 0; paint(); }, {passive: false});
+Z.addEventListener("mousedown", e => { if (sc > 1) md = {x: e.clientX - tx, y: e.clientY - ty}; });
+window.addEventListener("mousemove", e => { if (md) { tx = e.clientX - md.x; ty = e.clientY - md.y; paint(); } });
+window.addEventListener("mouseup", () => { md = null; });
+
+route();
+</script>
+</body>
+</html>
