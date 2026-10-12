@@ -31,18 +31,22 @@ button[hidden]{display:none}
 .empty{color:var(--mute);padding:8px 14px}
 #viewer{flex:1;min-height:0;position:relative;display:none}
 #slides,#page{height:100%;overflow-y:auto}
-#slides{scroll-snap-type:y mandatory;scrollbar-width:none}
+/* mandatory snap WITHOUT scroll-snap-stop: slow swipe = next image, fast fling = glides past several and settles on one */
+#slides{scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
 #slides::-webkit-scrollbar{display:none}
-.slide{height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:grid;place-items:center;padding:6px}
+.slide{height:100%;scroll-snap-align:start;display:grid;place-items:center;padding:6px}
 .slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
 #page{padding:12px 14px 24px;line-height:1.5}
 #page img{max-width:100%;height:auto;display:block;margin:10px 0;border-radius:6px}
 #page h1,#page h2,#page h3{margin:.6em 0 .3em}
-#arrows{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
-#arrows button{width:48px;height:48px;border-radius:50%;background:#0a1018cc;font-size:20px}
 footer{display:none;gap:8px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 footer span{flex:1;text-align:center;color:var(--mute);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-body.view #viewer,body.view footer{display:flex}body.view #viewer{display:block}body.view #list{display:none}
+body.view #viewer{display:block}body.view footer{display:flex}body.view #list{display:none}
+/* maximize: hide bars, show a small floating exit button */
+#fsx{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
+body.max header,body.max footer{display:none!important}
+body.max #fsx{display:block}
+body.max #app{padding-top:0}
 #zoom{position:fixed;inset:0;background:#000;display:none;touch-action:none;overflow:hidden;z-index:9}
 #zoom img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
 #zoom button{position:absolute;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:2;border-radius:50%;background:#0a1018cc}
@@ -52,15 +56,15 @@ body.view #viewer,body.view footer{display:flex}body.view #viewer{display:block}
 <body>
 <div id="app">
   <header>
-    <button id="back" aria-label="Back" hidden>&#8249;</button>
+    <button id="menu" aria-label="Topics">&#9776;</button>
     <h1 id="title">MyInfo</h1>
     <span id="count"></span>
+    <button id="max" aria-label="Maximize" hidden>&#9974;</button>
   </header>
   <div id="list"><input id="q" type="search" placeholder="Search topics..." autocomplete="off"><div id="cats"></div></div>
   <div id="viewer">
     <div id="slides"></div>
     <div id="page" hidden></div>
-    <div id="arrows"><button id="up" aria-label="Previous image">&#9650;</button><button id="down" aria-label="Next image">&#9660;</button></div>
   </div>
   <footer>
     <button id="prevT" aria-label="Previous topic">&#8249;</button>
@@ -68,14 +72,15 @@ body.view #viewer,body.view footer{display:flex}body.view #viewer{display:block}
     <button id="nextT" aria-label="Next topic">&#8250;</button>
   </footer>
 </div>
+<button id="fsx" aria-label="Exit full screen">&#10005;</button>
 <div id="zoom"><button id="zclose" aria-label="Close">&#10005;</button><img alt=""></div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-// Everything lives under docs/subjects/myinfo/
-//   "img"  topic -> subjects/myinfo/<cat-slug>/<topic-slug>/1.webp ... N.webp   (N = last item of the row)
-//   "html" topic (optional, only for text/captions) -> subjects/myinfo/<cat-slug>/<topic-slug>.html  (use FULL paths for <img> inside it)
-// Row: [slug, label, desc, keywords, type, count]
+// Files live under docs/subjects/myinfo/<cat-slug>/
+// Row: [slug, label, desc, keywords, count]
+//   count > 0  -> IMAGE topic: shows <cat-slug>/<slug>/1.webp ... <count>.webp   (no html file needed)
+//   count = 0  -> PAGE topic:  loads <cat-slug>/<slug>.html   (use FULL paths for <img> inside it)
 const BASE_URL = "subjects/myinfo/";
 const IMG_EXT = "webp";
 
@@ -84,16 +89,16 @@ const categories = [
         name: "Home Designs",
         slug: "home-designs",
         topics: [
-            ["balcony-designs", "Balcony Designs", "Balcony ideas", "balcony terrace plants seating", "img", 6]
-            // ["sofa-designs", "Sofa Designs", "", "sofa couch living room", "img", 8]
+            ["balcony-designs", "Balcony Designs", "Balcony ideas", "balcony terrace plants seating", 6]
+            // ["sofa-designs", "Sofa Designs", "", "sofa couch living room", 8]
         ]
     },
     {
         name: "Lisbon Transport",
         slug: "lisbon-transport",
         topics: [
-            ["ferry-timings", "Ferry Timings", "Cacilhas, Montijo, Seixal", "ferry cacilhas montijo seixal timetable boat", "img", 4],
-            ["metro-map", "Metro Map", "", "metro map lines subway", "img", 2]
+            ["ferry-timings", "Ferry Timings", "Cacilhas, Montijo, Seixal", "ferry cacilhas montijo seixal timetable boat", 4],
+            ["metro-map", "Metro Map", "", "metro map lines subway", 2]
         ]
     }
 ];
@@ -102,7 +107,7 @@ const categories = [
 const $ = id => document.getElementById(id);
 const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const flat = [];
-let cur = -1;
+let cur = -1, last = 0;
 
 categories.forEach(cat => {
     const block = document.createElement("div"); block.className = "cat open";
@@ -111,12 +116,13 @@ categories.forEach(cat => {
     head.onclick = () => block.classList.toggle("open");
     const list = document.createElement("div"); list.className = "topics";
     if (!cat.topics.length) list.innerHTML = '<div class="empty">No topics yet</div>';
-    cat.topics.forEach(([slug, label, desc, kw, ext, n]) => {
-        const t = {cat, slug, label, ext: ext || "html", n: n || 0, key: norm(cat.name + " " + label + " " + (kw || ""))};
+    cat.topics.forEach(([slug, label, desc, kw, n]) => {
+        const t = {cat, slug, label, n: n || 0, key: norm(cat.name + " " + label + " " + (kw || ""))};
+        t.isImg = t.n > 0;
         const b = document.createElement("button"); b.className = "topic";
         b.innerHTML = "<b></b><small></small>";
         b.firstChild.textContent = label;
-        b.lastChild.textContent = desc || (t.ext === "img" ? t.n + " images" : "");
+        b.lastChild.textContent = desc || (t.isImg ? t.n + " images" : "");
         if (!b.lastChild.textContent) b.lastChild.remove();
         t.el = b; t.idx = flat.length; flat.push(t);
         b.onclick = () => { location.hash = cat.slug + "/" + slug; };
@@ -146,23 +152,26 @@ function route() {
     const i = flat.findIndex(t => t.cat.slug === c && t.slug === s);
     $("zoom").style.display = "none";
     document.body.classList.toggle("view", i >= 0);
-    $("back").hidden = i < 0;
-    if (i < 0) { cur = -1; $("title").textContent = "MyInfo"; $("count").textContent = ""; return; }
+    $("max").hidden = i < 0;
+    if (i < 0) { cur = -1; setMax(false); $("title").textContent = "MyInfo"; $("count").textContent = ""; return; }
     show(i);
 }
-$("back").onclick = () => { location.hash = ""; };
+// ☰ : topic -> list, list -> back to last topic
+$("menu").onclick = () => {
+    if (cur >= 0) location.hash = "";
+    else if (flat.length) location.hash = flat[last].cat.slug + "/" + flat[last].slug;
+};
 
 function show(i) {
-    cur = i; const t = flat[i], isImg = t.ext === "img";
+    cur = last = i; const t = flat[i], isImg = t.isImg;
     $("title").textContent = t.label;
     $("tname").textContent = (i + 1) + " / " + flat.length + "  \u00B7  " + t.cat.name;
     $("prevT").disabled = i === 0; $("nextT").disabled = i === flat.length - 1;
-    $("slides").hidden = !isImg; $("page").hidden = isImg; $("arrows").hidden = !isImg;
+    $("slides").hidden = !isImg; $("page").hidden = isImg;
     const s = $("slides"), p = $("page");
     s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("count").textContent = "";
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
-        if (!t.n) s.innerHTML = '<div class="msg">Add a count to this topic row.</div>';
         for (let k = 1; k <= t.n; k++) {
             const d = document.createElement("div"); d.className = "slide";
             const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
@@ -182,33 +191,37 @@ function show(i) {
 }
 $("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZoom(e.target.src); });
 
-// ── IMAGE STEPPING (up/down arrows) ─────────────────────────────────────
+// ── IMAGE COUNTER + TOPIC STEPPING ──────────────────────────────────────
 function updateCount() {
     const s = $("slides"), n = s.children.length;
     const i = Math.round(s.scrollTop / Math.max(1, s.clientHeight));
     $("count").textContent = n ? (i + 1) + " / " + n : "";
-    $("up").style.visibility = i > 0 ? "visible" : "hidden";
-    $("down").style.visibility = i < n - 1 ? "visible" : "hidden";
 }
 $("slides").addEventListener("scroll", updateCount, {passive: true});
-const step = d => { const s = $("slides"); s.scrollBy({top: d * s.clientHeight, behavior: "smooth"}); };
-$("up").onclick = () => step(-1); $("down").onclick = () => step(1);
 function topicStep(d) {
     const j = cur + d; if (j < 0 || j >= flat.length) return;
     location.replace("#" + flat[j].cat.slug + "/" + flat[j].slug);
 }
 $("prevT").onclick = () => topicStep(-1); $("nextT").onclick = () => topicStep(1);
 
+// ── MAXIMIZE ────────────────────────────────────────────────────────────
+function setMax(on) {
+    document.body.classList.toggle("max", on);
+    const r = document.documentElement;
+    if (on && r.requestFullscreen) r.requestFullscreen().catch(() => {});
+    else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+}
+$("max").onclick = () => setMax(true);
+$("fsx").onclick = () => setMax(false);
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) document.body.classList.remove("max"); });
+
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT") return;
     if ($("zoom").style.display === "block") { if (e.key === "Escape") $("zoom").style.display = "none"; return; }
     if (cur < 0) return;
-    const img = flat[cur].ext === "img";
-    if (e.key === "ArrowUp" && img) { e.preventDefault(); step(-1); }
-    else if (e.key === "ArrowDown" && img) { e.preventDefault(); step(1); }
-    else if (e.key === "ArrowLeft") topicStep(-1);
+    if (e.key === "ArrowLeft") topicStep(-1);
     else if (e.key === "ArrowRight") topicStep(1);
-    else if (e.key === "Escape") location.hash = "";
+    else if (e.key === "Escape" && !document.body.classList.contains("max")) location.hash = "";
 });
 
 // ── ZOOM: pinch, drag, double-tap, wheel ────────────────────────────────
