@@ -80,6 +80,10 @@ body.max #app{padding-top:0}
 //   count = 0  -> PAGE topic:  loads <cat-slug>/<slug>.html   (use FULL paths for <img> inside it)
 const BASE_URL = "subjects/myinfo/";
 const IMG_EXT = "webp";
+// The count in each row is a MAXIMUM. The page checks which images really exist
+// and only shows those (e.g. count 40 with 30 files -> 30 slides).
+// WRAP = true : swiping past the last image goes back to the first (and vice versa).
+const WRAP = true;
 
 const categories = [
     {
@@ -161,6 +165,17 @@ function route() {
 // ☰ : always opens the topic list
 $("menu").onclick = () => { if (cur >= 0) location.hash = ""; };
 
+// Finds how many images 1..max actually exist (binary search, ~6 quick probes for 40)
+const loads = src => new Promise(res => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = src; });
+async function countImages(base, max) {
+    let lo = 0, hi = max;
+    while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (await loads(base + mid + "." + IMG_EXT)) lo = mid; else hi = mid - 1;
+    }
+    return lo;
+}
+
 function show(i) {
     cur = i; const t = flat[i], isImg = t.isImg;
     $("lbl").textContent = t.label;
@@ -170,16 +185,23 @@ function show(i) {
     s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("cnt").textContent = "";
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
-        for (let k = 1; k <= t.n; k++) {
-            const d = document.createElement("div"); d.className = "slide";
-            const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
-            if (k > 2) im.loading = "lazy";
-            im.onerror = () => { d.innerHTML = '<div class="msg">' + k + "." + IMG_EXT + " not found</div>"; };
-            im.onclick = () => { if (Date.now() > noClick) openZoom(im.src); };
-            im.src = dir + t.slug + "/" + k + "." + IMG_EXT;
-            d.appendChild(im); s.appendChild(d);
-        }
-        updateCount();
+        const base = dir + t.slug + "/";
+        s.innerHTML = '<div class="msg">Loading...</div>';
+        countImages(base, t.n).then(n => {
+            if (cur !== i) return;                       // user already moved on
+            s.innerHTML = "";
+            if (!n) { s.innerHTML = '<div class="msg">No images found<br>' + base + "1." + IMG_EXT + "</div>"; return; }
+            for (let k = 1; k <= n; k++) {
+                const d = document.createElement("div"); d.className = "slide";
+                const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
+                if (k > 2) im.loading = "lazy";
+                im.onerror = () => { d.innerHTML = '<div class="msg">' + k + "." + IMG_EXT + " not found</div>"; };
+                im.onclick = () => { if (Date.now() > noClick) openZoom(im.src); };
+                im.src = base + k + "." + IMG_EXT;
+                d.appendChild(im); s.appendChild(d);
+            }
+            updateCount();
+        });
     } else {
         p.innerHTML = '<div class="msg">Loading...</div>';
         fetch(dir + t.slug + ".html").then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
@@ -194,6 +216,13 @@ const S = $("slides"); let anim = 0, drag = null, noClick = 0, wheelLock = 0;
 const maxTop = () => Math.max(0, S.scrollHeight - S.clientHeight);
 const idx = () => Math.round(S.scrollTop / Math.max(1, S.clientHeight));
 function goTo(i, ms) {
+    const n = S.children.length;
+    if (WRAP && n > 1 && (i < 0 || i > n - 1)) {          // wrap around: jump to the other end
+        cancelAnimationFrame(anim);
+        S.scrollTop = (((i % n) + n) % n) * S.clientHeight;
+        updateCount();
+        return;
+    }
     i = Math.max(0, Math.min(S.children.length - 1, i));
     const from = S.scrollTop, to = i * S.clientHeight, t0 = performance.now();
     cancelAnimationFrame(anim);
