@@ -412,6 +412,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     background: #111; border: 0; border-radius: 0; padding: 7px 16px; }
 /* Native <audio> controls can't be recoloured, so the element is hidden and driven by the custom player below */
 #audio-dock audio { display: none !important; }
+/* ROUNDED TOP: the dark dock is almost the page colour, so its corners were invisible (only the cream bottom looked rounded).
+   Dock gets real top radius + the panel gets a soft gold outline while the dock is showing. */
+#content-panel { isolation: isolate; }
+#content-panel.has-dock { border-color: #d8b46a66; }
+#audio-dock, #audio-dock .audio-player { border-radius: 20px 20px 0 0; }
 
 /* CUSTOM PLAYER (dark + gold, matches the nav bar) */
 .ap-btn { flex: none; width: 32px; height: 32px; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;
@@ -446,6 +451,19 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     box-shadow: 0 4px 16px rgba(201,161,90,0.38);
     transform: scale(1.02);
 }
+
+/* LIVE-STANZA WAVE: a small gold wave in the top-right corner of the stanza being recited.
+   It flows while audio plays and freezes when paused. (Drawn with ::after so it never affects text fitting or copy.) */
+#content-box .verse-block { position: relative; }
+#content-box.sync-on .verse-block.verse-active::after {
+    content: ""; position: absolute; top: 10px; right: 14px; width: 40px; height: 16px; pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='16' viewBox='0 0 20 16'%3E%3Cpath d='M0 8Q5 0 10 8T20 8' fill='none' stroke='%23c9922e' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 0 / 20px 16px;
+    animation: waveFlow .9s linear infinite; animation-play-state: paused;
+}
+#content-box.sync-on.sync-playing .verse-block.verse-active::after { animation-play-state: running; }
+@keyframes waveFlow { to { background-position-x: 20px; } }
+@media (max-width: 700px) { #content-box.sync-on .verse-block.verse-active::after { top: 6px; right: 8px; } }
+@media (prefers-reduced-motion: reduce) { #content-box.sync-on .verse-block.verse-active::after { animation: none; } }
 
 /* ── BOTTOM NAV BAR: dark, always visible, same #111 / #333 / gold look as the top player dock. ── */
 /* NAV BAR */
@@ -579,11 +597,22 @@ body.speed-open #purportCard.show { opacity: 0.25; }
 #lockHint svg { width: 16px; height: 16px; flex: 0 0 auto; }
 body.touch-locked #content-box .verse-block { cursor: default; }
 @media (min-width: 701px) { body.reading #sidebar { display: none; } }
+/* FULL SCREEN on desktop: soft dark slate surround (not pure black); the reading panel stays light.
+   Only active while the full-screen button is on (script puts class "reading" on <html> and <body>). */
+@media (min-width: 701px) {
+  html.reading, html.reading body { background: radial-gradient(ellipse at 50% 0%, #2d3344 0%, #1f2330 55%, #181b24 100%); }
+  body.reading #content-panel { border-color: #4b546b; box-shadow: 0 12px 44px rgba(0,0,0,0.45); }
+  body.reading #content-panel.has-dock { border-color: #d8b46a88; }
+  body.reading #navbar { background: #242937; border-color: #3d455a; }
+  body.reading #navbar button { background: #2c3242; border-color: #3d455a; }
+  body.reading #counter { color: #9aa3b8; }
+}
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
   #sidebar, #content-panel { border-radius: 16px; }   /* rounded panels on phones too */
+  #audio-dock, #audio-dock .audio-player { border-radius: 16px 16px 0 0; }
   #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 124px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
@@ -620,7 +649,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 }
 
 /* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
-   Put the image at  subjects/spiritual/images/daily-prayers.webp  (or change the URL on the next line). */
+   Pictures by weekday: subjects/spiritual/images/1.webp (Sunday) ... 7.webp (Saturday). daily-prayers.webp is the fallback if a day's file is missing. */
 #start-screen { display: none; --start-img: url("subjects/spiritual/images/daily-prayers.webp"); }
 @media (max-width: 700px) and (pointer: coarse) {
   #start-screen {
@@ -1429,6 +1458,7 @@ const FS_ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const FS_EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';   // corners pointing in = leave full screen
 function setReading(on) {
     document.body.classList.toggle("reading", on);
+    document.documentElement.classList.toggle("reading", on);   // <html> carries its own background, so it needs the class too
     fsBtn.innerHTML = on ? FS_EXIT : FS_ENTER;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
     fsBtn.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
@@ -1589,10 +1619,18 @@ counterEl.textContent = "– / " + flatTopics.length;
     const btn = document.getElementById("start-btn");
     if (!screenEl || !btn) return;
     if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    // PICTURE OF THE DAY: images/1.webp = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday
+    // (uses the device's own date). If today's file is missing, it falls back to images/daily-prayers.webp.
+    const dayImg = BASE_URL + "images/" + (new Date().getDay() + 1) + ".webp";
+    const fallbackImg = BASE_URL + "images/daily-prayers.webp";
+    const setImg = url => screenEl.style.setProperty("--start-img", 'url("' + url + '")');
     // start the bottom-to-top reveal only once the picture has loaded (or after 1.5 s at the latest)
-    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
     const ready = () => screenEl.classList.add("ready");
-    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+    const probe = new Image();
+    probe.onload  = () => { setImg(dayImg); ready(); };
+    probe.onerror = () => { setImg(fallbackImg); const f = new Image(); f.onload = f.onerror = ready; f.src = fallbackImg; };
+    probe.src = dayImg;
+    setTimeout(ready, 1500);
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
