@@ -3480,11 +3480,14 @@ document.getElementById("selectAllBtn").onclick = async () => {
     document.getElementById("start-author").textContent = "\u2014 " + q[1];
 
     // Daily picture: IMG_DIR + "day<day of month>.webp"  (day1.webp ... day31.webp).
-    // If that file is missing it falls back to learning.webp, then to the gradient.
+    // On wide/landscape screens it first tries day<day>-ls.webp (day1-ls.webp ... day31-ls.webp).
+    // If a file is missing it falls back to day<day>.webp, then learning.webp, then to the gradient.
     // Change IMG_DIR if you keep the daily pictures in another folder (keep the trailing slash).
     const IMG_DIR = "subjects/maths/images/";
     const day = new Date().getDate();
-    const candidates = [IMG_DIR + "day" + day + ".webp", IMG_DIR + "learning.webp"];
+    const wide = window.innerWidth > window.innerHeight;   // desktop / landscape screen
+    const candidates = (wide ? [IMG_DIR + "day" + day + "-ls.webp"] : [])
+        .concat([IMG_DIR + "day" + day + ".webp", IMG_DIR + "learning.webp"]);
     const ready = () => screenEl.classList.add("ready");
     let readyDone = false;
     const readyOnce = () => { if (!readyDone) { readyDone = true; ready(); } };
