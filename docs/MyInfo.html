@@ -17,14 +17,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
 button[hidden]{display:none}
 button:disabled{opacity:.3;cursor:default}
 #list{flex:1;overflow-y:auto;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
-#q{width:100%;height:44px;margin-bottom:10px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
 .cat{margin-bottom:8px}
 .cat>button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-weight:650;font-size:17px;text-align:left}
 .cat>button i{font-style:normal;color:var(--mute);transition:transform .15s}
 .cat.open>button i{transform:rotate(90deg)}
-.topics{display:none;padding:6px 0 4px 14px;border-left:2px solid var(--line);margin-left:10px}
+.topics{display:none;padding:0 0 4px 22px;margin-left:18px}
 .cat.open .topics{display:block}
-.topic{display:block;width:100%;height:auto;min-height:52px;margin-top:6px;padding:8px 14px;text-align:left;background:transparent}
+.topic{position:relative;display:block;width:100%;height:auto;min-height:52px;margin-top:6px;padding:8px 14px;text-align:left;background:transparent}
+.topic::before{content:"";position:absolute;left:-22px;top:calc(50% - 1px);width:22px;height:2px;background:var(--line)}
+.topic::after{content:"";position:absolute;left:-22px;top:-6px;bottom:-1px;width:2px;background:var(--line)}
+.topic:last-child::after{bottom:50%}
 .topic b{display:block;font-weight:600;font-size:16px}
 .topic small{color:var(--mute)}
 .empty{color:var(--mute);padding:8px 14px}
@@ -56,7 +58,7 @@ body.max #app{padding-top:0}
 </head>
 <body>
 <div id="app">
-  <div id="list"><input id="q" type="search" placeholder="Search topics..." autocomplete="off"><div id="cats"></div></div>
+  <div id="list"><div id="cats"></div></div>
   <div id="viewer">
     <div id="slides"></div>
     <div id="page" hidden></div>
@@ -131,19 +133,6 @@ categories.forEach(cat => {
     $("cats").appendChild(block);
 });
 
-$("q").addEventListener("input", () => {
-    const q = norm($("q").value.trim());
-    document.querySelectorAll(".cat").forEach(b => {
-        let any = false;
-        b.querySelectorAll(".topic").forEach(el => {
-            const t = flat.find(x => x.el === el), hit = !q || t.key.includes(q);
-            el.style.display = hit ? "" : "none"; any = any || hit;
-        });
-        b.style.display = any || (!q && +b.dataset.n === 0) ? "" : "none";
-        if (q && any) b.classList.add("open");
-    });
-});
-
 // ── ROUTING (phone back button works: list -> topic) ────────────────────
 window.addEventListener("hashchange", route);
 function route() {
@@ -151,9 +140,8 @@ function route() {
     const i = flat.findIndex(t => t.cat.slug === c && t.slug === s);
     $("zoom").style.display = "none";
     document.body.classList.toggle("view", i >= 0);
-    $("max").style.visibility = i < 0 ? "hidden" : "visible";
     if (i < 0) {
-        cur = -1; setMax(false);
+        cur = -1;
         $("cnt").textContent = ""; $("lbl").textContent = "Topics";
         $("prevT").disabled = $("nextT").disabled = true;
         return;
