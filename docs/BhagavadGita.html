@@ -22,8 +22,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 #outer {
     margin: 20px;
-    margin-bottom: 10px;                 /* panels end just above the nav bar, never touching it */
-    height: calc(100vh - 40px - 54px);
+    margin-bottom: 6px;                  /* a thin gap above the nav bar */
+    height: calc(100vh - 40px - 50px);
     display: flex;
     flex-direction: row;
     gap: 14px;
@@ -385,8 +385,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block {
     position: relative;                  /* the "Verse N" tab is pinned to the card's top-left corner */
     max-width: none;
-    margin: 0 0 12px 0;
-    padding: 44px 22px 22px 22px;        /* top room for the corner tab */
+    margin: 0 0 8px 0;
+    padding: 44px 14px 22px 14px;        /* top room for the corner tab */
     background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
     border: 1.5px solid #c9a15a;
     border-radius: 18px;
@@ -459,7 +459,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
    scrolling text, so verses never scroll underneath it. */
 #audio-dock { display: none; flex: none; padding: 0; box-sizing: border-box;
               background: #111; border: 1px solid #333; border-radius: 8px; overflow: hidden; }   /* same look as the nav bar */
-#content-panel.has-dock { display: flex; flex-direction: column; gap: 8px; }
+#content-panel.has-dock { display: flex; flex-direction: column; gap: 0; }
 #content-panel.has-dock #audio-dock { display: block; }
 #content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
 #audio-dock .audio-player { margin: 0 !important; max-width: none; width: 100%; box-sizing: border-box;
@@ -505,7 +505,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* verse reached with the up/down arrows (same look as the audio highlight, but no dimming of the others) */
 #content-box .verse-block { transition: background-color .5s ease, border-color .5s ease, box-shadow .5s ease; }
 /* each verse fills the whole reading area (down to the nav bar), so only one verse is on screen and the next one starts below the fold */
-#content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 10px - 12px + 2px); }   /* 10 = TOP_PAD, 12 = gap between verses */
+#content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 6px); }   /* 6 = TOP_PAD: the card runs from the top gap to the bottom of the area; the next card starts below the fold */
 #content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
 
 /* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
@@ -736,7 +736,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
-  #outer { margin: 4px 4px 4px 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #outer { margin: 4px 4px 6px 4px; gap: 4px; height: calc(100dvh - 58px); }
   #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 84px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
@@ -1009,7 +1009,7 @@ document.getElementById("sidebar-count").textContent = flatTopics.length + " Cha
 // (Scripts inside fetched pages do not run, so this logic lives here.)
 let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
 let syncUserScrollUntil = 0;
-const TOP_PAD = 10;   // a verse is aligned this many px below the top of the reading area
+const TOP_PAD = 6;   // a verse is aligned this many px below the top of the reading area
 const MANUAL_SCROLL_PAUSE_MS = 5000;
 const contentPanel = document.getElementById("content-panel");
 const audioDock    = document.getElementById("audio-dock");
@@ -1562,7 +1562,7 @@ function wireCopyButtons() {
 // ── COPY BUTTON ──────────────────────────────────────────────────────────
 const copyBtn = document.getElementById("copyBtn");
 function placeCopyBtn() {   // sit just below the audio dock (if any), top-right of the text area
-    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight + 8 : 0) + 10) + "px";
+    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0) + 8) + "px";
 }
 if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
