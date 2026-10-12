@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
 <title>EveryDayMaths</title>
-<!--v21: shared lesson engine + Telugu & Hindi | v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
+<!--v22: landing page + daily quote, full-screen button in bottom nav, minimal phone top bar | v21: shared lesson engine + Telugu & Hindi | v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
@@ -119,14 +119,15 @@ button:active { transform: scale(0.97); }
 }
 .nav-btn:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
 
-/* MAXIMIZE (full screen) button in the top panel */
-#maxBtn {
-    width: 38px; height: 38px; padding: 0; margin-left: auto; flex-shrink: 0;
+/* MAXIMIZE / MINIMIZE (full screen) button: right end of the bottom nav bar */
+#bottom-nav #maxBtn {
+    position: absolute; right: 16px; top: 50%; margin: -19px 0 0 0;
+    width: 38px; height: 38px; padding: 0; flex-shrink: 0;
     border-radius: 50%; background: transparent; border: 1.5px solid #00c8ff; color: #00c8ff;
     display: inline-flex; align-items: center; justify-content: center; box-shadow: none;
 }
-#maxBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
-#maxBtn svg { width: 20px; height: 20px; display: block; }
+#bottom-nav #maxBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
+#bottom-nav #maxBtn svg { width: 20px; height: 20px; display: block; }
 
 
 /*
@@ -581,14 +582,21 @@ DATEREMOVAL--
 @media (max-width: 700px) {
     #outer { margin: 6px 6px 0 6px; gap: 6px; height: calc(100vh - 6px - 56px); height: calc(100dvh - 6px - 56px); }
     #control-container.shrink { padding: 3px 6px; min-height: 0; }
-    #control-top-bar { margin: 0 !important; gap: 6px; min-height: 0; }
+    #control-top-bar { margin: 0 !important; gap: 6px; min-height: 40px; }
     #control-top-bar label, #control-top-bar span { font-size: 13px !important; }
     #control-top-bar label { gap: 5px !important; }
     #answersShownBadge { font-size: 11px !important; padding: 3px 7px !important; }
     /* #dateBox { font-size: 11px; padding: 3px 6px; }  DATEREMOVAL-- */
     #selectAllBtn { order: -2; }
-    #maxBtn { order: -1; width: 32px; height: 32px; margin-left: 0; }
-    #maxBtn svg { width: 17px; height: 17px; }
+    /* phone top bar = only  All Qs | Show | status message.  Everything else is hidden. */
+    #control-top-bar > label, #jumpSelect, #goTopBtn { display: none !important; }
+    body.allqs-done #selectAllBtn { display: none; }          /* All Qs is only needed once */
+    /* status slot always reserves its space (so nothing jumps); the message appears inside it */
+    #answersShownBadge { display: inline-block !important; visibility: hidden; flex: 1 1 auto; min-width: 0;
+        text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #answersShownBadge.on { visibility: visible; }
+    #bottom-nav #maxBtn { right: 8px; margin-top: -16px; width: 32px; height: 32px; }
+    #bottom-nav #maxBtn svg { width: 17px; height: 17px; }
     button { padding: 7px 11px; font-size: 13px; border-radius: 8px; }
     #control-top-bar input[type="checkbox"] { width: 16px; height: 16px; }
     #jumpSelect { font-size: 16px; padding: 5px 8px; min-width: 0; max-width: none; flex: 1 1 130px; }
@@ -710,9 +718,88 @@ DATEREMOVAL--
     .eng-match { grid-template-columns:1fr; padding-left:4px; }
     .eng-btn { font-size:14px; padding:7px 12px; }
 }
+
+/* ── LANDING SCREEN (all devices) ──────────────────────────────────────────────
+   Picture: docs/subjects/maths/images/learning.webp  (path below is relative to this page; change it if needed).
+   If the picture is missing, the dark blue gradient shows instead. Tapping Start goes full screen and the screen fades away. */
+#start-screen {
+    --start-img: url("subjects/maths/images/learning.webp");
+    --start-pad: clamp(22px, 4vw, 44px);
+    --start-btn: clamp(72px, 20vw, 96px);
+    position: fixed; inset: 0; z-index: 10000; overflow: hidden;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding: 0 var(--start-pad) calc(var(--start-pad) + env(safe-area-inset-bottom, 0px)) 0;
+    background: radial-gradient(circle at 50% 40%, #12305a 0%, #050a14 100%);
+}
+/* picture is its own layer: transparent at first, fades in over 5 s once loaded */
+#start-screen::before { content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat; opacity: 0; }
+#start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+@keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
+/* dark fade at the bottom keeps the text readable on any picture */
+#start-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60%; pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%); }
+
+#start-text {
+    position: absolute; z-index: 1; left: 0; right: 0; text-align: center; pointer-events: none;
+    bottom: calc(var(--start-pad) + var(--start-btn) + 20px + env(safe-area-inset-bottom, 0px));
+    padding: 0 clamp(18px, 6vw, 90px);
+}
+#start-title {
+    font: 800 clamp(28px, 5vw, 52px)/1.1 "Trebuchet MS", system-ui, sans-serif; letter-spacing: 0.03em; color: #fff;
+    margin: 0 0 14px; text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+}
+#start-quote {
+    margin: 0 auto 8px; max-width: 880px; text-wrap: balance;
+    font: italic 500 clamp(17px, 2.4vw, 28px)/1.5 Georgia, "Times New Roman", serif; color: #eaf6ff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7);
+}
+#start-author { margin: 0; font: 700 clamp(14px, 1.8vw, 20px)/1.4 system-ui, sans-serif; letter-spacing: 0.04em; color: #7dd3fc; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+#start-title, #start-quote, #start-author { opacity: 0; transform: translateY(26px); }
+#start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-author { animation: startRise 2.4s cubic-bezier(.2,.7,.3,1) forwards; }
+#start-screen.ready #start-title  { animation-delay: 0.8s; }
+#start-screen.ready #start-quote  { animation-delay: 2.2s; }
+#start-screen.ready #start-author { animation-delay: 3.4s; }
+@keyframes startRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+
+#start-btn {
+    position: relative; z-index: 1; appearance: none; cursor: pointer; padding: 0;
+    width: var(--start-btn); height: var(--start-btn); border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.9); color: #022a40;
+    font: 700 13px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+    background: radial-gradient(circle at 35% 30%, #c4f1ff 0%, #38bdf8 55%, #0284c7 100%);
+    animation: startGlow 1.8s ease-in-out infinite;
+}
+#start-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+#start-btn:active { transform: scale(0.95); }
+@keyframes startGlow {
+    0%, 100% { box-shadow: 0 0 8px 2px rgba(56,189,248,0.75), 0 0 18px 6px rgba(2,132,199,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+    50%      { box-shadow: 0 0 16px 6px rgba(125,211,252,1),  0 0 34px 14px rgba(56,189,248,0.7), inset 0 1px 0 rgba(255,255,255,0.7); }
+}
+/* slow fade (2.5 s) so it is still visible after the browser finishes switching to full screen */
+#start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
+#start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
+@keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    #start-screen.ready::before { animation-duration: .01s; }
+    #start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-author { animation-duration: .01s; animation-delay: 0s !important; }
+    #start-btn { animation: none !important; }
+    #start-screen.leaving { animation-duration: .3s; }
+    #start-screen.leaving #start-btn { animation: none; }
+}
 </style>
 </head>
 <body>
+
+<!-- LANDING SCREEN: picture + a new quote every day of the month + glowing Start button (see CSS + script at the end) -->
+<div id="start-screen">
+    <div id="start-text">
+        <div id="start-title">EveryDay Maths</div>
+        <p id="start-quote"></p>
+        <p id="start-author"></p>
+    </div>
+    <button id="start-btn" type="button">Start</button>
+</div>
 
 <div id="outer">
     <div id="control-container" class="shrink">
@@ -729,7 +816,6 @@ DATEREMOVAL--
             <span id="answersShownBadge" style="display:none;font-size:14px;font-weight:bold;color:#ff4444;background:#1a0000;border:1px solid #ff4444;border-radius:6px;padding:4px 12px;letter-spacing:0.5px;animation:answersBlink 2s ease-in-out infinite;">&#128275; ANSWERS SHOWN</span>
             <button id="goTopBtn" class="nav-btn">&#11014; Top Q</button>
             <!--<span id="dateBox"></span>  DATEREMOVAL-->
-            <button id="maxBtn" title="Maximize (full screen)" aria-label="Maximize"></button>
         </div>
         <fieldset id="control">
             <legend>Control Panel</legend>
@@ -745,6 +831,7 @@ DATEREMOVAL--
     <button id="prevBtn" class="nav-btn">&#8592; Prev</button>
     <span id="bottom-qCounter">0 / 0</span>
     <button id="nextBtn" class="nav-btn">Next &#8594;</button>
+    <button id="maxBtn" title="Maximize (full screen)" aria-label="Maximize"></button>
 </div>
 
 <script>
@@ -1423,6 +1510,7 @@ toggleAll.onclick = () => {
     showAll = !showAll;
     if (showAll) playRevealChime();
     const badge = document.getElementById("answersShownBadge");
+    if (badge) badge.classList.add("on");      // phone: reveals the reserved status slot (stays on after hiding)
     if (badge && showAll) {
         badge.style.display = "inline-block";
         badge.style.opacity = "1";
@@ -3331,6 +3419,7 @@ document.addEventListener("keydown", e => {
 
 const allCheckboxes = Array.from(control.querySelectorAll("input[type='checkbox']"));
 document.getElementById("selectAllBtn").onclick = async () => {
+    document.body.classList.add("allqs-done");      // phone: hides the All Qs button once pressed
     for (let cb of allCheckboxes) {
         if (!cb.checked) {
             cb.checked = true;
@@ -3339,6 +3428,70 @@ document.getElementById("selectAllBtn").onclick = async () => {
         }
     }
 };
+
+// ── LANDING SCREEN: quote of the day (by day of the month) + Start button ───────────────────────────────
+// Each entry is [text, author]. Day 1 uses the first, day 2 the second ... day 31 the last. Edit / add freely.
+(function () {
+    const QUOTES = [
+        ["Imagination is more important than knowledge.", "Albert Einstein"],
+        ["Arise, awake, and stop not till the goal is reached.", "Swami Vivekananda"],
+        ["An equation for me has no meaning unless it expresses a thought of God.", "Srinivasa Ramanujan"],
+        ["Dream, dream, dream. Dreams transform into thoughts, and thoughts result in action.", "Dr. A. P. J. Abdul Kalam"],
+        ["Pure mathematics is, in its way, the poetry of logical ideas.", "Albert Einstein"],
+        ["All power is within you. You can do anything and everything.", "Swami Vivekananda"],
+        ["The highest education is that which does not merely give us information but makes our life in harmony with all existence.", "Rabindranath Tagore"],
+        ["I have no special talent. I am only passionately curious.", "Albert Einstein"],
+        ["Live as if you were to die tomorrow. Learn as if you were to live forever.", "Mahatma Gandhi"],
+        ["Education is the manifestation of the perfection already in man.", "Swami Vivekananda"],
+        ["The important thing is not to stop questioning.", "Albert Einstein"],
+        ["If you want to shine like a sun, first burn like a sun.", "Dr. A. P. J. Abdul Kalam"],
+        ["Every positive integer was one of his personal friends.", "J. E. Littlewood, about Ramanujan"],
+        ["Take up one idea. Make that one idea your life; dream of it, think of it, live on that idea.", "Swami Vivekananda"],
+        ["Do not worry about your difficulties in mathematics. I can assure you mine are still greater.", "Albert Einstein"],
+        ["The end-product of education should be a free creative man.", "Dr. S. Radhakrishnan"],
+        ["Strength is life; weakness is death.", "Swami Vivekananda"],
+        ["Excellence is a continuous process and not an accident.", "Dr. A. P. J. Abdul Kalam"],
+        ["Life is like riding a bicycle. To keep your balance, you must keep moving.", "Albert Einstein"],
+        ["The deeper you dig the sand, the more water springs; the more you learn, the more wisdom flows.", "Thiruvalluvar (Thirukkural)"],
+        ["The greatest sin is to think yourself weak.", "Swami Vivekananda"],
+        ["Curiosity has its own reason for existing.", "Albert Einstein"],
+        ["Learning gives creativity, creativity leads to thinking, thinking provides knowledge, knowledge makes you great.", "Dr. A. P. J. Abdul Kalam"],
+        ["The future depends on what you do today.", "Mahatma Gandhi"],
+        ["Stand up, be bold, be strong.", "Swami Vivekananda"],
+        ["Learn from yesterday, live for today, hope for tomorrow.", "Albert Einstein"],
+        ["Let us sacrifice our today so that our children can have a better tomorrow.", "Dr. A. P. J. Abdul Kalam"],
+        ["Education is what remains after one has forgotten what one has learned in school.", "Albert Einstein"],
+        ["In a conflict between the heart and the brain, follow your heart.", "Swami Vivekananda"],
+        ["Try not to become a man of success, but rather try to become a man of value.", "Albert Einstein"],
+        ["You cannot believe in God until you believe in yourself.", "Swami Vivekananda"]
+    ];
+
+    const screenEl = document.getElementById("start-screen");
+    const btn = document.getElementById("start-btn");
+    if (!screenEl || !btn) return;
+
+    const q = QUOTES[(new Date().getDate() - 1) % QUOTES.length];
+    document.getElementById("start-quote").textContent  = "\u201C" + q[0] + "\u201D";
+    document.getElementById("start-author").textContent = "\u2014 " + q[1];
+
+    // start the reveal only once the picture has loaded (or after 1.5 s at the latest)
+    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
+    const ready = () => screenEl.classList.add("ready");
+    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+
+    let done = false;
+    const finish = () => { if (!done) { done = true; screenEl.remove(); } };
+    // Full screen can only be requested from a tap, so Start asks for it, then the screen fades away.
+    // (iPhone Safari has no full-screen API for web pages; there the screen just fades away.)
+    btn.addEventListener("click", () => {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        screenEl.classList.add("leaving");
+        screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
+        setTimeout(finish, 3200);   // safety net
+    });
+})();
 
 // ── SCREEN WAKE LOCK ──────────────────────────────────────────────────────────
 let wakeLock = null;
