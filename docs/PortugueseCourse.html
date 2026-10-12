@@ -498,9 +498,120 @@ button:active { transform: scale(0.97); }
   /* "Check a sentence" panel is not shown on phones */
   #sentence-check-panel { display: none; }
 }
+
+/* ══ TOPIC BOXES (all devices): the old sidebar is now a full-page grid of boxes ══ */
+#sidebar { width: 100%; flex-shrink: 1; }
+#sidebar.collapsed { display: none; width: 100%; }
+#sidebar-toggle { display: none; }
+body.side-open #main-col { display: none; }
+#topic-tooltip { display: none; }
+#search-wrap { max-width: 560px; }
+#sidebar-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; padding: 14px; }
+#sidebar.collapsed #sidebar-list { display: none; }
+.topic-item {
+    box-sizing: border-box; display: flex; align-items: center; min-height: 68px; padding: 14px 16px;
+    font-size: 17px; line-height: 1.35; overflow-wrap: anywhere;
+    background: #151515; border: 1px solid #2b2b2b; border-radius: 10px;
+}
+.topic-item:hover { background: #1b1b1b; border-color: #3a3a3a; }
+.topic-item.active, .topic-item.search-match { border-color: #00c8ff; }
+
+/* ══ BOTTOM NAV: Topics button (left), full-screen button (right) ══ */
+body.side-open #prevBtn, body.side-open #nextBtn, body.side-open #counter { display: none; }   /* nothing to step through on the boxes page */
+#bottom-nav #menuBtn, #bottom-nav #fsBtn {
+    display: inline-flex; align-items: center; justify-content: center; position: absolute;
+    top: 50%; height: 38px; margin: -19px 0 0 0; padding: 0;
+    background: transparent; border: 1.5px solid #00c8ff; color: #00c8ff; box-shadow: none; font-size: 15px;
+}
+#bottom-nav #menuBtn { left: 16px; padding: 0 16px; border-radius: 19px; gap: 6px; }
+@media (min-width: 701px) { #bottom-nav { min-height: 64px; box-sizing: border-box; } }   /* keeps the bar the same height on the boxes page */
+#bottom-nav #fsBtn   { right: 16px; width: 38px; border-radius: 50%; }
+#bottom-nav #fsBtn svg { width: 20px; height: 20px; display: block; }
+#bottom-nav #menuBtn:hover, #bottom-nav #fsBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
+#bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
+@media (max-width: 700px) {
+    #sidebar-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; }
+    .topic-item { min-height: 60px; padding: 10px 10px; font-size: 14.5px; }
+    #search-wrap { max-width: none; }
+    #bottom-nav #menuBtn { left: 6px; width: 36px; height: 32px; margin-top: -16px; padding: 0; border-radius: 6px; font-size: 19px; }
+    #bottom-nav #fsBtn   { right: 6px; width: 32px; height: 32px; margin-top: -16px; }
+    #bottom-nav #fsBtn svg { width: 17px; height: 17px; }
+    #bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
+}
+
+/* ── LANDING SCREEN (all devices) ──────────────────────────────────────────────
+   Picture of the day: subjects/pt/images/day<day of month>.webp  (day1.webp ... day31.webp), then portugal.webp, then the gradient.
+   (the folder is set in the script: IMG_DIR). Tapping Start goes full screen and the screen fades away. */
+#start-screen {
+    --start-img: url("subjects/pt/images/portugal.webp");
+    --start-pad: clamp(22px, 4vw, 44px);
+    --start-btn: clamp(72px, 20vw, 96px);
+    position: fixed; inset: 0; z-index: 10000; overflow: hidden;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding: 0 var(--start-pad) calc(var(--start-pad) + env(safe-area-inset-bottom, 0px)) 0;
+    background: radial-gradient(circle at 50% 40%, #12305a 0%, #050a14 100%);
+}
+#start-screen::before { content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat; opacity: 0; }
+#start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+@keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
+#start-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 65%; pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%); }
+#start-text {
+    position: absolute; z-index: 1; left: 0; right: 0; text-align: center; pointer-events: none;
+    bottom: calc(var(--start-pad) + var(--start-btn) + 20px + env(safe-area-inset-bottom, 0px));
+    padding: 0 clamp(18px, 6vw, 90px);
+}
+#start-title { font: 800 clamp(28px, 5vw, 52px)/1.1 "Trebuchet MS", system-ui, sans-serif; letter-spacing: 0.03em; color: #fff; margin: 0 0 14px; text-shadow: 0 2px 12px rgba(0,0,0,0.9); }
+#start-quote { margin: 0 auto 6px; max-width: 880px; text-wrap: balance; font: italic 500 clamp(18px, 2.5vw, 30px)/1.45 Georgia, "Times New Roman", serif; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7); }
+#start-en { margin: 0 auto 8px; max-width: 880px; text-wrap: balance; font: 400 clamp(14px, 1.8vw, 20px)/1.45 system-ui, sans-serif; color: #cfe9f7; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+#start-author { margin: 0; font: 700 clamp(14px, 1.8vw, 20px)/1.4 system-ui, sans-serif; letter-spacing: 0.04em; color: #7dd3fc; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+#start-title, #start-quote, #start-en, #start-author { opacity: 0; transform: translateY(26px); }
+#start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-en, #start-screen.ready #start-author { animation: startRise 2.4s cubic-bezier(.2,.7,.3,1) forwards; }
+#start-screen.ready #start-title  { animation-delay: 0.8s; }
+#start-screen.ready #start-quote  { animation-delay: 2.0s; }
+#start-screen.ready #start-en     { animation-delay: 3.0s; }
+#start-screen.ready #start-author { animation-delay: 4.0s; }
+@keyframes startRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+#start-btn {
+    position: relative; z-index: 1; appearance: none; cursor: pointer; padding: 0;
+    width: var(--start-btn); height: var(--start-btn); border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.9); color: #022a40;
+    font: 700 13px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+    background: radial-gradient(circle at 35% 30%, #c4f1ff 0%, #38bdf8 55%, #0284c7 100%);
+    animation: startGlow 1.8s ease-in-out infinite;
+}
+#start-btn:hover { background: radial-gradient(circle at 35% 30%, #c4f1ff 0%, #38bdf8 55%, #0284c7 100%); }
+#start-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+#start-btn:active { transform: scale(0.95); }
+@keyframes startGlow {
+    0%, 100% { box-shadow: 0 0 8px 2px rgba(56,189,248,0.75), 0 0 18px 6px rgba(2,132,199,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+    50%      { box-shadow: 0 0 16px 6px rgba(125,211,252,1),  0 0 34px 14px rgba(56,189,248,0.7), inset 0 1px 0 rgba(255,255,255,0.7); }
+}
+#start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
+#start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
+@keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    #start-screen.ready::before { animation-duration: .01s; }
+    #start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-en, #start-screen.ready #start-author { animation-duration: .01s; animation-delay: 0s !important; }
+    #start-btn { animation: none !important; }
+    #start-screen.leaving { animation-duration: .3s; }
+    #start-screen.leaving #start-btn { animation: none; }
+}
 </style>
 </head>
 <body>
+
+<!-- LANDING SCREEN: daily picture + a Portuguese quote of the day (with English) + glowing Start button (CSS + script at the end) -->
+<div id="start-screen">
+    <div id="start-text">
+        <div id="start-title">Curso de Português</div>
+        <p id="start-quote" lang="pt"></p>
+        <p id="start-en"></p>
+        <p id="start-author"></p>
+    </div>
+    <button id="start-btn" type="button">Start</button>
+</div>
 
 <div id="outer">
     <div id="sidebar">
@@ -540,11 +651,11 @@ button:active { transform: scale(0.97); }
 <div id="topic-tooltip"></div>
 
 <div id="bottom-nav">
-    <button id="menuBtn" title="Topics list">&#9776;</button>
+    <button id="menuBtn" title="All topics">&#9776;<span class="nav-label"> Topics</span></button>
     <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
     <span id="counter">1 / 1</span>
     <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
-    <button id="fsBtn" title="Full screen / reading mode">&#9974;</button>
+    <button id="fsBtn" title="Full screen" aria-label="Full screen"></button>
 </div>
 
 <script>
@@ -687,7 +798,7 @@ function normalizeSearch(s) {
 const topicEls = topics.map(([slug, label, desc, keywords], i) => {
     const item = document.createElement("div");
     item.className = "topic-item";
-    item.textContent = label;
+    item.textContent = label.replace(/\s*\/\s*Credits$/i, "");   // boxes are purely Portuguese
     item.dataset.index = i;
     item.dataset.search = normalizeSearch(label + " " + (keywords || ""));
     item.addEventListener("click", () => loadTopic(i));
@@ -715,7 +826,7 @@ const goPrev = () => loadTopic(currentIndex < 0 ? topics.length - 1 : currentInd
 function loadTopic(i) {
     currentIndex = ((i % topics.length) + topics.length) % topics.length;
     const [slug] = topics[currentIndex];
-    if (isMobile()) setSidebarCollapsed(true);   // phone: hide the list after picking a topic
+    setSidebarCollapsed(true);   // hide the topic boxes after picking a topic (all devices)
 
     topicEls.forEach((el, idx) => el.classList.toggle("active", idx === currentIndex));
     topicEls[currentIndex].scrollIntoView({ block: "nearest" });
@@ -793,30 +904,40 @@ function setSidebarCollapsed(collapsed) {
     tooltipEl.classList.remove("visible");
     document.body.classList.toggle("side-open", !collapsed);   // only has an effect on phones (see CSS)
     menuBtn.classList.toggle("open", !collapsed);
+    if (!collapsed && typeof currentIndex === "number" && currentIndex >= 0 && topicEls[currentIndex]) {
+        topicEls[currentIndex].scrollIntoView({ block: "nearest" });   // coming back: show the box you were on
+    }
 }
 toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-menuBtn.addEventListener("click",   () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-
-// Rotating / resizing from phone to desktop width: bring the sidebar back
-window.matchMedia("(max-width: 700px)").addEventListener("change", e => {
-    if (!e.matches) setSidebarCollapsed(false);
+menuBtn.addEventListener("click", () => {
+    if (currentIndex < 0) { setSidebarCollapsed(false); return; }   // nothing opened yet: stay on the boxes
+    setSidebarCollapsed(!sidebarEl.classList.contains("collapsed"));
 });
 
-// ── FULLSCREEN / READING MODE (button is phone-only) ────────────────────
+
+// ── FULLSCREEN button (bottom nav, all devices) ─────────────────────────
 const fsBtn = document.getElementById("fsBtn");
-fsBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-        const el = document.documentElement;
-        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-    } else {
-        document.exitFullscreen().catch(() => {});
+(function () {
+    const de  = document.documentElement;
+    const req = de.requestFullscreen || de.webkitRequestFullscreen;
+    const ext = document.exitFullscreen || document.webkitExitFullscreen;
+    const ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+    const EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+    if (!req) { fsBtn.style.display = "none"; return; }       // e.g. iPhone Safari has no full-screen API for pages
+    const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+    function paint() {
+        fsBtn.innerHTML = isFS() ? EXIT : ENTER;
+        fsBtn.title = isFS() ? "Exit full screen" : "Full screen";
+        fsBtn.setAttribute("aria-label", isFS() ? "Exit full screen" : "Full screen");
     }
-});
-document.addEventListener("fullscreenchange", () => {
-    const on = !!document.fullscreenElement;
-    fsBtn.innerHTML = on ? "&#10005;" : "&#9974;";
-    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
-});
+    fsBtn.addEventListener("click", () => {
+        if (!isFS()) { const p = req.call(de); if (p && p.catch) p.catch(() => {}); }
+        else ext.call(document);
+    });
+    document.addEventListener("fullscreenchange", paint);
+    document.addEventListener("webkitfullscreenchange", paint);
+    paint();
+})();
 
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -977,17 +1098,90 @@ scInput.addEventListener("keydown", e => {
     }
 });
 
-// Desktop: start on Topic 0 (as before).
-// Phone: show only the topic list first; nothing is opened until a topic is tapped.
-if (isMobile()) {
-    currentIndex = -1;
-    counterEl.textContent = "– / " + topics.length;
-    contentBox.innerHTML = '<div style="color:#666;padding:20px 0;text-align:center;">Select a topic from the list (&#9776;) to begin.</div>';
-    document.body.classList.add("side-open");
-    menuBtn.classList.add("open");
-} else {
-    loadTopic(0);
-}
+// All devices: start on the topic boxes; a lesson opens only when a box is clicked.
+currentIndex = -1;
+counterEl.textContent = "– / " + topics.length;
+contentBox.innerHTML = '<div style="color:#666;padding:20px 0;text-align:center;">Choose a topic to begin.</div>';
+document.body.classList.add("side-open");
+menuBtn.classList.add("open");
+
+
+// ── LANDING SCREEN: picture + quote of the day (by day of the month) + Start button ───────────────────
+// Each entry is [Portuguese, English, author]. Day 1 uses the first, day 2 the second ... day 31 the last.
+// To note the day for yourself, add a comment before a line, e.g.  // Day 5
+(function () {
+    const QUOTES = [
+        ["Mudam-se os tempos, mudam-se as vontades.", "Times change, and desires change with them.", "Luís de Camões"],                                  // Day 1
+        ["Tudo vale a pena se a alma não é pequena.", "Everything is worth it if the soul is not small.", "Fernando Pessoa"],                      // Day 2
+        ["Navegar é preciso; viver não é preciso.", "To sail is necessary; to live is not.", "Fernando Pessoa"],                                  // Day 3
+        ["Se podes olhar, vê. Se podes ver, repara.", "If you can look, see. If you can see, notice.", "José Saramago"],                          // Day 4
+        ["Devagar se vai ao longe.", "Slowly, one goes far.", "Provérbio português"],                                                             // Day 5
+        ["Quem não arrisca, não petisca.", "Nothing ventured, nothing gained.", "Provérbio português"],                                          // Day 6
+        ["Água mole em pedra dura, tanto bate até que fura.", "Soft water on hard stone keeps beating until it bores through.", "Provérbio português"], // Day 7
+        ["A pressa é inimiga da perfeição.", "Haste is the enemy of perfection.", "Provérbio português"],                                         // Day 8
+        ["Mais vale tarde do que nunca.", "Better late than never.", "Provérbio português"],                                                      // Day 9
+        ["Quem espera, sempre alcança.", "Whoever waits, always achieves.", "Provérbio português"],                                               // Day 10
+        ["Uma andorinha não faz a primavera.", "One swallow does not make a spring.", "Provérbio português"],                                     // Day 11
+        ["Cada terra com seu uso, cada roca com seu fuso.", "Every land has its custom, every distaff its spindle.", "Provérbio português"],      // Day 12
+        ["Quem tem boca vai a Roma.", "Whoever has a mouth can get to Rome (just ask!).", "Provérbio português"],                                // Day 13
+        ["Pela boca morre o peixe.", "The fish dies by its mouth.", "Provérbio português"],                                                       // Day 14
+        ["A união faz a força.", "Unity makes strength.", "Provérbio português"],                                                                 // Day 15
+        ["Mais vale um pássaro na mão do que dois a voar.", "A bird in the hand is worth two in flight.", "Provérbio português"],                 // Day 16
+        ["De grão em grão, enche a galinha o papo.", "Grain by grain, the hen fills her crop.", "Provérbio português"],                           // Day 17
+        ["Quem muito dorme pouco aprende.", "Whoever sleeps a lot learns little.", "Provérbio português"],                                       // Day 18
+        ["A prática leva à perfeição.", "Practice leads to perfection.", "Provérbio português"],                                                  // Day 19
+        ["O poeta é um fingidor.", "The poet is a pretender.", "Fernando Pessoa"],                                                                // Day 20
+        ["Para ser grande, sê inteiro: nada teu exagera ou exclui.", "To be great, be whole: exaggerate or exclude nothing of yourself.", "Fernando Pessoa (Ricardo Reis)"], // Day 21
+        ["Amor é fogo que arde sem se ver.", "Love is a fire that burns without being seen.", "Luís de Camões"],                                 // Day 22
+        ["Tenho em mim todos os sonhos do mundo.", "I have in me all the dreams of the world.", "Fernando Pessoa (Álvaro de Campos)"],            // Day 23
+        ["Casa roubada, trancas à porta.", "Once the house is robbed, bars on the door.", "Provérbio português"],                                 // Day 24
+        ["Quem vê caras não vê corações.", "Whoever sees faces does not see hearts.", "Provérbio português"],                                    // Day 25
+        ["O seguro morreu de velho.", "The cautious one died of old age.", "Provérbio português"],                                                // Day 26
+        ["Quem conta um conto acrescenta um ponto.", "Whoever tells a tale adds a detail.", "Provérbio português"],                               // Day 27
+        ["A palavra é de prata, o silêncio é de ouro.", "Speech is silver, silence is golden.", "Provérbio português"],                           // Day 28
+        ["Quem semeia ventos colhe tempestades.", "Whoever sows the wind reaps the storm.", "Provérbio português"],                               // Day 29
+        ["Mais vale prevenir do que remediar.", "Prevention is better than cure.", "Provérbio português"],                                       // Day 30
+        ["Não deixes para amanhã o que podes fazer hoje.", "Don't leave for tomorrow what you can do today.", "Provérbio português"]              // Day 31
+    ];
+
+    const screenEl = document.getElementById("start-screen");
+    const btn = document.getElementById("start-btn");
+    if (!screenEl || !btn) return;
+
+    const day = new Date().getDate();
+    const q = QUOTES[(day - 1) % QUOTES.length];
+    document.getElementById("start-quote").textContent  = "\u201C" + q[0] + "\u201D";
+    document.getElementById("start-en").textContent     = q[1];
+    document.getElementById("start-author").textContent = "\u2014 " + q[2];
+
+    // Daily picture: IMG_DIR + "day<day of month>.webp". Missing file -> portugal.webp -> gradient only.
+    // Change IMG_DIR if you keep the pictures elsewhere (keep the trailing slash).
+    const IMG_DIR = "subjects/pt/images/";
+    const candidates = [IMG_DIR + "day" + day + ".webp", IMG_DIR + "portugal.webp"];
+    let readyDone = false;
+    const readyOnce = () => { if (!readyDone) { readyDone = true; screenEl.classList.add("ready"); } };
+    (function tryNext(i) {
+        if (i >= candidates.length) { readyOnce(); return; }
+        const img = new Image();
+        img.onload  = () => { screenEl.style.setProperty("--start-img", 'url("' + candidates[i] + '")'); readyOnce(); };
+        img.onerror = () => tryNext(i + 1);
+        img.src = candidates[i];
+    })(0);
+    setTimeout(readyOnce, 2500);   // never leave the text hidden on a slow network
+
+    let done = false;
+    const finish = () => { if (!done) { done = true; screenEl.remove(); } };
+    // Full screen can only be requested from a tap, so Start asks for it, then the screen fades away.
+    // (iPhone Safari has no full-screen API for web pages; there the screen just fades away.)
+    btn.addEventListener("click", () => {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        screenEl.classList.add("leaving");
+        screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
+        setTimeout(finish, 3200);   // safety net
+    });
+})();
 </script>
 
 </body>
