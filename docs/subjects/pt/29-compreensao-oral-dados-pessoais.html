@@ -1,0 +1,314 @@
+<div class="pt-oral">
+<style>
+.pt-oral { color: #2b2b2b; font-family: inherit; }
+.pt-oral h2, .pt-oral h4, .pt-oral h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-oral .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-oral .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-oral .desc-box p:last-child { margin-bottom: 0; }
+.pt-oral .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-oral .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-oral .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-oral .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-oral .spk-wrap, .pt-oral .ex-line { position: relative; padding-left: 1.9em; }
+.pt-oral .spk-wrap:hover .spk-btn,
+.pt-oral .ex-line:hover .spk-btn,
+.pt-oral .spk-btn:focus-visible { opacity: 1; }
+.pt-oral .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-oral .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-oral .desc-box > p:hover .spk-inline,
+.pt-oral .spk-inline:focus-visible,
+.pt-oral .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-oral .spk-btn, .pt-oral .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-oral .table-scroll { overflow-x: auto; }
+.pt-oral .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-oral .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-oral .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-oral .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-oral .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-oral .compare-table tr:last-child td { border-bottom: none; }
+.pt-oral .compare-table td.spk-wrap, .pt-oral .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-oral .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-oral .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-oral .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-oral .example-list { margin: 0 0 12px 0; }
+.pt-oral .example-list:last-child { margin-bottom: 0; }
+.pt-oral .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-oral .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-oral .ex-line:last-child { margin-bottom: 0; }
+.pt-oral .example-box .pt-word { color: #d8b46a !important; }
+.pt-oral .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-oral .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-oral .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-oral .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-oral .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-oral .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-oral .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-oral .exercise-item:last-child { margin-bottom: 0; }
+.pt-oral .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-oral .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-oral .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-oral .blank-word { display: inline-block; }
+.pt-oral .underscore { color: #999 !important; }
+.pt-oral .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-oral .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-oral .cue-list li:last-child { border-bottom: none; }
+.pt-oral .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-oral .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-oral .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-oral .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-oral .check-btn:hover { background: #245640 !important; }
+
+.pt-oral .audio-box { background:#fff8e8 !important; border:1px solid #e6ddc9; border-left:4px solid #c9a15a; border-radius:8px; padding:16px 20px; margin:18px 0; }
+.pt-oral .audio-box h3 { margin:0 0 6px 0; color:#a1521f !important; font-family:Georgia,"Times New Roman",serif; font-size:1.25em; }
+.pt-oral .audio-box p { color:#2b2b2b !important; margin:0 0 10px 0; line-height:1.6; }
+.pt-oral .audio-box audio { width:100%; margin:6px 0; }
+.pt-oral .audio-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .tip { color:#7a7a7a !important; font-size:.88em; font-style:italic; }
+.pt-oral .write-cell { min-width:200px; height:44px; }
+.pt-oral .note-box { background:#fff4e0 !important; border-left:4px solid #d8863a; border-radius:6px; padding:10px 16px; margin:12px 0 0 0; color:#2b2b2b !important; line-height:1.7; }
+.pt-oral .note-box b { color:#a1521f !important; }
+.pt-oral .num { color:#999 !important; width:2em; }
+.pt-oral .ans-table td.fill-row .reveal { margin-left:0; }
+</style>
+
+<h2>29. Compreensão oral — Dados pessoais <span class="en">(Listening comprehension — Personal data)</span></h2>
+
+<div class="desc-box">
+  <p>In this lesson you <em>listen</em> and then <em>write</em>. Christos is a new student at a language school in Lisbon. He talks to the school secretary (<span class="pt-word">a secretária</span>), who asks for his personal data (<span class="pt-word">dados pessoais</span>) and fills in his <span class="pt-word">ficha</span> (registration form). Your task is the same as hers: listen to the audio and complete the form. The exercise comes from <em>Passaporte para Português</em>, Aud-33, p. 38. The instruction on the worksheet reads: <span class="pt-word">Ouça a conversa com a secretária da escola e complete a ficha.</span><button class="spk-inline" data-pt="Ouça a conversa com a secretária da escola e complete a ficha." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(Listen to the conversation with the school secretary and complete the form.)</span></p>
+  <p>Every question can be asked in two ways. With a stranger, an older person or in an office, use the <strong>formal</strong> form: <em>Como se chama? Qual é <strong>o seu</strong> nome?</em> With a friend or a young person, use <strong>tu</strong>: <em>Como te chamas? Qual é <strong>o teu</strong> nome?</em> In Portugal the formal form often drops the pronoun, so you say <em>Como se chama?</em> rather than <em>Como é que você se chama?</em> Three small points matter for your answers: (1) age uses <strong>ter</strong> (to have): <span class="pt-word">Tenho 32 anos</span><button class="spk-inline" data-pt="Tenho 32 anos" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(literally "I have 32 years")</span>, never <em>sou</em>; (2) nationality, marital status and profession change with gender: <em>grego/grega, solteiro/solteira, professor/professora</em>; (3) profession takes no article: <em>Sou professor</em>, not <em>Sou um professor</em>.</p>
+
+  <hr class="desc-divider">
+
+  <p><strong>1. Vocabulário da ficha</strong> <span class="en">(form vocabulary)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>हिन्दी</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="Nome"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nome</span></td><td>name</td><td>नाम</td></tr>
+<tr><td class="spk-wrap" data-pt="Idade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Idade</span></td><td>age</td><td>उम्र</td></tr>
+<tr><td class="spk-wrap" data-pt="Nacionalidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nacionalidade</span></td><td>nationality</td><td>राष्ट्रीयता</td></tr>
+<tr><td class="spk-wrap" data-pt="Estado civil"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estado civil</span></td><td>marital status</td><td>वैवाहिक स्थिति</td></tr>
+<tr><td class="spk-wrap" data-pt="solteiro/a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">solteiro/a</span></td><td>single</td><td>अविवाहित</td></tr>
+<tr><td class="spk-wrap" data-pt="casado/a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">casado/a</span></td><td>married</td><td>विवाहित</td></tr>
+<tr><td class="spk-wrap" data-pt="divorciado/a"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">divorciado/a</span></td><td>divorced</td><td>तलाकशुदा</td></tr>
+<tr><td class="spk-wrap" data-pt="Profissão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Profissão</span></td><td>profession, occupation</td><td>पेशा</td></tr>
+<tr><td class="spk-wrap" data-pt="Morada"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Morada</span></td><td>address</td><td>पता</td></tr>
+<tr><td class="spk-wrap" data-pt="Código postal"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Código postal</span></td><td>postal code</td><td>डाक कोड / पिन कोड</td></tr>
+<tr><td class="spk-wrap" data-pt="Cidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Cidade</span></td><td>city</td><td>शहर</td></tr>
+<tr><td class="spk-wrap" data-pt="Telefone"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Telefone</span></td><td>landline (telephone)</td><td>लैंडलाइन फ़ोन</td></tr>
+<tr><td class="spk-wrap" data-pt="Telemóvel"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Telemóvel</span></td><td>mobile phone (not <i>celular</i>, which is Brazilian)</td><td>मोबाइल फ़ोन</td></tr>
+<tr><td class="spk-wrap" data-pt="E-mail"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E-mail</span></td><td>e-mail</td><td>ईमेल</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Morada, números e símbolos</strong> <span class="en">(address, numbers and symbols)</span></p>
+  <p>An address is written <em>Rua, nº, andar, lado</em>, for example <em>Av. da Liberdade, nº 25, 2º Esq.</em>, read as <span class="pt-word">número vinte e cinco, segundo esquerdo</span><button class="spk-inline" data-pt="número vinte e cinco, segundo esquerdo" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>. <span class="pt-word">R/C</span> is the ground floor: <em>R/C Dto.</em> is read <span class="pt-word">rés-do-chão direito</span><button class="spk-inline" data-pt="rés-do-chão direito" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>. The postal code has four digits, a hyphen and three digits (<em>1200-183</em>). Phone numbers have nine digits; Lisbon landlines start with <em>21</em> and mobile numbers with <em>9</em>. People read them in single digits or small groups. An e-mail such as <em>ana.costa@mail.pt</em> is read <span class="pt-word">ana ponto costa arroba mail ponto pt</span><button class="spk-inline" data-pt="ana ponto costa arroba mail ponto pt" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>.</p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Abreviatura / símbolo</th><th>English</th><th>हिन्दी</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="esquerdo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Esq.</span> = <span class="pt-word">esquerdo</span></td><td>left</td><td>बायाँ</td></tr>
+<tr><td class="spk-wrap" data-pt="direito"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Dto.</span> = <span class="pt-word">direito</span></td><td>right</td><td>दायाँ</td></tr>
+<tr><td class="spk-wrap" data-pt="rés-do-chão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">R/C</span> = <span class="pt-word">rés-do-chão</span></td><td>ground floor</td><td>भूतल</td></tr>
+<tr><td class="spk-wrap" data-pt="arroba"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">@</span> = <span class="pt-word">arroba</span></td><td>at sign</td><td>@ (ऐट)</td></tr>
+<tr><td class="spk-wrap" data-pt="ponto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">.</span> = <span class="pt-word">ponto</span></td><td>dot</td><td>बिंदु (.)</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — como responder</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Como se chama? Chamo-me Ana Costa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Como se chama? Chamo-me Ana Costa.<span class="en-eq">What is your name? My name is Ana Costa.</span></p><p class="ex-line" data-pt="Quantos anos tem? Tenho 28 anos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Quantos anos tem? Tenho 28 anos.<span class="en-eq">How old are you? I am 28.</span></p><p class="ex-line" data-pt="Qual é a sua nacionalidade? A minha nacionalidade é portuguesa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é a sua nacionalidade? A minha nacionalidade é portuguesa.<span class="en-eq">What is your nationality? My nationality is Portuguese.</span></p><p class="ex-line" data-pt="Qual é o seu estado civil? Sou casada."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é o seu estado civil? Sou casada.<span class="en-eq">What is your marital status? I am married.</span></p><p class="ex-line" data-pt="Qual é a sua profissão? Sou engenheira."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é a sua profissão? Sou engenheira.<span class="en-eq">What is your profession? I am an engineer.</span></p><p class="ex-line" data-pt="Qual é a sua morada? É Avenida da Liberdade, número 25, segundo esquerdo."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é a sua morada? É Avenida da Liberdade, número 25, segundo esquerdo.<span class="en-eq">What is your address? Avenida da Liberdade, no. 25, 2nd floor left.</span></p><p class="ex-line" data-pt="Qual é o seu e-mail? É ana ponto costa arroba mail ponto pt."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é o seu e-mail? É ana ponto costa arroba mail ponto pt.<span class="en-eq">What is your e-mail? It's ana.costa@mail.pt.</span></p>
+  </div>
+</div>
+
+<div class="audio-box">
+  <h3>🔊 Compreensão oral</h3>
+  <p><strong>Ouça a conversa com a secretária da escola e complete a ficha.</strong><br><span class="en">Listen to the conversation with the school secretary and complete the form.</span></p>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/audio/comprehension.mp3" onerror="this.parentNode.querySelector('.audio-msg').style.display='block'">Your browser does not support audio.</audio>
+  <p class="audio-msg">Audio not found. Upload the file as <b>comprehension.mp3</b> to <b>docs/subjects/pt/audio/</b> in the repo.</p>
+  <p class="tip">Tip: first listen once without writing. Listen again to fill in the form below on paper. Listen a third time to check the numbers and the e-mail.</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>A ficha</strong> <span class="pt-word">Complete a ficha.</span><button class="spk-inline" data-pt="Complete a ficha." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(Complete the form. The answers come from the audio. Write them on paper.)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Campo</th><th>English</th><th>हिन्दी</th><th>Escreva aqui</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="Nome"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nome</span></td><td>Name</td><td>नाम</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Idade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Idade</span></td><td>Age</td><td>उम्र</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Nacionalidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Nacionalidade</span></td><td>Nationality</td><td>राष्ट्रीयता</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Estado civil"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estado civil</span></td><td>Marital status</td><td>वैवाहिक स्थिति</td><td class="write-cell">☐ solteiro/a &nbsp; ☐ casado/a &nbsp; ☐ divorciado/a</td></tr>
+<tr><td class="spk-wrap" data-pt="Profissão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Profissão</span></td><td>Profession</td><td>पेशा</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Morada"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Morada</span></td><td>Address</td><td>पता</td><td class="write-cell">Rua do Alecrim,</td></tr>
+<tr><td class="spk-wrap" data-pt="Código postal"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Código postal</span></td><td>Postal code</td><td>डाक कोड</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Cidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Cidade</span></td><td>City</td><td>शहर</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Telefone"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Telefone</span></td><td>Landline</td><td>लैंडलाइन</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="Telemóvel"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Telemóvel</span></td><td>Mobile</td><td>मोबाइल</td><td class="write-cell"></td></tr>
+<tr><td class="spk-wrap" data-pt="E-mail"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">E-mail</span></td><td>E-mail</td><td>ईमेल</td><td class="write-cell">christrek@gmail.com</td></tr>
+</tbody></table></div>
+  <div class="note-box"><b>IMPORTANTE!</b> <span class="pt-word">Esq.</span><button class="spk-inline" data-pt="Esq." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = esquerdo · <span class="pt-word">Dto.</span><button class="spk-inline" data-pt="Dto." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = direito · <span class="pt-word">R/C</span><button class="spk-inline" data-pt="R/C" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = rés-do-chão<br><b>IMPORTANTE!</b> @ = <span class="pt-word">arroba</span><button class="spk-inline" data-pt="arroba" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> · . = <span class="pt-word">ponto</span><button class="spk-inline" data-pt="ponto" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button></div>
+</div>
+
+<div class="desc-box">
+  <p><strong>Compreensão oral — Perguntas</strong> <span class="en">(the questions you may hear, formal and informal; write your own answer on paper)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>#</th><th>Formal (o senhor / a senhora / você)</th><th>Informal (tu)</th><th>English</th><th>Escreva a resposta</th></tr></thead><tbody>
+<tr><td class="num">1</td><td class="spk-wrap" data-pt="Como se chama?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como se chama?</span></td><td class="spk-wrap" data-pt="Como te chamas?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como te chamas?</span></td><td>What is your name?</td><td class="write-cell"></td></tr>
+<tr><td class="num">2</td><td class="spk-wrap" data-pt="Qual é o seu nome?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu nome?</span></td><td class="spk-wrap" data-pt="Qual é o teu nome?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu nome?</span></td><td>What is your name?</td><td class="write-cell"></td></tr>
+<tr><td class="num">3</td><td class="spk-wrap" data-pt="Quantos anos tem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos anos tem?</span></td><td class="spk-wrap" data-pt="Quantos anos tens?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos anos tens?</span></td><td>How old are you?</td><td class="write-cell"></td></tr>
+<tr><td class="num">4</td><td class="spk-wrap" data-pt="Que idade tem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Que idade tem?</span></td><td class="spk-wrap" data-pt="Que idade tens?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Que idade tens?</span></td><td>What age are you?</td><td class="write-cell"></td></tr>
+<tr><td class="num">5</td><td class="spk-wrap" data-pt="Qual é a sua idade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua idade?</span></td><td class="spk-wrap" data-pt="Qual é a tua idade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a tua idade?</span></td><td>What is your age?</td><td class="write-cell"></td></tr>
+<tr><td class="num">6</td><td class="spk-wrap" data-pt="Qual é a sua nacionalidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua nacionalidade?</span></td><td class="spk-wrap" data-pt="Qual é a tua nacionalidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a tua nacionalidade?</span></td><td>What is your nationality?</td><td class="write-cell"></td></tr>
+<tr><td class="num">7</td><td class="spk-wrap" data-pt="Qual é o seu estado civil?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu estado civil?</span></td><td class="spk-wrap" data-pt="Qual é o teu estado civil?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu estado civil?</span></td><td>What is your marital status?</td><td class="write-cell"></td></tr>
+<tr><td class="num">8</td><td class="spk-wrap" data-pt="Qual é a sua profissão?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua profissão?</span></td><td class="spk-wrap" data-pt="Qual é a tua profissão?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a tua profissão?</span></td><td>What is your profession?</td><td class="write-cell"></td></tr>
+<tr><td class="num">9</td><td class="spk-wrap" data-pt="O que é que o senhor faz?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que é que o senhor / a senhora / você faz?</span></td><td class="spk-wrap" data-pt="O que é que tu fazes?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que é que tu fazes?</span></td><td>What do you do (for a living)?</td><td class="write-cell"></td></tr>
+<tr><td class="num">10</td><td class="spk-wrap" data-pt="Qual é a sua morada?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua morada?</span></td><td class="spk-wrap" data-pt="Qual é a tua morada?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a tua morada?</span></td><td>What is your address?</td><td class="write-cell"></td></tr>
+<tr><td class="num">11</td><td class="spk-wrap" data-pt="Qual é o seu código postal?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu código postal?</span></td><td class="spk-wrap" data-pt="Qual é o teu código postal?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu código postal?</span></td><td>What is your postal code?</td><td class="write-cell"></td></tr>
+<tr><td class="num">12</td><td class="spk-wrap" data-pt="Qual é a sua cidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a sua cidade?</span></td><td class="spk-wrap" data-pt="Qual é a tua cidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é a tua cidade?</span></td><td>What is your city?</td><td class="write-cell"></td></tr>
+<tr><td class="num">13</td><td class="spk-wrap" data-pt="O senhor é de que cidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O senhor / a senhora / você é de que cidade?</span></td><td class="spk-wrap" data-pt="Tu és de que cidade?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tu és de que cidade?</span></td><td>Which city are you from?</td><td class="write-cell"></td></tr>
+<tr><td class="num">14</td><td class="spk-wrap" data-pt="Tem telefone (fixo)?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tem telefone (fixo)?</span></td><td class="spk-wrap" data-pt="Tens telefone (fixo)?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tens telefone (fixo)?</span></td><td>Do you have a landline?</td><td class="write-cell"></td></tr>
+<tr><td class="num">15</td><td class="spk-wrap" data-pt="Qual é o número do seu telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o número do seu telemóvel?</span></td><td class="spk-wrap" data-pt="Qual é o número do teu telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o número do teu telemóvel?</span></td><td>What is your mobile number?</td><td class="write-cell"></td></tr>
+<tr><td class="num">16</td><td class="spk-wrap" data-pt="Qual é o seu número de telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu número de telemóvel?</span></td><td class="spk-wrap" data-pt="Qual é o teu número de telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu número de telemóvel?</span></td><td>What is your mobile number?</td><td class="write-cell"></td></tr>
+<tr><td class="num">17</td><td class="spk-wrap" data-pt="Qual é o seu telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu telemóvel?</span></td><td class="spk-wrap" data-pt="Qual é o teu telemóvel?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu telemóvel?</span></td><td>What is your mobile?</td><td class="write-cell"></td></tr>
+<tr><td class="num">18</td><td class="spk-wrap" data-pt="Diga, por favor, o seu telemóvel."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Diga, por favor, o seu telemóvel.</span></td><td class="spk-wrap" data-pt="Diz-me, por favor, o teu telemóvel."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Diz-me, por favor, o teu telemóvel.</span></td><td>Please tell me your mobile number.</td><td class="write-cell"></td></tr>
+<tr><td class="num">19</td><td class="spk-wrap" data-pt="Qual é o seu e-mail?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o seu e-mail?</span></td><td class="spk-wrap" data-pt="Qual é o teu e-mail?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Qual é o teu e-mail?</span></td><td>What is your e-mail?</td><td class="write-cell"></td></tr>
+</tbody></table></div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Complete com o possessivo correto: o seu / a sua / o teu / a tua.</p>
+    <p class="question">
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">o seu</span></span> (formal) nome?<br>
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">a tua</span></span> (informal) idade?<br>
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">a sua</span></span> (formal) morada?<br>
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">o teu</span></span> (informal) estado civil?<br>
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">a sua</span></span> (formal) profissão?<br>
+      Qual é <span class="blank-word"><span class="underscore">_______</span><span class="fill">o teu</span></span> (informal) e-mail?
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Complete com a palavra certa: tenho · sou · chamo · quantos · chamas.</p>
+    <p class="question">
+      <span class="blank-word"><span class="underscore">_______</span><span class="fill">Quantos</span></span> anos tens?<br>
+      Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">tenho</span></span> 25 anos.<br>
+      Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">sou</span></span> solteiro.<br>
+      Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">sou</span></span> professor.<br>
+      Como te <span class="blank-word"><span class="underscore">_______</span><span class="fill">chamas</span></span>?<br>
+      <span class="blank-word"><span class="underscore">_______</span><span class="fill">Chamo</span></span>-me Ana.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Como se pergunta em português? <span class="en">(formal)</span></p>
+    <ol class="cue-list">
+      <li><span class="cue">What is your nationality?</span> <span class="reveal">Qual é a sua nacionalidade?</span></li>
+      <li><span class="cue">How old are you?</span> <span class="reveal">Quantos anos tem?</span></li>
+      <li><span class="cue">What is your postal code?</span> <span class="reveal">Qual é o seu código postal?</span></li>
+      <li><span class="cue">What do you do (for a living)?</span> <span class="reveal">O que é que o senhor faz?</span></li>
+      <li><span class="cue">Do you have a landline?</span> <span class="reveal">Tem telefone (fixo)?</span></li>
+      <li><span class="cue">What is your mobile number?</span> <span class="reveal">Qual é o número do seu telemóvel?</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Leia e complete a ficha de Maria.</p>
+    <p class="ex-note">«Chamo-me Maria Santos. Tenho 41 anos e sou portuguesa. Sou casada e sou médica. Moro na Avenida da Liberdade, nº 25, 2º Esq., 1250-142 Lisboa. O meu telemóvel é 912 345 678 e o meu e-mail é maria.santos@mail.pt.»</p>
+    <ol class="cue-list">
+      <li><span class="cue">Nome:</span> <span class="reveal">Maria Santos</span></li>
+      <li><span class="cue">Idade:</span> <span class="reveal">41</span></li>
+      <li><span class="cue">Nacionalidade:</span> <span class="reveal">portuguesa</span></li>
+      <li><span class="cue">Estado civil:</span> <span class="reveal">casada</span></li>
+      <li><span class="cue">Profissão:</span> <span class="reveal">médica</span></li>
+      <li><span class="cue">Morada:</span> <span class="reveal">Avenida da Liberdade, nº 25, 2º Esq.</span></li>
+      <li><span class="cue">Código postal / Cidade:</span> <span class="reveal">1250-142 / Lisboa</span></li>
+      <li><span class="cue">Telemóvel:</span> <span class="reveal">912 345 678</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">5. Como se lê? <span class="en">(say it aloud, then check)</span></p>
+    <ol class="cue-list">
+      <li><span class="cue">maria.santos@mail.pt</span> <span class="reveal">maria ponto santos arroba mail ponto pt</span></li>
+      <li><span class="cue">3º Dto.</span> <span class="reveal">terceiro direito</span></li>
+      <li><span class="cue">R/C Esq.</span> <span class="reveal">rés-do-chão esquerdo</span></li>
+      <li><span class="cue">1200-183</span> <span class="reveal">mil e duzentos, traço, cento e oitenta e três</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Solução — Compreensão oral <span class="en">(listen and write first!)</span></h4>
+  <div class="exercise-item">
+    <p class="ex-label">A ficha de Christos</p>
+    <div class="table-scroll"><table class="compare-table"><tbody>
+    <tr><td><span class="pt-word">Nome</span></td><td><span class="reveal" style="margin-left:0">Christos Rekatsinas</span></td></tr>
+<tr><td><span class="pt-word">Idade</span></td><td><span class="reveal" style="margin-left:0">32</span></td></tr>
+<tr><td><span class="pt-word">Nacionalidade</span></td><td><span class="reveal" style="margin-left:0">grega</span></td></tr>
+<tr><td><span class="pt-word">Estado civil</span></td><td><span class="reveal" style="margin-left:0">solteiro</span></td></tr>
+<tr><td><span class="pt-word">Profissão</span></td><td><span class="reveal" style="margin-left:0">professor</span></td></tr>
+<tr><td><span class="pt-word">Morada</span></td><td><span class="reveal" style="margin-left:0">Rua do Alecrim, nº 14, 3º D (terceiro direito)</span></td></tr>
+<tr><td><span class="pt-word">Código postal</span></td><td><span class="reveal" style="margin-left:0">1200-183</span></td></tr>
+<tr><td><span class="pt-word">Cidade</span></td><td><span class="reveal" style="margin-left:0">Lisboa</span></td></tr>
+<tr><td><span class="pt-word">Telefone</span></td><td><span class="reveal" style="margin-left:0">213 512 287</span></td></tr>
+<tr><td><span class="pt-word">Telemóvel</span></td><td><span class="reveal" style="margin-left:0">918 865 331</span></td></tr>
+<tr><td><span class="pt-word">E-mail</span></td><td><span class="reveal" style="margin-left:0">christrek@gmail.com</span></td></tr>
+    </tbody></table></div>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+  <div class="exercise-item">
+    <p class="ex-label">Respostas modelo</p>
+    <ol class="cue-list">
+      <li><span class="cue">Como se chama? / Como te chamas?</span> <span class="reveal">Chamo-me Christos Rekatsinas.</span></li>
+<li><span class="cue">Qual é o seu / teu nome?</span> <span class="reveal">O meu nome é Christos Rekatsinas.</span></li>
+<li><span class="cue">Quantos anos tem / tens? · Que idade tem / tens?</span> <span class="reveal">Tenho 32 anos.</span></li>
+<li><span class="cue">Qual é a sua / tua idade?</span> <span class="reveal">A minha idade é 32 anos.</span></li>
+<li><span class="cue">Qual é a sua / tua nacionalidade?</span> <span class="reveal">A minha nacionalidade é grega.</span></li>
+<li><span class="cue">Qual é o seu / teu estado civil?</span> <span class="reveal">Sou solteiro. · O meu estado civil é solteiro.</span></li>
+<li><span class="cue">Qual é a sua profissão? · O que é que o senhor faz?</span> <span class="reveal">Sou professor. · A minha profissão é professor.</span></li>
+<li><span class="cue">O que é que tu fazes?</span> <span class="reveal">Sou advogado(a). <span class='en'>(example answer from the worksheet)</span></span></li>
+<li><span class="cue">Qual é a sua morada?</span> <span class="reveal">É Rua do Alecrim, nº 14, 3º D.</span></li>
+<li><span class="cue">Qual é o seu código postal?</span> <span class="reveal">(O meu código postal) é 1200-183, Lisboa.</span></li>
+<li><span class="cue">Qual é a sua cidade? · De que cidade é?</span> <span class="reveal">(A minha cidade) é Lisboa. · Sou de Lisboa.</span></li>
+<li><span class="cue">Tem telefone (fixo)?</span> <span class="reveal">Não, não tenho. · Tenho, e é o 213 512 287.</span></li>
+<li><span class="cue">Qual é o número do seu telemóvel? (and variants)</span> <span class="reveal">É o 918 865 331.</span></li>
+<li><span class="cue">Qual é o seu e-mail?</span> <span class="reveal">É christrek@gmail.com <span class='en'>(christrek arroba gmail ponto com)</span></span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+<p class="tip" style="margin-top:14px">Source: Passaporte para Português, Aud-33, p. 38 · Portuguese language course (A1–A2).</p>
+</div>
