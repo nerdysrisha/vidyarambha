@@ -20,6 +20,7 @@ button:disabled{opacity:.3;cursor:default}
 .cat{margin-bottom:8px}
 .cat>button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-weight:650;font-size:17px;text-align:left}
 .cat>button i{font-style:normal;color:var(--mute);transition:transform .15s}
+button.cat.direct{width:100%;display:flex;align-items:center;padding:0 16px;margin-bottom:8px;font-weight:650;font-size:17px;text-align:left}
 .cat.open>button i{transform:rotate(90deg)}
 .topics{display:none;padding:0 0 4px 22px;margin-left:18px}
 .cat.open .topics{display:block}
@@ -97,12 +98,12 @@ const categories = [
         ]
     },
     {
+        // direct image category: no sub-topics, images sit right in the folder
+        // subjects/myinfo/lisbon-transport/1.webp, 2.webp ... (count = maximum)
         name: "Lisbon Transport",
         slug: "lisbon-transport",
-        topics: [
-            ["ferry-timings", "Ferry Timings", "Cacilhas, Montijo, Seixal", "ferry cacilhas montijo seixal timetable boat", 40],
-            ["metro-map", "Metro Map", "", "metro map lines subway", 40]
-        ]
+        count: 100,
+        topics: []
     }
 ];
 
@@ -112,7 +113,17 @@ const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase
 const flat = [];
 let cur = -1;
 
+const hashOf = t => t.cat.slug + (t.slug ? "/" + t.slug : "");
 categories.forEach(cat => {
+    if (cat.count) {                                   // category that itself holds the images
+        const t = {cat, slug: "", label: cat.name, n: cat.count, isImg: true};
+        const b = document.createElement("button"); b.className = "cat direct";
+        b.innerHTML = "<span></span>"; b.firstChild.textContent = cat.name;
+        b.onclick = () => { location.hash = hashOf(t); };
+        t.el = b; t.idx = flat.length; flat.push(t);
+        $("cats").appendChild(b);
+        return;
+    }
     const block = document.createElement("div"); block.className = "cat open";
     const head = document.createElement("button");
     head.innerHTML = "<span></span><i>&#8250;</i>"; head.firstChild.textContent = cat.name;
@@ -126,7 +137,7 @@ categories.forEach(cat => {
         b.innerHTML = "<b></b>";
         b.firstChild.textContent = label;
         t.el = b; t.idx = flat.length; flat.push(t);
-        b.onclick = () => { location.hash = cat.slug + "/" + slug; };
+        b.onclick = () => { location.hash = hashOf(t); };
         list.appendChild(b);
     });
     block.append(head, list); block.dataset.n = cat.topics.length;
@@ -136,7 +147,7 @@ categories.forEach(cat => {
 // ── ROUTING (phone back button works: list -> topic) ────────────────────
 window.addEventListener("hashchange", route);
 function route() {
-    const [c, s] = location.hash.slice(1).split("/");
+    const [c, s = ""] = location.hash.slice(1).split("/");
     const i = flat.findIndex(t => t.cat.slug === c && t.slug === s);
     $("zoom").style.display = "none";
     document.body.classList.toggle("view", i >= 0);
@@ -171,7 +182,7 @@ function show(i) {
     s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("cnt").textContent = "";
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
-        const base = dir + t.slug + "/";
+        const base = t.slug ? dir + t.slug + "/" : dir;
         s.innerHTML = '<div class="msg">Loading...</div>';
         countImages(base, t.n).then(n => {
             if (cur !== i) return;                       // user already moved on
@@ -258,7 +269,7 @@ function updateCount() {
 }
 function topicStep(d) {
     const j = cur + d; if (j < 0 || j >= flat.length) return;
-    location.replace("#" + flat[j].cat.slug + "/" + flat[j].slug);
+    location.replace("#" + hashOf(flat[j]));
 }
 $("prevT").onclick = () => topicStep(-1); $("nextT").onclick = () => topicStep(1);
 
