@@ -12,8 +12,10 @@ html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-fami
 #app{height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
 button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
 button:active{background:var(--line)}
+button:disabled{opacity:.35;cursor:default}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
 button[hidden]{display:none}
+button:disabled{opacity:.3;cursor:default}
 #list{flex:1;overflow-y:auto;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
 #q{width:100%;height:44px;margin-bottom:10px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit}
 .cat{margin-bottom:8px}
@@ -28,10 +30,9 @@ button[hidden]{display:none}
 .empty{color:var(--mute);padding:8px 14px}
 #viewer{flex:1;min-height:0;position:relative;display:none}
 #slides,#page{height:100%;overflow-y:auto}
-/* mandatory snap WITHOUT scroll-snap-stop: slow swipe = next image, fast fling = glides past several and settles on one */
-#slides{scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
-#slides::-webkit-scrollbar{display:none}
-.slide{height:100%;scroll-snap-align:start;display:grid;place-items:center;padding:6px}
+/* swipes are handled in JS (one image per swipe) */
+#slides{overflow:hidden;touch-action:none}
+.slide{height:100%;display:grid;place-items:center;padding:6px}
 .slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
 #page{padding:12px 14px 24px;line-height:1.5}
 #page img{max-width:100%;height:auto;display:block;margin:10px 0;border-radius:6px}
@@ -103,7 +104,7 @@ const categories = [
 const $ = id => document.getElementById(id);
 const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 const flat = [];
-let cur = -1, last = 0;
+let cur = -1;
 
 categories.forEach(cat => {
     const block = document.createElement("div"); block.className = "cat open";
@@ -157,14 +158,11 @@ function route() {
     }
     show(i);
 }
-// ☰ : topic -> list, list -> back to last topic
-$("menu").onclick = () => {
-    if (cur >= 0) location.hash = "";
-    else if (flat.length) location.hash = flat[last].cat.slug + "/" + flat[last].slug;
-};
+// ☰ : always opens the topic list
+$("menu").onclick = () => { if (cur >= 0) location.hash = ""; };
 
 function show(i) {
-    cur = last = i; const t = flat[i], isImg = t.isImg;
+    cur = i; const t = flat[i], isImg = t.isImg;
     $("lbl").textContent = t.label;
     $("prevT").disabled = i === 0; $("nextT").disabled = i === flat.length - 1;
     $("slides").hidden = !isImg; $("page").hidden = isImg;
@@ -177,7 +175,7 @@ function show(i) {
             const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
             if (k > 2) im.loading = "lazy";
             im.onerror = () => { d.innerHTML = '<div class="msg">' + k + "." + IMG_EXT + " not found</div>"; };
-            im.onclick = () => openZoom(im.src);
+            im.onclick = () => { if (Date.now() > noClick) openZoom(im.src); };
             im.src = dir + t.slug + "/" + k + "." + IMG_EXT;
             d.appendChild(im); s.appendChild(d);
         }
@@ -191,35 +189,87 @@ function show(i) {
 }
 $("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZoom(e.target.src); });
 
+// ── SWIPE: one image per swipe, hard flick = up to 3, eased stop ────────
+const S = $("slides"); let anim = 0, drag = null, noClick = 0, wheelLock = 0;
+const maxTop = () => Math.max(0, S.scrollHeight - S.clientHeight);
+const idx = () => Math.round(S.scrollTop / Math.max(1, S.clientHeight));
+function goTo(i, ms) {
+    i = Math.max(0, Math.min(S.children.length - 1, i));
+    const from = S.scrollTop, to = i * S.clientHeight, t0 = performance.now();
+    cancelAnimationFrame(anim);
+    const f = now => {
+        const k = Math.min(1, (now - t0) / ms);
+        S.scrollTop = from + (to - from) * (1 - Math.pow(1 - k, 3));
+        updateCount();
+        if (k < 1) anim = requestAnimationFrame(f);
+    };
+    anim = requestAnimationFrame(f);
+}
+S.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1) { drag = null; return; }
+    cancelAnimationFrame(anim);
+    drag = {y: e.touches[0].clientY, t: Date.now(), top: S.scrollTop, base: idx(), moved: false};
+}, {passive: true});
+S.addEventListener("touchmove", e => {
+    if (!drag) return;
+    e.preventDefault();
+    const dy = e.touches[0].clientY - drag.y;
+    if (Math.abs(dy) > 8) drag.moved = true;
+    S.scrollTop = Math.max(0, Math.min(maxTop(), drag.top - dy));
+    updateCount();
+}, {passive: false});
+S.addEventListener("touchend", e => {
+    if (!drag) return;
+    const dy = e.changedTouches[0].clientY - drag.y, dt = Math.max(1, Date.now() - drag.t);
+    const v = Math.abs(dy) / dt;                       // px per ms
+    if (drag.moved) noClick = Date.now() + 350;
+    let steps = 0;
+    if (Math.abs(dy) > 35 || (Math.abs(dy) > 15 && v > 0.4)) steps = v > 2.5 ? 3 : v > 1.3 ? 2 : 1;
+    goTo(drag.base + (dy < 0 ? 1 : -1) * steps, 260 + steps * 140);
+    drag = null;
+});
+S.addEventListener("wheel", e => {
+    e.preventDefault();
+    if (Date.now() < wheelLock) return;
+    wheelLock = Date.now() + 450;
+    goTo(idx() + (e.deltaY > 0 ? 1 : -1), 320);
+}, {passive: false});
+
 // ── IMAGE COUNTER + TOPIC STEPPING ──────────────────────────────────────
 function updateCount() {
     const s = $("slides"), n = s.children.length;
     const i = Math.round(s.scrollTop / Math.max(1, s.clientHeight));
     $("cnt").textContent = n ? (i + 1) + " / " + n : "";
 }
-$("slides").addEventListener("scroll", updateCount, {passive: true});
 function topicStep(d) {
     const j = cur + d; if (j < 0 || j >= flat.length) return;
     location.replace("#" + flat[j].cat.slug + "/" + flat[j].slug);
 }
 $("prevT").onclick = () => topicStep(-1); $("nextT").onclick = () => topicStep(1);
 
-// ── MAXIMIZE ────────────────────────────────────────────────────────────
+// ── MAXIMIZE (YouTube style: same button toggles expand / collapse) ─────
+const EXP = '<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+const COL = '<svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+const root = document.documentElement, canFS = !!root.requestFullscreen;
+const setIcon = on => { $("max").innerHTML = on ? COL : EXP; $("max").setAttribute("aria-label", on ? "Exit full screen" : "Full screen"); };
 function setMax(on) {
-    document.body.classList.toggle("max", on);
-    const r = document.documentElement;
-    if (on && r.requestFullscreen) r.requestFullscreen().catch(() => {});
-    else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    if (canFS) {   // real fullscreen: bar stays, icon flips
+        if (on) root.requestFullscreen().catch(() => {});
+        else if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    } else document.body.classList.toggle("max", on);   // iPhone Safari: hide the bar instead
+    setIcon(on);
 }
-$("max").onclick = () => setMax(true);
+$("max").onclick = () => setMax(canFS ? !document.fullscreenElement : !document.body.classList.contains("max"));
 $("fsx").onclick = () => setMax(false);
-document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) document.body.classList.remove("max"); });
+document.addEventListener("fullscreenchange", () => setIcon(!!document.fullscreenElement));
 
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT") return;
     if ($("zoom").style.display === "block") { if (e.key === "Escape") $("zoom").style.display = "none"; return; }
     if (cur < 0) return;
-    if (e.key === "ArrowLeft") topicStep(-1);
+    if (e.key === "ArrowDown" && flat[cur].isImg) { e.preventDefault(); goTo(idx() + 1, 320); }
+    else if (e.key === "ArrowUp" && flat[cur].isImg) { e.preventDefault(); goTo(idx() - 1, 320); }
+    else if (e.key === "ArrowLeft") topicStep(-1);
     else if (e.key === "ArrowRight") topicStep(1);
     else if (e.key === "Escape" && !document.body.classList.contains("max")) location.hash = "";
 });
