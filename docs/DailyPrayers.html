@@ -684,8 +684,13 @@ body.touch-locked #content-box .verse-block { cursor: default; }
       border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
       font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
       background: radial-gradient(circle at 35% 30%, #ffe2b0 0%, #ffb454 55%, #ff9533 100%);
-      animation: startGlow 1.8s ease-in-out infinite;
+      opacity: 0; pointer-events: none;   /* hidden until the picture has fully appeared (script adds .btn-on) */
   }
+  #start-screen.btn-on #start-btn {
+      pointer-events: auto;
+      animation: startBtnIn 1.2s ease forwards, startGlow 1.8s ease-in-out infinite;
+  }
+  @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
   /* soft saffron glow that breathes in and out */
   @keyframes startGlow {
@@ -698,7 +703,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
 }
-@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 </style>
 </head>
 <body>
@@ -803,8 +808,8 @@ const categories = [
 			["maha-lakshmi-ashtottara-shata-namavali", 		"10a. Mahalakshmi Ashtottaram", 				"Mahalakshmi Ashtottaram", "Mahalakshmi Ashtottaram", "html"],
 			["ganesha-ashtottara-shata-namavali", 			"11a. Ganesha Ashtottaram", 					"Ganesha Ashtottaram", "Ganesha Ashtottaram", "html"],
 			["aparadha-kshamapana-stotram", 				"12a. Durga Saptashati", 						"Durga Saptashati", "Durga Saptashati", "html"],
-			["maha-lakshmi-ashtakam-telugu", 				"13a. Mahalakshmi Ashtakam(Telugu)", 			"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
-			["maha-lakshmi-ashtakam-english", 				"13b. Mahalakshmi Ashtakam(English)", 			"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
+			["maha-lakshmi-ashtakam-telugu", 				"13a. Mahalakshmi  Ashtakam", 					"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
+			["maha-lakshmi-ashtakam-english", 				"13b. Mahalakshmi  Ashtakam", 					"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
 			["bilvashtakam", 								"14a. Bilva Ashtakam", 							"Bilva Ashtakam", "Bilva Ashtakam", "html"],
 			["sri-suktam-with-audio", 						"14a. Sri Suktam", 								"Sri Suktam", "Sri Suktam", "html"],
 			["sri-rama-stotram-telugu", 					"16a. Sri Rama Strotram (Telugu)", 				"Sri Rama Strotram", "Sri Rama Strotram", "html"],
@@ -1472,12 +1477,15 @@ fsBtn.addEventListener("click", () => {
     } else {
         setReading(false);
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
     }
 });
-document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
-    if (!document.fullscreenElement) setReading(false);
+function onFsChange() {   // keeps the nav-bar icon right however full screen started or ended (Start button, nav button, back gesture, Esc)
+    setReading(!!(document.fullscreenElement || document.webkitFullscreenElement));
     setTimeout(fitVerses, 250);
-});
+}
+document.addEventListener("fullscreenchange", onFsChange);
+document.addEventListener("webkitfullscreenchange", onFsChange);
 
 // ── PURPORT CARD ───────────────────────────────────────────────────────
 // Each .verse-block may carry  data-purport="meaning text".  While that stanza is playing, the card
@@ -1631,6 +1639,10 @@ counterEl.textContent = "– / " + flatTopics.length;
     probe.onerror = () => { setImg(fallbackImg); const f = new Image(); f.onload = f.onerror = ready; f.src = fallbackImg; };
     probe.src = dayImg;
     setTimeout(ready, 1500);
+    // the glowing Start button appears only AFTER the picture has finished its slow fade-in
+    const showBtn = () => screenEl.classList.add("btn-on");
+    screenEl.addEventListener("animationend", e => { if (e.target === screenEl && e.animationName === "startReveal") showBtn(); });
+    setTimeout(showBtn, 7500);   // safety net (1.5 s wait + 5 s reveal + margin)
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
