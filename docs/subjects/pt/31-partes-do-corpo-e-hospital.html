@@ -1,0 +1,357 @@
+<div class="pt-oral">
+<style>
+.pt-oral { color: #2b2b2b; font-family: inherit; }
+.pt-oral h2, .pt-oral h4, .pt-oral h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-oral .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-oral .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-oral .desc-box p:last-child { margin-bottom: 0; }
+.pt-oral .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-oral .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-oral .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-oral .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-oral .spk-wrap, .pt-oral .ex-line { position: relative; padding-left: 1.9em; }
+.pt-oral .spk-wrap:hover .spk-btn,
+.pt-oral .ex-line:hover .spk-btn,
+.pt-oral .spk-btn:focus-visible { opacity: 1; }
+.pt-oral .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-oral .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-oral .desc-box > p:hover .spk-inline,
+.pt-oral .spk-inline:focus-visible,
+.pt-oral .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-oral .spk-btn, .pt-oral .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-oral .table-scroll { overflow-x: auto; }
+.pt-oral .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-oral .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-oral .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-oral .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-oral .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-oral .compare-table tr:last-child td { border-bottom: none; }
+.pt-oral .compare-table td.spk-wrap, .pt-oral .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-oral .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-oral .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-oral .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-oral .example-list { margin: 0 0 12px 0; }
+.pt-oral .example-list:last-child { margin-bottom: 0; }
+.pt-oral .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-oral .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-oral .ex-line:last-child { margin-bottom: 0; }
+.pt-oral .example-box .pt-word { color: #d8b46a !important; }
+.pt-oral .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-oral .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-oral .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-oral .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-oral .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-oral .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-oral .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-oral .exercise-item:last-child { margin-bottom: 0; }
+.pt-oral .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-oral .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-oral .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-oral .blank-word { display: inline-block; }
+.pt-oral .underscore { color: #999 !important; }
+.pt-oral .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-oral .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-oral .cue-list li:last-child { border-bottom: none; }
+.pt-oral .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-oral .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-oral .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-oral .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-oral .check-btn:hover { background: #245640 !important; }
+
+.pt-oral .audio-box { background:#fff8e8 !important; border:1px solid #e6ddc9; border-left:4px solid #c9a15a; border-radius:8px; padding:16px 20px; margin:18px 0; }
+.pt-oral .audio-box h3 { margin:0 0 6px 0; color:#a1521f !important; font-family:Georgia,"Times New Roman",serif; font-size:1.25em; }
+.pt-oral .audio-box p { color:#2b2b2b !important; margin:0 0 10px 0; line-height:1.6; }
+.pt-oral .audio-box audio { width:100%; margin:6px 0; }
+.pt-oral .audio-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .tip { color:#7a7a7a !important; font-size:.88em; font-style:italic; }
+.pt-oral .write-cell { min-width:200px; height:44px; }
+.pt-oral .note-box { background:#fff4e0 !important; border-left:4px solid #d8863a; border-radius:6px; padding:10px 16px; margin:12px 0 0 0; color:#2b2b2b !important; line-height:1.7; }
+.pt-oral .note-box b { color:#a1521f !important; }
+.pt-oral .num { color:#999 !important; width:2em; }
+.pt-oral .ans-table td.fill-row .reveal { margin-left:0; }
+</style>
+<style>
+.pt-oral .img-box { background:#ffffff !important; border:1px solid #e6ddc9; border-radius:8px; padding:12px; margin:14px 0; text-align:center; }
+.pt-oral .img-box img { max-width:100%; height:auto; border-radius:6px; }
+.pt-oral .img-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .ph { color:#b04a2a !important; font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:600; }
+.pt-oral .ex-line .ph { color:#f0a58a !important; }
+</style>
+
+<h2>31. Partes do corpo e hospital <span class="en">(Body parts and the hospital)</span></h2>
+
+<div class="desc-box">
+  <p>In this lesson you learn the <span class="pt-word">partes do corpo</span><button class="spk-inline" data-pt="as partes do corpo" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(parts of the body)</span> and the language you need when you are unwell: saying how you feel, giving advice, and going to the doctor or hospital. First study the picture and the vocabulary. Then listen to three short conversations (<span class="pt-word">Não me sinto bem</span><button class="spk-inline" data-pt="Não me sinto bem" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>) and complete the missing sentences. In the audio, Inês has a headache, Paulo has a strong pain in his chest, and Rita has had a car accident.</p>
+  <p>Three points to notice. (1) For pain you can say <strong>ter dor(es) de</strong> (<em>tenho dores de cabeça</em>) or use <strong>doer</strong>, where the body part is the subject: <em>dói-me a cabeça, doem-me os pés</em>. (2) For illnesses use <strong>estar com</strong>: <em>estou com gripe</em>. (3) Advice to a friend uses the <strong>tu</strong> command: <em>toma, vai, deita-te</em>. The formal form is different (<em>tome, vá, deite-se</em>).</p>
+</div>
+
+<div class="img-box">
+  <img src="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/images/body-parts.webp" alt="As partes do corpo" onerror="this.style.display='none'; this.parentNode.querySelector('.img-msg').style.display='block'">
+  <p class="img-msg">Image not found. Upload the file as <b>body-parts.webp</b> to <b>docs/subjects/pt/images/</b> in the repo.</p>
+  <p class="tip">As partes do corpo (the parts of the body)</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>1. Vocabulário — as partes do corpo</strong> <span class="en">(body parts)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>हिन्दी</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="a cabeça"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a cabeça</span></td><td>head</td><td>सिर</td></tr>
+<tr><td class="spk-wrap" data-pt="o cabelo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o cabelo</span></td><td>hair</td><td>बाल</td></tr>
+<tr><td class="spk-wrap" data-pt="a cara / o rosto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a cara / o rosto</span></td><td>face</td><td>चेहरा</td></tr>
+<tr><td class="spk-wrap" data-pt="o olho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o olho</span></td><td>eye</td><td>आँख</td></tr>
+<tr><td class="spk-wrap" data-pt="a orelha"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a orelha</span></td><td>ear</td><td>कान</td></tr>
+<tr><td class="spk-wrap" data-pt="o nariz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o nariz</span></td><td>nose</td><td>नाक</td></tr>
+<tr><td class="spk-wrap" data-pt="a boca"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a boca</span></td><td>mouth</td><td>मुँह</td></tr>
+<tr><td class="spk-wrap" data-pt="o dente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o dente</span></td><td>tooth</td><td>दाँत</td></tr>
+<tr><td class="spk-wrap" data-pt="o pescoço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o pescoço</span></td><td>neck</td><td>गर्दन</td></tr>
+<tr><td class="spk-wrap" data-pt="o ombro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o ombro</span></td><td>shoulder</td><td>कंधा</td></tr>
+<tr><td class="spk-wrap" data-pt="o braço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o braço</span></td><td>arm</td><td>बाँह</td></tr>
+<tr><td class="spk-wrap" data-pt="a mão"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a mão</span></td><td>hand</td><td>हाथ</td></tr>
+<tr><td class="spk-wrap" data-pt="o dedo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o dedo</span></td><td>finger</td><td>उँगली</td></tr>
+<tr><td class="spk-wrap" data-pt="o peito"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o peito</span></td><td>chest</td><td>छाती</td></tr>
+<tr><td class="spk-wrap" data-pt="a barriga / o estômago"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a barriga / o estômago</span></td><td>belly / stomach</td><td>पेट</td></tr>
+<tr><td class="spk-wrap" data-pt="as costas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">as costas</span></td><td>back</td><td>पीठ</td></tr>
+<tr><td class="spk-wrap" data-pt="a perna"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a perna</span></td><td>leg</td><td>टाँग</td></tr>
+<tr><td class="spk-wrap" data-pt="o joelho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o joelho</span></td><td>knee</td><td>घुटना</td></tr>
+<tr><td class="spk-wrap" data-pt="o pé"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o pé</span></td><td>foot</td><td>पैर</td></tr>
+</tbody></table></div>
+  <p class="tip" style="margin-top:8px">This is a standard list of body parts. Check it against the labels on your picture and add or remove words as needed.</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Como se sente? Onde dói?</strong> <span class="en">(feelings and pain)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>Estrutura</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="Não me sinto bem."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Não me sinto bem.</span></td><td>I don't feel well.</td><td>sentir-se</td></tr>
+<tr><td class="spk-wrap" data-pt="Tenho dores de cabeça."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho dores de cabeça.</span></td><td>I have headaches.</td><td>ter dor(es) de + parte do corpo</td></tr>
+<tr><td class="spk-wrap" data-pt="Dói-me a cabeça."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Dói-me a cabeça.</span></td><td>My head hurts.</td><td>doer (singular)</td></tr>
+<tr><td class="spk-wrap" data-pt="Doem-me os pés."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Doem-me os pés.</span></td><td>My feet hurt.</td><td>doer (plural)</td></tr>
+<tr><td class="spk-wrap" data-pt="Estou com gripe."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Estou com gripe.</span></td><td>I have the flu.</td><td>estar com + doença</td></tr>
+<tr><td class="spk-wrap" data-pt="Tenho uma dor no peito."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho uma dor no peito.</span></td><td>I have a pain in my chest.</td><td>ter uma dor em/no/na</td></tr>
+</tbody></table></div>
+  <div class="note-box"><b>IMPORTANTE!</b> <span class="pt-word">dói-me</span><button class="spk-inline" data-pt="dói-me" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> (singular) · <span class="pt-word">doem-me</span><button class="spk-inline" data-pt="doem-me" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> (plural): <em>Dói-me o braço. Doem-me as costas.</em><br><b>IMPORTANTE!</b> <span class="pt-word">umas dores</span><button class="spk-inline" data-pt="umas dores" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = some aches. <span class="pt-word">fortíssima</span><button class="spk-inline" data-pt="fortíssima" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = very strong.</div>
+</div>
+
+<div class="desc-box">
+  <p><strong>3. Conselhos e permissão</strong> <span class="en">(advice and permission)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>Estrutura</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="Vai para casa."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Vai para casa.</span></td><td>Go home.</td><td>ir → vai</td></tr>
+<tr><td class="spk-wrap" data-pt="Toma uma aspirina."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Toma uma aspirina.</span></td><td>Take an aspirin.</td><td>tomar → toma</td></tr>
+<tr><td class="spk-wrap" data-pt="Deita-te."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Deita-te.</span></td><td>Lie down.</td><td>deitar-se → deita-te</td></tr>
+<tr><td class="spk-wrap" data-pt="Vamos já ao hospital."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Vamos já ao hospital.</span></td><td>Let's go to the hospital right now.</td><td>ir → vamos</td></tr>
+<tr><td class="spk-wrap" data-pt="Achas que posso?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Achas que posso?</span></td><td>Do you think I can?</td><td>poder → posso</td></tr>
+<tr><td class="spk-wrap" data-pt="Tenho que ir ao médico."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Tenho que ir ao médico.</span></td><td>I have to go to the doctor.</td><td>ter que + infinitivo</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="desc-box">
+  <p><strong>4. Vocabulário — o hospital e a saúde</strong> <span class="en">(hospital and health)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>हिन्दी</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="o médico / a médica"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o médico / a médica</span></td><td>doctor</td><td>डॉक्टर</td></tr>
+<tr><td class="spk-wrap" data-pt="o enfermeiro / a enfermeira"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o enfermeiro / a enfermeira</span></td><td>nurse</td><td>नर्स</td></tr>
+<tr><td class="spk-wrap" data-pt="o hospital"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o hospital</span></td><td>hospital</td><td>अस्पताल</td></tr>
+<tr><td class="spk-wrap" data-pt="as urgências"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">as urgências</span></td><td>emergency room</td><td>आपातकालीन विभाग</td></tr>
+<tr><td class="spk-wrap" data-pt="a ambulância"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a ambulância</span></td><td>ambulance</td><td>एम्बुलेंस</td></tr>
+<tr><td class="spk-wrap" data-pt="a consulta"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a consulta</span></td><td>appointment, consultation</td><td>परामर्श / अपॉइंटमेंट</td></tr>
+<tr><td class="spk-wrap" data-pt="marcar uma consulta"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">marcar uma consulta</span></td><td>to book an appointment</td><td>अपॉइंटमेंट बुक करना</td></tr>
+<tr><td class="spk-wrap" data-pt="a farmácia"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a farmácia</span></td><td>pharmacy</td><td>दवाखाना</td></tr>
+<tr><td class="spk-wrap" data-pt="o medicamento"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o medicamento</span></td><td>medicine</td><td>दवा</td></tr>
+<tr><td class="spk-wrap" data-pt="a aspirina"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a aspirina</span></td><td>aspirin</td><td>एस्प्रिन</td></tr>
+<tr><td class="spk-wrap" data-pt="a gripe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a gripe</span></td><td>flu</td><td>फ़्लू</td></tr>
+<tr><td class="spk-wrap" data-pt="a dor (as dores)"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a dor (as dores)</span></td><td>pain (aches)</td><td>दर्द</td></tr>
+<tr><td class="spk-wrap" data-pt="o acidente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o acidente</span></td><td>accident</td><td>दुर्घटना</td></tr>
+<tr><td class="spk-wrap" data-pt="grave"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">grave</span></td><td>serious</td><td>गंभीर</td></tr>
+<tr><td class="spk-wrap" data-pt="partir (o braço)"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">partir (o braço)</span></td><td>to break (the arm)</td><td>(बाँह) तोड़ना</td></tr>
+</tbody></table></div>
+  <hr class="desc-divider">
+  <p><strong>Expressões úteis</strong> <span class="en">(useful expressions)</span></p>
+  <p><span class="pt-word">Coitada! / Coitado!</span><button class="spk-inline" data-pt="Coitada!" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> Poor thing! · <span class="pt-word">Se calhar…</span><button class="spk-inline" data-pt="Se calhar" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> Maybe… · <span class="pt-word">Pois.</span><button class="spk-inline" data-pt="Pois" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> Yes, right. · <span class="pt-word">A sério?</span><button class="spk-inline" data-pt="A sério?" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> Really? · <span class="pt-word">De nada.</span><button class="spk-inline" data-pt="De nada" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> You're welcome. · <span class="pt-word">As melhoras!</span><button class="spk-inline" data-pt="As melhoras!" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> Get well soon! · <span class="pt-word">Que horror!</span><button class="spk-inline" data-pt="Que horror!" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> How awful!</p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — quando não me sinto bem</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Não me sinto bem. Tenho febre."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não me sinto bem. Tenho febre.<span class="en-eq">I don't feel well. I have a fever.</span></p><p class="ex-line" data-pt="Qual é o problema? Dói-me a barriga."><button class="spk-btn" aria-label="Ouvir">🔊</button>Qual é o problema? Dói-me a barriga.<span class="en-eq">What's the problem? My stomach hurts.</span></p><p class="ex-line" data-pt="Estás com gripe? Vai para casa e deita-te."><button class="spk-btn" aria-label="Ouvir">🔊</button>Estás com gripe? Vai para casa e deita-te.<span class="en-eq">Do you have the flu? Go home and lie down.</span></p><p class="ex-line" data-pt="Há quanto tempo tens essa dor?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Há quanto tempo tens essa dor?<span class="en-eq">How long have you had this pain?</span></p><p class="ex-line" data-pt="Tive um acidente de carro."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tive um acidente de carro.<span class="en-eq">I had a car accident.</span></p><p class="ex-line" data-pt="Parti o braço."><button class="spk-btn" aria-label="Ouvir">🔊</button>Parti o braço.<span class="en-eq">I broke my arm.</span></p><p class="ex-line" data-pt="Vou marcar uma consulta para a semana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vou marcar uma consulta para a semana.<span class="en-eq">I'm going to book an appointment for next week.</span></p><p class="ex-line" data-pt="Vou chamar uma ambulância."><button class="spk-btn" aria-label="Ouvir">🔊</button>Vou chamar uma ambulância.<span class="en-eq">I'm going to call an ambulance.</span></p><p class="ex-line" data-pt="Obrigado! — De nada. As melhoras!"><button class="spk-btn" aria-label="Ouvir">🔊</button>Obrigado! — De nada. As melhoras!<span class="en-eq">Thank you! — You're welcome. Get well soon!</span></p><p class="ex-line" data-pt="Coitada! Se calhar estás com gripe."><button class="spk-btn" aria-label="Ouvir">🔊</button>Coitada! Se calhar estás com gripe.<span class="en-eq">Poor thing! Maybe you have the flu.</span></p>
+  </div>
+</div>
+
+<div class="audio-box">
+  <h3>🔊 Compreensão oral</h3>
+  <p><strong>Ouça as três conversas e complete as frases.</strong><br><span class="en">Listen to the three conversations and complete the sentences. Write the answers on paper.</span></p>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/audio/unwell-conversation.mp3" onerror="this.parentNode.querySelector('.audio-msg').style.display='block'">Your browser does not support audio.</audio>
+  <p class="audio-msg">Audio not found. Upload the file as <b>unwell-conversation.mp3</b> to <b>docs/subjects/pt/audio/</b> in the repo.</p>
+  <p class="tip">Tip: first listen once without writing. Listen again and write answers 1 to 6 on paper. Listen a third time to check your spelling.</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>Complete as frases</strong> <span class="pt-word">Complete as frases.</span><button class="spk-inline" data-pt="Complete as frases." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(Listen to the audio and write answers 1–6 on paper.)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>#</th><th>Conversa</th><th>Frase</th><th>Escreva aqui</th></tr></thead><tbody>
+<tr><td class="num">1</td><td>Conversa 1 (Inês)</td><td class="spk-wrap" data-pt="Claro."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Claro. ______ Toma uma aspirina e deita-te.</td><td class="write-cell"></td></tr>
+<tr><td class="num">2</td><td>Conversa 1 (Inês)</td><td class="spk-wrap" data-pt="Toma uma aspirina e deita-te."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: ______</td><td class="write-cell"></td></tr>
+<tr><td class="num">3</td><td>Conversa 2 (Paulo)</td><td>B: ______ — A: O que é que se passa?</td><td class="write-cell"></td></tr>
+<tr><td class="num">4</td><td>Conversa 2 (Paulo)</td><td class="spk-wrap" data-pt="Há quanto tempo tens isso?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Há quanto tempo tens isso? — B: ______</td><td class="write-cell"></td></tr>
+<tr><td class="num">5</td><td>Conversa 3 (Rita)</td><td class="spk-wrap" data-pt="Onde é que estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Onde é que estás? — B: ______ — A: Porquê?</td><td class="write-cell"></td></tr>
+<tr><td class="num">6</td><td>Conversa 3 (Rita)</td><td class="spk-wrap" data-pt="Estou bem."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Estou bem. ______ Só parti o braço.</td><td class="write-cell"></td></tr>
+
+</tbody></table></div>
+</div>
+
+<div class="example-box">
+  <h4>As conversas <span class="en-eq" style="margin-left:6px">the three conversations, with the missing sentences left for you</span></h4>
+  <div class="example-list">
+    <h5 style="margin-top:14px">Conversa 1</h5>
+<p class="ex-line" data-pt="A: Não me sinto bem."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Não me sinto bem.<span class="en-eq">I don't feel well.</span></p>
+<p class="ex-line" data-pt="B: Porquê? Qual é o problema, Inês?"><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Porquê? Qual é o problema, Inês?<span class="en-eq">Why? What's the problem, Inês?</span></p>
+<p class="ex-line" data-pt="A: Tenho umas dores de cabeça horríveis."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Tenho umas dores de cabeça horríveis.<span class="en-eq">I have terrible headaches.</span></p>
+<p class="ex-line" data-pt="B: A sério? Coitada! Se calhar estás com gripe!"><button class="spk-btn" aria-label="Ouvir">🔊</button>B: A sério? Coitada! Se calhar estás com gripe!<span class="en-eq">Really? Poor thing! Maybe you have the flu!</span></p>
+<p class="ex-line" data-pt="A: Pois, se calhar estou."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Pois, se calhar estou.<span class="en-eq">Yes, maybe I do.</span></p>
+<p class="ex-line" data-pt="B: Então, vai para casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Então, vai para casa.<span class="en-eq">Then go home.</span></p>
+<p class="ex-line" data-pt="A: Achas que posso?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Achas que posso?<span class="en-eq">Do you think I can?</span></p>
+<p class="ex-line" data-pt="Toma uma aspirina e deita-te."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Claro. <span class="ph">[ 🎧 listen to the audio and write on paper — 1 ]</span> Toma uma aspirina e deita-te.<span class="en-eq">Of course.</span></p>
+<p class="ex-line">A: <span class="ph">[ 🎧 listen to the audio and write on paper — 2 ]</span></p>
+<p class="ex-line" data-pt="B: De nada. As melhoras!"><button class="spk-btn" aria-label="Ouvir">🔊</button>B: De nada. As melhoras!<span class="en-eq">You're welcome. Get well soon!</span></p>
+<h5 style="margin-top:14px">Conversa 2</h5>
+<p class="ex-line" data-pt="A: Paulo, tu estás bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Paulo, tu estás bem?<span class="en-eq">Paulo, are you OK?</span></p>
+<p class="ex-line">B: <span class="ph">[ 🎧 listen to the audio and write on paper — 3 ]</span></p>
+<p class="ex-line" data-pt="A: O que é que se passa?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: O que é que se passa?<span class="en-eq">What's going on?</span></p>
+<p class="ex-line" data-pt="B: Tenho uma dor fortíssima no peito."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Tenho uma dor fortíssima no peito.<span class="en-eq">I have a very strong pain in my chest.</span></p>
+<p class="ex-line" data-pt="A: Há quanto tempo tens isso?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Há quanto tempo tens isso?<span class="en-eq">How long have you had this?</span></p>
+<p class="ex-line">B: <span class="ph">[ 🎧 listen to the audio and write on paper — 4 ]</span></p>
+<p class="ex-line" data-pt="A: Isso pode ser muito grave."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Isso pode ser muito grave.<span class="en-eq">That could be very serious.</span></p>
+<p class="ex-line" data-pt="B: Pois pode. Tenho que ir ao médico. Vou marcar uma consulta para a semana."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Pois pode. Tenho que ir ao médico. Vou marcar uma consulta para a semana.<span class="en-eq">True. I have to see a doctor. I'll book an appointment for next week.</span></p>
+<p class="ex-line" data-pt="A: Não, não. Tem que ser agora. Vou chamar uma ambulância. Vamos já ao hospital."><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Não, não. Tem que ser agora. Vou chamar uma ambulância. Vamos já ao hospital.<span class="en-eq">No, no. It has to be now. I'll call an ambulance. We're going to the hospital right away.</span></p>
+<h5 style="margin-top:14px">Conversa 3</h5>
+<p class="ex-line" data-pt="A: Rita! Finalmente! Onde é que estás?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Rita! Finalmente! Onde é que estás?<span class="en-eq">Rita! At last! Where are you?</span></p>
+<p class="ex-line">B: <span class="ph">[ 🎧 listen to the audio and write on paper — 5 ]</span></p>
+<p class="ex-line" data-pt="A: Porquê? O que é que aconteceu?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: Porquê? O que é que aconteceu?<span class="en-eq">Why? What happened?</span></p>
+<p class="ex-line" data-pt="B: Tive um acidente de carro."><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Tive um acidente de carro.<span class="en-eq">I had a car accident.</span></p>
+<p class="ex-line" data-pt="A: O quê? Que horror! Mas como é que tu estás? O que é que tens?"><button class="spk-btn" aria-label="Ouvir">🔊</button>A: O quê? Que horror! Mas como é que tu estás? O que é que tens?<span class="en-eq">What? How awful! But how are you? What's wrong?</span></p>
+<p class="ex-line" data-pt="Só parti o braço. Não posso falar agora. Depois ligo-te, está bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button>B: Estou bem. <span class="ph">[ 🎧 listen to the audio and write on paper — 6 ]</span> Só parti o braço. Não posso falar agora. Depois ligo-te, está bem?<span class="en-eq">I'm fine.</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Como se diz em português? <span class="en">(body parts)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">head</span> <span class="reveal">a cabeça</span></li>
+<li><span class="cue">arm</span> <span class="reveal">o braço</span></li>
+<li><span class="cue">chest</span> <span class="reveal">o peito</span></li>
+<li><span class="cue">back</span> <span class="reveal">as costas</span></li>
+<li><span class="cue">stomach</span> <span class="reveal">a barriga / o estômago</span></li>
+<li><span class="cue">foot</span> <span class="reveal">o pé</span></li>
+<li><span class="cue">mouth</span> <span class="reveal">a boca</span></li>
+<li><span class="cue">hand</span> <span class="reveal">a mão</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Complete: sinto · tenho · com · dói · doem · deita.</p>
+    <p class="question">
+Eu não me <span class="blank-word"><span class="underscore">_______</span><span class="fill">sinto</span></span> bem.<br>
+Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">tenho</span></span> uma dor forte no peito.<br>
+Tu estás <span class="blank-word"><span class="underscore">_______</span><span class="fill">com</span></span> gripe?<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Dói</span></span>-me a cabeça.<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Doem</span></span>-me os pés.<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Deita</span></span>-te e descansa.
+</p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Qual é o conselho? <span class="en">(suggested advice)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">Tenho dor de cabeça.</span> <span class="reveal">Toma uma aspirina.</span></li>
+<li><span class="cue">Estou com gripe.</span> <span class="reveal">Vai para casa e deita-te.</span></li>
+<li><span class="cue">Tenho uma dor fortíssima no peito.</span> <span class="reveal">Vai já ao hospital. / Vamos chamar uma ambulância.</span></li>
+<li><span class="cue">Parti o braço.</span> <span class="reveal">Vai ao hospital.</span></li>
+<li><span class="cue">Não me sinto bem.</span> <span class="reveal">Vai para casa e descansa.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Verdadeiro ou falso? <span class="en">(about the conversations)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">A Inês tem dores de cabeça.</span> <span class="reveal">Verdadeiro.</span></li>
+<li><span class="cue">A Inês pode ir para casa.</span> <span class="reveal">Verdadeiro — «Claro.»</span></li>
+<li><span class="cue">O Paulo tem uma dor no peito.</span> <span class="reveal">Verdadeiro — «uma dor fortíssima no peito».</span></li>
+<li><span class="cue">O Paulo vai marcar uma consulta para a semana, mas o amigo diz que tem que ser agora.</span> <span class="reveal">Verdadeiro.</span></li>
+<li><span class="cue">A Rita tem uma gripe.</span> <span class="reveal">Falso — teve um <b>acidente de carro</b>.</span></li>
+<li><span class="cue">A Rita partiu a perna.</span> <span class="reveal">Falso — partiu o <b>braço</b>.</span></li>
+<li><span class="cue">A Rita pode falar muito tempo.</span> <span class="reveal">Falso — «Não posso falar agora.»</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">5. Como se diz em português?</p>
+    <ol class="cue-list">
+<li><span class="cue">I don't feel well.</span> <span class="reveal">Não me sinto bem.</span></li>
+<li><span class="cue">What's the problem?</span> <span class="reveal">Qual é o problema?</span></li>
+<li><span class="cue">I have a headache.</span> <span class="reveal">Tenho dor de cabeça.</span></li>
+<li><span class="cue">How long have you had this?</span> <span class="reveal">Há quanto tempo tens isso?</span></li>
+<li><span class="cue">I had an accident.</span> <span class="reveal">Tive um acidente.</span></li>
+<li><span class="cue">I broke my arm.</span> <span class="reveal">Parti o braço.</span></li>
+<li><span class="cue">Get well soon!</span> <span class="reveal">As melhoras!</span></li>
+<li><span class="cue">I'm going to book an appointment.</span> <span class="reveal">Vou marcar uma consulta.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">6. Com que parte do corpo? <span class="en">(complete the sentence)</span></p>
+    <p class="question">
+Vejo com os <span class="blank-word"><span class="underscore">_______</span><span class="fill">olhos</span></span>.<br>
+Ouço com as <span class="blank-word"><span class="underscore">_______</span><span class="fill">orelhas</span></span>.<br>
+Cheiro com o <span class="blank-word"><span class="underscore">_______</span><span class="fill">nariz</span></span>.<br>
+Como com a <span class="blank-word"><span class="underscore">_______</span><span class="fill">boca</span></span>.<br>
+Escrevo com a <span class="blank-word"><span class="underscore">_______</span><span class="fill">mão</span></span>.<br>
+Ando com as <span class="blank-word"><span class="underscore">_______</span><span class="fill">pernas</span></span> e os <span class="blank-word"><span class="underscore">_______</span><span class="fill">pés</span></span>.
+</p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Solução — Compreensão oral <span class="en">(listen and write first!)</span></h4>
+  <div class="exercise-item">
+    <p class="ex-label">Respostas 1–6</p>
+    <p class="note-box" style="margin-top:0"><b>Listen to the audio and write your answers on paper.</b> The answer key will be added here.</p>
+  </div>
+</div>
+
+<p class="tip" style="margin-top:14px">Source: Passaporte para Português (page to be added) · Portuguese language course (A1–A2).</p>
+</div>

@@ -1,0 +1,355 @@
+<div class="pt-oral">
+<style>
+.pt-oral { color: #2b2b2b; font-family: inherit; }
+.pt-oral h2, .pt-oral h4, .pt-oral h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-oral .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-oral .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-oral .desc-box p:last-child { margin-bottom: 0; }
+.pt-oral .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-oral .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-oral .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-oral .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-oral .spk-wrap, .pt-oral .ex-line { position: relative; padding-left: 1.9em; }
+.pt-oral .spk-wrap:hover .spk-btn,
+.pt-oral .ex-line:hover .spk-btn,
+.pt-oral .spk-btn:focus-visible { opacity: 1; }
+.pt-oral .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-oral .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-oral .desc-box > p:hover .spk-inline,
+.pt-oral .spk-inline:focus-visible,
+.pt-oral .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-oral .spk-btn, .pt-oral .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-oral .table-scroll { overflow-x: auto; }
+.pt-oral .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-oral .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-oral .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-oral .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-oral .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-oral .compare-table tr:last-child td { border-bottom: none; }
+.pt-oral .compare-table td.spk-wrap, .pt-oral .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-oral .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-oral .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-oral .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-oral .example-list { margin: 0 0 12px 0; }
+.pt-oral .example-list:last-child { margin-bottom: 0; }
+.pt-oral .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-oral .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-oral .ex-line:last-child { margin-bottom: 0; }
+.pt-oral .example-box .pt-word { color: #d8b46a !important; }
+.pt-oral .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-oral .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-oral .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-oral .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-oral .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-oral .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-oral .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-oral .exercise-item:last-child { margin-bottom: 0; }
+.pt-oral .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-oral .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-oral .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-oral .blank-word { display: inline-block; }
+.pt-oral .underscore { color: #999 !important; }
+.pt-oral .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-oral .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-oral .cue-list li:last-child { border-bottom: none; }
+.pt-oral .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-oral .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-oral .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-oral .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-oral .check-btn:hover { background: #245640 !important; }
+
+.pt-oral .audio-box { background:#fff8e8 !important; border:1px solid #e6ddc9; border-left:4px solid #c9a15a; border-radius:8px; padding:16px 20px; margin:18px 0; }
+.pt-oral .audio-box h3 { margin:0 0 6px 0; color:#a1521f !important; font-family:Georgia,"Times New Roman",serif; font-size:1.25em; }
+.pt-oral .audio-box p { color:#2b2b2b !important; margin:0 0 10px 0; line-height:1.6; }
+.pt-oral .audio-box audio { width:100%; margin:6px 0; }
+.pt-oral .audio-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .tip { color:#7a7a7a !important; font-size:.88em; font-style:italic; }
+.pt-oral .write-cell { min-width:200px; height:44px; }
+.pt-oral .note-box { background:#fff4e0 !important; border-left:4px solid #d8863a; border-radius:6px; padding:10px 16px; margin:12px 0 0 0; color:#2b2b2b !important; line-height:1.7; }
+.pt-oral .note-box b { color:#a1521f !important; }
+.pt-oral .num { color:#999 !important; width:2em; }
+.pt-oral .ans-table td.fill-row .reveal { margin-left:0; }
+</style>
+
+<h2>30. Compreensão oral — O trabalho <span class="en">(Listening comprehension — Work)</span></h2>
+
+<div class="desc-box">
+  <p>In this lesson you <em>listen</em> and then <em>write</em>. Paulo Santos is 37 and works as a waiter (<span class="pt-word">empregado de mesa</span>)<button class="spk-inline" data-pt="empregado de mesa" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>. A reporter interviews him (<span class="pt-word">a entrevista</span>)<button class="spk-inline" data-pt="a entrevista" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> about his job: where he works, how many hours and days, his pay, what the work is like, his boss and where the restaurant is. Your task is to listen to the audio and complete the text. The exercise comes from <em>Passaporte para Português</em>, A37, p. 46. The instruction on the worksheet reads: <span class="pt-word">Ouça a entrevista com ele e complete o texto.</span><button class="spk-inline" data-pt="Ouça a entrevista com ele e complete o texto." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(Listen to the interview with him and complete the text.)</span></p>
+  <p>Four small points will help you with the answers. (1) Regular <strong>-ar</strong> verbs such as <em>trabalhar, estudar, ganhar, gostar</em> end in <strong>-o, -as, -a, -amos, -am</strong>. (2) Time is measured <strong>por</strong> (per): <span class="pt-word">sete horas por dia</span><button class="spk-inline" data-pt="sete horas por dia" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>, <span class="pt-word">seis dias por semana</span><button class="spk-inline" data-pt="seis dias por semana" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>. (3) <em>Gostar</em> always takes <strong>de</strong>, which joins the article: <em>gostar do chefe, gostar da escola</em>. (4) <em>Em</em> also joins the article: <em>num restaurante, numa universidade, no centro</em>. In everyday Portuguese people often put <em>o</em> before a first name (<em>O Paulo trabalha…</em>), and a profession takes no article (<em>É empregado de mesa</em>).</p>
+
+  <hr class="desc-divider">
+
+  <p><strong>1. Vocabulário da entrevista</strong> <span class="en">(interview vocabulary)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Português</th><th>English</th><th>हिन्दी</th></tr></thead><tbody>
+<tr><td class="spk-wrap" data-pt="empregado/a de mesa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">empregado/a de mesa</span></td><td>waiter / waitress</td><td>वेटर / वेट्रेस</td></tr>
+<tr><td class="spk-wrap" data-pt="restaurante"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">restaurante</span></td><td>restaurant</td><td>रेस्तरां</td></tr>
+<tr><td class="spk-wrap" data-pt="universidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">universidade</span></td><td>university</td><td>विश्वविद्यालय</td></tr>
+<tr><td class="spk-wrap" data-pt="entrevista"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">entrevista</span></td><td>interview</td><td>साक्षात्कार</td></tr>
+<tr><td class="spk-wrap" data-pt="trabalhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhar</span></td><td>to work</td><td>काम करना</td></tr>
+<tr><td class="spk-wrap" data-pt="estudar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudar</span></td><td>to study</td><td>पढ़ाई करना</td></tr>
+<tr><td class="spk-wrap" data-pt="ganhar"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganhar</span></td><td>to earn</td><td>कमाना</td></tr>
+<tr><td class="spk-wrap" data-pt="gostar de"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostar de</span></td><td>to like</td><td>पसंद करना</td></tr>
+<tr><td class="spk-wrap" data-pt="o trabalho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o trabalho</span></td><td>work, job</td><td>काम / नौकरी</td></tr>
+<tr><td class="spk-wrap" data-pt="o chefe / a chefe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o chefe / a chefe</span></td><td>boss</td><td>बॉस / मालिक</td></tr>
+<tr><td class="spk-wrap" data-pt="a hora"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a hora</span></td><td>hour</td><td>घंटा</td></tr>
+<tr><td class="spk-wrap" data-pt="o dia"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o dia</span></td><td>day</td><td>दिन</td></tr>
+<tr><td class="spk-wrap" data-pt="a semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a semana</span></td><td>week</td><td>सप्ताह</td></tr>
+<tr><td class="spk-wrap" data-pt="por dia / por semana"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">por dia / por semana</span></td><td>per day / per week</td><td>प्रति दिन / प्रति सप्ताह</td></tr>
+<tr><td class="spk-wrap" data-pt="bastante"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bastante</span></td><td>quite, fairly, enough</td><td>काफ़ी</td></tr>
+<tr><td class="spk-wrap" data-pt="muito"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">muito</span></td><td>very, a lot</td><td>बहुत</td></tr>
+<tr><td class="spk-wrap" data-pt="difícil"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">difícil</span></td><td>difficult</td><td>कठिन</td></tr>
+<tr><td class="spk-wrap" data-pt="interessante"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">interessante</span></td><td>interesting</td><td>दिलचस्प</td></tr>
+<tr><td class="spk-wrap" data-pt="mas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mas</span></td><td>but</td><td>लेकिन</td></tr>
+<tr><td class="spk-wrap" data-pt="o centro da cidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">o centro da cidade</span></td><td>the city centre</td><td>शहर का केंद्र</td></tr>
+<tr><td class="spk-wrap" data-pt="longe (de)"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">longe (de)</span></td><td>far (from)</td><td>(से) दूर</td></tr>
+<tr><td class="spk-wrap" data-pt="perto (de)"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">perto (de)</span></td><td>near, close (to)</td><td>(के) पास</td></tr>
+<tr><td class="spk-wrap" data-pt="a casa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">a casa</span></td><td>home, house</td><td>घर</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="desc-box">
+  <p><strong>2. Verbos regulares em -ar</strong> <span class="en">(regular -ar verbs, present tense)</span></p>
+  <p>To conjugate a regular <strong>-ar</strong> verb, remove <em>-ar</em> and add the endings. Paulo says <span class="pt-word">Trabalho num restaurante</span><button class="spk-inline" data-pt="Trabalho num restaurante" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> (<span class="en">I work in a restaurant</span>); the reporter says <span class="pt-word">Onde trabalha?</span><button class="spk-inline" data-pt="Onde trabalha?" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> (formal) or <span class="pt-word">Onde trabalhas?</span><button class="spk-inline" data-pt="Onde trabalhas?" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> (informal).</p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th></th><th>trabalhar</th><th>estudar</th><th>ganhar</th><th>gostar (de)</th></tr></thead><tbody>
+<tr><td>eu</td><td class="spk-wrap" data-pt="eu trabalho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalho</span></td><td class="spk-wrap" data-pt="eu estudo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudo</span></td><td class="spk-wrap" data-pt="eu ganho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganho</span></td><td class="spk-wrap" data-pt="eu gosto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gosto</span></td></tr>
+<tr><td>tu</td><td class="spk-wrap" data-pt="tu trabalhas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhas</span></td><td class="spk-wrap" data-pt="tu estudas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudas</span></td><td class="spk-wrap" data-pt="tu ganhas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganhas</span></td><td class="spk-wrap" data-pt="tu gostas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostas</span></td></tr>
+<tr><td>ele / ela / você</td><td class="spk-wrap" data-pt="ele trabalha"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalha</span></td><td class="spk-wrap" data-pt="ele estuda"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estuda</span></td><td class="spk-wrap" data-pt="ele ganha"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganha</span></td><td class="spk-wrap" data-pt="ele gosta"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gosta</span></td></tr>
+<tr><td>nós</td><td class="spk-wrap" data-pt="nós trabalhamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhamos</span></td><td class="spk-wrap" data-pt="nós estudamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudamos</span></td><td class="spk-wrap" data-pt="nós ganhamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganhamos</span></td><td class="spk-wrap" data-pt="nós gostamos"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostamos</span></td></tr>
+<tr><td>eles / elas / vocês</td><td class="spk-wrap" data-pt="eles trabalham"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalham</span></td><td class="spk-wrap" data-pt="eles estudam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudam</span></td><td class="spk-wrap" data-pt="eles ganham"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ganham</span></td><td class="spk-wrap" data-pt="eles gostam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gostam</span></td></tr>
+</tbody></table></div>
+</div>
+
+<div class="desc-box">
+  <p><strong>3. Em, de + artigo; lugar e quantidade</strong> <span class="en">(contractions; place and quantity)</span></p>
+  <p>The prepositions <em>em</em> (in, at) and <em>de</em> (of, from) merge with the articles. Use them for places (<span class="pt-word">no Porto, na universidade</span><button class="spk-inline" data-pt="no Porto, na universidade" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button>) and with <em>gostar de</em> and <em>longe / perto de</em>. For degree, <span class="pt-word">muito</span> is "very", <span class="pt-word">bastante</span> is "quite / fairly", and <span class="pt-word">pouco</span> is "little". Compare <em>ganha muito</em> (earns a lot), <em>ganha bastante</em> (earns a fair amount) and <em>ganha pouco</em> (earns little). Note that <em>Porto</em> takes the article (<em>no Porto</em>), but <em>Lisboa</em> does not (<em>em Lisboa</em>).</p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>Regra</th><th>Exemplo</th><th>English</th></tr></thead><tbody>
+<tr><td><span class="pt-word">em + o = no</span></td><td class="spk-wrap" data-pt="no centro da cidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">no centro da cidade</span></td><td>in the city centre</td></tr>
+<tr><td><span class="pt-word">em + a = na</span></td><td class="spk-wrap" data-pt="na universidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">na universidade</span></td><td>at the university</td></tr>
+<tr><td><span class="pt-word">em + um = num</span></td><td class="spk-wrap" data-pt="num restaurante"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">num restaurante</span></td><td>in a restaurant</td></tr>
+<tr><td><span class="pt-word">em + uma = numa</span></td><td class="spk-wrap" data-pt="numa universidade"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">numa universidade</span></td><td>at a university</td></tr>
+<tr><td><span class="pt-word">de + o = do</span></td><td class="spk-wrap" data-pt="do chefe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">do chefe</span></td><td>of / about the boss</td></tr>
+<tr><td><span class="pt-word">de + a = da</span></td><td class="spk-wrap" data-pt="da casa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">da casa</span></td><td>of the house</td></tr>
+<tr><td><span class="pt-word">gostar de + o = gostar do</span></td><td class="spk-wrap" data-pt="Gosto do meu chefe."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosto do meu chefe.</span></td><td>I like my boss.</td></tr>
+<tr><td><span class="pt-word">longe de + a = longe da</span></td><td class="spk-wrap" data-pt="longe da minha casa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">longe da minha casa</span></td><td>far from my house</td></tr>
+</tbody></table></div>
+  <div class="note-box"><b>IMPORTANTE!</b> <span class="pt-word">por dia</span><button class="spk-inline" data-pt="por dia" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = per day · <span class="pt-word">por semana</span><button class="spk-inline" data-pt="por semana" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = per week · <span class="pt-word">por mês</span><button class="spk-inline" data-pt="por mês" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = per month<br><b>IMPORTANTE!</b> <span class="pt-word">longe de</span><button class="spk-inline" data-pt="longe de" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = far from · <span class="pt-word">perto de</span><button class="spk-inline" data-pt="perto de" onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> = close to</div>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — como falar do trabalho</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="O Paulo trabalha num restaurante."><button class="spk-btn" aria-label="Ouvir">🔊</button>O Paulo trabalha num restaurante.<span class="en-eq">Paulo works in a restaurant.</span></p><p class="ex-line" data-pt="Ele também estuda numa universidade."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ele também estuda numa universidade.<span class="en-eq">He also studies at a university.</span></p><p class="ex-line" data-pt="Trabalho sete horas por dia."><button class="spk-btn" aria-label="Ouvir">🔊</button>Trabalho sete horas por dia.<span class="en-eq">I work seven hours a day.</span></p><p class="ex-line" data-pt="Ela trabalha cinco dias por semana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ela trabalha cinco dias por semana.<span class="en-eq">She works five days a week.</span></p><p class="ex-line" data-pt="Eu ganho bastante bem. / Ele ganha mal."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu ganho bastante bem. / Ele ganha mal.<span class="en-eq">I earn quite well. / He earns badly.</span></p><p class="ex-line" data-pt="O trabalho é muito difícil, mas muito interessante."><button class="spk-btn" aria-label="Ouvir">🔊</button>O trabalho é muito difícil, mas muito interessante.<span class="en-eq">The job is very difficult but very interesting.</span></p><p class="ex-line" data-pt="Gosto do meu chefe. / Ela gosta da chefe."><button class="spk-btn" aria-label="Ouvir">🔊</button>Gosto do meu chefe. / Ela gosta da chefe.<span class="en-eq">I like my boss. / She likes her (female) boss.</span></p><p class="ex-line" data-pt="O café fica perto da minha casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>O café fica perto da minha casa.<span class="en-eq">The café is close to my house.</span></p><p class="ex-line" data-pt="O hotel fica longe do aeroporto."><button class="spk-btn" aria-label="Ouvir">🔊</button>O hotel fica longe do aeroporto.<span class="en-eq">The hotel is far from the airport.</span></p><p class="ex-line" data-pt="A escola é no centro da cidade."><button class="spk-btn" aria-label="Ouvir">🔊</button>A escola é no centro da cidade.<span class="en-eq">The school is in the city centre.</span></p>
+  </div>
+</div>
+
+<div class="audio-box">
+  <h3>🔊 Compreensão oral</h3>
+  <p><strong>Ouça a entrevista com ele e complete o texto.</strong><br><span class="en">Listen to the interview with him and complete the text.</span></p>
+  <audio controls preload="none" src="https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/audio/comprehension-trabalho.mp3" onerror="this.parentNode.querySelector('.audio-msg').style.display='block'">Your browser does not support audio.</audio>
+  <p class="audio-msg">Audio not found. Upload the file as <b>comprehension-a37.mp3</b> to <b>docs/subjects/pt/audio/</b> in the repo.</p>
+  <p class="tip">Tip: first listen once without writing. Listen again and complete the text on paper. Listen a third time to check the numbers (hours and days) and the place words.</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>O texto</strong> <span class="pt-word">Complete o texto.</span><button class="spk-inline" data-pt="Complete o texto." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button> <span class="en">(A37 — Paulo Santos is a waiter. Listen to the interview and complete the text. Write the answers on paper.)</span></p>
+  <p class="question">
+    1. O Paulo trabalha num ____________________________<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;e também ____________________________.<br>
+    2. O Paulo trabalha ________ horas ____________.<br>
+    3. O Paulo trabalha ________ dias ____________.<br>
+    4. O Paulo ganha ____________________________.<br>
+    5. O trabalho do Paulo é ____________________________.<br>
+    6. O Paulo gosta do ____________________________.<br>
+    7. O restaurante é ____________________________.<br>
+    8. O restaurante fica ____________________________.
+  </p>
+  <p class="tip">Hint: items 2 and 3 need a number and a time word (<em>por …</em>). Item 4 needs an adverb of degree. Items 7 and 8 are about the place.</p>
+</div>
+
+<div class="desc-box">
+  <p><strong>Compreensão oral — Perguntas</strong> <span class="en">(the questions the reporter may ask, formal and informal; write your own answer on paper)</span></p>
+  <div class="table-scroll"><table class="compare-table"><thead><tr><th>#</th><th>Formal (o senhor / a senhora / você)</th><th>Informal (tu)</th><th>English</th><th>Escreva a resposta</th></tr></thead><tbody>
+<tr><td class="num">1</td><td class="spk-wrap" data-pt="Onde trabalha?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde trabalha?</span></td><td class="spk-wrap" data-pt="Onde trabalhas?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde trabalhas?</span></td><td>Where do you work?</td><td class="write-cell"></td></tr>
+<tr><td class="num">2</td><td class="spk-wrap" data-pt="O que é que o senhor faz?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que é que o senhor faz?</span></td><td class="spk-wrap" data-pt="O que é que tu fazes?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O que é que tu fazes?</span></td><td>What do you do (for a living)?</td><td class="write-cell"></td></tr>
+<tr><td class="num">3</td><td class="spk-wrap" data-pt="Também estuda?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Também estuda?</span></td><td class="spk-wrap" data-pt="Também estudas?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Também estudas?</span></td><td>Do you also study?</td><td class="write-cell"></td></tr>
+<tr><td class="num">4</td><td class="spk-wrap" data-pt="Quantas horas trabalha por dia?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantas horas trabalha por dia?</span></td><td class="spk-wrap" data-pt="Quantas horas trabalhas por dia?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantas horas trabalhas por dia?</span></td><td>How many hours do you work per day?</td><td class="write-cell"></td></tr>
+<tr><td class="num">5</td><td class="spk-wrap" data-pt="Quantos dias trabalha por semana?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos dias trabalha por semana?</span></td><td class="spk-wrap" data-pt="Quantos dias trabalhas por semana?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Quantos dias trabalhas por semana?</span></td><td>How many days do you work per week?</td><td class="write-cell"></td></tr>
+<tr><td class="num">6</td><td class="spk-wrap" data-pt="Ganha bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ganha bem?</span></td><td class="spk-wrap" data-pt="Ganhas bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Ganhas bem?</span></td><td>Do you earn well?</td><td class="write-cell"></td></tr>
+<tr><td class="num">7</td><td class="spk-wrap" data-pt="Como é o seu trabalho?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como é o seu trabalho?</span></td><td class="spk-wrap" data-pt="Como é o teu trabalho?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Como é o teu trabalho?</span></td><td>What is your work like?</td><td class="write-cell"></td></tr>
+<tr><td class="num">8</td><td class="spk-wrap" data-pt="Gosta do seu chefe?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gosta do seu chefe?</span></td><td class="spk-wrap" data-pt="Gostas do teu chefe?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Gostas do teu chefe?</span></td><td>Do you like your boss?</td><td class="write-cell"></td></tr>
+<tr><td class="num">9</td><td class="spk-wrap" data-pt="Onde é o restaurante?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">Onde é o restaurante?</span></td><td>(same)</td><td>Where is the restaurant?</td><td class="write-cell"></td></tr>
+<tr><td class="num">10</td><td class="spk-wrap" data-pt="O restaurante fica perto da sua casa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O restaurante fica perto da sua casa?</span></td><td class="spk-wrap" data-pt="O restaurante fica perto da tua casa?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O restaurante fica perto da tua casa?</span></td><td>Is the restaurant close to your home?</td><td class="write-cell"></td></tr>
+</tbody></table></div>
+</div>
+
+<div class="example-box">
+  <h4>Texto modelo — a entrevista <span class="en-eq" style="margin-left:6px">reconstructed from the answer key</span></h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Entrevistadora: Onde trabalha, Paulo?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Onde trabalha, Paulo?<span class="en-eq">Interviewer: Where do you work, Paulo?</span></p>
+<p class="ex-line" data-pt="Paulo: Trabalho num restaurante, no Porto. E também estudo, numa universidade."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: Trabalho num restaurante, no Porto. E também estudo, numa universidade.<span class="en-eq">I work in a restaurant in Porto. And I also study, at a university.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: Quantas horas trabalha por dia?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Quantas horas trabalha por dia?<span class="en-eq">How many hours do you work per day?</span></p>
+<p class="ex-line" data-pt="Paulo: Trabalho sete horas por dia."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: Trabalho sete horas por dia.<span class="en-eq">I work seven hours a day.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: E quantos dias por semana?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: E quantos dias por semana?<span class="en-eq">And how many days a week?</span></p>
+<p class="ex-line" data-pt="Paulo: Seis dias por semana."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: Seis dias por semana.<span class="en-eq">Six days a week.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: Ganha bem?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Ganha bem?<span class="en-eq">Do you earn well?</span></p>
+<p class="ex-line" data-pt="Paulo: Sim, ganho bastante bem."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: Sim, ganho bastante bem.<span class="en-eq">Yes, I earn quite well.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: Como é o seu trabalho?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Como é o seu trabalho?<span class="en-eq">What is your work like?</span></p>
+<p class="ex-line" data-pt="Paulo: É muito difícil, mas é muito interessante."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: É muito difícil, mas é muito interessante.<span class="en-eq">It is very difficult, but very interesting.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: Gosta do seu chefe?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Gosta do seu chefe?<span class="en-eq">Do you like your boss?</span></p>
+<p class="ex-line" data-pt="Paulo: Gosto, sim. Gosto do meu chefe."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: Gosto, sim. Gosto do meu chefe.<span class="en-eq">Yes, I do. I like my boss.</span></p>
+<p class="ex-line" data-pt="Entrevistadora: Onde é o restaurante?"><button class="spk-btn" aria-label="Ouvir">🔊</button>Entrevistadora: Onde é o restaurante?<span class="en-eq">Where is the restaurant?</span></p>
+<p class="ex-line" data-pt="Paulo: É no centro da cidade, mas fica longe da minha casa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Paulo: É no centro da cidade, mas fica longe da minha casa.<span class="en-eq">It's in the city centre, but it is far from my home.</span></p>
+  </div>
+</div>
+<p class="tip">Note: this model text is rebuilt from the answer key so you can read along. The real recording may use slightly different words, but the facts are the same.</p>
+
+<div class="exercise-box">
+  <h4>Exercícios</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Verdadeiro ou falso? <span class="en">(about Paulo)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">O Paulo trabalha num restaurante em Lisboa.</span> <span class="reveal">Falso — trabalha num restaurante <b>no Porto</b>.</span></li>
+<li><span class="cue">O Paulo também estuda.</span> <span class="reveal">Verdadeiro — estuda numa universidade.</span></li>
+<li><span class="cue">O Paulo trabalha sete horas por dia.</span> <span class="reveal">Verdadeiro.</span></li>
+<li><span class="cue">O Paulo trabalha cinco dias por semana.</span> <span class="reveal">Falso — trabalha <b>seis</b> dias por semana.</span></li>
+<li><span class="cue">O Paulo ganha mal.</span> <span class="reveal">Falso — ganha <b>bastante bem</b>.</span></li>
+<li><span class="cue">O trabalho do Paulo é fácil.</span> <span class="reveal">Falso — é <b>muito difícil</b>, mas muito interessante.</span></li>
+<li><span class="cue">O Paulo gosta do chefe.</span> <span class="reveal">Verdadeiro — gosta do seu chefe.</span></li>
+<li><span class="cue">O restaurante fica perto da casa do Paulo.</span> <span class="reveal">Falso — fica <b>longe</b> da casa do Paulo.</span></li>
+<li><span class="cue">O restaurante é no centro da cidade.</span> <span class="reveal">Verdadeiro.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Complete com o verbo: trabalho · estudas · ganha · trabalhamos · gostam · estuda · ganho.</p>
+    <p class="question">
+Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">trabalho</span></span> num hotel.<br>
+Tu <span class="blank-word"><span class="underscore">_______</span><span class="fill">estudas</span></span> português?<br>
+A Marta <span class="blank-word"><span class="underscore">_______</span><span class="fill">ganha</span></span> bastante bem.<br>
+Nós <span class="blank-word"><span class="underscore">_______</span><span class="fill">trabalhamos</span></span> seis dias por semana.<br>
+Eles <span class="blank-word"><span class="underscore">_______</span><span class="fill">gostam</span></span> do chefe.<br>
+O Paulo <span class="blank-word"><span class="underscore">_______</span><span class="fill">estuda</span></span> numa universidade.<br>
+Eu <span class="blank-word"><span class="underscore">_______</span><span class="fill">ganho</span></span> pouco, mas gosto do trabalho.
+</p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Complete: no · na · num · numa · do · da.</p>
+    <p class="question">
+O Paulo trabalha <span class="blank-word"><span class="underscore">_______</span><span class="fill">num</span></span> restaurante.<br>
+Ela estuda <span class="blank-word"><span class="underscore">_______</span><span class="fill">numa</span></span> universidade.<br>
+O restaurante é <span class="blank-word"><span class="underscore">_______</span><span class="fill">no</span></span> centro da cidade.<br>
+Eu gosto <span class="blank-word"><span class="underscore">_______</span><span class="fill">do</span></span> meu chefe.<br>
+Ela gosta <span class="blank-word"><span class="underscore">_______</span><span class="fill">da</span></span> sua chefe.<br>
+A escola fica longe <span class="blank-word"><span class="underscore">_______</span><span class="fill">da</span></span> minha casa.<br>
+O hotel fica perto <span class="blank-word"><span class="underscore">_______</span><span class="fill">do</span></span> aeroporto.
+</p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Como se pergunta em português? <span class="en">(formal)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">Where do you work? <span class='en'>(formal)</span></span> <span class="reveal">Onde é que trabalha?</span></li>
+<li><span class="cue">How many hours do you work per day?</span> <span class="reveal">Quantas horas trabalha por dia?</span></li>
+<li><span class="cue">How many days a week do you work?</span> <span class="reveal">Quantos dias trabalha por semana?</span></li>
+<li><span class="cue">Do you earn well?</span> <span class="reveal">Ganha bem?</span></li>
+<li><span class="cue">Do you like your boss?</span> <span class="reveal">Gosta do seu chefe?</span></li>
+<li><span class="cue">Where is the restaurant?</span> <span class="reveal">Onde fica o restaurante?</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">5. Ordene as palavras. <span class="en">(put the words in order)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">restaurante · num · trabalha · O Paulo</span> <span class="reveal">O Paulo trabalha num restaurante.</span></li>
+<li><span class="cue">por · sete · horas · dia · trabalha · Ele</span> <span class="reveal">Ele trabalha sete horas por dia.</span></li>
+<li><span class="cue">gosta · chefe · do · Ele · seu</span> <span class="reveal">Ele gosta do seu chefe.</span></li>
+<li><span class="cue">fica · O · restaurante · longe · da · casa · do Paulo</span> <span class="reveal">O restaurante fica longe da casa do Paulo.</span></li>
+<li><span class="cue">muito · difícil · é · mas · interessante · O trabalho · muito</span> <span class="reveal">O trabalho é muito difícil, mas muito interessante.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">6. Leia e responda.</p>
+    <p class="ex-note">«A Marta tem 29 anos e é enfermeira. Trabalha num hospital no centro de Lisboa e também estuda numa universidade, à noite. Trabalha oito horas por dia, cinco dias por semana. Ganha pouco, mas gosta muito do trabalho. O hospital fica perto da casa dela.»</p>
+    <ol class="cue-list">
+<li><span class="cue">Onde trabalha a Marta?</span> <span class="reveal">Num hospital, no centro de Lisboa.</span></li>
+<li><span class="cue">O que é que ela faz?</span> <span class="reveal">É enfermeira.</span></li>
+<li><span class="cue">Quantas horas trabalha por dia?</span> <span class="reveal">Oito horas.</span></li>
+<li><span class="cue">Quantos dias trabalha por semana?</span> <span class="reveal">Cinco dias.</span></li>
+<li><span class="cue">Ganha bem?</span> <span class="reveal">Não, ganha pouco.</span></li>
+<li><span class="cue">Gosta do trabalho?</span> <span class="reveal">Sim, gosta muito.</span></li>
+<li><span class="cue">O hospital fica longe ou perto da casa dela?</span> <span class="reveal">Perto.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">7. Fale de si. <span class="en">(answer about yourself; one model answer is shown)</span></p>
+    <ol class="cue-list">
+<li><span class="cue">Onde é que trabalhas / estudas?</span> <span class="reveal">Trabalho num café. / Estudo numa escola de línguas.</span></li>
+<li><span class="cue">Quantas horas trabalhas por dia?</span> <span class="reveal">Trabalho seis horas por dia.</span></li>
+<li><span class="cue">Quantos dias trabalhas por semana?</span> <span class="reveal">Trabalho cinco dias por semana.</span></li>
+<li><span class="cue">Gostas do teu trabalho?</span> <span class="reveal">Gosto muito do meu trabalho. <span class='en'>(your own answer will differ)</span></span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Solução — Compreensão oral <span class="en">(listen and write first!)</span></h4>
+  <div class="exercise-item">
+    <p class="ex-label">O texto completo</p>
+    <ol class="cue-list" style="list-style:none;padding-left:0">
+<li><span class="cue">1. O Paulo trabalha num …</span> <span class="reveal"><b>restaurante no Porto</b> e também <b>estuda numa Universidade</b>.</span></li>
+<li><span class="cue">2. O Paulo trabalha … horas …</span> <span class="reveal"><b>7</b> horas <b>por dia</b>.</span></li>
+<li><span class="cue">3. O Paulo trabalha … dias …</span> <span class="reveal"><b>6</b> dias <b>por semana</b>.</span></li>
+<li><span class="cue">4. O Paulo ganha …</span> <span class="reveal"><b>bastante bem</b>.</span></li>
+<li><span class="cue">5. O trabalho do Paulo é …</span> <span class="reveal"><b>muito difícil, mas muito interessante</b>.</span></li>
+<li><span class="cue">6. O Paulo gosta do …</span> <span class="reveal"><b>seu chefe</b>.</span></li>
+<li><span class="cue">7. O restaurante é …</span> <span class="reveal"><b>no centro da cidade</b>.</span></li>
+<li><span class="cue">8. O restaurante fica …</span> <span class="reveal"><b>longe da casa do Paulo</b>.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+</div>
+
+<p class="tip" style="margin-top:14px">Source: Passaporte para Português, A37, p. 46 · Portuguese language course (A1–A2).</p>
+</div>
