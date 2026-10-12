@@ -121,10 +121,8 @@ categories.forEach(cat => {
         const t = {cat, slug, label, n: n || 0, key: norm(cat.name + " " + label + " " + (kw || ""))};
         t.isImg = t.n > 0;
         const b = document.createElement("button"); b.className = "topic";
-        b.innerHTML = "<b></b><small></small>";
+        b.innerHTML = "<b></b>";
         b.firstChild.textContent = label;
-        b.lastChild.textContent = desc || (t.isImg ? t.n + " images" : "");
-        if (!b.lastChild.textContent) b.lastChild.remove();
         t.el = b; t.idx = flat.length; flat.push(t);
         b.onclick = () => { location.hash = cat.slug + "/" + slug; };
         list.appendChild(b);
@@ -250,10 +248,10 @@ S.addEventListener("touchmove", e => {
 S.addEventListener("touchend", e => {
     if (!drag) return;
     const dy = e.changedTouches[0].clientY - drag.y, dt = Math.max(1, Date.now() - drag.t);
-    const v = Math.abs(dy) / dt;                       // px per ms
     if (drag.moved) noClick = Date.now() + 350;
+    // always 1 image per swipe; only a LONG swipe (60%+ of screen height) skips more (max 3)
     let steps = 0;
-    if (Math.abs(dy) > 35 || (Math.abs(dy) > 15 && v > 0.4)) steps = v > 2.5 ? 3 : v > 1.3 ? 2 : 1;
+    if (Math.abs(dy) > 35) steps = Math.min(3, 1 + Math.floor(Math.abs(dy) / (S.clientHeight * 0.6)));
     goTo(drag.base + (dy < 0 ? 1 : -1) * steps, 260 + steps * 140);
     drag = null;
 });
