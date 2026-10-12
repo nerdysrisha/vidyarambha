@@ -10,9 +10,6 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{height:100dvh;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
-header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);min-height:56px}
-header h1{flex:1;margin:0;font-size:19px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#count{color:var(--mute);font-size:14px}
 button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
 button:active{background:var(--line)}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
@@ -39,12 +36,15 @@ button[hidden]{display:none}
 #page{padding:12px 14px 24px;line-height:1.5}
 #page img{max-width:100%;height:auto;display:block;margin:10px 0;border-radius:6px}
 #page h1,#page h2,#page h3{margin:.6em 0 .3em}
-footer{display:none;gap:8px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
-footer span{flex:1;text-align:center;color:var(--mute);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-body.view #viewer{display:block}body.view footer{display:flex}body.view #list{display:none}
-/* maximize: hide bars, show a small floating exit button */
-#fsx{display:none;position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
-body.max header,body.max footer{display:none!important}
+footer{display:flex;gap:6px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+footer button svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#mid{flex:1;min-width:0;text-align:center;line-height:1.25}
+#cnt{display:block;font-size:16px;font-weight:650}
+#lbl{display:block;color:var(--mute);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.view #viewer{display:block}body.view #list{display:none}
+/* maximize: hide the bar, show a small floating minimize button */
+#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
+body.max footer{display:none!important}
 body.max #fsx{display:block}
 body.max #app{padding-top:0}
 #zoom{position:fixed;inset:0;background:#000;display:none;touch-action:none;overflow:hidden;z-index:9}
@@ -55,24 +55,20 @@ body.max #app{padding-top:0}
 </head>
 <body>
 <div id="app">
-  <header>
-    <button id="menu" aria-label="Topics">&#9776;</button>
-    <h1 id="title">MyInfo</h1>
-    <span id="count"></span>
-    <button id="max" aria-label="Maximize" hidden>&#9974;</button>
-  </header>
   <div id="list"><input id="q" type="search" placeholder="Search topics..." autocomplete="off"><div id="cats"></div></div>
   <div id="viewer">
     <div id="slides"></div>
     <div id="page" hidden></div>
   </div>
   <footer>
-    <button id="prevT" aria-label="Previous topic">&#8249;</button>
-    <span id="tname"></span>
-    <button id="nextT" aria-label="Next topic">&#8250;</button>
+    <button id="menu" aria-label="Topics"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button id="prevT" aria-label="Previous topic"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div id="mid"><b id="cnt"></b><small id="lbl">Topics</small></div>
+    <button id="nextT" aria-label="Next topic"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button id="max" aria-label="Full screen"><svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
   </footer>
 </div>
-<button id="fsx" aria-label="Exit full screen">&#10005;</button>
+<button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 <div id="zoom"><button id="zclose" aria-label="Close">&#10005;</button><img alt=""></div>
 
 <script>
@@ -152,8 +148,13 @@ function route() {
     const i = flat.findIndex(t => t.cat.slug === c && t.slug === s);
     $("zoom").style.display = "none";
     document.body.classList.toggle("view", i >= 0);
-    $("max").hidden = i < 0;
-    if (i < 0) { cur = -1; setMax(false); $("title").textContent = "MyInfo"; $("count").textContent = ""; return; }
+    $("max").style.visibility = i < 0 ? "hidden" : "visible";
+    if (i < 0) {
+        cur = -1; setMax(false);
+        $("cnt").textContent = ""; $("lbl").textContent = "Topics";
+        $("prevT").disabled = $("nextT").disabled = true;
+        return;
+    }
     show(i);
 }
 // ☰ : topic -> list, list -> back to last topic
@@ -164,12 +165,11 @@ $("menu").onclick = () => {
 
 function show(i) {
     cur = last = i; const t = flat[i], isImg = t.isImg;
-    $("title").textContent = t.label;
-    $("tname").textContent = (i + 1) + " / " + flat.length + "  \u00B7  " + t.cat.name;
+    $("lbl").textContent = t.label;
     $("prevT").disabled = i === 0; $("nextT").disabled = i === flat.length - 1;
     $("slides").hidden = !isImg; $("page").hidden = isImg;
     const s = $("slides"), p = $("page");
-    s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("count").textContent = "";
+    s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("cnt").textContent = "";
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
         for (let k = 1; k <= t.n; k++) {
@@ -195,7 +195,7 @@ $("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZ
 function updateCount() {
     const s = $("slides"), n = s.children.length;
     const i = Math.round(s.scrollTop / Math.max(1, s.clientHeight));
-    $("count").textContent = n ? (i + 1) + " / " + n : "";
+    $("cnt").textContent = n ? (i + 1) + " / " + n : "";
 }
 $("slides").addEventListener("scroll", updateCount, {passive: true});
 function topicStep(d) {
