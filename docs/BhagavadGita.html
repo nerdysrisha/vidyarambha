@@ -11,7 +11,7 @@
 html, body {
     margin: 0;
     height: 100%;
-    background: #0a0a0a;
+    background: #000;
     color: white;
     font-family: Arial, sans-serif;
     overflow: hidden;
@@ -234,19 +234,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-panel {
     position: relative;
     overflow: hidden;
-    border: 1px solid #333;
-    border-radius: 20px;
     flex: 1;
     min-height: 0;
-    background: #fbf8f2;
+    background: transparent;             /* no frame: the player bar, the verse cards and the nav bar share the same left/right edges */
 }
 #content-box {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     box-sizing: border-box;
-    padding: 34px 40px 20px 40px;
-    background: radial-gradient(ellipse at 50% 0%, #2a1d10 0%, #17110a 70%);   /* dark warm backdrop so the cream verse cards stand out */
+    padding: 12px 0 6px 0;
+    background: #000;
     color: #e8dcc4;
     font-size: 15px;
     line-height: 1.7;
@@ -272,6 +270,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* Title block for a topic */
+/* headings / notes (not the verse cards) keep a little side space, since the box itself has none */
+#content-box > :not(.verse-block):not(.verse-refrain):not(.end-spacer) { padding-left: 14px; padding-right: 14px; box-sizing: border-box; }
 #content-box h1 {
     text-align: center;
     color: #e9c46a;
@@ -384,13 +384,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* Verse cards — one per stanza, centered, generous spacing for recitation */
 #content-box .verse-block {
     position: relative;                  /* the "Verse N" tab is pinned to the card's top-left corner */
-    max-width: 640px;
-    margin: 0 auto 12px auto;
+    max-width: none;
+    margin: 0 0 12px 0;
     padding: 44px 22px 22px 22px;        /* top room for the corner tab */
     background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
     border: 1.5px solid #c9a15a;
     border-radius: 18px;
-    box-shadow: 0 3px 12px rgba(122,74,18,0.14);
+    box-shadow: none;
     text-align: center;
     font-size: 1.12em;
     line-height: 1.85;
@@ -458,8 +458,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* The player is moved by script into #audio-dock: a static strip above the
    scrolling text, so verses never scroll underneath it. */
 #audio-dock { display: none; flex: none; padding: 0; box-sizing: border-box;
-              background: #111; border-bottom: 1px solid #333; }
-#content-panel.has-dock { display: flex; flex-direction: column; }
+              background: #111; border: 1px solid #333; border-radius: 8px; overflow: hidden; }   /* same look as the nav bar */
+#content-panel.has-dock { display: flex; flex-direction: column; gap: 8px; }
 #content-panel.has-dock #audio-dock { display: block; }
 #content-panel.has-dock #content-box { height: auto; flex: 1; min-height: 0; }
 #audio-dock .audio-player { margin: 0 !important; max-width: none; width: 100%; box-sizing: border-box;
@@ -518,6 +518,25 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #content-box .verse-block > .verse-tag::after,
 #content-box .verse-block > .verse-label::after { content: ""; }
+/* "now playing" wave: four small bars after "Verse N" on the verse being read, only while the audio plays */
+#content-box.sync-playing .verse-block.verse-active > .verse-tag::after,
+#content-box.sync-playing .verse-block.verse-active > .verse-label::after {
+    content: ""; display: inline-block; width: 18px; height: 12px; margin-left: 9px; vertical-align: -1px;
+    background:
+        linear-gradient(#a1521f, #a1521f) 0 100% / 3px 40% no-repeat,
+        linear-gradient(#a1521f, #a1521f) 5px 100% / 3px 100% no-repeat,
+        linear-gradient(#a1521f, #a1521f) 10px 100% / 3px 60% no-repeat,
+        linear-gradient(#a1521f, #a1521f) 15px 100% / 3px 80% no-repeat;
+    animation: gitaWave 0.9s ease-in-out infinite;
+}
+@keyframes gitaWave {
+    0%, 100% { background-size: 3px 40%, 3px 100%, 3px 60%, 3px 80%; }
+    50%      { background-size: 3px 100%, 3px 35%, 3px 95%, 3px 30%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #content-box.sync-playing .verse-block.verse-active > .verse-tag::after,
+    #content-box.sync-playing .verse-block.verse-active > .verse-label::after { animation: none; }
+}
 #content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: left; }
 #content-box .verse-block > .verse-grid + .verse-grid { margin-top: 10px; }
 #content-box .verse-block > .verse-grid .verse-telugu,
@@ -732,7 +751,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #sidebar.collapsed { display: none; }
   body.side-open #main-col { display: none; }
 
-  #content-box { padding: 12px 6px 6px 6px; }
+  #content-box { padding: 12px 0 6px 0; }
   #content-box h1 { font-size: 1.5em; }
   #content-box .verse-block,
   #content-box .verse-refrain {
@@ -1543,7 +1562,7 @@ function wireCopyButtons() {
 // ── COPY BUTTON ──────────────────────────────────────────────────────────
 const copyBtn = document.getElementById("copyBtn");
 function placeCopyBtn() {   // sit just below the audio dock (if any), top-right of the text area
-    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0) + 8) + "px";
+    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight + 8 : 0) + 10) + "px";
 }
 if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);

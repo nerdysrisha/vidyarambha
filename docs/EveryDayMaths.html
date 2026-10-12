@@ -3474,10 +3474,23 @@ document.getElementById("selectAllBtn").onclick = async () => {
     document.getElementById("start-quote").textContent  = "\u201C" + q[0] + "\u201D";
     document.getElementById("start-author").textContent = "\u2014 " + q[1];
 
-    // start the reveal only once the picture has loaded (or after 1.5 s at the latest)
-    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
+    // Daily picture: IMG_DIR + "day<day of month>.webp"  (day1.webp ... day31.webp).
+    // If that file is missing it falls back to learning.webp, then to the gradient.
+    // Change IMG_DIR if you keep the daily pictures in another folder (keep the trailing slash).
+    const IMG_DIR = "subjects/maths/images/";
+    const day = new Date().getDate();
+    const candidates = [IMG_DIR + "day" + day + ".webp", IMG_DIR + "learning.webp"];
     const ready = () => screenEl.classList.add("ready");
-    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+    let readyDone = false;
+    const readyOnce = () => { if (!readyDone) { readyDone = true; ready(); } };
+    (function tryNext(i) {
+        if (i >= candidates.length) { readyOnce(); return; }            // nothing found: gradient only
+        const img = new Image();
+        img.onload  = () => { screenEl.style.setProperty("--start-img", 'url("' + candidates[i] + '")'); readyOnce(); };
+        img.onerror = () => tryNext(i + 1);
+        img.src = candidates[i];
+    })(0);
+    setTimeout(readyOnce, 2500);   // never leave the text hidden if the network is slow
 
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
