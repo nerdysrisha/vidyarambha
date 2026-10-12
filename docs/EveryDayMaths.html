@@ -732,8 +732,11 @@ DATEREMOVAL--
     background: radial-gradient(circle at 50% 40%, #12305a 0%, #050a14 100%);
 }
 /* picture is its own layer: transparent at first, fades in over 5 s once loaded */
-#start-screen::before { content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat; opacity: 0; }
-#start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+/* full picture (contain) on top of a blurred, enlarged copy of itself so wide screens show no empty bars; phones keep the original fill */
+#start-screen::before { content: ""; position: absolute; inset: 0; background: var(--start-img) center / contain no-repeat; opacity: 0; }
+#start-blur { position: absolute; inset: -6%; z-index: -1; background: var(--start-img) center / cover no-repeat; filter: blur(28px) brightness(0.55); opacity: 0; pointer-events: none; }
+#start-screen.ready::before, #start-screen.ready #start-blur { animation: startReveal 5s ease-in-out forwards; }
+@media (max-width: 700px) { #start-screen::before { background-size: cover; } #start-blur { display: none; } }
 @keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
 /* dark fade at the bottom keeps the text readable on any picture */
 #start-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60%; pointer-events: none;
@@ -781,7 +784,7 @@ DATEREMOVAL--
 @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-    #start-screen.ready::before { animation-duration: .01s; }
+    #start-screen.ready::before, #start-screen.ready #start-blur { animation-duration: .01s; }
     #start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-author { animation-duration: .01s; animation-delay: 0s !important; }
     #start-btn { animation: none !important; }
     #start-screen.leaving { animation-duration: .3s; }
@@ -793,6 +796,7 @@ DATEREMOVAL--
 
 <!-- LANDING SCREEN: picture + a new quote every day of the month + glowing Start button (see CSS + script at the end) -->
 <div id="start-screen">
+    <div id="start-blur"></div>
     <div id="start-text">
         <div id="start-title">EveryDay Maths</div>
         <p id="start-quote"></p>
