@@ -36,6 +36,7 @@ button.cat.direct{width:100%;display:flex;align-items:center;padding:0 16px;marg
 /* swipe + pinch-zoom are handled in JS (one image per swipe, up/down) */
 #slides{overflow:hidden;touch-action:none}
 .slide{height:100%;display:grid;place-items:center;padding:6px}
+.slide img:not([src]){visibility:hidden}
 .slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;transform-origin:center;will-change:transform;user-select:none;-webkit-user-drag:none}
 #page{padding:12px 14px 24px;line-height:1.5}
 #page img{max-width:100%;height:auto;display:block;margin:10px 0;border-radius:6px}
@@ -87,6 +88,9 @@ const IMG_EXT = "webp";
 // and only shows those (e.g. count 40 with 30 files -> 30 slides).
 // WRAP = true : swiping past the last image goes back to the first (and vice versa).
 const WRAP = true;
+// Image loading: on opening a topic only the first PRELOAD_FIRST images are fetched; after that,
+// while you swipe, just BEHIND images before and AHEAD images after the current one are kept ready.
+const PRELOAD_FIRST = 5, AHEAD = 2, BEHIND = 1;
 
 const categories = [
     {
@@ -164,11 +168,15 @@ $("menu").onclick = () => { if (cur >= 0) location.hash = ""; };
 
 // Finds how many images 1..max actually exist (binary search, ~6 quick probes for 40)
 const loads = src => new Promise(res => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = src; });
+// HEAD request = nothing is downloaded; falls back to a normal image probe if fetch isn't possible (e.g. opened from a file)
+async function exists(src) {
+    try { return (await fetch(src, {method: "HEAD"})).ok; } catch (e) { return loads(src); }
+}
 async function countImages(base, max) {
     let lo = 0, hi = max;
     while (lo < hi) {
         const mid = (lo + hi + 1) >> 1;
-        if (await loads(base + mid + "." + IMG_EXT)) lo = mid; else hi = mid - 1;
+        if (await exists(base + mid + "." + IMG_EXT)) lo = mid; else hi = mid - 1;
     }
     return lo;
 }
@@ -180,7 +188,7 @@ function show(i) {
     $("slides").hidden = !isImg; $("page").hidden = isImg;
     const s = $("slides"), p = $("page");
     s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("cnt").textContent = "";
-    sc = 1; tx = ty = 0; g = null;
+    sc = 1; tx = ty = 0; g = null; lastIdx = -1;
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
         const base = t.slug ? dir + t.slug + "/" : dir;
@@ -193,10 +201,11 @@ function show(i) {
                 const d = document.createElement("div"); d.className = "slide";
                 const im = new Image(); im.alt = t.label + " " + k; im.decoding = "async";
                 im.onerror = () => { d.innerHTML = '<div class="msg">' + k + "." + IMG_EXT + " not found</div>"; };
-                if (k > 2) im.loading = "lazy";
-                im.src = base + k + "." + IMG_EXT;
+                d.dataset.src = base + k + "." + IMG_EXT;          // fetched later by loadImg()
                 d.appendChild(im); s.appendChild(d);
             }
+            lastIdx = 0; loadNear(0);
+            for (let k = 0; k < Math.min(n, PRELOAD_FIRST); k++) loadImg(s.children[k]);
             updateCount();
         });
     } else {
@@ -209,7 +218,7 @@ function show(i) {
 $("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZoom(e.target.src); });
 
 // ── SLIDES: swipe up/down (1 image per swipe) + pinch-zoom ──────────────
-const S = $("slides"); let anim = 0, wheelLock = 0, lastTap = 0, g = null, sc = 1, tx = 0, ty = 0, zImg = null;
+const S = $("slides"); let lastIdx = -1, anim = 0, wheelLock = 0, lastTap = 0, g = null, sc = 1, tx = 0, ty = 0, zImg = null;
 const maxTop = () => Math.max(0, S.scrollHeight - S.clientHeight);
 const idx = () => Math.round(S.scrollTop / Math.max(1, S.clientHeight));
 const mid = t => t.length < 2 ? {x: t[0].clientX, y: t[0].clientY} : {x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2};
@@ -217,6 +226,15 @@ const gap = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].cli
 const ctr = () => { const r = S.getBoundingClientRect(); return {x: r.left + r.width / 2, y: r.top + r.height / 2}; };
 const curImg = () => { const d = S.children[idx()]; return d && d.querySelector("img"); };
 
+function loadImg(d) { const im = d && d.firstChild; if (im && d.dataset.src && !im.src) im.src = d.dataset.src; }
+function loadNear(i) {                                   // current + BEHIND before + AHEAD after (wraps around)
+    const n = S.children.length;
+    for (let j = -BEHIND; j <= AHEAD; j++) {
+        const k = i + j;
+        if (!WRAP && (k < 0 || k >= n)) continue;
+        loadImg(S.children[((k % n) + n) % n]);
+    }
+}
 function paint() { if (zImg) zImg.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + sc + ")"; }
 function clampPan() {
     if (!zImg) return;
@@ -318,6 +336,7 @@ window.addEventListener("resize", () => { if (sc !== 1) resetZoom(); });
 // ── IMAGE COUNTER + TOPIC STEPPING ──────────────────────────────────────
 function updateCount() {
     const n = S.children.length, i = Math.min(Math.max(0, n - 1), idx());
+    if (n && i !== lastIdx) { lastIdx = i; loadNear(i); }
     $("cnt").textContent = n ? (i + 1) + " / " + n : "";
 }
 function topicStep(d) {
