@@ -246,8 +246,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     overflow-x: hidden;
     box-sizing: border-box;
     padding: 34px 40px 20px 40px;
-    background: #fbf8f2;
-    color: #2b2b2b;
+    background: radial-gradient(ellipse at 50% 0%, #2a1d10 0%, #17110a 70%);   /* dark warm backdrop so the cream verse cards stand out */
+    color: #e8dcc4;
     font-size: 15px;
     line-height: 1.7;
 }
@@ -262,7 +262,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #copyBtn svg { width: 16px; height: 16px; }
 /* Verse up/down arrows: bottom-right of the text area, just above the nav bar (thumb reach); only while a chapter with verses is open */
 #content-box .end-spacer { height: 0; }
-#verseNav { position: absolute; right: 8px; bottom: 12px; z-index: 5; display: none; flex-direction: column; gap: 16px; }
+#verseNav { position: absolute; right: 16px; bottom: 22px; z-index: 5; display: none; flex-direction: column; gap: 16px; }
 #verseNav.show { display: flex; }
 #verseNav button { width: 46px; height: 46px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.65; box-shadow: 0 1px 4px rgba(0,0,0,0.25); -webkit-tap-highlight-color: transparent; }
@@ -274,28 +274,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* Title block for a topic */
 #content-box h1 {
     text-align: center;
-    color: #7a1f1f;
+    color: #e9c46a;
     font-size: 1.9em;
     margin: 0 0 4px 0;
     font-family: Georgia, "Times New Roman", serif;
 }
 #content-box .topic-tagline {
     text-align: center;
-    color: #a1521f;
+    color: #d9a860;
     font-style: italic;
     font-size: 1em;
     margin: 0 0 6px 0;
 }
 #content-box .topic-invocation {
     text-align: center;
-    color: #8a6d3b;
+    color: #c9a15a;
     font-size: 0.95em;
     margin: 0 0 26px 0;
     padding-bottom: 18px;
-    border-bottom: 1px solid #e8e2d5;
+    border-bottom: 1px solid #3b2c18;
 }
 #content-box h2 {
-    color: #6b4f1d;
+    color: #e0c58a;
     font-size: 1.25em;
     margin: 26px 0 12px 0;
     text-align: center;
@@ -304,16 +304,16 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* Generic content styling carried over from the original Bhagavad Gita master */
 #content-box h3 {
-    color: #8a6d3b;
+    color: #d8b46a;
     font-size: 1.08em;
     margin: 22px 0 8px 0;
 }
 #content-box ul, #content-box ol { margin: 0 0 16px 0; padding-left: 22px; }
 #content-box li { margin-bottom: 5px; }
-#content-box a { color: #a1521f; text-decoration: none; border-bottom: 1px solid #c9a15a88; }
+#content-box a { color: #e0b060; text-decoration: none; border-bottom: 1px solid #c9a15a88; }
 #content-box a:hover { border-bottom-color: #a1521f; }
 #content-box img, #content-box svg { max-width: 100%; height: auto; border-radius: 6px; }
-#content-box hr { border: none; border-top: 1px solid #e8e2d5; margin: 24px 0; }
+#content-box hr { border: none; border-top: 1px solid #3b2c18; margin: 24px 0; }
 
 /* inline code */
 #content-box code {
@@ -746,7 +746,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
   #copyBtn { display: none !important; }   /* phones: no copy button, less clutter */
-  #verseNav { right: 6px; bottom: 10px; }
+  #verseNav { bottom: 22px; }
 }
 /* very narrow phones: tighten the centre group so it still fits between menu and lock */
 @media (max-width: 380px) {
@@ -1502,6 +1502,7 @@ function loadTopic(flatIndex) {
             placeCopyBtn(); copyBtn.classList.add("show");
             const hasVerses = !!contentBox.querySelector(".verse-block");
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
+            placeVerseNav();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
@@ -1548,7 +1549,14 @@ if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
 window.addEventListener("resize", placeCopyBtn);
 
 // keep the reading-area height in a CSS variable (used by .verse-block min-height)
-function setAreaH() { contentBox.style.setProperty("--area-h", contentBox.clientHeight + "px"); }
+function setAreaH() { contentBox.style.setProperty("--area-h", contentBox.clientHeight + "px"); placeVerseNav(); }
+// Arrows sit inside the verse card's bottom-right corner (follows the card on desktop where it is centred and narrower)
+function placeVerseNav() {
+    const nav = document.getElementById("verseNav"), card = contentBox.querySelector(".verse-block");
+    if (!card || !nav.classList.contains("show")) return;
+    const panel = nav.parentElement.getBoundingClientRect(), c = card.getBoundingClientRect();
+    if (c.width) nav.style.right = Math.max(8, Math.round(panel.right - c.right + 12)) + "px";
+}
 setAreaH();
 if (window.ResizeObserver) new ResizeObserver(setAreaH).observe(contentBox); else window.addEventListener("resize", setAreaH);
 
