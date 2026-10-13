@@ -802,11 +802,18 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box { padding-left: 76px; }
 }
 
-/* ── VERSE LABEL: small corner badge ("V8") instead of its own line, so the verse text uses that space ── */
-#content-box .verse-block { position: relative; }
-#content-box .verse-label { position: absolute; top: 3px; left: 6px; margin: 0; display: block; z-index: 1;
-    font-size: 10px; line-height: 1; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 9px; }
-#content-box .verse-label + br { display: none; }       /* the line break after the old label is no longer needed */
+/* ── VERSE LABEL: tab tucked into the top-left corner of the card ("Verse 8"), so the verse text uses that space ── */
+#content-box .verse-block { position: relative; padding-top: 20px; }
+#content-box .verse-label {
+    position: absolute; top: -1px; left: -1px; margin: 0; display: block; z-index: 1;
+    font: 700 11px/1 ui-monospace, "Courier New", monospace;
+    letter-spacing: 0.02em; text-transform: none;
+    color: #5a3a10; background: #fbe3bd;
+    border: 1.5px solid #c9a15a;
+    border-radius: 10px 0 14px 0;
+    padding: 4px 10px 4px 9px;
+}
+#content-box .verse-label + br { display: none; }       /* the line break after the label is no longer needed */
 </style>
 </head>
 <body>
@@ -1430,7 +1437,7 @@ function loadTopic(flatIndex) {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
-            shortenVerseLabels();   // "Verse 8" -> "V8" corner badge
+            //shortenVerseLabels();   // "Verse 8" -> "V8" corner badge. commenting out and leaving the function open. 
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
             fitVerses();
