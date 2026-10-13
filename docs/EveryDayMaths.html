@@ -833,9 +833,9 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
     /* BODMAS: one line, auto-fit to the wide landscape width (bigger text than portrait) */
     .question-row[data-type="bodmas"] { padding-left: 2px; font-size: 20px; line-height: 1.5; }
     .question-row[data-type="bodmas"] .question-letter { width: 34px; margin-right: 4px; font-size: clamp(18px, 6vh, 28px); }
-    .question-row[data-type="bodmas"] .question-text { container-type: normal; white-space: nowrap; }
+    .question-row[data-type="bodmas"] .question-text { container-type: inline-size; white-space: nowrap; }
     .question-row[data-type="bodmas"] .question-text > span {
-        font-size: 1.3em !important;      /* size now comes from the fit script (measured width) */
+        font-size: clamp(12px, calc(100cqw / (var(--n, 30) * 0.6)), 56px) !important;
         letter-spacing: 0.02em !important;
     }
     .stacked-row .stacked-numbers { font-size: 28px; }
@@ -3466,79 +3466,6 @@ document.addEventListener("keydown", e => {
         if (sel && !sel.isCollapsed) return;                                    // selecting text
         navigate(dx < 0 ? "next" : "prev");
     }, { passive: true });
-})();
-
-// ── LANDSCAPE AUTO-FIT: measure each question's real width and enlarge it until it nearly fills the line ──
-// Only active in phone landscape (same condition as the landscape CSS). Portrait is never touched.
-(function () {
-    const mq = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
-    const MARGIN = 2;                       // stop this many px short of the edge
-    let timer = null;
-
-    function resetAll() {
-        questions.querySelectorAll(".question-text[data-fit-set]").forEach(qt => {
-            qt.style.fontSize = ""; qt.style.whiteSpace = ""; qt.removeAttribute("data-fit-set");
-        });
-    }
-    function eligible(row) {
-        if (row.classList.contains("stacked-row") || row.closest(".eng-root")) return null;
-        const qt = row.querySelector(".question-text");
-        if (!qt) return null;
-        if (!qt.dataset.fitInit) { qt.dataset.fitInit = "1"; if (qt.style.fontSize) qt.dataset.fitSkip = "1"; }
-        return qt.dataset.fitSkip ? null : qt;
-    }
-    function fitStack(stack) {
-        const capNorm = Math.min(44, Math.max(26, window.innerHeight * 0.08));
-        const wrapList = [];
-        stack.querySelectorAll(".question-row").forEach(row => {
-            const qt = eligible(row);
-            if (!qt) return;
-            const isB = row.getAttribute("data-type") === "bodmas";
-            const min = isB ? 12 : 20, cap = isB ? 56 : capNorm;
-            qt.setAttribute("data-fit-set", "1");
-            qt.style.whiteSpace = "nowrap";
-            const fits = sz => { qt.style.fontSize = sz + "px"; return qt.scrollWidth <= qt.clientWidth - MARGIN; };
-            if (!fits(min)) {
-                if (isB) return;                                   // BODMAS: keep one line at the smallest size
-                qt.style.whiteSpace = ""; qt.style.fontSize = "";  // long text (word problem): let it wrap
-                wrapList.push(qt); return;
-            }
-            let lo = min, hi = cap;
-            if (fits(hi)) { return; }                              // already at cap
-            while (hi - lo > 0.5) {                                // largest size that still fits
-                const mid = (lo + hi) / 2;
-                if (fits(mid)) lo = mid; else hi = mid;
-            }
-            qt.style.fontSize = lo + "px";
-        });
-        if (wrapList.length) {                                     // wrapping text: biggest size that needs no vertical scroll
-            const setAll = g => wrapList.forEach(q => { q.style.fontSize = g + "px"; });
-            const ok = () => stack.scrollHeight <= stack.clientHeight + 1;
-            let lo = 16, hi = capNorm;
-            setAll(hi);
-            if (!ok()) {
-                setAll(lo);
-                while (hi - lo > 0.5) {
-                    const mid = (lo + hi) / 2; setAll(mid);
-                    if (ok()) lo = mid; else hi = mid;
-                }
-                setAll(lo);
-            }
-        }
-    }
-    function run() {
-        timer = null;
-        if (!mq.matches) { resetAll(); return; }
-        questions.querySelectorAll(".stack-wrapper.visible-stack").forEach(fitStack);
-    }
-    function schedule() { clearTimeout(timer); timer = setTimeout(run, 60); }
-
-    new MutationObserver(schedule).observe(questions, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
-    window.addEventListener("resize", schedule);
-    window.addEventListener("orientationchange", schedule);
-    if (mq.addEventListener) mq.addEventListener("change", schedule);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
-    schedule();
 })();
 
 // New or refreshed topics (loaded asynchronously) pick up the current Show/Hide state
