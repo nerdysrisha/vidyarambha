@@ -502,10 +502,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #content-box.sync-on .verse-block.verse-active::before { left: calc(100% - 33px); }
   #content-box.sync-on .verse-block.verse-active::after  { left: calc(100% - 26px); }
 }
-@media (prefers-reduced-motion: reduce) {
-  #content-box.sync-on .verse-block.verse-active::before,
-  #content-box.sync-on .verse-block.verse-active::after { animation: none; transform: scaleY(0.8); }
-}
 
 /* ── BOTTOM NAV BAR: dark, always visible, same #111 / #333 / gold look as the top player dock. ── */
 /* NAV BAR */
@@ -1276,7 +1272,8 @@ function initAudioSync() {
     audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); });
     audio.addEventListener("pause",      () => contentBox.classList.remove("sync-playing"));
     audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); });
-    audio.addEventListener("timeupdate", () => update(false));
+    audio.addEventListener("timeupdate", () => { contentBox.classList.toggle("sync-playing", !audio.paused && !audio.ended); update(false); });
+    if (!audio.paused) contentBox.classList.add("sync-playing");   // audio already running when the page was wired up
     audio.addEventListener("seeked",     () => { syncUserScrollUntil = 0; update(true); });
 
     // Tap a block to jump to its start and play
