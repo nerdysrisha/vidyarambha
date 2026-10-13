@@ -700,7 +700,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
       content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat;
       opacity: 0;
   }
-  #start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+  #start-screen.ready::before { animation: startReveal 2s ease-in-out forwards; }
   @keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
   /* two Telugu lines, centred just above the Start button; each rises slowly from below while fading in */
   #start-text {
@@ -712,9 +712,9 @@ body.touch-locked #content-box .verse-block { cursor: default; }
       text-shadow: 0 2px 10px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
       opacity: 0; transform: translateY(28px);
   }
-  #start-screen.ready #start-text p { animation: textRise 2.6s cubic-bezier(.2,.7,.3,1) forwards; }
-  #start-screen.ready #start-text p:nth-child(1) { animation-delay: 1.5s; }
-  #start-screen.ready #start-text p:nth-child(2) { animation-delay: 3s; }
+  #start-screen.ready #start-text p { animation: textRise 1.4s cubic-bezier(.2,.7,.3,1) forwards; }
+  #start-screen.ready #start-text p:nth-child(1) { animation-delay: 0.5s; }
+  #start-screen.ready #start-text p:nth-child(2) { animation-delay: 1s; }
   @keyframes textRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
   #start-btn {
       position: relative; z-index: 1;
@@ -726,7 +726,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   }
   #start-screen.btn-on #start-btn {
       pointer-events: auto;
-      animation: startBtnIn 7s ease-in forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
+      animation: startBtnIn 2s ease-in forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
   }
   @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
@@ -770,6 +770,29 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar .ls-btn svg { width: 22px; height: 22px; fill: currentColor; display: block; }
   #speedGroup { margin: 0; }
   #speedPop { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: row; }
+}
+
+/* ── SCROLLBARS: hidden everywhere (scrolling by touch / wheel still works) ── */
+*, #sidebar, #sidebar-list, #content-box { scrollbar-width: none !important; -ms-overflow-style: none; }
+*::-webkit-scrollbar, #sidebar::-webkit-scrollbar, #sidebar-list::-webkit-scrollbar, #content-box::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none; }
+
+/* ── PHONE LANDSCAPE (refinements): dark stage so the stanza being played stands out; neat control strip ── */
+@media (orientation: landscape) and (max-height: 520px) {
+  html, body, #outer, #main-col { background: #14110d; }
+  #content-panel, #content-panel.has-dock, #content-box { background: #14110d; }
+  #content-box { color: #e9dcc0; }
+  #content-box h1 { color: #e8c585; }
+  #content-box .topic-tagline { color: #d9a066; }
+  #content-box .topic-invocation { color: #c9b07a; border-bottom-color: #3a3226; }
+  #content-box h2 { color: #d8b46a; }
+  #content-box hr.divider { border-top-color: #3a3226; }
+  #content-box.sync-on.sync-playing .verse-block { opacity: 0.35; }
+  #content-box.sync-on .verse-block.verse-active { box-shadow: 0 0 0 2px #d8b46a, 0 6px 22px rgba(216,180,106,0.35); }
+  /* floating strip: slightly longer dark rounded panel behind the three buttons, so no edge is cut */
+  #navbar { padding: 10px 6px; gap: 13px; background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn {
+      width: 43px; height: 43px; min-width: 43px; background: #1a160f; }
+  #content-box { padding-left: 76px; }
 }
 </style>
 </head>
@@ -1710,14 +1733,14 @@ counterEl.textContent = "– / " + flatTopics.length;
     probe.onload  = () => { setImg(dayImg); ready(); };
     probe.onerror = () => { setImg(fallbackImg); const f = new Image(); f.onload = f.onerror = ready; f.src = fallbackImg; };
     probe.src = dayImg;
-    setTimeout(ready, 1500);
+    setTimeout(ready, 1000);
     // the glowing Start button starts to appear only AFTER the picture is fully shown AND both text lines have risen,
     // plus a quiet pause (BTN_PAUSE) so the child can look at the picture and read; the button itself then fades in over 7 s (startBtnIn)
-    const BTN_PAUSE = 3000;
+    const BTN_PAUSE = 800;
     const showBtn = () => screenEl.classList.add("btn-on");
     const lastLine = screenEl.querySelector("#start-text p:last-child");
     if (lastLine) lastLine.addEventListener("animationend", () => setTimeout(showBtn, BTN_PAUSE));
-    setTimeout(showBtn, 16000);   // safety net (1.5 s wait + 5.6 s text + 3 s pause + margin)
+    setTimeout(showBtn, 7000);   // safety net (1.5 s wait + 5.6 s text + 3 s pause + margin)
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
