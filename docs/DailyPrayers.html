@@ -648,10 +648,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #counter { min-width: 30px; }
 }
 
-/* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
+/* START SCREEN (phones AND desktop): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Pictures by weekday: subjects/spiritual/images/1.webp (Sunday) ... 7.webp (Saturday). daily-prayers.webp is the fallback if a day's file is missing. */
 #start-screen { display: none; --start-img: url("subjects/spiritual/images/daily-prayers.webp"); }
-@media (max-width: 700px) and (pointer: coarse) {
+@media all {
   #start-screen {
       display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
       padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
@@ -703,12 +703,13 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
 }
+@media (min-width: 701px) { #start-text p { font-size: 22px !important; } }
 @media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 </style>
 </head>
 <body>
 
-<!-- START SCREEN (phones only): full-screen picture, glowing Start button; see CSS + script at the end of the page -->
+<!-- START SCREEN (all devices): full-screen picture, glowing Start button; see CSS + script at the end of the page -->
 <div id="start-screen">
   <div id="start-text" lang="te">
     <p>ఓం సర్వే భవంతు సుఖినః సర్వే సంతు నిరామయాః ।</p>
@@ -1619,14 +1620,14 @@ document.body.classList.add("side-open");
 document.getElementById("menuBtn").classList.add("open");
 counterEl.textContent = "– / " + flatTopics.length;
 
-// ── START SCREEN (phones only) ───────────────────────────────────────────
+// ── START SCREEN (phones and desktop) ───────────────────────────────────────────
 // Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
 // (iPhone Safari does not allow fullscreen for web pages; there the button simply fades away.)
 (function () {
     const screenEl = document.getElementById("start-screen");
     const btn = document.getElementById("start-btn");
     if (!screenEl || !btn) return;
-    if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;   // full screen is requested only on touch devices; desktop just fades the screen away
     // PICTURE OF THE DAY: images/1.webp = Sunday, 2 = Monday, 3 = Tuesday, 4 = Wednesday, 5 = Thursday, 6 = Friday, 7 = Saturday
     // (uses the device's own date). If today's file is missing, it falls back to images/daily-prayers.webp.
     const dayImg = BASE_URL + "images/" + (new Date().getDay() + 1) + ".webp";
@@ -1648,7 +1649,7 @@ counterEl.textContent = "– / " + flatTopics.length;
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && isTouch) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
