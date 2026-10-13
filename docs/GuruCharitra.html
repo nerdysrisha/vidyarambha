@@ -379,10 +379,10 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #outer { flex: 1 1 auto; min-height: 0; height: auto; }
   #navbar { flex: none; }
 }
-/* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
+/* START SCREEN (phones AND desktop; full screen is requested on phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Put the image at  subjects/gurucharitra/images/guru-dattatreya.webp  (or change the URL on the next line). */
 #start-screen { display: none; --start-img: url("subjects/gurucharitra/images/guru-dattatreya.webp"); }
-@media (max-width: 700px) and (pointer: coarse) {
+@media all {
   #start-screen {
       display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
       padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
@@ -415,8 +415,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
       border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
       font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
       background: radial-gradient(circle at 35% 30%, #ffe2b0 0%, #ffb454 55%, #ff9533 100%);
-      animation: startGlow 1.8s ease-in-out infinite;
+      opacity: 0; pointer-events: none;   /* hidden until the picture and text have been shown (script adds .btn-on) */
   }
+  #start-screen.btn-on #start-btn {
+      pointer-events: auto;
+      animation: startBtnIn 7s ease-in forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
+  }
+  @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
   /* soft saffron glow that breathes in and out */
   @keyframes startGlow {
@@ -429,12 +434,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
 }
-@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+@media (min-width: 701px) { #start-text p { font-size: 22px !important; } }
+@media (prefers-reduced-motion: reduce) { #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 </style>
 </head>
 <body>
 
-<!-- START SCREEN (phones only): full-screen picture + glowing Start button; Start goes full screen and reveals the chapter list -->
+<!-- START SCREEN (all devices): full-screen picture + glowing Start button; Start goes full screen and reveals the chapter list -->
 <div id="start-screen">
   <div id="start-text" lang="en">
     <p>Gurur Brahma, Gurur Vishnu, Gurur Devo Maheshwara</p>
@@ -847,24 +853,31 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     if (!document.fullscreenElement) setReading(false);
 });
 
-// ── START SCREEN (phones only) ───────────────────────────────────────────
+// ── START SCREEN (phones and desktop) ───────────────────────────────────────────
 // Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
 // (iPhone Safari does not allow fullscreen for web pages; there the button simply fades away.)
 (function () {
     const screenEl = document.getElementById("start-screen");
     const btn = document.getElementById("start-btn");
     if (!screenEl || !btn) return;
-    if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;   // full screen only on touch devices; desktop just fades the screen away and shows the chapters + reading panel
     // start the bottom-to-top reveal only once the picture has loaded (or after 1.5 s at the latest)
     const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
     const ready = () => screenEl.classList.add("ready");
     if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+    // the glowing Start button starts to appear only AFTER the picture is fully shown AND both text lines have risen,
+    // plus a quiet pause (BTN_PAUSE); the button itself then fades in over 7 s (startBtnIn)
+    const BTN_PAUSE = 3000;
+    const showBtn = () => screenEl.classList.add("btn-on");
+    const lastLine = screenEl.querySelector("#start-text p:last-child");
+    if (lastLine) lastLine.addEventListener("animationend", () => setTimeout(showBtn, BTN_PAUSE));
+    setTimeout(showBtn, 16000);   // safety net
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && isTouch) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net

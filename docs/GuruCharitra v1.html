@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guru Charitra</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 54px);
+    height: calc(100dvh - 40px - 54px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR */
+#sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed { width: 42px; }
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+    z-index: 2;
+}
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; }
+#sidebar-title .title-text { overflow: hidden; }
+#sidebar.collapsed #sidebar-title .title-text { display: none; }
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
+#sidebar.collapsed #sidebar-body { display: none; }
+#sidebar.collapsed #sidebar-search-row { display: none; }
+
+/* SEARCH */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 28px 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #00c8ff88; }
+#search-wrap { position: relative; }
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+#search-clear.visible { display: flex; }
+#search-clear:hover { background: #3a3a3a; color: #fff; }
+#search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
+
+/* SECTION HEADER (Chapters) */
+.sec-head {
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    color: #8a8a8a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1a1a1a;
+    user-select: none;
+}
+.sec-head .count { font-weight: normal; color: #555; font-size: 11px; }
+
+/* CHAPTER ITEMS */
+.ch-item {
+    padding: 8px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #bbb;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.ch-item:hover { background: #1a1a1a; color: #fff; }
+.ch-item .num { flex: 0 0 26px; text-align: right; font-size: 12px; color: #666; }
+.ch-item .nm { flex: 1; min-width: 0; }
+.ch-item.active {
+    background: #0d1f2b;
+    color: #00c8ff;
+    border-left-color: #00c8ff;
+    font-weight: bold;
+}
+.ch-item.active .num { color: #00c8ff; }
+
+/* ── SAFFRON THEME for the chapter list (same family as the Bhagavad Gita page) ──
+   Optional picture: put it at subjects/gurucharitra/icons/saffron-bg.webp (the gradient shows if it is missing) */
+#sidebar {
+    background:
+        url("subjects/gurucharitra/icons/saffron-bg.webp") center / cover no-repeat,
+        linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
+    box-sizing: border-box;
+    border: 1px solid #d8b46a88;
+    display: flex; flex-direction: column;
+    overflow: hidden;                      /* clips banner + list to the rounded corners */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+}
+#sidebar.collapsed { width: 42px; background: #111; }
+
+/* banner: dark strip with gold title; stays put while the list scrolls */
+#sidebar-title {
+    flex: none; position: static; z-index: 3;
+    padding: 13px 12px 12px 18px; gap: 10px;
+    background: linear-gradient(180deg, #1c130a 0%, #111 100%);
+    border-bottom: 2px solid #d8b46a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-transform: none; letter-spacing: 0.02em;
+}
+#sidebar-title .title-text { font-size: 18px; font-weight: 700; color: #d8b46a; line-height: 1.15; }
+#sidebar-title #sidebar-toggle { border-color: #d8b46a66; color: #d8b46a; }
+#sidebar-title #sidebar-toggle:hover { background: #1a1a1a; color: #f0d18a; }
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; border-bottom: none; box-shadow: none; background: transparent; }
+
+/* search */
+#sidebar-search-row { flex: none; position: static; padding: 9px 12px 8px 12px; background: rgba(255,248,235,0.55); border-bottom: 1px solid #d8b46a66; }
+#topic-search { background: #fffdf8; border: 1px solid #d8b46a; color: #3a2208; border-radius: 10px; }
+#topic-search::placeholder { color: #9a7a4a; }
+#topic-search:focus { border-color: #c9922e; box-shadow: 0 0 0 2px #c9922e33; }
+#search-clear { background: #ecd7ab; color: #6b4a14; }
+#search-clear:hover { background: #e2c487; color: #3a2208; }
+#search-count { color: #7a4a12; }
+
+/* only the list scrolls */
+#sidebar-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #c9922e88 transparent; }
+#sidebar-body::-webkit-scrollbar { width: 6px; }
+#sidebar-body::-webkit-scrollbar-thumb { background: #c9922e88; border-radius: 3px; }
+
+/* "Chapters  56" as a dark pill */
+.sec-head { margin: 8px 8px 4px 8px; padding: 10px 14px; border-radius: 10px; background: rgba(17,17,17,0.9); border: 1px solid #d8b46a66; color: #d8b46a; font-size: 14px; letter-spacing: 0.03em; }
+.sec-head .count { color: #bbb; font-size: 11.5px; }
+
+/* chapter row: cream card + gold-ringed round number badge */
+.ch-item {
+    margin: 5px 8px; padding: 8px 10px; gap: 12px; align-items: center;
+    background: #fffdf8; color: #3a2208; border-left: none; border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgba(122,74,18,0.35), 0 1px 3px rgba(0,0,0,0.18);
+    transition: background 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+}
+.ch-item:hover { background: #fff; color: #3a2208; transform: translateX(2px); }
+.ch-item .num {
+    flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%; box-sizing: border-box;
+    border: 3px solid #d8b46a; display: flex; align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(145deg, #e8590c, #7a1f1f);
+    color: #fff6dc; font: 700 15px/1 Georgia, "Times New Roman", serif; text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+}
+.ch-item .nm { font-size: 15px; font-weight: 700; line-height: 1.3; color: #3a2208; }
+.ch-item.active { background: #fff0cc; color: #3a2208; font-weight: normal; border-left-color: transparent; box-shadow: inset 0 0 0 2px #c9922e, 0 1px 4px rgba(0,0,0,0.3); }
+.ch-item.active .num { color: #fff6dc; box-shadow: 0 0 0 2px #fff0cc, 0 0 0 4px #c9922e; }
+@media (max-width: 700px) { .ch-item .nm { font-size: 16px; } }
+
+/* RIGHT COLUMN */
+#main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 20px;
+    flex: 1;
+    min-height: 0;
+    background: #faf8f4;
+}
+#content-box {
+    position: relative; /* so chapter.offsetTop is measured from this box */
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 30px 40px;
+    background: #faf8f4;
+    color: #2b2b2b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+#content-box::after { content: ""; display: block; height: 40vh; } /* lets the last chapters scroll to the top */
+#content-box::-webkit-scrollbar { width: 9px; }
+#content-box::-webkit-scrollbar-thumb { background: #ddd6c8; border-radius: 5px; }
+
+/* chapter bar injected above every chapter: number badge */
+#content-box .ch-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 760px;
+    margin: 0 auto;
+}
+#content-box .ch-badge {
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    font-weight: bold;
+    color: #6b4f1d;
+    background: #f4efe2;
+    border: 1px solid #e3d7b8;
+    border-radius: 4px;
+    padding: 2px 9px;
+}
+
+/* NAV BAR (same as Bhagavad Gita) */
+#navbar {
+    height: 40px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 0 20px 20px 20px;
+    position: relative;
+}
+#navbar button {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #ccc;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+}
+#navbar button:hover { background: #222; color: #d8b46a; }
+#counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
+#navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
+#navbar .nav-label { font-size: 13px; font-weight: 400; }
+
+/* FULLSCREEN / READING MODE + MENU BUTTON */
+#navbar { position: relative; }
+/* Fullscreen: gold outline circle (same as Spiritual Learnings), YouTube-style corner icons */
+#navbar #fsBtn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+#navbar #fsBtn:hover { background: #d8b46a33 !important; }
+#navbar #fsBtn svg { width: 17px; height: 17px; flex: 0 0 auto; display: block; }
+#menuBtn {
+    display: none;                       /* shown on phones only */
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 30px; padding: 0; font-size: 19px; line-height: 1;
+    color: #d8b46a !important; border-color: #d8b46a66 !important;
+}
+#menuBtn.open { background: #d8b46a !important; color: #111 !important; }
+@media (min-width: 701px) { body.reading #sidebar { display: none; } }
+
+/* MOBILE (portrait phones): edge-to-edge, list opens full width */
+@media (max-width: 700px) {
+  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+  #sidebar, #content-panel { border-radius: 16px; }   /* rounded panels on phones too */
+  #navbar { margin: 0 4px 4px 4px; gap: 4px; }
+  #navbar .nav-label { display: none; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #menuBtn { display: block; }
+  #sidebar-toggle { display: none; }
+  #sidebar { width: 100%; }
+  #sidebar.collapsed { display: none; }
+  body.side-open #main-col { display: none; }
+  #content-box { padding: 12px 8px 40px 8px; }
+  #content-box .ch-bar { max-width: none; }
+}
+
+/* BOOKMARK ("dog-ear") + nav-bar bookmark button (same as Bhagavad Gita) */
+#content-box { touch-action: manipulation; }          /* no double-tap zoom, so double-tap can mean "bookmark" */
+#content-box .bookmarked { position: relative; }
+#content-box .bookmarked::after {                       /* folded top-right corner */
+    content: ""; position: absolute; top: -1px; right: -1px; width: 32px; height: 32px;
+    background: linear-gradient(225deg, #faf8f4 0%, #faf8f4 50%, #ecd08a 50%, #b88a3a 100%);
+    border-radius: 0 0 8px 0 / 0 0 8px 0; pointer-events: none;
+}
+#content-box .bm-flash { box-shadow: 0 0 0 3px #d8b46acc, 0 4px 16px rgba(201,161,90,0.5) !important; }
+#navbar #bmBtn {
+    width: 34px; height: 30px; padding: 0; margin-left: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #d8b46a; border-color: #d8b46a66; opacity: 0.5;
+}
+#navbar #bmBtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+#navbar #bmBtn.has { opacity: 1; background: #d8b46a; color: #111; }
+#navbar #bmBtn.has svg { fill: currentColor; }
+#bm-toast {
+    position: fixed; left: 50%; bottom: 74px; transform: translateX(-50%); z-index: 60;
+    background: #111; color: #d8b46a; border: 1px solid #d8b46a66; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; max-width: 86vw; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+#bm-toast.show { opacity: 1; }
+
+/* tablet / desktop height fix: nav bar always sits at the bottom of the visible window */
+@media (min-width: 701px) {
+  body { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+  #outer { flex: 1 1 auto; min-height: 0; height: auto; }
+  #navbar { flex: none; }
+}
+/* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
+   Put the image at  subjects/gurucharitra/images/guru-dattatreya.webp  (or change the URL on the next line). */
+#start-screen { display: none; --start-img: url("subjects/gurucharitra/images/guru-dattatreya.webp"); }
+@media (max-width: 700px) and (pointer: coarse) {
+  #start-screen {
+      display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
+      padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
+      background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
+  }
+  /* the picture is its own layer: fully transparent at first, then fades in over 5 seconds once it has loaded */
+  #start-screen::before {
+      content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat;
+      opacity: 0;
+  }
+  #start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+  @keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
+  /* two Telugu lines, centred just above the Start button; each rises slowly from below while fading in */
+  #start-text {
+      position: absolute; left: 0; right: 0; bottom: calc(32px + 80px + 28px + env(safe-area-inset-bottom, 0px));
+      padding: 0 20px; text-align: center; pointer-events: none;
+  }
+  #start-text p {
+      margin: 0 0 8px; color: #fff4dc; font: 600 16px/1.9 Georgia, 'Times New Roman', serif; letter-spacing: 0.04em; text-wrap: balance;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.85), 0 0 3px rgba(0,0,0,0.7);
+      opacity: 0; transform: translateY(28px);
+  }
+  #start-screen.ready #start-text p { animation: textRise 2.6s cubic-bezier(.2,.7,.3,1) forwards; }
+  #start-screen.ready #start-text p:nth-child(1) { animation-delay: 1.5s; }
+  #start-screen.ready #start-text p:nth-child(2) { animation-delay: 3s; }
+  @keyframes textRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+  #start-btn {
+      position: relative; z-index: 1;
+      appearance: none; cursor: pointer; width: min(20vw, 80px); aspect-ratio: 1 / 1; border-radius: 50%; padding: 0;
+      border: 2px solid rgba(255,255,255,0.9); color: #4a2300;
+      font: 700 11px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      background: radial-gradient(circle at 35% 30%, #ffe2b0 0%, #ffb454 55%, #ff9533 100%);
+      animation: startGlow 1.8s ease-in-out infinite;
+  }
+  #start-btn:active { transform: scale(0.95); }
+  /* soft saffron glow that breathes in and out */
+  @keyframes startGlow {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(255,170,60,0.75), 0 0 18px 6px rgba(255,150,40,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+      50%      { box-shadow: 0 0 16px 6px rgba(255,190,90,1),    0 0 34px 14px rgba(255,150,40,0.7),  inset 0 1px 0 rgba(255,255,255,0.7); }
+  }
+  /* slow fade (2.5 s) so it is still visible after the browser finishes switching to full screen */
+  #start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
+  #start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
+  @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+}
+@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN (phones only): full-screen picture + glowing Start button; Start goes full screen and reveals the chapter list -->
+<div id="start-screen">
+  <div id="start-text" lang="en">
+    <p>Gurur Brahma, Gurur Vishnu, Gurur Devo Maheshwara</p>
+    <p>Guru Sakshat Parabrahmah, Tasmai Shree Guruveh Namah</p>
+  </div>
+  <button id="start-btn" type="button">Start</button>
+</div>
+
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">Guru Charitra</span>
+            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <div id="search-wrap">
+                <input id="topic-search" type="text" placeholder="Search chapters or text...">
+                <button id="search-clear">&#10005;</button>
+            </div>
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-body">
+            <div class="sec-head"><span>Chapters</span><span class="count" id="ch-count"></span></div>
+            <div id="ch-list"></div>
+        </div>
+    </div>
+
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box">
+                <div style="color:#8a7a5a;">Loading chapters…</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="navbar">
+    <button id="menuBtn" title="Chapter list">&#9776;</button>
+    <button id="prevBtn" aria-label="Previous chapter" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
+    <span id="counter">–</span>
+    <button id="nextBtn" aria-label="Next chapter" title="Next"><span class="nav-label">Next </span>&gt;</button>
+    <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a paragraph or chapter heading to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+</div>
+
+<div id="bm-toast" role="status"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// The single child file that holds all 56 chapters (path is relative to this page).
+const CHAPTERS_URL = "subjects/gurucharitra/Chapters.html";
+const BOOK_TITLE = "Guru Charitra";
+
+// ── ELEMENTS ────────────────────────────────────────────────────────────
+const sidebarEl   = document.getElementById("sidebar");
+const chList      = document.getElementById("ch-list");
+const chCount     = document.getElementById("ch-count");
+const contentBox  = document.getElementById("content-box");
+const counterEl   = document.getElementById("counter");
+const prevBtn     = document.getElementById("prevBtn");
+const nextBtn     = document.getElementById("nextBtn");
+
+// ── STORAGE (falls back to memory if the browser blocks localStorage) ────
+const mem = {};
+function lsGet(key, def) {
+    try { const v = localStorage.getItem(key); return v === null ? def : JSON.parse(v); }
+    catch (e) { return (key in mem) ? mem[key] : def; }
+}
+function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); }
+    catch (e) { mem[key] = val; }
+}
+
+// ── STATE ───────────────────────────────────────────────────────────────
+let chapters = [];          // { id, num, title, el, item, search }
+let current = -1;
+let lockUntil = 0;          // ignore scroll-tracking briefly right after a jump
+let userMoved = false;
+
+const isNarrow = () => window.innerWidth <= 700;
+
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// ── LOAD THE CHILD FILE ─────────────────────────────────────────────────
+fetch(CHAPTERS_URL)
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + CHAPTERS_URL); return r.text(); })
+    .then(html => {
+        contentBox.innerHTML = html;
+        initChapters();
+    })
+    .catch(err => {
+        contentBox.innerHTML =
+            '<div style="color:#b5432f;padding:12px 0;">' + err.message +
+            '<br><br>Make sure ' + CHAPTERS_URL + ' exists and that the page is served over http(s) ' +
+            '(e.g. GitHub Pages or a local server) — opening it directly (file://) blocks fetch().</div>';
+    });
+
+function initChapters() {
+    const els = contentBox.querySelectorAll("section.chapter");
+    if (!els.length) {
+        contentBox.innerHTML = '<div style="color:#b5432f;">No <code>&lt;section class="chapter"&gt;</code> blocks found in ' + CHAPTERS_URL + '.</div>';
+        return;
+    }
+
+    els.forEach((el, i) => {
+        const text = el.textContent;                       // read before the bar is injected
+        const id = el.id || ("ch" + (i + 1));
+        el.id = id;
+        const num = el.dataset.num || (i + 1);
+        const titleEl = el.querySelector(".ch-title");
+        const title = (titleEl ? titleEl.textContent.trim() : "") || ("Chapter " + num);
+
+        // bar above the chapter: number badge
+        const bar = document.createElement("div");
+        bar.className = "ch-bar";
+        bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span>';
+        el.insertBefore(bar, el.firstChild);
+
+        // sidebar entry
+        const item = document.createElement("div");
+        item.className = "ch-item";
+        item.innerHTML = '<span class="num"></span><span class="nm"></span>';
+        item.querySelector(".num").textContent = num;
+        item.querySelector(".nm").textContent = title;
+        item.addEventListener("click", () => goTo(i, true));
+        chList.appendChild(item);
+
+        chapters.push({ id, num, title, el, item, search: normalizeSearch(num + " " + title + " " + text) });
+    });
+
+    chCount.textContent = chapters.length;
+    markBookmark(); paintBmBtn();
+
+    // where to start: URL hash (#ch23) → last read → top
+    const fromHash = chapters.findIndex(c => c.id === location.hash.slice(1));
+    const fromLast = chapters.findIndex(c => c.id === lsGet("gc_last", null));
+    const start = fromHash >= 0 ? fromHash : (fromLast >= 0 ? fromLast : 0);
+    goTo(start, false);
+
+    // web fonts shift the layout slightly once loaded — re-align if the reader hasn't moved yet
+    ["wheel", "touchstart", "mousedown", "keydown"].forEach(ev =>
+        contentBox.addEventListener(ev, () => { userMoved = true; }, { passive: true, once: true }));
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            const listOpenOnPhone = isNarrow() && !sidebarEl.classList.contains("collapsed");   // text is hidden then; the list-close re-aligns it
+            if (!userMoved && current >= 0 && !listOpenOnPhone) { current = -1; goTo(start, false); }
+        });
+    }
+    // phones: open on the chapter list; tapping a chapter closes it and shows that chapter
+    if (isNarrow()) setCollapsed(false);
+}
+
+// ── NAVIGATION ──────────────────────────────────────────────────────────
+// Smooth, eased scroll (used by Prev / Next). Longer trips take a little longer, capped at 1.4s.
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let anim = null;
+function cancelAnim() {
+    if (!anim) return;
+    cancelAnimationFrame(anim.raf);
+    anim = null;
+    lockUntil = Date.now() + 100;
+}
+function smoothScrollTo(top) {
+    cancelAnim();
+    const from = contentBox.scrollTop, dist = top - from;
+    if (Math.abs(dist) < 2) { contentBox.scrollTop = top; return; }
+    const dur = Math.min(1400, Math.max(600, Math.abs(dist) * 0.6));
+    const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // easeInOutCubic
+    const t0 = performance.now();
+    const a = anim = { raf: 0 };
+    lockUntil = Infinity;                       // keep scroll-tracking quiet until we arrive
+    const step = now => {
+        if (anim !== a) return;
+        const t = Math.min(1, (now - t0) / dur);
+        contentBox.scrollTop = from + dist * ease(t);
+        if (t < 1) a.raf = requestAnimationFrame(step);
+        else { anim = null; lockUntil = Date.now() + 200; }
+    };
+    a.raf = requestAnimationFrame(step);
+}
+// the reader taking over (wheel / touch / scrollbar drag) stops the animation
+["wheel", "touchstart", "mousedown"].forEach(ev =>
+    contentBox.addEventListener(ev, () => cancelAnim(), { passive: true }));
+
+function goTo(i, fromSidebar, animate) {
+    if (i < 0 || i >= chapters.length) return;
+    if (fromSidebar && isNarrow()) setCollapsed(true);   // show the text first so offsets are measurable
+    const top = chapters[i].el.offsetTop - 12;
+    if (animate && !reduceMotion) {
+        setCurrent(i);                                   // counter / highlight switch straight away
+        smoothScrollTo(top);
+        return;
+    }
+    cancelAnim();
+    lockUntil = Date.now() + 200;
+    contentBox.scrollTop = top;
+    setCurrent(i);
+}
+
+function setCurrent(i) {
+    if (i === current) return;
+    current = i;
+    const c = chapters[i];
+    chapters.forEach((x, k) => x.item.classList.toggle("active", k === i));
+    c.item.scrollIntoView({ block: "nearest" });
+    counterEl.textContent = (i + 1) + " / " + chapters.length;
+    scheduleSave();
+}
+
+// remember position + keep the URL on the current chapter (so a browser bookmark of the page lands here)
+let saveTimer;
+function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+        const c = chapters[current];
+        if (!c) return;
+        try { history.replaceState(null, "", "#" + c.id); } catch (e) {}
+        document.title = BOOK_TITLE + " — Chapter " + c.num + ": " + c.title;
+        lsSet("gc_last", c.id);
+    }, 250);
+}
+
+// scroll tracking: highlight whichever chapter is at the top of the reading area
+let ticking = false;
+contentBox.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+        ticking = false;
+        if (!chapters.length || Date.now() < lockUntil) return;
+        const y = contentBox.scrollTop + 40;
+        let idx = 0;
+        for (let k = 0; k < chapters.length; k++) {
+            if (chapters[k].el.offsetTop <= y) idx = k; else break;
+        }
+        setCurrent(idx);
+    });
+});
+
+window.addEventListener("hashchange", () => {
+    const k = chapters.findIndex(c => c.id === location.hash.slice(1));
+    if (k >= 0 && k !== current) goTo(k, false);
+});
+
+// Prev / Next: one chapter at a time with a smooth scroll; wrapping round at the ends (same as Bhagavad Gita)
+// jumps straight there instead, since gliding through all 56 chapters would just be a blur
+prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false, current > 0); };
+nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false, current < chapters.length - 1); };
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); nextBtn.click(); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); prevBtn.click(); }
+});
+
+// ── BOOKMARK (same as Bhagavad Gita) ────────────────────────────────────
+// Double-tap / double-click a paragraph (or a chapter heading): a gold folded corner appears = THE bookmark
+// (only one; a new one replaces the old; double-tap it again to remove). Saved as chapter id + block number.
+// The bookmark button in the bottom bar jumps back to it.
+const BM_KEY = "gc_bookmark", DOUBLE_TAP_MS = 320;
+const BLOCK_SEL = ".ch-title, .ch-text p";
+let bookmark = lsGet(BM_KEY, null);                  // { id, index }
+if (!bookmark || typeof bookmark.id !== "string" || typeof bookmark.index !== "number") bookmark = null;
+let bmUserMoved = false, toastTimer;
+const bmBtn = document.getElementById("bmBtn");
+const bmToast = document.getElementById("bm-toast");
+
+function showToast(msg) {
+    bmToast.textContent = msg; bmToast.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => bmToast.classList.remove("show"), 2200);
+}
+function paintBmBtn() { bmBtn.classList.toggle("has", !!bookmark); }
+function blocksOf(c) { return Array.from(c.el.querySelectorAll(BLOCK_SEL)); }
+function blockFromTarget(t) {
+    if (!t || !t.closest || t.closest("button, a")) return null;
+    const el = t.closest(BLOCK_SEL);
+    return el && el.closest("section.chapter") ? el : null;
+}
+function markBookmark() {
+    contentBox.querySelectorAll(".bookmarked").forEach(n => n.classList.remove("bookmarked"));
+    if (!bookmark) return;
+    const c = chapters.find(x => x.id === bookmark.id);
+    const el = c && blocksOf(c)[bookmark.index];
+    if (el) el.classList.add("bookmarked");
+}
+function toggleBookmark(block) {
+    const c = chapters.find(x => x.el.contains(block));
+    if (!c) return;
+    const idx = blocksOf(c).indexOf(block);
+    if (idx < 0) return;
+    if (bookmark && bookmark.id === c.id && bookmark.index === idx) {
+        bookmark = null; showToast("Bookmark removed");
+    } else {
+        bookmark = { id: c.id, index: idx };
+        showToast("Bookmarked — tap the ribbon below to return here");
+    }
+    lsSet(BM_KEY, bookmark);
+    markBookmark(); paintBmBtn();
+    if (window.getSelection) window.getSelection().removeAllRanges();
+}
+
+let lastTapEl = null, lastTapAt = 0;
+contentBox.addEventListener("click", e => {
+    const block = blockFromTarget(e.target);
+    if (!block) { lastTapEl = null; return; }
+    const now = Date.now();
+    if (lastTapEl === block && now - lastTapAt < DOUBLE_TAP_MS) {
+        lastTapEl = null;
+        toggleBookmark(block);
+        return;
+    }
+    lastTapEl = block; lastTapAt = now;
+}, true);
+contentBox.addEventListener("mousedown", e => {      // desktop: stop the double-click from selecting a word
+    if (e.detail > 1 && blockFromTarget(e.target)) e.preventDefault();
+});
+["wheel", "touchstart", "mousedown"].forEach(evt =>
+    contentBox.addEventListener(evt, () => { bmUserMoved = true; }, { passive: true }));
+
+function scrollToBookmarkBlock(flash) {
+    const c = bookmark && chapters.find(x => x.id === bookmark.id);
+    const el = c && blocksOf(c)[bookmark.index];
+    if (!el) return false;
+    cancelAnim();
+    lockUntil = Date.now() + 300;
+    setCurrent(chapters.indexOf(c));
+    const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
+    const want = r.height > contentBox.clientHeight - 16 ? 8 : (contentBox.clientHeight - r.height) / 2;
+    contentBox.scrollTop += (r.top - box.top) - want;
+    if (flash) { el.classList.add("bm-flash"); setTimeout(() => el.classList.remove("bm-flash"), 1500); }
+    return true;
+}
+bmBtn.addEventListener("click", () => {
+    if (!bookmark) { showToast("No bookmark yet — double-tap a paragraph to place one"); return; }
+    if (isNarrow() && !sidebarEl.classList.contains("collapsed")) setCollapsed(true);
+    if (!scrollToBookmarkBlock(true)) { showToast("Couldn't find the bookmarked place"); return; }
+    bmUserMoved = false;                              // web fonts may shift the layout: aim again if the reader hasn't moved
+    const again = () => { if (!bmUserMoved) scrollToBookmarkBlock(false); };
+    setTimeout(again, 350); setTimeout(again, 900);
+});
+
+// ── SEARCH (chapter number, heading and full chapter text) ──────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+const searchClear = document.getElementById("search-clear");
+
+function runSearch() {
+    const q = normalizeSearch(searchInput.value.trim());
+    searchClear.classList.toggle("visible", searchInput.value.length > 0);
+    let n = 0;
+    chapters.forEach(c => {
+        const ok = !q || c.search.includes(q);
+        c.item.style.display = ok ? "" : "none";
+        if (ok) n++;
+    });
+    searchCount.textContent = q ? (n ? n + " chapter" + (n === 1 ? "" : "s") + " found" : "No chapters found") : "";
+}
+searchInput.addEventListener("input", runSearch);
+searchClear.addEventListener("click", () => { searchInput.value = ""; runSearch(); searchInput.focus(); });
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
+});
+
+// ── SIDEBAR COLLAPSE ────────────────────────────────────────────────────
+const toggleBtn = document.getElementById("sidebar-toggle");
+const menuBtn = document.getElementById("menuBtn");
+let savedScroll = 0;
+function setCollapsed(collapsed) {
+    const wasOpen = !sidebarEl.classList.contains("collapsed");
+    // phones hide the text while the list is open, which resets its scroll: remember and restore it
+    if (isNarrow() && wasOpen === false && !collapsed) savedScroll = contentBox.scrollTop;
+    sidebarEl.classList.toggle("collapsed", collapsed);
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    document.body.classList.toggle("side-open", !collapsed);
+    menuBtn.classList.toggle("open", !collapsed);
+    if (isNarrow() && collapsed && wasOpen && chapters.length) {
+        lockUntil = Date.now() + 300;
+        contentBox.scrollTop = (!userMoved && current >= 0) ? chapters[current].el.offsetTop - 12 : savedScroll;
+    }
+}
+toggleBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
+menuBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
+if (isNarrow()) setCollapsed(true);   // phones start with the list tucked away
+
+// ── FULLSCREEN / READING MODE ───────────────────────────────────────────
+const fsBtn = document.getElementById("fsBtn");
+// YouTube-style icons: corners pointing out = maximize, corners pointing in = minimize
+const ICON_MAX = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+const ICON_MIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+function setReading(on) {
+    document.body.classList.toggle("reading", on);
+    fsBtn.innerHTML = on ? ICON_MIN : ICON_MAX;
+    fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
+    fsBtn.setAttribute("aria-label", fsBtn.title);
+}
+fsBtn.addEventListener("click", () => {
+    if (!document.body.classList.contains("reading")) {
+        setReading(true);
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    } else {
+        setReading(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+});
+document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
+    if (!document.fullscreenElement) setReading(false);
+});
+
+// ── START SCREEN (phones only) ───────────────────────────────────────────
+// Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
+// (iPhone Safari does not allow fullscreen for web pages; there the button simply fades away.)
+(function () {
+    const screenEl = document.getElementById("start-screen");
+    const btn = document.getElementById("start-btn");
+    if (!screenEl || !btn) return;
+    if (!window.matchMedia("(max-width: 700px) and (pointer: coarse)").matches) { screenEl.remove(); return; }
+    // start the bottom-to-top reveal only once the picture has loaded (or after 1.5 s at the latest)
+    const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
+    const ready = () => screenEl.classList.add("ready");
+    if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
+    let done = false;
+    const finish = () => { if (!done) { done = true; screenEl.remove(); } };
+    btn.addEventListener("click", () => {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        screenEl.classList.add("leaving");
+        screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
+        setTimeout(finish, 3200);   // safety net
+    });
+})();
+</script>
+
+</body>
+</html>
