@@ -761,7 +761,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   /* the nav bar becomes a transparent floating column on the left: only pause, mute, speed stay */
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0; padding: 0;
             background: none; border: 0; flex-direction: column; gap: 12px; justify-content: flex-start; }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#purportMeasure) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#purportMeasure) { display: none !important; }
   #navbar:has(#speedMain:disabled) { display: none !important; }       /* topic without audio: no floating buttons */
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn {
       width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%;
@@ -786,9 +786,14 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .topic-invocation { color: #c9b07a; border-bottom-color: #3a3226; }
   #content-box h2 { color: #d8b46a; }
   #content-box hr.divider { border-top-color: #3a3226; }
-  /* verse cards keep the exact portrait look (light card, bright highlighted verse); others only slightly dimmed */
-  #content-box.sync-on.sync-playing .verse-block { opacity: 0.65; }
-  #content-box.sync-on.sync-playing .verse-block.verse-active { opacity: 1; }
+  /* verse cards keep the exact portrait look; the other verses are dimmed with brightness (keeps the cream colour, no purple tint) */
+  #content-box.sync-on .verse-block { transition: filter 1.1s ease-in-out, background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
+  #content-box.sync-on.sync-playing .verse-block { opacity: 1; filter: brightness(0.55); }
+  #content-box.sync-on.sync-playing .verse-block.verse-active { filter: none; }
+  /* lock button joins the floating strip (needed to unlock swiping) */
+  #navbar #lockBtn { position: static; transform: none; width: 43px; height: 43px; min-width: 43px; padding: 0; border-radius: 50%;
+      background: #1a160f !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important; display: inline-flex; align-items: center; justify-content: center; }
+  #navbar #lockBtn svg { width: 22px; height: 22px; }
   /* floating strip: slightly longer dark rounded panel behind the three buttons, so no edge is cut */
   #navbar { padding: 10px 6px; gap: 13px; background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn {
