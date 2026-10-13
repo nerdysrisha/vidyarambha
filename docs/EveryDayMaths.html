@@ -811,6 +811,29 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
 @media (prefers-reduced-motion: reduce) {
     #idle-msg, #idle-msg .idle-hand, body.idle-on:not(.allqs-done) #selectAllBtn { animation: none !important; }
 }
+
+/* ── PHONE LANDSCAPE: clean full-screen question block (no bars, no buttons). Swipe left/right still works.
+   Portrait is untouched. Rotate back to portrait for Show Answers, jump list, control panel, Prev/Next. ── */
+@media (orientation: landscape) and (max-height: 520px) {
+    #control-container, #bottom-nav { display: none !important; }
+    #outer { margin: 3px; gap: 0; height: calc(100vh - 6px); height: calc(100dvh - 6px); }
+    #questions { padding: 2px; }
+    .stack-wrapper { top: 2px; left: 2px; right: 2px; bottom: 2px; }
+    .stack-box { padding: 6px 10px; }
+    .problem-title { font-size: 18px; padding-right: 42px; margin-bottom: 2px; }
+    .refresh-btn { top: 4px; right: 4px; width: 34px; height: 30px; padding: 0 !important; font-size: 18px !important; }
+    .question-row { padding-left: 4px; font-size: 26px; line-height: 1.5; }
+    .question-letter { width: 36px; margin-right: 6px; }
+    /* BODMAS: one line, auto-fit to the wide landscape width (bigger text than portrait) */
+    .question-row[data-type="bodmas"] { padding-left: 2px; font-size: 20px; line-height: 1.5; }
+    .question-row[data-type="bodmas"] .question-letter { width: 30px; margin-right: 4px; font-size: 18px; }
+    .question-row[data-type="bodmas"] .question-text { container-type: inline-size; white-space: nowrap; }
+    .question-row[data-type="bodmas"] .question-text > span {
+        font-size: clamp(12px, calc(100cqw / (var(--n, 30) * 0.6)), 36px) !important;
+        letter-spacing: 0.02em !important;
+    }
+    .stacked-row .stacked-numbers { font-size: 28px; }
+}
 </style>
 </head>
 <body>
