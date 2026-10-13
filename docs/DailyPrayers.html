@@ -743,6 +743,34 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 }
 @media (min-width: 701px) { #start-text p { font-size: 22px !important; } }
 @media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+
+/* ── PHONE LANDSCAPE: focus mode. Everything disappears; only the verses + three floating buttons (pause, mute, speed).
+   Portrait is untouched. Rotate back to portrait for the full controls. ── */
+#navbar .ls-btn { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #sidebar, #audio-dock, #copyBtn, #lockHint, #purportCard { display: none !important; }
+  #outer { margin: 0; gap: 0; height: 100vh; height: 100dvh; }
+  #main-col { gap: 0; }
+  body.side-open #main-col { display: flex !important; }
+  #content-panel, #content-panel.has-dock { border: 0; border-radius: 0; }
+  #content-box { padding: 8px 8px 24px 66px; }
+  #content-box h1 { font-size: 1.3em; }
+  #content-box .verse-block, #content-box .verse-refrain { max-width: none; padding: 8px 6px; font-size: 18px; line-height: 1.7; }
+  #content-box.sync-on .verse-block.verse-active { transform: none; }
+
+  /* the nav bar becomes a transparent floating column on the left: only pause, mute, speed stay */
+  #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0; padding: 0;
+            background: none; border: 0; flex-direction: column; gap: 12px; justify-content: flex-start; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#purportMeasure) { display: none !important; }
+  #navbar:has(#speedMain:disabled) { display: none !important; }       /* topic without audio: no floating buttons */
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn {
+      width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%;
+      background: rgba(17,17,17,0.78); border: 1.5px solid #d8b46a; color: #d8b46a;
+      display: inline-flex; align-items: center; justify-content: center; font: 700 13px/1 system-ui, sans-serif; }
+  #navbar .ls-btn svg { width: 22px; height: 22px; fill: currentColor; display: block; }
+  #speedGroup { margin: 0; }
+  #speedPop { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: row; }
+}
 </style>
 </head>
 <body>
@@ -796,6 +824,8 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
+    <button id="lsPause" class="ls-btn" type="button" aria-label="Play / pause"></button>
+    <button id="lsMute" class="ls-btn" type="button" aria-label="Mute / unmute"></button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
         <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1&times;</button>
         <div id="speedPop" hidden>
@@ -1296,10 +1326,12 @@ const FIT_MIN = 12;   // px: below this, text is unreadable -> let that verse wr
 const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
 function fitVerses() {
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
-    if (!window.matchMedia("(max-width: 700px)").matches) {
+    const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;   // phone landscape focus mode
+    if (!land && !window.matchMedia("(max-width: 700px)").matches) {
         blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
         return;
     }
+    const MAXPX = land ? 30 : FIT_MAX;
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const TEST = 20;
     blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
@@ -1309,12 +1341,12 @@ function fitVerses() {
         const avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line
-        return w > 0 ? TEST * (avail / w) * 0.98 : FIT_MAX;
+        return w > 0 ? TEST * (avail / w) * 0.98 : MAXPX;
     });
     blocks.forEach((b, i) => {
         const fs = results[i];
         if (fs < FIT_MIN) { b.style.fontSize = FIT_MIN + "px"; b.style.whiteSpace = "normal"; }
-        else { b.style.fontSize = (Math.floor(Math.min(fs, FIT_MAX) * 10) / 10) + "px"; }
+        else { b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; }
     });
 }
 let fitTimer;
@@ -1696,6 +1728,21 @@ counterEl.textContent = "– / " + flatTopics.length;
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
     });
+})();
+
+// ── LANDSCAPE FOCUS MODE buttons: pause/play + mute drive the real (hidden) player; speed uses the existing speed pill ──
+(function () {
+    const lsPause = document.getElementById("lsPause"), lsMute = document.getElementById("lsMute");
+    function src(sel) { return audioDock.querySelector(sel); }
+    function paint() {                                   // copy the current icons from the real player buttons
+        const p = src(".ap-btn:not(.ap-mute)"), m = src(".ap-mute");
+        if (p) lsPause.innerHTML = p.innerHTML;
+        if (m) lsMute.innerHTML = m.innerHTML;
+    }
+    lsPause.addEventListener("click", () => { const p = src(".ap-btn:not(.ap-mute)"); if (p) p.click(); });
+    lsMute.addEventListener("click",  () => { const m = src(".ap-mute"); if (m) m.click(); });
+    new MutationObserver(paint).observe(audioDock, { childList: true, subtree: true });
+    paint();
 })();
 </script>
 
