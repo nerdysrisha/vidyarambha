@@ -688,7 +688,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   }
   #start-screen.btn-on #start-btn {
       pointer-events: auto;
-      animation: startBtnIn 1.2s ease forwards, startGlow 1.8s ease-in-out infinite;
+      animation: startBtnIn 7s ease-in forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
   }
   @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
@@ -1640,10 +1640,13 @@ counterEl.textContent = "– / " + flatTopics.length;
     probe.onerror = () => { setImg(fallbackImg); const f = new Image(); f.onload = f.onerror = ready; f.src = fallbackImg; };
     probe.src = dayImg;
     setTimeout(ready, 1500);
-    // the glowing Start button appears only AFTER the picture has finished its slow fade-in
+    // the glowing Start button starts to appear only AFTER the picture is fully shown AND both text lines have risen,
+    // plus a quiet pause (BTN_PAUSE) so the child can look at the picture and read; the button itself then fades in over 7 s (startBtnIn)
+    const BTN_PAUSE = 3000;
     const showBtn = () => screenEl.classList.add("btn-on");
-    screenEl.addEventListener("animationend", e => { if (e.target === screenEl && e.animationName === "startReveal") showBtn(); });
-    setTimeout(showBtn, 7500);   // safety net (1.5 s wait + 5 s reveal + margin)
+    const lastLine = screenEl.querySelector("#start-text p:last-child");
+    if (lastLine) lastLine.addEventListener("animationend", () => setTimeout(showBtn, BTN_PAUSE));
+    setTimeout(showBtn, 16000);   // safety net (1.5 s wait + 5.6 s text + 3 s pause + margin)
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
