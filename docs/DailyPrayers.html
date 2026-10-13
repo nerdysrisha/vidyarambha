@@ -801,6 +801,12 @@ body.touch-locked #content-box .verse-block { cursor: default; }
       width: 43px; height: 43px; min-width: 43px; background: #1a160f; }
   #content-box { padding-left: 76px; }
 }
+
+/* ── VERSE LABEL: small corner badge ("V8") instead of its own line, so the verse text uses that space ── */
+#content-box .verse-block { position: relative; }
+#content-box .verse-label { position: absolute; top: 3px; left: 6px; margin: 0; display: block; z-index: 1;
+    font-size: 10px; line-height: 1; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 9px; }
+#content-box .verse-label + br { display: none; }       /* the line break after the old label is no longer needed */
 </style>
 </head>
 <body>
@@ -1383,6 +1389,16 @@ let fitTimer;
 window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses);
 
+// "Verse 8" / "Stanza 8" -> "V8" (full text kept in data-full and the tooltip; other labels are left as they are)
+function shortenVerseLabels() {
+    contentBox.querySelectorAll(".verse-label").forEach(l => {
+        const full = l.textContent.trim();
+        const m = full.match(/^(?:verse|stanza|sloka|shloka)\s*(\d+)$/i);
+        l.dataset.full = full; l.title = full;
+        if (m) l.textContent = "V" + m[1];
+    });
+}
+
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
 // The heart of the app: highlights the sidebar item (gold box), updates the n/total counter,
 // fetch()es the page, injects it, then wires up audio sync, copy button and verse fitting.
@@ -1414,6 +1430,7 @@ function loadTopic(flatIndex) {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
+            shortenVerseLabels();   // "Verse 8" -> "V8" corner badge
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
             fitVerses();
@@ -1619,7 +1636,7 @@ function ppPlan(block) {                                // font size + card heig
     const room = contentBox.clientHeight - (block.offsetHeight + 16) - 12 - 14;   // box - stanza - top gap - gap above the nav bar
     const allowed = Math.max(minH, Math.min(ppCap, room));
     const lab = block.querySelector(".verse-label");
-    const label = (lab ? lab.textContent.trim() + " \u00B7 " : "") + "Meaning";
+    const label = (lab ? (lab.dataset.full || lab.textContent).trim() + " \u00B7 " : "") + "Meaning";
     m.style.maxHeight = allowed + "px";
     m.querySelector(".pp-label").textContent = label;
     t.textContent = block.dataset.purport;
