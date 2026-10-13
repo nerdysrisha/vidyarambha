@@ -93,13 +93,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     /* SAFFRON BACKDROP: drop your image at subjects/spiritual/icons/saffron-bg.webp (falls back to the gradient if missing) */
     background:
         url("subjects/spiritual/icons/saffron-bg.webp") center / cover no-repeat,
-        linear-gradient(160deg, #ffa733 0%, #f57c00 55%, #e65100 100%);
-    border: 1px solid #333;
+        linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
+    box-sizing: border-box;
+    border: 1px solid #d8b46a88;
     border-radius: 20px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
-    scrollbar-color: #333 #0a0a0a;
+    display: flex; flex-direction: column;
+    overflow: hidden;                      /* clips banner + list to the rounded corners */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
     transition: width 0.2s ease;
 }
 #sidebar.collapsed { width: 42px; background: #111; }
@@ -193,12 +193,35 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
 
-/* Heading + search removed: only the collapse button remains, on a slim transparent strip */
-#sidebar-title { padding: 6px 8px 0 8px; border-bottom: none; background: transparent; justify-content: flex-end; }
-#sidebar-title .title-text { display: none; }
-#sidebar-search-row { display: none; }
-#sidebar.collapsed #sidebar-title { background: #111; padding: 14px 0; justify-content: center; }
-@media (max-width: 700px) { #sidebar-title { display: none; } }
+/* banner: dark strip with gold title; stays put while the list scrolls (same as Guru Charitra) */
+#sidebar-title {
+    flex: none; position: static; z-index: 3;
+    padding: 13px 12px 12px 18px; gap: 10px;
+    background: linear-gradient(180deg, #1c130a 0%, #111 100%);
+    border-bottom: 2px solid #d8b46a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    text-transform: none; letter-spacing: 0.02em;
+    justify-content: space-between;
+}
+#sidebar-title .title-text { font-size: 18px; font-weight: 700; color: #d8b46a; line-height: 1.15; }
+#sidebar-title #sidebar-toggle { border-color: #d8b46a66; color: #d8b46a; }
+#sidebar-title #sidebar-toggle:hover { background: #1a1a1a; color: #f0d18a; }
+#sidebar.collapsed { background: #111; }
+#sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; border-bottom: none; box-shadow: none; background: transparent; }
+
+/* search (placeholder look for now) */
+#sidebar-search-row { flex: none; position: static; padding: 9px 12px 8px 12px; background: rgba(255,248,235,0.55); border-bottom: 1px solid #d8b46a66; }
+#topic-search { background: #fffdf8; border: 1px solid #d8b46a; color: #3a2208; border-radius: 10px; }
+#topic-search::placeholder { color: #9a7a4a; }
+#topic-search:focus { border-color: #c9922e; box-shadow: 0 0 0 2px #c9922e33; }
+#search-clear { background: #ecd7ab; color: #6b4a14; }
+#search-clear:hover { background: #e2c487; color: #3a2208; }
+#search-count { color: #7a4a12; }
+
+/* only the list scrolls */
+#sidebar-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #c9922e88 transparent; }
+#sidebar-list::-webkit-scrollbar { width: 6px; }
+#sidebar-list::-webkit-scrollbar-thumb { background: #c9922e88; border-radius: 3px; }
 
 /* CATEGORY (dark pill on the saffron backdrop) */
 .category-block { padding-bottom: 6px; }
@@ -729,7 +752,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         </div>
         <div id="sidebar-search-row">
             <div id="search-wrap">
-                <input id="topic-search" type="text" placeholder="Search...">
+                <input id="topic-search" type="text" placeholder="Search prayers...">
                 <button id="search-clear">&#10005;</button>
             </div>
             <div id="search-count"></div>
