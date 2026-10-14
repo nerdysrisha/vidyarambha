@@ -876,6 +876,17 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   body.reading #navbar button { background: #2c3242; border-color: #3d455a; }
 }
 
+
+/* UP / DOWN verse buttons in the left control bar (phone landscape) */
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar { gap: 10px; }                                                   /* bar is taller now: slightly tighter spacing so it still fits */
+  #navbar .ls-btn.ls-nav svg { fill: none; stroke: currentColor; width: 24px; height: 24px; }
+  #navbar:has(#speedMain:disabled) .ls-btn.ls-nav { opacity: 1; pointer-events: auto; }   /* no audio: up/down still work */
+  body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; } /* no verses on the page: dimmed */
+}
+
+
+
 </style>
 </head>
 <body>
@@ -925,6 +936,11 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
+	
+	<button id="lsUp" class="ls-btn ls-nav" type="button" aria-label="Previous verse" title="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+    <button id="lsDown" class="ls-btn ls-nav" type="button" aria-label="Next verse" title="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+	
+	
     <button id="lsPause" class="ls-btn" type="button" aria-label="Play / pause"></button>
     <button id="lsMute" class="ls-btn" type="button" aria-label="Mute / unmute"></button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
@@ -2010,6 +2026,11 @@ counterEl.textContent = "– / " + flatTopics.length;
     if (mq.addEventListener) mq.addEventListener("change", onLand); else mq.addListener(onLand);
     onLand();
 })();
+
+
+// up / down in the landscape bar = the same actions as the portrait arrows
+document.getElementById("lsUp").addEventListener("click",   () => stepVerse(-1));
+document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 </script>
 
 </body>
