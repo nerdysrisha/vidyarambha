@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Tiro+Telugu:ital@0;1&family=Tiro+Devanagari+Hindi:ital@0;1&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 html, body {
     margin: 0;
@@ -543,11 +543,29 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     #content-box.sync-playing .verse-block.verse-active > .verse-tag::after,
     #content-box.sync-playing .verse-block.verse-active > .verse-label::after { animation: none; }
 }
-#content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: left; }
+#content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: center; }
 #content-box .verse-block > .verse-grid + .verse-grid { margin-top: 10px; }
 #content-box .verse-block > .verse-grid .verse-telugu,
-#content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
+#content-box .verse-block > .verse-grid .verse-translit { text-align: center; }
 #content-box .verse-block > .flag-inline { text-align: left; }
+
+/* WATERMARK: a faint picture behind the verse on every card (all screens).
+   Put your image at  subjects/bhagavadgita/images/watermark.webp  (transparent background works best).
+   No file = nothing shows. Strength: change --wm-opacity (0.05 very faint ... 0.15 clear). */
+#content-box { --wm-img: url("subjects/bhagavadgita/images/watermark.webp"); --wm-opacity: 0.10; }
+#content-box .verse-block { isolation: isolate; }                 /* keeps the picture behind the text but above the card colour */
+#content-box .verse-block::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+    background: var(--wm-img) no-repeat center 38% / min(62%, 340px) auto;
+    opacity: var(--wm-opacity);
+}
+/* phone landscape: the picture sits in the empty space under the verse, in the left half of the card */
+@media (orientation: landscape) and (max-height: 520px) {
+  #content-box .verse-block::before {
+      inset: auto auto 8px 14px; width: calc(50% - 24px); height: 58%;
+      background-position: center bottom; background-size: contain;
+  }
+}
 
 /* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Put the image at  subjects/bhagavadgita/images/start.webp  (or change the URL on the next line). */
@@ -702,10 +720,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .gita-chapter .group-tag { font-family: var(--mono); font-size: 10px; color: var(--muted); margin: 0 0 8px 18px; }
 
 /* ── PER-LANGUAGE TEXT: shloka (.sl) and meaning (.mn). New language = one more line here + one line in LANGS (JS) ── */
-#content-box .verse-block .sl { font-size: 1em; line-height: 1.9; white-space: inherit; text-align: left; color: #2b2b2b; }
-#content-box .verse-block .sl[data-lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
-#content-box .verse-block .sl[data-lang="hi"] { font-family: 'Noto Sans Devanagari', 'Noto Sans Telugu', sans-serif; }
-#content-box .verse-block .sl[data-lang="en"] { font-family: var(--mono, 'IBM Plex Mono', monospace); font-style: italic; color: #6b4f1d; line-height: 1.8; }
+/* verse fonts: change a name in these three lines to try another look (Telugu ideas: 'Ramabhadra', 'Suranna', 'Gidugu') */
+#content-box .verse-block { --vf-te: 'Tiro Telugu', 'Noto Serif Telugu', 'Noto Sans Telugu', serif;
+                            --vf-hi: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+                            --vf-en: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif; }
+#content-box .verse-block .sl { font-size: 1em; line-height: 1.95; white-space: inherit; text-align: center; color: #2b2b2b; }
+#content-box .verse-block .sl[data-lang="te"] { font-family: var(--vf-te); }
+#content-box .verse-block .sl[data-lang="hi"] { font-family: var(--vf-hi); }
+#content-box .verse-block .sl[data-lang="en"] { font-family: var(--vf-en); font-style: italic; font-weight: 600; font-size: 1.14em; letter-spacing: 0.01em; color: #6b4f1d; line-height: 1.7; }
 #content-box .mtab-panel .mn { margin: 0; }
 #content-box .mtab-panel .mn[data-lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
 #content-box .mtab-panel .mn[data-lang="hi"] { font-family: 'Noto Sans Devanagari', 'Noto Sans Telugu', sans-serif; }
@@ -1470,6 +1492,8 @@ let curLang = "te";
 try { const sv = localStorage.getItem(LANG_KEY); if (LANGS.some(l => l.code === sv)) curLang = sv; } catch (e) {}
 
 function buildVerses() {
+    const NUM_N = /^\d[\d\s,\-–]*$/;
+    const numbered = Array.from(contentBox.querySelectorAll(".verse-block")).filter(b => NUM_N.test((b.dataset.n || "").trim()));   // cards that count in 2/72
     contentBox.querySelectorAll(".verse-block").forEach(block => {
         if (block.dataset.built) return;
         const data = {};
@@ -1484,7 +1508,7 @@ function buildVerses() {
         const n = (block.dataset.n || "").trim();
         const tag = document.createElement("span");
         const chM = (flatTopics[currentFlatIndex] && flatTopics[currentFlatIndex].path || "").match(/chapter(\d+)/i);   // chapter number from the file name
-        tag.className = "verse-tag"; tag.textContent = /^\d[\d\s,\-–]*$/.test(n) ? (chM ? "Ch " + chM[1] + " · " : "") + "Verse " + n : n;
+        tag.className = "verse-tag"; tag.textContent = NUM_N.test(n) ? (chM ? "Ch " + chM[1] + " · " : "") + (numbered.indexOf(block) + 1) + "/" + numbered.length : n;
         block.appendChild(tag);
         // shloka (one div, refilled when the language changes)
         const grid = document.createElement("div"); grid.className = "verse-grid";
