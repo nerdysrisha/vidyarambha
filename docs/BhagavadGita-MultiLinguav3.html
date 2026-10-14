@@ -618,7 +618,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* MEANINGS: browser-style tabs (తె | EN | हि) sitting on the top edge of the meaning panel; Telugu is open by default.
    The active tab is white and joins the panel (no line between them) with a saffron top edge; the others are cream and a little smaller. */
 #content-box .mtabs { margin-top: 8px; text-align: left; white-space: normal; }
-#content-box .mtab-bar { display: flex; align-items: flex-end; gap: 3px; padding: 0 14px; margin: 0 0 -1px 0; height: var(--tab-h);
+#content-box .mtab-bar { display: flex; align-items: flex-end; justify-content: flex-end; gap: 3px; padding: 0; margin: 0 0 -1px 0;   /* tabs packed to the right: the last one ends at the box's right border */ height: var(--tab-h);
     box-sizing: border-box; position: relative; z-index: 3; flex: none; }
 #content-box .mtab {
     appearance: none; cursor: pointer; margin: 0 0 1px 0; letter-spacing: 0.02em; display: inline-flex; align-items: center;
@@ -635,7 +635,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #content-box .mtab:focus-visible { outline: 2px solid #c9922e; outline-offset: 1px; }
 #content-box .mtab-panel {
-    background: #fff; border: 1px solid #c9a15a; border-radius: 12px; padding: 10px 24px;
+    background: #fff; border: 1px solid #c9a15a; border-radius: 12px 0 12px 12px; padding: 10px 24px;
     position: relative; z-index: 2; text-align: left;
     display: flex; flex-direction: column;                     /* the text (.mn) scrolls inside; the border stays still */
     font-size: 1rem; line-height: 1.9; color: #2b2b2b;
@@ -650,7 +650,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%); }
 #content-box .mtab-panel[hidden] { display: none; }
 /* closed state: the tabs sit on a slim blank strip (one line); tapping a tab opens its text downwards */
-#content-box .mtab-closed { height: 1.6rem; background: #fff; border: 1px solid #c9a15a; border-radius: 12px; position: relative; z-index: 2; }
+#content-box .mtab-closed { height: 1.6rem; background: #fff; border: 1px solid #c9a15a; border-radius: 12px 0 12px 12px; position: relative; z-index: 2; }
 #content-box .mtab-closed[hidden] { display: none; }
 #content-box .mtab-panel .lbl { display: none; }
 #content-box .mtab-panel .verse-translation,
@@ -981,7 +981,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block { isolation: isolate; }
   #content-box .verse-block::before { content: ""; position: absolute; z-index: -1; pointer-events: none;
       left: 14px; right: 14px; top: calc(var(--tab-h) + 5px); bottom: 6px;
-      border: 1px solid #c9a15a; border-radius: 12px;
+      border: 1px solid #c9a15a; border-radius: 12px 0 12px 12px;
       background: var(--sep-img) no-repeat center / auto 70%, #fffaf0; }
   #content-box .verse-block > .verse-grid { background: transparent; border: none; padding: 14px; }
   #content-box .verse-block > .mtabs .mtab-panel, #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; }
