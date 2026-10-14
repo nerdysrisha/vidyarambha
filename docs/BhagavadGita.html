@@ -885,7 +885,12 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; } /* no verses on the page: dimmed */
 }
 
-
+/* MEANING PANEL (phones): as tall as the space left down to the bottom of the screen; longer text scrolls inside it (no scrollbar) */
+@media (max-width: 700px) {
+  #content-box .mtab-panel { box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; -ms-overflow-style: none; }
+  #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
+}
 
 </style>
 </head>
@@ -2031,6 +2036,31 @@ counterEl.textContent = "– / " + flatTopics.length;
 // up / down in the landscape bar = the same actions as the portrait arrows
 document.getElementById("lsUp").addEventListener("click",   () => stepVerse(-1));
 document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
+
+
+// ── MEANING PANEL (phones): never taller than the space left down to the bottom of the screen; longer text scrolls inside it ──
+(function () {
+    function capPanels() {
+        const phone = window.matchMedia("(max-width: 700px)").matches;
+        contentBox.querySelectorAll(".mtab-panel").forEach(p => {
+            if (!phone || p.hidden) { p.style.maxHeight = ""; return; }
+            const block = p.closest(".verse-block"); if (!block) return;
+            const cs = getComputedStyle(block);
+            const rel = p.getBoundingClientRect().top - block.getBoundingClientRect().top;      // where the panel starts inside its verse card
+            const avail = contentBox.clientHeight - TOP_PAD - rel - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth) - 2;
+            p.style.maxHeight = Math.max(120, Math.floor(avail)) + "px";
+        });
+    }
+    let raf = 0;
+    new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(capPanels); setTimeout(capPanels, 400); })   // chapter loaded / tab switched (the 400 ms one runs after the text re-fit)
+        .observe(contentBox, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+    window.addEventListener("resize", () => setTimeout(capPanels, 250));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(capPanels);
+})();
+
+
+
+
 </script>
 
 </body>
