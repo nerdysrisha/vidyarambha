@@ -892,12 +892,23 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar #lockBtn { width: 38px; height: 38px; min-width: 38px; }
   #navbar .ls-btn svg, #navbar #lockBtn svg { width: 20px; height: 20px; }
   #navbar .ls-btn.ls-nav svg { width: 22px; height: 22px; }
+  
+  
   #content-box .verse-block { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px;
-      align-content: stretch; grid-template-rows: repeat(4, auto); align-items: start; box-sizing: border-box;
-      margin: 0; min-height: calc(var(--area-h, 100vh) - 6px); padding: 30px 14px 0 14px; }
+		align-content: stretch; grid-template-rows: repeat(4, auto); align-items: start; box-sizing: border-box;
+		margin: 0 0 6px 0;                                   /* 6px pushes the next verse fully off screen */
+		min-height: calc(var(--area-h, 100vh) - 12px);       /* card now ends 6px above the screen bottom, so the corners show */
+		padding: 30px 14px 6px 14px; }
+		  
+		  
   #content-box .verse-block > .verse-grid { grid-column: 1; margin-bottom: 4px; }
-  #content-box .verse-block > .mtabs { grid-column: 2; grid-row: 1 / span 4; margin: -30px 0 1px 0; min-width: 0; align-self: stretch;   /* up to the card's top edge (level with the Verse tag), down to 1px above the bottom line */
-      display: flex; flex-direction: column; }
+  
+  
+  
+	  
+  #content-box .verse-block > .mtabs { grid-column: 2; grid-row: 1 / span 4; margin: -30px 0 -5px 0; min-width: 0; align-self: stretch;
+		display: flex; flex-direction: column; }	  
+	  
   #content-box .verse-block > .mtabs .mtab-panel { font-size: 15px; line-height: 1.8; padding: 10px 12px; }
   #content-box .verse-block > .mtabs .mtab-closed { flex: 1 1 auto; }
   #content-box .verse-block > .mtabs .mtab-panel { flex: 1 1 auto; min-height: 0; }
