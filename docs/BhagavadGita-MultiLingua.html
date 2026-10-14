@@ -509,6 +509,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 6px); }   /* 6 = TOP_PAD: the card runs from the top gap to the bottom of the area; the next card starts below the fold */
 #content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
 
+/* desktop / tablet (and full screen): the verse card sits centred in the reading pane instead of stretching edge to edge */
+@media (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block { max-width: 880px; margin-left: auto; margin-right: auto; }
+}
+
 /* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
 #content-box .verse-block > .verse-tag,
 #content-box .verse-block > .verse-label {
@@ -602,7 +607,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .mtab-bar { display: flex; align-items: flex-end; gap: 4px; padding: 0; position: relative; z-index: 3; }
 #content-box .mtab {
     appearance: none; cursor: pointer; margin: 0; letter-spacing: 0.02em;
-    font: 600 12px/1.2 'Noto Sans Telugu', system-ui, sans-serif; padding: 5px 14px; color: #6b6b6b;
+    font: 700 13px/1.2 'Noto Sans Telugu', 'Noto Sans Devanagari', system-ui, sans-serif; padding: 5px 16px; color: #6b6b6b;
     background: #ececec; border: 1px solid #d2d2d2; border-bottom: none; border-radius: 9px 9px 0 0;
     transition: background .15s ease, color .15s ease;
 }
@@ -673,7 +678,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #navbar #speedGroup button.speed-btn {
     min-width: 42px; height: 30px; padding: 0 8px; border-radius: 15px;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
-    font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+    font: 700 11.5px/1 system-ui, sans-serif; cursor: pointer; white-space: nowrap;
     display: inline-flex; align-items: center; justify-content: center;
 }
 #navbar #speedGroup button.speed-main:hover,
@@ -954,6 +959,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
+/* round (portrait / landscape-phone) speed buttons: smaller label so "1.75×" stays inside the circle */
+@media (max-width: 700px), (max-height: 520px) {
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+}
 </style>
 </head>
 <body>
@@ -1168,7 +1177,7 @@ document.getElementById("sidebar-count").textContent = flatTopics.length + " Cha
 let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
 let syncUserScrollUntil = 0;
 const TOP_PAD = 6;   // a verse is aligned this many px below the top of the reading area
-const MANUAL_SCROLL_PAUSE_MS = 5000;
+const MANUAL_SCROLL_PAUSE_MS = 0;   // no hold-off: the display jumps to the audio-synced verse as soon as it changes
 const contentPanel = document.getElementById("content-panel");
 const audioDock    = document.getElementById("audio-dock");
 let scrollAnim = null;
@@ -1190,12 +1199,7 @@ function smoothScrollTo(top, ms) {
     })(t0);
 }
 
-["wheel", "touchmove", "mousedown"].forEach(evt =>
-    contentBox.addEventListener(evt, e => {
-        if (e.target.closest && e.target.closest(".audio-player")) return;
-        syncUserScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
-    }, { passive: true })
-);
+// (removed) touching / scrolling no longer delays the sync scroll
 
 function parseSyncTime(str) {
     return str.trim().split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
@@ -1479,7 +1483,8 @@ function buildVerses() {
         // corner tag from data-n: "5" -> "Verse 5"; anything else (e.g. "Chapter 18 — Closing") is shown as written
         const n = (block.dataset.n || "").trim();
         const tag = document.createElement("span");
-        tag.className = "verse-tag"; tag.textContent = /^\d[\d\s,\-–]*$/.test(n) ? "Verse " + n : n;
+        const chM = (flatTopics[currentFlatIndex] && flatTopics[currentFlatIndex].path || "").match(/chapter(\d+)/i);   // chapter number from the file name
+        tag.className = "verse-tag"; tag.textContent = /^\d[\d\s,\-–]*$/.test(n) ? (chM ? "Ch " + chM[1] + " · " : "") + "Verse " + n : n;
         block.appendChild(tag);
         // shloka (one div, refilled when the language changes)
         const grid = document.createElement("div"); grid.className = "verse-grid";
@@ -1503,7 +1508,7 @@ function buildVerses() {
         };
         items.forEach(l => {
             const tab = document.createElement("button");
-            tab.type = "button"; tab.className = "mtab mtab-" + l.code; tab.setAttribute("role", "tab"); tab.textContent = l.name;
+            tab.type = "button"; tab.className = "mtab mtab-" + l.code; tab.setAttribute("role", "tab"); tab.textContent = l.short; tab.title = l.name; tab.setAttribute("aria-label", l.name);
             bar.appendChild(tab);
             const panel = document.createElement("div");
             panel.className = "mtab-panel"; panel.setAttribute("role", "tabpanel");
