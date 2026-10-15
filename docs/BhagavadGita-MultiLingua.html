@@ -1130,15 +1130,33 @@ body.dark #themeBtn .ic-moon { display: none; }
   body.dark #content-box code { background: #2b2417; color: #e0c58a; }
   body.dark .gita-chapter .chapter-head h2 { color: #f0e3c4; }
 }
-/* ── DARK THEME, portrait only: the cards themselves ── */
+/* ── DARK THEME, portrait only: the two boxes (verse + meaning) ── */
 @media (max-width: 700px) and (orientation: portrait) {
-  body.dark #content-box .verse-block { background: #16120c; border-color: #7a6030; color: #eadfc6; }
-  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+  body.dark #content-box .verse-block { color: #eadfc6; }
   body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed { background: #1d1710; border-color: #7a6030; }
+  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+  body.dark #content-box .bookmarked::after { background: linear-gradient(315deg, #1d1710 0%, #1d1710 50%, #ecd08a 50%, #b88a3a 100%); }
 }
 /* shorter phones: rail buttons shrink a little so all of them still fit */
 @media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
 @media (orientation: landscape) and (max-height: 350px) { :root { --rb: 31px; } }
+/* ── PORTRAIT PHONE: two clean boxes only. No outer card: the verse box and the meaning box stand alone.
+   The "Chapter · Verse" label hangs inside the top-left of the verse box, just like the language buttons hang inside the meaning box. ── */
+@media (max-width: 700px) and (orientation: portrait) {
+  #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active {
+      background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 6px 8px 8px 8px; }
+  #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label {
+      top: 7px; left: 9px; z-index: 3; height: var(--tab-h); box-sizing: border-box; display: flex; align-items: center; padding: 0 12px 0 11px;
+      border-radius: 11px 0 10px 0; }
+  #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 4px) 10px 14px 10px; margin-bottom: 20px;      /* 2px more room between the two boxes */
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
+  /* the "being read" highlight now lights up the verse box itself */
+  #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid {
+      background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+  /* bookmark fold: bottom-right corner of the meaning box (the top-right is taken by the language buttons) */
+  #content-box .bookmarked::after { top: auto; bottom: 7px; right: 9px; border-radius: 0 0 11px 0;
+      background: linear-gradient(315deg, #fff 0%, #fff 50%, #ecd08a 50%, #b88a3a 100%); }
+}
 </style>
 </head>
 <body>
