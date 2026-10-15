@@ -310,40 +310,58 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #content-box p { margin: 0 0 14px 0; }
 
-/* ── PREFACE: a plain reading page (no verse cards, no meaning tabs). The reading stage is always dark, so it is gold-on-dark throughout.
+/* ── PREFACE: a plain reading page (no verse cards, no meaning tabs): one big card that follows the theme exactly like the verse / meaning boxes do.
+   Light (default) = cream card, brown text.  Dark = dark card, gold + cream text; it flips with body.dark in the SAME media query as the chapter boxes
+   (phones), so on desktop it stays light like the chapter cards. Colours are the --pf-* variables, so a tweak is one line.
    Markup lives in subjects/bhagavadgita/preface-multi-lang.html:  <main class="preface-language" data-lang="en"> … ── */
-#content-box .preface-language { position: relative; isolation: isolate; max-width: 680px; margin: 0 auto; padding: 18px 0 56px 0; box-sizing: border-box; }
+#content-box .preface-language {
+    --pf-bg: #fffaf0; --pf-bd: #c9a15a; --pf-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    --pf-text: #3a2a14; --pf-h1: #8a5a12; --pf-tag: #9a6a1c; --pf-inv: #8a6a30; --pf-h2: #7a4a12; --pf-rule: #c9a15a;
+    --pf-strong: #7a4a12; --pf-em: #9a5a1c; --pf-cap: #b8862f;
+    --pf-li-bg: #fbf3e0; --pf-li-bd: #e3cf9f; --pf-li-name: #7a4a12; --pf-li-text: #4a3a22;
+    --pf-inv-bg: #fff4d9; --pf-inv-shadow: 0 0 0 4px rgba(201,161,90,0.14);
+    --pf-next: #7a4a12; --pf-next-hover: #4a2400; --pf-wm-filter: none; --pf-wm-op: var(--wm-lotus-opacity);
+    position: relative; isolation: isolate; max-width: 680px; margin: 0 auto 14px auto; padding: 22px 6px 44px 6px; box-sizing: border-box;
+    background: var(--pf-bg); border: 1px solid var(--pf-bd); border-radius: 12px; box-shadow: var(--pf-shadow); color: var(--pf-text); }
+@media (max-width: 700px) and (orientation: portrait), (orientation: landscape) and (max-height: 520px) {   /* same scope as the chapter dark theme */
+  body.dark #content-box .preface-language {
+    --pf-bg: #1d1710; --pf-bd: #7a6030; --pf-shadow: none;
+    --pf-text: #eadfc6; --pf-h1: #e8c585; --pf-tag: #d9a066; --pf-inv: #c9b07a; --pf-h2: #e0c58a; --pf-rule: #c9a15a99;
+    --pf-strong: #f0d18a; --pf-em: #d9a066; --pf-cap: #e9c46a;
+    --pf-li-bg: rgba(201,161,90,0.08); --pf-li-bd: rgba(201,161,90,0.28); --pf-li-name: #e9c46a; --pf-li-text: #e6dac0;
+    --pf-inv-bg: linear-gradient(160deg, #261c10, #1a140c); --pf-inv-shadow: 0 0 0 4px rgba(201,161,90,0.08), 0 6px 22px rgba(0,0,0,0.35);
+    --pf-next: #c9a15a; --pf-next-hover: #f0d18a; --pf-wm-filter: brightness(0) invert(1); --pf-wm-op: 0.09; }
+}
 #content-box .preface-language[hidden] { display: none !important; }
 #content-box .preface-language::before {            /* faint lotus behind the text (no image file = nothing shows) */
-    content: ""; position: absolute; left: 0; right: 0; top: 100px; height: 440px; z-index: -1; pointer-events: none;
-    background: var(--wm-lotus-img) center top / auto 100% no-repeat; opacity: calc(var(--wm-lotus-opacity) * 1.5); filter: brightness(0) invert(1); }
-#content-box .preface-language h1 { font-size: 2.3em; letter-spacing: 0.04em; margin-top: 6px; }
-#content-box .preface-language .topic-tagline { font-size: 1.05em; }
-#content-box .preface-language .topic-invocation { font-size: 0.8em; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 0; padding-bottom: 0; margin-bottom: 4px; }
+    content: ""; position: absolute; left: 0; right: 0; top: 110px; height: 440px; z-index: -1; pointer-events: none;
+    background: var(--wm-lotus-img) center top / auto 100% no-repeat; opacity: var(--pf-wm-op); filter: var(--pf-wm-filter); }
+#content-box .preface-language h1 { color: var(--pf-h1); font-size: 2.3em; letter-spacing: 0.04em; margin-top: 0; }
+#content-box .preface-language .topic-tagline { color: var(--pf-tag); font-size: 1.05em; }
+#content-box .preface-language .topic-invocation { color: var(--pf-inv); font-size: 0.8em; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 0; padding-bottom: 0; margin-bottom: 4px; }
 #content-box .preface-language .topic-invocation::after {   /* the golden lotus ornament already used between verse and meaning */
     content: ""; display: block; height: 50px; max-width: 320px; margin: 6px auto 0 auto; background: var(--sep-h-img) center / contain no-repeat; }
 #content-box .pf { padding: 0 14px; }
-#content-box .pf h2 { display: flex; align-items: center; gap: 12px; padding: 0; margin: 30px 0 14px 0; font: 700 1.02em Georgia, "Times New Roman", serif; letter-spacing: 0.14em; text-transform: uppercase; color: #e0c58a; }
-#content-box .pf h2::before, #content-box .pf h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, #c9a15a99); }
-#content-box .pf h2::after { background: linear-gradient(to left, transparent, #c9a15a99); }
-#content-box .pf p { font-size: 1.04em; line-height: 1.9; color: #eadfc6; text-align: left; margin: 0 0 14px 0; }
-#content-box .pf strong { color: #f0d18a; }
-#content-box .pf em { color: #d9a066; }
+#content-box .pf h2 { display: flex; align-items: center; gap: 12px; padding: 0; margin: 30px 0 14px 0; font: 700 1.02em Georgia, "Times New Roman", serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pf-h2); }
+#content-box .pf h2::before { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--pf-rule)); }
+#content-box .pf h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to left, transparent, var(--pf-rule)); }
+#content-box .pf p { font-size: 1.04em; line-height: 1.9; color: var(--pf-text); text-align: left; margin: 0 0 14px 0; }
+#content-box .pf strong { color: var(--pf-strong); }
+#content-box .pf em { color: var(--pf-em); }
 #content-box .preface-language[lang="en"] .pf section[data-section="place"] p::first-letter {   /* drop cap on the opening line */
-    float: left; font: 700 3.2em/0.82 Georgia, "Times New Roman", serif; color: #e9c46a; padding: 6px 9px 0 0; }
+    float: left; font: 700 3.2em/0.82 Georgia, "Times New Roman", serif; color: var(--pf-cap); padding: 6px 9px 0 0; }
 #content-box .pf ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }      /* Who's Who: one card per person */
-#content-box .pf li { margin: 0; padding: 12px 16px; background: rgba(201,161,90,0.08); border: 1px solid rgba(201,161,90,0.28); border-left: 3px solid #c9a15a; border-radius: 10px; }
-#content-box .pf li strong { display: block; margin-bottom: 2px; font: 700 1.14em Georgia, "Times New Roman", serif; letter-spacing: 0.02em; color: #e9c46a; }
-#content-box .pf li span { display: block; line-height: 1.75; color: #e6dac0; }
-#content-box .pf .invite { margin: 36px 0 6px 0; padding: 2px 20px 16px 20px; background: linear-gradient(160deg, #261c10, #1a140c); border: 1px solid #c9a15a; border-radius: 14px;
-    box-shadow: 0 0 0 4px rgba(201,161,90,0.08), 0 6px 22px rgba(0,0,0,0.35); }
+#content-box .pf li { margin: 0; padding: 12px 16px; background: var(--pf-li-bg); border: 1px solid var(--pf-li-bd); border-left: 3px solid #c9a15a; border-radius: 10px; }
+#content-box .pf li strong { display: block; margin-bottom: 2px; font: 700 1.14em Georgia, "Times New Roman", serif; letter-spacing: 0.02em; color: var(--pf-li-name); }
+#content-box .pf li span { display: block; line-height: 1.75; color: var(--pf-li-text); }
+#content-box .pf .invite { margin: 36px 0 6px 0; padding: 2px 20px 16px 20px; background: var(--pf-inv-bg); border: 1px solid #c9a15a; border-radius: 14px; box-shadow: var(--pf-inv-shadow); }
 #content-box .pf .invite h2 { margin-top: 20px; }
 #content-box .pf .invite p:first-of-type { font-size: 1.1em; }
 #content-box .pf .invite p:last-child { margin-bottom: 0; }
-#content-box .pf .next { display: table; margin: 28px auto 0 auto; padding: 10px 22px; text-align: center; font-style: italic; color: #c9a15a; border: 1px solid #c9a15a88; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#content-box .pf .next { display: table; margin: 28px auto 0 auto; padding: 10px 22px; text-align: center; font-style: italic; color: var(--pf-next); border: 1px solid #c9a15a; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 #content-box .pf .next::after { content: " \2192"; }
-#content-box .pf .next:hover { color: #f0d18a; border-color: #c9a15a; }
-@media (max-width: 700px) { #content-box .preface-language h1 { font-size: 1.8em; } #content-box .pf { padding: 0 12px; } }
+#content-box .pf .next:hover { color: var(--pf-next-hover); }
+@media (max-width: 700px) { #content-box .preface-language { margin: 0 8px 14px 8px; } #content-box .preface-language h1 { font-size: 1.8em; } #content-box .pf { padding: 0 10px; } }
 @media (orientation: landscape) and (max-height: 520px) { #content-box .preface-language h1 { font-size: 1.6em; } }
 
 /* Generic content styling carried over from the original Bhagavad Gita master */
@@ -1713,7 +1731,10 @@ const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
 const LANGS = [
     { code: "te", short: "తె", name: "తెలుగు" },
     { code: "en", short: "EN", name: "English" },
-    { code: "hi", short: "हि", name: "हिन्दी" }
+    { code: "hi", short: "हि", name: "हिन्दी" },
+    { code: "fr", short: "FR", name: "Français" }
+
+// A new language goes here.  
 ];
 const LANG_KEY = "gitaLang";
 let curLang = "te";
