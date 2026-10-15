@@ -250,12 +250,18 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 15px;
     line-height: 1.7;
 }
-/* Copy button: pinned to the panel frame (not the scrolling text), so it never moves */
+/* Copy button: lives in the nav bar now (rules just below); these are its base look */
 #copyBtn { position: absolute; top: 10px; right: 16px; z-index: 5; display: none;
     width: 30px; height: 30px; padding: 0; border-radius: 8px; cursor: pointer;
     align-items: center; justify-content: center;
     border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.6; }
 #copyBtn.show { display: flex; }
+/* in the nav bar (desktop only: phones and touch devices hide it, see below) */
+#navbar #copyBtn { position: static; width: 34px; height: 30px; padding: 0; margin-left: 4px; align-items: center; justify-content: center; border-radius: 8px; background: transparent; color: #d8b46a; border: 1px solid #d8b46a66; opacity: 0.6; }
+#navbar #copyBtn.show { display: inline-flex; }
+#navbar #copyBtn svg { width: 16px; height: 16px; flex: none; }
+#navbar #copyBtn:hover { opacity: 1; background: #d8b46a33; }
+#navbar #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn:hover { opacity: 1; }
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
@@ -1029,10 +1035,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar #speedGroup button.speed-main.flash::before, #navbar #speedGroup button.speed-main[aria-expanded="true"]::before { display: none; }
 }
 
-/* PORTRAIT (phones): the card is one fixed-height frame, the same for every verse:
+/* PORTRAIT (phones) + DESKTOP / TABLET: the card is one fixed-height frame, the same for every verse:
    verse box on top (45% of the height, grows only if the verse needs it) -> small ornament -> tabs + meaning panel fill the rest
    (short meaning: centred; long meaning: scrolls inside with soft fades) */
-@media (max-width: 700px) and (orientation: portrait) {
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
   #content-box .verse-block { display: flex; flex-direction: column; height: calc(var(--area-h, 100vh) - 6px); min-height: 0; padding: 44px 8px 8px 8px; }
   #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 45%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
   #content-box .verse-block > .verse-grid::after { content: ""; position: absolute; left: 50%; top: 100%; width: 130px; height: 16px; margin: 1px 0 0 -65px;
@@ -1040,6 +1046,11 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block > .mtabs { flex: 1 1 0; min-height: 0; margin: 0; display: flex; flex-direction: column; }
   #content-box .verse-block > .mtabs .mtab-panel { flex: 1 1 auto; min-height: 0; }
   #content-box .verse-block > .mtabs .mtab-closed { flex: 1 1 auto; height: auto; }
+  #content-box .verse-block > .mtabs .mtab-panel { overflow: hidden; }
+}
+@media (min-width: 701px) and (min-height: 521px) {     /* desktop / tablet: a little more room around the boxes */
+  #content-box .verse-block { padding: 44px 14px 14px 14px; }
+  #content-box .verse-block > .verse-grid { padding: 16px 20px; }
 }
 </style>
 </head>
@@ -1071,9 +1082,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <div id="main-col">
         <div id="content-panel">
             <div id="audio-dock"></div>
-            <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            </button>
             <div id="verseNav">
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -1107,6 +1115,9 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         </div>
     </div>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
     <div id="lockHint" role="status" aria-live="polite"></div>
     <span class="rail-sep" aria-hidden="true"></span>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
@@ -1613,14 +1624,17 @@ function buildVerses() {
 }
 
 function fitVerses() {
-    const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
+    const all = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
     const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;   // phone landscape focus mode
-    if (!land && !window.matchMedia("(max-width: 700px)").matches) {
-        blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+    const desktop = window.matchMedia("(min-width: 701px) and (min-height: 521px)").matches;       // desktop / tablet: the stacked frame, verse sized to its box
+    if (!land && !desktop && !window.matchMedia("(max-width: 700px)").matches) {
+        all.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
         return;
     }
-    const MAXPX = land ? 30 : FIT_MAX;
-    const portrait = window.matchMedia("(max-width: 700px) and (orientation: portrait)").matches;
+    const blocks = desktop ? all.filter(b => b.classList.contains("verse-block")) : all;   // desktop: refrain blocks keep their normal size
+    all.filter(b => !blocks.includes(b)).forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+    const MAXPX = land ? 30 : (desktop ? 26 : FIT_MAX);
+    const portrait = window.matchMedia("(max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px)").matches;   // stacked frame (phone portrait, desktop, tablet)
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const TEST = 20;
     blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
@@ -1635,7 +1649,7 @@ function fitVerses() {
             avail -= parseFloat(gs.paddingLeft) + parseFloat(gs.paddingRight) + parseFloat(gs.borderLeftWidth) + parseFloat(gs.borderRightWidth);
             range.selectNodeContents(slEl);
             const tw = range.getBoundingClientRect().width;
-            let f = tw > 0 ? TEST * (avail / Math.max(tw, avail)) * 0.98 : MAXPX;
+            let f = tw > 0 ? (desktop ? Math.min(TEST * (avail / tw) * 0.98, 26) : TEST * (avail / Math.max(tw, avail)) * 0.98) : MAXPX;   // desktop: short verses may grow up to 26px
             if (portrait && b.clientHeight) {   // portrait: don't let a tall (many-line) verse take more than ~45% of the card; never below the minimum size
                 const bs = getComputedStyle(b), innerH = b.clientHeight - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom);
                 const padY = parseFloat(gs.paddingTop) + parseFloat(gs.paddingBottom) + parseFloat(gs.borderTopWidth) + parseFloat(gs.borderBottomWidth);
