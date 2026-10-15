@@ -1054,29 +1054,64 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block > .verse-grid { padding: 16px 20px; }
 }
 
-/* ── THEME BUTTON + DARK THEME (phone landscape only). Default = light (white cards). body.dark = dark cards. Portrait / desktop never change. ── */
+/* ── THEME BUTTON + DARK THEME + LANDSCAPE LAYOUT (phone landscape only). Default = light. body.dark = dark. Portrait / desktop never change. ── */
 #themeBtn { display: none; }
 #themeBtn .ic-sun { display: none; }
 body.dark #themeBtn .ic-sun { display: block; }
 body.dark #themeBtn .ic-moon { display: none; }
+
 @media (orientation: landscape) and (max-height: 520px) {
-  #navbar #themeBtn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; min-width: 32px; padding: 0; border-radius: 50%;
+  :root { --rb: 38px; }                                   /* rail button size: bigger = easier to tap */
+
+  /* ── LEFT RAIL: slightly bigger buttons, content shifts to keep the same gap ── */
+  #navbar { gap: 6px; padding: 6px 5px; }
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
+  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
+  #navbar #lockBtn, #navbar #themeBtn { width: var(--rb); height: var(--rb); min-width: var(--rb); }
+  #navbar .ls-btn svg, #navbar #lockBtn svg { width: 20px; height: 20px; }
+  #navbar .ls-btn.ls-nav svg { width: 24px; height: 24px; }
+  #navbar #speedGroup button.speed-main::before { width: 22px; height: 22px; }
+  #navbar #speedGroup button.speed-btn { font-size: 11px; }
+  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { font-size: 15px; }
+  #content-box { padding-left: calc(var(--rb) + 26px); }
+
+  #navbar #themeBtn { display: inline-flex; align-items: center; justify-content: center; flex: none; padding: 0; border-radius: 50%;
       background: rgba(26, 22, 15, 0.45); border: 1px solid #d8b46a; color: #d8b46a; }
-  #navbar #themeBtn svg { width: 17px; height: 17px; display: block; }
+  #navbar #themeBtn svg { width: 20px; height: 20px; display: block; }
   #navbar #themeBtn:hover { background: #d8b46a33; }
   body.dark #navbar #themeBtn { background: #d8b46a; color: #111; }
 
-  /* verse card */
-  body.dark #content-box .verse-block { background: #1f1a13; border-color: #5a4726; color: #eadfc6; }
-  body.dark #content-box .verse-block::before { background: var(--sep-img) no-repeat center / auto 70%, #16120c; border-color: #7a6030; }
+  /* ── NO OUTER CARD: only the big golden box remains; the verse tag hangs inside its top-left corner (like the language tabs) ── */
+  #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active {
+      background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 8px 14px 0 14px; }
+  #content-box .verse-block { --box-bg: #fffaf0; }
+  #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { --box-bg: #fff4d9; }
+  #content-box .verse-block::before { top: 6px; background: var(--sep-img) no-repeat center / auto 70%, var(--box-bg);
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
+  #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+  #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label {
+      top: 7px; left: 15px; height: var(--tab-h); box-sizing: border-box; display: flex; align-items: center; padding: 0 12px 0 11px;
+      border: none; border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; border-radius: 11px 0 10px 0; }
+  #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 4px) 14px 14px 14px; }
+  /* watermarks: smaller, so they stay clear of the hanging labels */
+  #content-box .verse-block > .verse-grid::before { inset: calc(var(--tab-h) + 6px) 10px 10px 10px; }
+  #content-box .mtab-panel::before { inset: calc(var(--tab-h) + 8px) 10px 10px 10px; }
+  /* bookmark fold: bottom-right corner of the box (top-right is taken by the language tabs) */
+  #content-box .bookmarked::after { top: auto; bottom: 7px; right: 15px; border-radius: 0 0 11px 0;
+      background: linear-gradient(315deg, var(--box-bg) 0%, var(--box-bg) 50%, #ecd08a 50%, #b88a3a 100%); }
+
+  /* ── DARK THEME ── */
+  body.dark #content-box .verse-block { --box-bg: #16120c; color: #eadfc6; }
+  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #2d2314; }
+  body.dark #content-box .verse-block::before { border-color: #7a6030; }
+  body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
   body.dark #content-box .verse-block .sl { color: #eadfc6; }
   body.dark #content-box .verse-block .sl[data-lang="en"] { color: #e8c585; }
-  body.dark #content-box .verse-block.verse-focus,
-  body.dark #content-box.sync-on .verse-block.verse-active { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
-  body.dark #content-box .verse-block > .verse-tag, body.dark #content-box .verse-block > .verse-label { color: #f0d18a; background: #3a2c14; border-color: #c9a15a; }
+  body.dark #content-box .verse-block > .verse-tag, body.dark #content-box .verse-block > .verse-label { color: #f0d18a; background: #3a2c14; border-right-color: #c9a15a; border-bottom-color: #c9a15a; }
   body.dark #content-box.sync-on.sync-playing .verse-block { filter: none; opacity: 0.5; }
   body.dark #content-box.sync-on.sync-playing .verse-block.verse-active { opacity: 1; }
-  body.dark #content-box .bookmarked::after { background: linear-gradient(225deg, #1f1a13 0%, #1f1a13 50%, #ecd08a 50%, #b88a3a 100%); }
+  /* watermarks (lotus + chariot): turned into a pale silhouette so they show on the dark box */
+  body.dark #content-box .verse-block > .verse-grid::before, body.dark #content-box .mtab-panel::before { filter: brightness(0) invert(1); opacity: 0.09; }
   /* meaning panel + language tabs */
   body.dark #content-box .mtab-panel { color: #e6dbc3; }
   body.dark #content-box .mtab { color: #a39a88; background: #2b261e; border-left-color: rgba(255,255,255,0.08); }
@@ -1092,13 +1127,9 @@ body.dark #themeBtn .ic-moon { display: none; }
   body.dark #content-box code { background: #2b2417; color: #e0c58a; }
   body.dark .gita-chapter .chapter-head h2 { color: #f0e3c4; }
 }
-/* short phones: tighten the rail a little so the extra button still fits */
-@media (orientation: landscape) and (max-height: 400px) {
-  #navbar { gap: 4px; padding: 4px; }
-  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
-  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
-  #navbar #lockBtn, #navbar #themeBtn { width: 29px; height: 29px; min-width: 29px; }
-}
+/* shorter phones: rail buttons shrink a little so all of them still fit */
+@media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
+@media (orientation: landscape) and (max-height: 350px) { :root { --rb: 31px; } }
 </style>
 </head>
 <body>
