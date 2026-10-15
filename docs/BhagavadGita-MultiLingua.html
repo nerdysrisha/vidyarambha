@@ -925,7 +925,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
             padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
             background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#themeBtn):not(.rail-sep) { display: none !important; }
   /* chapter without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1053,6 +1053,52 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block { padding: 44px 14px 14px 14px; }
   #content-box .verse-block > .verse-grid { padding: 16px 20px; }
 }
+
+/* ── THEME BUTTON + DARK THEME (phone landscape only). Default = light (white cards). body.dark = dark cards. Portrait / desktop never change. ── */
+#themeBtn { display: none; }
+#themeBtn .ic-sun { display: none; }
+body.dark #themeBtn .ic-sun { display: block; }
+body.dark #themeBtn .ic-moon { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar #themeBtn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; min-width: 32px; padding: 0; border-radius: 50%;
+      background: rgba(26, 22, 15, 0.45); border: 1px solid #d8b46a; color: #d8b46a; }
+  #navbar #themeBtn svg { width: 17px; height: 17px; display: block; }
+  #navbar #themeBtn:hover { background: #d8b46a33; }
+  body.dark #navbar #themeBtn { background: #d8b46a; color: #111; }
+
+  /* verse card */
+  body.dark #content-box .verse-block { background: #1f1a13; border-color: #5a4726; color: #eadfc6; }
+  body.dark #content-box .verse-block::before { background: var(--sep-img) no-repeat center / auto 70%, #16120c; border-color: #7a6030; }
+  body.dark #content-box .verse-block .sl { color: #eadfc6; }
+  body.dark #content-box .verse-block .sl[data-lang="en"] { color: #e8c585; }
+  body.dark #content-box .verse-block.verse-focus,
+  body.dark #content-box.sync-on .verse-block.verse-active { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+  body.dark #content-box .verse-block > .verse-tag, body.dark #content-box .verse-block > .verse-label { color: #f0d18a; background: #3a2c14; border-color: #c9a15a; }
+  body.dark #content-box.sync-on.sync-playing .verse-block { filter: none; opacity: 0.5; }
+  body.dark #content-box.sync-on.sync-playing .verse-block.verse-active { opacity: 1; }
+  body.dark #content-box .bookmarked::after { background: linear-gradient(225deg, #1f1a13 0%, #1f1a13 50%, #ecd08a 50%, #b88a3a 100%); }
+  /* meaning panel + language tabs */
+  body.dark #content-box .mtab-panel { color: #e6dbc3; }
+  body.dark #content-box .mtab { color: #a39a88; background: #2b261e; border-left-color: rgba(255,255,255,0.08); }
+  body.dark #content-box .mtab:hover { background: #3a3328; }
+  body.dark #content-box .mtab[aria-selected="true"] { color: #4a2400; background: #e08a22; box-shadow: inset 0 0 10px 2px rgba(255,238,180,0.55); }
+  /* other chapter blocks that can appear */
+  body.dark #content-box .verse-refrain { background: #2a2112; color: #e0c58a; border-left-color: #c9a15a; }
+  body.dark #content-box .topic-note { background: #14201b; border-color: #3d6b58; color: #8fd6b0; }
+  body.dark #content-box blockquote { background: #241d12; color: #d8c9a2; }
+  body.dark #content-box table { background: #1f1a13; border-color: #3a3226; }
+  body.dark #content-box th { background: #2b2417; color: #e0c58a; }
+  body.dark #content-box td { border-bottom-color: #3a3226; }
+  body.dark #content-box code { background: #2b2417; color: #e0c58a; }
+  body.dark .gita-chapter .chapter-head h2 { color: #f0e3c4; }
+}
+/* short phones: tighten the rail a little so the extra button still fits */
+@media (orientation: landscape) and (max-height: 400px) {
+  #navbar { gap: 4px; padding: 4px; }
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
+  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
+  #navbar #lockBtn, #navbar #themeBtn { width: 29px; height: 29px; min-width: 29px; }
+}
 </style>
 </head>
 <body>
@@ -1126,6 +1172,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
          <button id="langMain" class="lang-main" type="button" title="Language" aria-label="Language" aria-haspopup="true" aria-expanded="false"></button>
          <div id="langPop" hidden></div>
      </div>
+     <button id="themeBtn" type="button" aria-label="Switch to dark theme" title="Dark theme" aria-pressed="false">
+         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+     </button>
     <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
@@ -2121,6 +2171,19 @@ speedMain.addEventListener("click", closeLangPop);
 document.addEventListener("click", e => { if (!langPop.hidden && !langPop.contains(e.target)) closeLangPop(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeLangPop(); });
 paintLang();
+
+// ── THEME (landscape): light = default, dark = body.dark; choice is remembered ──
+const THEME_KEY = "gitaTheme";
+const themeBtn = document.getElementById("themeBtn");
+function setTheme(dark) {
+    document.body.classList.toggle("dark", dark);
+    themeBtn.setAttribute("aria-pressed", dark ? "true" : "false");
+    themeBtn.title = dark ? "Light theme" : "Dark theme";
+    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    try { localStorage.setItem(THEME_KEY, dark ? "dark" : "light"); } catch (e) {}
+}
+themeBtn.addEventListener("click", e => { e.stopPropagation(); setTheme(!document.body.classList.contains("dark")); });
+{ let t = null; try { t = localStorage.getItem(THEME_KEY); } catch (e) {} setTheme(t === "dark"); }
 
 // ── FULLSCREEN / READING MODE ─────────────────────────────────────────
 const fsBtn = document.getElementById("fsBtn");
