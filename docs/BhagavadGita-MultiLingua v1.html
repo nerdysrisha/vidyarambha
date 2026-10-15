@@ -7,7 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Tiro+Telugu:ital@0;1&family=Tiro+Devanagari+Hindi:ital@0;1&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap">
 <style>
 html, body {
     margin: 0;
@@ -250,12 +250,18 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 15px;
     line-height: 1.7;
 }
-/* Copy button: pinned to the panel frame (not the scrolling text), so it never moves */
+/* Copy button: lives in the nav bar now (rules just below); these are its base look */
 #copyBtn { position: absolute; top: 10px; right: 16px; z-index: 5; display: none;
     width: 30px; height: 30px; padding: 0; border-radius: 8px; cursor: pointer;
     align-items: center; justify-content: center;
     border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.6; }
 #copyBtn.show { display: flex; }
+/* in the nav bar (desktop only: phones and touch devices hide it, see below) */
+#navbar #copyBtn { position: static; width: 34px; height: 30px; padding: 0; margin-left: 4px; align-items: center; justify-content: center; border-radius: 8px; background: transparent; color: #d8b46a; border: 1px solid #d8b46a66; opacity: 0.6; }
+#navbar #copyBtn.show { display: inline-flex; }
+#navbar #copyBtn svg { width: 16px; height: 16px; flex: none; }
+#navbar #copyBtn:hover { opacity: 1; background: #d8b46a33; }
+#navbar #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn:hover { opacity: 1; }
 #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
 #copyBtn svg { width: 16px; height: 16px; }
@@ -509,6 +515,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 6px); }   /* 6 = TOP_PAD: the card runs from the top gap to the bottom of the area; the next card starts below the fold */
 #content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
 
+/* desktop / tablet (and full screen): the verse card sits centred in the reading pane instead of stretching edge to edge */
+@media (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block { max-width: 880px; margin-left: auto; margin-right: auto; }
+}
+
 /* VERSE: "Verse 1 :" on its own line, then the shloka and transliteration across the full width */
 #content-box .verse-block > .verse-tag,
 #content-box .verse-block > .verse-label {
@@ -538,11 +549,33 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     #content-box.sync-playing .verse-block.verse-active > .verse-tag::after,
     #content-box.sync-playing .verse-block.verse-active > .verse-label::after { animation: none; }
 }
-#content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: left; }
+/* the verse sits in its own golden-bordered box, matching the meaning panel */
+#content-box .verse-block > .verse-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 6px; text-align: center;
+    position: relative; isolation: isolate; box-sizing: border-box;
+    background: #fffaf0; border: 1px solid #c9a15a; border-radius: 12px; padding: 14px 14px; }
 #content-box .verse-block > .verse-grid + .verse-grid { margin-top: 10px; }
 #content-box .verse-block > .verse-grid .verse-telugu,
-#content-box .verse-block > .verse-grid .verse-translit { text-align: left; }
+#content-box .verse-block > .verse-grid .verse-translit { text-align: center; }
 #content-box .verse-block > .flag-inline { text-align: left; }
+
+/* WATERMARK: a faint picture behind the verse, inside the verse box (all screens).
+   Verse box  : subjects/bhagavadgita/images/watermark-charriot.webp
+   Meaning box: subjects/bhagavadgita/images/watermark-lotus.webp     (transparent background works best)
+   No file = nothing shows. Strength: --wm-opacity (verse) and --wm-lotus-opacity (meaning): 0.03 barely there ... 0.15 clear. */
+#content-box { --wm-img: url("subjects/bhagavadgita/images/watermark-charriot.webp"); --wm-opacity: 0.06;
+    --wm-lotus-img: url("subjects/bhagavadgita/images/watermark-lotus.webp"); --wm-lotus-opacity: 0.06; --tab-h: 24px;
+    /* the thin golden separator between verse and meaning (landscape), drawn in code: transparent inside, fades out at both ends */
+    --sep-h-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27400%27%20height%3D%2750%27%20viewBox%3D%270%200%20400%2050%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%27400%27%20height%3D%2750%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M0%2025H188M212%2025H400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2713%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2737%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27240%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27110%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27290%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27332%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2728%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27372%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");   /* same ornament, lying down: used in portrait between verse and meaning */
+    --sep-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2750%27%20height%3D%27400%27%20viewBox%3D%270%200%2050%20400%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%2750%27%20height%3D%27400%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M25%200V188M25%20212V400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%2713%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%2737%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27160%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27240%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27110%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27290%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2768%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27332%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2728%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27372%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+#content-box .mtab-panel { isolation: isolate; }
+#content-box .mtab-panel::before {            /* lotus behind the meaning text */
+    content: ""; position: absolute; inset: 10px; z-index: -1; pointer-events: none;
+    background: var(--wm-lotus-img) no-repeat center / contain; opacity: var(--wm-lotus-opacity);
+}
+#content-box .verse-block > .verse-grid::before {
+    content: ""; position: absolute; inset: 10px; z-index: -1; pointer-events: none;
+    background: var(--wm-img) no-repeat center / contain; opacity: var(--wm-opacity);
+}
 
 /* START SCREEN (phones only): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Put the image at  subjects/bhagavadgita/images/start.webp  (or change the URL on the next line). */
@@ -596,36 +629,49 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 @media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 
-/* MEANINGS: folder-style tabs (తెలుగు | English) under each verse; Telugu is open by default.
-   Active tab = saffron and slightly bigger; inactive = grey. Panel = white with a golden border, set in the verse's own type. */
-#content-box .mtabs { margin-top: 14px; text-align: left; white-space: normal; }
-#content-box .mtab-bar { display: flex; align-items: flex-end; gap: 4px; padding: 0; position: relative; z-index: 3; }
+/* MEANINGS: language buttons (తె | EN | हि) hang INSIDE the meaning box from its top border, flush right, touching each other.
+   Top edge straight, bottom corners gently rounded. Inactive = grey; active = saffron with a glow that stays inside the button. */
+#content-box .mtabs { position: relative; margin-top: 8px; text-align: left; white-space: normal; }
+#content-box .mtab-bar { position: absolute; top: 1px; right: 1px; display: flex; gap: 0; margin: 0; padding: 0; height: var(--tab-h); z-index: 3; }
 #content-box .mtab {
-    appearance: none; cursor: pointer; margin: 0; letter-spacing: 0.02em;
-    font: 600 12px/1.2 'Noto Sans Telugu', system-ui, sans-serif; padding: 5px 14px; color: #6b6b6b;
-    background: #ececec; border: 1px solid #d2d2d2; border-bottom: none; border-radius: 9px 9px 0 0;
-    transition: background .15s ease, color .15s ease;
+    appearance: none; cursor: pointer; margin: 0; letter-spacing: 0.02em; display: inline-flex; align-items: center; justify-content: center;
+    height: var(--tab-h); box-sizing: border-box; padding: 0 14px;
+    font: 700 12px/1 'Noto Sans Telugu', 'Noto Sans Devanagari', system-ui, sans-serif;
+    color: #77736b; background: #e3e0da; border: none; border-left: 1px solid rgba(0, 0, 0, 0.08); border-radius: 0;
+    transition: background .25s ease, color .25s ease, box-shadow .25s ease;
 }
-#content-box .mtab:hover { background: #e3e3e3; }
+#content-box .mtab:first-child { border-left: none; border-bottom-left-radius: 6px; }
+#content-box .mtab:last-child { border-bottom-right-radius: 6px; border-top-right-radius: 11px; }   /* top-right follows the box's rounded corner */
+#content-box .mtab:hover { background: #d9d5cd; }
 #content-box .mtab[aria-selected="true"] {
-    font-size: 14px; font-weight: 700; padding: 8px 20px 9px; color: #5a2d00;
-    background: #ffbe6b; border-color: #d9903a; margin-bottom: -1px;   /* overlaps the panel's top border so the tab joins the panel */
+    color: #4a2400; background: #ff9f2e;
+    box-shadow: inset 0 0 10px 2px rgba(255, 238, 180, 0.95);      /* the glow: inside the button only, nothing spills outside */
 }
-#content-box .mtab:focus-visible { outline: 2px solid #c9922e; outline-offset: 1px; }
+#content-box .mtab:focus-visible { outline: 2px solid #c9922e; outline-offset: -3px; }
 #content-box .mtab-panel {
-    background: #fff; border: 1px solid #c9a15a; border-radius: 0 12px 12px 12px; padding: 14px 16px;
-    position: relative; z-index: 2; text-align: justify;
-    font-size: 1.08rem; line-height: 1.95; color: #2b2b2b;      /* same size / spacing / colour as the verse */
+    background: #fff; border: 1px solid #c9a15a; border-radius: 12px; padding: calc(var(--tab-h) + 6px) 24px 10px 24px;
+    position: relative; z-index: 2; text-align: left;
+    display: flex; flex-direction: column;                     /* the text (.mn) scrolls inside; the border stays still */
+    font-size: 1rem; line-height: 1.9; color: #2b2b2b;
 }
+/* the scrolling text area: no scrollbar; soft fade at the top / bottom edge whenever there is more text that way (classes set by script) */
+#content-box .mtab-panel .mn { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; -ms-overflow-style: none; padding: 8px 0; }
+#content-box .mtab-panel .mn::-webkit-scrollbar { width: 0; height: 0; display: none; }
+#content-box .mtab-panel .mn-in { margin: auto 0; }      /* short text sits in the middle of the panel; long text starts at the top and scrolls */
+#content-box .mtab-panel .mn.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 26px); mask-image: linear-gradient(to bottom, transparent 0, #000 26px); }
+#content-box .mtab-panel .mn.fade-b { -webkit-mask-image: linear-gradient(to top, transparent 0, #000 26px); mask-image: linear-gradient(to top, transparent 0, #000 26px); }
+#content-box .mtab-panel .mn.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%); }
 #content-box .mtab-panel[hidden] { display: none; }
 /* closed state: the tabs sit on a slim blank strip (one line); tapping a tab opens its text downwards */
-#content-box .mtab-closed { height: 1.6rem; background: #fff; border: 1px solid #c9a15a; border-radius: 0 12px 12px 12px; position: relative; z-index: 2; }
+#content-box .mtab-closed { height: calc(var(--tab-h) + 8px); background: #fff; border: 1px solid #c9a15a; border-radius: 12px; position: relative; z-index: 2; }
 #content-box .mtab-closed[hidden] { display: none; }
 #content-box .mtab-panel .lbl { display: none; }
 #content-box .mtab-panel .verse-translation,
-#content-box .mtab-panel .verse-purport { background: none; border: none; border-radius: 0; padding: 0; margin: 0; text-align: justify; font-size: inherit; line-height: inherit; color: inherit; }
+#content-box .mtab-panel .verse-purport { background: none; border: none; border-radius: 0; padding: 0; margin: 0; text-align: left; font-size: inherit; line-height: inherit; color: inherit; }
 #content-box .mtab-panel .verse-purport { font-family: 'Noto Sans Telugu', sans-serif; }
-#content-box .mtab-panel p { margin: 0 0 10px 0; text-align: justify; }
+#content-box .mtab-panel p { margin: 0 0 10px 0; text-align: left; }
 #content-box .mtab-panel p:last-child { margin-bottom: 0; }
 
  
@@ -633,9 +679,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 @keyframes mwDrop { from { opacity: 0; clip-path: inset(0 0 100% 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
 
 @media (max-width: 700px) {
-  #content-box .mtab { font-size: 11.5px; padding: 4px 12px; }
-  #content-box .mtab[aria-selected="true"] { font-size: 13px; padding: 6px 16px 7px; }
-  #content-box .mtab-panel { padding: 12px 12px; }
+  #content-box .mtab { padding: 0 14px; }
+  #content-box .mtab-panel { padding: calc(var(--tab-h) + 6px) 18px 8px 18px; }
+  #content-box .verse-block > .verse-grid { padding: 12px 10px; }
 }
 @media (prefers-reduced-motion: reduce) { #content-box .mtab-panel:not([hidden]) { animation: none; } #content-box .mtab { transition: none; } }
 
@@ -669,11 +715,12 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 /* Speed: ONE pill shows the current speed; tap it and the other two speeds pop up above it.
    Dimmed + disabled when the current chapter has no audio. */
 #speedGroup { position: relative; display: flex; align-items: center; margin-left: 4px; }
+#navbar .rail-sep { display: none; }          /* thin divider lines: only used in the phone-landscape left rail */
 #navbar #speedGroup button.speed-main,
 #navbar #speedGroup button.speed-btn {
     min-width: 42px; height: 30px; padding: 0 8px; border-radius: 15px;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
-    font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+    font: 700 11.5px/1 system-ui, sans-serif; cursor: pointer; white-space: nowrap;
     display: inline-flex; align-items: center; justify-content: center;
 }
 #navbar #speedGroup button.speed-main:hover,
@@ -697,10 +744,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 .gita-chapter .group-tag { font-family: var(--mono); font-size: 10px; color: var(--muted); margin: 0 0 8px 18px; }
 
 /* ── PER-LANGUAGE TEXT: shloka (.sl) and meaning (.mn). New language = one more line here + one line in LANGS (JS) ── */
-#content-box .verse-block .sl { font-size: 1em; line-height: 1.9; white-space: inherit; text-align: left; color: #2b2b2b; }
-#content-box .verse-block .sl[data-lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
-#content-box .verse-block .sl[data-lang="hi"] { font-family: 'Noto Sans Devanagari', 'Noto Sans Telugu', sans-serif; }
-#content-box .verse-block .sl[data-lang="en"] { font-family: var(--mono, 'IBM Plex Mono', monospace); font-style: italic; color: #6b4f1d; line-height: 1.8; }
+/* verse fonts: change a name in these three lines to try another look (Telugu ideas: 'Ramabhadra', 'Suranna', 'Gidugu') */
+#content-box .verse-block { --vf-te: 'Tiro Telugu', 'Noto Serif Telugu', 'Noto Sans Telugu', serif;
+                            --vf-hi: 'Tiro Devanagari Hindi', 'Noto Serif Devanagari', 'Noto Sans Devanagari', serif;
+                            --vf-en: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif; }
+#content-box .verse-block .sl { font-size: 1em; line-height: 1.95; white-space: inherit; text-align: center; color: #2b2b2b; }
+#content-box .verse-block .sl[data-lang="te"] { font-family: var(--vf-te); }
+#content-box .verse-block .sl[data-lang="hi"] { font-family: var(--vf-hi); }
+#content-box .verse-block .sl[data-lang="en"] { font-family: var(--vf-en); font-style: italic; font-weight: 600; font-size: 1.14em; letter-spacing: 0.01em; color: #6b4f1d; line-height: 1.7; }
 #content-box .mtab-panel .mn { margin: 0; }
 #content-box .mtab-panel .mn[data-lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
 #content-box .mtab-panel .mn[data-lang="hi"] { font-family: 'Noto Sans Devanagari', 'Noto Sans Telugu', sans-serif; }
@@ -873,7 +924,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
             padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
             background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
   /* chapter without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -925,35 +976,82 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 
 /* LANDSCAPE TWO-COLUMN: left half = Telugu + transliteration, right half = meaning panel (Telugu / English tabs). One verse fills the screen top to bottom. */
 @media (orientation: landscape) and (max-height: 520px) {
-  #content-box { padding: 6px 8px 0 66px; }
-  #navbar { left: 6px; padding: 7px 5px; gap: 6px; }
+  #content-box { padding: 6px 8px 0 58px; }
+  #navbar { left: 6px; padding: 5px 4px; gap: 5px; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
   #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
-  #navbar #lockBtn { width: 36px; height: 36px; min-width: 36px; }
-  #navbar .ls-btn svg, #navbar #lockBtn svg { width: 19px; height: 19px; }
-  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { font-size: 15px; padding: 0; }
-  #navbar .ls-btn.ls-nav svg { width: 22px; height: 22px; }
+  #navbar #lockBtn { width: 32px; height: 32px; min-width: 32px; }
+  #navbar .ls-btn svg, #navbar #lockBtn svg { width: 17px; height: 17px; }
+  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { font-size: 14px; padding: 0; }
+  #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; }
+  #navbar #speedGroup button.speed-main::before { width: 19px; height: 19px; }
+  #navbar #speedGroup button.speed-btn { font-size: 10px; }
+  /* slimmer, see-through rail; thin dividers between the groups: up/down | play, mute, speed | lock, language */
+  #navbar { background: rgba(13, 11, 8, 0.5); border-color: #d8b46a40; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
+  #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { background: rgba(26, 22, 15, 0.45); border-width: 1px; }
+  #navbar #lockBtn { background: rgba(26, 22, 15, 0.45) !important; border-width: 1px !important; }
+  #navbar .rail-sep { display: block; flex: none; width: 20px; height: 1px; margin: 1px 0; background: #d8b46a66; align-self: center; }
   #content-box .verse-block { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px;
       align-content: stretch; grid-template-rows: repeat(4, auto); align-items: start; box-sizing: border-box;
       margin: 0; min-height: calc(var(--area-h, 100vh) - 6px); padding: 30px 14px 0 14px; }
-  #content-box .verse-block > .verse-grid { grid-column: 1; margin-bottom: 4px; }
-  #content-box .verse-block > .mtabs { grid-column: 2; grid-row: 1 / span 4; margin: -30px 0 1px 0; min-width: 0; align-self: stretch;   /* up to the card's top edge (level with the Verse tag), down to 1px above the bottom line */
+  #content-box .verse-block > .verse-grid { grid-column: 1; grid-row: 1 / span 4; align-self: stretch; align-content: center; justify-items: center;
+      margin: -2px 0 6px 0;   /* same top and bottom as the big box (28px from the card top, 6px gap at the bottom) */ }
+  #content-box .verse-block > .mtabs { grid-column: 2; grid-row: 1 / span 4; margin: -2px 0 6px 0; min-width: 0; align-self: stretch;   /* same top and bottom as the big box */
       display: flex; flex-direction: column; }
-  #content-box .verse-block > .mtabs .mtab-panel { font-size: 15px; line-height: 1.8; padding: 10px 12px; }
+  #content-box .verse-block > .mtabs .mtab-panel { font-size: 14px; line-height: 1.8; padding: calc(var(--tab-h) + 6px) 18px 8px 18px; }
   #content-box .verse-block > .mtabs .mtab-closed { flex: 1 1 auto; }
+  /* ONE big golden box behind both halves; the separator sits in its exact centre; the verse and meaning boxes become see-through */
+  #content-box .verse-block { isolation: isolate; }
+  #content-box .verse-block::before { content: ""; position: absolute; z-index: -1; pointer-events: none;
+      left: 14px; right: 14px; top: 28px; bottom: 6px;
+      border: 1px solid #c9a15a; border-radius: 12px;
+      background: var(--sep-img) no-repeat center / auto 70%, #fffaf0; }
+  #content-box .verse-block > .verse-grid { background: transparent; border: none; padding: 14px; }
+  #content-box .verse-block > .mtabs .mtab-panel, #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; }
   #content-box .verse-block > .mtabs .mtab-panel { flex: 1 1 auto; min-height: 0; }
-  #content-box .mtab-panel { box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  #content-box .mtab-panel { box-sizing: border-box; overflow: hidden;
       scrollbar-width: none; -ms-overflow-style: none; }
   #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
 /* MEANING PANEL (phones): as tall as the space left down to the bottom of the screen; longer text scrolls inside it (no scrollbar) */
 @media (max-width: 700px) {
-  #content-box .mtab-panel { box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  #content-box .mtab-panel { box-sizing: border-box; overflow: hidden;
       scrollbar-width: none; -ms-overflow-style: none; }
   #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 
+/* round (portrait / landscape-phone) speed buttons: smaller label so "1.75×" stays inside the circle */
+@media (max-width: 700px), (max-height: 520px) {
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+  /* the main speed button shows a speed-meter ICON (like the other buttons); its number appears only while the menu is open, or for a moment after you pick one */
+  #navbar { --speed-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M4.5%2017a8.5%208.5%200%201%201%2015%200%27%2F%3E%3Cpath%20d%3D%27M12%2017l4-5%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2717%27%20r%3D%271.2%27%20fill%3D%27black%27%2F%3E%3C%2Fsvg%3E") }
+  #navbar #speedGroup button.speed-main { font-size: 0; }
+  #navbar #speedGroup button.speed-main::before { content: ""; display: block; width: 22px; height: 22px; background: currentColor;
+      -webkit-mask: var(--speed-icon) center / contain no-repeat; mask: var(--speed-icon) center / contain no-repeat; }
+  #navbar #speedGroup button.speed-main.flash, #navbar #speedGroup button.speed-main[aria-expanded="true"] { font-size: 11px; }
+  #navbar #speedGroup button.speed-main.flash::before, #navbar #speedGroup button.speed-main[aria-expanded="true"]::before { display: none; }
+}
+
+/* PORTRAIT (phones) + DESKTOP / TABLET: the card is one fixed-height frame, the same for every verse:
+   verse box on top (45% of the height, grows only if the verse needs it) -> small ornament -> tabs + meaning panel fill the rest
+   (short meaning: centred; long meaning: scrolls inside with soft fades) */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block { display: flex; flex-direction: column; height: calc(var(--area-h, 100vh) - 6px); min-height: 0; padding: 44px 8px 8px 8px; }
+  #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 45%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
+  #content-box .verse-block > .verse-grid::after { content: ""; position: absolute; left: 50%; top: 100%; width: 130px; height: 16px; margin: 1px 0 0 -65px;
+      background: var(--sep-h-img) no-repeat center / contain; pointer-events: none; }
+  #content-box .verse-block > .mtabs { flex: 1 1 0; min-height: 0; margin: 0; display: flex; flex-direction: column; }
+  #content-box .verse-block > .mtabs .mtab-panel { flex: 1 1 auto; min-height: 0; }
+  #content-box .verse-block > .mtabs .mtab-closed { flex: 1 1 auto; height: auto; }
+  #content-box .verse-block > .mtabs .mtab-panel { overflow: hidden; }
+}
+@media (min-width: 701px) and (min-height: 521px) {     /* desktop / tablet: a little more room around the boxes */
+  #content-box .verse-block { padding: 44px 14px 14px 14px; }
+  #content-box .verse-block > .verse-grid { padding: 16px 20px; }
+}
 </style>
 </head>
 <body>
@@ -984,9 +1082,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <div id="main-col">
         <div id="content-panel">
             <div id="audio-dock"></div>
-            <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            </button>
             <div id="verseNav">
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -1008,6 +1103,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <button id="lsDown" class="ls-btn ls-nav" type="button" aria-label="Next verse" title="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
 	
 	
+    <span class="rail-sep" aria-hidden="true"></span>
     <button id="lsPause" class="ls-btn" type="button" aria-label="Play / pause"></button>
     <button id="lsMute" class="ls-btn" type="button" aria-label="Mute / unmute"></button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
@@ -1019,7 +1115,11 @@ body.touch-locked #content-box .verse-block { cursor: default; }
         </div>
     </div>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
     <div id="lockHint" role="status" aria-live="polite"></div>
+    <span class="rail-sep" aria-hidden="true"></span>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
      <div id="langGroup" role="group" aria-label="Language">
          <button id="langMain" class="lang-main" type="button" title="Language" aria-label="Language" aria-haspopup="true" aria-expanded="false"></button>
@@ -1168,7 +1268,7 @@ document.getElementById("sidebar-count").textContent = flatTopics.length + " Cha
 let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
 let syncUserScrollUntil = 0;
 const TOP_PAD = 6;   // a verse is aligned this many px below the top of the reading area
-const MANUAL_SCROLL_PAUSE_MS = 5000;
+const MANUAL_SCROLL_PAUSE_MS = 0;   // no hold-off: the display jumps to the audio-synced verse as soon as it changes
 const contentPanel = document.getElementById("content-panel");
 const audioDock    = document.getElementById("audio-dock");
 let scrollAnim = null;
@@ -1190,12 +1290,7 @@ function smoothScrollTo(top, ms) {
     })(t0);
 }
 
-["wheel", "touchmove", "mousedown"].forEach(evt =>
-    contentBox.addEventListener(evt, e => {
-        if (e.target.closest && e.target.closest(".audio-player")) return;
-        syncUserScrollUntil = Date.now() + MANUAL_SCROLL_PAUSE_MS;
-    }, { passive: true })
-);
+// (removed) touching / scrolling no longer delays the sync scroll
 
 function parseSyncTime(str) {
     return str.trim().split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
@@ -1466,6 +1561,8 @@ let curLang = "te";
 try { const sv = localStorage.getItem(LANG_KEY); if (LANGS.some(l => l.code === sv)) curLang = sv; } catch (e) {}
 
 function buildVerses() {
+    const NUM_N = /^\d[\d\s,\-–]*$/;
+    const numbered = Array.from(contentBox.querySelectorAll(".verse-block")).filter(b => NUM_N.test((b.dataset.n || "").trim()));   // cards that count in 2/72
     contentBox.querySelectorAll(".verse-block").forEach(block => {
         if (block.dataset.built) return;
         const data = {};
@@ -1479,7 +1576,8 @@ function buildVerses() {
         // corner tag from data-n: "5" -> "Verse 5"; anything else (e.g. "Chapter 18 — Closing") is shown as written
         const n = (block.dataset.n || "").trim();
         const tag = document.createElement("span");
-        tag.className = "verse-tag"; tag.textContent = /^\d[\d\s,\-–]*$/.test(n) ? "Verse " + n : n;
+        const chM = (flatTopics[currentFlatIndex] && flatTopics[currentFlatIndex].path || "").match(/chapter(\d+)/i);   // chapter number from the file name
+        tag.className = "verse-tag"; tag.textContent = NUM_N.test(n) ? (chM ? "Ch " + chM[1] + " · " : "") + (numbered.indexOf(block) + 1) + "/" + numbered.length : n;
         block.appendChild(tag);
         // shloka (one div, refilled when the language changes)
         const grid = document.createElement("div"); grid.className = "verse-grid";
@@ -1503,11 +1601,11 @@ function buildVerses() {
         };
         items.forEach(l => {
             const tab = document.createElement("button");
-            tab.type = "button"; tab.className = "mtab mtab-" + l.code; tab.setAttribute("role", "tab"); tab.textContent = l.name;
+            tab.type = "button"; tab.className = "mtab mtab-" + l.code; tab.setAttribute("role", "tab"); tab.textContent = l.short; tab.title = l.name; tab.setAttribute("aria-label", l.name);
             bar.appendChild(tab);
             const panel = document.createElement("div");
             panel.className = "mtab-panel"; panel.setAttribute("role", "tabpanel");
-            const mn = document.createElement("div"); mn.className = "mn"; mn.dataset.lang = l.code; mn.innerHTML = data[l.code].mn;
+            const mn = document.createElement("div"); mn.className = "mn"; mn.dataset.lang = l.code; mn.innerHTML = '<div class="mn-in">' + data[l.code].mn + '</div>';
             panel.appendChild(mn); box.appendChild(panel);
             tabs[l.code] = tab; panels[l.code] = panel;
             tab.addEventListener("click", e => { e.stopPropagation(); show(box.dataset.active === l.code ? null : l.code); });
@@ -1526,13 +1624,17 @@ function buildVerses() {
 }
 
 function fitVerses() {
-    const blocks = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
+    const all = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
     const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;   // phone landscape focus mode
-    if (!land && !window.matchMedia("(max-width: 700px)").matches) {
-        blocks.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+    const desktop = window.matchMedia("(min-width: 701px) and (min-height: 521px)").matches;       // desktop / tablet: the stacked frame, verse sized to its box
+    if (!land && !desktop && !window.matchMedia("(max-width: 700px)").matches) {
+        all.forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
         return;
     }
-    const MAXPX = land ? 30 : FIT_MAX;
+    const blocks = desktop ? all.filter(b => b.classList.contains("verse-block")) : all;   // desktop: refrain blocks keep their normal size
+    all.filter(b => !blocks.includes(b)).forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
+    const MAXPX = land ? 30 : (desktop ? 26 : FIT_MAX);
+    const portrait = window.matchMedia("(max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px)").matches;   // stacked frame (phone portrait, desktop, tablet)
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const TEST = 20;
     blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
@@ -1541,9 +1643,23 @@ function fitVerses() {
         const cs = getComputedStyle(b);
         let avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         if (land && b.classList.contains("verse-block")) avail = (avail - 20) / 2;   // landscape: verse = left half, purport = right half
-        const chipEl = b.querySelector(":scope > .mtabs");
-        if (chipEl) { range.setStart(b, 0); range.setEndBefore(chipEl); }   // measure only the verse itself (not the tabs)
-        else range.selectNodeContents(b);
+        const slEl = b.querySelector(":scope > .verse-grid .sl");
+        if (slEl) {   // the verse sits in a bordered box: fit its widest line to the space inside the box
+            const gs = getComputedStyle(slEl.parentElement);
+            avail -= parseFloat(gs.paddingLeft) + parseFloat(gs.paddingRight) + parseFloat(gs.borderLeftWidth) + parseFloat(gs.borderRightWidth);
+            range.selectNodeContents(slEl);
+            const tw = range.getBoundingClientRect().width;
+            let f = tw > 0 ? (desktop ? Math.min(TEST * (avail / tw) * 0.98, 26) : TEST * (avail / Math.max(tw, avail)) * 0.98) : MAXPX;   // desktop: short verses may grow up to 26px
+            if (portrait && b.clientHeight) {   // portrait: don't let a tall (many-line) verse take more than ~45% of the card; never below the minimum size
+                const bs = getComputedStyle(b), innerH = b.clientHeight - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom);
+                const padY = parseFloat(gs.paddingTop) + parseFloat(gs.paddingBottom) + parseFloat(gs.borderTopWidth) + parseFloat(gs.borderBottomWidth);
+                const lines = Math.max(1, slEl.innerHTML.split(/<br\s*\/?>/i).length);
+                const lhPerPx = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;     // line height per 1px of block font size
+                if (lhPerPx > 0 && innerH > 0) f = Math.max(Math.min(f, (innerH * 0.45 - padY) / (lines * lhPerPx)), Math.min(f, FIT_MIN));
+            }
+            return f;
+        }
+        range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line
         return w > 0 ? TEST * (avail / w) * 0.98 : MAXPX;
     });
@@ -1950,6 +2066,10 @@ const speedPop  = document.getElementById("speedPop");
 window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
 window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
 window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
+let speedFlashT = null;   // after picking a speed, show its number on the button for a moment (the button itself is an icon)
+document.querySelectorAll("#speedGroup .speed-btn").forEach(b => b.addEventListener("click", () => {
+    speedMain.classList.add("flash"); clearTimeout(speedFlashT); speedFlashT = setTimeout(() => speedMain.classList.remove("flash"), 1400);
+}));
 speedMain.addEventListener("click", e => {
     e.stopPropagation();
     if (speedMain.disabled) return;
@@ -2175,7 +2295,15 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
             const avail = contentBox.clientHeight - TOP_PAD - rel - parseFloat(cs.paddingBottom) - parseFloat(cs.borderBottomWidth) - 2;
             p.style.maxHeight = Math.max(120, Math.floor(avail)) + "px";
         });
+        refreshFades();
     }
+    // soft fade at the top / bottom of a meaning text that is longer than its panel
+    function updateFade(mn) {
+        mn.classList.toggle("fade-t", mn.scrollTop > 2);
+        mn.classList.toggle("fade-b", mn.scrollTop + mn.clientHeight < mn.scrollHeight - 2);
+    }
+    function refreshFades() { contentBox.querySelectorAll(".mtab-panel:not([hidden]) .mn").forEach(updateFade); }
+    contentBox.addEventListener("scroll", e => { if (e.target.classList && e.target.classList.contains("mn")) updateFade(e.target); }, true);
     let raf = 0;
     new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(capPanels); setTimeout(capPanels, 400); })   // chapter loaded / tab switched (the 400 ms one runs after the text re-fit)
         .observe(contentBox, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });

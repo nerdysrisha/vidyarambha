@@ -92,6 +92,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     justify-content: center;
 }
 #sidebar-toggle:hover { background: #1a1a1a; color: #d8b46a; }
+#sidebar-toggle svg { width: 16px; height: 16px; display: block; }
 #sidebar.collapsed #sidebar-list { display: none; }
 
 /* SEARCH */
@@ -709,8 +710,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar button:hover { background: #222; color: #d8b46a; }
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
-#navbar #prevBtn, #navbar #nextBtn { font-size: 18px; font-weight: 700; line-height: 1; padding: 4px 14px; }
-#navbar .nav-label { font-size: 13px; font-weight: 400; }
+#navbar #prevBtn, #navbar #nextBtn { width: 44px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+#navbar #prevBtn svg, #navbar #nextBtn svg { width: 20px; height: 20px; display: block; }
 
 /* Speed: ONE pill shows the current speed; tap it and the other two speeds pop up above it.
    Dimmed + disabled when the current chapter has no audio. */
@@ -821,14 +822,14 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #lockHint.show { opacity: 1; }
 #lockHint svg { width: 16px; height: 16px; flex: 0 0 auto; }
 body.touch-locked #content-box .verse-block { cursor: default; }
-@media (min-width: 701px) { body.reading #sidebar { display: none; } }
+/* full screen (desktop): the side panel auto-collapses to its thin rail (done in JS); the toggle icon on the rail brings it back */
 
 /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
 @media (max-width: 700px) {
   #outer { margin: 4px 4px 6px 4px; gap: 4px; height: calc(100dvh - 58px); }
   #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 84px; }
   #navbar .nav-label { display: none; }
-  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; font-size: 22px; line-height: 1; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; }
   #counter { min-width: 40px; font-size: 12px; }
   #speedGroup { margin-left: 0; }
 
@@ -1067,7 +1068,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">Bhagavad Gita<small id="sidebar-count"></small></span>
-            <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
+            <button id="sidebar-toggle" type="button" title="Collapse sidebar" aria-label="Collapse sidebar"></button>
         </div>
         <div id="sidebar-search-row">
             <div id="search-wrap">
@@ -1095,9 +1096,9 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 
 <div id="navbar">
     <button id="menuBtn" title="Topics list">&#9776;</button>
-    <button id="prevBtn" aria-label="Previous topic" title="Previous">&lt;<span class="nav-label"> Prev</span></button>
+    <button id="prevBtn" type="button" aria-label="Previous chapter" title="Previous chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
     <span id="counter">–</span>
-    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&gt;</button>
+    <button id="nextBtn" type="button" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
 	
 	<button id="lsUp" class="ls-btn ls-nav" type="button" aria-label="Previous verse" title="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
     <button id="lsDown" class="ls-btn ls-nav" type="button" aria-label="Next verse" title="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -1307,6 +1308,7 @@ function stopAudioSync() {
     if (window.resetSpeedUI) window.resetSpeedUI();
     contentPanel.classList.remove("has-dock");
     window.gitaSyncSeek = null;
+    window.gitaSyncState = null;
     scrollAnim = null;
 }
 
@@ -1517,6 +1519,7 @@ function initAudioSync() {
     }
 
     // Verse arrows: jump the audio (playing or paused) to verse i; the sync then scrolls + highlights it, and Play continues from there
+    window.gitaSyncState = () => ({ active, started: active >= 0 && audio.currentTime > starts[active] + 0.05 });
     window.gitaSyncSeek = i => {
         if (syncDisabled || i < 0 || i >= n) return false;
         audio.currentTime = starts[i] + 0.01;
@@ -1891,7 +1894,9 @@ function stepVerse(dir) {
     let i = -1;
     if (dir > 0) {
         i = rects.findIndex(r => r.top > line + tol);
-        if (i < 0) return;                                            // already at the last verse
+        const st = window.gitaSyncState && window.gitaSyncState();
+        if (st && st.started && st.active === i) i++;                 // that verse is already being chanted (e.g. the opening, still above its card): go one further
+        if (i < 0 || i >= blocks.length) return;                      // already at the last verse
     } else {
         for (let k = rects.length - 1; k >= 0; k--) if (rects[k].top < line - tol) { i = k; break; }
         if (i < 0) {                                                  // above the first verse: back to the very top
@@ -2045,10 +2050,13 @@ searchInput.addEventListener("keydown", e => {
 // ── SIDEBAR COLLAPSE ──────────────────────────────────────────────────
 const sidebarEl = document.getElementById("sidebar");
 const toggleBtn  = document.getElementById("sidebar-toggle");
+const SIDE_CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>';   // double chevron pointing left = tuck the panel away
+const SIDE_OPEN_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>';    // double chevron pointing right = bring it back
 function setSidebarCollapsed(collapsed) {
     sidebarEl.classList.toggle("collapsed", collapsed);
-    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.innerHTML = collapsed ? SIDE_OPEN_SVG : SIDE_CLOSE_SVG;
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    toggleBtn.setAttribute("aria-label", toggleBtn.title);
     tooltipEl.classList.remove("visible");
     document.body.classList.toggle("side-open", !collapsed);
     const mb = document.getElementById("menuBtn");
@@ -2057,7 +2065,8 @@ function setSidebarCollapsed(collapsed) {
 }
 document.getElementById("menuBtn").addEventListener("click",
     () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
-toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+toggleBtn.addEventListener("click", () => { if (window.keepVerseInView) window.keepVerseInView(); setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")); });
+setSidebarCollapsed(sidebarEl.classList.contains("collapsed"));   // paint the icon
 
 // ── SPEED PILL + POPUP ────────────────────────────────────────────────
 // The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two.
@@ -2117,7 +2126,14 @@ paintLang();
 const fsBtn = document.getElementById("fsBtn");
 const FS_ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';   // corners pointing out = go full screen
 const FS_EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';   // corners pointing in = leave full screen
+let sidebarBeforeReading = null;   // was the panel collapsed before full screen? (restored on exit)
 function setReading(on) {
+    const was = document.body.classList.contains("reading");
+    if (on !== was && window.matchMedia("(min-width: 701px) and (min-height: 521px)").matches) {   // desktop / tablet only
+        if (window.keepVerseInView) window.keepVerseInView();      // remember the verse BEFORE the layout changes
+        if (on) { sidebarBeforeReading = sidebarEl.classList.contains("collapsed"); setSidebarCollapsed(true); }
+        else if (sidebarBeforeReading !== null) { setSidebarCollapsed(sidebarBeforeReading); sidebarBeforeReading = null; }
+    }
     document.body.classList.toggle("reading", on);
     fsBtn.innerHTML = on ? FS_EXIT : FS_ENTER;
     fsBtn.title = on ? "Exit full screen" : "Full screen / reading mode";
@@ -2241,6 +2257,11 @@ counterEl.textContent = "– / " + flatTopics.length;
     contentBox.addEventListener("scroll", () => { if (Date.now() >= freezeUntil) anchor = topIndex(); }, { passive: true });
     function restore() {
         if (touchingBox) return;
+        scrollAnim = null;
+        if (contentBox.classList.contains("sync-playing")) {          // being chanted right now: that verse wins over the remembered one
+            const act = contentBox.querySelector(".verse-block.verse-active");
+            if (act) { contentBox.scrollTop = topOf(act.getBoundingClientRect(), contentBox.getBoundingClientRect()); return; }
+        }
         if (anchor < 0) { contentBox.scrollTop = 0; return; }
         const b = blocks()[anchor];
         if (b) contentBox.scrollTop = topOf(b.getBoundingClientRect(), contentBox.getBoundingClientRect());
@@ -2251,6 +2272,13 @@ counterEl.textContent = "– / " + flatTopics.length;
         timers = [150, 400, 800, 1200].map(t => setTimeout(restore, t));   // after the text re-fit and the font settle
     }
     if (mq.addEventListener) mq.addEventListener("change", onChange); else mq.addListener(onChange);
+    // desktop: full screen in/out and the side panel opening/closing change the reading width, which re-flows every verse
+    window.keepVerseInView = () => { anchor = topIndex(); onChange(); };
+    let lastW = contentBox.clientWidth;
+    if (window.ResizeObserver) new ResizeObserver(() => {             // safety net, e.g. Esc / F11 leaving full screen
+        const w = contentBox.clientWidth;
+        if (w && w !== lastW) { lastW = w; if (Date.now() >= freezeUntil) onChange(); } else if (w) lastW = w;
+    }).observe(contentBox);
 })();
 
 // ── LANDSCAPE = FULL SCREEN, no extra button ──
