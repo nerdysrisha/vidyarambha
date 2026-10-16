@@ -1811,7 +1811,7 @@ const Stage = (function () {
     // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
     function simple() {
         const vb = Array.from(contentBox.querySelectorAll(".verse-block"));
-        return vb.length > 0 && vb.every(b => b.parentNode === contentBox || (wrap && b.parentNode === wrap));   // already staged counts too: a 2nd media-query event (rotation fires two) must not tear the stage down
+        return vb.length > 0 && vb.every(b => b.parentNode === contentBox || (wrap && wrap.contains(b)));   // already staged counts too: a 2nd media-query event (rotation fires two) must not tear the stage down
     }
     function visible(n) {      // does this element show anything? (scripts, styles, the hidden audio tag, empty wrappers stay where they are)
         if (n.nodeType !== 1 || n.hidden || /^(SCRIPT|STYLE|LINK|META|TEMPLATE|AUDIO)$/.test(n.tagName) || n.classList.contains("end-spacer")) return false;
