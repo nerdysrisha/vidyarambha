@@ -1509,6 +1509,23 @@ body.stage-on { overscroll-behavior-y: none; }
   #content-box .verse-block > .verse-grid { padding: 16px 20px; }
   #themeBtn .ic-sun { display: none; }
 }
+
+/* ── TOPICS LIST FOLLOWS THE THEME: light = saffron + cream rows (as before); dark = dark list with gold, same palette as the dark verse cards ── */
+@media (max-width: 700px), (orientation: landscape) and (max-height: 520px) {
+  body.dark #sidebar { background: #14110d; border-color: #7a603088; }
+  body.dark #sidebar-title { background: linear-gradient(180deg, #1d1710 0%, #0e0b08 100%); }
+  body.dark .category-header { background: #1d1710; border-color: #7a6030; color: #e0c58a; }
+  body.dark .category-header:hover { background: #2a2112; color: #f0d18a; }
+  body.dark .category-header .count { color: #a39a88; }
+  body.dark .topic-item { background: #1d1710; color: #eadfc6; box-shadow: inset 0 0 0 1px #7a6030, 0 1px 3px rgba(0,0,0,0.5); }
+  body.dark .topic-item:hover { background: #2a2112; }
+  body.dark .t-title { color: #eadfc6; }
+  body.dark .t-icon { border-color: #c9a15a; box-shadow: 0 2px 5px rgba(0,0,0,0.6); }
+  body.dark .topic-item.search-match { background: #2a2112; box-shadow: inset 4px 0 0 #c9a15a, inset 0 0 0 1px #7a6030; }
+  body.dark .topic-item.last-read { background: #2a2112; box-shadow: inset 0 0 0 1.5px #c9a15a, 0 1px 3px rgba(0,0,0,0.5); }
+  body.dark .topic-item.active { background: #2a2112; box-shadow: inset 0 0 0 2px #c9a15a, 0 1px 4px rgba(0,0,0,0.5); }
+  body.dark .topic-item.active .t-icon { box-shadow: 0 0 0 2px #2a2112, 0 0 0 4px #c9a15a; }
+}
 </style>
 </head>
 <body>
@@ -2505,8 +2522,53 @@ function initPreface() {
     });
 }
 
+// ── REMEMBER WHERE YOU WERE (per prayer): audio time, whether it was playing, and the verse on screen ──
+const topicMemory = {};
+function rememberPosition(index) {
+    if (index < 0 || !flatTopics[index] || !pageLoaded) return;      // nothing loaded (or still loading): keep what was saved before
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    const a = document.querySelector("#content-panel audio");
+    let verse = -1;
+    if (Stage.active && Stage.items[Stage.index]) verse = blocks.indexOf(Stage.items[Stage.index].el);
+    else if (contentBox.scrollTop >= 2) {
+        const line = contentBox.getBoundingClientRect().top + TOP_PAD + 8;
+        for (let i = 0; i < blocks.length; i++) { if (blocks[i].getBoundingClientRect().top <= line) verse = i; else break; }
+    }
+    const finished = a && a.duration && a.currentTime >= a.duration - 1;   // played to the end: start fresh next time
+    topicMemory[flatTopics[index].path] = { time: a && !finished ? a.currentTime : 0, playing: !!(a && !a.paused && !a.ended), verse };
+}
+function restorePosition(topic) {
+    const m = topicMemory[topic.path];
+    if (!m) return;
+    const a = document.querySelector("#content-panel audio");
+    if (a && m.time > 0.5) {                                          // audio prayer: jump the audio back (the sync highlights + scrolls to the verse)
+        const seek = () => {
+            try { a.currentTime = m.time; } catch (e) {}
+            if (m.playing) { const p = a.play(); if (p && p.catch) p.catch(() => {}); }   // it was playing when you left: carry on
+        };
+        if (a.readyState >= 1) seek(); else a.addEventListener("loadedmetadata", seek, { once: true });
+        return;
+    }
+    const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    if (m.verse >= 0 && blocks[m.verse]) {                            // no audio: put the same verse back
+        const go = () => {
+            if (Stage.active) Stage.show(blocks[m.verse]);
+            else contentBox.scrollTop = topOf(blocks[m.verse].getBoundingClientRect(), contentBox.getBoundingClientRect());
+        };
+        go(); setTimeout(go, 400);
+    }
+}
+
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
+    if (flatIndex === currentFlatIndex && pageLoaded) {   // same prayer is already open (maybe playing): just go back to it, no reload
+        if (window.matchMedia("(max-width: 700px)").matches) {
+            setSidebarCollapsed(true);
+            if (window.restoreVerseView) window.restoreVerseView();
+        }
+        return;
+    }
+    rememberPosition(currentFlatIndex);   // leaving a prayer: note where you were
     currentFlatIndex = flatIndex;
     const topic = flatTopics[flatIndex];
     pageLoaded = false;
@@ -2546,6 +2608,7 @@ function loadTopic(flatIndex) {
             placeVerseNav();
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
+            restorePosition(topic);   // coming back to a prayer visited before: same audio point / verse
             pageLoaded = true; markBookmark(topic);   // BOOKMARK: draw the dog-ear if it is in this prayer
             if (pendingJump) { pendingJump = false; jumpToBookmarkSoon(); }
         })
@@ -2783,8 +2846,11 @@ function setSidebarCollapsed(collapsed) {
     if (mb) mb.classList.toggle("open", !collapsed);
     setTimeout(fitVerses, 250);   // re-fit after sidebar width animation
 }
-document.getElementById("menuBtn").addEventListener("click",
-    () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+document.getElementById("menuBtn").addEventListener("click", () => {
+    const willCollapse = !sidebarEl.classList.contains("collapsed");
+    setSidebarCollapsed(willCollapse);
+    if (willCollapse && pageLoaded && window.restoreVerseView) window.restoreVerseView();   // back from the list: same verse on screen
+});
 toggleBtn.addEventListener("click", () => { if (window.keepVerseInView) window.keepVerseInView(); setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")); });
 setSidebarCollapsed(sidebarEl.classList.contains("collapsed"));   // paint the icon
 
@@ -3029,6 +3095,7 @@ counterEl.textContent = counterText(-1);
     if (mq.addEventListener) mq.addEventListener("change", onChange); else mq.addListener(onChange);
     // desktop: full screen in/out and the side panel opening/closing change the reading width, which re-flows every verse
     window.keepVerseInView = () => { anchor = topIndex(); onChange(); };
+    window.restoreVerseView = onChange;                               // re-place the remembered verse (e.g. after the topics list was open)
     let lastW = contentBox.clientWidth;
     if (window.ResizeObserver) new ResizeObserver(() => {             // safety net, e.g. Esc / F11 leaving full screen
         const w = contentBox.clientWidth;
