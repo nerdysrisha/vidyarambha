@@ -741,6 +741,17 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 body.dark #themeBtn .ic-sun { display: block; }
 body.dark #themeBtn .ic-moon { display: none; }
 
+/* STAGE (fade navigation): generic parts. A layout that uses it (see Stage in the script) draws its own frame inside its block below. */
+#content-box .stage > .stage-item { position: absolute; top: 0; left: 0; right: 0; margin: 0; opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .28s ease, visibility 0s linear .28s; }                                       /* old card fades out first... */
+#content-box .stage > .stage-item.is-current { opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .4s ease .22s, visibility 0s; }                                               /* ...then the new one fades in */
+#content-box .stage.no-anim > .stage-item { transition: none !important; }
+#content-box .stage > .stage-page { bottom: 0; overflow-y: auto; box-sizing: border-box; scrollbar-width: none; }
+#content-box .stage > .stage-page::-webkit-scrollbar { width: 0; height: 0; }
+#content-box.stage-on { overflow: hidden; touch-action: pan-y; overscroll-behavior: none; }
+body.stage-on { overscroll-behavior-y: none; }
+
 /* ════════════════════════════════════════════════════════════════════════
    2. INPUT / ACCESSIBILITY — touch devices, reduced motion (not tied to a layout)
    ════════════════════════════════════════════════════════════════════════ */
@@ -757,6 +768,10 @@ body.dark #themeBtn .ic-moon { display: none; }
 @media (pointer: coarse) {
   /* ── COPY BUTTON: desktop only (hidden on every touch device, portrait and landscape) ── */
   #copyBtn { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #content-box .stage > .stage-item, #content-box .stage > .stage-item.is-current { transition-duration: .01s; transition-delay: 0s; }
+  #content-box .stage::before { transition: none; }
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -1014,6 +1029,14 @@ body.dark #themeBtn .ic-moon { display: none; }
     #content-box .verse-block > .mtabs .mtab-bar { top: 1px; right: 1px; }
     #content-box .verse-block > .mtabs .mtab:last-child { border-top-right-radius: 0; }
   }
+  /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
+  #content-box .stage { margin-top: -6px; height: calc(var(--area-h, 100vh) - 6px); }
+  #content-box .stage > .stage-page { padding-top: 6px; }
+  #content-box .stage::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; bottom: 8px;
+      border: 1px solid #c9a15a; border-radius: 12px; background: #fffaf0; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+  #content-box .stage.on-verse::before { opacity: 1; }
+  #content-box .stage > .verse-block::before { display: none; }          /* the cards no longer draw their own box */
+  body.dark #content-box .stage::before { background: #1d1710; border-color: #7a6030; }
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -1694,6 +1717,118 @@ function smoothScrollTo(top, ms) {
     })(t0);
 }
 
+// ── VERSE STAGE (fade navigation) ────────────────────────────────────────
+// ONE reusable module. Instead of scrolling a long column of cards, a layout can show ONE card at a time inside a fixed frame:
+// going to another verse fades the old text out and the new text in, while the frame (the golden box) stays where it is.
+// Everything that "goes to a verse" (swipe, the arrows, audio sync, bookmark jump, rotation) just calls Stage.show(element).
+// To use it on another layout: set that layout to true in LAYOUTS, then add its frame CSS under "STAGE" inside that layout's block.
+const Stage = (function () {
+    const LAYOUTS = { portrait: true, landscape: false, desktop: false };      // ← switch a layout on / off here
+    const QUERY = {                                                             // same definitions as the three CSS layout blocks
+        portrait:  "(max-width: 700px) and (orientation: portrait), (max-width: 700px) and (min-height: 521px)",
+        landscape: "(orientation: landscape) and (max-height: 520px)",
+        desktop:   "(min-width: 701px) and (min-height: 521px)"
+    };
+    const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
+    let wrap = null, items = [], index = -1, saved = [];
+
+    function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
+    // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
+    function simple() {
+        const vb = Array.from(contentBox.querySelectorAll(".verse-block"));
+        return vb.length > 0 && vb.every(b => b.parentNode === contentBox);
+    }
+    function visible(n) {      // does this element show anything? (scripts, styles, the hidden audio tag, empty wrappers stay where they are)
+        if (n.nodeType !== 1 || n.hidden || /^(SCRIPT|STYLE|LINK|META|TEMPLATE|AUDIO)$/.test(n.tagName) || n.classList.contains("end-spacer")) return false;
+        return !!(n.textContent.trim() || n.querySelector("img, svg, hr"));
+    }
+    function topVerse() {      // when the page was scrolling: the verse at the top (null = still at the heading)
+        if (contentBox.scrollTop < 2) return null;
+        const line = contentBox.getBoundingClientRect().top + TOP_PAD + 8; let hit = null;
+        contentBox.querySelectorAll(":scope > .verse-block").forEach(b => { if (b.getBoundingClientRect().top <= line) hit = b; });
+        return hit;
+    }
+    function attach() {
+        const start = topVerse();
+        saved = Array.from(contentBox.childNodes);
+        wrap = document.createElement("div"); wrap.className = "stage no-anim";
+        items = []; let run = [];
+        const flush = () => {      // consecutive non-verse pieces (heading, refrain...) share one stage page
+            if (!run.length) return;
+            const pg = document.createElement("div"); pg.className = "stage-item stage-page";
+            run.forEach(n => pg.appendChild(n)); wrap.appendChild(pg); items.push({ el: pg, verse: false }); run = [];
+        };
+        saved.forEach(n => {
+            if (n.nodeType === 1 && n.classList.contains("verse-block")) { flush(); n.classList.add("stage-item"); wrap.appendChild(n); items.push({ el: n, verse: true }); }
+            else if (visible(n)) run.push(n);
+        });
+        flush();
+        contentBox.appendChild(wrap);
+        contentBox.classList.add("stage-on"); document.body.classList.add("stage-on");
+        index = -1; items.forEach(it => { it.el.inert = true; });
+        show(start || (items[0] && items[0].el));
+        contentBox.scrollTop = 0;
+        requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));   // first card appears at once, no fade
+    }
+    function detach() {
+        const cur = items[index] && items[index].verse ? items[index].el : null;
+        contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
+        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; });
+        saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
+        wrap.remove(); wrap = null; items = []; index = -1;
+        contentBox.scrollTop = 0;
+        if (cur) contentBox.scrollTop += cur.getBoundingClientRect().top - contentBox.getBoundingClientRect().top - TOP_PAD;
+        if (window.keepVerseInView) window.keepVerseInView();      // the rotation helper keeps this verse in place while the page re-fits
+    }
+    function show(el) {      // fade to this card (a verse block, or anything inside a stage page). Returns false if it is not on the stage.
+        if (!wrap || !el) return false;
+        const i = items.findIndex(it => it.el === el || it.el.contains(el));
+        if (i < 0) return false;
+        if (i === index) return true;
+        index = i;
+        items.forEach((it, k) => { it.el.classList.toggle("is-current", k === i); it.el.inert = k !== i; });
+        wrap.classList.toggle("on-verse", items[i].verse);
+        contentBox.scrollTop = 0;
+        return true;
+    }
+    function release() {       // the page text is about to be replaced: forget the stage (its DOM goes with it)
+        wrap = null; items = []; index = -1; saved = [];
+        contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
+    }
+    function refresh() {
+        const want = wanted() && simple();
+        if (want && !wrap) attach(); else if (!want && wrap) detach();
+    }
+    function onModeChange() { refresh(); setTimeout(() => { if (window.fitVerses) fitVerses(); }, 0); }
+    mqs.forEach(o => { if (o.mq.addEventListener) o.mq.addEventListener("change", onModeChange); else o.mq.addListener(onModeChange); });
+    contentBox.addEventListener("scroll", () => { if (wrap && contentBox.scrollTop !== 0) contentBox.scrollTop = 0; }, { passive: true });   // focus must never shift the frame
+
+    // swipe up = next verse, swipe down = previous (a meaning text that can scroll keeps its own scrolling)
+    (function () {
+        let x0 = 0, y0 = 0, track = false, own = false;
+        const scrollable = t => { const s = t && t.closest && t.closest(".mn, .stage-page"); return !!(s && s.scrollHeight > s.clientHeight + 2); };
+        contentBox.addEventListener("touchstart", e => {
+            track = !!wrap && e.touches.length === 1; if (!track) return;
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; own = scrollable(e.target);
+        }, { passive: true });
+        contentBox.addEventListener("touchmove", e => {
+            if (!track || own || !wrap) return;
+            const t = e.touches[0];
+            if (Math.abs(t.clientY - y0) > 8 && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0) && e.cancelable) e.preventDefault();   // no page pull / bounce
+        }, { passive: false });
+        contentBox.addEventListener("touchcancel", () => { track = false; }, { passive: true });
+        contentBox.addEventListener("touchend", e => {
+            if (!track || !wrap) return; track = false; if (own) return;
+            const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+            if (Math.abs(dy) < 45 || Math.abs(dy) < Math.abs(dx) * 1.4) return;      // too short, or mostly sideways (that is next / previous prayer)
+            const sel = window.getSelection && window.getSelection(); if (sel && !sel.isCollapsed) return;
+            stepVerse(dy < 0 ? 1 : -1);
+        }, { passive: true });
+    })();
+
+    return { get active() { return !!wrap; }, get items() { return items; }, get index() { return index; }, show, refresh, release };
+})();
+
 // "1:05" or "65" -> seconds
 function parseSyncTime(str) {
     return str.trim().split(":").reduce((acc, part) => acc * 60 + Number(part), 0);
@@ -1908,6 +2043,7 @@ function initAudioSync() {
 
     // glide so this verse sits at the top of the reading area (900 = animation length in ms)
     function scrollToBlock(block) {
+        if (Stage.active) { Stage.show(block); return; }   // fixed-frame layouts: fade to the verse instead of scrolling
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
         smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - TOP_PAD, 900);   // verse goes to the top
@@ -2176,6 +2312,11 @@ contentBox.addEventListener("mousedown", e => {      // desktop: stop the double
 function scrollToBookmarkBlock(flash) {
     const el = bookmark && bookmarkables()[bookmark.index];
     if (!el) return false;
+    if (Stage.active) {
+        Stage.show(el);
+        if (flash) { el.classList.add("bm-flash"); setTimeout(() => el.classList.remove("bm-flash"), 1500); }
+        return true;
+    }
     const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
     const want = r.height > contentBox.clientHeight - 16 ? 8 : (contentBox.clientHeight - r.height) / 2;
     scrollAnim = null;
@@ -2232,6 +2373,7 @@ function loadTopic(flatIndex) {
     pageLoaded = false;
     try { localStorage.setItem(LAST_KEY, topic.path); } catch (e) {}   // BOOKMARK/REOPEN: remember last prayer
     stopAudioSync();   // (added) stop previous topic's audio
+    Stage.release();   // forget the fixed frame of the previous prayer
     if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);   // phone: hide list after picking
 
     flatTopics.forEach(t => t.el.classList.remove("active", "last-read"));
@@ -2261,6 +2403,8 @@ function loadTopic(flatIndex) {
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
+            Stage.refresh();   // layouts that use the fixed frame: put the verses on the stage
+            placeVerseNav();
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
             pageLoaded = true; markBookmark(topic);   // BOOKMARK: draw the dog-ear if it is in this prayer
@@ -2304,7 +2448,24 @@ if (window.ResizeObserver) new ResizeObserver(setAreaH).observe(contentBox); els
 // that starts above it (inside a long verse, Up first returns to its start). With audio on the page the audio jumps to the verse
 // (the sync scrolls + highlights it); without audio the verse is highlighted here.
 function topOf(rect, box) { return contentBox.scrollTop + (rect.top - box.top) - TOP_PAD; }
+// fixed-frame layouts (Stage): previous / next card; with audio the audio jumps and the sync fades to it
+function stepVerseStaged(dir) {
+    const to = Stage.index + dir;
+    if (to < 0 || to >= Stage.items.length) return;
+    const it = Stage.items[to], blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
+    blocks.forEach(b => b.classList.remove("verse-focus"));
+    if (it.verse) {
+        const i = blocks.indexOf(it.el);
+        if (window.audioSyncSeek && window.audioSyncSeek(i)) {
+            if (it.el.classList.contains("verse-active")) Stage.show(it.el);   // already the chanted verse: the sync will not move, so show it here
+            return;
+        }
+        it.el.classList.add("verse-focus");
+    }
+    Stage.show(it.el);
+}
 function stepVerse(dir) {
+    if (Stage.active) { stepVerseStaged(dir); return; }
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (!blocks.length) return;
     const box = contentBox.getBoundingClientRect(), line = box.top + TOP_PAD, tol = 8;
@@ -2335,7 +2496,7 @@ function stepVerse(dir) {
 // verse (e.g. English open): there it only snaps once the next verse is close.
 let touchingBox = false, snapTimer = null;
 function snapToNearest() {
-    if (touchingBox || scrollAnim) return;
+    if (Stage.active || touchingBox || scrollAnim) return;
     const blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     if (!blocks.length) return;
     const box = contentBox.getBoundingClientRect(), h = contentBox.clientHeight, cur = contentBox.scrollTop;
@@ -2710,6 +2871,7 @@ counterEl.textContent = counterText(-1);
     }
     contentBox.addEventListener("scroll", () => { if (Date.now() >= freezeUntil) anchor = topIndex(); }, { passive: true });
     function restore() {
+        if (Stage.active) { contentBox.scrollTop = 0; return; }   // fixed-frame layout: nothing scrolls, the stage already shows the right verse
         if (touchingBox) return;
         scrollAnim = null;
         if (contentBox.classList.contains("sync-playing")) {          // being chanted right now: that verse wins over the remembered one
