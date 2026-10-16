@@ -740,6 +740,10 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 #themeBtn { display: none; }
 body.dark #themeBtn .ic-sun { display: block; }
 body.dark #themeBtn .ic-moon { display: none; }
+/* only ONE icon at a time: moon while light (tap = go dark), sun while dark (tap = go light). !important because the layout blocks size every svg in the button */
+#themeBtn .ic-sun { display: none !important; }
+body.dark #themeBtn .ic-sun { display: block !important; }
+body.dark #themeBtn .ic-moon { display: none !important; }
 
 /* STAGE (fade navigation): generic parts. A layout that uses it (see Stage in the script) draws its own frame inside its block below. */
 #content-box .stage { position: relative; }          /* the frame the cards are positioned inside (without this they covered the player bar) */
@@ -998,7 +1002,7 @@ body.stage-on { overscroll-behavior-y: none; }
     /* ── DARK THEME, portrait only: the two boxes (verse + meaning) ── */
     body.dark #content-box .verse-block { color: #eadfc6; }
     body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed { background: #1d1710; border-color: #7a6030; }
-    body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+    body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #1d1710; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
     body.dark #content-box .bookmarked::after { background: linear-gradient(315deg, #1d1710 0%, #1d1710 50%, #ecd08a 50%, #b88a3a 100%); }
     /* ── PORTRAIT PHONE: two clean boxes only. No outer card: the verse box and the meaning box stand alone.
      The "Prayer · Verse" label hangs inside the top-left of the verse box, just like the language buttons hang inside the meaning box. ── */
@@ -1024,12 +1028,12 @@ body.stage-on { overscroll-behavior-y: none; }
     /* the verse highlight now tints the WHOLE box, so the meaning area has the same colour as the verse area */
     #content-box .verse-block::before { transition: background-color 1.4s ease-in-out; }
     #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { background: #fff4d9; }
-    body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { background: #2d2314; }
+    body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { background: #1d1710; }
     #content-box .flow-list > .verse-block::before { display: none; }
     #content-box .verse-block > .verse-grid, body.dark #content-box .verse-block > .verse-grid {
           background: transparent; border: none; box-shadow: none; margin: 1px 1px 0 1px; border-radius: 11px 11px 0 0; }
     #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #fff4d9; box-shadow: none; }
-    body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; box-shadow: none; }
+    body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #1d1710; box-shadow: none; }
     #content-box .verse-block > .verse-grid::after { left: 0; width: 100%; top: 100%; height: 16px; margin: -8px 0 0 0;
           background: var(--sep-h-img) no-repeat center / 130px 16px,
                       linear-gradient(to right, transparent 0, transparent 26%, #c9a15a 34%, #c9a15a calc(50% - 40px), transparent calc(50% - 40px), transparent calc(50% + 40px), #c9a15a calc(50% + 40px), #c9a15a 66%, transparent 74%, transparent 100%) no-repeat center / 100% 1px; }   /* shorter line: was 14%-86% wide, now about 26%-74% */
@@ -1066,7 +1070,7 @@ body.stage-on { overscroll-behavior-y: none; }
     #content-box .flow-list > .verse-block:last-child > .verse-grid { margin-bottom: 0; }
     #content-box .flow-list > .verse-block:last-child > .verse-grid::after { display: none; }
     #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #fff4d9; transition: background-color .6s ease; }
-    body.dark #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #2d2314; }
+    body.dark #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #1d1710; }
 
     /* ── ONE permanent stanza tag ("5/43"): lives on the stage, never fades with the cards; only its text is updated when the verse changes ── */
     #content-box .stage .verse-block > .verse-tag { display: none; }
@@ -1431,8 +1435,8 @@ body.stage-on { overscroll-behavior-y: none; }
   #content-box .bookmarked::after { top: auto; bottom: 7px; right: 15px; border-radius: 0 0 11px 0;
         background: linear-gradient(315deg, var(--box-bg) 0%, var(--box-bg) 50%, #ecd08a 50%, #b88a3a 100%); }
   /* ── DARK THEME (landscape-only parts: the golden box) ── */
-  body.dark #content-box .verse-block { --box-bg: #16120c; color: #eadfc6; }
-  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #2d2314; }
+  body.dark #content-box .verse-block { --box-bg: #1d1710; color: #eadfc6; }
+  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #1d1710; }
   body.dark #content-box .verse-block::before { border-color: #7a6030; }
   body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
   body.dark #content-box.sync-on.sync-playing .verse-block { filter: none; opacity: 0.5; }
