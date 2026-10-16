@@ -632,6 +632,13 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .mtab-panel { isolation: isolate; }
 #content-box .mtab-panel::before {            /* lotus behind the meaning text */
     content: ""; position: absolute; inset: 10px; z-index: -1; pointer-events: none;
+    background: var(--wm-lotus-img) no-repeat center / contain; opacity: var(--wm-lotus-opacity);
+}
+#content-box .verse-block > .verse-grid::before {
+    content: ""; position: absolute; inset: 10px; z-index: -1; pointer-events: none;
+    background: var(--wm-img) no-repeat center / contain; opacity: var(--wm-opacity);
+}
+
 /* START SCREEN (phones AND desktop): your image fills the whole screen with a small glowing round saffron "Start" button at the bottom right; tapping it goes full screen and the screen fades away.
    Pictures by weekday: subjects/spiritual/images/1.webp (Sunday) ... 7.webp (Saturday). daily-prayers.webp is the fallback if a day's file is missing. */
 #start-screen { display: none; --start-img: url("subjects/spiritual/images/daily-prayers.webp"); }
@@ -689,13 +696,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 @media (min-width: 701px) { #start-text p { font-size: 22px !important; } }
 @media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
-  /* slow fade (2.5 s) so it is still visible after the browser finishes switching to full screen */
-  #start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
-  #start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
-  @keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
-  @keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
-}
-@media (prefers-reduced-motion: reduce) { #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
 
 /* MEANINGS: language buttons (తె | EN | हि) hang INSIDE the meaning box from its top border, flush right, touching each other.
    Top edge straight, bottom corners gently rounded. Inactive = grey; active = saffron with a glow that stays inside the button. */
@@ -1323,38 +1323,7 @@ const categories = [
         name: "Sacred Chants & Prayers",
         slug: "chalisas-stotras",
         topics: [
-            ["hanuman-chalisa", "1. Hanuman Chalisa", "Hanuman Chalisa", "hanuman chalisa tulsidas", "html"],
-            ["ganesh-aarti-sukhakarta-dukhaharta-telugu", 	"2a. Ganesh Aarti(Telugu)", 					"Ganesh Aarti(Telugu)", "Ganesh Aarti(Telugu)", "html"],
-            ["ganesh-aarti-sukhakarta-dukhaharta-hindi", 	"2b. Ganesh Aarti(Hindi)", 						"Ganesh Aarti(Hindi)", "Ganesh Aarti(Hindi)", "html"],
-            ["ganesh-aarti-sukhakarta-dukhaharta-english", 	"2c. Ganesh Aarti(English)", 					"Ganesh Aarti(English)", "Ganesh Aarti(English)", "html"],
-            ["vishnu-sahasranama-telugu", 					"3a. Vishnu Sahasranama(Telugu)", 				"Vishnu Sahasranama(Telugu)", "vishnu sahasranama", "html"],
-			["vishnu-sahasranama-english", 					"3b. Vishnu Sahasranama(English)", 				"Vishnu Sahasranama(English)", "vishnu sahasranama", "html"],			 
-			["lalita-sahasranama-stotram-telugu", 			"4a. Lalita Sahasranama(Telugu)", 				"Lalita Sahasranama(Telugu)", "Lalita Sahasranama(Telugu)", "html"],
-			["lalita-sahasranama-stotram-english", 			"4b. Lalita Sahasranama(English)", 				"Lalita Sahasranama(English)", "Lalita Sahasranama(English)", "html"],
-			["kala-bhairava-ashtakam-telugu", 				"5a. Kala-Bhairava Ashtakam(Telugu)", 			"Kala-Bhairava Ashtakam(Telugu)", "Kala-Bhairava Ashtakam(Telugu)", "html"],
-			["kala-bhairava-ashtakam-english", 				"5b. Kala-Bhairava Ashtakam(English)",			"Kala-Bhairava Ashtakam(English)", "Kala-Bhairava Ashtakam(English)", "html"],
-			["aditya-hridayam-telugu", 						"6a. Aditya Hridayam(Telugu)", 					"Verses on Aditya Hridayam", "Aditya Hridayam", "html"],
-			["aditya-hridayam-english", 					"6b. Aditya Hridayam(English)", 				"Verses on Aditya Hridayam", "Aditya Hridayam", "html"],					
-			["govinda-namavali-telugu", 					"7a. Govinda Namalu(Telugu)", 					"Govinda Namalu", "Govinda Namalu", "html"],
-			["govinda-namavali-english", 					"7b. Govinda Namalu(English)", 					"Govinda Namalu", "Govinda Namalu", "html"],
-			["sripada-srivallabha-siddha-mangala-stotram",  "8a. Sripad Stotram", 							"Sripad Stotram", "Sripad Stotram", "html"],
-			["durga-kavacham", 								"9a. Durga Kavacham", 							"Durga Kavacham", "Durga Kavacham", "html"],
-			["maha-lakshmi-ashtottara-shata-namavali", 		"10a. Mahalakshmi Ashtottaram", 				"Mahalakshmi Ashtottaram", "Mahalakshmi Ashtottaram", "html"],
-			["ganesha-ashtottara-shata-namavali", 			"11a. Ganesha Ashtottaram", 					"Ganesha Ashtottaram", "Ganesha Ashtottaram", "html"],
-			["aparadha-kshamapana-stotram", 				"12a. Durga Saptashati", 						"Durga Saptashati", "Durga Saptashati", "html"],
-			["maha-lakshmi-ashtakam-telugu", 				"13a. Mahalakshmi Ashtakam(Telugu)", 			"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
-			["maha-lakshmi-ashtakam-english", 				"13b. Mahalakshmi Ashtakam(English)", 			"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
-			["bilvashtakam", 								"14a. Bilva Ashtakam", 							"Bilva Ashtakam", "Bilva Ashtakam", "html"],
-			["sri-suktam-with-audio", 						"14a. Sri Suktam", 								"Sri Suktam", "Sri Suktam", "html"],
-			["sri-rama-stotram-telugu", 					"16a. Sri Rama Strotram (Telugu)", 				"Sri Rama Strotram", "Sri Rama Strotram", "html"],
-			["sri-rama-stotram-english", 					"16b. Sri Rama Strotram(English)", 				"Sri Rama Strotram", "Sri Rama Strotram", "html"],
-			["siddha-kunjika-strotram-telugu", 				"17a. Siddha Kunjika Stotram (Telugu)", 		"Siddha Kunjika Stotram", "Siddha Kunjika Stotram", "html"],
-			["siddha-kunjika-strotram-english", 			"17b. Siddha Kunjika Stotram (English)", 		"Siddha Kunjika Stotram", "Siddha Kunjika Stotram", "html"],
-			["ganapati-atharva-shirsham", 					"xxx. Ganapati Atharva Shirsham", 				"Ganapati Atharva Shirsham", "ganapati-atharva-shirsham", "html"],
-            ["shiv-chalisa", 								"xxx. Shiv Chalisa", 							"Shiv Chalisa", "Shiv Chalisa", "html"],
-            ["durga-chalisa", 								"xxx. Durga Chalisa", 							"Durga Chalisa", "Durga Chalisa", "html"],
-			["ganesh-chalisa", 								"xxx. Ganesh Chalisa", 							"Ganesh Chalisa", "Ganesh Chalisa", "html"]
-					
+            ["hanuman-chalisa-multi-lingua", "1. Hanuman Chalisa", "Hanuman Chalisa", "hanuman chalisa tulsidas", "html"]
         ]
     }
 ];
