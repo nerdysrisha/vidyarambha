@@ -1033,7 +1033,9 @@ body.stage-on { overscroll-behavior-y: none; }
     #content-box .verse-block > .mtabs .mtab:last-child { border-top-right-radius: 0; }
   }
   /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
-  #content-box .stage { margin-top: -6px; height: calc(var(--area-h, 100vh) - 6px); }
+  /* the frame follows the reading area's real height by CSS (100% of the padded box + its 12px top / 6px bottom padding - 6px), no measured value to go stale */
+  #content-box .stage { margin-top: -6px; height: calc(100% + 12px); }
+  #content-box .stage > .verse-block { height: auto; bottom: 0; }
   #content-box .stage > .stage-page { padding-top: 6px; }
   #content-box .stage::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; bottom: 8px;
       border: 1px solid #c9a15a; border-radius: 12px; background: #fffaf0; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
@@ -1733,13 +1735,13 @@ const Stage = (function () {
         desktop:   "(min-width: 701px) and (min-height: 521px)"
     };
     const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
-    let wrap = null, items = [], index = -1, saved = [];
+    let wrap = null, items = [], index = -1, saved = [], lastEl = null;   // lastEl = the verse that was on stage when we left (rotation), shown again on return
 
     function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
     // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
     function simple() {
         const vb = Array.from(contentBox.querySelectorAll(".verse-block"));
-        return vb.length > 0 && vb.every(b => b.parentNode === contentBox);
+        return vb.length > 0 && vb.every(b => b.parentNode === contentBox || (wrap && b.parentNode === wrap));   // already staged counts too: a 2nd media-query event (rotation fires two) must not tear the stage down
     }
     function visible(n) {      // does this element show anything? (scripts, styles, the hidden audio tag, empty wrappers stay where they are)
         if (n.nodeType !== 1 || n.hidden || /^(SCRIPT|STYLE|LINK|META|TEMPLATE|AUDIO)$/.test(n.tagName) || n.classList.contains("end-spacer")) return false;
@@ -1753,7 +1755,7 @@ const Stage = (function () {
     }
     function attach() {
         const act = contentBox.classList.contains("sync-playing") ? contentBox.querySelector(":scope > .verse-block.verse-active") : null;
-        const start = act || topVerse();
+        const start = act || topVerse() || (lastEl && lastEl.isConnected ? lastEl : null);
         saved = Array.from(contentBox.childNodes);
         wrap = document.createElement("div"); wrap.className = "stage no-anim";
         items = []; let run = [];
@@ -1776,6 +1778,7 @@ const Stage = (function () {
     }
     function detach() {
         const cur = items[index] && items[index].verse ? items[index].el : null;
+        if (cur) lastEl = cur;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
         items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; });
         saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
@@ -1796,7 +1799,7 @@ const Stage = (function () {
         return true;
     }
     function release() {       // the page text is about to be replaced: forget the stage (its DOM goes with it)
-        wrap = null; items = []; index = -1; saved = [];
+        wrap = null; items = []; index = -1; saved = []; lastEl = null;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
     }
     function refresh() {
