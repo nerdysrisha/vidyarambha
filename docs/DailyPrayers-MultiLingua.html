@@ -1526,6 +1526,16 @@ body.stage-on { overscroll-behavior-y: none; }
   body.dark .topic-item.active { background: #2a2112; box-shadow: inset 0 0 0 2px #c9a15a, 0 1px 4px rgba(0,0,0,0.5); }
   body.dark .topic-item.active .t-icon { box-shadow: 0 0 0 2px #2a2112, 0 0 0 4px #c9a15a; }
 }
+
+/* ── FULL FLOW VIEW: up / down arrows = one slim dark capsule (gold ring + gold chevrons, a thin divider between), same family as the nav bar + landscape rail buttons ── */
+@media (max-width: 700px) and (orientation: portrait), (max-width: 700px) and (min-height: 521px) {
+  body:has(#content-box .stage.flow) #verseNav { right: 12px !important; bottom: 18px; gap: 0; width: 44px; border-radius: 22px; overflow: hidden;
+      background: rgba(26,22,15,0.92); border: 1.5px solid #d8b46a; box-shadow: 0 3px 12px rgba(0,0,0,0.4); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  body:has(#content-box .stage.flow) #verseNav button { width: 100%; height: 46px; border: none; border-radius: 0; background: transparent; color: #d8b46a; opacity: 1; box-shadow: none; transition: background-color .15s ease; }
+  body:has(#content-box .stage.flow) #verseNav button + button { border-top: 1px solid rgba(216,180,106,0.4); }
+  body:has(#content-box .stage.flow) #verseNav button:active { background: rgba(216,180,106,0.28); }
+  body:has(#content-box .stage.flow) #verseNav svg { width: 22px; height: 22px; stroke-width: 2.8; }
+}
 </style>
 </head>
 <body>
@@ -1826,7 +1836,7 @@ const Stage = (function () {
     };
     const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
     let wrap = null, items = [], index = -1, saved = [], lastEl = null;
-    let flowPref = false, flowList = null, flowExitBtn = null, tagEl = null;   // tagEl = the one permanent stanza tag   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
+    let flowPref = true, flowList = null, flowExitBtn = null, tagEl = null;   // tagEl = the one permanent stanza tag   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
 
     function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
     // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
