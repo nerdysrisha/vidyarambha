@@ -1034,10 +1034,19 @@ body.stage-on { overscroll-behavior-y: none; }
   }
   /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
   /* the frame follows the reading area's real height by CSS (100% of the padded box + its 12px top / 6px bottom padding - 6px), no measured value to go stale */
-  #content-box .stage { margin-top: -6px; height: calc(100% + 12px); }
+  /* FIX (frame cut off at the bottom / pushed down): the stage used to sit in the normal page flow, so any leftover element in front of it
+     (an empty divider, spacer, hidden player wrapper...) pushed the whole golden frame down and the reading area clipped its bottom.
+     Now, while the stage is on: nothing else is shown in the reading area, and the stage is pinned to ALL FOUR edges of it
+     (right under the player, right above the nav bar). No percentage maths, no magic numbers, nothing can shift it. */
+  #content-box.stage-on { position: relative; padding: 0; overflow: hidden; }
+  #content-box.stage-on > :not(.stage) { display: none !important; }
+  #content-box.stage-on > .stage { position: absolute; top: 0; right: 0; bottom: 0; left: 0; margin: 0; height: auto; }
   #content-box .stage > .verse-block { height: auto; bottom: 0; }
+  #content-box.stage-on .stage > .verse-block.stage-item { padding-bottom: 4px; }
+  /* FIX (pale vertical rectangle behind the meaning text): the lotus watermark image is not transparent, so it showed as a hard-edged block. Off in portrait. */
+  #content-box .mtab-panel::before { display: none; }
   #content-box .stage > .stage-page { padding-top: 6px; }
-  #content-box .stage::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; bottom: 8px;
+  #content-box .stage::before { content: ""; position: absolute; left: 8px; right: 8px; top: 6px; bottom: 2px;
       border: 1px solid #c9a15a; border-radius: 12px; background: #fffaf0; opacity: 0; transition: opacity .3s ease; pointer-events: none; }
   #content-box .stage.on-verse::before { opacity: 1; }
   #content-box .stage > .verse-block::before { display: none; }          /* the cards no longer draw their own box */
