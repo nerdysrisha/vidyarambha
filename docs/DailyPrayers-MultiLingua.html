@@ -1118,6 +1118,39 @@ body.dark #themeBtn .ic-moon { display: none; }
   #content-box .bookmarked::after { top: auto; bottom: 7px; right: 9px; border-radius: 0 0 11px 0;
       background: linear-gradient(315deg, #fff 0%, #fff 50%, #ecd08a 50%, #b88a3a 100%); }
 }
+
+
+
+/* ── PORTRAIT: ONE big golden box. Verse on top, ornamental divider, meaning below; language tabs hang from the divider, flush right ── */
+@media (max-width: 700px) and (orientation: portrait) {
+  #content-box .verse-block { isolation: isolate; }
+  /* the one big box (same look as landscape) */
+  #content-box .verse-block::before { content: ""; position: absolute; z-index: -1; pointer-events: none;
+      left: 8px; right: 8px; top: 6px; bottom: 8px;
+      border: 1px solid #c9a15a; border-radius: 12px; background: #fffaf0; }
+  body.dark #content-box .verse-block::before { background: #1d1710; border-color: #7a6030; }
+
+  /* verse half: see-through, sits inside the box; the "being read" glow fills only this half, down to the divider */
+  #content-box .verse-block > .verse-grid, body.dark #content-box .verse-block > .verse-grid {
+      background: transparent; border: none; box-shadow: none; margin: 1px 1px 0 1px; border-radius: 11px 11px 0 0; }
+  #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #fff4d9; box-shadow: none; }
+  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; box-shadow: none; }
+
+  /* divider: full-width fading gold line with the lotus in the middle, sitting exactly on the verse/meaning boundary */
+  #content-box .verse-block > .verse-grid::after { left: 0; width: 100%; top: 100%; height: 16px; margin: -8px 0 0 0;
+      background: var(--sep-h-img) no-repeat center / 130px 16px,
+                  linear-gradient(to right, transparent 0, #c9a15a 14%, #c9a15a calc(50% - 40px), transparent calc(50% - 40px), transparent calc(50% + 40px), #c9a15a calc(50% + 40px), #c9a15a 86%, transparent 100%) no-repeat center / 100% 1px; }
+
+  /* meaning half: see-through; tabs hang from the divider line, flush right */
+  #content-box .verse-block > .mtabs { margin: 0; }
+  #content-box .verse-block > .mtabs .mtab-panel, #content-box .verse-block > .mtabs .mtab-closed,
+  body.dark #content-box .verse-block > .mtabs .mtab-panel, body.dark #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; }
+  #content-box .verse-block > .mtabs .mtab-bar { top: 1px; right: 1px; }
+  #content-box .verse-block > .mtabs .mtab:last-child { border-top-right-radius: 0; }
+}
+
+
+
 </style>
 </head>
 <body>
