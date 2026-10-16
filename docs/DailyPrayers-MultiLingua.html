@@ -45,9 +45,9 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #sidebar {
     width: 300px;
     flex-shrink: 0;
-    /* LIGHT SAFFRON BACKDROP: drop your image at subjects/spiritual/icons/saffron-bg.webp (gradient is the fallback) */
+    /* LIGHT SAFFRON BACKDROP: drop your image at subjects/dailyprayers/icons/saffron-bg.webp (gradient is the fallback) */
     background:
-        url("subjects/spiritual/icons/saffron-bg.webp") center / cover no-repeat,
+        url("subjects/dailyprayers/icons/saffron-bg.webp") center / cover no-repeat,
         linear-gradient(165deg, #ffb84d 0%, #ffd08a 45%, #fff1d9 100%);
     box-sizing: border-box;              /* width:100% on phones must INCLUDE the border, or the right edge gets cut off */
     border: 1px solid #d8b46a88;
@@ -319,6 +319,60 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #content-box p { margin: 0 0 14px 0; }
 
+/* ── PREFACE: a plain reading page (no verse cards, no meaning tabs): one big card that follows the theme exactly like the verse / meaning boxes do.
+   Light (default) = cream card, brown text.  Dark = dark card, gold + cream text; it flips with body.dark in the SAME media query as the prayer boxes
+   (phones), so on desktop it stays light like the prayer cards. Colours are the --pf-* variables, so a tweak is one line.
+   Markup lives in subjects/dailyprayers/preface-multi-lingua.html:  <main class="preface-language" data-lang="en"> … ── */
+#content-box .preface-language {
+    --pf-bg: #fffaf0; --pf-bd: #c9a15a; --pf-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    --pf-text: #3a2a14; --pf-h1: #8a5a12; --pf-tag: #9a6a1c; --pf-inv: #8a6a30; --pf-h2: #7a4a12; --pf-rule: #c9a15a;
+    --pf-strong: #7a4a12; --pf-em: #9a5a1c; --pf-cap: #b8862f;
+    --pf-li-bg: #fbf3e0; --pf-li-bd: #e3cf9f; --pf-li-name: #7a4a12; --pf-li-text: #4a3a22;
+    --pf-inv-bg: #fff4d9; --pf-inv-shadow: 0 0 0 4px rgba(201,161,90,0.14);
+    --pf-next: #7a4a12; --pf-next-hover: #4a2400; --pf-wm-filter: none; --pf-wm-op: var(--wm-lotus-opacity);
+    position: relative; isolation: isolate; max-width: 680px; margin: 0 auto 14px auto; padding: 22px 6px 44px 6px; box-sizing: border-box;
+    background: var(--pf-bg); border: 1px solid var(--pf-bd); border-radius: 12px; box-shadow: var(--pf-shadow); color: var(--pf-text); }
+@media (max-width: 700px) and (orientation: portrait), (orientation: landscape) and (max-height: 520px) {   /* same scope as the prayer dark theme */
+  body.dark #content-box .preface-language {
+    --pf-bg: #1d1710; --pf-bd: #7a6030; --pf-shadow: none;
+    --pf-text: #eadfc6; --pf-h1: #e8c585; --pf-tag: #d9a066; --pf-inv: #c9b07a; --pf-h2: #e0c58a; --pf-rule: #c9a15a99;
+    --pf-strong: #f0d18a; --pf-em: #d9a066; --pf-cap: #e9c46a;
+    --pf-li-bg: rgba(201,161,90,0.08); --pf-li-bd: rgba(201,161,90,0.28); --pf-li-name: #e9c46a; --pf-li-text: #e6dac0;
+    --pf-inv-bg: linear-gradient(160deg, #261c10, #1a140c); --pf-inv-shadow: 0 0 0 4px rgba(201,161,90,0.08), 0 6px 22px rgba(0,0,0,0.35);
+    --pf-next: #c9a15a; --pf-next-hover: #f0d18a; --pf-wm-filter: brightness(0) invert(1); --pf-wm-op: 0.09; }
+}
+#content-box .preface-language[hidden] { display: none !important; }
+#content-box .preface-language::before {            /* faint lotus behind the text (no image file = nothing shows) */
+    content: ""; position: absolute; left: 0; right: 0; top: 110px; height: 440px; z-index: -1; pointer-events: none;
+    background: var(--wm-lotus-img) center top / auto 100% no-repeat; opacity: var(--pf-wm-op); filter: var(--pf-wm-filter); }
+#content-box .preface-language h1 { color: var(--pf-h1); font-size: 2.3em; letter-spacing: 0.04em; margin-top: 0; }
+#content-box .preface-language .topic-tagline { color: var(--pf-tag); font-size: 1.05em; }
+#content-box .preface-language .topic-invocation { color: var(--pf-inv); font-size: 0.8em; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 0; padding-bottom: 0; margin-bottom: 4px; }
+#content-box .preface-language .topic-invocation::after {   /* the golden lotus ornament already used between verse and meaning */
+    content: ""; display: block; height: 50px; max-width: 320px; margin: 6px auto 0 auto; background: var(--sep-h-img) center / contain no-repeat; }
+#content-box .pf { padding: 0 14px; }
+#content-box .pf h2 { display: flex; align-items: center; gap: 12px; padding: 0; margin: 30px 0 14px 0; font: 700 1.02em Georgia, "Times New Roman", serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pf-h2); }
+#content-box .pf h2::before { content: ""; flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--pf-rule)); }
+#content-box .pf h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(to left, transparent, var(--pf-rule)); }
+#content-box .pf p { font-size: 1.04em; line-height: 1.9; color: var(--pf-text); text-align: left; margin: 0 0 14px 0; }
+#content-box .pf strong { color: var(--pf-strong); }
+#content-box .pf em { color: var(--pf-em); }
+#content-box .preface-language[lang="en"] .pf section[data-section="place"] p::first-letter {   /* drop cap on the opening line */
+    float: left; font: 700 3.2em/0.82 Georgia, "Times New Roman", serif; color: var(--pf-cap); padding: 6px 9px 0 0; }
+#content-box .pf ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }      /* Who's Who: one card per person */
+#content-box .pf li { margin: 0; padding: 12px 16px; background: var(--pf-li-bg); border: 1px solid var(--pf-li-bd); border-left: 3px solid #c9a15a; border-radius: 10px; }
+#content-box .pf li strong { display: block; margin-bottom: 2px; font: 700 1.14em Georgia, "Times New Roman", serif; letter-spacing: 0.02em; color: var(--pf-li-name); }
+#content-box .pf li span { display: block; line-height: 1.75; color: var(--pf-li-text); }
+#content-box .pf .invite { margin: 36px 0 6px 0; padding: 2px 20px 16px 20px; background: var(--pf-inv-bg); border: 1px solid #c9a15a; border-radius: 14px; box-shadow: var(--pf-inv-shadow); }
+#content-box .pf .invite h2 { margin-top: 20px; }
+#content-box .pf .invite p:first-of-type { font-size: 1.1em; }
+#content-box .pf .invite p:last-child { margin-bottom: 0; }
+#content-box .pf .next { display: table; margin: 28px auto 0 auto; padding: 10px 22px; text-align: center; font-style: italic; color: var(--pf-next); border: 1px solid #c9a15a; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#content-box .pf .next::after { content: " \2192"; }
+#content-box .pf .next:hover { color: var(--pf-next-hover); }
+@media (max-width: 700px) { #content-box .preface-language { margin: 0 8px 14px 8px; } #content-box .preface-language h1 { font-size: 1.8em; } #content-box .pf { padding: 0 10px; } }
+@media (orientation: landscape) and (max-height: 520px) { #content-box .preface-language h1 { font-size: 1.6em; } }
+
 /* ── GENERIC CONTENT: headings, lists, links, images and rules inside a prayer page ── */
 #content-box h3 {
     color: #d8b46a;
@@ -471,11 +525,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .verse-block > .verse-grid + .verse-grid { margin-top: 10px; }
 
 /* WATERMARK: a faint picture behind the verse, inside the verse box (all screens).
-   Verse box  : subjects/spiritual/images/watermark-verse.png
-   Meaning box: subjects/spiritual/images/watermark-lotus.webp     (transparent background works best)
+   Verse box  : subjects/dailyprayers/images/watermark-verse.png
+   Meaning box: subjects/dailyprayers/images/watermark-lotus.webp     (transparent background works best)
    No file = nothing shows. Strength: --wm-opacity (verse) and --wm-lotus-opacity (meaning): 0.03 barely there ... 0.15 clear. */
-#content-box { --wm-img: url("subjects/spiritual/images/watermark-verse.png"); --wm-opacity: 0.06;
-    --wm-lotus-img: url("subjects/spiritual/images/watermark-lotus.webp"); --wm-lotus-opacity: 0.06; --tab-h: 24px;
+#content-box { --wm-img: url("subjects/dailyprayers/images/watermark-verse.png"); --wm-opacity: 0.06;
+    --wm-lotus-img: url("subjects/dailyprayers/images/watermark-lotus.webp"); --wm-lotus-opacity: 0.06; --tab-h: 24px;
     /* the thin golden separator between verse and meaning (landscape), drawn in code: transparent inside, fades out at both ends */
     --sep-h-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27400%27%20height%3D%2750%27%20viewBox%3D%270%200%20400%2050%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%27400%27%20height%3D%2750%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M0%2025H188M212%2025H400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2713%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2737%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27240%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27110%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27290%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27332%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2728%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27372%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");   /* same ornament, lying down: used in portrait between verse and meaning */
     --sep-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2750%27%20height%3D%27400%27%20viewBox%3D%270%200%2050%20400%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%2750%27%20height%3D%27400%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M25%200V188M25%20212V400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%2713%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%2737%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27160%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27240%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27110%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27290%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2768%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27332%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2728%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27372%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
@@ -491,7 +545,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* START SCREEN (phones AND desktop): the picture fills the screen, a glowing round "Start" button sits at the bottom right;
    tapping it goes full screen (phones) and the screen fades away.
-   Pictures by weekday: subjects/spiritual/images/1.webp (Sunday) ... 7.webp (Saturday); daily-prayers.webp is the fallback.
+   Pictures by weekday: subjects/dailyprayers/images/1.webp (Sunday) ... 7.webp (Saturday); daily-prayers.webp is the fallback.
 
    ── TIMING KNOBS (what you change to make it faster / slower) ──
    picture fade-in ............. startReveal  2s   (#start-screen.ready::before)
@@ -500,7 +554,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
    quiet pause before the button appears: BTN_PAUSE (JS, "START SCREEN" near the end of the script) = 800 ms
    fade-away after tapping Start: startFade 2.5s   (#start-screen.leaving)
    If you shorten the animations, also keep the JS safety timers (7000 ms and 3200 ms) longer than the animations. */
-#start-screen { display: none; --start-img: url("subjects/spiritual/images/daily-prayers.webp"); }
+#start-screen { display: none; --start-img: url("subjects/dailyprayers/images/daily-prayers.webp"); }
 @media all {
   #start-screen {
       display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
@@ -1168,21 +1222,44 @@ body.dark #themeBtn .ic-moon { display: none; }
 
 // ── CONFIG ──────────────────────────────────────────────────────────────
 // Folder (relative to this file) that holds the prayer pages, the icons and the start-screen pictures.
-const BASE_URL = "subjects/spiritual/";
+const BASE_URL = "subjects/dailyprayers/";
 
 // ── PRAYER LIST ──────────────────────────────────────────────────────────
-// One line per prayer = [file name without .html, label in the list, tooltip text, search keywords].
-//   - The file name must match the page in BASE_URL exactly, e.g. "hanuman-chalisa-multi-lingua" -> subjects/spiritual/hanuman-chalisa-multi-lingua.html
+// One line per prayer = [file name without .html, label in the list, tooltip text, search keywords, "html"].
+//   - The file name must match the page in BASE_URL exactly, e.g. "hanuman-chalisa-multi-lingua" -> subjects/dailyprayers/hanuman-chalisa-multi-lingua.html
 //   - A leading number in the label ("1. ") is only for ordering by eye; it is not shown.
 //   - The order here is also the order of the Prev / Next buttons.
 //   - A page with no file yet just shows a 🚧 icon when tapped.
+//   - PREFACE: a file name starting with "preface" is treated as front matter: it is listed and opens like the others,
+//     but it is NOT counted in "21 Prayers" or in the "n / 21" counter (the counter shows "Preface" there).
 // Add another group by copying the whole { name, slug, topics } block.
 const categories = [
     {
         name: "Sacred Chants & Prayers",
         slug: "chalisas-stotras",
         topics: [
-            ["hanuman-chalisa-multi-lingua", "1. Hanuman Chalisa", "Hanuman Chalisa", "hanuman chalisa tulsidas"]
+            ["preface-multi-lingua", 						"Preface", 										"Before you begin", "preface introduction", "html"],
+            ["hanuman-chalisa-multi-lingua", 				"1. Hanuman Chalisa", 							"Hanuman Chalisa", "hanuman chalisa tulsidas", "html"],
+            ["ganesh-aarti-sukhakarta-dukhaharta-multi-lingua", "2. Ganesh Aarti", 							"Ganesh Aarti", "Ganesh Aarti", "html"],
+            ["vishnu-sahasranama-multi-lingua", 			"3. Vishnu Sahasranama", 						"Vishnu Sahasranama", "vishnu sahasranama", "html"],
+            ["lalita-sahasranama-stotram-multi-lingua", 	"4. Lalita Sahasranama", 						"Lalita Sahasranama", "Lalita Sahasranama", "html"],
+            ["kala-bhairava-ashtakam-multi-lingua", 		"5. Kala-Bhairava Ashtakam", 					"Kala-Bhairava Ashtakam", "Kala-Bhairava Ashtakam", "html"],
+            ["aditya-hridayam-multi-lingua", 				"6. Aditya Hridayam", 							"Verses on Aditya Hridayam", "Aditya Hridayam", "html"],
+            ["govinda-namavali-multi-lingua", 				"7. Govinda Namalu", 							"Govinda Namalu", "Govinda Namalu", "html"],
+            ["sripada-srivallabha-siddha-mangala-stotram",  "8. Sripad Stotram", 							"Sripad Stotram", "Sripad Stotram", "html"],
+            ["durga-kavacham", 								"9. Durga Kavacham", 							"Durga Kavacham", "Durga Kavacham", "html"],
+            ["maha-lakshmi-ashtottara-shata-namavali", 		"10. Mahalakshmi Ashtottaram", 					"Mahalakshmi Ashtottaram", "Mahalakshmi Ashtottaram", "html"],
+            ["ganesha-ashtottara-shata-namavali", 			"11. Ganesha Ashtottaram", 						"Ganesha Ashtottaram", "Ganesha Ashtottaram", "html"],
+            ["aparadha-kshamapana-stotram", 				"12. Durga Saptashati", 						"Durga Saptashati", "Durga Saptashati", "html"],
+            ["maha-lakshmi-ashtakam-multi-lingua", 			"13. Mahalakshmi Ashtakam", 					"Mahalakshmi  Ashtakam", "Mahalakshmi  Ashtakam", "html"],
+            ["bilvashtakam", 								"14. Bilva Ashtakam", 							"Bilva Ashtakam", "Bilva Ashtakam", "html"],
+            ["sri-suktam-with-audio", 						"15. Sri Suktam", 								"Sri Suktam", "Sri Suktam", "html"],
+            ["sri-rama-stotram-multi-lingua", 				"16. Sri Rama Strotram", 						"Sri Rama Strotram", "Sri Rama Strotram", "html"],
+            ["siddha-kunjika-strotram-multi-lingua", 		"17. Siddha Kunjika Stotram", 					"Siddha Kunjika Stotram", "Siddha Kunjika Stotram", "html"],
+            ["ganapati-atharva-shirsham", 					"18. Ganapati Atharva Shirsham", 				"Ganapati Atharva Shirsham", "ganapati-atharva-shirsham", "html"],
+            ["shiv-chalisa", 								"19. Shiv Chalisa", 							"Shiv Chalisa", "Shiv Chalisa", "html"],
+            ["durga-chalisa", 								"20. Durga Chalisa", 							"Durga Chalisa", "Durga Chalisa", "html"],
+            ["ganesh-chalisa", 								"21. Ganesh Chalisa", 							"Ganesh Chalisa", "Ganesh Chalisa", "html"]
         ]
     }
 ];
@@ -1256,6 +1333,7 @@ categories.forEach((cat) => {
 
     cat.topics.forEach(([slug, label, desc, keywords]) => {
         const name = cleanLabel(label);
+        const isFront = /^preface/i.test(slug);   // front matter (the Preface): listed + openable, but not counted
         const flatIndex = flatTopics.length;
         const item = document.createElement("div");
         item.className = "topic-item";
@@ -1280,18 +1358,23 @@ categories.forEach((cat) => {
         });
         item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
 
-        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item });
+        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item, front: isFront });
         list.appendChild(item);
     });
-    header.querySelector(".count").textContent = cat.topics.length || "";
+    header.querySelector(".count").textContent = cat.topics.filter(tp => !/^preface/i.test(tp[0])).length || "";
     block.appendChild(list);
     sidebarList.appendChild(block);
 });
 if (categories.length === 1) sidebarList.classList.add("single");   // one group only: its header bar is hidden
-document.getElementById("sidebar-count").textContent = flatTopics.length + " Prayers";   // small line under the banner title
+const PRAYER_COUNT = flatTopics.filter(f => !f.front).length;   // the preface is not counted
+document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " Prayers";   // small line under the banner title
 
-// text for the counter in the nav bar, e.g. "2 / 5" (i = -1: nothing opened yet)
-function counterText(i) { return (i < 0 ? "–" : i + 1) + " / " + flatTopics.length; }
+// text for the counter in the nav bar: the preface shows "Preface"; prayers show "n / total" (the preface is not counted). i = -1: nothing opened yet
+function counterText(i) {
+    if (i < 0 || !flatTopics[i]) return "– / " + PRAYER_COUNT;
+    if (flatTopics[i].front) return "Preface";
+    return flatTopics.slice(0, i + 1).filter(f => !f.front).length + " / " + PRAYER_COUNT;
+}
 
 // ── AUDIO SYNC ─────────────────────────────────────────────────────────
 // A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
@@ -1744,6 +1827,7 @@ function showToast(msg) {
 // bookmark button in the nav bar: filled when a bookmark exists
 function paintBmBtn() { bmBtn.classList.toggle("has", !!bookmark); }
 function bookmarkables() {           // blocks that can carry the bookmark: verses (or plain paragraphs if a page has none)
+    if (contentBox.querySelector(".preface-language")) return [];   // the preface is not bookmarkable
     const v = contentBox.querySelectorAll(".verse-block, .verse-refrain");
     return Array.from(v.length ? v : contentBox.querySelectorAll("p, li, blockquote, h2, h3"));
 }
@@ -1831,6 +1915,26 @@ bmBtn.addEventListener("click", () => {
 paintBmBtn();
 
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
+// ── PREFACE ──
+// The preface file holds one <main class="preface-language" data-lang="xx"> per language. Show the chosen language; a language with no
+// text yet falls back to English. To add a language later: copy the English <main>, set data-lang / lang, translate. Nothing here changes.
+function applyPreface() {
+    const pages = Array.from(contentBox.querySelectorAll(".preface-language"));
+    if (!pages.length) return;
+    const has = c => pages.find(p => p.dataset.lang === c && p.textContent.trim());
+    const pick = has(curLang) || has("en") || pages[0];
+    pages.forEach(p => { p.hidden = p !== pick; });
+}
+function initPreface() {
+    if (!contentBox.querySelector(".preface-language")) return;
+    applyPreface();
+    contentBox.querySelectorAll(".preface-language .next").forEach(n => {   // "Tap Next to begin with the first prayer" is tappable too
+        n.setAttribute("role", "button"); n.tabIndex = 0;
+        n.onclick = () => loadTopic(currentFlatIndex + 1);
+        n.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); n.click(); } };
+    });
+}
+
 function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     currentFlatIndex = flatIndex;
@@ -1859,6 +1963,7 @@ function loadTopic(flatIndex) {
             if (currentFlatIndex !== flatIndex) return;   // another topic was picked meanwhile: drop this stale response
             contentBox.innerHTML = raw;
             contentBox.scrollTop = 0;
+            initPreface();   // preface page (no verses): show the chosen language, wire "Tap Next"
             buildVerses();   // build tag + shloka + meaning tabs from the language blocks (before audio sync / fitting look at the blocks)
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
@@ -2135,6 +2240,7 @@ function setLang(code) {
     try { localStorage.setItem(LANG_KEY, code); } catch (e) {}
     paintLang();
     contentBox.querySelectorAll(".verse-block").forEach(b => { if (b._apply) b._apply(code); });
+    applyPreface();   // preface page: swap to the chosen language's <main>
     fitVerses(); setTimeout(fitVerses, 300);   // the shloka text changed: re-fit its size
 }
 langMain.addEventListener("click", e => {
