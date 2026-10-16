@@ -312,7 +312,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
    (phones), so on desktop it stays light like the prayer cards. Colours are the --pf-* variables, so a tweak is one line.
    Markup lives in subjects/dailyprayers/preface-multi-lingua.html:  <main class="preface-language" data-lang="en"> … ── */
 #content-box .preface-language {
-    --pf-bg: #fff4d9; --pf-bd: #c9a15a; --pf-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    --pf-bg: #fffaf0; --pf-bd: #c9a15a; --pf-shadow: 0 2px 10px rgba(0,0,0,0.18);
     --pf-text: #3a2a14; --pf-h1: #8a5a12; --pf-tag: #9a6a1c; --pf-inv: #8a6a30; --pf-h2: #7a4a12; --pf-rule: #c9a15a;
     --pf-strong: #7a4a12; --pf-em: #9a5a1c; --pf-cap: #b8862f;
     --pf-li-bg: #fbf3e0; --pf-li-bd: #e3cf9f; --pf-li-name: #7a4a12; --pf-li-text: #4a3a22;
@@ -519,7 +519,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #start-screen {
     display: flex; position: fixed; inset: 0; z-index: 10000; align-items: flex-end; justify-content: flex-end;
     padding: 0 24px calc(32px + env(safe-area-inset-bottom, 0px)) 0;   /* button sits at the bottom right */
-    background: radial-gradient(circle at 50% 40%, #fff4d9 0%, #fdf0d8 100%);
+    background: radial-gradient(circle at 50% 40%, #fffaf0 0%, #fdf0d8 100%);
 }
 /* the picture is its own layer: fully transparent at first, then fades in (startReveal) once it has loaded */
 #start-screen::before {
@@ -1021,6 +1021,11 @@ body.stage-on { overscroll-behavior-y: none; }
           left: 8px; right: 8px; top: 6px; bottom: 8px;
           border: 1px solid #c9a15a; border-radius: 12px; background: #fff4d9; }
     body.dark #content-box .verse-block::before { background: #1d1710; border-color: #7a6030; }
+    /* the verse highlight now tints the WHOLE box, so the meaning area has the same colour as the verse area */
+    #content-box .verse-block::before { transition: background-color 1.4s ease-in-out; }
+    #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { background: #fff4d9; }
+    body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { background: #2d2314; }
+    #content-box .flow-list > .verse-block::before { display: none; }
     #content-box .verse-block > .verse-grid, body.dark #content-box .verse-block > .verse-grid {
           background: transparent; border: none; box-shadow: none; margin: 1px 1px 0 1px; border-radius: 11px 11px 0 0; }
     #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #fff4d9; box-shadow: none; }
@@ -1062,6 +1067,19 @@ body.stage-on { overscroll-behavior-y: none; }
     #content-box .flow-list > .verse-block:last-child > .verse-grid::after { display: none; }
     #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #fff4d9; transition: background-color .6s ease; }
     body.dark #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #2d2314; }
+
+    /* ── ONE permanent stanza tag ("5/43"): lives on the stage, never fades with the cards; only its text is updated when the verse changes ── */
+    #content-box .stage .verse-block > .verse-tag { display: none; }
+    #content-box .stage > .stage-tag { position: absolute; top: 7px; left: 9px; z-index: 5; display: flex; align-items: center; box-sizing: border-box; height: var(--tab-h); margin: 0; padding: 0 12px 0 11px;
+          background: #fbe6bd; color: #7a4a12; border: none; border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; border-radius: 11px 0 10px 0;
+          font: 600 12.5px/1.2 var(--mono, 'IBM Plex Mono', monospace); letter-spacing: 0.02em; pointer-events: none; }
+    body.dark #content-box .stage > .stage-tag { color: #f0d18a; background: #3a2c14; border-right-color: #c9a15a; border-bottom-color: #c9a15a; }
+    #content-box .stage.flow > .stage-tag { display: none; }
+    #content-box.sync-playing:has(.stage-item.verse-active.is-current) > .stage > .stage-tag::after {
+          content: ""; display: inline-block; width: 18px; height: 12px; margin-left: 9px; vertical-align: -1px;
+          background: linear-gradient(#a1521f, #a1521f) 0 100% / 3px 40% no-repeat, linear-gradient(#a1521f, #a1521f) 5px 100% / 3px 100% no-repeat,
+                      linear-gradient(#a1521f, #a1521f) 10px 100% / 3px 60% no-repeat, linear-gradient(#a1521f, #a1521f) 15px 100% / 3px 80% no-repeat;
+          animation: verseWave 0.9s ease-in-out infinite; }
     #content-box .flow-list > .stage-page { position: static; opacity: 1; visibility: visible; pointer-events: auto; padding: 4px 8px 20px; }
   }
   /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
@@ -1777,7 +1795,7 @@ const Stage = (function () {
     };
     const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
     let wrap = null, items = [], index = -1, saved = [], lastEl = null;
-    let flowPref = false, flowList = null, flowExitBtn = null;   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
+    let flowPref = false, flowList = null, flowExitBtn = null, tagEl = null;   // tagEl = the one permanent stanza tag   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
 
     function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
     // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
@@ -1850,6 +1868,7 @@ const Stage = (function () {
         flush();
         items.forEach(it => { if (!it.verse) return; const g = it.el.querySelector(":scope > .verse-grid"); if (g && !g.querySelector(":scope > .flow-pill")) g.appendChild(makePill("flow-pill", ICON_FLOW, "Show only the verses, flowing")); });
         flowExitBtn = makePill("flow-exit", ICON_SPLIT, "Back to verse + meaning"); wrap.appendChild(flowExitBtn);
+        tagEl = document.createElement("span"); tagEl.className = "stage-tag"; tagEl.style.display = "none"; wrap.appendChild(tagEl);
         contentBox.appendChild(wrap);
         contentBox.classList.add("stage-on"); document.body.classList.add("stage-on");
         index = -1; items.forEach(it => { it.el.inert = true; });
@@ -1863,7 +1882,7 @@ const Stage = (function () {
         if (cur) lastEl = cur;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
         items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; const pl = it.el.querySelector && it.el.querySelector(":scope > .verse-grid > .flow-pill"); if (pl) pl.remove(); });
-        flowList = null; flowExitBtn = null;
+        flowList = null; flowExitBtn = null; tagEl = null;
         saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
         wrap.remove(); wrap = null; items = []; index = -1;
         contentBox.scrollTop = 0;
@@ -1879,12 +1898,13 @@ const Stage = (function () {
         const flowing = wrap.classList.contains("flow");
         items.forEach((it, k) => { it.el.classList.toggle("is-current", k === i); it.el.inert = flowing ? false : k !== i; });
         wrap.classList.toggle("on-verse", items[i].verse);
+        if (tagEl) { const vt = items[i].verse && items[i].el.querySelector(":scope > .verse-tag"); tagEl.textContent = vt ? vt.textContent : ""; tagEl.style.display = vt && vt.textContent ? "" : "none"; }   // same tag, new text
         contentBox.scrollTop = 0;
         if (flowing) centreCurrent(true);      // flow mode: the stanza glides to the middle
         return true;
     }
     function release() {       // the page text is about to be replaced: forget the stage (its DOM goes with it)
-        wrap = null; items = []; index = -1; saved = []; lastEl = null; flowList = null; flowExitBtn = null;
+        wrap = null; items = []; index = -1; saved = []; lastEl = null; flowList = null; flowExitBtn = null; tagEl = null;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
     }
     function refresh() {
@@ -1919,7 +1939,7 @@ const Stage = (function () {
         }, { passive: true });
     })();
 
-    return { get active() { return !!wrap; }, get items() { return items; }, get index() { return index; }, show, refresh, release };
+    return { get active() { return !!wrap; }, get items() { return items; }, get index() { return index; }, show, refresh, release, recentre() { if (wrap && wrap.classList.contains("flow")) centreCurrent(false); } };
 })();
 
 // "1:05" or "65" -> seconds
@@ -2295,8 +2315,10 @@ function fitVerses() {
             range.selectNodeContents(slEl);
             const tw = range.getBoundingClientRect().width;
             let f = tw > 0 ? (desktop ? Math.min(TEST * (avail / tw) * 0.98, 26) : TEST * (avail / Math.max(tw, avail)) * 0.98) : MAXPX;   // desktop: short verses may grow up to 26px
-            if (portrait && b.clientHeight) {   // portrait: don't let a tall (many-line) verse take more than ~45% of the card; never below the minimum size
-                const bs = getComputedStyle(b), innerH = b.clientHeight - parseFloat(bs.paddingTop) - parseFloat(bs.paddingBottom);
+            const inFlow = !!(b.parentNode && b.parentNode.classList && b.parentNode.classList.contains("flow-list"));   // flow list: block height = its own text, so use the card height instead (same size as split view)
+            const refH = inFlow ? contentBox.clientHeight - 6 : b.clientHeight;
+            if (portrait && refH) {   // portrait: don't let a tall (many-line) verse take more than ~45% of the card; never below the minimum size
+                const bs = getComputedStyle(b), innerH = refH - (inFlow ? 14 : parseFloat(bs.paddingTop) + parseFloat(bs.paddingBottom));
                 const padY = parseFloat(gs.paddingTop) + parseFloat(gs.paddingBottom) + parseFloat(gs.borderTopWidth) + parseFloat(gs.borderBottomWidth);
                 const lines = Math.max(1, slEl.innerHTML.split(/<br\s*\/?>/i).length);
                 const lhPerPx = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;     // line height per 1px of block font size
@@ -2785,7 +2807,7 @@ function setLang(code) {
     paintLang();
     contentBox.querySelectorAll(".verse-block").forEach(b => { if (b._apply) b._apply(code); });
     applyPreface();   // preface page: swap to the chosen language's <main>
-    fitVerses(); setTimeout(fitVerses, 300);   // the shloka text changed: re-fit its size
+    fitVerses(); Stage.recentre(); setTimeout(() => { fitVerses(); Stage.recentre(); }, 300);   // the shloka text changed: re-fit its size (flow mode: and re-centre the stanza)
 }
 langMain.addEventListener("click", e => {
     e.stopPropagation();
