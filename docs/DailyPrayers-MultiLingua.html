@@ -750,6 +750,8 @@ body.dark #themeBtn .ic-moon { display: none; }
 #content-box .stage.no-anim > .stage-item { transition: none !important; }
 #content-box .stage > .stage-page { bottom: 0; overflow-y: auto; box-sizing: border-box; scrollbar-width: none; }
 #content-box .stage > .stage-page::-webkit-scrollbar { width: 0; height: 0; }
+/* FLOW pill + list: hidden by default; only the portrait block below switches them on */
+#content-box .flow-pill, #content-box .flow-exit { display: none; }
 #content-box.stage-on { overflow: hidden; touch-action: pan-y; overscroll-behavior: none; }
 body.stage-on { overscroll-behavior-y: none; }
 
@@ -1034,6 +1036,33 @@ body.stage-on { overscroll-behavior-y: none; }
       body.dark #content-box .verse-block > .mtabs .mtab-panel, body.dark #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; }
     #content-box .verse-block > .mtabs .mtab-bar { top: 1px; right: 1px; }
     #content-box .verse-block > .mtabs .mtab:last-child { border-top-right-radius: 0; }
+
+    /* ── PORTRAIT: FLOW MODE. A small pill on the ornament hides the meaning; the stanzas then scroll in the full box, the current one centred + highlighted.
+       Tap the pill again (it moves to the bottom centre while flowing) to get the split view back. ── */
+    #content-box .verse-block > .verse-grid > .flow-pill, #content-box .stage.flow > .flow-exit {
+          display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 40px; height: 20px; padding: 0; margin: 0;
+          border: 1px solid #c9a15a; border-radius: 10px; background: #fffaf0; color: #9a7326; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #content-box .flow-pill svg, #content-box .flow-exit svg { width: 16px; height: 12px; display: block; pointer-events: none; }
+    body.dark #content-box .verse-block > .verse-grid > .flow-pill, body.dark #content-box .stage.flow > .flow-exit { background: #2b2314; border-color: #7a6030; color: #d8b46a; }
+    #content-box .verse-block > .verse-grid > .flow-pill { position: absolute; left: 50%; top: 100%; transform: translate(-50%, -50%); z-index: 4; }
+    #content-box .verse-block > .verse-grid { z-index: 3; }                   /* lifts the pill above the meaning panel it overlaps by half */
+    #content-box .stage.flow > .flow-exit { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 6; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+    #content-box .stage.flow::before { opacity: 1; }
+    #content-box .stage > .flow-list { position: absolute; left: 9px; right: 9px; top: 7px; bottom: 3px; overflow-y: auto; overscroll-behavior: contain; box-sizing: border-box;
+          padding: calc(var(--area-h, 100vh) * 0.4) 0; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%);
+                  mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); }
+    #content-box .stage > .flow-list::-webkit-scrollbar { width: 0; height: 0; }
+    #content-box .flow-list > .verse-block { position: relative; display: block; height: auto; min-height: 0; padding: 0 8px; opacity: 0.5; transition: opacity .6s ease; }
+    #content-box .flow-list > .verse-block.is-current { opacity: 1; }
+    #content-box .flow-list > .verse-block::before { display: none; }
+    #content-box .flow-list > .verse-block > .mtabs, #content-box .flow-list > .verse-block > .verse-tag, #content-box .flow-list > .verse-block > .verse-grid > .flow-pill { display: none; }
+    #content-box .flow-list > .verse-block > .verse-grid { min-height: 0; margin: 0 0 30px 0; padding: 12px 10px; border-radius: 10px; }
+    #content-box .flow-list > .verse-block:last-child > .verse-grid { margin-bottom: 0; }
+    #content-box .flow-list > .verse-block:last-child > .verse-grid::after { display: none; }
+    #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #fff4d9; transition: background-color .6s ease; }
+    body.dark #content-box .flow-list > .verse-block.is-current > .verse-grid { background: #2d2314; }
+    #content-box .flow-list > .stage-page { position: static; opacity: 1; visibility: visible; pointer-events: auto; padding: 4px 8px 20px; }
   }
   /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
   /* the frame follows the reading area's real height by CSS (100% of the padded box + its 12px top / 6px bottom padding - 6px), no measured value to go stale */
@@ -1747,7 +1776,8 @@ const Stage = (function () {
         desktop:   "(min-width: 701px) and (min-height: 521px)"
     };
     const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
-    let wrap = null, items = [], index = -1, saved = [], lastEl = null;   // lastEl = the verse that was on stage when we left (rotation), shown again on return
+    let wrap = null, items = [], index = -1, saved = [], lastEl = null;
+    let flowPref = false, flowList = null, flowExitBtn = null;   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
 
     function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
     // only pages whose verse cards sit directly in the reading area are staged; anything else keeps the normal scrolling page
@@ -1765,6 +1795,43 @@ const Stage = (function () {
         contentBox.querySelectorAll(":scope > .verse-block").forEach(b => { if (b.getBoundingClientRect().top <= line) hit = b; });
         return hit;
     }
+
+    // ── FLOW mode: the pill on the ornament (or the one at the bottom while flowing) toggles it. Only exists while the stage exists (portrait). ──
+    const ICON_FLOW = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2h12M2 6h12M2 10h12"/></svg>';
+    const ICON_SPLIT = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2h12M2 6h12" /><path d="M5 10h6" /></svg>';
+    function makePill(cls, icon, label) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = cls; b.innerHTML = icon; b.setAttribute("aria-label", label); b.title = label;
+        ["click", "dblclick", "mousedown", "pointerdown", "pointerup", "touchstart", "touchend"].forEach(ev => b.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+        b.addEventListener("click", e => { e.preventDefault(); toggleFlow(); });
+        return b;
+    }
+    function centreCurrent(smooth) {      // the current stanza goes to the middle of the list (a stanza taller than the list: its top edge instead)
+        const it = items[index]; if (!flowList || !it) return;
+        const lr = flowList.getBoundingClientRect(), er = it.el.getBoundingClientRect();
+        const off = er.height > flowList.clientHeight - 24 ? 14 : (flowList.clientHeight - er.height) / 2;
+        flowList.scrollTo({ top: flowList.scrollTop + (er.top - lr.top) - off, behavior: smooth ? "smooth" : "auto" });
+    }
+    function enterFlow() {
+        if (!wrap || wrap.classList.contains("flow")) return;
+        flowList = document.createElement("div"); flowList.className = "flow-list";
+        wrap.insertBefore(flowList, wrap.firstChild);
+        items.forEach(it => { flowList.appendChild(it.el); it.el.inert = false; });
+        wrap.classList.add("flow");
+        centreCurrent(false);
+    }
+    function exitFlow() {
+        if (!wrap || !wrap.classList.contains("flow")) return;
+        wrap.classList.add("no-anim");
+        items.forEach((it, k) => { wrap.insertBefore(it.el, flowExitBtn); it.el.inert = k !== index; });
+        if (flowList) { flowList.remove(); flowList = null; }
+        wrap.classList.remove("flow");
+        requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));
+    }
+    function toggleFlow() {
+        if (!wrap) return;
+        if (wrap.classList.contains("flow")) { flowPref = false; exitFlow(); } else { flowPref = true; enterFlow(); }
+    }
     function attach() {
         const act = contentBox.classList.contains("sync-playing") ? contentBox.querySelector(":scope > .verse-block.verse-active") : null;
         const start = act || topVerse() || (lastEl && lastEl.isConnected ? lastEl : null);
@@ -1781,18 +1848,22 @@ const Stage = (function () {
             else if (visible(n)) run.push(n);
         });
         flush();
+        items.forEach(it => { if (!it.verse) return; const g = it.el.querySelector(":scope > .verse-grid"); if (g && !g.querySelector(":scope > .flow-pill")) g.appendChild(makePill("flow-pill", ICON_FLOW, "Show only the verses, flowing")); });
+        flowExitBtn = makePill("flow-exit", ICON_SPLIT, "Back to verse + meaning"); wrap.appendChild(flowExitBtn);
         contentBox.appendChild(wrap);
         contentBox.classList.add("stage-on"); document.body.classList.add("stage-on");
         index = -1; items.forEach(it => { it.el.inert = true; });
         show(start || (items[0] && items[0].el));
         contentBox.scrollTop = 0;
+        if (flowPref) enterFlow();
         requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));   // first card appears at once, no fade
     }
     function detach() {
         const cur = items[index] && items[index].verse ? items[index].el : null;
         if (cur) lastEl = cur;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
-        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; });
+        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; const pl = it.el.querySelector && it.el.querySelector(":scope > .verse-grid > .flow-pill"); if (pl) pl.remove(); });
+        flowList = null; flowExitBtn = null;
         saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
         wrap.remove(); wrap = null; items = []; index = -1;
         contentBox.scrollTop = 0;
@@ -1805,13 +1876,15 @@ const Stage = (function () {
         if (i < 0) return false;
         if (i === index) return true;
         index = i;
-        items.forEach((it, k) => { it.el.classList.toggle("is-current", k === i); it.el.inert = k !== i; });
+        const flowing = wrap.classList.contains("flow");
+        items.forEach((it, k) => { it.el.classList.toggle("is-current", k === i); it.el.inert = flowing ? false : k !== i; });
         wrap.classList.toggle("on-verse", items[i].verse);
         contentBox.scrollTop = 0;
+        if (flowing) centreCurrent(true);      // flow mode: the stanza glides to the middle
         return true;
     }
     function release() {       // the page text is about to be replaced: forget the stage (its DOM goes with it)
-        wrap = null; items = []; index = -1; saved = []; lastEl = null;
+        wrap = null; items = []; index = -1; saved = []; lastEl = null; flowList = null; flowExitBtn = null;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
     }
     function refresh() {
@@ -1829,7 +1902,7 @@ const Stage = (function () {
         const scrollable = t => { const s = t && t.closest && t.closest(".mn, .stage-page"); return !!(s && s.scrollHeight > s.clientHeight + 2); };
         contentBox.addEventListener("touchstart", e => {
             track = !!wrap && e.touches.length === 1; if (!track) return;
-            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; own = scrollable(e.target);
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; own = wrap.classList.contains("flow") || scrollable(e.target);
         }, { passive: true });
         contentBox.addEventListener("touchmove", e => {
             if (!track || own || !wrap) return;
