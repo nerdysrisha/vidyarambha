@@ -751,7 +751,7 @@ body.dark #themeBtn .ic-moon { display: none; }
 #content-box .stage > .stage-page { bottom: 0; overflow-y: auto; box-sizing: border-box; scrollbar-width: none; }
 #content-box .stage > .stage-page::-webkit-scrollbar { width: 0; height: 0; }
 /* FLOW pill + list: hidden by default; only the portrait block below switches them on */
-#content-box .flow-pill, #content-box .flow-exit { display: none; }
+#content-box .flow-pill, #content-box .flow-exit, #content-box .vstep { display: none; }
 #content-box.stage-on { overflow: hidden; touch-action: pan-y; overscroll-behavior: none; }
 body.stage-on { overscroll-behavior-y: none; }
 
@@ -1007,7 +1007,7 @@ body.stage-on { overscroll-behavior-y: none; }
     #content-box .verse-block > .verse-tag {
           top: 7px; left: 9px; z-index: 3; height: var(--tab-h); box-sizing: border-box; display: flex; align-items: center; padding: 0 12px 0 11px;
           border-radius: 11px 0 10px 0; }
-    #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 4px) 10px 14px 10px; margin-bottom: 20px;      /* 2px more room between the two boxes */
+    #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 4px) 10px 36px 10px; margin-bottom: 20px;      /* 2px more room between the two boxes */
           transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
     /* the "being read" highlight now lights up the verse box itself */
     #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid {
@@ -1080,6 +1080,16 @@ body.stage-on { overscroll-behavior-y: none; }
           background: linear-gradient(#a1521f, #a1521f) 0 100% / 3px 40% no-repeat, linear-gradient(#a1521f, #a1521f) 5px 100% / 3px 100% no-repeat,
                       linear-gradient(#a1521f, #a1521f) 10px 100% / 3px 60% no-repeat, linear-gradient(#a1521f, #a1521f) 15px 100% / 3px 80% no-repeat;
           animation: verseWave 0.9s ease-in-out infinite; }
+    /* ── VERSE STEP BUTTONS: up = just above the divider, down = just below it (left side; the language tabs are on the right).
+       Same look as the landscape rail buttons: round, dark #1a160f, gold #d8b46a ring + arrow, 32px with a 20px arrow. The old floating pair is hidden while the split view is on. ── */
+    body:has(#content-box .stage:not(.flow)) #verseNav { display: none !important; }
+    #content-box .verse-block > .verse-grid > .vstep { display: flex; align-items: center; justify-content: center; position: absolute; left: 10px; z-index: 4; box-sizing: border-box;
+          width: 32px; height: 32px; min-width: 32px; padding: 0; margin: 0; border-radius: 50%; background: #1a160f; border: 1.5px solid #d8b46a; color: #d8b46a;
+          cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    #content-box .vstep svg { width: 20px; height: 20px; display: block; fill: none; stroke: currentColor; pointer-events: none; }
+    #content-box .verse-block > .verse-grid > .vstep-up { bottom: 10px; }
+    #content-box .verse-block > .verse-grid > .vstep-down { top: calc(100% + 10px); }
+    #content-box .flow-list > .verse-block > .verse-grid > .vstep { display: none; }
     #content-box .flow-list > .stage-page { position: static; opacity: 1; visibility: visible; pointer-events: auto; padding: 4px 8px 20px; }
   }
   /* STAGE: one card at a time in a fixed frame. The golden box is drawn ONCE here and stays put; only the text inside fades. */
@@ -1824,6 +1834,16 @@ const Stage = (function () {
         b.addEventListener("click", e => { e.preventDefault(); toggleFlow(); });
         return b;
     }
+    const ICON_UP = '<svg viewBox="0 0 24 24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
+    const ICON_DOWN = '<svg viewBox="0 0 24 24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+    function makeStep(dir) {      // previous / next verse, drawn above / below the divider
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "vstep " + (dir < 0 ? "vstep-up" : "vstep-down"); b.innerHTML = dir < 0 ? ICON_UP : ICON_DOWN;
+        const label = dir < 0 ? "Previous verse" : "Next verse"; b.setAttribute("aria-label", label); b.title = label;
+        ["click", "dblclick", "mousedown", "pointerdown", "pointerup", "touchstart", "touchend"].forEach(ev => b.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+        b.addEventListener("click", e => { e.preventDefault(); stepVerse(dir); });
+        return b;
+    }
     function centreCurrent(smooth) {      // the current stanza goes to the middle of the list (a stanza taller than the list: its top edge instead)
         const it = items[index]; if (!flowList || !it) return;
         const lr = flowList.getBoundingClientRect(), er = it.el.getBoundingClientRect();
@@ -1866,7 +1886,7 @@ const Stage = (function () {
             else if (visible(n)) run.push(n);
         });
         flush();
-        items.forEach(it => { if (!it.verse) return; const g = it.el.querySelector(":scope > .verse-grid"); if (g && !g.querySelector(":scope > .flow-pill")) g.appendChild(makePill("flow-pill", ICON_FLOW, "Show only the verses, flowing")); });
+        items.forEach(it => { if (!it.verse) return; const g = it.el.querySelector(":scope > .verse-grid"); if (g && !g.querySelector(":scope > .flow-pill")) { g.appendChild(makePill("flow-pill", ICON_FLOW, "Show only the verses, flowing")); g.appendChild(makeStep(-1)); g.appendChild(makeStep(1)); } });
         flowExitBtn = makePill("flow-exit", ICON_SPLIT, "Back to verse + meaning"); wrap.appendChild(flowExitBtn);
         tagEl = document.createElement("span"); tagEl.className = "stage-tag"; tagEl.style.display = "none"; wrap.appendChild(tagEl);
         contentBox.appendChild(wrap);
@@ -1881,7 +1901,7 @@ const Stage = (function () {
         const cur = items[index] && items[index].verse ? items[index].el : null;
         if (cur) lastEl = cur;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
-        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; const pl = it.el.querySelector && it.el.querySelector(":scope > .verse-grid > .flow-pill"); if (pl) pl.remove(); });
+        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; if (it.el.querySelectorAll) it.el.querySelectorAll(":scope > .verse-grid > .flow-pill, :scope > .verse-grid > .vstep").forEach(x => x.remove()); });
         flowList = null; flowExitBtn = null; tagEl = null;
         saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
         wrap.remove(); wrap = null; items = []; index = -1;
@@ -1922,7 +1942,7 @@ const Stage = (function () {
         const scrollable = t => { const s = t && t.closest && t.closest(".mn, .stage-page"); return !!(s && s.scrollHeight > s.clientHeight + 2); };
         contentBox.addEventListener("touchstart", e => {
             track = !!wrap && e.touches.length === 1; if (!track) return;
-            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; own = wrap.classList.contains("flow") || scrollable(e.target);
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; own = wrap.classList.contains("flow") || !!(e.target.closest && e.target.closest(".mtabs")) || scrollable(e.target);   // meaning box: vertical swipes only scroll it, never change the verse
         }, { passive: true });
         contentBox.addEventListener("touchmove", e => {
             if (!track || own || !wrap) return;
