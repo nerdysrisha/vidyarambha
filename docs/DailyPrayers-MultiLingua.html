@@ -1536,6 +1536,49 @@ body.stage-on { overscroll-behavior-y: none; }
   body:has(#content-box .stage.flow) #verseNav button:active { background: rgba(216,180,106,0.28); }
   body:has(#content-box .stage.flow) #verseNav svg { width: 22px; height: 22px; stroke-width: 2.8; }
 }
+
+/* ════════ LANDSCAPE STAGE: the golden box is drawn ONCE and stays; only what is inside it moves.
+   Old verse number + stanza float slowly UP and fade, the new ones rise from the BOTTOM and stay while it plays; the meaning just fades out / in.
+   SPEEDS (change here):  --ls-out = old text leaving, --ls-in = new text arriving, --ls-wait = pause before the new one starts,
+                          --ls-lift = how far the old one floats up, --ls-rise = how far the new one rises from below ════════ */
+@media (orientation: landscape) and (max-height: 520px) {
+  #content-box .stage { --ls-out: .8s; --ls-in: .95s; --ls-wait: .45s; --ls-lift: 34px; --ls-rise: 46px; }
+  @keyframes lsOutUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(calc(var(--ls-lift) * -1)); } }
+  @keyframes lsInUp  { from { opacity: 0; transform: translateY(var(--ls-rise)); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes lsFadeOut { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes lsFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  #content-box.stage-on { position: relative; overflow: hidden; }
+  #content-box.stage-on > :not(.stage) { display: none !important; }
+  #content-box.stage-on > .stage { position: absolute; top: 6px; right: 8px; bottom: 0; left: calc(var(--rb) + 26px); margin: 0; height: auto; }
+  #content-box .stage > .verse-block { height: auto; bottom: 0; }
+  #content-box .stage > .stage-tag { display: none !important; }              /* portrait-only floating tag */
+  /* every card stays fully opaque; it is only shown while current (or while leaving). The text inside is what animates. */
+  #content-box .stage > .stage-item { opacity: 1 !important; filter: none !important; transition: none !important; }
+  #content-box .stage > .stage-item.leaving { visibility: visible; }
+  /* the one golden frame */
+  #content-box .stage::before { content: ""; position: absolute; left: 14px; right: 14px; top: 6px; bottom: 6px; border: 1px solid #c9a15a; border-radius: 12px;
+      background: var(--sep-img) no-repeat center / auto 70%, #fff4d9; opacity: 0; pointer-events: none;
+      transition: opacity .3s ease, box-shadow 1.4s ease, border-color 1.4s ease; }
+  #content-box .stage.on-verse::before { opacity: 1; }
+  #content-box.sync-playing .stage.on-verse::before { box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+  body.dark #content-box .stage::before { background: var(--sep-img) no-repeat center / auto 70%, #1d1710; border-color: #7a6030; }
+  body.dark #content-box.sync-playing .stage.on-verse::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+  #content-box .stage > .verse-block::before { display: none; }               /* the cards no longer draw their own box */
+  /* arriving: stanza + verse number rise from below and stay; meaning fades in */
+  #content-box .stage > .verse-block.is-current > .verse-grid,
+  #content-box .stage > .verse-block.is-current > .verse-tag { animation: lsInUp var(--ls-in) cubic-bezier(.2,.7,.2,1) var(--ls-wait) both; }
+  #content-box .stage > .verse-block.is-current > .mtabs,
+  #content-box .stage > .verse-block.is-current.bookmarked::after,
+  #content-box .stage > .stage-page.is-current { animation: lsFadeIn var(--ls-in) ease var(--ls-wait) both; }
+  /* leaving: stanza + verse number float up and fade; meaning just fades */
+  #content-box .stage > .verse-block.leaving > .verse-grid,
+  #content-box .stage > .verse-block.leaving > .verse-tag { animation: lsOutUp var(--ls-out) ease-in both; }
+  #content-box .stage > .verse-block.leaving > .mtabs,
+  #content-box .stage > .verse-block.leaving.bookmarked::after,
+  #content-box .stage > .stage-page.leaving { animation: lsFadeOut var(--ls-out) ease both; }
+  /* first card of a prayer (and after a rotation) appears at once */
+  #content-box .stage.no-anim .stage-item, #content-box .stage.no-anim .stage-item > *, #content-box .stage.no-anim .stage-item::after { animation: none !important; }
+}
 </style>
 </head>
 <body>
@@ -1828,14 +1871,14 @@ function smoothScrollTo(top, ms) {
 // Everything that "goes to a verse" (swipe, the arrows, audio sync, bookmark jump, rotation) just calls Stage.show(element).
 // To use it on another layout: set that layout to true in LAYOUTS, then add its frame CSS under "STAGE" inside that layout's block.
 const Stage = (function () {
-    const LAYOUTS = { portrait: true, landscape: false, desktop: false };      // ← switch a layout on / off here
+    const LAYOUTS = { portrait: true, landscape: true, desktop: false };      // ← switch a layout on / off here
     const QUERY = {                                                             // same definitions as the three CSS layout blocks
         portrait:  "(max-width: 700px) and (orientation: portrait), (max-width: 700px) and (min-height: 521px)",
         landscape: "(orientation: landscape) and (max-height: 520px)",
         desktop:   "(min-width: 701px) and (min-height: 521px)"
     };
     const mqs = Object.keys(QUERY).map(k => ({ key: k, mq: window.matchMedia(QUERY[k]) }));
-    let wrap = null, items = [], index = -1, saved = [], lastEl = null;
+    let wrap = null, items = [], index = -1, saved = [], lastEl = null, wrapKey = null, leaveT = null;   // wrapKey = which layout the stage was built for
     let flowPref = true, flowList = null, flowExitBtn = null, tagEl = null;   // tagEl = the one permanent stanza tag   // FLOW mode (portrait): meaning hidden, stanzas scroll in one list; the choice is kept from prayer to prayer   // lastEl = the verse that was on stage when we left (rotation), shown again on return
 
     function wanted() { return mqs.some(o => LAYOUTS[o.key] && o.mq.matches); }
@@ -1898,7 +1941,7 @@ const Stage = (function () {
         requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));
     }
     function toggleFlow() {
-        if (!wrap) return;
+        if (!wrap || wrapKey !== "portrait") return;
         if (wrap.classList.contains("flow")) { flowPref = false; exitFlow(); } else { flowPref = true; enterFlow(); }
     }
     function attach() {
@@ -1925,14 +1968,14 @@ const Stage = (function () {
         index = -1; items.forEach(it => { it.el.inert = true; });
         show(start || (items[0] && items[0].el));
         contentBox.scrollTop = 0;
-        if (flowPref) enterFlow();
+        if (flowPref && wrapKey === "portrait") enterFlow();      // the flowing list is a portrait thing only
         requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));   // first card appears at once, no fade
     }
     function detach() {
         const cur = items[index] && items[index].verse ? items[index].el : null;
         if (cur) lastEl = cur;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
-        items.forEach(it => { it.el.classList.remove("stage-item", "is-current"); it.el.inert = false; if (it.el.querySelectorAll) it.el.querySelectorAll(":scope > .verse-grid > .flow-pill, :scope > .verse-grid > .vstep").forEach(x => x.remove()); });
+        items.forEach(it => { it.el.classList.remove("stage-item", "is-current", "leaving"); it.el.inert = false; if (it.el.querySelectorAll) it.el.querySelectorAll(":scope > .verse-grid > .flow-pill, :scope > .verse-grid > .vstep").forEach(x => x.remove()); });
         flowList = null; flowExitBtn = null; tagEl = null;
         saved.forEach(n => contentBox.appendChild(n));      // everything back in its original order
         wrap.remove(); wrap = null; items = []; index = -1;
@@ -1945,7 +1988,10 @@ const Stage = (function () {
         const i = items.findIndex(it => it.el === el || it.el.contains(el));
         if (i < 0) return false;
         if (i === index) return true;
+        const prev = index >= 0 ? items[index] : null;
         index = i;
+        items.forEach(it => it.el.classList.remove("leaving"));          // the card being left keeps showing while it fades / floats away (landscape CSS)
+        if (prev) { prev.el.classList.add("leaving"); clearTimeout(leaveT); leaveT = setTimeout(() => prev.el.classList.remove("leaving"), 1200); }
         const flowing = wrap.classList.contains("flow");
         items.forEach((it, k) => { it.el.classList.toggle("is-current", k === i); it.el.inert = flowing ? false : k !== i; });
         wrap.classList.toggle("on-verse", items[i].verse);
@@ -1955,12 +2001,14 @@ const Stage = (function () {
         return true;
     }
     function release() {       // the page text is about to be replaced: forget the stage (its DOM goes with it)
-        wrap = null; items = []; index = -1; saved = []; lastEl = null; flowList = null; flowExitBtn = null; tagEl = null;
+        wrap = null; wrapKey = null; items = []; index = -1; saved = []; lastEl = null; flowList = null; flowExitBtn = null; tagEl = null;
         contentBox.classList.remove("stage-on"); document.body.classList.remove("stage-on");
     }
+    function curKey() { const o = mqs.find(o => LAYOUTS[o.key] && o.mq.matches); return o ? o.key : null; }
     function refresh() {
-        const want = wanted() && simple();
-        if (want && !wrap) attach(); else if (!want && wrap) detach();
+        const want = wanted() && simple(), key = curKey();
+        if (wrap && (!want || key !== wrapKey)) detach();                 // switched off, or the phone was turned (portrait <-> landscape): rebuild for the new layout
+        if (want && !wrap) { wrapKey = key; attach(); }
     }
     function onModeChange() { if (window.setAreaH) setAreaH(); refresh();   // re-measure first: the stage must be built at the NEW height, not the old landscape one
          setTimeout(() => { if (window.fitVerses) fitVerses(); }, 0); }
