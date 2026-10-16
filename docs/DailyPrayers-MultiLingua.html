@@ -877,8 +877,10 @@ body.stage-on { overscroll-behavior-y: none; }
   .audio-missing { text-align: center; padding: 8px; font-size: 0.85em; color: #b8a27a; }
   /* full screen (desktop): the side panel auto-collapses to its thin rail (done in JS); the toggle icon on the rail brings it back */
   /* ── MOBILE (portrait phones): edge-to-edge, one line per verse line ───── */
-  #outer { margin: 4px 4px 6px 4px; gap: 4px; height: calc(100dvh - 58px); }
-  #navbar { margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 84px; }
+  /* the page is a column exactly as tall as the visible window: the content area takes whatever the nav bar leaves (no guessed pixel value) */
+  body { display: flex; flex-direction: column; height: 100%; height: 100dvh; }
+  #outer { margin: 4px 4px 6px 4px; gap: 4px; flex: 1 1 auto; min-height: 0; height: auto; }
+  #navbar { flex: none; margin: 0 4px 4px 4px; gap: 4px; padding-left: 44px; padding-right: 84px; }
   #navbar .nav-label { display: none; }
   #navbar #prevBtn, #navbar #nextBtn { width: 38px; height: 32px; padding: 0; }
   #counter { min-width: 40px; font-size: 12px; }
@@ -1750,7 +1752,8 @@ const Stage = (function () {
         return hit;
     }
     function attach() {
-        const start = topVerse();
+        const act = contentBox.classList.contains("sync-playing") ? contentBox.querySelector(":scope > .verse-block.verse-active") : null;
+        const start = act || topVerse();
         saved = Array.from(contentBox.childNodes);
         wrap = document.createElement("div"); wrap.className = "stage no-anim";
         items = []; let run = [];
@@ -1800,7 +1803,8 @@ const Stage = (function () {
         const want = wanted() && simple();
         if (want && !wrap) attach(); else if (!want && wrap) detach();
     }
-    function onModeChange() { refresh(); setTimeout(() => { if (window.fitVerses) fitVerses(); }, 0); }
+    function onModeChange() { if (window.setAreaH) setAreaH(); refresh();   // re-measure first: the stage must be built at the NEW height, not the old landscape one
+         setTimeout(() => { if (window.fitVerses) fitVerses(); }, 0); }
     mqs.forEach(o => { if (o.mq.addEventListener) o.mq.addEventListener("change", onModeChange); else o.mq.addListener(onModeChange); });
     contentBox.addEventListener("scroll", () => { if (wrap && contentBox.scrollTop !== 0) contentBox.scrollTop = 0; }, { passive: true });   // focus must never shift the frame
 
