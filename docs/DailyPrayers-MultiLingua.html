@@ -1893,6 +1893,7 @@ const Stage = (function () {
     function toggleFlow() {
         if (!wrap || wrapKey !== "portrait") return;
         if (wrap.classList.contains("flow")) { flowPref = false; exitFlow(); } else { flowPref = true; enterFlow(); }
+        fitVerses(); setTimeout(fitVerses, 400);      // meaning shown -> smaller verse text, meaning hidden -> full size again
     }
     function attach() {
         const act = contentBox.classList.contains("sync-playing") ? contentBox.querySelector(":scope > .verse-block.verse-active") : null;
@@ -2259,6 +2260,8 @@ const FIT_MIN = 12;   // px: smallest verse text; below this the verse wraps ont
 const FIT_MAX = 30;   // px: phone portrait: short verses may grow up to this (desktop and landscape have their own maximums, see fitVerses)
 // TEXT SIZE button (bottom bar): cycles Normal -> Big -> Small. The number is how much of the "fills the box" size is used.
 const TEXT_K = 0.92;   // fixed verse text scale (the old "normal" size)
+const SPLIT_K = 0.78;  // while the meaning is shown next to / under the verse (landscape split, portrait split) the verse text is this much smaller;
+                       // hiding the meaning (the pill) gives the full-size text back. 1 = no shrink, 0.7 = much smaller.
 // Every verse line becomes its own block (.vl): a short line stays one row, a long line breaks once near the middle (balanced), lines get a small gap.
 function splitLines(el) {
     const parts = el.innerHTML.split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean);
@@ -2361,8 +2364,11 @@ function fitVerses() {
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const stageEl = contentBox.querySelector(":scope > .stage");
     const meaningHidden = !!(land && stageEl && stageEl.classList.contains("mhide"));   // landscape: meaning slid away, the verse has the whole width
-    const TEST = 20, GAP = 0.28, K = TEXT_K;   // GAP = space between verse lines in em (same number in the .vl CSS)
-    blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
+    const portraitStage = !land && !desktop && !!(stageEl && !stageEl.classList.contains("flow"));   // phone portrait with the meaning shown (flow mode = meaning hidden)
+    const splitView = (land && !meaningHidden) || portraitStage;      // meaning visible -> smaller verse text
+    const TEST = 20, GAP = 0.28, K = TEXT_K * (splitView ? SPLIT_K : 1);   // GAP = space between verse lines in em (same number in the .vl CSS)
+    const prevSize = blocks.map(b => b.style.fontSize);               // remember the current sizes so a change can glide instead of jump
+    blocks.forEach(b => { b.style.transition = "none"; b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
     const range = document.createRange();
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
@@ -2393,6 +2399,9 @@ function fitVerses() {
         const w = range.getBoundingClientRect().width;     // width of widest line (refrains, headings)
         return w > 0 ? TEST * (avail / w) * 0.98 : MAXPX;
     });
+    blocks.forEach((b, i) => { if (prevSize[i]) b.style.fontSize = prevSize[i]; });   // back to the old size (no transition) ...
+    void contentBox.offsetWidth;
+    blocks.forEach(b => { b.style.transition = prevSize[blocks.indexOf(b)] ? "font-size .35s ease" : "none"; });   // ... then the new size is reached smoothly
     blocks.forEach((b, i) => {
         const fs = results[i];
         if (b.querySelector(":scope > .verse-grid .sl")) { b.style.whiteSpace = ""; b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; return; }
