@@ -1503,7 +1503,11 @@ body.stage-on { overscroll-behavior-y: none; }
 
 /* ── VERSE LINES ── */
 #content-box .sl .vl { display: block; white-space: normal; text-wrap: balance; }       /* a long line breaks once, near its middle */
-#content-box .sl .vl + .vl { margin-top: 0.28em; }                                       /* same number as GAP in fitVerses() */
+#content-box .sl .vl + .vl { margin-top: 0.28em; }
+#content-box.fit-measure .sl .vl { white-space: nowrap !important; text-wrap: nowrap !important; }           /* while measuring */
+#content-box .sl[data-mode="danda"] .vl { white-space: nowrap; text-wrap: nowrap; }                          /* landscape full view: one | row = one line */
+#content-box .sl[data-mode="flow"] .vl { text-wrap: pretty; }                                                /* landscape split view: natural wrapping */
+#content-box .stage.flow > .flow-exit { display: none !important; }                                          /* portrait is always the full-width view */                                       /* same number as GAP in fitVerses() */
 
 /* ── LANDSCAPE: the centre pill slides the meaning away to the right, the verse grows into the free width; a pill at the right edge brings it back ── */
 #content-box .stage > .ls-pill { display: none; }
@@ -1891,6 +1895,7 @@ const Stage = (function () {
         requestAnimationFrame(() => requestAnimationFrame(() => { if (wrap) wrap.classList.remove("no-anim"); }));
     }
     function toggleFlow() {
+        return;      // portrait has no split view any more: always the full-width (flowing) view
         if (!wrap || wrapKey !== "portrait") return;
         if (wrap.classList.contains("flow")) { flowPref = false; exitFlow(); } else { flowPref = true; enterFlow(); }
         fitVerses(); setTimeout(fitVerses, 400);      // meaning shown -> smaller verse text, meaning hidden -> full size again
@@ -2260,12 +2265,30 @@ const FIT_MIN = 12;   // px: smallest verse text; below this the verse wraps ont
 const FIT_MAX = 30;   // px: phone portrait: short verses may grow up to this (desktop and landscape have their own maximums, see fitVerses)
 // TEXT SIZE button (bottom bar): cycles Normal -> Big -> Small. The number is how much of the "fills the box" size is used.
 const TEXT_K = 0.92;   // fixed verse text scale (the old "normal" size)
-const SPLIT_K = 0.78;  // while the meaning is shown next to / under the verse (landscape split, portrait split) the verse text is this much smaller;
-                       // hiding the meaning (the pill) gives the full-size text back. 1 = no shrink, 0.7 = much smaller.
+const SPLIT_K = 0.78;     // landscape, meaning shown (split view): verse text is this much smaller than in full view. 1 = no shrink, 0.7 = much smaller.
+const PORTRAIT_K = 0.80;  // phone portrait: verse text scale (smaller = more room around the stanza)
+// Landscape + portrait use ONE font size for every stanza of a prayer (the size the longest stanza needs), so the page looks uniform.
 // Every verse line becomes its own block (.vl): a short line stays one row, a long line breaks once near the middle (balanced), lines get a small gap.
 function splitLines(el) {
     const parts = el.innerHTML.split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean);
+    el._raw = parts;                 // the source lines, kept so the same text can be laid out in other ways (see setVerseMode)
+    el.dataset.mode = "lines";
     el.innerHTML = parts.map(x => '<span class="vl">' + x + '</span>').join("");
+}
+// Verse layout modes:  "lines" = the source line breaks (portrait, desktop)
+//                      "danda" = source breaks ignored; a new row starts after every | or || (landscape, meaning hidden)
+//                      "flow"  = source breaks ignored; the stanza is one block that wraps naturally (landscape, meaning shown)
+const DANDA = /[|\u0964\u0965]/;     // | , \u0964 and \u0965 (the Devanagari danda signs)
+function breakAtDanda(text) {         // "... | ... ||" -> rows ending at each | / || (a verse number between || marks stays on its row)
+    return text.replace(/((?:[|\u0964\u0965]+)(?:\s*[\d\-,]+\s*[|\u0964\u0965]+)?)\s+/g, "$1\n").split("\n").map(x => x.trim()).filter(Boolean);
+}
+function setVerseMode(sl, mode) {
+    const raw = sl._raw; if (!raw) return;
+    if (mode === "danda" && !DANDA.test(raw.join(" "))) mode = "lines";   // a stanza with no | at all keeps its own breaks
+    if (sl.dataset.mode === mode) return;
+    sl.dataset.mode = mode;
+    const parts = mode === "lines" ? raw : mode === "flow" ? [raw.join(" ").replace(/\s+([|\u0964\u0965]+)/g, "\u00A0$1")] : breakAtDanda(raw.join(" "));
+    sl.innerHTML = parts.map(x => '<span class="vl">' + x + '</span>').join("");
 }
 // ── LANGUAGES + VERSES ──
 // Prayer pages hold, per verse, one block per language:  <div data-lang="te"><div class="sl">shloka</div><div class="mn">meaning</div></div>
@@ -2364,10 +2387,14 @@ function fitVerses() {
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
     const stageEl = contentBox.querySelector(":scope > .stage");
     const meaningHidden = !!(land && stageEl && stageEl.classList.contains("mhide"));   // landscape: meaning slid away, the verse has the whole width
-    const portraitStage = !land && !desktop && !!(stageEl && !stageEl.classList.contains("flow"));   // phone portrait with the meaning shown (flow mode = meaning hidden)
-    const splitView = (land && !meaningHidden) || portraitStage;      // meaning visible -> smaller verse text
-    const TEST = 20, GAP = 0.28, K = TEXT_K * (splitView ? SPLIT_K : 1);   // GAP = space between verse lines in em (same number in the .vl CSS)
-    const prevSize = blocks.map(b => b.style.fontSize);               // remember the current sizes so a change can glide instead of jump
+    const splitView = land && !meaningHidden;                         // landscape with the meaning shown -> smaller verse text, natural wrapping
+    const phonePortrait = !land && !desktop;
+    contentBox.querySelectorAll(".verse-block .sl").forEach(sl => setVerseMode(sl, land ? (meaningHidden ? "danda" : "flow") : "lines"));
+    const fitKey = land ? "l" : (desktop ? "d" : "p");                // layout changed (e.g. phone turned): jump to the new size, no gliding
+    const sameLayout = (window._lastFitKey === fitKey); window._lastFitKey = fitKey;
+    const TEST = 20, GAP = 0.28, K = TEXT_K * (splitView ? SPLIT_K : (phonePortrait ? PORTRAIT_K : 1));   // GAP = space between verse lines in em (same number in the .vl CSS)
+    const prevSize = blocks.map(b => sameLayout ? b.style.fontSize : "");   // remember the current sizes so a change can glide instead of jump
+    contentBox.classList.add("fit-measure");                          // measuring: every row on one line, so its true width can be read
     blocks.forEach(b => { b.style.transition = "none"; b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
     const range = document.createRange();
     const results = blocks.map(b => {
@@ -2388,17 +2415,24 @@ function fitVerses() {
             else { slEl.style.display = "none"; availH = grid.clientHeight - padT - padB; slEl.style.display = ""; }   // the verse box with the text taken out = the room it has (portrait: its CSS minimum height; landscape: the full column)
             if (land && availH > 0) availH = Math.min(availH, contentBox.clientHeight - 36 - padT - padB);
             const lh = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;       // line height per 1px of font size
+            const rowFill = slEl.dataset.mode === "flow" ? 0.90 : 0.96;            // natural wrapping wastes some room at the row ends
             let f = MAXPX;
             if (availH > 0 && lh > 0 && lineEls.length) {
-                const heightAt = ff => { let rows = 0; w20.forEach(w => { rows += Math.max(1, Math.ceil((w * ff / TEST) / (avail * 0.96))); }); return ff * (rows * lh + GAP * (w20.length - 1)); };
+                const heightAt = ff => { let rows = 0; w20.forEach(w => { rows += Math.max(1, Math.ceil((w * ff / TEST) / (avail * rowFill))); }); return ff * (rows * lh + GAP * (w20.length - 1)); };
                 while (f > FIT_MIN && heightAt(f) > availH) f -= 0.5;
             } else f = Math.min(MAXPX, TEST * (avail / Math.max(widest, 1)) * 0.98);   // no height to go by: fit the widest line
+            if (slEl.dataset.mode === "danda") f = Math.min(f, TEST * (avail / Math.max(widest, 1)) * 0.97);   // every | row must stay on ONE line
             return Math.max(f * K, 10);
         }
         range.selectNodeContents(b);
         const w = range.getBoundingClientRect().width;     // width of widest line (refrains, headings)
         return w > 0 ? TEST * (avail / w) * 0.98 : MAXPX;
     });
+    contentBox.classList.remove("fit-measure");
+    if (land || phonePortrait) {          // one size for every stanza: the smallest any stanza needs
+        const idx = blocks.map((b, i) => i).filter(i => blocks[i].querySelector(":scope > .verse-grid .sl"));
+        if (idx.length) { const m = Math.min(...idx.map(i => Math.min(results[i], MAXPX))); idx.forEach(i => { results[i] = m; }); }
+    }
     blocks.forEach((b, i) => { if (prevSize[i]) b.style.fontSize = prevSize[i]; });   // back to the old size (no transition) ...
     void contentBox.offsetWidth;
     blocks.forEach(b => { b.style.transition = prevSize[blocks.indexOf(b)] ? "font-size .35s ease" : "none"; });   // ... then the new size is reached smoothly
@@ -2408,6 +2442,7 @@ function fitVerses() {
         if (fs < FIT_MIN) { b.style.fontSize = FIT_MIN + "px"; b.style.whiteSpace = "normal"; }
         else { b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; b.style.whiteSpace = ""; }
     });
+    if (Stage.active) { Stage.recentre(); clearTimeout(window._recentreT); window._recentreT = setTimeout(() => Stage.recentre(), 420); }   // sizes changed: keep the stanza in the middle (again after the glide)
 }
 let fitTimer;
 window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
