@@ -323,7 +323,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     --pf-next: #7a4a12; --pf-next-hover: #4a2400; --pf-wm-filter: none; --pf-wm-op: var(--wm-lotus-opacity);
     position: relative; isolation: isolate; max-width: 680px; margin: 0 auto 14px auto; padding: 22px 6px 44px 6px; box-sizing: border-box;
     background: var(--pf-bg); border: 1px solid var(--pf-bd); border-radius: 12px; box-shadow: var(--pf-shadow); color: var(--pf-text); }
-@media (max-width: 700px) and (orientation: portrait), (orientation: landscape) and (max-height: 520px) {   /* same scope as the chapter dark theme */
+@media all {
   body.dark #content-box .preface-language {
     --pf-bg: #1d1710; --pf-bd: #7a6030; --pf-shadow: none;
     --pf-text: #eadfc6; --pf-h1: #e8c585; --pf-tag: #d9a066; --pf-inv: #c9b07a; --pf-h2: #e0c58a; --pf-rule: #c9a15a99;
@@ -1108,17 +1108,34 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block > .verse-grid { padding: 16px 20px; }
 }
 
-/* ── THEME BUTTON + DARK THEME + LANDSCAPE LAYOUT (phone landscape only). Default = light. body.dark = dark. Portrait / desktop never change. ── */
-#themeBtn { display: none; }
-@media (max-width: 700px) and (orientation: portrait) {
-  #sidebar-title #themeBtn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; padding: 0; margin-left: auto; border-radius: 50%;
-      background: rgba(26, 22, 15, 0.45); border: 1px solid #d8b46a; color: #d8b46a; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  #sidebar-title #themeBtn svg { width: 19px; height: 19px; display: block; }
-  body.dark #sidebar-title #themeBtn { background: #d8b46a; color: #111; }
+/* ── THEME BUTTON + DARK THEME. Default = light. body.dark = dark. Button shows on every screen (phone, tablet, desktop). ── */
+#sidebar-title #themeBtn { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; padding: 0; margin-left: auto; border-radius: 50%;
+    background: rgba(26, 22, 15, 0.45); border: 1px solid #d8b46a; color: #d8b46a; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#sidebar-title #themeBtn svg { width: 19px; height: 19px; display: block; }
+#sidebar-title #themeBtn .ic-sun { display: none; }                          /* light mode: only the moon */
+body.dark #sidebar-title #themeBtn .ic-sun { display: block; }               /* dark mode: only the sun */
+body.dark #sidebar-title #themeBtn .ic-moon { display: none; }
+body.dark #sidebar-title #themeBtn { background: #d8b46a; color: #111; }
+#sidebar.collapsed #sidebar-title #themeBtn { display: none; }
+
+/* ── DARK THEME: TOPICS (chapter) LIST ── */
+body.dark #sidebar { background: linear-gradient(165deg, #1a1309 0%, #14100a 55%, #0f0c07 100%); border-color: #7a6030; }
+body.dark #sidebar.collapsed { background: #111; }
+body.dark .category-header { background: rgba(29,23,16,0.95); border-color: #7a6030; }
+body.dark .topic-item { background: #1d1710; color: #eadfc6; box-shadow: inset 0 0 0 1px #7a6030, 0 1px 3px rgba(0,0,0,0.5); }
+body.dark .topic-item:hover { background: #2a2012; }
+body.dark .t-title { color: #eadfc6; }
+body.dark .t-sub { color: #d8b46a; }
+body.dark .topic-item.search-match { background: #2d2314; box-shadow: inset 4px 0 0 #d8b46a, inset 0 0 0 1px #7a6030; }
+body.dark .topic-item.last-read { background: #241b0f; box-shadow: inset 0 0 0 1.5px #c9a15a, 0 1px 3px rgba(0,0,0,0.5); }
+body.dark .topic-item.active { background: #2d2314; box-shadow: inset 0 0 0 2px #c9a15a, 0 1px 4px rgba(0,0,0,0.6); }
+body.dark .topic-item.active .t-icon { box-shadow: 0 0 0 2px #2d2314, 0 0 0 4px #c9a15a; }
+/* desktop / tablet: the outer verse card (portrait and landscape phones have no outer card) */
+@media (min-width: 701px) and (min-height: 521px) {
+  body.dark #content-box .verse-block { background: #16120c; border-color: #7a6030; }
+  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { background: #241b0f; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
 }
-#themeBtn .ic-sun { display: none; }
-body.dark #themeBtn .ic-sun { display: block; }
-body.dark #themeBtn .ic-moon { display: none; }
+body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color: #7a6030; }
 
 @media (orientation: landscape) and (max-height: 520px) {
   :root { --rb: 38px; }                                   /* rail button size: bigger = easier to tap */
@@ -1163,7 +1180,7 @@ body.dark #themeBtn .ic-moon { display: none; }
   body.dark #content-box.sync-on.sync-playing .verse-block.verse-active { opacity: 1; }
 }
 /* ── DARK THEME, shared: portrait phone + landscape phone. Toggle lives in the topics header (portrait). ── */
-@media (max-width: 700px) and (orientation: portrait), (orientation: landscape) and (max-height: 520px) {
+@media all {
   body.dark #content-box .verse-block .sl { color: #eadfc6; }
   body.dark #content-box .verse-block .sl[data-lang="en"] { color: #e8c585; }
   body.dark #content-box .verse-block > .verse-tag, body.dark #content-box .verse-block > .verse-label { color: #f0d18a; background: #3a2c14; border-right-color: #c9a15a; border-bottom-color: #c9a15a; }
@@ -1184,8 +1201,8 @@ body.dark #themeBtn .ic-moon { display: none; }
   body.dark #content-box code { background: #2b2417; color: #e0c58a; }
   body.dark .gita-chapter .chapter-head h2 { color: #f0e3c4; }
 }
-/* ── DARK THEME, portrait only: the two boxes (verse + meaning) ── */
-@media (max-width: 700px) and (orientation: portrait) {
+/* ── DARK THEME, portrait phone + desktop: the two boxes (verse + meaning) ── */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
   body.dark #content-box .verse-block { color: #eadfc6; }
   body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed { background: #1d1710; border-color: #7a6030; }
   body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
@@ -2323,8 +2340,8 @@ document.addEventListener("click", e => { if (!langPop.hidden && !langPop.contai
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeLangPop(); });
 paintLang();
 
-// ── THEME (portrait + landscape phone; button is in the topics header): light = default, dark = body.dark; choice is remembered ──
-const THEME_KEY = "gitaTheme";
+// ── THEME (all screens; button is in the topics header): light = default, dark = body.dark; choice is remembered ──
+const THEME_KEY = "prayersTheme";
 const themeBtn = document.getElementById("themeBtn");
 function setTheme(dark) {
     document.body.classList.toggle("dark", dark);
