@@ -1081,13 +1081,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 /* round (portrait / landscape-phone) speed buttons: smaller label so "1.75×" stays inside the circle */
 @media (max-width: 700px), (max-height: 520px) {
   #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
-  /* the main speed button shows a speed-meter ICON (like the other buttons); its number appears only while the menu is open, or for a moment after you pick one */
-  #navbar { --speed-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M4.5%2017a8.5%208.5%200%201%201%2015%200%27%2F%3E%3Cpath%20d%3D%27M12%2017l4-5%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2717%27%20r%3D%271.2%27%20fill%3D%27black%27%2F%3E%3C%2Fsvg%3E") }
-  #navbar #speedGroup button.speed-main { font-size: 0; }
-  #navbar #speedGroup button.speed-main::before { content: ""; display: block; width: 22px; height: 22px; background: currentColor;
-      -webkit-mask: var(--speed-icon) center / contain no-repeat; mask: var(--speed-icon) center / contain no-repeat; }
-  #navbar #speedGroup button.speed-main.flash, #navbar #speedGroup button.speed-main[aria-expanded="true"] { font-size: 11px; }
-  #navbar #speedGroup button.speed-main.flash::before, #navbar #speedGroup button.speed-main[aria-expanded="true"]::before { display: none; }
 }
 
 /* PORTRAIT (phones) + DESKTOP / TABLET: the card is one fixed-height frame, the same for every verse:
@@ -1237,6 +1230,10 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 @keyframes vfTagIn { from { color: transparent; } }
 #content-box .verse-block.vf-in > .verse-grid > *, #content-box .verse-block.vf-in .mtab-panel > * { animation: vfIn .38s ease both; }
 #content-box .verse-block.vf-in > .verse-tag, #content-box .verse-block.vf-in > .verse-label { animation: vfTagIn .38s ease both; }
+/* speed pill: always shows the current speed (1x / 1.5x / 1.75x); smaller text so it sits inside the round pill. Pop-up: above the button (portrait, desktop), to its right (phone landscape rail) */
+@media (max-width: 700px), (max-height: 520px) {
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 10px; letter-spacing: -0.2px; padding: 0; }
+}
 </style>
 </head>
 <body>
@@ -1296,11 +1293,11 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
     <button id="lsPause" class="ls-btn" type="button" aria-label="Play / pause"></button>
     <button id="lsMute" class="ls-btn" type="button" aria-label="Mute / unmute"></button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
-        <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1&times;</button>
+        <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1x</button>
         <div id="speedPop" hidden>
-            <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1&times;</button>
-            <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5&times;</button>
-            <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
+            <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1x</button>
+            <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5x</button>
+            <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75x</button>
         </div>
     </div>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
@@ -2318,12 +2315,8 @@ setSidebarCollapsed(sidebarEl.classList.contains("collapsed"));   // paint the i
 const speedMain = document.getElementById("speedMain");
 const speedPop  = document.getElementById("speedPop");
 window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
-window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
-window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
-let speedFlashT = null;   // after picking a speed, show its number on the button for a moment (the button itself is an icon)
-document.querySelectorAll("#speedGroup .speed-btn").forEach(b => b.addEventListener("click", () => {
-    speedMain.classList.add("flash"); clearTimeout(speedFlashT); speedFlashT = setTimeout(() => speedMain.classList.remove("flash"), 1400);
-}));
+window.setSpeedLabel = r => { speedMain.innerHTML = r + "x"; };
+window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1x"; };
 speedMain.addEventListener("click", e => {
     e.stopPropagation();
     if (speedMain.disabled) return;
