@@ -419,7 +419,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   }
   #start-screen.btn-on #start-btn {
       pointer-events: auto;
-      animation: startBtnIn 7s ease-in forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
+      animation: startBtnIn 2.5s ease-out forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
   }
   @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
@@ -509,6 +509,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   #rail button.off { opacity: 0.3; pointer-events: none; }
   #rail button:focus-visible { outline: 2px solid #d8b46a; outline-offset: 2px; }
 }
+
+/* No cream frame around the reading card: the card's own gold border becomes the outer edge and it fills the whole panel */
+#content-panel { background: transparent; border: 0; border-radius: 0; }
+#content-box { padding: 0; background: transparent; }
+#content-box .gc-card { max-width: none; margin: 0; border-radius: 16px; }
 </style>
 </head>
 <body>
@@ -926,12 +931,12 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     const ready = () => screenEl.classList.add("ready");
     if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
     // the glowing Start button starts to appear only AFTER the picture is fully shown AND both text lines have risen,
-    // plus a quiet pause (BTN_PAUSE); the button itself then fades in over 7 s (startBtnIn)
-    const BTN_PAUSE = 3000;
+    // plus a quiet pause (BTN_PAUSE); the button itself then fades in over 2.5 s (startBtnIn)
+    const BTN_PAUSE = 800;
     const showBtn = () => screenEl.classList.add("btn-on");
     const lastLine = screenEl.querySelector("#start-text p:last-child");
     if (lastLine) lastLine.addEventListener("animationend", () => setTimeout(showBtn, BTN_PAUSE));
-    setTimeout(showBtn, 16000);   // safety net
+    setTimeout(showBtn, 8000);   // safety net
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
