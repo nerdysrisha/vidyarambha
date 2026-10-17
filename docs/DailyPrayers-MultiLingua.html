@@ -971,7 +971,7 @@ body.stage-on { overscroll-behavior-y: none; }
      verse box on top (45% of the height, grows only if the verse needs it) -> small ornament -> tabs + meaning panel fill the rest
      (short meaning: centred; long meaning: scrolls inside with soft fades) */
     #content-box .verse-block { display: flex; flex-direction: column; height: calc(var(--area-h, 100vh) - 6px); min-height: 0; padding: 44px 8px 8px 8px; }
-    #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 45%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
+    #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 60%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
     #content-box .verse-block > .verse-grid::after { content: ""; position: absolute; left: 50%; top: 100%; width: 130px; height: 16px; margin: 1px 0 0 -65px;
           background: var(--sep-h-img) no-repeat center / contain; pointer-events: none; }
     #content-box .verse-block > .mtabs { flex: 1 1 0; min-height: 0; margin: 0; display: flex; flex-direction: column; }
@@ -1497,7 +1497,7 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { flex: none; }
   #navbar .ls-btn { display: none; }
   #content-box .verse-block { display: flex; flex-direction: column; height: calc(var(--area-h, 100vh) - 6px); min-height: 0; padding: 44px 8px 8px 8px; }
-  #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 45%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
+  #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 60%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
   #content-box .verse-block > .verse-grid::after { content: ""; position: absolute; left: 50%; top: 100%; width: 130px; height: 16px; margin: 1px 0 0 -65px;
         background: var(--sep-h-img) no-repeat center / contain; pointer-events: none; }
   #content-box .verse-block > .mtabs { flex: 1 1 0; min-height: 0; margin: 0; display: flex; flex-direction: column; }
@@ -2421,7 +2421,7 @@ function fitVerses() {
                 const padY = parseFloat(gs.paddingTop) + parseFloat(gs.paddingBottom) + parseFloat(gs.borderTopWidth) + parseFloat(gs.borderBottomWidth);
                 const lines = Math.max(1, slEl.innerHTML.split(/<br\s*\/?>/i).length);
                 const lhPerPx = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;     // line height per 1px of block font size
-                if (lhPerPx > 0 && innerH > 0) f = Math.max(Math.min(f, (innerH * 0.45 - padY) / (lines * lhPerPx)), Math.min(f, FIT_MIN));
+                if (lhPerPx > 0 && innerH > 0) f = Math.max(Math.min(f, (innerH * 0.60 - padY) / (lines * lhPerPx)), Math.min(f, FIT_MIN));
             }
             return f;
         }
