@@ -617,18 +617,28 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #counter { font-size: 12.5px; color: #777; min-width: 70px; text-align: center; }
 #navbar #prevBtn, #navbar #nextBtn { width: 44px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
 #navbar #prevBtn svg, #navbar #nextBtn svg { width: 20px; height: 20px; display: block; }
-/* Speed: three buttons (1x / 1.5x / 1.75x) always visible; the current one is filled gold.
+/* Speed: ONE pill shows the current speed (1x / 1.5x / 1.75x); tap it and the other two speeds pop up above it.
    Dimmed + disabled when the current prayer has no audio. */
-#speedGroup { position: relative; display: flex; align-items: center; gap: 4px; margin-left: 4px; }
+#speedGroup { position: relative; display: flex; align-items: center; margin-left: 4px; }
+#navbar #speedGroup button.speed-main,
 #navbar #speedGroup button.speed-btn {
     min-width: 42px; height: 30px; padding: 0 8px; border-radius: 15px;
     background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
     font: 700 11.5px/1 system-ui, sans-serif; cursor: pointer; white-space: nowrap;
     display: inline-flex; align-items: center; justify-content: center;
 }
+#navbar #speedGroup button.speed-main:hover,
 #navbar #speedGroup button.speed-btn:hover { background: #d8b46a33; }
-#navbar #speedGroup button.speed-btn.active { background: #d8b46a; color: #111; }
-#navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; color: #d8b46a; }
+#navbar #speedGroup button.speed-main[aria-expanded="true"] { background: #d8b46a33; }
+#navbar #speedGroup button.speed-main:disabled,
+#navbar #speedGroup button.speed-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+#navbar #speedGroup button.speed-btn[hidden] { display: none; }
+#speedPop {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; padding: 6px; z-index: 45;
+    background: #111; border: 1px solid #333; border-radius: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+#speedPop[hidden] { display: none; }
 /* ── PER-LANGUAGE TEXT: shloka (.sl) and meaning (.mn). New language = one more line here + one line in LANGS (JS) ── */
 /* verse fonts: change a name in these three lines to try another look (Telugu ideas: 'Ramabhadra', 'Suranna', 'Gidugu') */
 #content-box .verse-block { --vf-te: 'Tiro Telugu', 'Noto Serif Telugu', 'Noto Sans Telugu', serif;
@@ -914,9 +924,9 @@ body.stage-on { overscroll-behavior-y: none; }
         scrollbar-width: none; -ms-overflow-style: none; }
   #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
   /* round (portrait / landscape-phone) speed buttons: smaller label so "1.75×" stays inside the circle */
-  #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
   @media (max-height: 520px) {
-    #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+    #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
   }
   @media (max-width: 700px) and (orientation: portrait) {
     /* PORTRAIT (phones) + DESKTOP / TABLET: the card is one fixed-height frame, the same for every verse:
@@ -1237,8 +1247,8 @@ body.stage-on { overscroll-behavior-y: none; }
               background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
   #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
   /* prayer without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
-  #navbar:has(#speedGroup .speed-btn:disabled) .ls-btn, #navbar:has(#speedGroup .speed-btn:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
-  #navbar .ls-btn, #navbar #speedGroup button.speed-btn,
+  #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
     #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn {
         width: 43px; height: 43px; min-width: 43px; padding: 0; border-radius: 50%;
         background: #1a160f; border: 1.5px solid #d8b46a; color: #d8b46a;
@@ -1248,8 +1258,7 @@ body.stage-on { overscroll-behavior-y: none; }
         background: #1a160f !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important; display: inline-flex; align-items: center; justify-content: center; }
   #navbar #lockBtn svg { width: 22px; height: 22px; }
   #speedGroup, #langGroup { margin: 0; }
-  #speedGroup { flex-direction: column; gap: inherit; }
-  #langPop { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: row; }
+  #speedPop, #langPop { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); flex-direction: row; }
   /* dark stage + cards: identical to DailyPrayers (white cards, cream + gold for the verse being read, others dimmed while playing) */
   html, body, #outer, #main-col { background: #14110d; }
   #content-panel, #content-panel.has-dock, #content-box { background: #14110d; }
@@ -1277,23 +1286,23 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { gap: 10px; }
   /* bar is taller now: slightly tighter spacing so it still fits */
   #navbar .ls-btn.ls-nav svg { fill: none; stroke: currentColor; width: 24px; height: 24px; }
-  #navbar:has(#speedGroup .speed-btn:disabled) .ls-btn.ls-nav { opacity: 1; pointer-events: auto; }
+  #navbar:has(#speedMain:disabled) .ls-btn.ls-nav { opacity: 1; pointer-events: auto; }
   /* no audio: up/down still work */
   body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; }
   /* LANDSCAPE TWO-COLUMN: left half = Telugu + transliteration, right half = meaning panel (Telugu / English tabs). One verse fills the screen top to bottom. */
   #content-box { padding: 6px 8px 0 58px; }
   #navbar { left: 6px; padding: 5px 4px; gap: 5px; }
-  #navbar .ls-btn, #navbar #speedGroup button.speed-btn,
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
     #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
     #navbar #lockBtn { width: 32px; height: 32px; min-width: 32px; }
   #navbar .ls-btn svg, #navbar #lockBtn svg { width: 17px; height: 17px; }
   #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { font-size: 14px; padding: 0; }
   #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; }
-    #navbar #speedGroup button.speed-btn { font-size: 9px; letter-spacing: -0.4px; }
+    #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 9px; letter-spacing: -0.4px; }
   /* slimmer, see-through rail; thin dividers between the groups: up/down | play, mute, speed | lock, language */
   #navbar { background: rgba(13, 11, 8, 0.5); border-color: #d8b46a40; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
               -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-  #navbar .ls-btn, #navbar #speedGroup button.speed-btn,
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
     #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { background: rgba(26, 22, 15, 0.45); border-width: 1px; }
   #navbar #lockBtn { background: rgba(26, 22, 15, 0.45) !important; border-width: 1px !important; }
   #navbar .rail-sep { display: block; flex: none; width: 20px; height: 1px; margin: 1px 0; background: #d8b46a66; align-self: center; }
@@ -1322,20 +1331,20 @@ body.stage-on { overscroll-behavior-y: none; }
     #content-box .mtab-panel { box-sizing: border-box; overflow: hidden;
           scrollbar-width: none; -ms-overflow-style: none; }
     #content-box .mtab-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
-    #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+    #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
   }
-  #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 11px; letter-spacing: -0.2px; padding: 0; }
   #themeBtn .ic-sun { display: none; }
   :root { --rb: 38px; }
   /* rail button size: bigger = easier to tap */
   /* ── LEFT RAIL: slightly bigger buttons, content shifts to keep the same gap ── */
   #navbar { gap: 6px; padding: 6px 5px; }
-  #navbar .ls-btn, #navbar #speedGroup button.speed-btn,
+  #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
     #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn,
     #navbar #lockBtn { width: var(--rb); height: var(--rb); min-width: var(--rb); }
   #navbar .ls-btn svg, #navbar #lockBtn svg { width: 20px; height: 20px; }
   #navbar .ls-btn.ls-nav svg { width: 24px; height: 24px; }
-  #navbar #speedGroup button.speed-btn { font-size: 10px; letter-spacing: -0.4px; }
+  #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 10px; letter-spacing: -0.4px; }
   #navbar #langGroup button.lang-main, #navbar #langGroup button.lang-btn { font-size: 15px; }
   #content-box { padding-left: calc(var(--rb) + 26px); }
   /* ── NO OUTER CARD: only the big golden box remains; the verse tag hangs inside its top-left corner (like the language tabs) ── */
@@ -1591,9 +1600,12 @@ body.stage-on { overscroll-behavior-y: none; }
     <button id="lsPause" class="ls-btn" type="button" aria-label="Play / pause"></button>
     <button id="lsMute" class="ls-btn" type="button" aria-label="Mute / unmute"></button>
     <div id="speedGroup" role="group" aria-label="Playback speed">
-        <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1&times;</button>
-        <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5&times;</button>
-        <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
+        <button id="speedMain" class="speed-main" title="Playback speed" aria-label="Playback speed" aria-haspopup="true" aria-expanded="false" disabled>1&times;</button>
+        <div id="speedPop" hidden>
+            <button class="speed-btn" data-rate="1"    title="Normal speed" aria-label="Normal speed" disabled>1&times;</button>
+            <button class="speed-btn" data-rate="1.5"  title="1.5x speed"   aria-label="1.5x speed"   disabled>1.5&times;</button>
+            <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
+        </div>
     </div>
     <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
@@ -2016,6 +2028,7 @@ function stopAudioSync() {
     document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
         b.disabled = true; b.hidden = false; b.classList.remove("active"); b.removeAttribute("aria-pressed"); b.onclick = null;
     });
+    if (window.resetSpeedUI) window.resetSpeedUI();
     contentPanel.classList.remove("has-dock");
     window.audioSyncSeek = null;
     window.audioSyncState = null;
@@ -2161,20 +2174,23 @@ function initAudioSync() {
     contentPanel.classList.add("has-dock");
     buildCustomPlayer(audio, holder);   // replaces the browser's native controls
 
-    // Playback speed: three buttons in the nav bar = 1x / 1.5x / 1.75x. Choice is remembered.
+    // Playback speed: one pill in the nav bar (tap for the other two) = 1x / 1.5x / 1.75x. Choice is remembered.
     audio.setAttribute("controlsList", "nodownload noplaybackrate");   // hide the browser's own speed menu
     const SPEED_BTNS = Array.from(document.querySelectorAll("#speedGroup .speed-btn"));
     const SPEED_VALUES = SPEED_BTNS.map(b => parseFloat(b.dataset.rate));
     let rate = 1;
     try { const v = parseFloat(localStorage.getItem("audioRate")); if (SPEED_VALUES.includes(v)) rate = v; } catch (e) {}
     function paintSpeed() {
-        SPEED_BTNS.forEach(b => { const on = parseFloat(b.dataset.rate) === rate; b.classList.toggle("active", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+        SPEED_BTNS.forEach(b => { const on = parseFloat(b.dataset.rate) === rate; b.classList.toggle("active", on); b.hidden = on; });   // the pop-up lists only the OTHER speeds
+        if (window.setSpeedLabel) window.setSpeedLabel(rate);
     }
     function applyRate() { audio.defaultPlaybackRate = rate; audio.playbackRate = rate; }
-        SPEED_BTNS.forEach(b => {
+        document.getElementById("speedMain").disabled = false;
+    SPEED_BTNS.forEach(b => {
         b.disabled = false;
         b.onclick = () => {          // onclick (not addEventListener) so topics don't stack handlers
             rate = parseFloat(b.dataset.rate); applyRate(); paintSpeed();
+            if (window.closeSpeedPop) window.closeSpeedPop();
             try { localStorage.setItem("audioRate", String(rate)); } catch (e) {}
         };
     });
@@ -2921,6 +2937,22 @@ document.getElementById("menuBtn").addEventListener("click", () => {
 toggleBtn.addEventListener("click", () => { if (window.keepVerseInView) window.keepVerseInView(); setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")); });
 setSidebarCollapsed(sidebarEl.classList.contains("collapsed"));   // paint the icon
 
+// ── SPEED PILL + POPUP ────────────────────────────────────────────────
+// The pill shows the current speed (1x / 1.5x / 1.75x). Tap it to pop up the other two; picking one updates the pill.
+const speedMain = document.getElementById("speedMain");
+const speedPop  = document.getElementById("speedPop");
+window.closeSpeedPop = () => { speedPop.hidden = true; speedMain.setAttribute("aria-expanded", "false"); };
+window.setSpeedLabel = r => { speedMain.innerHTML = r + "&times;"; };
+window.resetSpeedUI  = () => { window.closeSpeedPop(); speedMain.disabled = true; speedMain.innerHTML = "1&times;"; };
+speedMain.addEventListener("click", e => {
+    e.stopPropagation();
+    if (speedMain.disabled) return;
+    speedPop.hidden = !speedPop.hidden;
+    speedMain.setAttribute("aria-expanded", speedPop.hidden ? "false" : "true");
+});
+document.addEventListener("click", e => { if (!speedPop.hidden && !speedPop.contains(e.target)) window.closeSpeedPop(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") window.closeSpeedPop(); });
+
 // ── LANGUAGE PILL + POPUP ──
 const langMain = document.getElementById("langMain");
 const langPop  = document.getElementById("langPop");
@@ -2948,11 +2980,13 @@ function setLang(code) {
 }
 langMain.addEventListener("click", e => {
     e.stopPropagation();
+    window.closeSpeedPop();
     langPop.hidden = !langPop.hidden;
     langMain.setAttribute("aria-expanded", langPop.hidden ? "false" : "true");
 });
 document.addEventListener("click", e => { if (!langPop.hidden && !langPop.contains(e.target)) closeLangPop(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeLangPop(); });
+speedMain.addEventListener("click", closeLangPop);
 paintLang();
 
 // ── THEME (portrait + landscape phone; button is in the topics header): light = default, dark = body.dark; choice is remembered ──
