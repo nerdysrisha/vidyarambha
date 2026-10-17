@@ -436,6 +436,65 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 @media (min-width: 701px) { #start-text p { font-size: 22px !important; } }
 @media (prefers-reduced-motion: reduce) { #start-screen.btn-on #start-btn { opacity: 1; } #start-screen.ready #start-text p { animation-duration: .01s; animation-delay: 0s !important; transform: none; } #start-screen.ready::before { animation-duration: .01s; } #start-btn { animation: none !important; } #start-screen.leaving { animation-duration: .3s; } #start-screen.leaving #start-btn { animation: none; } }
+
+/* ══ CARD READER (one chapter at a time, same palette as the Bhagavad Gita page) ══ */
+#content-box { overflow: hidden; display: flex; flex-direction: column; padding: 14px; background: #faf8f4; }
+#content-box::after { display: none; }
+@media (max-width: 700px) { #content-box { padding: 6px; } }
+#content-box .gc-src { display: none; }
+#content-box .gc-card {
+    position: relative; flex: 1 1 auto; min-height: 0; width: 100%; max-width: 880px; margin: 0 auto; box-sizing: border-box;
+    display: flex; flex-direction: column; overflow: hidden;
+    background: #fffaf0; border: 1px solid #c9a15a; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+}
+/* label hanging inside the top-left corner (same as the Gita's "Verse N" tag) */
+#content-box .gc-tag {
+    position: absolute; top: 0; left: 0; z-index: 3; margin: 0; padding: 7px 14px 7px 13px;
+    background: #fbe6bd; color: #7a4a12; border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a;
+    border-radius: 15px 0 14px 0;
+    font: 600 12.5px/1.2 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: 0.02em;
+}
+/* the text scrolls inside the box; no scrollbar; soft fade at the edge where there is more text */
+#content-box .gc-scroll {
+    flex: 1 1 auto; min-height: 0; margin: 38px 4px 6px 4px; padding: 4px 18px 14px 18px; box-sizing: border-box;
+    overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; -ms-overflow-style: none; color: #2b2b2b;
+}
+#content-box .gc-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+#content-box .gc-scroll.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 26px); mask-image: linear-gradient(to bottom, transparent 0, #000 26px); }
+#content-box .gc-scroll.fade-b { -webkit-mask-image: linear-gradient(to top, transparent 0, #000 44px); mask-image: linear-gradient(to top, transparent 0, #000 44px); }
+#content-box .gc-scroll.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 44px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 26px, #000 calc(100% - 44px), transparent 100%); }
+#content-box .gc-scroll.swap { animation: gcIn .45s ease both; }
+@keyframes gcIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* chapter text inside the card: drop the stand-alone page spacing */
+#content-box .gc-scroll .chapter { max-width: none; margin: 0; padding-bottom: 0; border-bottom: none; }
+#content-box .gc-scroll .gc-opening { max-width: none !important; margin: 0 0 22px 0 !important; padding: 10px 0 24px 0 !important; }
+@media (max-width: 700px) {
+  #content-box .gc-scroll { padding: 4px 12px 12px 12px; }
+  #content-box .gc-scroll .ch-title { font-size: 1.3rem; }
+  #content-box .gc-scroll .ch-text { font-size: 1.02rem; line-height: 1.85; }
+}
+/* Next chapter button at the end of the text (same pill as the Gita's "next") */
+#content-box .gc-next {
+    display: table; margin: 30px auto 10px auto; padding: 10px 22px; cursor: pointer; text-align: center;
+    font: italic 1.02rem/1.3 'Lora', Georgia, serif; color: #7a4a12; background: transparent;
+    border: 1px solid #c9a15a; border-radius: 999px; -webkit-tap-highlight-color: transparent;
+}
+#content-box .gc-next::after { content: " \2192"; }
+#content-box .gc-next.loop::after { content: " \21BB"; }
+#content-box .gc-next:hover, #content-box .gc-next:active { color: #4a2400; background: #fff4d9; }
+/* up / down arrows: bottom-right of the card (same look as the Gita's verse arrows) */
+#content-box .gc-arrows { position: absolute; right: 12px; bottom: 12px; z-index: 4; display: flex; flex-direction: column; gap: 12px; }
+#content-box .gc-arrows button {
+    width: 42px; height: 42px; padding: 0; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.65; box-shadow: 0 1px 4px rgba(0,0,0,0.25); -webkit-tap-highlight-color: transparent;
+}
+#content-box .gc-arrows button:hover, #content-box .gc-arrows button:active { opacity: 1; }
+#content-box .gc-arrows button.off { opacity: 0.25; pointer-events: none; }
+#content-box .gc-arrows svg { width: 24px; height: 24px; }
+#content-box .gc-card .bookmarked::after { background: linear-gradient(225deg, #fffaf0 0%, #fffaf0 50%, #ecd08a 50%, #b88a3a 100%); }
+@media (prefers-reduced-motion: reduce) { #content-box .gc-scroll.swap { animation: none; } }
 </style>
 </head>
 <body>
@@ -541,26 +600,76 @@ fetch(CHAPTERS_URL)
             '(e.g. GitHub Pages or a local server) — opening it directly (file://) blocks fetch().</div>';
     });
 
+let srcEl, openingEl, scroller, tagEl, upBtn, dnBtn, pillEl;
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function buildCard() {
+    const card = document.createElement("div"); card.className = "gc-card";
+    tagEl = document.createElement("div"); tagEl.className = "gc-tag";
+    scroller = document.createElement("div"); scroller.className = "gc-scroll gc-book";   // gc-book keeps the child file's chapter styles working
+    const arrows = document.createElement("div"); arrows.className = "gc-arrows";
+    arrows.innerHTML =
+        '<button type="button" class="gc-up" aria-label="Scroll up" title="Scroll up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>' +
+        '<button type="button" class="gc-down" aria-label="Scroll down" title="Scroll down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>';
+    card.append(tagEl, scroller, arrows);
+    contentBox.appendChild(card);
+    upBtn = arrows.querySelector(".gc-up"); dnBtn = arrows.querySelector(".gc-down");
+    pillEl = document.createElement("button"); pillEl.type = "button"; pillEl.className = "gc-next";
+    pillEl.addEventListener("click", () => goTo((current + 1) % chapters.length, false));
+    upBtn.addEventListener("click", () => pageScroll(-1));
+    dnBtn.addEventListener("click", () => pageScroll(1));
+    scroller.addEventListener("scroll", updateFade, { passive: true });
+    window.addEventListener("resize", updateFade);
+}
+function pageScroll(dir) {
+    scroller.scrollBy({ top: dir * Math.max(80, scroller.clientHeight * 0.85), behavior: reduceMotion ? "auto" : "smooth" });
+}
+function updateFade() {
+    if (!scroller) return;
+    const t = scroller.scrollTop > 4, b = scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 4;
+    scroller.classList.toggle("fade-t", t); scroller.classList.toggle("fade-b", b);
+    upBtn.classList.toggle("off", !t); dnBtn.classList.toggle("off", !b);
+}
+
+// put chapter i inside the card (the other chapters wait, hidden, in the .gc-src holder)
+function showChapter(i) {
+    const c = chapters[i];
+    const old = scroller.querySelector("section.chapter");
+    if (old) srcEl.appendChild(old);
+    if (openingEl && openingEl.parentNode === scroller) srcEl.appendChild(openingEl);
+    if (pillEl.parentNode) pillEl.remove();
+    if (i === 0 && openingEl) scroller.appendChild(openingEl);     // the opening invocation belongs on top of chapter 1 only
+    scroller.appendChild(c.el);
+    const last = i === chapters.length - 1;
+    pillEl.classList.toggle("loop", last);
+    pillEl.textContent = last ? "Back to Chapter " + chapters[0].num : "Next Chapter";
+    scroller.appendChild(pillEl);
+    tagEl.textContent = "Chapter " + c.num;
+    scroller.scrollTop = 0;
+    scroller.classList.remove("swap"); void scroller.offsetWidth; scroller.classList.add("swap");
+    updateFade();
+}
+
 function initChapters() {
     const els = contentBox.querySelectorAll("section.chapter");
     if (!els.length) {
         contentBox.innerHTML = '<div style="color:#b5432f;">No <code>&lt;section class="chapter"&gt;</code> blocks found in ' + CHAPTERS_URL + '.</div>';
         return;
     }
+    // park everything the child file brought in a hidden holder; the card shows one chapter at a time
+    srcEl = document.createElement("div"); srcEl.className = "gc-src";
+    while (contentBox.firstChild) srcEl.appendChild(contentBox.firstChild);
+    contentBox.appendChild(srcEl);
+    openingEl = srcEl.querySelector(".gc-opening");
+    buildCard();
 
     els.forEach((el, i) => {
-        const text = el.textContent;                       // read before the bar is injected
+        const text = el.textContent;
         const id = el.id || ("ch" + (i + 1));
         el.id = id;
         const num = el.dataset.num || (i + 1);
         const titleEl = el.querySelector(".ch-title");
         const title = (titleEl ? titleEl.textContent.trim() : "") || ("Chapter " + num);
-
-        // bar above the chapter: number badge
-        const bar = document.createElement("div");
-        bar.className = "ch-bar";
-        bar.innerHTML = '<span class="ch-badge">Chapter ' + num + '</span>';
-        el.insertBefore(bar, el.firstChild);
 
         // sidebar entry
         const item = document.createElement("div");
@@ -577,70 +686,23 @@ function initChapters() {
     chCount.textContent = chapters.length;
     markBookmark(); paintBmBtn();
 
-    // where to start: URL hash (#ch23) → last read → top
+    // where to start: URL hash (#ch23) → last read → first
     const fromHash = chapters.findIndex(c => c.id === location.hash.slice(1));
     const fromLast = chapters.findIndex(c => c.id === lsGet("gc_last", null));
-    const start = fromHash >= 0 ? fromHash : (fromLast >= 0 ? fromLast : 0);
-    goTo(start, false);
+    goTo(fromHash >= 0 ? fromHash : (fromLast >= 0 ? fromLast : 0), false);
 
-    // web fonts shift the layout slightly once loaded — re-align if the reader hasn't moved yet
-    ["wheel", "touchstart", "mousedown", "keydown"].forEach(ev =>
-        contentBox.addEventListener(ev, () => { userMoved = true; }, { passive: true, once: true }));
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
-            const listOpenOnPhone = isNarrow() && !sidebarEl.classList.contains("collapsed");   // text is hidden then; the list-close re-aligns it
-            if (!userMoved && current >= 0 && !listOpenOnPhone) { current = -1; goTo(start, false); }
-        });
-    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateFade);
     // phones: open on the chapter list; tapping a chapter closes it and shows that chapter
     if (isNarrow()) setCollapsed(false);
 }
 
 // ── NAVIGATION ──────────────────────────────────────────────────────────
-// Smooth, eased scroll (used by Prev / Next). Longer trips take a little longer, capped at 1.4s.
-const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-let anim = null;
-function cancelAnim() {
-    if (!anim) return;
-    cancelAnimationFrame(anim.raf);
-    anim = null;
-    lockUntil = Date.now() + 100;
-}
-function smoothScrollTo(top) {
-    cancelAnim();
-    const from = contentBox.scrollTop, dist = top - from;
-    if (Math.abs(dist) < 2) { contentBox.scrollTop = top; return; }
-    const dur = Math.min(1400, Math.max(600, Math.abs(dist) * 0.6));
-    const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // easeInOutCubic
-    const t0 = performance.now();
-    const a = anim = { raf: 0 };
-    lockUntil = Infinity;                       // keep scroll-tracking quiet until we arrive
-    const step = now => {
-        if (anim !== a) return;
-        const t = Math.min(1, (now - t0) / dur);
-        contentBox.scrollTop = from + dist * ease(t);
-        if (t < 1) a.raf = requestAnimationFrame(step);
-        else { anim = null; lockUntil = Date.now() + 200; }
-    };
-    a.raf = requestAnimationFrame(step);
-}
-// the reader taking over (wheel / touch / scrollbar drag) stops the animation
-["wheel", "touchstart", "mousedown"].forEach(ev =>
-    contentBox.addEventListener(ev, () => cancelAnim(), { passive: true }));
-
-function goTo(i, fromSidebar, animate) {
+function goTo(i, fromSidebar) {
     if (i < 0 || i >= chapters.length) return;
-    if (fromSidebar && isNarrow()) setCollapsed(true);   // show the text first so offsets are measurable
-    const top = chapters[i].el.offsetTop - 12;
-    if (animate && !reduceMotion) {
-        setCurrent(i);                                   // counter / highlight switch straight away
-        smoothScrollTo(top);
-        return;
-    }
-    cancelAnim();
-    lockUntil = Date.now() + 200;
-    contentBox.scrollTop = top;
+    if (fromSidebar && isNarrow()) setCollapsed(true);   // show the card first so it can be measured
+    showChapter(i);
     setCurrent(i);
+    requestAnimationFrame(updateFade);
 }
 
 function setCurrent(i) {
@@ -666,36 +728,20 @@ function scheduleSave() {
     }, 250);
 }
 
-// scroll tracking: highlight whichever chapter is at the top of the reading area
-let ticking = false;
-contentBox.addEventListener("scroll", () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-        ticking = false;
-        if (!chapters.length || Date.now() < lockUntil) return;
-        const y = contentBox.scrollTop + 40;
-        let idx = 0;
-        for (let k = 0; k < chapters.length; k++) {
-            if (chapters[k].el.offsetTop <= y) idx = k; else break;
-        }
-        setCurrent(idx);
-    });
-});
-
 window.addEventListener("hashchange", () => {
     const k = chapters.findIndex(c => c.id === location.hash.slice(1));
     if (k >= 0 && k !== current) goTo(k, false);
 });
 
-// Prev / Next: one chapter at a time with a smooth scroll; wrapping round at the ends (same as Bhagavad Gita)
-// jumps straight there instead, since gliding through all 56 chapters would just be a blur
-prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false, current > 0); };
-nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false, current < chapters.length - 1); };
+// Prev / Next: one chapter at a time, wrapping round at the ends (same as Bhagavad Gita)
+prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false); };
+nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false); };
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); nextBtn.click(); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); prevBtn.click(); }
+    if (e.key === "ArrowDown" && scroller) { e.preventDefault(); pageScroll(1); }
+    if (e.key === "ArrowUp" && scroller)   { e.preventDefault(); pageScroll(-1); }
 });
 
 // ── BOOKMARK (same as Bhagavad Gita) ────────────────────────────────────
@@ -766,12 +812,11 @@ function scrollToBookmarkBlock(flash) {
     const c = bookmark && chapters.find(x => x.id === bookmark.id);
     const el = c && blocksOf(c)[bookmark.index];
     if (!el) return false;
-    cancelAnim();
-    lockUntil = Date.now() + 300;
-    setCurrent(chapters.indexOf(c));
-    const box = contentBox.getBoundingClientRect(), r = el.getBoundingClientRect();
-    const want = r.height > contentBox.clientHeight - 16 ? 8 : (contentBox.clientHeight - r.height) / 2;
-    contentBox.scrollTop += (r.top - box.top) - want;
+    const idx = chapters.indexOf(c);
+    if (idx !== current || !scroller.contains(c.el)) goTo(idx, false);
+    const box = scroller.getBoundingClientRect(), r = el.getBoundingClientRect();
+    const want = r.height > scroller.clientHeight - 16 ? 8 : (scroller.clientHeight - r.height) / 2;
+    scroller.scrollTop += (r.top - box.top) - want;
     if (flash) { el.classList.add("bm-flash"); setTimeout(() => el.classList.remove("bm-flash"), 1500); }
     return true;
 }
@@ -812,16 +857,16 @@ const menuBtn = document.getElementById("menuBtn");
 let savedScroll = 0;
 function setCollapsed(collapsed) {
     const wasOpen = !sidebarEl.classList.contains("collapsed");
-    // phones hide the text while the list is open, which resets its scroll: remember and restore it
-    if (isNarrow() && wasOpen === false && !collapsed) savedScroll = contentBox.scrollTop;
+    // phones hide the card while the list is open, which resets its scroll: remember and restore it
+    if (isNarrow() && wasOpen === false && !collapsed && scroller) savedScroll = scroller.scrollTop;
     sidebarEl.classList.toggle("collapsed", collapsed);
     toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
     toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
     document.body.classList.toggle("side-open", !collapsed);
     menuBtn.classList.toggle("open", !collapsed);
-    if (isNarrow() && collapsed && wasOpen && chapters.length) {
-        lockUntil = Date.now() + 300;
-        contentBox.scrollTop = (!userMoved && current >= 0) ? chapters[current].el.offsetTop - 12 : savedScroll;
+    if (isNarrow() && collapsed && wasOpen && scroller) {
+        scroller.scrollTop = savedScroll;
+        requestAnimationFrame(updateFade);
     }
 }
 toggleBtn.addEventListener("click", () => setCollapsed(!sidebarEl.classList.contains("collapsed")));
