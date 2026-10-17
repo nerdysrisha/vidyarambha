@@ -82,54 +82,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #sidebar-toggle:hover { background: #1a1a1a; color: #00c8ff; }
 #sidebar.collapsed #sidebar-body { display: none; }
-#sidebar.collapsed #sidebar-search-row { display: none; }
 
-/* SEARCH */
-#sidebar-search-row {
-    padding: 8px 12px;
-    border-bottom: 1px solid #222;
-    position: sticky;
-    top: 45px;
-    background: #111;
-    z-index: 1;
-}
-#topic-search {
-    width: 100%;
-    box-sizing: border-box;
-    background: #0a0a0a;
-    border: 1px solid #333;
-    border-radius: 6px;
-    padding: 7px 28px 7px 10px;
-    color: #eee;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-}
-#topic-search::placeholder { color: #666; }
-#topic-search:focus { border-color: #00c8ff88; }
-#search-wrap { position: relative; }
-#search-clear {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: #2a2a2a;
-    color: #999;
-    font-size: 12px;
-    line-height: 1;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-#search-clear.visible { display: flex; }
-#search-clear:hover { background: #3a3a3a; color: #fff; }
-#search-count { font-size: 11px; color: #666; padding: 4px 2px 0 2px; }
 
 /* SECTION HEADER (Chapters) */
 .sec-head {
@@ -198,14 +151,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #sidebar-title #sidebar-toggle:hover { background: #1a1a1a; color: #f0d18a; }
 #sidebar.collapsed #sidebar-title { padding: 14px 0; justify-content: center; border-bottom: none; box-shadow: none; background: transparent; }
 
-/* search */
-#sidebar-search-row { flex: none; position: static; padding: 9px 12px 8px 12px; background: rgba(255,248,235,0.55); border-bottom: 1px solid #d8b46a66; }
-#topic-search { background: #fffdf8; border: 1px solid #d8b46a; color: #3a2208; border-radius: 10px; }
-#topic-search::placeholder { color: #9a7a4a; }
-#topic-search:focus { border-color: #c9922e; box-shadow: 0 0 0 2px #c9922e33; }
-#search-clear { background: #ecd7ab; color: #6b4a14; }
-#search-clear:hover { background: #e2c487; color: #3a2208; }
-#search-count { color: #7a4a12; }
 
 /* only the list scrolls */
 #sidebar-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #c9922e88 transparent; }
@@ -514,6 +459,45 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-panel { background: transparent; border: 0; border-radius: 0; }
 #content-box { padding: 0; background: transparent; }
 #content-box .gc-card { max-width: none; margin: 0; border-radius: 16px; }
+
+/* ── THEME PILL (in the chapters heading) ── */
+#theme-pill {
+    position: relative; flex: none; margin-left: auto; width: 50px; height: 26px; padding: 0; cursor: pointer; border-radius: 999px;
+    background: #3a2c14; border: 1px solid #d8b46a99; -webkit-tap-highlight-color: transparent; transition: background .2s ease;
+}
+#theme-pill .knob {
+    position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%;
+    background: #d8b46a; color: #3a2200; display: flex; align-items: center; justify-content: center;
+    transition: transform .2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+#theme-pill .knob svg { width: 14px; height: 14px; }
+#theme-pill .i-moon { display: none; }
+body.dark #theme-pill { background: #14110d; }
+body.dark #theme-pill .knob { transform: translateX(24px); }
+body.dark #theme-pill .i-sun { display: none; }
+body.dark #theme-pill .i-moon { display: block; }
+#theme-pill:focus-visible { outline: 2px solid #d8b46a; outline-offset: 2px; }
+#sidebar.collapsed #theme-pill { display: none; }
+
+/* ── DARK THEME (chapter list + reading card) ── */
+body.dark { background: #100d09; }
+body.dark #sidebar { background: linear-gradient(165deg, #231e16 0%, #171410 100%); border-color: #d8b46a44; }
+body.dark .ch-item { background: #221d16; color: #e6dcc8; box-shadow: inset 0 0 0 1px rgba(216,180,106,0.25), 0 1px 3px rgba(0,0,0,0.4); }
+body.dark .ch-item:hover { background: #2c261c; color: #f3e9d2; }
+body.dark .ch-item .nm { color: #e6dcc8; }
+body.dark .ch-item.active { background: #33291a; box-shadow: inset 0 0 0 2px #c9922e, 0 1px 4px rgba(0,0,0,0.5); }
+body.dark .ch-item.active .num { box-shadow: 0 0 0 2px #33291a, 0 0 0 4px #c9922e; }
+body.dark #content-box .gc-card { background: #1a1712; border-color: #8a6d3a; box-shadow: 0 2px 12px rgba(0,0,0,0.55); }
+body.dark #content-box .gc-tag { background: #2a2218; color: #d8b46a; border-color: #8a6d3a; }
+body.dark #content-box .gc-scroll { color: #e6dcc8; }
+/* the chapter file brings its own colours, so the dark text/background is forced on its elements */
+body.dark #content-box .gc-scroll :where(p, span, div, li, em, strong, i, b, blockquote, h1, h2, h3, h4, small) { color: #e6dcc8 !important; background-color: transparent !important; border-color: #8a6d3a88 !important; }
+body.dark #content-box .gc-scroll .ch-title, body.dark #content-box .gc-scroll .ch-title * { color: #d8b46a !important; }
+body.dark #content-box .gc-scroll .ch-badge { color: #d8b46a !important; background-color: #2a2218 !important; border-color: #8a6d3a !important; }
+body.dark #content-box .gc-scroll a { color: #e8c177 !important; }
+body.dark #content-box .gc-next { color: #d8b46a; border-color: #8a6d3a; }
+body.dark #content-box .gc-next:hover, body.dark #content-box .gc-next:active { color: #f0d18a; background: #2a2218; }
+body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .bookmarked::after { background: linear-gradient(225deg, #1a1712 0%, #1a1712 50%, #ecd08a 50%, #b88a3a 100%); }
 </style>
 </head>
 <body>
@@ -536,14 +520,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">Guru Charitra</span>
+            <button id="theme-pill" type="button" role="switch" aria-checked="false" aria-label="Dark theme" title="Switch to dark theme"><span class="knob"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg></span></button>
             <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
-        </div>
-        <div id="sidebar-search-row">
-            <div id="search-wrap">
-                <input id="topic-search" type="text" placeholder="Search chapters or text...">
-                <button id="search-clear">&#10005;</button>
-            </div>
-            <div id="search-count"></div>
         </div>
         <div id="sidebar-body">
             <div class="sec-head"><span>Chapters</span><span class="count" id="ch-count"></span></div>
@@ -598,16 +576,13 @@ function lsSet(key, val) {
 }
 
 // ── STATE ───────────────────────────────────────────────────────────────
-let chapters = [];          // { id, num, title, el, item, search }
+let chapters = [];          // { id, num, title, el, item }
 let current = -1;
 let lockUntil = 0;          // ignore scroll-tracking briefly right after a jump
 let userMoved = false;
 
 const isNarrow = () => window.innerWidth <= 700;
 
-function normalizeSearch(s) {
-    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
 
 // ── LOAD THE CHILD FILE ─────────────────────────────────────────────────
 fetch(CHAPTERS_URL)
@@ -696,7 +671,7 @@ function initChapters() {
         item.addEventListener("click", () => goTo(i, true));
         chList.appendChild(item);
 
-        chapters.push({ id, num, title, el, item, search: normalizeSearch(num + " " + title + " " + text) });
+        chapters.push({ id, num, title, el, item });
     });
 
     chCount.textContent = chapters.length;
@@ -849,26 +824,17 @@ bmBtn.addEventListener("click", () => {
     setTimeout(again, 350); setTimeout(again, 900);
 });
 
-// ── SEARCH (chapter number, heading and full chapter text) ──────────────
-const searchInput = document.getElementById("topic-search");
-const searchCount = document.getElementById("search-count");
-const searchClear = document.getElementById("search-clear");
-
-function runSearch() {
-    const q = normalizeSearch(searchInput.value.trim());
-    searchClear.classList.toggle("visible", searchInput.value.length > 0);
-    let n = 0;
-    chapters.forEach(c => {
-        const ok = !q || c.search.includes(q);
-        c.item.style.display = ok ? "" : "none";
-        if (ok) n++;
-    });
-    searchCount.textContent = q ? (n ? n + " chapter" + (n === 1 ? "" : "s") + " found" : "No chapters found") : "";
+// ── THEME (light / dark) ────────────────────────────────────────────────
+const themeBtn = document.getElementById("theme-pill");
+function applyTheme(dark) {
+    document.body.classList.toggle("dark", dark);
+    themeBtn.setAttribute("aria-checked", dark ? "true" : "false");
+    themeBtn.title = dark ? "Switch to light theme" : "Switch to dark theme";
 }
-searchInput.addEventListener("input", runSearch);
-searchClear.addEventListener("click", () => { searchInput.value = ""; runSearch(); searchInput.focus(); });
-searchInput.addEventListener("keydown", e => {
-    if (e.key === "Escape" && searchInput.value) { e.stopPropagation(); searchInput.value = ""; runSearch(); }
+applyTheme(lsGet("gc_theme", "light") === "dark");
+themeBtn.addEventListener("click", () => {
+    const dark = !document.body.classList.contains("dark");
+    applyTheme(dark); lsSet("gc_theme", dark ? "dark" : "light");
 });
 
 // ── SIDEBAR COLLAPSE ────────────────────────────────────────────────────
