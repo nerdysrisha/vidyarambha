@@ -2408,7 +2408,7 @@ function fitVerses() {
     contentBox.querySelectorAll(".verse-block .sl").forEach(sl => setVerseMode(sl, land ? (meaningHidden ? "danda" : "flow") : "lines"));
     const fitKey = land ? "l" : (desktop ? "d" : "p");                // layout changed (e.g. phone turned): jump to the new size, no gliding
     const sameLayout = (window._lastFitKey === fitKey); window._lastFitKey = fitKey;
-    const TEST = 20, GAP = 0.28, K = TEXT_K * (splitView ? SPLIT_K : (phonePortrait ? PORTRAIT_K : 1));   // GAP = space between verse lines in em (same number in the .vl CSS)
+    const TEST = 20, GAP = 0.28, K = TEXT_K * (splitView ? SPLIT_K : (phonePortrait ? PORTRAIT_K : 1.12));   // GAP = space between verse lines in em (same number in the .vl CSS)
     const prevSize = blocks.map(b => sameLayout ? b.style.fontSize : "");   // remember the current sizes so a change can glide instead of jump
     contentBox.classList.add("fit-measure");                          // measuring: every row on one line, so its true width can be read
     blocks.forEach(b => { b.style.transition = "none"; b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
