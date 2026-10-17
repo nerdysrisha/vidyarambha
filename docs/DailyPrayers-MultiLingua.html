@@ -1290,7 +1290,7 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
               padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
               background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#sizeBtn):not(.rail-sep) { display: none !important; }
   /* prayer without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1497,7 +1497,7 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { flex: none; }
   #navbar .ls-btn { display: none; }
   #content-box .verse-block { display: flex; flex-direction: column; height: calc(var(--area-h, 100vh) - 6px); min-height: 0; padding: 44px 8px 8px 8px; }
-  #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 60%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
+  #content-box .verse-block > .verse-grid { flex: 0 0 auto; min-height: 45%; margin: 0 0 18px 0; align-content: center; justify-items: center; }
   #content-box .verse-block > .verse-grid::after { content: ""; position: absolute; left: 50%; top: 100%; width: 130px; height: 16px; margin: 1px 0 0 -65px;
         background: var(--sep-h-img) no-repeat center / contain; pointer-events: none; }
   #content-box .verse-block > .mtabs { flex: 1 1 0; min-height: 0; margin: 0; display: flex; flex-direction: column; }
@@ -1579,6 +1579,37 @@ body.stage-on { overscroll-behavior-y: none; }
   /* first card of a prayer (and after a rotation) appears at once */
   #content-box .stage.no-anim .stage-item, #content-box .stage.no-anim .stage-item > *, #content-box .stage.no-anim .stage-item::after { animation: none !important; }
 }
+
+/* ── TEXT SIZE button + VERSE LINES ── */
+#content-box .sl .vl { display: block; white-space: normal; text-wrap: balance; }       /* a long line breaks once, near its middle */
+#content-box .sl .vl + .vl { margin-top: 0.28em; }                                       /* same number as GAP in fitVerses() */
+#navbar #sizeBtn { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 30px; padding: 0 4px; margin-left: 4px; border-radius: 15px;
+    background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a; font: 700 14px/1 Georgia, "Times New Roman", serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#navbar #sizeBtn:hover { background: #d8b46a33; }
+@media (max-width: 700px) and (orientation: portrait) { #navbar #sizeBtn { min-width: 30px; margin-left: 2px; } }
+@media (max-width: 380px) { #navbar #sizeBtn { min-width: 28px; font-size: 13px; padding: 0; margin-left: 0; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar > #sizeBtn { width: var(--rb); height: var(--rb); min-width: var(--rb); margin: 0; padding: 0; border-radius: 50%; border-width: 1px; background: rgba(26, 22, 15, 0.45); font-size: 15px; }
+}
+
+/* ── LANDSCAPE: the centre pill slides the meaning away to the right, the verse grows into the free width; a pill at the right edge brings it back ── */
+#content-box .stage > .ls-pill { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #content-box .stage > .ls-pill { display: flex; align-items: center; justify-content: center; box-sizing: border-box; position: absolute; bottom: 14px; z-index: 6; width: 44px; height: 22px; padding: 0; margin: 0;
+      border: 1px solid #c9a15a; border-radius: 11px; background: #fff4d9; color: #9a7326; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+  #content-box .stage > .ls-pill svg { width: 16px; height: 12px; display: block; pointer-events: none; }
+  body.dark #content-box .stage > .ls-pill { background: #2b2314; border-color: #7a6030; color: #d8b46a; }
+  #content-box .stage > .ls-hide { left: 50%; transform: translateX(-50%); }
+  #content-box .stage > .ls-show { display: none; right: 40px; }
+  #content-box .stage.mhide > .ls-hide { display: none; }
+  #content-box .stage.mhide > .ls-show { display: flex; }
+  #content-box .stage > .verse-block { transition: grid-template-columns .5s ease, column-gap .5s ease !important; }
+  #content-box .stage > .verse-block > .mtabs { transition: opacity .35s ease; }
+  #content-box .stage.mhide > .verse-block { grid-template-columns: minmax(0, 1fr) minmax(0, 0fr); column-gap: 0; }
+  #content-box .stage.mhide > .verse-block > .mtabs { opacity: 0; pointer-events: none; overflow: hidden; }
+  #content-box .stage.mhide::before { background: #fff4d9; }                  /* the centre ornament goes with the meaning */
+  body.dark #content-box .stage.mhide::before { background: #1d1710; }
+}
 </style>
 </head>
 <body>
@@ -1650,6 +1681,7 @@ body.stage-on { overscroll-behavior-y: none; }
             <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75&times;</button>
         </div>
     </div>
+    <button id="sizeBtn" type="button" title="Text size" aria-label="Text size">A</button>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
     <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
@@ -1901,12 +1933,22 @@ const Stage = (function () {
     // ── FLOW mode: the pill on the ornament (or the one at the bottom while flowing) toggles it. Only exists while the stage exists (portrait). ──
     const ICON_FLOW = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2h12M2 6h12M2 10h12"/></svg>';
     const ICON_SPLIT = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 2h12M2 6h12" /><path d="M5 10h6" /></svg>';
-    function makePill(cls, icon, label) {
+    function makePill(cls, icon, label, handler) {
         const b = document.createElement("button");
         b.type = "button"; b.className = cls; b.innerHTML = icon; b.setAttribute("aria-label", label); b.title = label;
         ["click", "dblclick", "mousedown", "pointerdown", "pointerup", "touchstart", "touchend"].forEach(ev => b.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
-        b.addEventListener("click", e => { e.preventDefault(); toggleFlow(); });
+        b.addEventListener("click", e => { e.preventDefault(); if (handler) handler(); else toggleFlow(); });
         return b;
+    }
+    const ICON_RIGHT = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 2l4 4-4 4M8.5 2l4 4-4 4"/></svg>';
+    const ICON_LEFT = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 2l-4 4 4 4M7.5 2l-4 4 4 4"/></svg>';
+    let meaningHidden = false;      // landscape: is the meaning slid away? (kept from prayer to prayer and remembered)
+    try { meaningHidden = localStorage.getItem("prayersMeaningHidden") === "1"; } catch (e) {}
+    function setMeaningHidden(v) {
+        meaningHidden = v;
+        try { localStorage.setItem("prayersMeaningHidden", v ? "1" : "0"); } catch (e) {}
+        if (wrap) wrap.classList.toggle("mhide", v);
+        fitVerses(); setTimeout(fitVerses, 560);      // the verse grows into the freed width (again once the slide has finished)
     }
     const ICON_UP = '<svg viewBox="0 0 24 24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>';
     const ICON_DOWN = '<svg viewBox="0 0 24 24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
@@ -1962,6 +2004,11 @@ const Stage = (function () {
         flush();
         items.forEach(it => { if (!it.verse) return; const g = it.el.querySelector(":scope > .verse-grid"); if (g && !g.querySelector(":scope > .flow-pill")) { g.appendChild(makePill("flow-pill", ICON_FLOW, "Show only the verses, flowing")); g.appendChild(makeStep(-1)); g.appendChild(makeStep(1)); } });
         flowExitBtn = makePill("flow-exit", ICON_SPLIT, "Back to verse + meaning"); wrap.appendChild(flowExitBtn);
+        if (wrapKey === "landscape") {      // landscape: a pill at the centre slides the meaning away to the right; a pill at the right edge brings it back
+            wrap.appendChild(makePill("ls-pill ls-hide", ICON_RIGHT, "Hide the meaning", () => setMeaningHidden(true)));
+            wrap.appendChild(makePill("ls-pill ls-show", ICON_LEFT, "Show the meaning", () => setMeaningHidden(false)));
+            wrap.classList.toggle("mhide", meaningHidden);
+        }
         tagEl = document.createElement("span"); tagEl.className = "stage-tag"; tagEl.style.display = "none"; wrap.appendChild(tagEl);
         contentBox.appendChild(wrap);
         contentBox.classList.add("stage-on"); document.body.classList.add("stage-on");
@@ -2305,7 +2352,16 @@ function initAudioSync() {
 
 // ── MOBILE FIT: size EACH verse so its longest line just fits the width ──
 const FIT_MIN = 12;   // px: smallest verse text; below this the verse wraps onto more lines instead of shrinking
-const FIT_MAX = 24;   // px: don't blow up very short verses beyond this
+const FIT_MAX = 30;   // px: phone portrait: short verses may grow up to this (desktop and landscape have their own maximums, see fitVerses)
+// TEXT SIZE button (bottom bar): cycles Normal -> Big -> Small. The number is how much of the "fills the box" size is used.
+const SIZE_LEVELS = [{ k: 0.80, label: "A-", name: "small" }, { k: 0.92, label: "A", name: "normal" }, { k: 1, label: "A+", name: "big" }];
+let sizeLevel = 1;
+try { const v = parseInt(localStorage.getItem("prayersTextSize"), 10); if (v >= 0 && v < SIZE_LEVELS.length) sizeLevel = v; } catch (e) {}
+// Every verse line becomes its own block (.vl): a short line stays one row, a long line breaks once near the middle (balanced), lines get a small gap.
+function splitLines(el) {
+    const parts = el.innerHTML.split(/<br\s*\/?>/i).map(x => x.trim()).filter(Boolean);
+    el.innerHTML = parts.map(x => '<span class="vl">' + x + '</span>').join("");
+}
 // ── LANGUAGES + VERSES ──
 // Prayer pages hold, per verse, one block per language:  <div data-lang="te"><div class="sl">shloka</div><div class="mn">meaning</div></div>
 // The page shows the shloka + meaning of the chosen language (button in the bar, saved). The tabs under each verse are a per-verse peek at
@@ -2381,12 +2437,13 @@ function buildVerses() {
         block.appendChild(box);
         // language change: refill the shloka and open that language's meaning (empty panel when this verse lacks it)
         const firstSl = LANGS.map(l => l.code).find(c => data[c] && data[c].sl);   // a language with no verse text of its own shows the first one that has it
-        block._apply = code => { const sc = (data[code] && data[code].sl) ? code : firstSl; sl.dataset.lang = sc || code; sl.innerHTML = sc ? data[sc].sl : ""; show(data[code] && data[code].mn ? code : null); };
+        block._apply = code => { const sc = (data[code] && data[code].sl) ? code : firstSl; sl.dataset.lang = sc || code; sl.innerHTML = sc ? data[sc].sl : ""; splitLines(sl); show(data[code] && data[code].mn ? code : null); };
         block._apply(curLang);
     });
 }
 
-// Picks a font size for each verse so its longest line fits its box (limits: FIT_MIN / FIT_MAX; desktop and landscape have their own maximums).
+// Picks the biggest font size at which the whole verse fits its box (width AND height). Long lines break once (balanced) instead of shrinking the whole stanza;
+// short verses grow when there is room. Limits: FIT_MIN, and a maximum per layout. The A-/A/A+ button scales the result (SIZE_LEVELS).
 function fitVerses() {
     const all = Array.from(contentBox.querySelectorAll(".verse-block, .verse-refrain"));
     const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;   // phone landscape focus mode
@@ -2397,44 +2454,59 @@ function fitVerses() {
     }
     const blocks = desktop ? all.filter(b => b.classList.contains("verse-block")) : all;   // desktop: refrain blocks keep their normal size
     all.filter(b => !blocks.includes(b)).forEach(b => { b.style.fontSize = ""; b.style.whiteSpace = ""; });
-    const MAXPX = land ? 30 : (desktop ? 26 : FIT_MAX);
+    const MAXPX = land ? 36 : (desktop ? 44 : FIT_MAX);
     const portrait = window.matchMedia("(max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px)").matches;   // stacked frame (phone portrait, desktop, tablet)
     if (!contentBox.clientWidth) return;   // content hidden (topic list is open)
-    const TEST = 20;
+    const stageEl = contentBox.querySelector(":scope > .stage");
+    const meaningHidden = !!(land && stageEl && stageEl.classList.contains("mhide"));   // landscape: meaning slid away, the verse has the whole width
+    const TEST = 20, GAP = 0.28, K = SIZE_LEVELS[sizeLevel].k;   // GAP = space between verse lines in em (same number in the .vl CSS)
     blocks.forEach(b => { b.style.whiteSpace = "nowrap"; b.style.fontSize = TEST + "px"; });
     const range = document.createRange();
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         let avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        if (land && b.classList.contains("verse-block")) avail = (avail - 20) / 2;   // landscape: verse = left half, purport = right half
+        if (land && b.classList.contains("verse-block")) avail = meaningHidden ? avail : (avail - 20) / 2;   // landscape: verse = left half, purport = right half
         const slEl = b.querySelector(":scope > .verse-grid .sl");
-        if (slEl) {   // the verse sits in a bordered box: fit its widest line to the space inside the box
-            const gs = getComputedStyle(slEl.parentElement);
+        if (slEl) {   // the verse sits in a bordered box: fit it to the space inside the box
+            const grid = slEl.parentElement, gs = getComputedStyle(grid);
             avail -= parseFloat(gs.paddingLeft) + parseFloat(gs.paddingRight) + parseFloat(gs.borderLeftWidth) + parseFloat(gs.borderRightWidth);
-            range.selectNodeContents(slEl);
-            const tw = range.getBoundingClientRect().width;
-            let f = tw > 0 ? (desktop ? Math.min(TEST * (avail / tw) * 0.98, 26) : TEST * (avail / Math.max(tw, avail)) * 0.98) : MAXPX;   // desktop: short verses may grow up to 26px
+            const lineEls = Array.from(slEl.children).filter(c => c.classList.contains("vl"));
+            const w20 = (lineEls.length ? lineEls : [slEl]).map(l => { range.selectNodeContents(l); return range.getBoundingClientRect().width; });   // each line's width at TEST px
+            const widest = Math.max(...w20, 1);
+            const padT = parseFloat(gs.paddingTop), padB = parseFloat(gs.paddingBottom);
+            let availH = 0;
             const inFlow = !!(b.parentNode && b.parentNode.classList && b.parentNode.classList.contains("flow-list"));   // flow list: block height = its own text, so use the card height instead (same size as split view)
-            const refH = inFlow ? contentBox.clientHeight - 6 : b.clientHeight;
-            if (portrait && refH) {   // portrait: don't let a tall (many-line) verse take more than ~45% of the card; never below the minimum size
-                const bs = getComputedStyle(b), innerH = refH - (inFlow ? 14 : parseFloat(bs.paddingTop) + parseFloat(bs.paddingBottom));
-                const padY = parseFloat(gs.paddingTop) + parseFloat(gs.paddingBottom) + parseFloat(gs.borderTopWidth) + parseFloat(gs.borderBottomWidth);
-                const lines = Math.max(1, slEl.innerHTML.split(/<br\s*\/?>/i).length);
-                const lhPerPx = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;     // line height per 1px of block font size
-                if (lhPerPx > 0 && innerH > 0) f = Math.max(Math.min(f, (innerH * 0.60 - padY) / (lines * lhPerPx)), Math.min(f, FIT_MIN));
-            }
-            return f;
+            if (inFlow) availH = (contentBox.clientHeight - 6 - 14) * 0.60 - padT - padB;
+            else { slEl.style.display = "none"; availH = grid.clientHeight - padT - padB; slEl.style.display = ""; }   // the verse box with the text taken out = the room it has (portrait: its CSS minimum height; landscape: the full column)
+            if (land && availH > 0) availH = Math.min(availH, contentBox.clientHeight - 36 - padT - padB);
+            const lh = parseFloat(getComputedStyle(slEl).lineHeight) / TEST;       // line height per 1px of font size
+            let f = MAXPX;
+            if (availH > 0 && lh > 0 && lineEls.length) {
+                const heightAt = ff => { let rows = 0; w20.forEach(w => { rows += Math.max(1, Math.ceil((w * ff / TEST) / (avail * 0.96))); }); return ff * (rows * lh + GAP * (w20.length - 1)); };
+                while (f > FIT_MIN && heightAt(f) > availH) f -= 0.5;
+            } else f = Math.min(MAXPX, TEST * (avail / Math.max(widest, 1)) * 0.98);   // no height to go by: fit the widest line
+            return Math.max(f * K, 10);
         }
         range.selectNodeContents(b);
-        const w = range.getBoundingClientRect().width;     // width of widest line
+        const w = range.getBoundingClientRect().width;     // width of widest line (refrains, headings)
         return w > 0 ? TEST * (avail / w) * 0.98 : MAXPX;
     });
     blocks.forEach((b, i) => {
         const fs = results[i];
+        if (b.querySelector(":scope > .verse-grid .sl")) { b.style.whiteSpace = ""; b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; return; }
         if (fs < FIT_MIN) { b.style.fontSize = FIT_MIN + "px"; b.style.whiteSpace = "normal"; }
-        else { b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; }
+        else { b.style.fontSize = (Math.floor(Math.min(fs, MAXPX) * 10) / 10) + "px"; b.style.whiteSpace = ""; }
     });
 }
+// A- / A / A+ button in the bottom bar
+const sizeBtn = document.getElementById("sizeBtn");
+function paintSizeBtn() { sizeBtn.textContent = SIZE_LEVELS[sizeLevel].label; sizeBtn.title = "Text size: " + SIZE_LEVELS[sizeLevel].name + " (tap to change)"; sizeBtn.setAttribute("aria-label", sizeBtn.title); }
+sizeBtn.addEventListener("click", () => {
+    sizeLevel = { 1: 2, 2: 0, 0: 1 }[sizeLevel];         // normal -> big -> small -> normal
+    try { localStorage.setItem("prayersTextSize", String(sizeLevel)); } catch (e) {}
+    paintSizeBtn(); fitVerses();
+});
+paintSizeBtn();
 let fitTimer;
 window.addEventListener("resize", () => { clearTimeout(fitTimer); fitTimer = setTimeout(fitVerses, 120); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses);
