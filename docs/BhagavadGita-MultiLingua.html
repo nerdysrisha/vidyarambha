@@ -1228,6 +1228,15 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   #content-box .bookmarked::after { top: auto; bottom: 7px; right: 9px; border-radius: 0 0 11px 0;
       background: linear-gradient(315deg, #fff 0%, #fff 50%, #ecd08a 50%, #b88a3a 100%); }
 }
+/* ── VERSE CHANGE (all layouts): the card frame stays put, only the verse text, verse number and meaning fade out, then the new ones fade in ── */
+#content-box .verse-block > .verse-grid > *, #content-box .verse-block .mtab-panel > * { transition: opacity .2s ease, transform .2s ease; }
+#content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label { transition: color .2s ease; }
+#content-box.vf-out .verse-block > .verse-grid > *, #content-box.vf-out .verse-block .mtab-panel > * { opacity: 0; transform: translateY(-10px); }
+#content-box.vf-out .verse-block > .verse-tag, #content-box.vf-out .verse-block > .verse-label { color: transparent !important; }
+@keyframes vfIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes vfTagIn { from { color: transparent; } }
+#content-box .verse-block.vf-in > .verse-grid > *, #content-box .verse-block.vf-in .mtab-panel > * { animation: vfIn .38s ease both; }
+#content-box .verse-block.vf-in > .verse-tag, #content-box .verse-block.vf-in > .verse-label { animation: vfTagIn .38s ease both; }
 </style>
 </head>
 <body>
@@ -1483,6 +1492,25 @@ function smoothScrollTo(top, ms) {
     })(t0);
 }
 
+// Verse change: no glide. The old verse text / number / meaning fade out (0.2 s), the view jumps to the next card (same frame, same spot), the new text fades in.
+let vfTimer = null, vfInTimer = null;
+function verseSwap(blk, top) {
+    scrollAnim = null;
+    clearTimeout(vfTimer); clearTimeout(vfInTimer);
+    contentBox.querySelectorAll(".vf-in").forEach(b => b.classList.remove("vf-in"));
+    contentBox.classList.remove("vf-out");
+    if (Math.abs(top - contentBox.scrollTop) < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { contentBox.scrollTop = top; return; }
+    contentBox.classList.add("vf-out");
+    vfTimer = setTimeout(() => {
+        scrollAnim = null;
+        contentBox.scrollTop = top;
+        contentBox.classList.remove("vf-out");
+        blk.classList.add("vf-in");
+        vfInTimer = setTimeout(() => blk.classList.remove("vf-in"), 600);
+    }, 220);
+}
+
 // (removed) touching / scrolling no longer delays the sync scroll
 
 function parseSyncTime(str) {
@@ -1695,7 +1723,7 @@ function initAudioSync() {
     function scrollToBlock(block) {
         const boxRect = contentBox.getBoundingClientRect();
         const blkRect = block.getBoundingClientRect();
-        smoothScrollTo(contentBox.scrollTop + (blkRect.top - boxRect.top) - TOP_PAD, 900);   // verse goes to the top
+        verseSwap(block, contentBox.scrollTop + (blkRect.top - boxRect.top) - TOP_PAD);   // verse goes to the top (fade out / fade in)
     }
 
     function update(forceScroll) {
@@ -2124,11 +2152,11 @@ function stepVerse(dir) {
     blocks.forEach(b => b.classList.remove("verse-focus"));
     syncUserScrollUntil = 0;
     if (window.gitaSyncSeek && window.gitaSyncSeek(i)) {              // chapter with audio: the audio jumps, the sync highlights + scrolls
-        if (blocks[i].classList.contains("verse-active")) smoothScrollTo(topOf(rects[i], box), 700);   // same verse already active: scroll ourselves
+        if (blocks[i].classList.contains("verse-active")) verseSwap(blocks[i], topOf(rects[i], box));   // same verse already active: scroll ourselves
         return;
     }
     blocks[i].classList.add("verse-focus");
-    smoothScrollTo(topOf(rects[i], box), 700);
+    verseSwap(blocks[i], topOf(rects[i], box));
 }
 
 // When scrolling stops, glide to the nearest verse top (or the chapter top). Not while a finger is down, and not inside a long
