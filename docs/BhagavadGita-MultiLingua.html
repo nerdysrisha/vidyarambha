@@ -1217,8 +1217,8 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 }
 /* desktop / tablet: no outer card; the two boxes keep the side room, and the meaning box ends 1px above the nav bar */
 @media (min-width: 701px) and (min-height: 521px) {
-  #outer { margin-bottom: 1px; height: calc(100vh - 40px - 45px); }   /* gap to the nav bar 6px -> 1px; height +5px so the nav bar stays where it was */
-  #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { padding: 6px 14px 0 14px; }
+  #outer { margin-bottom: 1px; height: calc(100vh - 40px - 45px); }   /* 1px gap above the nav bar (the side panel too); the nav bar stays where it was */
+  #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { padding: 6px 14px 1px 14px; }   /* 1px: the meaning box ends 2px above the nav bar in total, and its bottom border is never cut (zoomed pages round sizes) */
   #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label { left: 15px; }
   #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 8px) 20px 16px 20px; }
   #content-box .bookmarked::after { right: 15px; }
@@ -1229,9 +1229,10 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 @media (min-width: 701px) and (min-height: 521px) {
   #sidebar.collapsed { display: none; }
   #sidebar.peek { position: fixed; left: 20px; top: 20px; width: 300px; z-index: 60; box-shadow: 0 12px 40px rgba(0,0,0,0.75), 0 2px 10px rgba(0,0,0,0.5); animation: sidePeekIn .22s ease; }
-  body:has(#sidebar.collapsed) #menuBtn, body:has(#sidebar.peek) #menuBtn { display: block; }
+  #menuBtn { display: block; }                 /* hamburger always there on desktop; the « button in the panel header is gone */
+  #sidebar-toggle { display: none; }
   body:has(#sidebar.collapsed) #themeBtnNav, body:has(#sidebar.peek) #themeBtnNav {
-      display: inline-flex; align-items: center; justify-content: center; position: absolute; right: 48px; top: 50%; transform: translateY(-50%);
+      display: inline-flex; align-items: center; justify-content: center; position: absolute; left: 52px; top: 50%; transform: translateY(-50%);
       width: 31px; height: 31px; padding: 0; border-radius: 50%; background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important; cursor: pointer; }
   #themeBtnNav:hover { background: #d8b46a33 !important; }
   #themeBtnNav svg { width: 17px; height: 17px; display: block; }
@@ -2320,9 +2321,9 @@ const SIDE_CLOSE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const SIDE_OPEN_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg>';    // double chevron pointing right = bring it back
 const isDesk = () => window.matchMedia("(min-width: 701px) and (min-height: 521px)").matches;
 function openSidePeek() {            // desktop: the hidden panel slides in over the reading area
-    const r = document.getElementById("outer").getBoundingClientRect();
+    const r = document.getElementById("outer").getBoundingClientRect(), cb = contentBox.getBoundingClientRect();   // starts below the player bar, ends where the cards end
     sidebarEl.classList.remove("collapsed"); sidebarEl.classList.add("peek");
-    sidebarEl.style.top = r.top + "px"; sidebarEl.style.height = r.height + "px";
+    sidebarEl.style.top = cb.top + "px"; sidebarEl.style.height = (r.bottom - cb.top) + "px";
     toggleBtn.innerHTML = SIDE_CLOSE_SVG; toggleBtn.title = "Hide topics"; toggleBtn.setAttribute("aria-label", toggleBtn.title);
     document.getElementById("menuBtn").classList.add("open");
 }
@@ -2349,7 +2350,9 @@ function setSidebarCollapsed(collapsed) {
 document.getElementById("menuBtn").addEventListener("click", e => {
     if (isDesk()) {                  // desktop: hamburger = show / hide the panel as an overlay
         e.stopPropagation();
-        if (sidebarEl.classList.contains("peek")) window.closeSidePeek(); else if (sidebarEl.classList.contains("collapsed")) openSidePeek();
+        if (sidebarEl.classList.contains("peek")) window.closeSidePeek();
+        else if (sidebarEl.classList.contains("collapsed")) openSidePeek();
+        else { if (window.keepVerseInView) window.keepVerseInView(); setSidebarCollapsed(true); }   // docked: first tap hides it
         return;
     }
     setSidebarCollapsed(!sidebarEl.classList.contains("collapsed"));
