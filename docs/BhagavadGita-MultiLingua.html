@@ -1097,8 +1097,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box .verse-block > .mtabs .mtab-panel { overflow: hidden; }
 }
 @media (min-width: 701px) and (min-height: 521px) {     /* desktop / tablet: a little more room around the boxes */
-  #content-box .verse-block { padding: 44px 14px 14px 14px; }
-  #content-box .verse-block > .verse-grid { padding: 16px 20px; }
 }
 
 /* ── THEME BUTTON + DARK THEME. Default = light. body.dark = dark. Button shows on every screen (phone, tablet, desktop). ── */
@@ -1123,11 +1121,6 @@ body.dark .topic-item.search-match { background: #2d2314; box-shadow: inset 4px 
 body.dark .topic-item.last-read { background: #241b0f; box-shadow: inset 0 0 0 1.5px #c9a15a, 0 1px 3px rgba(0,0,0,0.5); }
 body.dark .topic-item.active { background: #2d2314; box-shadow: inset 0 0 0 2px #c9a15a, 0 1px 4px rgba(0,0,0,0.6); }
 body.dark .topic-item.active .t-icon { box-shadow: 0 0 0 2px #2d2314, 0 0 0 4px #c9a15a; }
-/* desktop / tablet: the outer verse card (portrait and landscape phones have no outer card) */
-@media (min-width: 701px) and (min-height: 521px) {
-  body.dark #content-box .verse-block { background: #16120c; border-color: #7a6030; }
-  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { background: #241b0f; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
-}
 body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color: #7a6030; }
 
 @media (orientation: landscape) and (max-height: 520px) {
@@ -1205,8 +1198,9 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 @media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
 @media (orientation: landscape) and (max-height: 350px) { :root { --rb: 31px; } }
 /* ── PORTRAIT PHONE: two clean boxes only. No outer card: the verse box and the meaning box stand alone.
-   The "Chapter · Verse" label hangs inside the top-left of the verse box, just like the language buttons hang inside the meaning box. ── */
-@media (max-width: 700px) and (orientation: portrait) {
+   The "Chapter · Verse" label hangs inside the top-left of the verse box, just like the language buttons hang inside the meaning box.
+   Same on desktop / tablet (second media query). ── */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
   #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active {
       background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 6px 8px 8px 8px; }
   #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label {
@@ -1220,6 +1214,14 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   /* bookmark fold: bottom-right corner of the meaning box (the top-right is taken by the language buttons) */
   #content-box .bookmarked::after { top: auto; bottom: 7px; right: 9px; border-radius: 0 0 11px 0;
       background: linear-gradient(315deg, #fff 0%, #fff 50%, #ecd08a 50%, #b88a3a 100%); }
+}
+/* desktop / tablet: no outer card; the two boxes keep the side room, and the meaning box ends 1px above the nav bar */
+@media (min-width: 701px) and (min-height: 521px) {
+  #outer { margin-bottom: 1px; height: calc(100vh - 40px - 45px); }   /* gap to the nav bar 6px -> 1px; height +5px so the nav bar stays where it was */
+  #content-box .verse-block, #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { padding: 6px 14px 0 14px; }
+  #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label { left: 15px; }
+  #content-box .verse-block > .verse-grid { padding: calc(var(--tab-h) + 8px) 20px 16px 20px; }
+  #content-box .bookmarked::after { right: 15px; }
 }
 /* ── VERSE CHANGE (all layouts): the card frame stays put, only the verse text, verse number and meaning fade out, then the new ones fade in ── */
 #content-box .verse-block > .verse-grid > *, #content-box .verse-block .mtab-panel > * { transition: opacity .2s ease, transform .2s ease; }
@@ -2118,7 +2120,7 @@ function placeVerseNav() {
     const nav = document.getElementById("verseNav"), card = contentBox.querySelector(".verse-block");
     if (!card || !nav.classList.contains("show")) return;
     const panel = nav.parentElement.getBoundingClientRect(), c = card.getBoundingClientRect();
-    if (c.width) nav.style.right = Math.max(8, Math.round(panel.right - c.right + 12)) + "px";
+    if (c.width) nav.style.right = Math.max(8, Math.round(panel.right - c.right + (window.matchMedia("(min-width: 701px) and (min-height: 521px)").matches ? 26 : 12))) + "px";
 }
 setAreaH();
 if (window.ResizeObserver) new ResizeObserver(setAreaH).observe(contentBox); else window.addEventListener("resize", setAreaH);
