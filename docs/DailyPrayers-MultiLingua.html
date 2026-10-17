@@ -2735,8 +2735,8 @@ if (window.ResizeObserver) new ResizeObserver(setAreaH).observe(contentBox); els
 function topOf(rect, box) { return contentBox.scrollTop + (rect.top - box.top) - TOP_PAD; }
 // fixed-frame layouts (Stage): previous / next card; with audio the audio jumps and the sync fades to it
 function stepVerseStaged(dir) {
-    const to = Stage.index + dir;
-    if (to < 0 || to >= Stage.items.length) return;
+    const n = Stage.items.length; if (!n) return;
+    const to = (Stage.index + dir + n) % n;   // LOOP: past the last card wraps to the first, and vice versa
     const it = Stage.items[to], blocks = Array.from(contentBox.querySelectorAll(".verse-block"));
     blocks.forEach(b => b.classList.remove("verse-focus"));
     if (it.verse) {
@@ -2760,9 +2760,10 @@ function stepVerse(dir) {
         i = rects.findIndex(r => r.top > line + tol);
         const st = window.audioSyncState && window.audioSyncState();
         if (st && st.started && st.active === i) i++;                 // that verse is already being chanted (e.g. the opening, still above its card): go one further
-        if (i < 0 || i >= blocks.length) return;                      // already at the last verse
+        if (i < 0 || i >= blocks.length) i = 0;                       // LOOP: past the last verse wraps to the first
     } else {
         for (let k = rects.length - 1; k >= 0; k--) if (rects[k].top < line - tol) { i = k; break; }
+        if (i < 0 && contentBox.scrollTop <= 2) i = blocks.length - 1;   // LOOP: already at the top, so Up wraps to the last verse
         if (i < 0) {                                                  // above the first verse: back to the very top
             blocks.forEach(b => b.classList.remove("verse-focus"));
             smoothScrollTo(0, 700); return;
