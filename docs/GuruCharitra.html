@@ -498,6 +498,17 @@ body.dark #content-box .gc-scroll a { color: #e8c177 !important; }
 body.dark #content-box .gc-next { color: #d8b46a; border-color: #8a6d3a; }
 body.dark #content-box .gc-next:hover, body.dark #content-box .gc-next:active { color: #f0d18a; background: #2a2218; }
 body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .bookmarked::after { background: linear-gradient(225deg, #1a1712 0%, #1a1712 50%, #ecd08a 50%, #b88a3a 100%); }
+
+/* extra theme buttons: landscape rail + portrait bottom bar */
+#rail .rail-sep { width: 18px; height: 1px; background: #4a5170; margin: 2px 0; }
+#navbar #navTheme {
+    position: absolute; right: 45px; top: 50%; transform: translateY(-50%);
+    width: 31px; height: 31px; padding: 0; border-radius: 50%;
+    background: transparent !important; border: 1.5px solid #d8b46a !important; color: #d8b46a !important;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+#navbar #navTheme:hover { background: #d8b46a33 !important; }
+#navbar #navTheme svg { width: 16px; height: 16px; display: block; }
 </style>
 </head>
 <body>
@@ -516,11 +527,13 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
     <nav id="rail" aria-label="Chapters">
         <button id="railUp" type="button" aria-label="Previous chapter" title="Previous chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
         <button id="railDown" type="button" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></button>
+        <span class="rail-sep" aria-hidden="true"></span>
+        <button id="railTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
     </nav>
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">Guru Charitra</span>
-            <button id="theme-pill" type="button" role="switch" aria-checked="false" aria-label="Dark theme" title="Switch to dark theme"><span class="knob"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg></span></button>
+            <button id="theme-pill" type="button" data-theme-toggle role="switch" aria-checked="false" aria-label="Dark theme" title="Switch to dark theme"><span class="knob"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg></span></button>
             <button id="sidebar-toggle" title="Collapse sidebar">&#171;</button>
         </div>
         <div id="sidebar-body">
@@ -544,6 +557,7 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next chapter" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a paragraph or chapter heading to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="navTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
     <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
@@ -825,17 +839,19 @@ bmBtn.addEventListener("click", () => {
 });
 
 // ── THEME (light / dark) ────────────────────────────────────────────────
-const themeBtn = document.getElementById("theme-pill");
+const themeBtns = document.querySelectorAll("[data-theme-toggle]");   // chapter-list pill, landscape rail, portrait bar
 function applyTheme(dark) {
     document.body.classList.toggle("dark", dark);
-    themeBtn.setAttribute("aria-checked", dark ? "true" : "false");
-    themeBtn.title = dark ? "Switch to light theme" : "Switch to dark theme";
+    themeBtns.forEach(b => {
+        b.title = dark ? "Switch to light theme" : "Switch to dark theme";
+        if (b.id === "theme-pill") b.setAttribute("aria-checked", dark ? "true" : "false");
+    });
 }
 applyTheme(lsGet("gc_theme", "light") === "dark");
-themeBtn.addEventListener("click", () => {
+themeBtns.forEach(b => b.addEventListener("click", () => {
     const dark = !document.body.classList.contains("dark");
     applyTheme(dark); lsSet("gc_theme", dark ? "dark" : "light");
-});
+}));
 
 // ── SIDEBAR COLLAPSE ────────────────────────────────────────────────────
 const toggleBtn = document.getElementById("sidebar-toggle");
