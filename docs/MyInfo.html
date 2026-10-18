@@ -33,9 +33,11 @@ button.cat.direct{width:100%;display:flex;align-items:center;padding:0 16px;marg
 .empty{color:var(--mute);padding:8px 14px}
 #viewer{flex:1;min-height:0;position:relative;display:none}
 #slides,#page{height:100%;overflow-y:auto}
-/* swipe + pinch-zoom are handled in JS (one image per swipe, up/down) */
-#slides{overflow:hidden;touch-action:none}
-.slide{height:100%;display:grid;place-items:center;padding:6px}
+#slides[hidden],#page[hidden]{display:none}
+/* swipe + pinch-zoom are handled in JS (one image per swipe, left/right) */
+#slides{display:flex;overflow:hidden;touch-action:none}
+#slides>.msg{flex:0 0 100%}
+.slide{flex:0 0 100%;min-width:0;height:100%;display:grid;place-items:center;padding:6px}
 .slide img:not([src]){visibility:hidden}
 .slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;transform-origin:center;will-change:transform;user-select:none;-webkit-user-drag:none}
 #page{padding:12px 14px 24px;line-height:1.5}
@@ -56,6 +58,13 @@ body.max #app{padding-top:0}
 #zoom img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
 #zoom button{position:absolute;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:2;border-radius:50%;background:#0a1018cc}
 .msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
+/* LANDSCAPE (phones/tablets): no bar, no margins - the image gets the whole screen */
+@media (orientation:landscape) and (pointer:coarse), (orientation:landscape) and (max-height:500px){
+  body.view footer{display:none}
+  body.view #app{max-width:none;margin:0;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+  body.view .slide{padding:0}
+  body.view .slide img{border-radius:0}
+}
 </style>
 </head>
 <body>
@@ -200,7 +209,7 @@ function show(i) {
     $("prevT").disabled = i === 0; $("nextT").disabled = i === flat.length - 1;
     $("slides").hidden = !isImg; $("page").hidden = isImg;
     const s = $("slides"), p = $("page");
-    s.innerHTML = ""; p.innerHTML = ""; s.scrollTop = p.scrollTop = 0; $("cnt").textContent = "";
+    s.innerHTML = ""; p.innerHTML = ""; s.scrollLeft = 0; p.scrollTop = 0; $("cnt").textContent = "";
     sc = 1; tx = ty = 0; g = null; lastIdx = -1;
     const dir = BASE_URL + t.cat.slug + "/";
     if (isImg) {
@@ -230,10 +239,10 @@ function show(i) {
 }
 $("page").addEventListener("click", e => { if (e.target.tagName === "IMG") openZoom(e.target.src); });
 
-// ── SLIDES: swipe up/down (1 image per swipe) + pinch-zoom ──────────────
+// ── SLIDES: swipe left/right (1 image per swipe) + pinch-zoom ──────────────
 const S = $("slides"); let lastIdx = -1, anim = 0, wheelLock = 0, lastTap = 0, g = null, sc = 1, tx = 0, ty = 0, zImg = null;
-const maxTop = () => Math.max(0, S.scrollHeight - S.clientHeight);
-const idx = () => Math.round(S.scrollTop / Math.max(1, S.clientHeight));
+const maxLeft = () => Math.max(0, S.scrollWidth - S.clientWidth);
+const idx = () => Math.round(S.scrollLeft / Math.max(1, S.clientWidth));
 const mid = t => t.length < 2 ? {x: t[0].clientX, y: t[0].clientY} : {x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2};
 const gap = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
 const ctr = () => { const r = S.getBoundingClientRect(); return {x: r.left + r.width / 2, y: r.top + r.height / 2}; };
@@ -270,19 +279,19 @@ function goTo(i, ms) {
     if (target !== idx() && sc !== 1) resetZoom();
     cancelAnimationFrame(anim);
     if (WRAP && n > 1 && (i < 0 || i > n - 1)) {          // wrap around: jump to the other end
-        S.scrollTop = target * S.clientHeight; updateCount(); return;
+        S.scrollLeft = target * S.clientWidth; updateCount(); return;
     }
-    const from = S.scrollTop, to = target * S.clientHeight, t0 = performance.now();
+    const from = S.scrollLeft, to = target * S.clientWidth, t0 = performance.now();
     const f = now => {
         const k = Math.min(1, (now - t0) / ms);
-        S.scrollTop = from + (to - from) * (1 - Math.pow(1 - k, 3));
+        S.scrollLeft = from + (to - from) * (1 - Math.pow(1 - k, 3));
         updateCount();
         if (k < 1) anim = requestAnimationFrame(f);
     };
     anim = requestAnimationFrame(f);
 }
 function startPinch(e) {
-    if (g && g.mode === "swipe" && g.moved) S.scrollTop = g.base * S.clientHeight;   // snap back first
+    if (g && g.mode === "swipe" && g.moved) S.scrollLeft = g.base * S.clientWidth;   // snap back first
     if (!zImg) zImg = curImg();
     const m = mid(e.touches), c = ctr();
     g = {mode: "pinch", d0: gap(e.touches), s0: sc, qx: (m.x - c.x - tx) / sc, qy: (m.y - c.y - ty) / sc};
@@ -291,7 +300,7 @@ S.addEventListener("touchstart", e => {
     cancelAnimationFrame(anim);
     if (e.touches.length >= 2) { startPinch(e); return; }
     const t = e.touches[0];
-    g = {mode: sc > 1 ? "pan" : "swipe", x: t.clientX, y: t.clientY, top: S.scrollTop, tx0: tx, ty0: ty, base: idx(), moved: false};
+    g = {mode: sc > 1 ? "pan" : "swipe", x: t.clientX, y: t.clientY, left: S.scrollLeft, tx0: tx, ty0: ty, base: idx(), moved: false};
 }, {passive: true});
 S.addEventListener("touchmove", e => {
     if (!g) return;
@@ -308,7 +317,7 @@ S.addEventListener("touchmove", e => {
     const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
     if (Math.abs(dx) > 8 || Math.abs(dy) > 8) g.moved = true;
     if (g.mode === "pan") { tx = g.tx0 + dx; ty = g.ty0 + dy; clampPan(); paint(); }
-    else { S.scrollTop = Math.max(0, Math.min(maxTop(), g.top - dy)); updateCount(); }
+    else { S.scrollLeft = Math.max(0, Math.min(maxLeft(), g.left - dx)); updateCount(); }
 }, {passive: false});
 S.addEventListener("touchend", e => {
     if (!g) return;
@@ -327,11 +336,11 @@ S.addEventListener("touchend", e => {
         g = null; return;
     }
     if (g.mode === "swipe") {
-        const dy = t.clientY - g.y;
-        // always 1 image per swipe; only a LONG swipe (60%+ of screen height) skips more (max 3)
+        const dx = t.clientX - g.x;
+        // always 1 image per swipe; only a LONG swipe (60%+ of screen width) skips more (max 3)
         let steps = 0;
-        if (Math.abs(dy) > 35) steps = Math.min(3, 1 + Math.floor(Math.abs(dy) / (S.clientHeight * 0.6)));
-        goTo(g.base + (dy < 0 ? 1 : -1) * steps, 260 + steps * 140);
+        if (Math.abs(dx) > 35) steps = Math.min(3, 1 + Math.floor(Math.abs(dx) / (S.clientWidth * 0.6)));
+        goTo(g.base + (dx < 0 ? 1 : -1) * steps, 260 + steps * 140);
     }
     g = null;
 });
@@ -342,9 +351,15 @@ S.addEventListener("wheel", e => {
     if (sc > 1) { tx -= e.deltaX; ty -= e.deltaY; clampPan(); paint(); return; }
     if (Date.now() < wheelLock) return;
     wheelLock = Date.now() + 450;
-    goTo(idx() + (e.deltaY > 0 ? 1 : -1), 320);
+    const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    goTo(idx() + (d > 0 ? 1 : -1), 320);
 }, {passive: false});
-window.addEventListener("resize", () => { if (sc !== 1) resetZoom(); });
+// rotating the phone / entering full screen changes the slide width: keep the same image in view
+function realign() {
+    if (sc !== 1) resetZoom();
+    if (S.children.length && lastIdx >= 0) { cancelAnimationFrame(anim); S.scrollLeft = lastIdx * S.clientWidth; }
+}
+if (window.ResizeObserver) new ResizeObserver(realign).observe(S); else window.addEventListener("resize", realign);
 
 // ── IMAGE COUNTER + TOPIC STEPPING ──────────────────────────────────────
 function updateCount() {
@@ -378,8 +393,11 @@ document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT") return;
     if ($("zoom").style.display === "block") { if (e.key === "Escape") $("zoom").style.display = "none"; return; }
     if (cur < 0) return;
-    if (e.key === "ArrowDown" && flat[cur].isImg) { e.preventDefault(); goTo(idx() + 1, 320); }
-    else if (e.key === "ArrowUp" && flat[cur].isImg) { e.preventDefault(); goTo(idx() - 1, 320); }
+    const im = flat[cur].isImg;      // images: left/right = image, up/down = topic.  pages: left/right = topic
+    if (im && e.key === "ArrowRight") { e.preventDefault(); goTo(idx() + 1, 320); }
+    else if (im && e.key === "ArrowLeft") { e.preventDefault(); goTo(idx() - 1, 320); }
+    else if (im && e.key === "ArrowDown") { e.preventDefault(); topicStep(1); }
+    else if (im && e.key === "ArrowUp") { e.preventDefault(); topicStep(-1); }
     else if (e.key === "ArrowLeft") topicStep(-1);
     else if (e.key === "ArrowRight") topicStep(1);
     else if (e.key === "Escape" && !document.body.classList.contains("max")) location.hash = "";
