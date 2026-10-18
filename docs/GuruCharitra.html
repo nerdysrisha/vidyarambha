@@ -489,7 +489,7 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
     display: inline-flex; align-items: center; justify-content: center;
 }
 #navbar #navTheme:hover { background: #d8b46a33 !important; }
-#navbar #navTheme svg { width: 16px; height: 16px; display: block; }
+#navbar #navTheme svg { width: 16px; height: 16px; }
 
 /* ◐ buttons (rail + bottom bar) show what a tap will give you: dark moon button in light theme, bright sun button in dark theme */
 #railTheme .i-sun, #navTheme .i-sun { display: none; }
@@ -887,9 +887,9 @@ fsBtn.addEventListener("click", () => {
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     }
 });
-document.addEventListener("fullscreenchange", () => {   // e.g. phone's back gesture exits fullscreen
-    if (!document.fullscreenElement) setReading(false);
-});
+function syncFullscreen() { setReading(!!(document.fullscreenElement || document.webkitFullscreenElement)); }   // icon = real state (also covers the phone's back gesture and the Start button)
+document.addEventListener("fullscreenchange", syncFullscreen);
+document.addEventListener("webkitfullscreenchange", syncFullscreen);
 
 // ── START SCREEN (phones and desktop) ───────────────────────────────────────────
 // Fullscreen can only be requested from a tap, so the tap on "Start" asks for it and then fades the screen away (2.5 s).
@@ -911,7 +911,7 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req && isTouch) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && isTouch) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.then) r.then(syncFullscreen, () => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
