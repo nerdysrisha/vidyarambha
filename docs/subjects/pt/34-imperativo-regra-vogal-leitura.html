@@ -1,0 +1,344 @@
+<div class="pt-oral">
+<style>
+.pt-oral { color: #2b2b2b; font-family: inherit; }
+.pt-oral h2, .pt-oral h4, .pt-oral h5 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-oral .desc-box {
+  background: #fbfaf7 !important; color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a; border-radius: 6px;
+  padding: 16px 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-oral .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-oral .desc-box p:last-child { margin-bottom: 0; }
+.pt-oral .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+.pt-oral .hi { display: block; color: #8a6d3b !important; font-size: 0.85em; margin-top: 2px; }
+.pt-oral .desc-box hr.desc-divider { border: none; border-top: 1px solid #e6ddc9; margin: 14px 0 18px 0; }
+
+/* ---------- Speak buttons ---------- */
+.pt-oral .spk-btn {
+  position: absolute; left: 0; top: 4px; opacity: 0; transition: opacity 0.15s ease;
+  cursor: pointer; background: none; border: none; padding: 2px;
+  line-height: 1; font-size: 0.85em; color: #a1521f;
+}
+.pt-oral .spk-wrap, .pt-oral .ex-line { position: relative; padding-left: 1.9em; }
+.pt-oral .spk-wrap:hover .spk-btn,
+.pt-oral .ex-line:hover .spk-btn,
+.pt-oral .spk-btn:focus-visible { opacity: 1; }
+.pt-oral .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-oral .spk-inline {
+  display: inline-block; cursor: pointer; background: none; border: none; padding: 0 2px;
+  line-height: 1; font-size: 0.82em; color: #a1521f; opacity: 0; vertical-align: middle;
+  transition: opacity 0.15s ease;
+}
+.pt-oral .desc-box > p:hover .spk-inline,
+.pt-oral .spk-inline:focus-visible,
+.pt-oral .spk-inline.speaking { opacity: 1; }
+@media (hover: none) {
+  .pt-oral .spk-btn, .pt-oral .spk-inline { opacity: 0.4; }
+}
+
+/* ---------- Conjugation table ---------- */
+.pt-oral .table-scroll { overflow-x: auto; }
+.pt-oral .compare-table { width: 100%; border-collapse: collapse; background: #ffffff !important; margin: 4px 0 6px 0; }
+.pt-oral .compare-table th {
+  text-align: left; padding: 8px 14px; font-size: 0.92em; color: #6b4f1d !important;
+  border-bottom: 1px solid #e6ddc9; background: #ffffff !important; vertical-align: top;
+}
+.pt-oral .compare-table thead tr:first-child th { background: #f6f2e8 !important; border-bottom: none; }
+.pt-oral .compare-table thead tr:last-child th { border-bottom: 2px solid #c9a15a; font-weight: 400; }
+.pt-oral .compare-table td {
+  padding: 9px 14px; border-bottom: 1px solid #e8e2d5; background: #ffffff !important;
+  color: #2b2b2b !important; vertical-align: top;
+}
+.pt-oral .compare-table tr:last-child td { border-bottom: none; }
+.pt-oral .compare-table td.spk-wrap, .pt-oral .compare-table th.spk-wrap { padding-left: calc(14px + 1.5em); }
+.pt-oral .compare-table .spk-btn { left: 14px; top: 11px; }
+
+/* ---------- Example box (dark) ---------- */
+.pt-oral .example-box { background: #1a1a1a !important; border: 1px solid #333; border-radius: 8px; padding: 14px 18px; margin: 18px 0; }
+.pt-oral .example-box h4 { color: #d8b46a !important; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.04em; }
+.pt-oral .example-list { margin: 0 0 12px 0; }
+.pt-oral .example-list:last-child { margin-bottom: 0; }
+.pt-oral .example-box h5 { color: #8a6d3b !important; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 6px 0; }
+.pt-oral .ex-line { color: #eaeaea !important; line-height: 1.7; margin: 0 0 6px 0; }
+.pt-oral .ex-line:last-child { margin-bottom: 0; }
+.pt-oral .example-box .pt-word { color: #d8b46a !important; }
+.pt-oral .example-box .spk-btn { color: #d8b46a; top: 6px; }
+.pt-oral .example-box .spk-btn.speaking { color: #8fd6b0; }
+.pt-oral .en-eq { color: #9a9a9a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-oral .en-eq::before { content: "— "; color: #6a6a6a !important; }
+
+/* ---------- Exercises ---------- */
+.pt-oral .exercise-box { background: #f4f8f6 !important; border: 1px dashed #8fb9a8; border-radius: 8px; padding: 16px 20px; margin: 18px 0; }
+.pt-oral .exercise-box > h4 { color: #2f6b52 !important; font-size: 1em; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+.pt-oral .exercise-item { background: #ffffff !important; border: 1px solid #dcebe4; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }
+.pt-oral .exercise-item:last-child { margin-bottom: 0; }
+.pt-oral .ex-label { color: #2f6b52 !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-oral .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+.pt-oral .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-oral .blank-word { display: inline-block; }
+.pt-oral .underscore { color: #999 !important; }
+.pt-oral .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+.pt-oral .cue-list { margin: 0 0 8px 0; padding-left: 1.6em; }
+.pt-oral .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-oral .cue-list li:last-child { border-bottom: none; }
+.pt-oral .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-oral .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-oral .reveal::before { content: "→ "; color: #c9a15a !important; }
+.pt-oral .check-btn { background: #2f6b52 !important; color: #ffffff !important; border: none; border-radius: 5px; padding: 6px 16px; font-size: 0.85em; cursor: pointer; margin-top: 4px; }
+.pt-oral .check-btn:hover { background: #245640 !important; }
+
+.pt-oral .audio-box { background:#fff8e8 !important; border:1px solid #e6ddc9; border-left:4px solid #c9a15a; border-radius:8px; padding:16px 20px; margin:18px 0; }
+.pt-oral .audio-box h3 { margin:0 0 6px 0; color:#a1521f !important; font-family:Georgia,"Times New Roman",serif; font-size:1.25em; }
+.pt-oral .audio-box p { color:#2b2b2b !important; margin:0 0 10px 0; line-height:1.6; }
+.pt-oral .audio-box audio { width:100%; margin:6px 0; }
+.pt-oral .audio-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .tip { color:#7a7a7a !important; font-size:.88em; font-style:italic; }
+.pt-oral .write-cell { min-width:200px; height:44px; }
+.pt-oral .note-box { background:#fff4e0 !important; border-left:4px solid #d8863a; border-radius:6px; padding:10px 16px; margin:12px 0 0 0; color:#2b2b2b !important; line-height:1.7; }
+.pt-oral .note-box b { color:#a1521f !important; }
+.pt-oral .num { color:#999 !important; width:2em; }
+.pt-oral .ans-table td.fill-row .reveal { margin-left:0; }
+</style>
+<style>
+.pt-oral .img-box { background:#ffffff !important; border:1px solid #e6ddc9; border-radius:8px; padding:12px; margin:14px 0; text-align:center; }
+.pt-oral .img-box img { max-width:100%; height:auto; border-radius:6px; }
+.pt-oral .img-msg { display:none; color:#b04a2a !important; font-size:.85em; }
+.pt-oral .ph { color:#b04a2a !important; font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:600; }
+.pt-oral .ex-line .ph { color:#f0a58a !important; }
+</style>
+
+<style>
+.pt-oral .example-box .hi { display:block; color:#b9a47a !important; font-size:0.85em; margin:0 0 0 0; }
+.pt-oral .compare-table td.pron { color:#6b4f1d !important; font-weight:600; white-space:nowrap; }
+</style>
+
+<style>
+.pt-oral .example-box .spk-name { color:#8fd6b0 !important; font-weight:700; }
+.pt-oral .compare-table td.nowrap { white-space:nowrap; }
+.pt-oral .compare-table td.neg .pt-word, .pt-oral .compare-table td.neg.spk-wrap .pt-word { color:#b04a2a !important; }
+</style>
+
+<style>
+.pt-oral .vw{color:#d9730d !important;font-weight:800;background:#fff0d6 !important;border-radius:3px;padding:0 2px}
+.pt-oral .bx{border:2px solid #2f9bb5;border-radius:4px;padding:1px 4px}
+.pt-oral .cmd{background:#dff1e6 !important;color:#1f5a40 !important;font-weight:700;border-radius:3px;padding:0 3px}
+.pt-oral .cmd.n{background:#f8dfd8 !important;color:#a4381c !important}
+.pt-oral .tag{background:#e4f2ea !important;color:#2f6b52 !important;border-radius:10px;padding:0 8px;font-size:.82em;font-weight:700}
+.pt-oral .legend{line-height:2}
+</style>
+<h2>34. Imperativo: a regra da vogal + leitura <span class="en">(imperative continued: the vowel rule &amp; reading — आज्ञार्थ, भाग 2)</span></h2>
+<div class="desc-box">
+<p><strong>What is new today?</strong> In <strong>33</strong> (last lecture) you learned the <strong>forms</strong>: tu / você / vocês, affirmative and negative, and the politeness words <span class="pt-word">pf</span> / <span class="pt-word">sff</span>. Today your professor shows <strong>why the ending changes</strong> (the coloured letters in the tables below) and then you <strong>use it in a real text</strong>: <span class="pt-word">Um dia saudável</span> <span class="en">(A healthy day)</span> <span class="hi">एक स्वस्थ दिन</span>.</p>
+<p><strong>Three ideas.</strong> (1) <strong>The ending letter is the key</strong>: <strong>-ar</strong> verbs take <span class="vw">E</span>, <strong>-er / -ir</strong> verbs take <span class="vw">A</span> (<em>estudar +e, comer +a, partir +a</em>). Hindi parallel: गा-<em>ओ</em> / गा-<em>इए</em>: the stem stays and only the ending changes. (2) <strong>The "eu" shortcut</strong>: take <em>eu</em> of the present, drop <strong>-o</strong>, add the opposite vowel: <em>falo → fale</em>. It also explains <em>durma, faça, fique, alongue</em>. (3) A doctor gives advice to Marta with <strong>você</strong> (formal): <em>Beba água! Não fume!</em> <span class="hi">पानी पीजिए! धूम्रपान न कीजिए!</span></p>
+<p><strong>How this page works:</strong> <strong>A</strong> = professor's tables copied as in your notebook · <strong>B</strong> = the rule explained · <strong>C</strong> = the text · <strong>D</strong> = examples · <strong>E</strong> = tests.</p>
+<p class="legend"><span class="vw">E / A / O / M</span> changed letter (as in the professor's colours) · <span class="bx">box</span> highlighted by the professor · <span class="cmd">affirmative</span> <span class="cmd n">não + negative</span> · <span class="tag">pf / sff</span> = please</p>
+</div>
+<div class="desc-box">
+<p><strong>A. As tabelas do professor</strong> <span class="en">(copied as in the notes — same words, same colours)</span> <span class="hi">प्रोफ़ेसर की तालिकाएँ</span></p>
+<p><strong>Tabela 1 — Mod1.10 Imperativo</strong></p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th>Verbo</th><th>tu <span class="en">(informal)</span></th><th>não tu <span class="en">(informal)</span></th><th>você <span class="en">(formal)</span></th><th>não você <span class="en">(formal)</span></th><th>vocês <span class="en">(#tus)</span></th><th>não vocês <span class="en">(formal)</span></th></tr></thead><tbody>
+<tr><td class="pron">falar</td><td class="spk-wrap" data-pt="fala, se faz favor/por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fala, sff/pf</span></td><td class="spk-wrap neg" data-pt="não fales"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fales</span></td><td class="spk-wrap" data-pt="fale. fale, se faz favor / por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fale<span class="vw">O</span><br>fale, sff / pf</span></td><td class="spk-wrap neg" data-pt="não fale, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fale, sff</span></td><td class="spk-wrap" data-pt="falem, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fale<span class="vw">M</span>, sff</span></td><td class="spk-wrap neg" data-pt="não falem, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fale<span class="vw">M</span>, sff</span></td></tr>
+<tr><td class="pron">trabalhar</td><td class="spk-wrap" data-pt="trabalha, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalha, sff</span></td><td class="spk-wrap neg" data-pt="não trabalhes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não trabalhes</span></td><td class="spk-wrap" data-pt="trabalhe. trabalhe, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhe<span class="vw">O</span><br>trabalhe, pf</span></td><td class="spk-wrap neg" data-pt="não, trabalhe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não, trabalhe</span></td><td class="spk-wrap" data-pt="trabalhem, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trabalhe<span class="vw">M</span>, sff</span></td><td class="spk-wrap neg" data-pt="não, trabalhem, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não, trabalhe<span class="vw">M</span>, sff</span></td></tr>
+<tr><td class="pron">comer</td><td class="spk-wrap" data-pt="come, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">come, sff</span></td><td class="spk-wrap neg" data-pt="não comas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não comas</span></td><td class="spk-wrap" data-pt="coma. coma, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">coma<span class="vw">O</span><br>coma, sff</span></td><td class="spk-wrap neg" data-pt="não coma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não coma</span></td><td class="spk-wrap" data-pt="comam, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">coma<span class="vw">M</span>, sff</span></td><td class="spk-wrap neg" data-pt="não comam, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não coma<span class="vw">M</span>, sff</span></td></tr>
+<tr><td class="pron">partir</td><td class="spk-wrap" data-pt="parte, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parte, sff</span></td><td class="spk-wrap neg" data-pt="não partas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não partas</span></td><td class="spk-wrap" data-pt="parta. parta, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parta<span class="vw">O</span><br>parta, sff</span></td><td class="spk-wrap neg" data-pt="não parta"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não parta</span></td><td class="spk-wrap" data-pt="partam, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parta<span class="vw">M</span>, sff</span></td><td class="spk-wrap neg" data-pt="não partam, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não parta<span class="vw">M</span>, sff</span></td></tr>
+</tbody></table></div>
+<p class="note-box"><b>sff</b> = se faz favor · <b>pf</b> = por favor · <em>se não se importar</em> = if you don't mind. Orange <span class="vw">O</span> = the <em>-o</em> of <em>eu falo</em> that is replaced by <em>e</em>; <span class="vw">M</span> = plural ending <em>-m</em> (falem). "(#tus)" and the comma in "não, trabalhe" are exactly as in the notes: <em>vocês</em> means plural (आप सब), normal spelling is <em>não trabalhe</em>.</p>
+<p style="margin-top:16px"><strong>Tabela 2 — estudar / comer / partir</strong> <span class="en">(+e / +a = letter added)</span></p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th>Verbo</th><th>Tu</th><th>Não (Tu)</th><th>você - sl</th><th>não você - sl</th><th>vocês</th><th>não vocês</th></tr></thead><tbody>
+<tr><td class="pron">Estudar +e</td><td class="spk-wrap" data-pt="estuda, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estud<span class="vw">A</span>, pf</span></td><td class="spk-wrap neg" data-pt="não estudes, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estud<span class="vw">E</span>s, pf</span></td><td class="spk-wrap" data-pt="estude, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estud<span class="vw">E</span>, pf</span></td><td class="spk-wrap neg" data-pt="não estude, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estud<span class="vw">E</span>, pf</span></td><td class="spk-wrap" data-pt="estudem, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudem, pf</span></td><td class="spk-wrap neg" data-pt="não estudem, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estudem, pf</span></td></tr>
+<tr><td class="pron">comer +a</td><td class="spk-wrap" data-pt="come, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">come, pf</span></td><td class="spk-wrap neg" data-pt="não comas, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não com<span class="vw">A</span>s, pf</span></td><td class="spk-wrap" data-pt="coma, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">com<span class="vw">A</span>, pf</span></td><td class="spk-wrap neg" data-pt="não coma, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não com<span class="vw">A</span>, pf</span></td><td class="spk-wrap" data-pt="comam, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">comam, pf</span></td><td class="spk-wrap neg" data-pt="não comam, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não comam, pf</span></td></tr>
+<tr><td class="pron">partir +a</td><td class="spk-wrap" data-pt="parte, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parte, pf</span></td><td class="spk-wrap neg" data-pt="não partas, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="bx">não part<span class="vw">A</span>s, pf</span></span></td><td class="spk-wrap" data-pt="parta, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">part<span class="vw">A</span>, pf</span></td><td class="spk-wrap neg" data-pt="não parta, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não part<span class="vw">A</span>, pf</span></td><td class="spk-wrap" data-pt="partam, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">partam, pf</span></td><td class="spk-wrap neg" data-pt="não partam, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não partam, pf</span></td></tr>
+</tbody></table></div>
+<p class="note-box"><b>sl</b> = singular (I read it that way — check with your professor). The <span class="bx">blue box</span> on <em>não partas, pf</em> is the professor's highlight. Read the first column: <em>Estudar +e</em> means "-ar verb: add E"; <em>comer / partir +a</em> means "add A".</p>
+<p style="margin-top:16px"><strong>Tabela 3 — Formal (você)</strong></p>
+<p>Singular: Fal*O* – fal*E* (fale) por favor. Não fale, por favor.<br>Plural: fal*EM* (falem) por favor. Não falem, por favor!</p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th>Verbo</th><th>Tu</th><th>Não (Tu)</th><th>você - sl</th><th>não você - sl</th><th>vocês</th><th>não vocês</th></tr></thead><tbody>
+<tr><td class="pron">estudar</td><td class="spk-wrap" data-pt="estuda, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estuda, pf</span></td><td class="spk-wrap neg" data-pt="não, estudes, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não, estudes, pf</span></td><td class="spk-wrap" data-pt="estude, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estude, pf</span></td><td class="spk-wrap neg" data-pt="não estude, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estude, pf</span></td><td class="spk-wrap" data-pt="estudem, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudem, pf</span></td><td class="spk-wrap neg" data-pt="não estudem, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estudem, pf</span></td></tr>
+</tbody></table></div>
+<p style="margin-top:16px"><strong>Tabela 4 — Atividade Mod1.10</strong> <span class="en">(conjugate in all forms of politeness)</span></p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th></th><th>tu <span class="en">(informal)</span></th><th>não tu</th><th>você <span class="en">(formal)</span></th><th>não você</th><th>vocês <span class="en">(#tus)</span></th><th>não vocês</th></tr></thead><tbody>
+<tr><td class="pron">limpar</td><td class="spk-wrap" data-pt="limpa, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">limpa, sff</span></td><td class="spk-wrap neg" data-pt="não limpes, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não limpes, sff</span></td><td class="spk-wrap" data-pt="limpe, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">limpe, sff</span></td><td class="spk-wrap neg" data-pt="não limpe, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não limpe, sff</span></td><td class="spk-wrap" data-pt="limpem, se faz favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">limpem, sff</span></td><td class="spk-wrap neg" data-pt="não limpem, por favor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não limpem, pf</span></td></tr>
+</tbody></table></div>
+<p><span class="tip">Rows cantar · passar · beber · escrever · abrir · curtir: already solved on page <b>33, section 4</b>. The <b>saber</b> activity (Mod1.9, Presente do Indicativo) belongs to the Presente page, not here.</span></p>
+</div>
+<div class="desc-box">
+<p><strong>B. A regra do "eu"</strong> <span class="en">(the "eu" rule — one method for every verb)</span> <span class="hi">"eu" वाला नियम</span></p>
+<p><strong>Step 1</strong> take <em>eu</em> (present) → <strong>Step 2</strong> drop <strong>-o</strong> → <strong>Step 3</strong> add the <strong>opposite vowel</strong>: <strong>-ar → e</strong>, <strong>-er / -ir → a</strong> → then <strong>você</strong> = +nothing, <strong>vocês</strong> = +m, <strong>não tu</strong> = +s. Affirmative <strong>tu</strong> = <em>ele / ela</em> of the present.</p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th>Verbo</th><th>eu <span class="en">(presente)</span></th><th>você / vocês</th><th>não tu</th><th>tu <span class="en">(= ele / ela)</span></th><th>English · हिन्दी</th></tr></thead><tbody>
+<tr><td class="pron">falar</td><td class="spk-wrap" data-pt="falo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">falo</span></td><td class="spk-wrap" data-pt="fale / falem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fal<span class="vw">e</span> / fal<span class="vw">em</span></span></td><td class="spk-wrap neg" data-pt="não fales"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fal<span class="vw">es</span></span></td><td class="spk-wrap" data-pt="fala"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fala</span></td><td>to speak · बोलना</td></tr>
+<tr><td class="pron">comer</td><td class="spk-wrap" data-pt="como"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">como</span></td><td class="spk-wrap" data-pt="coma / comam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">com<span class="vw">a</span> / com<span class="vw">am</span></span></td><td class="spk-wrap neg" data-pt="não comas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não com<span class="vw">as</span></span></td><td class="spk-wrap" data-pt="come"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">come</span></td><td>to eat · खाना</td></tr>
+<tr><td class="pron">partir</td><td class="spk-wrap" data-pt="parto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parto</span></td><td class="spk-wrap" data-pt="parta / partam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">part<span class="vw">a</span> / part<span class="vw">am</span></span></td><td class="spk-wrap neg" data-pt="não partas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não part<span class="vw">as</span></span></td><td class="spk-wrap" data-pt="parte"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">parte</span></td><td>to break / leave · तोड़ना / जाना</td></tr>
+<tr><td class="pron">estudar</td><td class="spk-wrap" data-pt="estudo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estudo</span></td><td class="spk-wrap" data-pt="estude / estudem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estud<span class="vw">e</span> / estud<span class="vw">em</span></span></td><td class="spk-wrap neg" data-pt="não estudes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não estud<span class="vw">es</span></span></td><td class="spk-wrap" data-pt="estuda"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">estuda</span></td><td>to study · पढ़ना</td></tr>
+<tr><td class="pron">dormir</td><td class="spk-wrap" data-pt="durmo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">durmo</span></td><td class="spk-wrap" data-pt="durma / durmam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">durm<span class="vw">a</span> / durm<span class="vw">am</span></span></td><td class="spk-wrap neg" data-pt="não durmas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não durm<span class="vw">as</span></span></td><td class="spk-wrap" data-pt="dorme"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dorme</span></td><td>to sleep · सोना</td></tr>
+<tr><td class="pron">fazer</td><td class="spk-wrap" data-pt="faço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faço</span></td><td class="spk-wrap" data-pt="faça / façam"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fa<span class="vw">ça</span> / fa<span class="vw">çam</span></span></td><td class="spk-wrap neg" data-pt="não faças"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fa<span class="vw">ças</span></span></td><td class="spk-wrap" data-pt="faz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faz</span></td><td>to do, make · करना</td></tr>
+<tr><td class="pron">ficar</td><td class="spk-wrap" data-pt="fico"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fico</span></td><td class="spk-wrap" data-pt="fique / fiquem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fi<span class="vw">que</span> / fi<span class="vw">quem</span></span></td><td class="spk-wrap neg" data-pt="não fiques"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não fi<span class="vw">ques</span></span></td><td class="spk-wrap" data-pt="fica"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fica</span></td><td>to stay · रहना</td></tr>
+<tr><td class="pron">alongar</td><td class="spk-wrap" data-pt="alongo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alongo</span></td><td class="spk-wrap" data-pt="alongue / alonguem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">along<span class="vw">ue</span> / along<span class="vw">uem</span></span></td><td class="spk-wrap neg" data-pt="não alongues"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">não along<span class="vw">ues</span></span></td><td class="spk-wrap" data-pt="alonga"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alonga</span></td><td>to stretch · हाथ-पैर खींचना</td></tr>
+</tbody></table></div>
+<p class="note-box"><b>Spelling:</b> the sound of the verb must not change. <em>c</em> + e would sound /s/ → <b>qu</b> (fico → fi<b>qu</b>e); <em>g</em> + e would sound /ʒ/ → <b>gu</b> (alongo → along<b>u</b>e); <em>c</em> + a would sound /k/ → <b>ç</b> (faço → fa<b>ç</b>a). <b>dormir</b>: the stem vowel of <em>eu durmo</em> is kept (durma). Hindi: just as गा-ना → गा-ओ keeps the stem, here the <em>eu</em> stem is the base.</p>
+</div>
+<div class="desc-box">
+<p><strong>C. Compreensão de leitura</strong> <span class="en">(reading — Um dia saudável)</span> <span class="hi">पठन: एक स्वस्थ दिन</span></p>
+<p>A Marta quer ter uma vida mais saudável. O médico dá-lhe alguns conselhos: <span class="hi">मार्ता एक स्वस्थ जीवन चाहती है। डॉक्टर उसे कुछ सलाह देता है:</span></p>
+<p>“<span class="cmd">Acorde</span> cedo e <span class="cmd">tome</span> um bom pequeno-almoço. <span class="cmd">Beba</span> bastante água durante o dia e <span class="cmd">coma</span> fruta e legumes. <span class="cmd">Evite</span> muitos doces e alimentos com demasiado sal.”<button class="spk-inline" data-pt="Acorde cedo e tome um bom pequeno-almoço. Beba bastante água durante o dia e coma fruta e legumes. Evite muitos doces e alimentos com demasiado sal." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button><span class="hi">जल्दी उठिए और अच्छा नाश्ता कीजिए। दिन भर काफ़ी पानी पीजिए और फल-सब्ज़ियाँ खाइए। बहुत मिठाई और ज़्यादा नमक वाले खाने से बचिए।</span></p>
+<p>“Todos os dias, <span class="cmd">caminhe</span> pelo menos trinta minutos. Se estiver muito cansada, <span class="cmd">descanse</span>, mas <span class="cmd n">não fique</span> sempre sentada. <span class="cmd">Durma</span> cerca de oito horas por noite. Quando está no trabalho, <span class="cmd">faça</span> pequenas pausas. <span class="cmd">Levante-se</span>, <span class="cmd">ande</span> um pouco e <span class="cmd">alongue</span> os braços e as pernas. E <span class="cmd n">não se esqueça</span>: <span class="cmd n">não fume</span> e <span class="cmd n">não beba</span> álcool em excesso.”<button class="spk-inline" data-pt="Todos os dias, caminhe pelo menos trinta minutos. Se estiver muito cansada, descanse, mas não fique sempre sentada. Durma cerca de oito horas por noite. Quando está no trabalho, faça pequenas pausas. Levante-se, ande um pouco e alongue os braços e as pernas. E não se esqueça: não fume e não beba álcool em excesso." onclick="speakPortuguese(this.dataset.pt,this)" aria-label="Ouvir">🔊</button><span class="hi">रोज़ कम से कम तीस मिनट टहलिए। बहुत थकी हों तो आराम कीजिए, पर हमेशा बैठी न रहिए। रात को लगभग आठ घंटे सोइए। काम पर छोटे ब्रेक लीजिए। उठिए, थोड़ा चलिए और हाथ-पैर खींचिए। और भूलिए मत: धूम्रपान न कीजिए और ज़्यादा शराब न पीजिए।</span></p>
+<p>Ao fim de algumas semanas, Marta sente-se melhor e decide continuar a seguir estes conselhos. <span class="hi">कुछ हफ़्तों बाद मार्ता बेहतर महसूस करती है और ये सलाह मानना जारी रखती है।</span></p>
+<p style="margin-top:14px"><strong>Os comandos do texto</strong> <span class="en">(the commands in the text, with the "eu" rule)</span></p>
+<div class="table-scroll"><table class="compare-table"><thead><tr><th>Verbo</th><th>eu</th><th>você <span class="en">(text)</span></th><th>tu</th><th>English · हिन्दी</th></tr></thead><tbody>
+<tr><td class="pron">acordar</td><td class="spk-wrap" data-pt="acordo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">acordo</span></td><td class="spk-wrap" data-pt="acorde"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">acorde</span></span></td><td class="spk-wrap" data-pt="acorda"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">acorda</span></td><td>to wake up · जागना</td></tr>
+<tr><td class="pron">tomar</td><td class="spk-wrap" data-pt="tomo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tomo</span></td><td class="spk-wrap" data-pt="tome"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">tome</span></span></td><td class="spk-wrap" data-pt="toma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">toma</span></td><td>to take, have · लेना</td></tr>
+<tr><td class="pron">beber</td><td class="spk-wrap" data-pt="bebo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bebo</span></td><td class="spk-wrap" data-pt="beba"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">beba</span></span></td><td class="spk-wrap" data-pt="bebe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bebe</span></td><td>to drink · पीना</td></tr>
+<tr><td class="pron">comer</td><td class="spk-wrap" data-pt="como"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">como</span></td><td class="spk-wrap" data-pt="coma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">coma</span></span></td><td class="spk-wrap" data-pt="come"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">come</span></td><td>to eat · खाना</td></tr>
+<tr><td class="pron">evitar</td><td class="spk-wrap" data-pt="evito"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">evito</span></td><td class="spk-wrap" data-pt="evite"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">evite</span></span></td><td class="spk-wrap" data-pt="evita"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">evita</span></td><td>to avoid · बचना</td></tr>
+<tr><td class="pron">caminhar</td><td class="spk-wrap" data-pt="caminho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">caminho</span></td><td class="spk-wrap" data-pt="caminhe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">caminhe</span></span></td><td class="spk-wrap" data-pt="caminha"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">caminha</span></td><td>to walk · टहलना</td></tr>
+<tr><td class="pron">descansar</td><td class="spk-wrap" data-pt="descanso"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">descanso</span></td><td class="spk-wrap" data-pt="descanse"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">descanse</span></span></td><td class="spk-wrap" data-pt="descansa"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">descansa</span></td><td>to rest · आराम करना</td></tr>
+<tr><td class="pron">ficar</td><td class="spk-wrap" data-pt="fico"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fico</span></td><td class="spk-wrap" data-pt="fique"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fi<span class="vw">que</span></span></td><td class="spk-wrap" data-pt="fica"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fica</span></td><td>to stay · रहना</td></tr>
+<tr><td class="pron">dormir</td><td class="spk-wrap" data-pt="durmo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">durmo</span></td><td class="spk-wrap" data-pt="durma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">durm<span class="vw">a</span></span></td><td class="spk-wrap" data-pt="dorme"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">dorme</span></td><td>to sleep · सोना</td></tr>
+<tr><td class="pron">fazer</td><td class="spk-wrap" data-pt="faço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faço</span></td><td class="spk-wrap" data-pt="faça"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fa<span class="vw">ça</span></span></td><td class="spk-wrap" data-pt="faz"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">faz</span></td><td>to do, make · करना</td></tr>
+<tr><td class="pron">levantar-se</td><td class="spk-wrap" data-pt="levanto"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">levanto</span></td><td class="spk-wrap" data-pt="levante-se"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">levante-se</span></td><td class="spk-wrap" data-pt="levanta-te"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">levanta-te</span></td><td>to get up · उठना</td></tr>
+<tr><td class="pron">andar</td><td class="spk-wrap" data-pt="ando"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">ando</span></td><td class="spk-wrap" data-pt="ande"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">ande</span></span></td><td class="spk-wrap" data-pt="anda"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">anda</span></td><td>to walk · चलना</td></tr>
+<tr><td class="pron">alongar</td><td class="spk-wrap" data-pt="alongo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alongo</span></td><td class="spk-wrap" data-pt="alongue"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">along<span class="vw">ue</span></span></td><td class="spk-wrap" data-pt="alonga"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alonga</span></td><td>to stretch · खींचना</td></tr>
+<tr><td class="pron">esquecer-se</td><td class="spk-wrap" data-pt="esqueço"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esqueço</span></td><td class="spk-wrap" data-pt="esqueça-se"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esque<span class="vw">ça</span>-se</span></td><td class="spk-wrap" data-pt="esquece-te"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">esquece-te</span></td><td>to forget · भूलना</td></tr>
+<tr><td class="pron">fumar</td><td class="spk-wrap" data-pt="fumo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fumo</span></td><td class="spk-wrap" data-pt="fume"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word"><span class="vw">fume</span></span></td><td class="spk-wrap" data-pt="fuma"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fuma</span></td><td>to smoke · धूम्रपान करना</td></tr>
+</tbody></table></div><p class="note-box"><b>Atenção (to recognise only):</b> <em>levante-se, não se esqueça</em>: the pronoun goes <b>after</b> the verb in affirmative (levante-<b>se</b>) and <b>before</b> in negative (não <b>se</b> esqueça). <em>Se estiver cansada</em> = "if you are tired" (a later tense, only to understand). <em>cansada / sentada</em> are feminine because the doctor speaks to Marta.</p>
+</div>
+<div class="example-box">
+<h4>Exemplos — a minha vida saudável</h4>
+<div class="example-list">
+<h5>TU — informal</h5>
+<p class="ex-line" data-pt="Acorda cedo e bebe água."><button class="spk-btn" aria-label="Ouvir">🔊</button>Acorda cedo e bebe água.<span class="en-eq">Wake up early and drink water.</span><span class="hi">जल्दी उठो और पानी पियो।</span></p>
+<p class="ex-line" data-pt="Não fumes e não comas tantos doces."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não fumes e não comas tantos doces.<span class="en-eq">Don't smoke and don't eat so many sweets.</span><span class="hi">सिगरेट मत पियो और इतनी मिठाई मत खाओ।</span></p>
+<p class="ex-line" data-pt="Faz uma pausa e alonga as pernas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Faz uma pausa e alonga as pernas.<span class="en-eq">Take a break and stretch your legs.</span><span class="hi">ब्रेक लो और पैर खींचो।</span></p>
+</div>
+<div class="example-list">
+<h5>VOCÊ — formal</h5>
+<p class="ex-line" data-pt="Durma oito horas, se faz favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Durma oito horas, se faz favor.<span class="en-eq">Sleep eight hours, please.</span><span class="hi">कृपया आठ घंटे सोइए।</span></p>
+<p class="ex-line" data-pt="Não fique sentado o dia todo."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não fique sentado o dia todo.<span class="en-eq">Don't stay seated all day.</span><span class="hi">पूरे दिन बैठे मत रहिए।</span></p>
+<p class="ex-line" data-pt="Faça exercício e coma fruta, por favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Faça exercício e coma fruta, por favor.<span class="en-eq">Do exercise and eat fruit, please.</span><span class="hi">कृपया व्यायाम कीजिए और फल खाइए।</span></p>
+</div>
+<div class="example-list">
+<h5>VOCÊS — plural</h5>
+<p class="ex-line" data-pt="Caminhem todos os dias."><button class="spk-btn" aria-label="Ouvir">🔊</button>Caminhem todos os dias.<span class="en-eq">Walk every day.</span><span class="hi">आप सब रोज़ टहलिए।</span></p>
+<p class="ex-line" data-pt="Não bebam álcool em excesso."><button class="spk-btn" aria-label="Ouvir">🔊</button>Não bebam álcool em excesso.<span class="en-eq">Don't drink too much alcohol.</span><span class="hi">ज़्यादा शराब मत पीजिए।</span></p>
+<p class="ex-line" data-pt="Alonguem os braços, por favor."><button class="spk-btn" aria-label="Ouvir">🔊</button>Alonguem os braços, por favor.<span class="en-eq">Stretch your arms, please.</span><span class="hi">कृपया हाथ खींचिए।</span></p>
+</div>
+</div>
+<div class="example-box">
+<h4>Conversa — no médico (você)</h4>
+<div class="example-list">
+<h5>Médico e Marta</h5>
+<p class="ex-line" data-pt="Marta, durma mais e beba água."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="spk-name">Médico:</span> Marta, durma mais e beba água.<span class="en-eq">Marta, sleep more and drink water.</span><span class="hi">मार्ता, ज़्यादा सोइए और पानी पीजिए।</span></p>
+<p class="ex-line" data-pt="Está bem, doutor. Posso comer doces?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="spk-name">Marta:</span> Está bem, doutor. Posso comer doces?<span class="en-eq">OK, doctor. Can I eat sweets?</span><span class="hi">ठीक है, डॉक्टर। क्या मैं मिठाई खा सकती हूँ?</span></p>
+<p class="ex-line" data-pt="Não coma muitos doces. Coma fruta."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="spk-name">Médico:</span> Não coma muitos doces. Coma fruta.<span class="en-eq">Don't eat many sweets. Eat fruit.</span><span class="hi">ज़्यादा मिठाई मत खाइए। फल खाइए।</span></p>
+<p class="ex-line" data-pt="E posso fumar?"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="spk-name">Marta:</span> E posso fumar?<span class="en-eq">And can I smoke?</span><span class="hi">और क्या मैं धूम्रपान कर सकती हूँ?</span></p>
+<p class="ex-line" data-pt="Não fume, por favor!"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="spk-name">Médico:</span> Não fume, por favor!<span class="en-eq">Don't smoke, please!</span><span class="hi">कृपया धूम्रपान मत कीजिए!</span></p>
+</div>
+</div>
+<div class="exercise-box">
+<h4>Exercícios <span class="en">(tests)</span></h4>
+<div class="exercise-item">
+<p class="ex-label">1. Completa com o imperativo — <b>tu</b> (informal). <span class="en">(professor's exercise)</span> <span class="hi">तुम वाला रूप भरिए</span></p>
+<p class="question">
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Bebe</span></span> mais água. (beber)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Come</span></span> fruta todos os dias. (comer)<br>
+Não <span class="blank-word"><span class="underscore">_______</span><span class="fill">comas</span></span> tanto açúcar. (comer)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Caminha</span></span> um pouco depois do almoço. (caminhar)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Dorme</span></span> cedo. (dormir)<br>
+Não <span class="blank-word"><span class="underscore">_______</span><span class="fill">fiques</span></span> o dia todo sentado. (ficar)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Faz</span></span> pequenas pausas no trabalho. (fazer)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Alonga</span></span> os braços e as pernas. (alongar)
+</p>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">2. Completa com o imperativo — <b>formal (você)</b>. <span class="en">(professor's exercise)</span> <span class="hi">आप वाला रूप भरिए</span></p>
+<p class="question">
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Beba</span></span>, pf mais água. (beber)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Coma</span></span>, pf fruta todos os dias. (comer)<br>
+Não <span class="blank-word"><span class="underscore">_______</span><span class="fill">coma</span></span>, pf tanto açúcar. (comer)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Caminhe</span></span>, pf um pouco depois do almoço. (caminhar)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Durma</span></span>, pf cedo. (dormir)<br>
+Não <span class="blank-word"><span class="underscore">_______</span><span class="fill">fique</span></span> o dia todo sentado. (ficar)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Faça</span></span> pequenas pausas no trabalho. (fazer)<br>
+<span class="blank-word"><span class="underscore">_______</span><span class="fill">Alongue</span></span> os braços e as pernas. (alongar)
+</p>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">3. Compreensão — responda. <span class="en">(answer the 10 questions about the text)</span> <span class="hi">पाठ पर प्रश्न</span></p>
+<ol class="cue-list">
+<li><span class="cue">1. O que quer a Marta?</span> <span class="reveal">Quer ter uma vida mais saudável.</span></li>
+<li><span class="cue">2. O que deve fazer de manhã?</span> <span class="reveal">Deve acordar cedo e tomar um bom pequeno-almoço.</span></li>
+<li><span class="cue">3. O que deve beber durante o dia?</span> <span class="reveal">Deve beber bastante água.</span></li>
+<li><span class="cue">4. Que alimentos deve comer?</span> <span class="reveal">Deve comer fruta e legumes.</span></li>
+<li><span class="cue">5. Quanto tempo deve caminhar por dia?</span> <span class="reveal">Pelo menos trinta minutos.</span></li>
+<li><span class="cue">6. O que deve fazer se estiver cansada?</span> <span class="reveal">Deve descansar, mas não ficar sempre sentada.</span></li>
+<li><span class="cue">7. Quantas horas deve dormir?</span> <span class="reveal">Cerca de oito horas por noite.</span></li>
+<li><span class="cue">8. O que deve fazer durante o trabalho?</span> <span class="reveal">Deve fazer pequenas pausas, levantar-se, andar e alongar os braços e as pernas.</span></li>
+<li><span class="cue">9. Que dois comportamentos deve evitar?</span> <span class="reveal">Não deve fumar e não deve beber álcool em excesso.</span></li>
+<li><span class="cue">10. Como se sente a Marta depois de algumas semanas?</span> <span class="reveal">Sente-se melhor.</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">4. Do <em>eu</em> ao imperativo. <span class="en">(from eu: give você · não tu)</span> <span class="hi">"eu" से आदेश बनाइए</span></p>
+<ol class="cue-list">
+<li><span class="cue">eu estudo</span> <span class="reveal">estude · não estudes</span></li>
+<li><span class="cue">eu escrevo</span> <span class="reveal">escreva · não escrevas</span></li>
+<li><span class="cue">eu abro</span> <span class="reveal">abra · não abras</span></li>
+<li><span class="cue">eu durmo</span> <span class="reveal">durma · não durmas</span></li>
+<li><span class="cue">eu faço</span> <span class="reveal">faça · não faças</span></li>
+<li><span class="cue">eu fico</span> <span class="reveal">fique · não fiques</span></li>
+<li><span class="cue">eu alongo</span> <span class="reveal">alongue · não alongues</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">5. Qual é a forma certa? <span class="en">(choose)</span></p>
+<ol class="cue-list">
+<li><span class="cue">(Tu) ____ cedo! (acorda / acorde)</span> <span class="reveal">acorda</span></li>
+<li><span class="cue">(Você) ____ fruta! (come / coma)</span> <span class="reveal">coma</span></li>
+<li><span class="cue">(Tu) Não ____ tanto! (fumas / fumes)</span> <span class="reveal">fumes</span></li>
+<li><span class="cue">(Você) Não ____ sentado! (fica / fique)</span> <span class="reveal">fique</span></li>
+<li><span class="cue">(Vocês) ____ pausas! (façam / fazem)</span> <span class="reveal">façam</span></li>
+<li><span class="cue">(Tu) ____ os braços! (alonga / alongue)</span> <span class="reveal">alonga</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">6. De tu para você. <span class="en">(change informal → formal)</span> <span class="hi">तुम से आप में बदलिए</span></p>
+<ol class="cue-list">
+<li><span class="cue">Bebe água.</span> <span class="reveal">Beba água.</span></li>
+<li><span class="cue">Dorme cedo.</span> <span class="reveal">Durma cedo.</span></li>
+<li><span class="cue">Não comas doces.</span> <span class="reveal">Não coma doces.</span></li>
+<li><span class="cue">Faz pausas.</span> <span class="reveal">Faça pausas.</span></li>
+<li><span class="cue">Não fiques sentado.</span> <span class="reveal">Não fique sentado.</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">7. Corrija o erro. <span class="en">(find the mistake)</span></p>
+<ol class="cue-list">
+<li><span class="cue">Dorma cedo! (tu)</span> <span class="reveal">Dorme cedo!</span></li>
+<li><span class="cue">Não fica sentada! (você)</span> <span class="reveal">Não fique sentada!</span></li>
+<li><span class="cue">Faze pausas, se faz favor. (você)</span> <span class="reveal">Faça pausas, se faz favor.</span></li>
+<li><span class="cue">Não fumas! (você)</span> <span class="reveal">Não fume!</span></li>
+<li><span class="cue">Alongam os braços! (vocês)</span> <span class="reveal">Alonguem os braços!</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+<div class="exercise-item">
+<p class="ex-label">8. Do hindi para português. <span class="en">(Hindi → Portuguese)</span></p>
+<ol class="cue-list">
+<li><span class="cue">जल्दी उठिए। (आप)</span> <span class="reveal">Acorde cedo.</span></li>
+<li><span class="cue">पानी पियो। (तुम)</span> <span class="reveal">Bebe água.</span></li>
+<li><span class="cue">ज़्यादा मत खाओ। (तुम)</span> <span class="reveal">Não comas muito.</span></li>
+<li><span class="cue">कृपया सिगरेट मत पीजिए। (आप)</span> <span class="reveal">Não fume, por favor.</span></li>
+<li><span class="cue">आप सब रोज़ टहलिए।</span> <span class="reveal">Caminhem todos os dias.</span></li>
+<li><span class="cue">रात को आठ घंटे सोओ। (तुम)</span> <span class="reveal">Dorme oito horas por noite.</span></li>
+</ol>
+<button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+</div>
+</div>
+</div>
