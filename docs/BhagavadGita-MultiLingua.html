@@ -931,12 +931,12 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 }
 
 /* ── BOOKMARK ("dog-ear") + nav-bar bookmark button ───────────────────── */
-#content-box { touch-action: manipulation; }          /* no double-tap zoom, so double-tap can mean "bookmark" */
+#content-box { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }          /* no double-tap zoom, so double-tap can mean "bookmark" */
 #content-box .bookmarked { position: relative; }
-#content-box .bookmarked::after {                       /* folded top-right corner: page-coloured cut + gold flap */
-    content: ""; position: absolute; top: -1px; right: -1px; width: 32px; height: 32px;
-    background: linear-gradient(225deg, #fbf8f2 0%, #fbf8f2 50%, #ecd08a 50%, #b88a3a 100%);
-    border-radius: 0 0 8px 0 / 0 0 8px 0; pointer-events: none;
+#content-box .bookmarked::after {                       /* gold folded corner at the TOP-RIGHT of the box (same in portrait + landscape, light + dark) */
+    content: ""; position: absolute; top: -1px; right: -1px; width: 20px; height: 20px; z-index: 4; pointer-events: none;
+    background: linear-gradient(225deg, transparent 0%, transparent 50%, #ecd08a 50%, #b88a3a 100%);
+    border-radius: 0 10px 0 0; filter: drop-shadow(-1px 1px 1px rgba(0, 0, 0, 0.3));
 }
 #content-box .bm-flash { box-shadow: 0 0 0 3px #d8b46acc, 0 4px 16px rgba(201,161,90,0.5) !important; }
 #navbar #bmBtn {
@@ -1156,9 +1156,8 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   /* watermarks: smaller, so they stay clear of the hanging labels */
   #content-box .verse-block > .verse-grid::before { inset: calc(var(--tab-h) + 6px) 10px 10px 10px; }
   #content-box .mtab-panel::before { inset: calc(var(--tab-h) + 8px) 10px 10px 10px; }
-  /* bookmark fold: bottom-right corner of the box (top-right is taken by the language tabs) */
-  #content-box .bookmarked::after { top: auto; bottom: 7px; right: 15px; border-radius: 0 0 11px 0;
-      background: linear-gradient(315deg, var(--box-bg) 0%, var(--box-bg) 50%, #ecd08a 50%, #b88a3a 100%); }
+  /* bookmark fold: top-right corner of the big box */
+  #content-box .bookmarked::after { top: 7px; bottom: auto; right: 15px; width: 18px; height: 18px; border-radius: 0 11px 0 0; }
 
   /* ── DARK THEME (landscape-only parts: the golden box) ── */
   body.dark #content-box .verse-block { --box-bg: #16120c; color: #eadfc6; }
@@ -1196,7 +1195,6 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   body.dark #content-box .verse-block { color: #eadfc6; }
   body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed { background: #1d1710; border-color: #7a6030; }
   body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
-  body.dark #content-box .bookmarked::after { background: linear-gradient(315deg, #1d1710 0%, #1d1710 50%, #ecd08a 50%, #b88a3a 100%); }
 }
 /* shorter phones: rail buttons shrink a little so all of them still fit */
 @media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
@@ -1215,9 +1213,8 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   /* the "being read" highlight now lights up the verse box itself */
   #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid {
       background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
-  /* bookmark fold: bottom-right corner of the meaning box (the top-right is taken by the language buttons) */
-  #content-box .bookmarked::after { top: auto; bottom: 7px; right: 9px; border-radius: 0 0 11px 0;
-      background: linear-gradient(315deg, #fff 0%, #fff 50%, #ecd08a 50%, #b88a3a 100%); }
+  /* bookmark fold: top-right corner of the verse box */
+  #content-box .bookmarked::after { top: 7px; bottom: auto; right: 9px; border-radius: 0 11px 0 0; }
 }
 /* desktop / tablet: no outer card; the two boxes keep the side room, and the meaning box ends 1px above the nav bar */
 @media (min-width: 701px) and (min-height: 521px) {
@@ -1786,11 +1783,11 @@ function initAudioSync() {
             if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore taps on verses
             if (syncDisabled) return;
             clearTimeout(pendingTapPlay);
-            pendingTapPlay = setTimeout(() => {      // short wait: a 2nd quick tap means "bookmark", not "play"
+            pendingTapPlay = setTimeout(() => {      // short wait (longer than DOUBLE_TAP_MS, so a double-tap always wins): a 2nd quick tap means "bookmark", not "play"
                 audio.currentTime = starts[i] + 0.01;
                 const p = audio.play();
                 if (p && p.catch) p.catch(() => {});
-            }, 280);
+            }, 360);
         });
     });
 }
