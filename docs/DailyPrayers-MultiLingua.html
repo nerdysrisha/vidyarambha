@@ -749,6 +749,25 @@ body.dark #themeBtn .ic-moon { display: none !important; }
 /* FLOW pill + list: hidden by default; only the portrait block below switches them on */
 #content-box .flow-pill, #content-box .flow-exit, #content-box .vstep { display: none; }
 #content-box.stage-on { overflow: hidden; touch-action: pan-y; overscroll-behavior: none; }
+
+/* PRAYER NAME STRIP: a thin one-line tab with a saffron glow on its bottom edge. It appears once the intro card has left the screen
+   (see "PRAYER NAME STRIP" in the script) and the verse text slides behind it. Position + size are set by the script. */
+#titleStrip { position: absolute; left: 0; right: 0; top: 0; z-index: 8; box-sizing: border-box; height: 24px; padding: 0 14px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #2a2012; color: #f0d18a; font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    border-bottom: 1.5px solid #ff9933; box-shadow: 0 3px 8px -1px rgba(255, 153, 51, 0.45);
+    opacity: 0; visibility: hidden; transform: translateY(-3px); pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s; }
+#titleStrip.show { opacity: 1; visibility: visible; transform: none; transition: opacity .25s ease, transform .25s ease, visibility 0s; }
+#titleStrip.boxed { border: 1px solid #7a6030; border-bottom: 1.5px solid #ff9933; border-radius: 11px 11px 0 0; }   /* sits on top of the golden verse box */
+#titleStrip::before, #titleStrip::after { content: ""; flex: none; width: 4px; height: 4px; border-radius: 50%; background: #ff9933; opacity: 0.85; }
+#titleStrip .ts-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.6; }
+#titleStrip[lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
+#titleStrip[lang="hi"] { font-family: 'Noto Sans Devanagari', 'Noto Sans Telugu', sans-serif; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #titleStrip { height: 22px; font-size: 12px; padding: 0 10px; }
+  #content-box.stage-on.strip-on > .stage { top: 24px; }      /* landscape shows one verse at a time in a fixed box: the box steps down to make room for the strip */
+}
 body.stage-on { overscroll-behavior-y: none; }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -1590,6 +1609,7 @@ body.stage-on { overscroll-behavior-y: none; }
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
             </div>
+            <div id="titleStrip" aria-hidden="true"><span class="ts-name"></span></div>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a prayer from the list to begin.</div>
             </div>
@@ -2673,6 +2693,7 @@ function loadTopic(flatIndex) {
     topic.el.scrollIntoView({ block: "nearest" });
 
     counterEl.textContent = counterText(flatIndex);
+    prayerNames = null; stripEnable(false, "");   // strip off while the next prayer loads
     contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
     copyBtn.classList.remove("show");
     document.getElementById("verseNav").classList.remove("show");
@@ -2687,15 +2708,18 @@ function loadTopic(flatIndex) {
             if (currentFlatIndex !== flatIndex) return;   // another topic was picked meanwhile: drop this stale response
             contentBox.innerHTML = raw;
             contentBox.scrollTop = 0;
+            readPrayerNames();   // hidden <div class="prayer-names"> -> strip text (then removed from the page)
             initPreface();   // preface page (no verses): show the chosen language, wire "Tap Next"
             buildVerses();   // build tag + shloka + meaning tabs from the language blocks (before audio sync / fitting look at the blocks)
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
             const hasVerses = !!contentBox.querySelector(".verse-block");
+            stripEnable(hasVerses, cleanLabel(topic.label));   // the strip only exists on pages with verses
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
             Stage.refresh();   // layouts that use the fixed frame: put the verses on the stage
+            scheduleStrip();
             placeVerseNav();
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
@@ -2715,6 +2739,66 @@ function loadTopic(flatIndex) {
                 'opening the file directly (file://) blocks fetch() for security reasons.</div>';
         });
 }
+
+// ── PRAYER NAME STRIP ───────────────────────────────────────────────────
+// A thin strip with the prayer's name (in the chosen language) that appears as soon as the intro card has left the screen,
+// and goes away again when you are back at the intro card. The name comes from a hidden block in each prayer page:
+//     <div class="prayer-names" hidden>
+//       <span data-lang="te">…</span> <span data-lang="en">…</span> <span data-lang="hi">…</span> <span data-lang="fr">…</span>
+//     </div>
+// (fallback order: chosen language -> en -> te -> the name in the prayer list). The block is read once, then removed from the page.
+// "Intro card" = the first .intro-card on the page (or, if a page has none, the first verse).
+const titleStrip = document.getElementById("titleStrip"), tsName = titleStrip.querySelector(".ts-name");
+let prayerNames = null, stripEnabled = false, stripFallback = "", stripRaf = 0, stripFade = false;
+function readPrayerNames() {
+    prayerNames = null;
+    const box = contentBox.querySelector(".prayer-names");
+    if (!box) return;
+    prayerNames = {};
+    box.querySelectorAll("[data-lang]").forEach(n => { const t = n.textContent.trim(); if (t) prayerNames[n.dataset.lang] = t; });
+    box.remove();
+}
+function stripSetName() {
+    const n = prayerNames || {};
+    const code = n[curLang] ? curLang : (n.en ? "en" : (n.te ? "te" : (Object.keys(n)[0] || "en")));
+    tsName.textContent = n[code] || stripFallback;
+    titleStrip.lang = n[code] ? code : "en";
+}
+function stripEnable(on, fallbackName) { stripEnabled = on; stripFallback = fallbackName || ""; stripSetName(); scheduleStrip(); }
+function scheduleStrip() { if (!stripRaf) stripRaf = requestAnimationFrame(updateStrip); }
+function updateStrip() {
+    stripRaf = 0;
+    const fadeStage = contentBox.querySelector(":scope > .stage:not(.flow)");       // landscape: one verse at a time in a fixed box
+    const flowStage = contentBox.querySelector(":scope > .stage.flow");             // portrait: the stanzas scroll in one list
+    const mode = fadeStage ? "fade" : (flowStage ? "flow" : "");
+    let show = false;
+    const anchor = stripEnabled ? (contentBox.querySelector(".intro-card") || contentBox.querySelector(".verse-block")) : null;
+    if (anchor) {
+        const item = anchor.closest(".stage-item");
+        if (mode === "fade" && item) show = !item.classList.contains("is-current");     // the intro page has faded out
+        else {                                                                          // scrolling: the intro card has moved off the top
+            const box = anchor.closest(".flow-list") || contentBox;
+            show = anchor.getBoundingClientRect().bottom <= box.getBoundingClientRect().top + 8;
+        }
+    }
+    const fadeOn = show && mode === "fade";
+    if (fadeOn !== stripFade) {                                                         // landscape: the box steps down / back up, so re-fit the verse
+        stripFade = fadeOn; contentBox.classList.toggle("strip-on", fadeOn);
+        if (window.fitVerses) { fitVerses(); setTimeout(fitVerses, 120); }
+    }
+    const ct = contentBox.offsetTop, st = titleStrip.style;
+    if (mode === "fade")      { st.left = (parseFloat(getComputedStyle(contentBox).paddingLeft) + 14) + "px"; st.right = "22px"; st.top = (ct + 8) + "px"; }
+    else if (mode === "flow") { st.left = "8px"; st.right = "8px"; st.top = (ct + 6) + "px"; }
+    else                      { st.left = "0px"; st.right = "0px"; st.top = ct + "px"; }
+    titleStrip.classList.toggle("boxed", mode !== "");
+    titleStrip.classList.toggle("show", show);
+}
+contentBox.addEventListener("scroll", scheduleStrip, { passive: true, capture: true });     // also catches the stanza list scrolling inside the box
+const stripMO = new MutationObserver(scheduleStrip);
+stripMO.observe(contentBox, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] });   // new page, next verse, stage built / removed
+stripMO.observe(contentPanel, { attributes: true, attributeFilter: ["class"] });                                  // audio dock appears -> strip moves down
+if (window.ResizeObserver) { const ro = new ResizeObserver(scheduleStrip); ro.observe(contentBox); ro.observe(audioDock); }
+window.addEventListener("resize", scheduleStrip);
 
 // ── COPY BUTTON ──────────────────────────────────────────────────────────
 const copyBtn = document.getElementById("copyBtn");
@@ -2984,6 +3068,7 @@ function setLang(code) {
     try { localStorage.setItem(LANG_KEY, code); } catch (e) {}
     paintLang();
     contentBox.querySelectorAll(".verse-block").forEach(b => { if (b._apply) b._apply(code); });
+    stripSetName();   // prayer-name strip: new language
     applyPreface();   // preface page: swap to the chosen language's <main>
     fitVerses(); Stage.recentre(); setTimeout(() => { fitVerses(); Stage.recentre(); }, 300);   // the shloka text changed: re-fit its size (flow mode: and re-centre the stanza)
 }
