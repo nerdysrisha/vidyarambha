@@ -364,7 +364,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
   }
   #start-screen.btn-on #start-btn {
       pointer-events: auto;
-      animation: startBtnIn 2.5s ease-out forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
+      animation: startBtnIn 0.8s ease-out forwards, startGlow 1.8s ease-in-out infinite;   /* very slow fade-in, glow breathing from the start */
   }
   @keyframes startBtnIn { from { opacity: 0; } to { opacity: 1; } }
   #start-btn:active { transform: scale(0.95); }
@@ -509,6 +509,20 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
 }
 #navbar #navTheme:hover { background: #d8b46a33 !important; }
 #navbar #navTheme svg { width: 16px; height: 16px; display: block; }
+
+/* ◐ buttons (rail + bottom bar) show what a tap will give you: dark moon button in light theme, bright sun button in dark theme */
+#railTheme .i-sun, #navTheme .i-sun { display: none; }
+#railTheme .i-moon, #navTheme .i-moon { display: block; }
+body.dark #railTheme .i-sun, body.dark #navTheme .i-sun { display: block; }
+body.dark #railTheme .i-moon, body.dark #navTheme .i-moon { display: none; }
+#rail button#railTheme { background: #0d0b08; border-color: #5a4a26; color: #d8b46a; }
+#rail button#railTheme:hover { background: #17120b; border-color: #d8b46a; }
+body.dark #rail button#railTheme { background: #d8b46a; border-color: #f0d18a; color: #2b1a05; }
+body.dark #rail button#railTheme:hover { background: #e8c680; }
+#navbar #navTheme { background: #0d0b08 !important; }
+#navbar #navTheme:hover { background: #1c160c !important; }
+body.dark #navbar #navTheme { background: #d8b46a !important; border-color: #f0d18a !important; color: #2b1a05 !important; }
+body.dark #navbar #navTheme:hover { background: #e8c680 !important; }
 </style>
 </head>
 <body>
@@ -528,7 +542,7 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
         <button id="railUp" type="button" aria-label="Previous chapter" title="Previous chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></button>
         <button id="railDown" type="button" aria-label="Next chapter" title="Next chapter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></button>
         <span class="rail-sep" aria-hidden="true"></span>
-        <button id="railTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+        <button id="railTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg></button>
     </nav>
     <div id="sidebar">
         <div id="sidebar-title">
@@ -557,7 +571,7 @@ body.dark #content-box .bookmarked::after, body.dark #content-box .gc-card .book
     <span id="counter">–</span>
     <button id="nextBtn" aria-label="Next chapter" title="Next"><span class="nav-label">Next </span>&gt;</button>
     <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a paragraph or chapter heading to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
-    <button id="navTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+    <button id="navTheme" type="button" data-theme-toggle aria-label="Switch theme" title="Switch to dark theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg></button>
     <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
@@ -912,13 +926,9 @@ document.addEventListener("fullscreenchange", () => {   // e.g. phone's back ges
     const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(screenEl).getPropertyValue("--start-img"));
     const ready = () => screenEl.classList.add("ready");
     if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else { ready(); }
-    // the glowing Start button starts to appear only AFTER the picture is fully shown AND both text lines have risen,
-    // plus a quiet pause (BTN_PAUSE); the button itself then fades in over 2.5 s (startBtnIn)
-    const BTN_PAUSE = 800;
+    // the glowing Start button comes up 1 second after the screen opens (it fades in over 0.8 s)
     const showBtn = () => screenEl.classList.add("btn-on");
-    const lastLine = screenEl.querySelector("#start-text p:last-child");
-    if (lastLine) lastLine.addEventListener("animationend", () => setTimeout(showBtn, BTN_PAUSE));
-    setTimeout(showBtn, 8000);   // safety net
+    setTimeout(showBtn, 1000);
     let done = false;
     const finish = () => { if (!done) { done = true; screenEl.remove(); } };
     btn.addEventListener("click", () => {
