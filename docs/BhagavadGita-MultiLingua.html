@@ -990,7 +990,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
             padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
             background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#themeBtnNav):not(.rail-sep) { display: none !important; }
   /* chapter without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1237,6 +1237,13 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 body.dark #navbar #themeBtnNav .ic-sun { display: block; }
 body.dark #navbar #themeBtnNav .ic-moon { display: none; }
 body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !important; }
+/* phone landscape: the theme button joins the left rail, at the bottom of the lock / language group (rail height grows by one button) */
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar #themeBtnNav { position: static; transform: none; right: auto; left: auto; flex: none;
+      width: var(--rb, 38px); height: var(--rb, 38px); min-width: var(--rb, 38px);
+      background: rgba(26, 22, 15, 0.45) !important; border-width: 1px !important; }
+  #navbar #themeBtnNav svg { width: 20px; height: 20px; }
+}
 @keyframes sidePeekIn { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
 @media (min-width: 701px) and (min-height: 521px) {
   #sidebar.collapsed { display: none; }
