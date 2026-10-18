@@ -504,6 +504,28 @@ body.dark #rail button#railTheme:hover { background: #e8c680; }
 #navbar #navTheme:hover { background: #17120b !important; border-color: #d8b46a !important; }
 body.dark #navbar #navTheme { background: #d8b46a !important; border-color: #f0d18a !important; color: #2b1a05 !important; }
 body.dark #navbar #navTheme:hover { background: #e8c680 !important; }
+
+/* ── PREFACE (fetched from Preface.html when tapped; it is not a chapter) ── */
+.ch-item.preface-item .num { background: linear-gradient(145deg, #a07a34, #5a3d10); }
+.ch-item.preface-item .num svg { width: 20px; height: 20px; display: block; }
+#content-box .gc-preface { padding: 2px 4px 6px; color: #3a2208; }
+#content-box .gc-preface h1 { font-size: 1.5rem; line-height: 1.25; text-align: center; color: #7a1f1f; margin: 10px 0 4px; }
+#content-box .gc-preface .pf-tag { text-align: center; font-style: italic; color: #8a6d3a; margin: 0 0 18px; }
+#content-box .gc-preface h2 { font-size: 1.08rem; color: #7a3b0a; margin: 22px 0 8px; padding-bottom: 5px; border-bottom: 1px solid #d8b46a88; letter-spacing: 0.02em; }
+#content-box .gc-preface p { font-size: 1.02rem; line-height: 1.8; margin: 0; }
+#content-box .gc-preface ul { list-style: none; margin: 0; padding: 0; }
+#content-box .gc-preface li { padding: 10px 0; border-bottom: 1px dashed #d8b46a66; font-size: 1.02rem; line-height: 1.7; }
+#content-box .gc-preface li:last-child { border-bottom: 0; }
+#content-box .gc-preface li strong { display: block; color: #7a1f1f; font-size: 1.05rem; }
+#content-box .gc-pf-msg { padding: 14px 4px; color: #8a6d3a; font-style: italic; }
+body.dark .ch-item.preface-item .num { background: linear-gradient(145deg, #8a6d3a, #3d2c0e); }
+body.dark #content-box .gc-scroll .gc-preface h1, body.dark #content-box .gc-scroll .gc-preface h2 { color: #d8b46a !important; }
+body.dark #content-box .gc-scroll .gc-preface h2 { border-bottom-color: #8a6d3a88 !important; }
+body.dark #content-box .gc-scroll .gc-preface .pf-tag { color: #a89060 !important; }
+body.dark #content-box .gc-scroll .gc-preface li strong { color: #e8c177 !important; }
+body.dark #content-box .gc-scroll .gc-preface li { border-bottom-color: #8a6d3a55 !important; }
+body.dark #content-box .gc-pf-msg { color: #a89060; }
+@media (max-width: 700px) { #counter { min-width: 52px; } }
 </style>
 </head>
 <body>
@@ -532,6 +554,7 @@ body.dark #navbar #navTheme:hover { background: #e8c680 !important; }
         </div>
         <div id="sidebar-body">
             <div class="sec-head"><span>Chapters</span><span class="count" id="ch-count"></span></div>
+            <div id="preface-slot"></div>
             <div id="ch-list"></div>
         </div>
     </div>
@@ -561,11 +584,13 @@ body.dark #navbar #navTheme:hover { background: #e8c680 !important; }
 // ── CONFIG ──────────────────────────────────────────────────────────────
 // The single child file that holds all 56 chapters (path is relative to this page).
 const CHAPTERS_URL = "subjects/gurucharitra/Chapters.html";
+const PREFACE_URL = "subjects/gurucharitra/Preface.html";   // fetched only when the reader taps "Preface"
 const BOOK_TITLE = "Guru Charitra";
 
 // ── ELEMENTS ────────────────────────────────────────────────────────────
 const sidebarEl   = document.getElementById("sidebar");
 const chList      = document.getElementById("ch-list");
+const prefaceSlot = document.getElementById("preface-slot");
 const chCount     = document.getElementById("ch-count");
 const contentBox  = document.getElementById("content-box");
 const counterEl   = document.getElementById("counter");
@@ -584,8 +609,9 @@ function lsSet(key, val) {
 }
 
 // ── STATE ───────────────────────────────────────────────────────────────
-let chapters = [];          // { id, num, title, el, item }
-let current = -1;
+let chapters = [];          // { id, num, title, el, item }  (the preface is NOT in this list)
+let current = -2;           // -2 = nothing shown yet, -1 = Preface, 0.. = chapters
+let prefaceItem = null, prefaceEl = null, prefacePromise = null;
 let lockUntil = 0;          // ignore scroll-tracking briefly right after a jump
 let userMoved = false;
 
@@ -629,24 +655,71 @@ function updateFade() {
     scroller.classList.toggle("fade-t", t); scroller.classList.toggle("fade-b", b);
 }
 
-// put chapter i inside the card (the other chapters wait, hidden, in the .gc-src holder)
-function showChapter(i) {
-    const c = chapters[i];
+const PILL_NEXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l6 6-6 6M13 6l6 6-6 6"/></svg>';
+const PILL_LOOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg>';
+function renderPill(last) {
+    pillEl.classList.toggle("loop", last);
+    pillEl.innerHTML = last ? PILL_LOOP : PILL_NEXT;
+    pillEl.title = pillEl.ariaLabel = last ? "Back to Chapter " + chapters[0].num : "Next chapter";
+}
+// take whatever the card is showing (chapter, opening, preface, loading note, pill) back to the hidden holder
+function parkCurrent() {
     const old = scroller.querySelector("section.chapter");
     if (old) srcEl.appendChild(old);
     if (openingEl && openingEl.parentNode === scroller) srcEl.appendChild(openingEl);
+    if (prefaceEl && prefaceEl.parentNode === scroller) srcEl.appendChild(prefaceEl);
+    scroller.querySelectorAll(".gc-pf-msg").forEach(n => n.remove());
     if (pillEl.parentNode) pillEl.remove();
-    if (i === 0 && openingEl) scroller.appendChild(openingEl);     // the opening invocation belongs on top of chapter 1 only
-    scroller.appendChild(c.el);
-    const last = i === chapters.length - 1;
-    pillEl.classList.toggle("loop", last);
-    pillEl.innerHTML = last ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l6 6-6 6M13 6l6 6-6 6"/></svg>';
-    pillEl.title = pillEl.ariaLabel = last ? "Back to Chapter " + chapters[0].num : "Next chapter";
-    scroller.appendChild(pillEl);
-    tagEl.textContent = "Chapter " + c.num;
+}
+function swapAnim() {
     scroller.scrollTop = 0;
     scroller.classList.remove("swap"); void scroller.offsetWidth; scroller.classList.add("swap");
+}
+
+// put chapter i inside the card (the other chapters wait, hidden, in the .gc-src holder)
+function showChapter(i) {
+    const c = chapters[i];
+    parkCurrent();
+    if (i === 0 && openingEl) scroller.appendChild(openingEl);     // the opening invocation belongs on top of chapter 1 only
+    scroller.appendChild(c.el);
+    renderPill(i === chapters.length - 1);
+    scroller.appendChild(pillEl);
+    tagEl.textContent = "Chapter " + c.num;
+    swapAnim();
     updateFade();
+}
+
+// the Preface is fetched on first tap, then kept
+function loadPreface() {
+    if (!prefacePromise) {
+        prefacePromise = fetch(PREFACE_URL)
+            .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + PREFACE_URL); return r.text(); })
+            .then(html => {
+                const box = document.createElement("div"); box.innerHTML = html;
+                prefaceEl = box.querySelector(".gc-preface") || box;
+                prefaceEl.classList.add("gc-preface");
+                return prefaceEl;
+            })
+            .catch(err => { prefacePromise = null; throw err; });
+    }
+    return prefacePromise;
+}
+function showPreface() {
+    parkCurrent();
+    renderPill(false);                                              // » leads on to Chapter 1
+    tagEl.textContent = "Preface";
+    swapAnim();
+    if (prefaceEl) { scroller.appendChild(prefaceEl); scroller.appendChild(pillEl); updateFade(); return; }
+    const msg = document.createElement("div"); msg.className = "gc-pf-msg"; msg.textContent = "Loading…";
+    scroller.appendChild(msg);
+    loadPreface().then(el => {
+        if (current !== -1 || !msg.parentNode) return;              // reader already moved on
+        msg.remove(); scroller.appendChild(el); scroller.appendChild(pillEl); updateFade();
+    }).catch(err => {
+        if (current !== -1 || !msg.parentNode) return;
+        msg.textContent = "Couldn't load the preface (" + err.message + "). Check that " + PREFACE_URL + " exists next to Chapters.html.";
+        scroller.appendChild(pillEl);
+    });
 }
 
 function initChapters() {
@@ -682,6 +755,13 @@ function initChapters() {
         chapters.push({ id, num, title, el, item });
     });
 
+    // "Preface" row on top of Chapter 1: not numbered, not counted
+    prefaceItem = document.createElement("div");
+    prefaceItem.className = "ch-item preface-item";
+    prefaceItem.innerHTML = '<span class="num"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg></span><span class="nm">Preface</span>';
+    prefaceItem.addEventListener("click", () => goTo(-1, true));
+    prefaceSlot.appendChild(prefaceItem);
+
     chCount.textContent = chapters.length;
     markBookmark(); paintBmBtn();
 
@@ -697,9 +777,9 @@ function initChapters() {
 
 // ── NAVIGATION ──────────────────────────────────────────────────────────
 function goTo(i, fromSidebar) {
-    if (i < 0 || i >= chapters.length) return;
+    if (i < -1 || i >= chapters.length) return;
     if (fromSidebar && isNarrow()) setCollapsed(true);   // show the card first so it can be measured
-    showChapter(i);
+    if (i === -1) showPreface(); else showChapter(i);
     setCurrent(i);
     requestAnimationFrame(updateFade);
 }
@@ -707,11 +787,11 @@ function goTo(i, fromSidebar) {
 function setCurrent(i) {
     if (i === current) return;
     current = i;
-    const c = chapters[i];
     chapters.forEach((x, k) => x.item.classList.toggle("active", k === i));
-    c.item.scrollIntoView({ block: "nearest" });
-    counterEl.textContent = (i + 1) + " / " + chapters.length;
-    document.getElementById("railUp").classList.toggle("off", i === 0);
+    prefaceItem.classList.toggle("active", i === -1);
+    (i === -1 ? prefaceItem : chapters[i].item).scrollIntoView({ block: "nearest" });
+    counterEl.textContent = i === -1 ? "Preface" : (i + 1) + " / " + chapters.length;
+    document.getElementById("railUp").classList.toggle("off", i === -1);   // nothing above the Preface
     scheduleSave();
 }
 
@@ -720,6 +800,7 @@ let saveTimer;
 function scheduleSave() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
+        if (current === -1) { document.title = BOOK_TITLE + " — Preface"; return; }   // the Preface is never saved as "where I stopped"
         const c = chapters[current];
         if (!c) return;
         try { history.replaceState(null, "", "#" + c.id); } catch (e) {}
@@ -734,10 +815,11 @@ window.addEventListener("hashchange", () => {
 });
 
 // Prev / Next: one chapter at a time, wrapping round at the ends (same as Bhagavad Gita)
-prevBtn.onclick = () => { if (chapters.length) goTo(current <= 0 ? chapters.length - 1 : current - 1, false); };
+// "<" from Chapter 1 goes back to the Preface; from the Preface it wraps to the last chapter
+prevBtn.onclick = () => { if (chapters.length) goTo(current === -1 ? chapters.length - 1 : current - 1, false); };
 nextBtn.onclick = () => { if (chapters.length) goTo((current + 1) % chapters.length, false); };
-// landscape rail: up = previous (stops at chapter 1), down = next (wraps to chapter 1 after the last)
-document.getElementById("railUp").onclick = () => { if (chapters.length && current > 0) goTo(current - 1, false); };
+// landscape rail: up = previous (Chapter 1 -> Preface, stops there), down = next (wraps to chapter 1 after the last)
+document.getElementById("railUp").onclick = () => { if (chapters.length && current > -1) goTo(current - 1, false); };
 document.getElementById("railDown").onclick = () => nextBtn.click();
 document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
