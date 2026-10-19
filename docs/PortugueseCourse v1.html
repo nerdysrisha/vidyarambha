@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portuguese Course</title>
+<style>
+html, body {
+    margin: 0;
+    height: 100%;
+    background: #0a0a0a;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; background: transparent; }
+
+#outer {
+    margin: 20px;
+    margin-bottom: 0;
+    height: calc(100vh - 40px - 64px);
+    display: flex;
+    flex-direction: row;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* SIDEBAR — full topic index */
+#sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    transition: width 0.2s ease;
+}
+#sidebar.collapsed {
+    width: 42px;
+}
+#sidebar::-webkit-scrollbar { width: 8px; }
+#sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+#sidebar-title {
+    padding: 14px 16px 10px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #666;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 0;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+}
+#sidebar.collapsed #sidebar-title {
+    padding: 14px 0;
+    justify-content: center;
+}
+#sidebar-title .title-text {
+    overflow: hidden;
+    transition: opacity 0.15s ease;
+}
+#sidebar.collapsed #sidebar-title .title-text {
+    display: none;
+}
+#sidebar-toggle {
+    background: none;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #999;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 13px;
+    font-weight: normal;
+    line-height: 1;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#sidebar-toggle:hover {
+    background: #1a1a1a;
+    color: #00c8ff;
+    box-shadow: none;
+}
+#sidebar.collapsed #sidebar-list {
+    display: none;
+}
+
+/* SEARCH BOX */
+#sidebar-search-row {
+    padding: 8px 12px;
+    border-bottom: 1px solid #222;
+    position: sticky;
+    top: 45px;
+    background: #111;
+    z-index: 1;
+}
+#sidebar.collapsed #sidebar-search-row {
+    display: none;
+}
+#topic-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 7px 28px 7px 10px;
+    color: #eee;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+}
+#topic-search::placeholder { color: #666; }
+#topic-search:focus { border-color: #00c8ff88; }
+#search-wrap {
+    position: relative;
+}
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    color: #777;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+}
+#search-clear:hover {
+    background: #222;
+    color: #fff;
+    box-shadow: none;
+}
+#search-wrap.has-text #search-clear {
+    display: flex;
+}
+#search-wrap {
+    position: relative;
+}
+#search-clear {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #999;
+    font-size: 12px;
+    line-height: 1;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: none;
+}
+#search-clear:hover {
+    background: #3a3a3a;
+    color: #fff;
+    box-shadow: none;
+}
+#search-clear.visible {
+    display: flex;
+}
+#search-count {
+    font-size: 11px;
+    color: #666;
+    padding: 4px 2px 0 2px;
+}
+
+/* SEARCH MATCH / DIM STATES */
+.topic-item.search-match {
+    background: #0d1f2b;
+    border-left-color: #00c8ff;
+    color: #fff;
+}
+.topic-item.search-dim {
+    opacity: 0.28;
+}
+
+.topic-item {
+    padding: 10px 16px;
+    font-size: 14.5px;
+    line-height: 1.4;
+    color: #ccc;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.topic-item:hover {
+    background: #1a1a1a;
+    color: #fff;
+}
+.topic-item.active {
+    background: #0d1f2b;
+    color: #00c8ff;
+    border-left-color: #00c8ff;
+    font-weight: bold;
+}
+
+/* HOVER TOOLTIP — shows English gloss of the topic */
+#topic-tooltip {
+    position: fixed;
+    z-index: 50;
+    max-width: 260px;
+    background: #1a1a1a;
+    color: #ddd;
+    border: 1px solid #00c8ff55;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+}
+#topic-tooltip.visible {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* RIGHT COLUMN — content + nav stacked */
+#main-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+}
+
+/* CONTENT PANEL */
+#content-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #333;
+    border-radius: 8px;
+    flex: 1;
+    min-height: 0;
+}
+
+#content-box {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 20px 26px;
+    scrollbar-width: thin;
+    scrollbar-color: #333 #0a0a0a;
+    font-size: 17px;
+    line-height: 1.6;
+}
+#content-box::-webkit-scrollbar { width: 8px; }
+#content-box::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+/* default styling for whatever content gets dropped in */
+#content-box h1, #content-box h2, #content-box h3 {
+    color: #00c8ff;
+    margin-top: 0.2em;
+}
+#content-box table {
+    border-collapse: collapse;
+    margin: 14px 0;
+    width: 100%;
+}
+#content-box th, #content-box td {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    text-align: left;
+}
+#content-box th {
+    background: #131313;
+    color: #28a745;
+}
+#content-box tr:nth-child(even) td { background: #0e0e0e; }
+#content-box p { margin: 0.6em 0; }
+#content-box .pt { color: #fff; font-weight: bold; }
+#content-box .en { color: #999; font-style: italic; }
+
+/* SENTENCE CHECKER */
+#sentence-check-panel {
+    flex-shrink: 0;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 10px 16px;
+}
+#sc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #999;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+}
+#sentence-check-panel.expanded #sc-header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #222;
+}
+#sc-header:hover { color: #00c8ff; }
+#sc-toggle-icon {
+    color: #666;
+    font-size: 11px;
+    transition: transform 0.15s ease;
+}
+#sentence-check-panel.expanded #sc-toggle-icon {
+    transform: rotate(90deg);
+}
+#sc-body {
+    display: none;
+}
+#sentence-check-panel.expanded #sc-body {
+    display: block;
+}
+#sc-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+#sc-input {
+    flex: 1;
+    resize: none;
+    box-sizing: border-box;
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #eee;
+    font-size: 14.5px;
+    font-family: inherit;
+    outline: none;
+    line-height: 1.4;
+}
+#sc-input::placeholder { color: #666; }
+#sc-input:focus { border-color: #00c8ff88; }
+#sc-check-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+#sc-check-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+#sc-result {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+#sc-result:empty { margin-top: 0; }
+#sc-ok {
+    color: #28a745;
+}
+#sc-error-item {
+    border-left: 3px solid #ff4d4d;
+    background: #1a0e0e;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+#sc-result .sc-error-item {
+    border-left: 3px solid #ff4d4d;
+    background: #1a0e0e;
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+#sc-result .sc-error-msg { color: #eee; }
+#sc-result .sc-error-suggest { color: #00c8ff; font-weight: bold; }
+#sc-result .sc-error-context { color: #888; font-size: 13px; margin-top: 2px; }
+#sc-result .sc-error-rule { margin-top: 4px; font-size: 12px; }
+#sc-result .sc-error-rule a { color: #888; text-decoration: none; border-bottom: 1px dotted #555; }
+#sc-result .sc-error-rule a:hover { color: #00c8ff; border-bottom-color: #00c8ff; }
+#sc-result .sc-fail { color: #ff8080; }
+#sc-corrected {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #222;
+    color: #ccc;
+}
+#sc-corrected b { color: #28a745; }
+
+/* BOTTOM NAV */
+#bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 14px 0;
+}
+button {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: bold;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    background: #0077cc;
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0,119,204,0.5);
+}
+button:hover { background: #0099ff; box-shadow: 0 0 16px rgba(0,153,255,0.9); }
+button:active { transform: scale(0.97); }
+
+#counter {
+    font-size: 15px;
+    color: #aaa;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Wrapper put around every lesson page. On desktop it generates no box (layout unchanged). */
+.page-canvas { display: contents; }
+
+/* ── MOBILE-ONLY CONTROLS (hidden on desktop, so desktop is unchanged) ── */
+#bottom-nav { position: relative; }
+#menuBtn, #fsBtn { display: none; }
+
+/* ── MOBILE (portrait phones): topic list first, then full-width scrollable lesson ── */
+@media (max-width: 700px) {
+  #outer { margin: 4px 4px 0 4px; gap: 4px; height: calc(100dvh - 56px); }
+
+  /* Bottom bar becomes a compact bordered strip: ☰  <  1 / 30  >  ⛶ */
+  #bottom-nav {
+      height: 40px; box-sizing: border-box; padding: 0; margin: 0 4px 4px 4px; gap: 4px;
+      background: #111; border: 1px solid #333; border-radius: 8px;
+  }
+  #bottom-nav button,
+  #bottom-nav button:hover {
+      background: #1a1a1a; color: #ccc; border: 1px solid #333; border-radius: 6px;
+      box-shadow: none; padding: 0; font-weight: 700;
+  }
+  #bottom-nav #prevBtn, #bottom-nav #nextBtn { width: 38px; height: 32px; font-size: 22px; line-height: 1; }
+  #bottom-nav .nav-label { display: none; }
+  #counter { min-width: 40px; font-size: 12px; }
+  #bottom-nav #menuBtn, #bottom-nav #fsBtn {
+      display: block; position: absolute; top: 3px; height: 32px; font-size: 19px; line-height: 1;
+      color: #00c8ff; border-color: #00c8ff66;
+  }
+  #bottom-nav #menuBtn { left: 6px; width: 36px; }
+  #bottom-nav #fsBtn   { right: 6px; width: 34px; font-size: 18px; }
+  #bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
+
+  /* Sidebar = full-width list when open, completely gone when closed */
+  #sidebar { width: 100%; }
+  #sidebar.collapsed { display: none; }
+  #sidebar-toggle { display: none; }
+  #sidebar-title { height: 40px; box-sizing: border-box; padding: 0 16px; }
+  #sidebar-search-row { top: 40px; }
+  #topic-search { font-size: 16px; }          /* stops iOS zooming in on focus */
+  .topic-item { padding-top: 12px; padding-bottom: 12px; }   /* bigger tap targets */
+  #topic-tooltip { display: none; }                          /* no hover on touch */
+  body.side-open #main-col { display: none; }
+
+  #main-col { gap: 4px; }
+
+  /* Lesson: edge-to-edge; the page is laid out on a fixed-width canvas and scrolls left/right
+     instead of being squeezed to the phone width. Change 900px to taste. */
+  #content-box { padding: 12px 10px 40px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #content-box .page-canvas { display: block; box-sizing: border-box; width: 100%; min-width: 900px; }
+
+  /* Bigger invisible tap area around the 🔊 buttons (no visual or layout change; speech code untouched) */
+  #content-box .spk-btn::after { content: ""; position: absolute; top: -10px; right: -10px; bottom: -10px; left: -10px; }
+
+  /* "Check a sentence" panel is not shown on phones */
+  #sentence-check-panel { display: none; }
+}
+
+/* ══ TOPIC BOXES (all devices): the old sidebar is now a full-page grid of boxes ══ */
+#sidebar { width: 100%; flex-shrink: 1; }
+#sidebar.collapsed { display: none; width: 100%; }
+#sidebar-toggle { display: none; }
+body.side-open #main-col { display: none; }
+#topic-tooltip { display: none; }
+#search-wrap { max-width: 760px; margin: 0 auto; }
+#sidebar-list { display: grid; grid-template-columns: minmax(0, 760px); justify-content: center; gap: 10px; padding: 14px; }   /* one box per row, flowing down */
+#sidebar.collapsed #sidebar-list { display: none; }
+.topic-item {
+    box-sizing: border-box; display: flex; align-items: center; min-height: 68px; padding: 14px 16px;
+    font-size: 17px; line-height: 1.35; overflow-wrap: anywhere;
+    background: #151515; border: 1px solid #2b2b2b; border-radius: 10px;
+}
+.topic-item:hover { background: #1b1b1b; border-color: #3a3a3a; }
+.topic-item.active, .topic-item.search-match { border-color: #00c8ff; }
+
+/* ══ BOTTOM NAV: Topics button (left), full-screen button (right) ══ */
+body.side-open #prevBtn, body.side-open #nextBtn, body.side-open #counter { display: none; }   /* nothing to step through on the boxes page */
+#bottom-nav #menuBtn, #bottom-nav #fsBtn {
+    display: inline-flex; align-items: center; justify-content: center; position: absolute;
+    top: 50%; height: 38px; margin: -19px 0 0 0; padding: 0;
+    background: transparent; border: 1.5px solid #00c8ff; color: #00c8ff; box-shadow: none; font-size: 15px;
+}
+#bottom-nav #menuBtn { left: 16px; padding: 0 16px; border-radius: 19px; gap: 6px; }
+@media (min-width: 701px) { #bottom-nav { min-height: 64px; box-sizing: border-box; } }   /* keeps the bar the same height on the boxes page */
+#bottom-nav #fsBtn   { right: 16px; width: 38px; border-radius: 50%; }
+#bottom-nav #fsBtn svg { width: 20px; height: 20px; display: block; }
+#bottom-nav #menuBtn:hover, #bottom-nav #fsBtn:hover { background: rgba(0,200,255,0.18); box-shadow: 0 0 10px rgba(0,200,255,0.5); }
+#bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
+@media (max-width: 700px) {
+    #sidebar-list { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 8px; }
+    .topic-item { min-height: 54px; padding: 12px 14px; font-size: 16px; }
+    #search-wrap { max-width: none; }
+    #bottom-nav #menuBtn { left: 6px; width: 36px; height: 32px; margin-top: -16px; padding: 0; border-radius: 6px; font-size: 19px; }
+    #bottom-nav #fsBtn   { right: 6px; width: 32px; height: 32px; margin-top: -16px; }
+    #bottom-nav #fsBtn svg { width: 17px; height: 17px; }
+    #bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
+}
+
+/* ── LANDING SCREEN (all devices) ──────────────────────────────────────────────
+   Picture of the day: subjects/pt/images/day<day of month>.webp  (day1.webp ... day31.webp), then portugal.webp, then the gradient.
+   (the folder is set in the script: IMG_DIR). Tapping Start goes full screen and the screen fades away. */
+#start-screen {
+    --start-img: url("subjects/pt/images/portugal.webp");
+    --start-pad: clamp(22px, 4vw, 44px);
+    --start-btn: clamp(72px, 20vw, 96px);
+    position: fixed; inset: 0; z-index: 10000; overflow: hidden;
+    display: flex; align-items: flex-end; justify-content: flex-end;
+    padding: 0 var(--start-pad) calc(var(--start-pad) + env(safe-area-inset-bottom, 0px)) 0;
+    background: radial-gradient(circle at 50% 40%, #12305a 0%, #050a14 100%);
+}
+#start-screen::before { content: ""; position: absolute; inset: 0; background: var(--start-img) center / cover no-repeat; opacity: 0; }
+#start-screen.ready::before { animation: startReveal 5s ease-in-out forwards; }
+@keyframes startReveal { from { opacity: 0; } to { opacity: 1; } }
+#start-screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 65%; pointer-events: none;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%); }
+#start-text {
+    position: absolute; z-index: 1; left: 0; right: 0; text-align: center; pointer-events: none;
+    bottom: calc(var(--start-pad) + var(--start-btn) + 20px + env(safe-area-inset-bottom, 0px));
+    padding: 0 clamp(18px, 6vw, 90px);
+}
+#start-title { font: 800 clamp(28px, 5vw, 52px)/1.1 "Trebuchet MS", system-ui, sans-serif; letter-spacing: 0.03em; color: #fff; margin: 0 0 14px; text-shadow: 0 2px 12px rgba(0,0,0,0.9); }
+#start-quote { margin: 0 auto 6px; max-width: 880px; text-wrap: balance; font: italic 500 clamp(18px, 2.5vw, 30px)/1.45 Georgia, "Times New Roman", serif; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.7); }
+#start-en { margin: 0 auto 8px; max-width: 880px; text-wrap: balance; font: 400 clamp(14px, 1.8vw, 20px)/1.45 system-ui, sans-serif; color: #cfe9f7; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+#start-author { margin: 0; font: 700 clamp(14px, 1.8vw, 20px)/1.4 system-ui, sans-serif; letter-spacing: 0.04em; color: #7dd3fc; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
+#start-title, #start-quote, #start-en, #start-author { opacity: 0; transform: translateY(26px); }
+#start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-en, #start-screen.ready #start-author { animation: startRise 2.4s cubic-bezier(.2,.7,.3,1) forwards; }
+#start-screen.ready #start-title  { animation-delay: 0.8s; }
+#start-screen.ready #start-quote  { animation-delay: 2.0s; }
+#start-screen.ready #start-en     { animation-delay: 3.0s; }
+#start-screen.ready #start-author { animation-delay: 4.0s; }
+@keyframes startRise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+#start-btn {
+    position: relative; z-index: 1; appearance: none; cursor: pointer; padding: 0;
+    width: var(--start-btn); height: var(--start-btn); border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.9); color: #022a40;
+    font: 700 13px/1 system-ui, sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+    background: radial-gradient(circle at 35% 30%, #c4f1ff 0%, #38bdf8 55%, #0284c7 100%);
+    animation: startGlow 1.8s ease-in-out infinite;
+}
+#start-btn:hover { background: radial-gradient(circle at 35% 30%, #c4f1ff 0%, #38bdf8 55%, #0284c7 100%); }
+#start-btn:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+#start-btn:active { transform: scale(0.95); }
+@keyframes startGlow {
+    0%, 100% { box-shadow: 0 0 8px 2px rgba(56,189,248,0.75), 0 0 18px 6px rgba(2,132,199,0.45), inset 0 1px 0 rgba(255,255,255,0.7); }
+    50%      { box-shadow: 0 0 16px 6px rgba(125,211,252,1),  0 0 34px 14px rgba(56,189,248,0.7), inset 0 1px 0 rgba(255,255,255,0.7); }
+}
+#start-screen.leaving { pointer-events: none; animation: startFade 2.5s ease forwards; }
+#start-screen.leaving #start-btn { animation: startBtnOut 2.5s ease forwards; }
+@keyframes startFade { 0%, 15% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes startBtnOut { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+    #start-screen.ready::before { animation-duration: .01s; }
+    #start-screen.ready #start-title, #start-screen.ready #start-quote, #start-screen.ready #start-en, #start-screen.ready #start-author { animation-duration: .01s; animation-delay: 0s !important; }
+    #start-btn { animation: none !important; }
+    #start-screen.leaving { animation-duration: .3s; }
+    #start-screen.leaving #start-btn { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LANDING SCREEN: daily picture + a Portuguese quote of the day (with English) + glowing Start button (CSS + script at the end) -->
+<div id="start-screen">
+    <div id="start-text">
+        <div id="start-title">Curso de Português</div>
+        <p id="start-quote" lang="pt"></p>
+        <p id="start-en"></p>
+        <p id="start-author"></p>
+    </div>
+    <button id="start-btn" type="button">Start</button>
+</div>
+
+<div id="outer">
+    <div id="sidebar">
+        <div id="sidebar-title">
+            <span class="title-text">Topics</span>
+            <button id="sidebar-toggle" aria-label="Collapse sidebar" title="Collapse sidebar">&#171;</button>
+        </div>
+        <div id="sidebar-search-row">
+            <div id="search-wrap">
+                <input type="text" id="topic-search" placeholder="Search e.g. esse, aquilo, tenho…" autocomplete="off">
+                <button id="search-clear" aria-label="Clear search" title="Clear search">&#10005;</button>
+            </div>
+            <div id="search-count"></div>
+        </div>
+        <div id="sidebar-list"></div>
+    </div>
+    <div id="main-col">
+        <div id="content-panel">
+            <div id="content-box"></div>
+        </div>
+        <div id="sentence-check-panel">
+            <div id="sc-header">
+                <span>&#9997;&#65039; Check a sentence (Portuguese)</span>
+                <span id="sc-toggle-icon">&#9656;</span>
+            </div>
+            <div id="sc-body">
+                <div id="sc-row">
+                    <textarea id="sc-input" rows="2" placeholder="Type a Portuguese sentence to check…"></textarea>
+                    <button id="sc-check-btn">Check</button>
+                </div>
+                <div id="sc-result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="topic-tooltip"></div>
+
+<div id="bottom-nav">
+    <button id="menuBtn" title="All topics">&#9776;<span class="nav-label"> Topics</span></button>
+    <button id="prevBtn" aria-label="Previous topic" title="Previous">&#8592;<span class="nav-label"> Prev</span></button>
+    <span id="counter">1 / 1</span>
+    <button id="nextBtn" aria-label="Next topic" title="Next"><span class="nav-label">Next </span>&#8594;</button>
+    <button id="fsBtn" title="Full screen" aria-label="Full screen"></button>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+// Raw GitHub base URL for topic files. Each entry below fetches
+// BASE_URL + slug + ".html" and drops that HTML straight into the page.
+const BASE_URL = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/main/docs/subjects/pt/";
+
+// ── TOPIC LIST (edit labels/slugs here as needed) ────────────────────────────
+const topics = [
+	["00-credits",                         "Créditos / Credits",
+		"Course credits and acknowledgements.",
+		"credits, créditos, curso de língua portuguesa, professor, shiv kumar singh, casa da índia, oriente, lisboa, sobre este curso, aviso, disclaimer"],
+    ["00-introduction",                    "Introdução — Identificação pessoal",
+        "Opening lesson: basic personal identification (name, greetings, first phrases).",
+        "chamo-me, sou da, sou de, falo português, falo inglês, moro em, trabalho na, trabalho num, tenho anos, não sou casado, os meus pais vivem, alfabeto português, pronúncia, letra, identificação pessoal"],
+    ["01-artigos",                         "1. Artigos",
+        "Definite articles: o / a / os / as (\"the\").",
+        "o, os, a, as, um, uns, uma, umas, artigos definidos, artigos indefinidos"],
+    ["01b-artigo-indefinido-genero-numero", "1b. Artigo indefinido, género, número, demonstrativos e cores",
+        "Indefinite articles (a/an), noun gender & number, intro to demonstratives, and colors.",
+        "isto, isso, aquilo, branco, branca, brancos, brancas, verde, verdes, azul, azuis, cor de rosa, de, da, do, artigo indefinido e género dos nomes, número dos nomes, demonstrativos invariáveis, cores, preposições e adjetivos, uso dos artigos"],
+    ["02-verbos-basicos",                  "2. Verbos básicos",
+        "A first set of essential everyday verbs.",
+        "ser, estar, ter, há, sou, és, é, somos, são, estou, estás, está, estamos, estão, tenho, tens, tem, temos, têm"],
+    ["03-ser-usos-principais",             "3. Ser — usos principais",
+        "Main uses of \"ser\" (to be) — identity, origin, characteristics — permanent/inherent states.",
+        "ser, indiano, italiano, professor, médico, casado, solteiro, sou de faro, é de lisboa, é do professor, é da maria, uma hora, duas horas, de madeira, de vidro, em portugal, em moçambique, o joão, a maria, inteligente, salgada, nacionalidade, profissão, estado civil, origem — ser de, posse — ser de, tempo cronológico, matéria — ser de, localização geográfica, identidade nome, características"],
+    ["04-estar-usos-principais",           "4. Estar — usos principais",
+        "Main uses of \"estar\" (to be) — location, temporary states, feelings.",
+        "estar, em casa, no trabalho, cansado, doente, calor, frio, com fome, com sede, aberta, quente, como está?, estou bem, já está, ainda não, localização, situação temporária, tempo meteorológico, estar com + nome, estado condição, cumprimentar perguntar como alguém está, já está? — situação concluída"],
+    ["05-ser-vs-estar",                    "5. Ser vs. estar",
+        "Direct comparison: when to use \"ser\" vs \"estar\" for \"to be\".",
+        "ser, estar, ela é loura, ele é inteligente, o vestido é novo, a água do mar é salgada, o limão é azedo, hoje estou cansado, a sopa está salgada, o leite não está bom está azedo, o vestido está roto, ele é de lisboa mas agora está no porto, são 10 horas da manhã e já está tanto calor"],
+    ["05b-nacionalidades-verbos-ar-estar",  "5b. Nacionalidades, verbos -ar e estar",
+        "Nationalities, regular -ar verb conjugation, more practice with estar.",
+        "inglês, inglesa, italiano, italiana, espanhol, espanhola, alemão, alemã, belga, ingleses, inglesas, italianos, italianas, espanhóis, espanholas, alemães, alemãs, belgas, eu falo, tu falas, você ele ela fala, nós falamos, vocês eles elas falam, eu estou, tu estás, você ele ela está, nós estamos, vocês eles elas estão, género e número das nacionalidades, presente do indicativo verbos -ar, presente do indicativo estar, ser e estar"],
+    ["06-ter",                             "6. Ter (+ Há)",
+        "The verb \"ter\" (to have) and the impersonal \"há\" (there is/are).",
+        "ter, tenho, tens, tem, temos, têm, tenho fome, tenho sede, tu tens fome?, ele tem sede, estou com fome, estou com sede, eles estão com fome, há, há um carro, há um rapaz na rua, há 20 rapazes na rua, há 13 pessoas na sala, há dinheiro na carteira"],
+    ["07-palavras-de-tempo",               "7. Palavras de tempo",
+        "Time-related vocabulary: days, months, telling time, time expressions.",
+        "manhã, tarde, noite, madrugada, de manhã, à tarde, à noite, segunda-feira, terça-feira, quarta-feira, quinta-feira, sexta-feira, sábado, domingo, hoje, amanhã, depois de amanhã, ontem, anteontem, fim de semana, férias, feriados, bom fim de semana, boas férias, bom feriado, zero, um, dois, três, quatro, cinco, seis, sete, oito, nove, dez, onze, doze, treze, catorze, quinze, dezasseis, dezassete, dezoito, dezanove, vinte, vinte e um, trinta, quarenta, cinquenta, sessenta, setenta, oitenta, noventa, cem, cento, duzentos, trezentos, mil, partes do dia, dias da semana, outros dias e referências de tempo, fim de semana férias feriados, números cardinais"],
+    ["08-antes-depois",                    "8. Antes / depois",
+        "\"Before\" and \"after\" — sequencing words and phrases.",
+        "antes de, depois de, antes de sair fecho a porta, depois de comer lavo os dentes, chegámos antes das nove, ele saiu depois de mim, antes do trabalho vou ao ginásio, depois da reunião vamos almoçar"],
+    ["09-expressoes",                      "9. Expressões",
+        "Common everyday expressions and idioms.",
+        "bom dia, boa tarde, boa noite, olá, adeus, até logo, até amanhã, por favor, obrigado/a, desculpa, com licença, muito prazer, boa quinta-feira, boa viagem, boa sorte, boa reunião, boa conversa, bom trabalho, bom almoço, bom sábado, bom fim de semana, bom sonho, abra a porta por favor, pode repetir por favor, pode repetir se faz favor, como está?, como estás?, estou bem obrigado/a, e consigo?, e contigo?, tudo bem?, tudo bem obrigado/a, muito prazer em conhecê-lo, muito prazer em conhecê-la, igualmente, para mim também, já está?, ainda não, é tudo?, ainda há mais, porquê?, porque..., também, está bem, tá bem, saudações e despedidas, votos de boa sorte, pedidos educados, perguntar responder como está, conhecer alguém, expressões úteis do dia a dia"],
+    ["10-tipos-de-verbos",                 "10. Tipos de verbos",
+        "Verb categories/conjugation groups (-ar, -er, -ir) overview.",
+        "-ar, -er, -ir, -or, falar, brincar, trabalhar, beber, comer, escrever, fazer, abrir, dormir, partir, pôr, cantar, jantar, morar, comprar, jogar, ler, vender, aprender, correr, sair, assistir, decidir, repor, compor, opor"],
+    ["11-presente-indicativo",             "11. Presente do Indicativo (Pt 1)",
+        "Present indicative tense — regular conjugation patterns.",
+        "falar, eu falo, tu falas, ele fala, ela fala, você fala, nós falamos, eles falam, elas falam, vocês falam, eu levanto-me sempre às 8h00, normalmente almoçamos às 13h00 e jantamos às 20h30, o sr. ramos compra o jornal todos os dias, a terra gira à volta do sol, a ana fala inglês muito bem, as crianças gostam muito de chocolate, em lisboa as lojas fecham às 19h00, ele trabalha muito, telefono-te amanhã, os exames começam na próxima semana, trabalhar, brincar, morar, estudar, gostar, dançar, levantar-se, acordar, eu gosto de comer banana, tu gostas de ver futebol no estádio, nós gostamos de estudar português, ela não gosta de trabalhar à noite, trabalho de segunda-feira a sexta-feira, trabalho desde as 10h, tu trabalhas aos fins de semana, trabalhas das 10h às 18h, nós não trabalhamos aos fins de semana, verbos regulares em -ar, ações habituais, factos verdades, ações num futuro próximo, padrão de conjugação — verbos em -ar, verbos em -ar úteis, gostar de + infinitivo, expressões de tempo com o presente"],
+    ["12-estar-a-infinitivo",              "12. Estar + a + infinitivo",
+        "Present continuous equivalent: \"estar + a + infinitive\" (e.g., estou a falar = I am speaking).",
+        "estar + a + infinitivo, a aprender, a estudar, a ler, a trabalhar, a comer, a conversar, a fazer, a responder, eu estou a aprender, tu estás a aprender, ele está a aprender, nós estamos a conversar, eles estão a ler, ela está a ler, está a chover, eles estão a trabalhar, estou a estudar, o daniel está a responder aos emails, a vera está a fazer o almoço, estou a ver televisão há duas horas, estou em portugal há cinco anos, estamos a aprender português há quase um mês, estou a ver televisão desde as 12 horas, estou em portugal desde 2022, não estão a ir à cabeleireira desde julho, estou a conduzir uma mota, estou a estudar português, estou a descansar em casa, estou a escrever um texto em português, estou a fazer o jantar, estou a cozinhar, estou a jantar, estou a beber um café, estou a ler um texto no meu telemóvel, estou a viajar, estou a brincar com a minha filha, estou a comer uma barra de chocolate e estou a beber um chá, estou a beber a água → estou bebendo a água, estou a trabalhar na fábrica → estou trabalhando na fábrica, estou a abrir uma conta → estou abrindo uma conta num banco, estrutura, exemplos de infinitivos, conjugação, ações a acontecer agora, duração — há + período de tempo, desde + ponto de partida, mais exemplos de ações a acontecer agora, português europeu vs. português do brasil"],
+    ["13-forma-negativa-estar-a-infinitivo","13. Forma negativa — estar + a + infinitivo",
+        "Negating the \"estar + a + infinitive\" continuous construction.",
+        "não + estar + a + infinitivo, eu não estou a, tu não estás a, ele/ela/você não está a, nós não estamos a, eles/elas/vocês não estão a, eu não estou a brincar, tu não estás a jogar, ele não está a falar, ela não está a comer, não está a nevar, não estão a conversar"],
+    ["14-demonstrativos",                  "14. Demonstrativos",
+        "Demonstratives: this/that/these/those (este, esse, aquele...) and isto/isso/aquilo.",
+        "este, esta, estes, estas, isto, esse, essa, esses, essas, isso, aquele, aquela, aqueles, aquelas, aquilo, aqui, aí, ali, lá, deste, desse, daquele, neste, nesse, naquele, àquele, o que é isto?, é um livro, o que são isto?, são livros"],
+    ["15-contracoes-preposicao-artigo",    "15. Contrações — preposição + artigo",
+        "Contractions formed by preposition + article (de+o=do, em+a=na, etc.).",
+        "em + o = no, em + os = nos, em + a = na, em + as = nas, em + um = num, em + uns = nuns, em + uma = numa, em + umas = numas, de + o = do, de + os = dos, de + a = da, de + as = das, a + o = ao, a + os = aos, a + a = à, a + as = às, estou na paragem de autocarro, estou na estação, nós estudamos numa escola, estou em portugal, estou na índia, o livro do rapaz, o livro da selda, os livros dos rapazes, as canetas das raparigas, esta caneta é do joão, esta caneta é da carla, esta caneta é dos alunos, esta caneta é das alunas, eu dou 20 euros ao joão, eu dou 20 euros à michele, vou às 10h, esta caneta é deles"],
+    ["15b-plural-artigo-ser-preposicoes",  "15b. Plural — artigo, ser e preposições",
+        "Plural forms of articles, the verb ser, and prepositions.",
+        "masculino os, feminino as, do, da, dos, das, não sou, não és, nós somos, vocês eles elas os senhores as senhoras são, no, nos, na, nas, artigo definido plural, preposição de, frases negativas, pronomes pessoais e o verbo ser plural, preposição em"],
+    ["16-identificacao-pessoal",           "16. Identificação e caracterização pessoal",
+        "Personal identification and describing yourself (name, age, job, traits).",
+        "chamo-me joão costa, sou da inglaterra, sou de londres, falo português um pouco, falo inglês muito bem, moro em saldanha, moro na rua praia de vitória número 6 terceiro andar direito, trabalho na agricultura, trabalho num restaurante em saldanha, tenho 30 anos, não sou casado, os meus pais vivem na índia, gosto muito de ver futebol, gosto de ouvir música indiana, filho, filha, mulher, marido, mãe, pai, sogro, sogra, irmão, irmã, cunhado, tia, avó, primo, prima, madrinha, padrinho, sobrinho, sobrinha, o joão tem dois filhos e uma filha, a mulher dele é desempregada, a mãe do joão é professora, o seu pai é taxista, o sogro é motorista da tvde, a sogra é assistente social, ela tem um irmão e uma irmã, a tia dele é advogada, a avó dele é viúva, o carlos é o primo dele, a joana é a prima, a madrinha e o padrinho do joão são polícias, os sobrinhos do joão são estudantes, não ter emprego, estar desempregado/a, o livro do menino, os livros dos meninos, as roupas da menina, os sapatos das meninas, o pai do rapaz, a mãe dos rapazes, a situação da rapariga, a casa das raparigas, as ruas da cidade, o trabalho do joão, jornalista, professor, arquitecta, secretária, advogado, médica, músico, dentista, nome identificação, origem nacionalidade, morada, profissão trabalho, idade, estado civil, família, gostos preferências, família relações familiares, posse com de exemplos com pessoas, profissões"],
+    ["16b-verbo-chamar-se",                "16b. Verbo chamar-se (reflexivo)",
+        "The reflexive verb \"chamar-se\" (to be called/named).",
+        "eu chamo-me, tu chamas-te, você ele ela o senhor a senhora chama-se, como se chama?, como te chamas?, chamo-me ana ribeiro, o filipe chama-se filipe costa, a joana chama-se joana alves, sou o pedro, és a teresa?, presente do indicativo chamar-se, colocação do pronome reflexo, formal vs informal, presente do indicativo ser revisão, artigo definido revisão"],
+    ["17-conversas-dia-a-dia",             "17. Conversas do dia a dia",
+        "Everyday conversational phrases and small talk.",
+        "como está?, como estás?, estou bem obrigado/a, e o senhor?, e a senhora?, e você?, e consigo?, e contigo?, tudo bem?, onde está?, onde é que está?, onde está a sua mãe?, onde está o seu carro?, onde é a sua casa?, onde é que é a sua casa?, onde é o seu escritório?, onde é a sua empresa?, de onde é?, de onde é ele?, de onde vens?, sou da índia, sou indiano/indiana, sou de telangana, aonde vai?, aonde vais?, o que faz?, o que faz o senhor?, o que faz a senhora?, qual é a sua profissão?, sou informático, sou gerente da minha empresa, trabalho como analista na empresa, o que está a fazer?, o que estás a fazer?, agora estou a estudar português, estou a descansar, estou a ajudar o meu tio, quantos anos tem?, qual é a sua idade?, tenho 20 anos, tenho 50 anos, há quanto tempo está em portugal?, estou em portugal há cinco anos, estou em portugal desde 2022, qual é o seu livro?, qual é a sua nacionalidade?, qual é a língua que fala?, quais são as línguas que fala?, quem está com a camisa vermelha?, o pedro está com a camisa vermelha, quem tem a camisa vermelha?, o pedro tem a camisa vermelha, pode repetir por favor, pode repetir se faz favor, tem passaporte português ou indiano?, tenho passaporte indiano, tem residência?, tenho residência temporária, tem o número de contribuinte?, tem a carta de condução?, é casado?, sou casado, é mãe?, sim sou mãe, moro em arroios, vivo em portugal, estou a viver em portugal, a minha casa é em arroios, moro perto da estação do metro, onde trabalha?, trabalho numa fábrica, trabalho num hospital, trabalho como gerente, o meu marido trabalha com uma empresa norte-americana, o meu filho estuda numa escola pública/privada, gosta de portugal?, gosta de viver em portugal?, gosta de comer gelado?, gosto de estudar português"],
+    ["18-apresentar-descrever-pessoa",     "18. Apresentar / descrever uma pessoa",
+        "Introducing and describing another person.",
+        "ela chama-se prabh, ele chama-se rajesh, ela é da índia, ele é indiano, ela fala português um pouco, ele fala inglês muito bem, ela mora em sintra, ele mora em saldanha, ela trabalha num hospital, ele trabalha na agricultura, ela tem 30 anos, ele tem 45 anos, ela é casada, ele não é casado, os pais dela vivem na índia, ela tem dois filhos, alto, alta, baixo, baixa, magro, magra, forte, jovem, idoso, idosa, moreno, morena, loiro, loira, simpático, simpática, trabalhador, trabalhadora, inteligente, engraçado, engraçada, tímido, tímida, extrovertido, extrovertida, generoso, generosa, paciente, ela gosta muito de ver futebol, ele gosta de ouvir música indiana, nome identificação — terceira pessoa, origem nacionalidade — terceira pessoa, morada — terceira pessoa, profissão trabalho — terceira pessoa, idade — terceira pessoa, estado civil — terceira pessoa, família — terceira pessoa, descrição física, descrição de personalidade, gostos preferências — terceira pessoa"],
+    ["19-verbos-expressoes-rotina",        "19. Verbos e expressões de rotina",
+        "Verbs and expressions for describing daily routine.",
+        "cantar, jantar, limpar, lavar, descansar, sonhar, comprar, brincar, jogar, beber, levar, perguntar, tomar banho, nadar, canto, cantas, canta, cantamos, cantam, bebo, bebes, bebe, bebemos, bebem, tomar café, tomar o pequeno-almoço, de manhã, à tarde, à noite, todos os dias, ao fim de semana, antes de, depois de, de manhã tomo banho e tomo o pequeno-almoço, depois vou trabalhar, à tarde descanso um pouco, à noite janto com a família, depois do jantar brinco com os filhos, ao fim de semana limpo a casa e lavo a roupa, verbos, conjugação — verbos regulares em -ar, conjugação — verbo em -er, expressões com \\\"tomar\\\", expressões de tempo usadas na rotina, rotina diária"],
+    ["20-revisao-nacionalidades",          "20. Revisão — Nacionalidades",
+        "Review lesson focused on nationalities.",
+        "português, chinês, francês, senegalês, norueguês, -ês → -esa, -o → -a, -ol → -ola, -ão → -ã, invariável, alemão, árabe, espanhol, grego, inglês, italiano, russo, hindi, polaco, sueco, japonês, ucraniano, falo um pouco de, padrões de formação, línguas, portuguesa, portugueses, portuguesas, chinesa, chineses, chinesas, japonesa, japoneses, japonesas, francesa, franceses, francesas, senegalesa, senegaleses, senegalesas, norueguesa, noruegueses, norueguesas, russa, russos, russas, angolana, angolanos, angolanas, cubana, cubanos, cubanas, marroquina, marroquinos, marroquinas, sueca, suecos, suecas, egípcia, egípcios, egípcias, alemã, alemães, alemãs, espanhola, espanhóis, espanholas, belga, belgas, guineense, guineenses, são-tomense, são-tomenses, italiana, italianos, italianas, americana, americanos, americanas, polaca, polacos, polacas, mexicana, mexicanos, mexicanas, inglesa, ingleses, inglesas, brasileira, brasileiros, brasileiras, ucraniana, ucranianos, ucranianas, indiana, indianos, indianas, onde estás agora?"],
+	["21-possessivos",          "21.Possessivos",
+		"Possessivos",
+		"possessivos, possessivo, pronomes possessivos, posse, meu, meus, minha, minhas, teu, teus, tua, tuas, seu, seus, sua, suas, nosso, nossos, nossa, nossas, vosso, vossos, vossa, vossas, dele, dela, deles, delas, o meu, os meus, a minha, as minhas, o teu, os teus, a tua, as tuas, o seu, os seus, a sua, as suas, o nosso, os nossos, a nossa, as nossas, o vosso, os vossos, a vossa, as vossas, o filho dele, a filha dela, os filhos deles, as filhas delas, o meu nome é, os meus filhos, a minha empresa, a minha casa, o meu telemóvel, o meu trabalho, os pais dela, os meus pais, os meus irmãos, os amigos deles, artigo com possessivo, concordância género e número, dele dela vs seu sua, vós vocês, my, your, his, her, our, their"],
+ 
+	["22-verbos-regulares",   "22.Verbos regulares",
+		"Verbos regulares",
+		"verbos regulares, verbo regular, regular verbs, conjugação, conjugar, presente do indicativo, presente, infinitivo, radical, terminação, terminações, verbos em -ar, verbos em -er, verbos em -ir, -ar, -er, -ir, falar, beber, abrir, comer, escrever, trabalhar, morar, partir, eu falo, tu falas, você fala, ele fala, ela fala, nós falamos, vocês falam, eles falam, elas falam, eu bebo, tu bebes, você bebe, nós bebemos, vocês bebem, eles bebem, eu abro, tu abres, você abre, nós abrimos, vocês abrem, eles abrem, o, as, a, amos, am, es, e, emos, em, imos, falo português pouco, falas inglês, bebo água, bebes vinho, abro a loja, abres a garrafa, abrimos o cofre, não bebem leite, não abrem a janela, falam com quem, pronomes pessoais, eu tu você ele ela nós vocês eles elas, verbos irregulares vs regulares, to speak, to drink, to open, to eat, to write, to work, to live, to leave, I speak, you speak, he speaks, we speak, they speak, बोलना, पीना, खोलना, मैं बोलता हूँ"],
+
+	["23-presente-do-indicativo",   "23.Presente do indicativo (Pt2)",
+		"Presente do indicativo",
+		"presente do indicativo, presente, simple present, verbos irregulares, verbos regulares, verbos muito utilizados, conjugação, fazer, dizer, poder, querer, eu faço, tu fazes, ele faz, nós fazemos, vocês fazem, eles fazem, eu digo, tu dizes, ele diz, nós dizemos, eu posso, tu podes, ele pode, nós podemos, eu quero, tu queres, ele quer, nós queremos, eles querem, poder + infinitivo, posso falar, podes brincar, pode trabalhar, podemos pagar, podem correr, estudar, escrever, partir, eu estudo, tu escreves, nós partimos, trabalhar, brincar, voltar, chegar, falar, faltar, jantar, nadar, ensinar, eu trabalho, tu estudas, ela chega, nós falamos, eles jantam, elas nadam, contrações, por + a, pela, pelas, pelo, pelos, de + a, da, das, do, dos, em + a, na, nas, no, nos, para a, para o, preposição e artigo, liga corretamente, to do, to make, to say, can, to want, to study, to write, to work, to swim, to teach, करना, कहना, सकना, चाहना, पढ़ना, लिखना, काम करना, तैरना"],
+
+	["24-interrogativos",   "24.Interrogativos",
+		"Interrogativos",
+		"interrogativos, palavras interrogativas, question words, perguntas, fazer perguntas, onde, de onde, quando, quem, qual, quais, como, porquê, porque, quantos, quantas, onde trabalhas, de onde és, quando chegas, quem fala, como estás, quantos filhos tens, porque estudas português, qual é a sua nacionalidade, qual é a sua idade, qual é a sua morada, número do contribuinte, número de Segurança Social, número do passaporte, quais são os nomes dos seus filhos, é indiana, tenho 32 anos, a minha idade é, dados pessoais, o seu, a sua, o teu, a tua, escolhe a opção correta, completa as frases, trabalhar, eu trabalho, tu trabalhas, ela trabalha, nós trabalhamos, eles trabalham, empresa, hospital, escola, loja, restaurante, where, where from, when, who, which, what, how, why, because, how many, कहाँ, कहाँ से, कब, कौन, कौन सा, कैसे, क्यों, क्योंकि, कितने, कितनी"],
+
+
+	["25-o-cafe-interactions",   "25-o-cafe-interactions",
+		"O café",
+		"café, o café, tomar café, beber café, pedir café, no café, pastelaria, café de bairro, espresso, bica, cimbalino, café curto, café cheio, café sem princípio, descafeinado, café com cheirinho, aguardente, americano, abatanado, pingado, garoto, meia de leite, galão, galão claro, galão escuro, quente, bem quente, muito quente, escuro, claro, chá com limão, um café se faz favor, queria um galão, quanto é, eu tomo, tu tomas, ele toma, nós tomamos, eles tomam, tomar, querer, eu quero, tu queres, pastel de nata, com açúcar, sem açúcar, coffee, espresso, coffee with milk, tea with lemon, ordering coffee in Portugal, Portuguese coffee culture, कॉफ़ी, चाय, नींबू वाली चाय, एस्प्रेसो, दूध वाली कॉफ़ी"],
+		
+
+	["26-um-dia-de-trabalho",   "26.Um dia de trabalho",
+		"Um dia de trabalho",
+		"um dia de trabalho, leitura, compreensão escrita, texto, responde às perguntas, verdadeiro ou falso, presente do indicativo, trabalhar, eu trabalho, tu trabalhas, ele trabalha, nós trabalhamos, eles trabalham, o narrador, numa empresa, num hospital, numa escola, numa loja, no Porto, perto de casa, da segunda à sexta-feira, das 9h às 17h, todos os dias, de manhã, ao meio-dia, à tarde, pequeno-almoço, almoçar, colegas, começar a trabalhar, continuar, terminar, gostar de, gosto do meu trabalho, bons colegas, vou para casa, vou para o trabalho, a que horas, em que cidade, com quem, onde trabalha, porquê, routine, daily routine, reading comprehension, breakfast, lunch, colleague, to start, to finish, to like, नाश्ता, दोपहर का खाना, सहकर्मी, शुरू करना, ख़त्म करना, पसंद करना"],
+		
+	["27-locucoes-de-lugar",   "27.Locuções de lugar",
+		"Locuções de lugar",
+		"locuções de lugar, locução, preposições de lugar, place expressions, onde fica, onde está, onde é, ficar, estar, em cima de, debaixo de, à frente de, em frente de, atrás de, dentro de, fora de, ao lado de, no centro de, ao lado esquerdo, à esquerda de, ao lado direito, à direita de, de um lado, de outro lado, perto de, longe de, entre, no meio, à volta de, em cima da, em frente da, ao lado da, atrás dos, dentro do, perto do, contrações, de + a, da, do, dos, das, o banco, a estação, o cinema, a caneta, a secretária, o porta-moedas, o bolso, os Correios, a Faculdade, a pastelaria, on top of, under, in front of, opposite, behind, inside, outside, next to, beside, near, far from, between, around, के ऊपर, के नीचे, के आगे, के सामने, के पीछे, के अंदर, के बाहर, की बगल में, के बीच, के पास, के आस-पास, से दूर"],
+	
+	["28-presente-do-indicativo", "28.Presente do indicativo (Pt3)", "Presente do indicativo", "Presente do indicativo, verbos regulares, verbos irregulares, -ar, -er, -ir, falar, beber, abrir, trabalhar, estudar, brincar, voltar, chegar, faltar, jantar, nadar, ensinar, escrever, partir, cobrir, fazer, dizer, poder, querer, dar, estar, trazer, ler, ver, perder, saber, ser, ir, vir, sair, dormir, haver, conjugar, conjugação, eu, tu, você, ele, ela, nós, vocês, eles, elas, faço, fazes, faz, fazemos, fazem, digo, dizes, diz, dizemos, dizem, posso, podes, pode, podemos, podem, quero, queres, quer, queremos, querem, estudo, estudas, estuda, estudamos, estudam, escrevo, escreves, escreve, escrevemos, escrevem, abro, abres, abre, abrimos, abrem, parto, partes, parte, partimos, partem, dou, dás, dá, damos, dão, estou, estás, está, estamos, estão, trago, trazes, traz, trazemos, trazem, leio, lês, lê, lemos, leem, vejo, vês, vê, vemos, veem, perco, perdes, perde, perdemos, perdem, sei, sabes, sabe, sabemos, sabem, sou, és, é, somos, são, to speak, to drink, to open, to work, to study, to write, to break, to cover, to do, to make, to say, can, to want, to give, to be, to bring, to read, to see, to miss, to know, बोलना, पीना, खोलना, काम करना, पढ़ना, लिखना, तोड़ना, ढकना"],
+
+	["29-compreensao-oral-dados-pessoais", "29.Compreensão oral — Dados pessoais",
+	  "Compreensão oral",
+	  "compreensão oral, dados pessoais, ficha, ouça a conversa, secretária, escola de línguas, nome, idade, nacionalidade, estado civil, solteiro, casado, divorciado, profissão, morada, código postal, cidade, telefone, telemóvel, e-mail, esq., dto., r/c, rés-do-chão, arroba, ponto, como se chama, como te chamas, quantos anos tem, qual é a sua morada, o seu, o teu, listening, personal data, form, name, age, nationality, marital status, address, postal code, mobile, at sign, dot, ground floor, aud-33, passaporte para português, नाम, उम्र, राष्ट्रीयता, पेशा, पता, मोबाइल, ईमेल"],
+	["30-compreensao-oral-o-trabalho", "30.Compreensão oral — O trabalho",
+	  "Compreensão oral",
+	  "compreensão oral, o trabalho, entrevista, ouça a entrevista, empregado de mesa, restaurante, universidade, trabalhar, estudar, ganhar, gostar de, chefe, horas por dia, dias por semana, por dia, por semana, bastante, muito, pouco, difícil, interessante, mas, centro da cidade, longe de, perto de, casa, num, numa, no, na, do, da, verbos em -ar, trabalho, listening, work, job, interview, waiter, boss, hours, days, per day, per week, earn, like, far from, near, city centre, contractions, a37, passaporte para português, वेटर, रेस्तरां, विश्वविद्यालय, साक्षात्कार, काम करना, पढ़ाई करना, कमाना, पसंद करना, बॉस, घंटा, दिन, सप्ताह, काफ़ी, कठिन, दिलचस्प, शहर का केंद्र, दूर, पास"],
+
+	["31-partes-do-corpo-e-hospitals", "31.Partes do corpo e hospital",
+	  "Compreensão oral",
+	  "partes do corpo, hospital, saúde, compreensão oral, não me sinto bem, dor, dores de cabeça, dói-me, doem-me, estar com gripe, febre, cabeça, cabelo, cara, olho, orelha, nariz, boca, dente, pescoço, ombro, braço, mão, dedo, peito, barriga, estômago, costas, perna, joelho, pé, médico, enfermeiro, consulta, marcar uma consulta, ambulância, urgências, farmácia, medicamento, aspirina, acidente, grave, partir o braço, conselhos, toma, vai para casa, deita-te, coitada, se calhar, pois, a sério, de nada, as melhoras, que horror, há quanto tempo, listening, body parts, unwell, sick, pain, headache, flu, fever, doctor, nurse, appointment, ambulance, emergency room, accident, broke my arm, get well soon, advice, सिर, बाल, चेहरा, आँख, कान, नाक, मुँह, दाँत, गर्दन, कंधा, बाँह, हाथ, उँगली, छाती, पेट, पीठ, टाँग, घुटना, पैर, डॉक्टर, नर्स, अस्पताल, एम्बुलेंस, दवा, दर्द, दुर्घटना, फ़्लू"],
+	
+	["32-verbos-ir-fazer-dar", "32.Verbos essenciais: ir, fazer, dar",
+	  "Verbos",
+	  "verbos, pretérito perfeito, passado, verbos irregulares, ir, fazer, dar, fui, foste, foi, fomos, foram, fiz, fizeste, fez, fizemos, fizeram, dei, deste, deu, demos, deram, ir e ser, tu e você, ontem, ontem à noite, na semana passada, no sábado, já, ao mercado, à praia, ao cinema, café, dinheiro, jantar, trabalhos de casa, passeio, festa, simple past, past tense, irregular verbs, verb conjugation, to go, to do, to make, to give, went, did, made, gave, yesterday, last night, last week, on Saturday, already, जाना, करना, बनाना, देना, गया, गई, गए, किया, दिया, कल, कल रात, पिछले हफ़्ते, शनिवार, पहले ही, भूतकाल, क्रिया, अनियमित क्रिया, बाज़ार, समुद्र तट, सिनेमा, पैसे, कॉफ़ी, होमवर्क, पार्टी"],
+
+	["33-imperativo-verbos-regulares", "33.Imperativo: verbos regulares",
+	  "Verbos",
+	  "verbos, imperativo, modo imperativo, ordens, pedidos, instruções, verbos regulares, -ar, -er, -ir, tu, você, vocês, nós, não tu, não você, não vocês, afirmativo, negativo, por favor, faz favor, se faz favor, por favor se não se importar, sff, pf, cortesia, formal, informal, limpar, cantar, passar, beber, escrever, abrir, curtir, limpa, limpe, limpem, não limpes, canta, cante, cantem, não cantes, passa, passe, passem, bebe, beba, bebam, escreve, escreva, escrevam, abre, abra, abram, curte, curta, curtam, fala, fale, falem, vogal oposta, vamos, desculpa, entre, prove, imperative, imperative mood, commands, orders, requests, instructions, regular verbs, polite request, please, affirmative, negative, don't, formal and informal, sing, clean, pass, drink, write, open, enjoy, आज्ञार्थ, आदेश, अनुरोध, आज्ञा, क्रिया, नियमित क्रिया, कृपया, प्लीज़, मत, तुम, आप, आप सब, औपचारिक, अनौपचारिक, गाओ, गाइए, मत गाओ, खोलो, खोलिए, लिखो, लिखिए, पीजिए, साफ़ कीजिए, साफ़ करना, गाना, पीना, लिखना, खोलना, आनंद लेना, पास करना"],
+
+	["34-imperativo-regra-vogal-leitura", "34.Imperativo: regra da vogal + leitura",
+	  "Verbos",
+	  "verbos, imperativo, modo imperativo, regra da vogal, vogal oposta, regra do eu, forma eu, compreensão de leitura, leitura, texto, um dia saudável, vida saudável, conselhos, médico, Marta, perguntas de compreensão, verbos regulares, -ar, -er, -ir, tu, você, vocês, não tu, não você, não vocês, afirmativo, negativo, por favor, se faz favor, sff, pf, formal, informal, estudar, falar, trabalhar, comer, partir, acordar, tomar, beber, evitar, caminhar, descansar, ficar, dormir, fazer, levantar-se, andar, alongar, esquecer-se, fumar, acorde, tome, beba, coma, evite, caminhe, descanse, fique, durma, faça, levante-se, ande, alongue, não fume, não se esqueça, estuda, estude, estudem, come, coma, comam, parte, parta, partam, durmo, faço, fico, alongo, ortografia, c ç, g gu, c qu, pronome depois do verbo, imperative, imperative mood, vowel rule, opposite vowel, eu rule, reading comprehension, healthy day, healthy life, doctor's advice, advice, commands, polite request, please, affirmative, negative, don't, formal and informal, singular, plural, spelling change, stay, sleep, do, make, stretch, walk, wake up, avoid, rest, smoke, forget, आज्ञार्थ, आदेश, अनुरोध, आज्ञा, क्रिया, नियमित क्रिया, स्वर, अंतिम अक्षर, विपरीत स्वर, नियम, पठन, पाठ, पाठ समझना, स्वस्थ जीवन, एक स्वस्थ दिन, सलाह, डॉक्टर, कृपया, प्लीज़, मत, तुम, आप, आप सब, औपचारिक, अनौपचारिक, उठिए, पीजिए, खाइए, टहलिए, आराम कीजिए, सोइए, रहिए, खींचिए, धूम्रपान न कीजिए, भूलिए मत, बचिए, पढ़ना, बोलना, सोना, करना, रहना, खींचना, भूलना, जागना, टहलना, आराम करना, धूम्रपान करना, बचना"]
+
+
+
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let currentIndex = 0;
+const sidebarList = document.getElementById("sidebar-list");
+const contentBox  = document.getElementById("content-box");
+const counterEl   = document.getElementById("counter");
+const tooltipEl   = document.getElementById("topic-tooltip");
+
+// strip accents + lowercase, so "esse" also matches "essa", "és", etc.
+function normalizeSearch(s) {
+    return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+// build sidebar once, listing every topic
+const topicEls = topics.map(([slug, label, desc, keywords], i) => {
+    const item = document.createElement("div");
+    item.className = "topic-item";
+    item.textContent = label.replace(/\s*\/\s*Credits$/i, "");   // boxes are purely Portuguese
+    item.dataset.index = i;
+    item.dataset.search = normalizeSearch(label + " " + (keywords || ""));
+    item.addEventListener("click", () => loadTopic(i));
+
+    item.addEventListener("mouseenter", () => {
+        tooltipEl.textContent = desc || "";
+        if (!desc) return;
+        const rect = item.getBoundingClientRect();
+        tooltipEl.style.left = (rect.right + 10) + "px";
+        tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
+        tooltipEl.classList.add("visible");
+    });
+    item.addEventListener("mouseleave", () => {
+        tooltipEl.classList.remove("visible");
+    });
+
+    sidebarList.appendChild(item);
+    return item;
+});
+
+const isMobile = () => window.matchMedia("(max-width: 700px)").matches;
+// previous topic (from the "nothing opened yet" state on a phone, go to the last one)
+const goPrev = () => loadTopic(currentIndex < 0 ? topics.length - 1 : currentIndex - 1);
+
+function loadTopic(i) {
+    currentIndex = ((i % topics.length) + topics.length) % topics.length;
+    const [slug] = topics[currentIndex];
+    setSidebarCollapsed(true);   // hide the topic boxes after picking a topic (all devices)
+
+    topicEls.forEach((el, idx) => el.classList.toggle("active", idx === currentIndex));
+    topicEls[currentIndex].scrollIntoView({ block: "nearest" });
+
+    counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
+    contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
+
+    // stop any speech from the previous topic before swapping content
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+
+    fetch(BASE_URL + slug + ".html")
+        .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
+        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; contentBox.scrollTop = 0; contentBox.scrollLeft = 0; })
+        .catch(err => {
+            contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
+        });
+}
+
+document.getElementById("prevBtn").onclick = goPrev;
+document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
+
+// ── SEARCH ───────────────────────────────────────────────────────────────
+const searchInput = document.getElementById("topic-search");
+const searchCount = document.getElementById("search-count");
+const searchWrap  = document.getElementById("search-wrap");
+const searchClear = document.getElementById("search-clear");
+
+function runSearch() {
+    const q = normalizeSearch(searchInput.value.trim());
+    searchWrap.classList.toggle("has-text", searchInput.value.length > 0);
+
+    if (!q) {
+        topicEls.forEach(el => el.classList.remove("search-match", "search-dim"));
+        searchCount.textContent = "";
+        return;
+    }
+
+    let matches = 0;
+    topicEls.forEach(el => {
+        const isMatch = el.dataset.search.includes(q);
+        el.classList.toggle("search-match", isMatch);
+        el.classList.toggle("search-dim", !isMatch);
+        if (isMatch) matches++;
+    });
+
+    searchCount.textContent = matches === 0
+        ? "No topics found"
+        : matches + " topic" + (matches === 1 ? "" : "s") + " found";
+}
+
+searchInput.addEventListener("input", runSearch);
+
+searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    runSearch();
+    searchInput.focus();
+});
+
+searchInput.addEventListener("keydown", e => {
+    if (e.key === "Escape" && searchInput.value) {
+        e.stopPropagation();
+        searchInput.value = "";
+        runSearch();
+    }
+});
+
+// ── SIDEBAR COLLAPSE ─────────────────────────────────────────────────────
+const sidebarEl   = document.getElementById("sidebar");
+const toggleBtn    = document.getElementById("sidebar-toggle");
+const menuBtn      = document.getElementById("menuBtn");
+function setSidebarCollapsed(collapsed) {
+    sidebarEl.classList.toggle("collapsed", collapsed);
+    toggleBtn.innerHTML = collapsed ? "&#187;" : "&#171;";
+    toggleBtn.title = collapsed ? "Expand sidebar" : "Collapse sidebar";
+    tooltipEl.classList.remove("visible");
+    document.body.classList.toggle("side-open", !collapsed);   // only has an effect on phones (see CSS)
+    menuBtn.classList.toggle("open", !collapsed);
+    if (!collapsed && typeof currentIndex === "number" && currentIndex >= 0 && topicEls[currentIndex]) {
+        topicEls[currentIndex].scrollIntoView({ block: "nearest" });   // coming back: show the box you were on
+    }
+}
+toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
+menuBtn.addEventListener("click", () => {
+    if (currentIndex < 0) { setSidebarCollapsed(false); return; }   // nothing opened yet: stay on the boxes
+    setSidebarCollapsed(!sidebarEl.classList.contains("collapsed"));
+});
+
+
+// ── FULLSCREEN button (bottom nav, all devices) ─────────────────────────
+const fsBtn = document.getElementById("fsBtn");
+(function () {
+    const de  = document.documentElement;
+    const req = de.requestFullscreen || de.webkitRequestFullscreen;
+    const ext = document.exitFullscreen || document.webkitExitFullscreen;
+    const ENTER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+    const EXIT  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+    if (!req) { fsBtn.style.display = "none"; return; }       // e.g. iPhone Safari has no full-screen API for pages
+    const isFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+    function paint() {
+        fsBtn.innerHTML = isFS() ? EXIT : ENTER;
+        fsBtn.title = isFS() ? "Exit full screen" : "Full screen";
+        fsBtn.setAttribute("aria-label", isFS() ? "Exit full screen" : "Full screen");
+    }
+    fsBtn.addEventListener("click", () => {
+        if (!isFS()) { const p = req.call(de); if (p && p.catch) p.catch(() => {}); }
+        else ext.call(document);
+    });
+    document.addEventListener("fullscreenchange", paint);
+    document.addEventListener("webkitfullscreenchange", paint);
+    paint();
+})();
+
+document.addEventListener("keydown", e => {
+    if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (e.key === "ArrowRight") { e.preventDefault(); loadTopic(currentIndex + 1); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); goPrev(); }
+});
+
+// ── TEXT-TO-SPEECH (Portuguese) ──────────────────────────────────────────────
+// Lesson HTML fetched into #content-box is inserted via innerHTML, so any
+// <script> tags embedded in those files never execute. This engine lives in
+// the shell instead — registered ONCE, delegated on #content-box, which
+// persists across topic swaps (only its innerHTML changes). Lesson files just
+// need the markup: a button.spk-btn inside an element carrying data-pt="...".
+function pickPortugueseVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    return (
+        voices.find(v => v.lang === "pt-PT") ||
+        voices.find(v => v.lang && v.lang.indexOf("pt") === 0) ||
+        null
+    );
+}
+
+function speakPortuguese(text, btn) {
+    if (!("speechSynthesis" in window)) {
+        alert("Speech is not supported in this browser.");
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "pt-PT";
+    utter.rate = 0.6; // slower for clearer learning
+    const voice = pickPortugueseVoice();
+    if (voice) utter.voice = voice;
+
+    document.querySelectorAll(".spk-btn.speaking").forEach(b => b.classList.remove("speaking"));
+    if (btn) {
+        btn.classList.add("speaking");
+        utter.onend = () => btn.classList.remove("speaking");
+        utter.onerror = () => btn.classList.remove("speaking");
+    }
+    window.speechSynthesis.speak(utter);
+}
+
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+contentBox.addEventListener("click", e => {
+    const btn = e.target.closest(".spk-btn");
+    if (!btn) return;
+    const wrap = btn.closest("[data-pt]");
+    if (!wrap) return;
+    e.preventDefault();
+    speakPortuguese(wrap.getAttribute("data-pt"), btn);
+});
+
+// ── SENTENCE CHECKER (LanguageTool free public API) ──────────────────────────
+// Free, no API key. Rate limit: 20 requests/min per IP. See:
+// https://languagetool.org/http-api
+const LT_ENDPOINT = "https://api.languagetool.org/v2/check";
+
+const scPanel   = document.getElementById("sentence-check-panel");
+const scHeader  = document.getElementById("sc-header");
+const scInput   = document.getElementById("sc-input");
+const scBtn     = document.getElementById("sc-check-btn");
+const scResult  = document.getElementById("sc-result");
+
+scHeader.addEventListener("click", () => {
+    const expanded = scPanel.classList.toggle("expanded");
+    if (expanded) scInput.focus();
+});
+
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+}
+
+async function checkSentence() {
+    const text = scInput.value.trim();
+    if (!text) return;
+
+    scBtn.disabled = true;
+    scBtn.textContent = "Checking…";
+    scResult.innerHTML = "";
+
+    try {
+        const params = new URLSearchParams({
+            text: text,
+            language: "pt-PT"
+        });
+
+        const res = await fetch(LT_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString()
+        });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        const matches = data.matches || [];
+
+        if (matches.length === 0) {
+            scResult.innerHTML = '<div id="sc-ok">&#10003; Looks correct!</div>';
+            return;
+        }
+
+        // Build the list of issues (in original order)
+        let html = "";
+        matches.forEach(m => {
+            const errFragment = text.substring(m.offset, m.offset + m.length);
+            const suggestions = (m.replacements || []).slice(0, 3).map(r => r.value).filter(Boolean);
+            html += '<div class="sc-error-item">';
+            html += '<div class="sc-error-msg">' + escapeHtml(m.message) + '</div>';
+            if (suggestions.length) {
+                html += '<div class="sc-error-suggest">&#8594; ' + suggestions.map(escapeHtml).join(", ") + '</div>';
+            }
+            html += '<div class="sc-error-context">"' + escapeHtml(errFragment) + '" in: ' + escapeHtml(m.context.text) + '</div>';
+            if (m.rule && m.rule.id) {
+                const ruleUrl = "https://community.languagetool.org/rule/show/" + encodeURIComponent(m.rule.id) + "?lang=pt-PT";
+                const categoryName = m.rule.category && m.rule.category.name ? m.rule.category.name : "Rule";
+                html += '<div class="sc-error-rule">' + escapeHtml(categoryName) +
+                    ' — <a href="' + ruleUrl + '" target="_blank" rel="noopener">' + escapeHtml(m.rule.id) + '</a></div>';
+            }
+            html += '</div>';
+        });
+
+        // Build a best-effort auto-corrected sentence (apply first suggestion
+        // for each match, working right-to-left so offsets stay valid)
+        let corrected = text;
+        const sortedByOffsetDesc = [...matches].sort((a, b) => b.offset - a.offset);
+        sortedByOffsetDesc.forEach(m => {
+            const rep = m.replacements && m.replacements[0] && m.replacements[0].value;
+            if (rep !== undefined) {
+                corrected = corrected.slice(0, m.offset) + rep + corrected.slice(m.offset + m.length);
+            }
+        });
+        if (corrected !== text) {
+            html += '<div id="sc-corrected">Suggested: <b>' + escapeHtml(corrected) + '</b></div>';
+        }
+
+        scResult.innerHTML = html;
+    } catch (err) {
+        scResult.innerHTML = '<div class="sc-fail">Could not check sentence (' + escapeHtml(err.message) +
+            '). The free LanguageTool API may be rate-limited — try again in a moment.</div>';
+    } finally {
+        scBtn.disabled = false;
+        scBtn.textContent = "Check";
+    }
+}
+
+scBtn.addEventListener("click", checkSentence);
+scInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        checkSentence();
+    }
+});
+
+// All devices: start on the topic boxes; a lesson opens only when a box is clicked.
+currentIndex = -1;
+counterEl.textContent = "– / " + topics.length;
+contentBox.innerHTML = '<div style="color:#666;padding:20px 0;text-align:center;">Choose a topic to begin.</div>';
+document.body.classList.add("side-open");
+menuBtn.classList.add("open");
+
+
+// ── LANDING SCREEN: picture + quote of the day (by day of the month) + Start button ───────────────────
+// Each entry is [Portuguese, English, author]. Day 1 uses the first, day 2 the second ... day 31 the last.
+// To note the day for yourself, add a comment before a line, e.g.  // Day 5
+(function () {
+    const QUOTES = [
+        ["Mudam-se os tempos, mudam-se as vontades.", "Times change, and desires change with them.", "Luís de Camões"],                                  // Day 1
+        ["Tudo vale a pena se a alma não é pequena.", "Everything is worth it if the soul is not small.", "Fernando Pessoa"],                      // Day 2
+        ["Navegar é preciso; viver não é preciso.", "To sail is necessary; to live is not.", "Fernando Pessoa"],                                  // Day 3
+        ["Se podes olhar, vê. Se podes ver, repara.", "If you can look, see. If you can see, notice.", "José Saramago"],                          // Day 4
+        ["Devagar se vai ao longe.", "Slowly, one goes far.", "Provérbio português"],                                                             // Day 5
+        ["Quem não arrisca, não petisca.", "Nothing ventured, nothing gained.", "Provérbio português"],                                          // Day 6
+        ["Água mole em pedra dura, tanto bate até que fura.", "Soft water on hard stone keeps beating until it bores through.", "Provérbio português"], // Day 7
+        ["A pressa é inimiga da perfeição.", "Haste is the enemy of perfection.", "Provérbio português"],                                         // Day 8
+        ["Mais vale tarde do que nunca.", "Better late than never.", "Provérbio português"],                                                      // Day 9
+        ["Quem espera, sempre alcança.", "Whoever waits, always achieves.", "Provérbio português"],                                               // Day 10
+        ["Uma andorinha não faz a primavera.", "One swallow does not make a spring.", "Provérbio português"],                                     // Day 11
+        ["Cada terra com seu uso, cada roca com seu fuso.", "Every land has its custom, every distaff its spindle.", "Provérbio português"],      // Day 12
+        ["Quem tem boca vai a Roma.", "Whoever has a mouth can get to Rome (just ask!).", "Provérbio português"],                                // Day 13
+        ["Pela boca morre o peixe.", "The fish dies by its mouth.", "Provérbio português"],                                                       // Day 14
+        ["A união faz a força.", "Unity makes strength.", "Provérbio português"],                                                                 // Day 15
+        ["Mais vale um pássaro na mão do que dois a voar.", "A bird in the hand is worth two in flight.", "Provérbio português"],                 // Day 16
+        ["De grão em grão, enche a galinha o papo.", "Grain by grain, the hen fills her crop.", "Provérbio português"],                           // Day 17
+        ["Quem muito dorme pouco aprende.", "Whoever sleeps a lot learns little.", "Provérbio português"],                                       // Day 18
+        ["A prática leva à perfeição.", "Practice leads to perfection.", "Provérbio português"],                                                  // Day 19
+        ["O poeta é um fingidor.", "The poet is a pretender.", "Fernando Pessoa"],                                                                // Day 20
+        ["Para ser grande, sê inteiro: nada teu exagera ou exclui.", "To be great, be whole: exaggerate or exclude nothing of yourself.", "Fernando Pessoa (Ricardo Reis)"], // Day 21
+        ["Amor é fogo que arde sem se ver.", "Love is a fire that burns without being seen.", "Luís de Camões"],                                 // Day 22
+        ["Tenho em mim todos os sonhos do mundo.", "I have in me all the dreams of the world.", "Fernando Pessoa (Álvaro de Campos)"],            // Day 23
+        ["Casa roubada, trancas à porta.", "Once the house is robbed, bars on the door.", "Provérbio português"],                                 // Day 24
+        ["Quem vê caras não vê corações.", "Whoever sees faces does not see hearts.", "Provérbio português"],                                    // Day 25
+        ["O seguro morreu de velho.", "The cautious one died of old age.", "Provérbio português"],                                                // Day 26
+        ["Quem conta um conto acrescenta um ponto.", "Whoever tells a tale adds a detail.", "Provérbio português"],                               // Day 27
+        ["A palavra é de prata, o silêncio é de ouro.", "Speech is silver, silence is golden.", "Provérbio português"],                           // Day 28
+        ["Quem semeia ventos colhe tempestades.", "Whoever sows the wind reaps the storm.", "Provérbio português"],                               // Day 29
+        ["Mais vale prevenir do que remediar.", "Prevention is better than cure.", "Provérbio português"],                                       // Day 30
+        ["Não deixes para amanhã o que podes fazer hoje.", "Don't leave for tomorrow what you can do today.", "Provérbio português"]              // Day 31
+    ];
+
+    const screenEl = document.getElementById("start-screen");
+    const btn = document.getElementById("start-btn");
+    if (!screenEl || !btn) return;
+
+    const day = new Date().getDate();
+    const q = QUOTES[(day - 1) % QUOTES.length];
+    document.getElementById("start-quote").textContent  = "\u201C" + q[0] + "\u201D";
+    document.getElementById("start-en").textContent     = q[1];
+    document.getElementById("start-author").textContent = "\u2014 " + q[2];
+
+    // Daily picture: IMG_DIR + "day<day of month>.webp". Missing file -> portugal.webp -> gradient only.
+    // Change IMG_DIR if you keep the pictures elsewhere (keep the trailing slash).
+    const IMG_DIR = "subjects/pt/images/";
+    const candidates = [IMG_DIR + "day" + day + ".webp", IMG_DIR + "portugal.webp"];
+    let readyDone = false;
+    const readyOnce = () => { if (!readyDone) { readyDone = true; screenEl.classList.add("ready"); } };
+    (function tryNext(i) {
+        if (i >= candidates.length) { readyOnce(); return; }
+        const img = new Image();
+        img.onload  = () => { screenEl.style.setProperty("--start-img", 'url("' + candidates[i] + '")'); readyOnce(); };
+        img.onerror = () => tryNext(i + 1);
+        img.src = candidates[i];
+    })(0);
+    setTimeout(readyOnce, 2500);   // never leave the text hidden on a slow network
+
+    let done = false;
+    const finish = () => { if (!done) { done = true; screenEl.remove(); } };
+    // Full screen can only be requested from a tap, so Start asks for it, then the screen fades away.
+    // (iPhone Safari has no full-screen API for web pages; there the screen just fades away.)
+    btn.addEventListener("click", () => {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        screenEl.classList.add("leaving");
+        screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
+        setTimeout(finish, 3200);   // safety net
+    });
+})();
+</script>
+
+</body>
+</html>
