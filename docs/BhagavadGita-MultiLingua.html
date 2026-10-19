@@ -1274,13 +1274,14 @@ body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !im
   #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 10px; letter-spacing: -0.2px; padding: 0; }
 }
 
-/* ── READING MODE (touch devices, while the audio plays): the controls (nav bar / rail, player, verse arrows) only FADE OUT slowly; they keep
+/* ── READING MODE (touch devices, or desktop in full screen, while the audio plays): the controls (nav bar / rail, player, verse arrows) only FADE OUT slowly; they keep
    their space, so the verse boxes never move. One tap brings them back almost at once; they fade away again after a few idle seconds. ── */
 #navbar, #audio-dock { transition: opacity 7s ease; }
 body.immerse-fade #navbar, body.immerse-fade #audio-dock { opacity: 0; pointer-events: none; }
 body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration: 0.15s; }
 body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
 body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
+body.immerse-fade, body.immerse-fade * { cursor: none !important; }
 </style>
 </head>
 <body>
@@ -2569,7 +2570,7 @@ counterEl.textContent = "– / " + CHAPTER_COUNT;
 })();
 
 // ── READING MODE ─────────────────────────────────────────────────────────
-// While the audio plays (touch devices only) the nav bar / rail, player and verse arrows start to fade out 5 s after play begins and take
+// While the audio plays (touch devices, or desktop in full screen) the nav bar / rail, player and verse arrows start to fade out 5 s after play begins and take
 // another 7 s to disappear completely. Nothing changes size, so the verse boxes stay exactly where they are.
 // A tap brings the controls back almost instantly (that tap does nothing else: no play, no bookmark); after a few idle seconds they fade
 // away again. Pausing / the end of the audio / opening another chapter brings them back for good.
@@ -2578,6 +2579,8 @@ window.readingMode = (function () {
     const START_AFTER = 5000, IDLE_MS = 5000;     // (the 7 s fade itself is the CSS transition above)
     let playing = false, on = false, tStart = 0, tIdle = 0;
     const coarse = () => window.matchMedia("(pointer: coarse)").matches;
+    const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const eligible = () => coarse() || isFs();        // phones / tablets always; desktop only while in full screen
     function enter() {
         if (!playing || on) return;
         on = true;
@@ -2591,12 +2594,29 @@ window.readingMode = (function () {
         body.classList.remove("immerse-fade");
         if (thenHideAgain && playing) tIdle = setTimeout(enter, IDLE_MS);
     }
-    function play() { playing = true; if (!coarse()) return; clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); }
+    function play() { playing = true; if (!eligible()) return; clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); }
     function stop() { playing = false; clearTimeout(tStart); clearTimeout(tIdle); if (on || body.classList.contains("immerse-fade")) reveal(false); }
     // a tap while the controls are hidden (or fading) only brings them back
     document.addEventListener("click", e => { if (!on) return; e.stopPropagation(); e.preventDefault(); reveal(true); }, true);
     // any touch while the controls are showing postpones the next fade-out
-    document.addEventListener("pointerdown", () => { if (playing && !on && coarse()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); } }, true);
+    document.addEventListener("pointerdown", () => { if (playing && !on && eligible()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); } }, true);
+    // desktop (mouse): there is no "tap", so moving the mouse brings the controls back; entering / leaving full screen starts / ends the mode
+    let lx = -1, ly = -1;
+    document.addEventListener("mousemove", e => {
+        if (coarse()) return;                                          // touch devices keep tap-to-reveal
+        const moved = lx < 0 || Math.abs(e.clientX - lx) + Math.abs(e.clientY - ly) > 8;
+        if (!moved) return;
+        lx = e.clientX; ly = e.clientY;
+        if (on) reveal(true);
+        else if (playing && isFs()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); }
+    }, { passive: true });
+    function onFsChange() {
+        if (coarse()) return;
+        if (isFs()) { if (playing) { clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); } }
+        else { clearTimeout(tStart); clearTimeout(tIdle); if (on || body.classList.contains("immerse-fade")) reveal(false); }
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
     return { play, stop };
 })();
 
