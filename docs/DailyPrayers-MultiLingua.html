@@ -945,6 +945,9 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     color: #d8b46a; border-color: #d8b46a66; opacity: 0.5;
 }
 #navbar #bmBtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+#navbar #bmBtn { position: relative; }
+#navbar #bmBtn.elsewhere { opacity: 1; }
+#navbar #bmBtn.elsewhere::after { content: ""; position: absolute; top: 2px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: #d8b46a; }
 #navbar #bmBtn.has { opacity: 1; background: #d8b46a; color: #111; }
 #navbar #bmBtn.has svg { fill: currentColor; }
 #bm-toast {
@@ -990,7 +993,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
             padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
             background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#themeBtnNav):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#themeBtnNav):not(#bmBtn):not(.rail-sep) { display: none !important; }
   /* chapter without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1127,7 +1130,7 @@ body.dark .topic-item.active .t-icon { box-shadow: 0 0 0 2px #2d2314, 0 0 0 4px 
 body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color: #7a6030; }
 
 @media (orientation: landscape) and (max-height: 520px) {
-  :root { --rb: 38px; }                                   /* rail button size: bigger = easier to tap */
+  :root { --rb: clamp(28px, calc((100dvh - 92px) / 9), 38px); }   /* rail button size: as big as fits the screen height (the rail now has 9 buttons) */
 
   /* ── LEFT RAIL: slightly bigger buttons, content shifts to keep the same gap ── */
   #navbar { gap: 6px; padding: 6px 5px; }
@@ -1197,8 +1200,7 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.3); }
 }
 /* shorter phones: rail buttons shrink a little so all of them still fit */
-@media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
-@media (orientation: landscape) and (max-height: 350px) { :root { --rb: 31px; } }
+@media (orientation: landscape) and (max-height: 400px) { :root { --rb: clamp(28px, calc((100dvh - 54px) / 9), 35px); } #navbar { gap: 3px; padding: 4px 5px; } }
 /* ── PORTRAIT PHONE: two clean boxes only. No outer card: the verse box and the meaning box stand alone.
    The "Chapter · Verse" label hangs inside the top-left of the verse box, just like the language buttons hang inside the meaning box.
    Same on desktop / tablet (second media query). ── */
@@ -1235,6 +1237,12 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 body.dark #navbar #themeBtnNav .ic-sun { display: block; }
 body.dark #navbar #themeBtnNav .ic-moon { display: none; }
 body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !important; }
+/* phone landscape: the bookmark button joins the rail too (below the speed button) */
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar #bmBtn { width: var(--rb, 38px); height: var(--rb, 38px); min-width: var(--rb, 38px); margin: 0; padding: 0; border-radius: 50%; flex: none;
+      background: #1a160f; border: 1.5px solid #d8b46a; opacity: 0.55; }
+  #navbar #bmBtn svg { width: 20px; height: 20px; }
+}
 /* phone landscape: the theme button joins the left rail, at the bottom of the lock / language group (rail height grows by one button) */
 @media (orientation: landscape) and (max-height: 520px) {
   #navbar #themeBtnNav { position: static; transform: none; right: auto; left: auto; flex: none;
@@ -1268,10 +1276,10 @@ body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !im
 
 /* ── READING MODE (touch devices, while the audio plays): the controls (nav bar / rail, player, verse arrows) only FADE OUT slowly; they keep
    their space, so the verse boxes never move. One tap brings them back almost at once; they fade away again after a few idle seconds. ── */
-#navbar, #audio-dock { transition: opacity 5s ease; }
+#navbar, #audio-dock { transition: opacity 7s ease; }
 body.immerse-fade #navbar, body.immerse-fade #audio-dock { opacity: 0; pointer-events: none; }
 body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration: 0.15s; }
-body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 5s ease !important; }
+body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
 body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
 </style>
 </head>
@@ -1335,7 +1343,7 @@ body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
             <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75x</button>
         </div>
     </div>
-    <button id="bmBtn" aria-label="Go to bookmark" title="Go to bookmark (double-tap a verse to place it)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+    <button id="bmBtn" aria-label="Bookmark this verse" title="Tap: bookmark this verse. Press and hold: go to your bookmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
     <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
             </button>
@@ -1357,8 +1365,8 @@ body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
-// ★ BOOKMARK + REOPEN: double-tap a verse = gold dog-ear (ONE bookmark, saved in this browser's localStorage);
-//   the bookmark button in the bottom bar jumps back to it. The page also reopens the last chapter. Search "BOOKMARK" below.
+// ★ BOOKMARK + REOPEN: tap the bookmark button = gold dog-ear on the verse you are on (ONE bookmark, saved in this browser's localStorage); press and hold = go to it;
+//   (the button is in the bottom bar, and in the left rail in landscape). The page also reopens the last chapter. Search "BOOKMARK" below.
 // Base path where category folders live, relative to this file.
 // e.g. subjects/bhagavadgita/chapter1.html
 const BASE_URL = "subjects/";
@@ -1501,7 +1509,7 @@ function counterText(i) {   // preface -> "Preface"; chapters -> "n / 18" (n ski
 // Block 1 starts at 0; every other block starts where the previous one ends.
 // Pages without data-ends are left alone.
 // (Scripts inside fetched pages do not run, so this logic lives here.)
-let pendingTapPlay = 0;   // timer: tap-to-play waits briefly so a double-tap (bookmark) can cancel it
+let pendingTapPlay = 0;   // timer for tap-to-play
 let syncUserScrollUntil = 0;
 const TOP_PAD = 6;   // a verse is aligned this many px below the top of the reading area
 const MANUAL_SCROLL_PAUSE_MS = 0;   // no hold-off: the display jumps to the audio-synced verse as soon as it changes
@@ -1792,11 +1800,11 @@ function initAudioSync() {
             if (document.body.classList.contains("touch-locked")) return;   // touch lock: ignore taps on verses
             if (syncDisabled) return;
             clearTimeout(pendingTapPlay);
-            pendingTapPlay = setTimeout(() => {      // short wait (longer than DOUBLE_TAP_MS, so a double-tap always wins): a 2nd quick tap means "bookmark", not "play"
+            pendingTapPlay = setTimeout(() => {      // plays at once now (bookmarking is done with the bookmark button)
                 audio.currentTime = starts[i] + 0.01;
                 const p = audio.play();
                 if (p && p.catch) p.catch(() => {});
-            }, 360);
+            }, 0);
         });
     });
 }
@@ -1941,7 +1949,6 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitVerses)
 //   The bookmark button in the bottom bar opens that chapter and scrolls to the folded verse.
 //   The last chapter you opened is reopened automatically when the page opens.
 const BM_KEY = "gitaBookmark", LAST_KEY = "gitaLastTopic";
-const DOUBLE_TAP_MS = 320;
 try { localStorage.removeItem("gitaReaderState"); } catch (e) {}   // leftover from the earlier scroll-saving test
 let bookmark = null;                 // { path, index, label }
 try { bookmark = JSON.parse(localStorage.getItem(BM_KEY)); } catch (e) {}
@@ -1958,7 +1965,30 @@ function showToast(msg) {
     bmToast.textContent = msg; bmToast.classList.add("show");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => bmToast.classList.remove("show"), 2200);
 }
-function paintBmBtn() { bmBtn.classList.toggle("has", !!bookmark); }
+function currentVerseBlock() {        // the verse being chanted / reached with the arrows, else the one filling most of the screen
+    const list = bookmarkables(); if (!list.length) return null;
+    const box = contentBox.getBoundingClientRect();
+    const visible = el => { const r = el.getBoundingClientRect(); return Math.min(r.bottom, box.bottom) - Math.max(r.top, box.top); };
+    const cand = contentBox.classList.contains("sync-playing") ? contentBox.querySelector(".verse-active") : contentBox.querySelector(".verse-focus");
+    if (cand && list.includes(cand) && visible(cand) > Math.min(cand.getBoundingClientRect().height, box.height) * 0.3) return cand;
+    let best = null, bestVis = -1;
+    for (const el of list) { const v = visible(el); if (v > bestVis) { bestVis = v; best = el; } }
+    return best;
+}
+function paintBmBtn() {                // filled = the verse you are on is bookmarked; ringed dot = a bookmark exists elsewhere; dim = none
+    let state = "";
+    try {
+        if (bookmark) {
+            state = "elsewhere";
+            if (pageLoaded && currentFlatIndex >= 0 && flatTopics[currentFlatIndex].path === bookmark.path) {
+                const b = currentVerseBlock();
+                if (b && bookmarkables().indexOf(b) === bookmark.index) state = "has";
+            }
+        }
+    } catch (e) { state = bookmark ? "elsewhere" : ""; }
+    bmBtn.classList.toggle("has", state === "has");
+    bmBtn.classList.toggle("elsewhere", state === "elsewhere");
+}
 function bookmarkables() {           // blocks that can carry the bookmark: verses (or plain paragraphs if a page has none)
     if (contentBox.querySelector(".preface-language")) return [];   // the preface is not bookmarkable
     const v = contentBox.querySelectorAll(".verse-block, .verse-refrain");
@@ -1983,34 +2013,16 @@ function toggleBookmark(block) {
         bookmark = null; block.classList.remove("bookmarked");
         showToast("Bookmark removed");
     } else {
+        const hadOther = !!bookmark;
         contentBox.querySelectorAll(".bookmarked").forEach(n => n.classList.remove("bookmarked"));
         bookmark = { path: topic.path, index: idx, label: topic.label };
         block.classList.add("bookmarked");
-        showToast("Bookmarked — tap the ribbon below to return here");
+        showToast(hadOther ? "Bookmark moved to this verse" : "Bookmarked · press and hold the icon to come back");
     }
     saveBookmark(); paintBmBtn();
     if (window.getSelection) window.getSelection().removeAllRanges();
 }
 
-// Double-tap detection (capture phase = runs before the verse's own tap-to-play handler)
-let lastTapEl = null, lastTapAt = 0;
-contentBox.addEventListener("click", e => {
-    if (document.body.classList.contains("touch-locked")) { lastTapEl = null; return; }   // touch lock: no double-tap bookmark either
-    const block = blockFromTarget(e.target);
-    if (!block) { lastTapEl = null; return; }
-    const now = Date.now();
-    if (lastTapEl === block && now - lastTapAt < DOUBLE_TAP_MS) {
-        e.stopPropagation();                 // 2nd tap: don't start audio
-        clearTimeout(pendingTapPlay);        // ...and cancel the audio the 1st tap queued
-        lastTapEl = null;
-        toggleBookmark(block);
-        return;
-    }
-    lastTapEl = block; lastTapAt = now;
-}, true);
-contentBox.addEventListener("mousedown", e => {      // desktop: stop the double-click from selecting a word
-    if (e.detail > 1 && blockFromTarget(e.target)) e.preventDefault();
-});
 ["wheel", "touchstart", "mousedown"].forEach(evt =>
     contentBox.addEventListener(evt, () => { bmUserMoved = true; }, { passive: true }));
 
@@ -2032,8 +2044,8 @@ function jumpToBookmarkSoon() {      // verses get resized right after a chapter
     setTimeout(() => go(false), 900);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => go(false));
 }
-bmBtn.addEventListener("click", () => {
-    if (!bookmark) { showToast("No bookmark yet — double-tap a verse to place one"); return; }
+function goToBookmark() {
+    if (!bookmark) { showToast("No bookmark yet · tap the icon to bookmark the verse you are on"); return; }
     const i = flatTopics.findIndex(t => t.path === bookmark.path);
     if (i < 0) { showToast("Bookmarked chapter not found"); return; }
     if (i === currentFlatIndex && pageLoaded) {
@@ -2042,7 +2054,21 @@ bmBtn.addEventListener("click", () => {
     }
     pendingJump = true;              // open the chapter first; the jump happens once it has loaded
     loadTopic(i);
+}
+// tap = bookmark / un-bookmark the verse you are on;  press and hold (about half a second) = go to the bookmark
+let bmHoldTimer = 0, bmHeld = false;
+bmBtn.addEventListener("pointerdown", () => { bmHeld = false; clearTimeout(bmHoldTimer); bmHoldTimer = setTimeout(() => { bmHeld = true; goToBookmark(); }, 550); });
+["pointerup", "pointerleave", "pointercancel"].forEach(ev => bmBtn.addEventListener(ev, () => clearTimeout(bmHoldTimer)));
+bmBtn.addEventListener("contextmenu", e => e.preventDefault());
+bmBtn.addEventListener("click", () => {
+    if (bmHeld) { bmHeld = false; return; }                       // the long press already did its job
+    if (!pageLoaded || currentFlatIndex < 0) return;
+    const block = currentVerseBlock();
+    if (!block) { showToast("Nothing to bookmark on this page"); return; }
+    toggleBookmark(block);
 });
+let bmPaintRaf = 0;                                                // keep the icon honest while the text scrolls / the audio moves on
+contentBox.addEventListener("scroll", () => { if (!bmPaintRaf) bmPaintRaf = requestAnimationFrame(() => { bmPaintRaf = 0; paintBmBtn(); }); }, { passive: true });
 paintBmBtn();
 
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
@@ -2544,12 +2570,12 @@ counterEl.textContent = "– / " + CHAPTER_COUNT;
 
 // ── READING MODE ─────────────────────────────────────────────────────────
 // While the audio plays (touch devices only) the nav bar / rail, player and verse arrows start to fade out 5 s after play begins and take
-// another 5 s to disappear completely. Nothing changes size, so the verse boxes stay exactly where they are.
+// another 7 s to disappear completely. Nothing changes size, so the verse boxes stay exactly where they are.
 // A tap brings the controls back almost instantly (that tap does nothing else: no play, no bookmark); after a few idle seconds they fade
 // away again. Pausing / the end of the audio / opening another chapter brings them back for good.
 window.readingMode = (function () {
     const body = document.body;
-    const START_AFTER = 5000, IDLE_MS = 5000;     // (the 5 s fade itself is the CSS transition above)
+    const START_AFTER = 5000, IDLE_MS = 5000;     // (the 7 s fade itself is the CSS transition above)
     let playing = false, on = false, tStart = 0, tIdle = 0;
     const coarse = () => window.matchMedia("(pointer: coarse)").matches;
     function enter() {
