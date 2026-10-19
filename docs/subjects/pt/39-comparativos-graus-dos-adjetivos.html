@@ -1,0 +1,453 @@
+<div class="pt-comparativos">
+<style>
+.pt-comparativos { color: #2b2b2b; font-family: inherit; }
+.pt-comparativos h2, .pt-comparativos h3, .pt-comparativos h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-comparativos .desc-box {
+  background: #fbfaf7 !important;
+  color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 18px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-comparativos .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-comparativos .desc-box h3:first-child { margin-top: 0; }
+.pt-comparativos .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-comparativos .desc-box p:last-child { margin-bottom: 0; }
+.pt-comparativos .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-comparativos .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+
+/* one-item-per-line list, indented one tab, with English equivalent */
+.pt-comparativos .example-list { margin: 0 0 12px 0; }
+.pt-comparativos .ex-line {
+  color: #2b2b2b !important;
+  line-height: 1.7;
+  margin: 0 0 6px 0;
+  padding-left: 2em;
+  position: relative;
+}
+.pt-comparativos .ex-line:last-child { margin-bottom: 0; }
+.pt-comparativos .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-comparativos .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-comparativos .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-comparativos .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 12px 0; }
+.pt-comparativos .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-comparativos .desc-box .desc-ex .spk-btn { top: 0.85em; transform: none; }
+.pt-comparativos .desc-box h3:hover .spk-btn,
+.pt-comparativos .desc-box .desc-ex:hover .spk-btn,
+.pt-comparativos .ex-line:hover .spk-btn,
+.pt-comparativos .spk-btn:focus-visible { opacity: 1; }
+.pt-comparativos .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-comparativos .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-comparativos .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-comparativos .desc-box hr.desc-divider {
+  border: none;
+  border-top: 1px solid #e6ddc9;
+  margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables ---------- */
+.pt-comparativos .compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff !important;
+  margin: 4px 0 10px 0;
+}
+.pt-comparativos .compare-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.92em;
+  color: #6b4f1d !important;
+  border-bottom: 2px solid #c9a15a;
+  background: #ffffff !important;
+}
+.pt-comparativos .compare-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #e8e2d5;
+  background: #ffffff !important;
+  color: #2b2b2b !important;
+  vertical-align: top;
+}
+.pt-comparativos .compare-table tr:last-child td { border-bottom: none; }
+.pt-comparativos .compare-table .spk-wrap {
+  position: relative;
+  padding-left: 1.9em;
+}
+.pt-comparativos .compare-table .spk-wrap .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-comparativos .compare-table .spk-wrap:hover .spk-btn,
+.pt-comparativos .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-comparativos .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+  .pt-comparativos .compare-table .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Small note under a table ---------- */
+.pt-comparativos .table-note {
+  color: #6b6b6b !important;
+  font-size: 0.88em;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0 0 18px 0 !important;
+}
+.pt-comparativos .table-note:last-child { margin-bottom: 0 !important; }
+.pt-comparativos .table-note .pt-word { font-size: 1em; }
+
+.pt-comparativos .example-box {
+  background: #1a1a1a !important;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 18px 0;
+}
+.pt-comparativos .example-box h4 {
+  color: #d8b46a !important;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.pt-comparativos .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-comparativos .example-box .pt-word { color: #d8b46a !important; }
+.pt-comparativos .example-box .ex-line { color: #eaeaea !important; }
+.pt-comparativos .example-box .en-eq { color: #9a9a9a !important; }
+.pt-comparativos .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-comparativos .exercise-box {
+  background: #f6f2fb !important;
+  border: 1px dashed #b79bd6;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+.pt-comparativos .exercise-box > h4 {
+  color: #7a3f9e !important;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.pt-comparativos .exercise-item {
+  background: #ffffff !important;
+  border: 1px solid #e4d9f0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.pt-comparativos .exercise-item:last-child { margin-bottom: 0; }
+.pt-comparativos .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-comparativos .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+.pt-comparativos .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-comparativos .blank-word { display: inline-block; }
+.pt-comparativos .underscore { color: #999 !important; }
+.pt-comparativos .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-comparativos .cue-list { list-style: none; margin: 0; padding: 0; }
+.pt-comparativos .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-comparativos .cue-list li:last-child { border-bottom: none; }
+.pt-comparativos .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-comparativos .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-comparativos .reveal::before { content: "→ "; color: #c9a15a !important; }
+
+.pt-comparativos .check-btn {
+  background: #7a3f9e !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: 0.85em;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.pt-comparativos .check-btn:hover { background: #5f2f7d !important; }
+
+/* ---------- Hindi lines & extras (this lesson) ---------- */
+.pt-comparativos .hi { color: #8a6d3b !important; font-size: 0.9em; }
+.pt-comparativos .hi-eq { display: block; color: #8a6d3b !important; font-size: 0.88em; margin-top: 1px; }
+.pt-comparativos .example-box .hi-eq { color: #c9a874 !important; }
+.pt-comparativos .compare-table td.hi, .pt-comparativos .compare-table td .hi { color: #8a6d3b !important; }
+.pt-comparativos .compare-table .arrow { color: #c9a15a !important; font-weight: 700; }
+.pt-comparativos .worksheet-img { display: block; max-width: 100%; width: 480px; height: auto; border-radius: 8px; border: 1px solid #e4d9f0; background: #fbfaf7; margin: 6px 0 12px 0; }
+.pt-comparativos .src-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 10px 0 0 0; }
+.pt-comparativos .bad { color: #b3261e !important; font-weight: 700; }
+.pt-comparativos .good { color: #2f6b52 !important; font-weight: 700; }
+</style>
+
+<h2>Graus dos adjetivos: comparativos <span class="en">(Degrees of adjectives: comparatives)</span> <span class="hi">(तुलनात्मक)</span></h2>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Para comparar duas pessoas, duas coisas ou duas ações, usamos três estruturas: mais do que, menos do que e tão como."><button class="spk-btn" aria-label="Ouvir">🔊</button>When we compare two people, things or actions, Portuguese uses three patterns. To say one has <em>more</em> of a quality we use <span class="pt-word">mais … do que</span> (<em>superioridade</em>); for <em>less</em> we use <span class="pt-word">menos … do que</span> (<em>inferioridade</em>); and for <em>equal</em> we use <span class="pt-word">tão … como</span> (<em>igualdade</em>). The adjective sits between the two small words, and the thing being compared comes last. <span class="hi">हिन्दी में तुलना दो चीज़ों के बीच “से” लगाकर की जाती है; पुर्तगाली में तुलना वाला शब्द (mais / menos / tão) विशेषण के पहले आता है।</span></p>
+  <hr class="desc-divider">
+  <h3 data-pt="Os três tipos de comparativo"><button class="spk-btn" aria-label="Ouvir">🔊</button>Os três tipos de comparativo <span class="en">(The three types of comparative)</span> <span class="hi">तीन तरह की तुलना</span></h3>
+  <table class="compare-table">
+    <thead><tr><th>Tipo</th><th>Estrutura</th><th>English</th><th>हिन्दी</th><th>Exemplo</th></tr></thead>
+    <tbody>
+      <tr><td>Superioridade</td><td class="spk-wrap" data-pt="mais + adjetivo + do que"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mais + adjetivo + do que</span></td><td>more … than</td><td class="hi">ज़्यादा … से</td><td class="spk-wrap" data-pt="O peixe é mais caro do que a carne."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">O peixe é mais caro do que a carne.</span></td></tr>
+      <tr><td>Inferioridade</td><td class="spk-wrap" data-pt="menos + adjetivo + do que"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">menos + adjetivo + do que</span></td><td>less … than</td><td class="hi">कम … से</td><td class="spk-wrap" data-pt="A pera é menos cara do que o queijo."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A pera é menos cara do que o queijo.</span></td></tr>
+      <tr><td>Igualdade</td><td class="spk-wrap" data-pt="tão + adjetivo + como"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">tão + adjetivo + como</span></td><td>as … as</td><td class="hi">… जितना (उतना)</td><td class="spk-wrap" data-pt="A costeleta é tão cara como o queijo."><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">A costeleta é tão cara como o queijo.</span></td></tr>
+    </tbody>
+  </table>
+  <p class="table-note">Tip: after <span class="pt-word">do que</span> and <span class="pt-word">como</span> use the subject pronouns <em>eu, tu, ele…</em> (<em>mais alto do que eu</em>), not <em>mim / ti</em>. <span class="hi">तुलना की जाने वाली चीज़ हमेशा अंत में आती है।</span></p>
+  <p class="table-note">Conteúdo do professor — Alimentação 1.11: adjetivos (revisão) e graus dos adjetivos.</p>
+</div>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Os adjetivos variáveis concordam com o género e o número. Os invariáveis concordam só com o número."><button class="spk-btn" aria-label="Ouvir">🔊</button>Before comparing, a quick review. <em>Variable</em> adjectives agree with the noun in both gender and number (<em>gordo, gorda, gordos, gordas</em>). <em>Invariable</em> adjectives keep one form for masculine and feminine and change only for number (<em>inteligente → inteligentes</em>). Comparing starts with contrasts, so the useful link word is <span class="pt-word">mas</span> (but). <span class="hi">विशेषण संज्ञा के लिंग और वचन के अनुसार बदलते हैं (परिवर्तनशील), या सिर्फ़ वचन के अनुसार (अपरिवर्तनशील)।</span></p>
+  <hr class="desc-divider">
+  <h3 data-pt="Adjetivos variáveis e invariáveis"><button class="spk-btn" aria-label="Ouvir">🔊</button>Adjetivos variáveis e invariáveis <span class="en">(Variable and invariable adjectives)</span> <span class="hi">परिवर्तनशील और अपरिवर्तनशील</span></h3>
+  <table class="compare-table">
+    <thead><tr><th>Tipo</th><th>m. sing.</th><th>f. sing.</th><th>m. pl.</th><th>f. pl.</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td>variável</td><td class="spk-wrap" data-pt="gordo, gorda, gordos, gordas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gordo</span></td><td>gorda</td><td>gordos</td><td>gordas</td><td>fat</td><td class="hi">मोटा</td></tr>
+      <tr><td>variável</td><td class="spk-wrap" data-pt="magro, magra, magros, magras"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">magro</span></td><td>magra</td><td>magros</td><td>magras</td><td>thin</td><td class="hi">पतला</td></tr>
+      <tr><td>variável</td><td class="spk-wrap" data-pt="bonito, bonita, bonitos, bonitas"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bonito</span></td><td>bonita</td><td>bonitos</td><td>bonitas</td><td>pretty</td><td class="hi">सुंदर</td></tr>
+      <tr><td>invariável</td><td class="spk-wrap" data-pt="inteligente, inteligentes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">inteligente</span></td><td>inteligente</td><td>inteligentes</td><td>inteligentes</td><td>intelligent</td><td class="hi">बुद्धिमान</td></tr>
+      <tr><td>invariável</td><td class="spk-wrap" data-pt="forte, fortes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">forte</span></td><td>forte</td><td>fortes</td><td>fortes</td><td>strong</td><td class="hi">ताक़तवर</td></tr>
+      <tr><td>invariável</td><td class="spk-wrap" data-pt="grande, grandes"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">grande</span></td><td>grande</td><td>grandes</td><td>grandes</td><td>big</td><td class="hi">बड़ा</td></tr>
+    </tbody>
+  </table>
+  <h3 data-pt="Contrastes úteis"><button class="spk-btn" aria-label="Ouvir">🔊</button>Contrastes úteis <span class="en">(Useful contrasts (adjective X opposite))</span> <span class="hi">विपरीत शब्द</span></h3>
+  <table class="compare-table">
+    <thead><tr><th>Português</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="gordo, magro"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">gordo X magro</span></td><td>fat X thin</td><td class="hi">मोटा X पतला</td></tr>
+      <tr><td class="spk-wrap" data-pt="simpático, antipático"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">simpático X antipático</span></td><td>friendly X unfriendly</td><td class="hi">मिलनसार X रूखा</td></tr>
+      <tr><td class="spk-wrap" data-pt="forte, leve"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">forte X leve</span></td><td>strong X light</td><td class="hi">ताक़तवर X हल्का</td></tr>
+      <tr><td class="spk-wrap" data-pt="forte, fraco"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">forte X fraco</span></td><td>strong X weak</td><td class="hi">मज़बूत X कमज़ोर</td></tr>
+      <tr><td class="spk-wrap" data-pt="perto, longe"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">perto X longe</span></td><td>near X far</td><td class="hi">पास X दूर</td></tr>
+      <tr><td class="spk-wrap" data-pt="alto, baixo"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">alto X baixo</span></td><td>tall X short</td><td class="hi">लंबा X छोटा</td></tr>
+      <tr><td class="spk-wrap" data-pt="novo, velho"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">novo X velho</span></td><td>new X old</td><td class="hi">नया X पुराना</td></tr>
+      <tr><td class="spk-wrap" data-pt="caro, barato"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">caro X barato</span></td><td>expensive X cheap</td><td class="hi">महँगा X सस्ता</td></tr>
+      <tr><td class="spk-wrap" data-pt="bom, mau"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">bom X mau</span></td><td>good X bad</td><td class="hi">अच्छा X बुरा</td></tr>
+      <tr><td class="spk-wrap" data-pt="quente, frio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">quente X frio</span></td><td>hot X cold</td><td class="hi">गरम X ठंडा</td></tr>
+      <tr><td class="spk-wrap" data-pt="cheio, vazio"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">cheio X vazio</span></td><td>full X empty</td><td class="hi">भरा X खाली</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — adjetivos (revisão): um contraste com “mas”</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="1. Ele é gordo, mas ela é magra."><button class="spk-btn" aria-label="Ouvir">🔊</button>1. Ele é <span class="pt-word">gordo</span>, <span class="pt-word">mas</span> ela é <span class="pt-word">magra</span>.<span class="en-eq">He is fat, but she is thin.</span><span class="hi-eq">वह (पुरुष) मोटा है, लेकिन वह (महिला) पतली है।</span></p>
+    <p class="ex-line" data-pt="2. Eles são gordos, mas elas são magras."><button class="spk-btn" aria-label="Ouvir">🔊</button>2. Eles são <span class="pt-word">gordos</span>, <span class="pt-word">mas</span> elas são <span class="pt-word">magras</span>.<span class="en-eq">They (m.) are fat, but they (f.) are thin.</span><span class="hi-eq">वे (पुरुष) मोटे हैं, लेकिन वे (महिलाएँ) पतली हैं।</span></p>
+    <p class="ex-line" data-pt="3. Os meus patrões são simpáticos, mas os colegas são antipáticos."><button class="spk-btn" aria-label="Ouvir">🔊</button>3. Os meus patrões são <span class="pt-word">simpáticos</span>, <span class="pt-word">mas</span> os colegas são <span class="pt-word">antipáticos</span>.<span class="en-eq">My bosses are friendly, but my colleagues are unfriendly.</span><span class="hi-eq">मेरे मालिक मिलनसार हैं, लेकिन सहकर्मी रूखे हैं।</span></p>
+    <p class="ex-line" data-pt="4. O João é forte, mas a Joana é leve."><button class="spk-btn" aria-label="Ouvir">🔊</button>4. O João é <span class="pt-word">forte</span>, <span class="pt-word">mas</span> a Joana é <span class="pt-word">leve</span>.<span class="en-eq">João is strong, but Joana is light.</span><span class="hi-eq">जोआओ ताक़तवर है, लेकिन जोआना हल्की है।</span></p>
+    <p class="ex-line" data-pt="5. Ele tem vinte livros, mas não tem bons óculos."><button class="spk-btn" aria-label="Ouvir">🔊</button>5. Ele tem vinte livros, <span class="pt-word">mas</span> não tem bons óculos.<span class="en-eq">He has twenty books, but he does not have good glasses.</span><span class="hi-eq">उसके पास बीस किताबें हैं, लेकिन अच्छा चश्मा नहीं है।</span></p>
+    <p class="ex-line" data-pt="6. O local do meu trabalho é perto da minha casa, mas a escola do meu filho é longe."><button class="spk-btn" aria-label="Ouvir">🔊</button>6. O local do meu trabalho é <span class="pt-word">perto</span> da minha casa, <span class="pt-word">mas</span> a escola do meu filho é <span class="pt-word">longe</span>.<span class="en-eq">My workplace is near my house, but my son’s school is far.</span><span class="hi-eq">मेरे काम की जगह मेरे घर के पास है, लेकिन मेरे बेटे का स्कूल दूर है।</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Comparativo de superioridade: mais, adjetivo, do que. Com um verbo, usa-se mais do que depois do verbo."><button class="spk-btn" aria-label="Ouvir">🔊</button><strong>Superioridade.</strong> Place <span class="pt-word">mais</span> before the adjective and <span class="pt-word">do que</span> before the second term: <em>Ele é mais alto do que ela</em>. When the comparison is attached to a <em>verb</em> rather than to ser/estar + adjective, <span class="pt-word">mais</span> goes after the verb (<em>comem mais</em>) and <span class="pt-word">do que</span> follows it (<em>comem mais bacalhau do que os espanhóis</em>). The adjective still agrees with the first subject. <span class="hi">“ज़्यादा … से”: वह उससे ज़्यादा लंबा है।</span></p>
+  <hr class="desc-divider">
+  <h3 data-pt="Mais + adjetivo / advérbio"><button class="spk-btn" aria-label="Ouvir">🔊</button>Mais + adjetivo / advérbio <span class="en">(More + adjective / adverb)</span> <span class="hi">ज़्यादा + विशेषण</span></h3>
+  <table class="compare-table">
+    <thead><tr><th></th><th>Mais + adjetivo / advérbio</th><th>Comparativo de superioridade</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td>regulares</td><td>bonito(a)s</td><td class="spk-wrap" data-pt="bonito, mais bonito"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mais bonito(a)s</span></td><td>prettier</td><td class="hi">ज़्यादा सुंदर</td></tr>
+      <tr><td>regulares</td><td>pequeno(a)s</td><td class="spk-wrap" data-pt="pequeno, mais pequeno"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mais pequeno(a)s</span></td><td>smaller</td><td class="hi">ज़्यादा छोटा</td></tr>
+      <tr><td>regulares</td><td>inteligente(s)</td><td class="spk-wrap" data-pt="inteligente, mais inteligente"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">mais inteligente(s)</span></td><td>more intelligent</td><td class="hi">ज़्यादा बुद्धिमान</td></tr>
+      <tr><td>irregulares</td><td>bem / bom / bons / boa / boas</td><td class="spk-wrap" data-pt="bom, melhor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">melhor / melhores</span></td><td>better</td><td class="hi">बेहतर</td></tr>
+      <tr><td>irregulares</td><td>mal / mau / maus / má / más</td><td class="spk-wrap" data-pt="mau, pior"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pior / piores</span></td><td>worse</td><td class="hi">बदतर</td></tr>
+      <tr><td>irregulares</td><td>grande</td><td class="spk-wrap" data-pt="grande, maior"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">maior / maiores</span></td><td>bigger</td><td class="hi">ज़्यादा बड़ा</td></tr>
+      <tr><td>irregulares</td><td>pequeno (= mais pequeno)</td><td class="spk-wrap" data-pt="pequeno, menor"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">menor / menores</span></td><td>smaller</td><td class="hi">ज़्यादा छोटा</td></tr>
+    </tbody>
+  </table>
+  <p class="table-note"><span class="bad">✗</span> A minha casa é <em>mais grande</em> do que a tua. &nbsp; <span class="good">✓</span> A minha casa é <span class="pt-word">maior</span> do que a tua.<br>Likewise never say <em>mais bom</em> or <em>mais mau</em> for quality — use <span class="pt-word">melhor</span> and <span class="pt-word">pior</span>. <span class="hi">(“मेरा घर तुम्हारे घर से बड़ा है।”)</span></p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — mais … do que</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="1. Ele é mais gordo do que ela. = Ela é mais magra do que ele."><button class="spk-btn" aria-label="Ouvir">🔊</button>1. Ele é <span class="pt-word">mais gordo do que</span> ela. = Ela é <span class="pt-word">mais magra do que</span> ele.<span class="en-eq">He is fatter than she is. = She is thinner than he is.</span><span class="hi-eq">वह उससे ज़्यादा मोटा है। = वह उससे ज़्यादा पतली है।</span></p>
+    <p class="ex-line" data-pt="2. Eles são mais gordos do que elas. = Elas são mais magras do que eles."><button class="spk-btn" aria-label="Ouvir">🔊</button>2. Eles são <span class="pt-word">mais gordos do que</span> elas. = Elas são <span class="pt-word">mais magras do que</span> eles.<span class="en-eq">They (m.) are fatter than they (f.). = They (f.) are thinner than they (m.).</span><span class="hi-eq">वे पुरुष उन महिलाओं से ज़्यादा मोटे हैं। = वे महिलाएँ उन पुरुषों से ज़्यादा पतली हैं।</span></p>
+    <p class="ex-line" data-pt="3. O João é mais inteligente do que a Joana."><button class="spk-btn" aria-label="Ouvir">🔊</button>3. O João é <span class="pt-word">mais inteligente do que</span> a Joana.<span class="en-eq">João is more intelligent than Joana.</span><span class="hi-eq">जोआओ जोआना से ज़्यादा बुद्धिमान है।</span></p>
+    <p class="ex-line" data-pt="4. Os portugueses comem mais bacalhau do que os espanhóis."><button class="spk-btn" aria-label="Ouvir">🔊</button>4. Os portugueses comem <span class="pt-word">mais</span> bacalhau <span class="pt-word">do que</span> os espanhóis.<span class="en-eq">The Portuguese eat more cod than the Spanish.</span><span class="hi-eq">पुर्तगाली लोग स्पेनिश लोगों से ज़्यादा बकालाओ (नमकीन कॉड मछली) खाते हैं।</span></p>
+    <p class="ex-line" data-pt="5. Os portugueses são mais fortes do que os espanhóis."><button class="spk-btn" aria-label="Ouvir">🔊</button>5. Os portugueses são <span class="pt-word">mais fortes do que</span> os espanhóis.<span class="en-eq">The Portuguese are stronger than the Spanish.</span><span class="hi-eq">पुर्तगाली स्पेनिश लोगों से ज़्यादा ताक़तवर हैं।</span></p>
+    <p class="ex-line" data-pt="6. Esta sopa é melhor do que aquela."><button class="spk-btn" aria-label="Ouvir">🔊</button>6. Esta sopa é <span class="pt-word">melhor do que</span> aquela.<span class="en-eq">This soup is better than that one.</span><span class="hi-eq">यह सूप उस सूप से बेहतर है।</span></p>
+    <p class="ex-line" data-pt="7. O peixe é muito mais caro do que a carne."><button class="spk-btn" aria-label="Ouvir">🔊</button>7. O peixe é <span class="pt-word">muito mais caro do que</span> a carne.<span class="en-eq">Fish is much more expensive than meat.</span><span class="hi-eq">मछली मांस से बहुत ज़्यादा महँगी है।</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Comparativo de inferioridade: menos, adjetivo, do que. Com um verbo, usa-se menos do que depois do verbo."><button class="spk-btn" aria-label="Ouvir">🔊</button><strong>Inferioridade.</strong> The same structure with <span class="pt-word">menos</span> (less): <span class="pt-word">menos</span> + adjective + <span class="pt-word">do que</span>, or verb + <span class="pt-word">menos</span> + noun + <span class="pt-word">do que</span>. Remember the irregular partner of <em>pequeno</em>: <span class="pt-word">menor</span> (smaller) — <em>o meu salário é menor do que o teu</em> means the same as <em>eu ganho menos do que tu</em>. <span class="hi">“कम … से”: मैं तुमसे कम कमाता हूँ।</span></p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — menos … do que</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="1. Eu ganho menos do que tu. = O meu salário é menor do que o teu (salário)."><button class="spk-btn" aria-label="Ouvir">🔊</button>1. Eu ganho <span class="pt-word">menos do que</span> tu. = O meu salário é <span class="pt-word">menor do que</span> o teu (salário).<span class="en-eq">I earn less than you. = My salary is smaller than yours.</span><span class="hi-eq">मैं तुमसे कम कमाता हूँ। = मेरी तनख़्वाह तुम्हारी तनख़्वाह से कम है।</span></p>
+    <p class="ex-line" data-pt="2. Eles são menos eficientes do que os meus amigos."><button class="spk-btn" aria-label="Ouvir">🔊</button>2. Eles são <span class="pt-word">menos eficientes do que</span> os meus amigos.<span class="en-eq">They are less efficient than my friends.</span><span class="hi-eq">वे मेरे दोस्तों से कम कुशल हैं।</span></p>
+    <p class="ex-line" data-pt="3. Eu trabalho menos horas do que o João."><button class="spk-btn" aria-label="Ouvir">🔊</button>3. Eu trabalho <span class="pt-word">menos</span> horas <span class="pt-word">do que</span> o João.<span class="en-eq">I work fewer hours than João.</span><span class="hi-eq">मैं जोआओ से कम घंटे काम करता हूँ।</span></p>
+    <p class="ex-line" data-pt="4. Nós não somos menos gananciosos."><button class="spk-btn" aria-label="Ouvir">🔊</button>4. Nós não somos <span class="pt-word">menos gananciosos</span>.<span class="en-eq">We are not less greedy.</span><span class="hi-eq">हम कम लालची नहीं हैं।</span></p>
+    <p class="ex-line" data-pt="5. O meu abono de família é menor do que o do João."><button class="spk-btn" aria-label="Ouvir">🔊</button>5. O meu abono de família é <span class="pt-word">menor do que</span> o do João.<span class="en-eq">My family allowance is smaller than João’s.</span><span class="hi-eq">मेरा पारिवारिक भत्ता जोआओ के भत्ते से कम है।</span></p>
+    <p class="ex-line" data-pt="6. Os meus impostos são menores do que os do meu chefe."><button class="spk-btn" aria-label="Ouvir">🔊</button>6. Os meus impostos são <span class="pt-word">menores do que</span> os do meu chefe.<span class="en-eq">My taxes are lower than my boss’s (supervisor / patrão / chefe).</span><span class="hi-eq">मेरे टैक्स मेरे बॉस के टैक्स से कम हैं।</span></p>
+    <p class="ex-line" data-pt="7. A pera é menos cara do que o queijo."><button class="spk-btn" aria-label="Ouvir">🔊</button>7. A pera é <span class="pt-word">menos cara do que</span> o queijo.<span class="en-eq">The pear is less expensive than the cheese.</span><span class="hi-eq">नाशपाती पनीर से कम महँगी है।</span></p>
+    <p class="ex-line" data-pt="8. O meu pai come menos do que o meu irmão."><button class="spk-btn" aria-label="Ouvir">🔊</button>8. O meu pai come <span class="pt-word">menos do que</span> o meu irmão.<span class="en-eq">My father eats less than my brother.</span><span class="hi-eq">मेरे पिता मेरे भाई से कम खाते हैं।</span></p>
+  </div>
+</div>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Comparativo de igualdade: tão, adjetivo, como. Com nomes, usa-se tanto, tanta, tantos ou tantas, e como."><button class="spk-btn" aria-label="Ouvir">🔊</button><strong>Igualdade.</strong> To say two things are equal, use <span class="pt-word">tão</span> + adjective/adverb + <span class="pt-word">como</span>: <em>Ele é tão alto como eu</em> (he is as tall as I am). With <em>nouns</em> use <span class="pt-word">tanto / tanta / tantos / tantas</span> + noun + <span class="pt-word">como</span>, matching the noun: <em>Eu tenho tantos livros como tu</em>. <span class="hi">“… जितना”: वह मेरे जितना लंबा है।</span></p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos — tão … como</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="1. Ele é tão alto como eu."><button class="spk-btn" aria-label="Ouvir">🔊</button>1. Ele é <span class="pt-word">tão alto como</span> eu.<span class="en-eq">He is as tall as I am.</span><span class="hi-eq">वह मेरे जितना लंबा है।</span></p>
+    <p class="ex-line" data-pt="2. Eles são tão eficientes como os meus amigos."><button class="spk-btn" aria-label="Ouvir">🔊</button>2. Eles são <span class="pt-word">tão eficientes como</span> os meus amigos.<span class="en-eq">They are as efficient as my friends.</span><span class="hi-eq">वे मेरे दोस्तों जितने कुशल हैं।</span></p>
+    <p class="ex-line" data-pt="3. Eu trabalho tão bem como o João."><button class="spk-btn" aria-label="Ouvir">🔊</button>3. Eu trabalho <span class="pt-word">tão bem como</span> o João.<span class="en-eq">I work as well as João.</span><span class="hi-eq">मैं जोआओ जितना अच्छा काम करता हूँ।</span></p>
+    <p class="ex-line" data-pt="4. Nós não somos tão gananciosos como os outros."><button class="spk-btn" aria-label="Ouvir">🔊</button>4. Nós não somos <span class="pt-word">tão gananciosos como</span> os outros.<span class="en-eq">We are not as greedy as the others.</span><span class="hi-eq">हम दूसरों जितने लालची नहीं हैं।</span></p>
+    <p class="ex-line" data-pt="5. A comida portuguesa é tão boa como a italiana."><button class="spk-btn" aria-label="Ouvir">🔊</button>5. A comida portuguesa é <span class="pt-word">tão boa como</span> a italiana.<span class="en-eq">Portuguese food is as good as Italian (food).</span><span class="hi-eq">पुर्तगाली खाना इतालवी खाने जितना ही अच्छा है।</span></p>
+    <p class="ex-line" data-pt="6. Os meus pais são tão velhos como os vossos."><button class="spk-btn" aria-label="Ouvir">🔊</button>6. Os meus pais são <span class="pt-word">tão velhos como</span> os vossos.<span class="en-eq">My parents are as old as yours.</span><span class="hi-eq">मेरे माता-पिता आपके माता-पिता जितने बूढ़े हैं।</span></p>
+    <p class="ex-line" data-pt="7. A costeleta é tão cara como o queijo."><button class="spk-btn" aria-label="Ouvir">🔊</button>7. A costeleta é <span class="pt-word">tão cara como</span> o queijo.<span class="en-eq">The chop is as expensive as the cheese.</span><span class="hi-eq">चॉप पनीर जितनी ही महँगी है।</span></p>
+    <p class="ex-line" data-pt="8. Eu tenho tantos livros como tu."><button class="spk-btn" aria-label="Ouvir">🔊</button>8. Eu tenho <span class="pt-word">tantos</span> livros <span class="pt-word">como</span> tu.<span class="en-eq">I have as many books as you.</span><span class="hi-eq">मेरे पास तुम्हारे जितनी किताबें हैं।</span></p>
+  </div>
+</div>
+
+<div class="example-box">
+  <h4>Mais exemplos (comida e dia a dia)</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="O pão é mais barato do que o queijo."><button class="spk-btn" aria-label="Ouvir">🔊</button>O pão é <span class="pt-word">mais barato do que</span> o queijo.<span class="en-eq">Bread is cheaper than cheese.</span><span class="hi-eq">ब्रेड पनीर से सस्ती है।</span></p>
+    <p class="ex-line" data-pt="A pizza é menos saudável do que a salada."><button class="spk-btn" aria-label="Ouvir">🔊</button>A pizza é <span class="pt-word">menos saudável do que</span> a salada.<span class="en-eq">Pizza is less healthy than salad.</span><span class="hi-eq">पिज़्ज़ा सलाद से कम सेहतमंद है।</span></p>
+    <p class="ex-line" data-pt="A minha irmã cozinha melhor do que eu."><button class="spk-btn" aria-label="Ouvir">🔊</button>A minha irmã cozinha <span class="pt-word">melhor do que</span> eu.<span class="en-eq">My sister cooks better than I do.</span><span class="hi-eq">मेरी बहन मुझसे बेहतर खाना बनाती है।</span></p>
+    <p class="ex-line" data-pt="O meu café é tão quente como o teu."><button class="spk-btn" aria-label="Ouvir">🔊</button>O meu café é <span class="pt-word">tão quente como</span> o teu.<span class="en-eq">My coffee is as hot as yours.</span><span class="hi-eq">मेरी कॉफ़ी तुम्हारी कॉफ़ी जितनी गरम है।</span></p>
+    <p class="ex-line" data-pt="Hoje o mercado está mais cheio do que ontem."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje o mercado está <span class="pt-word">mais cheio do que</span> ontem.<span class="en-eq">Today the market is busier than yesterday.</span><span class="hi-eq">आज बाज़ार कल से ज़्यादा भरा है।</span></p>
+    <p class="ex-line" data-pt="O tempo hoje está pior do que ontem."><button class="spk-btn" aria-label="Ouvir">🔊</button>O tempo hoje está <span class="pt-word">pior do que</span> ontem.<span class="en-eq">The weather today is worse than yesterday.</span><span class="hi-eq">आज का मौसम कल से ख़राब है।</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios — Comparativos</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Leia as frases e assinale Verdadeiro (V) ou Falso (F).</p>
+    <p class="ex-note">Fonte: Caderno de Formação — Propostas de Atividades e Exercícios (Empregos dos adjetivos – 1: comparativo).</p>
+    <img class="worksheet-img" src="subjects/pt/images/supermercado-tabela-precos.webp" alt="Tabela de preços de supermercado: sardinha 4,99 €, costeleta 3,99 €, pera 0,89 €, queijo 3,99 €, cebola 1,05 €, pão 0,30 €">
+    <ol class="cue-list">
+      <li><span class="cue">1 – O peixe é mais caro do que a carne.</span> <span class="reveal">V — 4,99 € &gt; 3,99 €</span></li>
+      <li><span class="cue">2 – As peras são menos caras do que o queijo.</span> <span class="reveal">V — 0,89 € &lt; 3,99 €</span></li>
+      <li><span class="cue">3 – As cebolas são mais caras do que o pão.</span> <span class="reveal">V — 1,05 € &gt; 0,30 €</span></li>
+      <li><span class="cue">4 – A carne é tão cara como o queijo.</span> <span class="reveal">V — 3,99 € = 3,99 €</span></li>
+      <li><span class="cue">5 – O peixe é tão caro como o pão.</span> <span class="reveal">F — 4,99 € ≠ 0,30 €</span></li>
+      <li><span class="cue">6 – Com o desconto de 50%, o peixe fica mais barato do que a carne.</span> <span class="reveal">V — 4,99 € ÷ 2 ≈ 2,50 € &lt; 3,99 €</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Complete com <em>mais / menos / tão</em> e <em>do que / como</em> (use a tabela de preços).</p>
+    <p class="question">
+      A pera é <span class="blank-word"><span class="underscore">___</span><span class="fill">menos</span></span> cara <span class="blank-word"><span class="underscore">___</span><span class="fill">do que</span></span> o queijo.<br>
+      A costeleta é <span class="blank-word"><span class="underscore">___</span><span class="fill">tão</span></span> cara <span class="blank-word"><span class="underscore">___</span><span class="fill">como</span></span> o queijo.<br>
+      A sardinha é <span class="blank-word"><span class="underscore">___</span><span class="fill">mais</span></span> cara <span class="blank-word"><span class="underscore">___</span><span class="fill">do que</span></span> a costeleta.<br>
+      O pão é <span class="blank-word"><span class="underscore">___</span><span class="fill">mais</span></span> barato <span class="blank-word"><span class="underscore">___</span><span class="fill">do que</span></span> a cebola.<br>
+      A cebola é <span class="blank-word"><span class="underscore">___</span><span class="fill">menos</span></span> cara <span class="blank-word"><span class="underscore">___</span><span class="fill">do que</span></span> a sardinha.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">3. Complete com <em>melhor, pior, maior</em> ou <em>menor</em>.</p>
+    <p class="question">
+      Esta pizza é boa, mas aquela é <span class="blank-word"><span class="underscore">___</span><span class="fill">melhor</span></span>.<br>
+      Ontem estava mau tempo, mas hoje está <span class="blank-word"><span class="underscore">___</span><span class="fill">pior</span></span> do que ontem.<br>
+      A minha casa é <span class="blank-word"><span class="underscore">___</span><span class="fill">maior</span></span> do que a tua (<em>grande</em>).<br>
+      O meu salário é <span class="blank-word"><span class="underscore">___</span><span class="fill">menor</span></span> do que o teu (<em>pequeno</em>).<br>
+      A minha irmã cozinha <span class="blank-word"><span class="underscore">___</span><span class="fill">melhor</span></span> do que eu (<em>bem</em>).
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">4. Traduza as frases.</p>
+    <ol class="cue-list">
+      <li><span class="cue">He is taller than me.</span> <span class="reveal">Ele é mais alto do que eu.</span></li>
+      <li><span class="cue">She works less than João.</span> <span class="reveal">Ela trabalha menos do que o João.</span></li>
+      <li><span class="cue">The soup is as hot as the coffee.</span> <span class="reveal">A sopa é tão quente como o café.</span></li>
+      <li><span class="cue">My house is bigger than yours.</span> <span class="reveal">A minha casa é maior do que a tua.</span></li>
+      <li><span class="cue">This cake is better than that one.</span> <span class="reveal">Este bolo é melhor do que aquele.</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+</div>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Presente do indicativo, verbos irregulares: fazer, trazer, poder, querer, pôr e pedir."><button class="spk-btn" aria-label="Ouvir">🔊</button><strong>Alimentação — Presente do indicativo: irregular verbs.</strong> These six verbs are very common when talking about food and cooking. Note the idioms <span class="pt-word">fazer anos</span> (to have a birthday) and <span class="pt-word">pôr a mesa</span> (to set the table). <span class="hi">ये छह क्रियाएँ खाने-पकाने की बातचीत में बहुत काम आती हैं।</span></p>
+  <hr class="desc-divider">
+  <h3 data-pt="Conjugação"><button class="spk-btn" aria-label="Ouvir">🔊</button>Conjugação <span class="en">(Present tense)</span> <span class="hi">वर्तमान काल</span></h3>
+  <table class="compare-table">
+    <thead><tr><th>Infinitivo</th><th>eu</th><th>tu</th><th>você / ele / ela</th><th>nós</th><th>vocês / eles / elas</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="fazer: faço. fazes. faz. fazemos. fazem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fazer</span></td><td>faço</td><td>fazes</td><td>faz</td><td>fazemos</td><td>fazem</td><td>to do / make</td><td class="hi">करना / बनाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="trazer: trago. trazes. traz. trazemos. trazem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trazer</span></td><td>trago</td><td>trazes</td><td>traz</td><td>trazemos</td><td>trazem</td><td>to bring</td><td class="hi">लाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="poder: posso. podes. pode. podemos. podem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">poder</span></td><td>posso</td><td>podes</td><td>pode</td><td>podemos</td><td>podem</td><td>can / to be able</td><td class="hi">सकना</td></tr>
+      <tr><td class="spk-wrap" data-pt="querer: quero. queres. quer. queremos. querem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">querer</span></td><td>quero</td><td>queres</td><td>quer</td><td>queremos</td><td>querem</td><td>to want</td><td class="hi">चाहना</td></tr>
+      <tr><td class="spk-wrap" data-pt="pôr: ponho. pões. põe. pomos. põem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pôr</span></td><td>ponho</td><td>pões</td><td>põe</td><td>pomos</td><td>põem</td><td>to put / set</td><td class="hi">रखना / लगाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="pedir: peço. pedes. pede. pedimos. pedem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pedir</span></td><td>peço</td><td>pedes</td><td>pede</td><td>pedimos</td><td>pedem</td><td>to ask for / order</td><td class="hi">माँगना</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercício — Presente do Indicativo: verbos irregulares</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">Complete as frases com o verbo no presente do indicativo.</p>
+    <p class="ex-note">Fonte: Alimentação 1.9 — Caderno de Formação — Propostas de Atividades e Exercícios.</p>
+    <p class="question">
+      1 – Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">faz</span></span> (fazer) muito bem aqueles doces.<br>
+      2 – A Ana e o João <span class="blank-word"><span class="underscore">___</span><span class="fill">trazem</span></span> (trazer) sempre legumes do mercado para as refeições.<br>
+      3 – Eu não <span class="blank-word"><span class="underscore">___</span><span class="fill">posso</span></span> (poder) fazer este prato sozinho. Preciso de ajuda.<br>
+      4 – Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">queremos</span></span> (querer) jantar num restaurante mexicano no próximo sábado.<br>
+      5 – Todos os dias de manhã, os empregados <span class="blank-word"><span class="underscore">___</span><span class="fill">põem</span></span> (pôr) a mesa para o pequeno-almoço.<br>
+      6 – Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">pedimos</span></span> (pedir) conselhos sempre que <span class="blank-word"><span class="underscore">___</span><span class="fill">fazemos</span></span> (fazer) um prato novo.<br>
+      7 – Às vezes, ele <span class="blank-word"><span class="underscore">___</span><span class="fill">traz</span></span> (trazer) pastéis de nata para casa.<br>
+      8 – Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">peço</span></span> (pedir) sempre pão bem cozido, quando vou à padaria.<br>
+      9 – O Abdul e o Sandé <span class="blank-word"><span class="underscore">___</span><span class="fill">querem</span></span> (querer) comprar um bolo de aniversário para a prima, que <span class="blank-word"><span class="underscore">___</span><span class="fill">faz</span></span> (fazer) anos.<br>
+      10 – A Ana e a Irina <span class="blank-word"><span class="underscore">___</span><span class="fill">podem</span></span> (poder) almoçar na cantina da empresa onde trabalham.<br>
+      11 – O Kamal e o Prem são bons amigos. Eles <span class="blank-word"><span class="underscore">___</span><span class="fill">fazem</span></span> (fazer) anos no mesmo dia.<br>
+      12 – Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">ponho</span></span> (pôr) água na panela para a sopa.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+</div>
+
+</div>
