@@ -767,12 +767,22 @@ const ltText = document.getElementById("lt-text");
 // The thin top bar keeps its border always; its content (topic name + arrows) only shows
 // once the lesson's own big heading has scrolled out of view.
 function updateBanner() {
-    const h = contentBox.querySelector("h1");
+    const h = contentBox.querySelector("h1, h2");   // lessons use an <h2> as their big heading
     if (!h) { lessonTitle.classList.remove("at-top"); return; }   // no heading to wait for
     const gone = h.getBoundingClientRect().bottom < contentBox.getBoundingClientRect().top + 4;
     lessonTitle.classList.toggle("at-top", !gone);
 }
 contentBox.addEventListener("scroll", updateBanner, { passive: true });
+
+// the lesson files still carry their old typed numbers in the heading (e.g. "1b. Artigo…"):
+// swap that prefix for the automatic number so heading and banner always agree
+function syncHeadingNumber() {
+    const h = contentBox.querySelector("h1, h2");
+    const n = lessonNo[currentIndex];
+    if (!h || !n) return;
+    const first = h.firstChild;
+    if (first && first.nodeType === 3) first.nodeValue = first.nodeValue.replace(/^\s*\d+[a-z]?\s*[.\-]\s*/i, n + ". ");
+}
 
 // strip accents + lowercase, so "esse" also matches "essa", "és", etc.
 function normalizeSearch(s) {
@@ -827,7 +837,7 @@ function loadTopic(i) {
 
     fetch(BASE_URL + slug + ".html")
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
-        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; contentBox.scrollTop = 0; contentBox.scrollLeft = 0; updateBanner(); })
+        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; syncHeadingNumber(); contentBox.scrollTop = 0; contentBox.scrollLeft = 0; updateBanner(); })
         .catch(err => {
             contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
         });
