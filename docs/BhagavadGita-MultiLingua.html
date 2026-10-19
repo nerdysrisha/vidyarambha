@@ -555,20 +555,20 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
                 border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out,
                 transform 1.1s ease-in-out;
 }
-#content-box.sync-on.sync-playing .verse-block { opacity: 0.45; }
+#content-box.sync-on.sync-playing .verse-block { opacity: 0.62; }
 #content-box.sync-on .verse-block.verse-active {
     opacity: 1;
     background: #fff4d9;
     border-color: #c9a15a;
-    box-shadow: 0 4px 16px rgba(201,161,90,0.38);
-    transform: scale(1.02);
+    box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.38);
+    transform: none;
 }
 
 /* verse reached with the up/down arrows (same look as the audio highlight, but no dimming of the others) */
 #content-box .verse-block { transition: background-color .5s ease, border-color .5s ease, box-shadow .5s ease; }
 /* each verse fills the whole reading area (down to the nav bar), so only one verse is on screen and the next one starts below the fold */
 #content-box .verse-block { box-sizing: border-box; min-height: calc(var(--area-h, 70vh) - 6px); }   /* 6 = TOP_PAD: the card runs from the top gap to the bottom of the area; the next card starts below the fold */
-#content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+#content-box .verse-block.verse-focus { background: #fff4d9; border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.38); }
 
 /* desktop / tablet (and full screen): the verse card sits centred in the reading pane instead of stretching edge to edge */
 @media (min-width: 701px) and (min-height: 521px) {
@@ -938,7 +938,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
     background: linear-gradient(225deg, transparent 0%, transparent 50%, #ecd08a 50%, #b88a3a 100%);
     border-radius: 0 10px 0 0; filter: drop-shadow(-1px 1px 1px rgba(0, 0, 0, 0.3));
 }
-#content-box .bm-flash { box-shadow: 0 0 0 3px #d8b46acc, 0 4px 16px rgba(201,161,90,0.5) !important; }
+#content-box .bm-flash { box-shadow: inset 0 0 0 3px #d8b46acc, inset 0 0 18px rgba(201,161,90,0.5) !important; }
 #navbar #bmBtn {
     width: 34px; height: 30px; padding: 0; margin-left: 4px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -1016,12 +1016,12 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box hr.divider { border-top-color: #3a3226; }
   #content-box .verse-block { background: #ffffff; border: 1px solid #ecd9b8; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); color: #2b2b2b; }
   #content-box .verse-block.verse-focus,
-  #content-box.sync-on .verse-block.verse-active { background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+  #content-box.sync-on .verse-block.verse-active { background: #fff4d9; border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.38); }
   #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label {
       top: -1px; left: -1px; padding: 4px 10px 4px 9px; font: 700 11px/1 ui-monospace, "Courier New", monospace; letter-spacing: 0.02em;
       color: #5a3a10; background: #fbe3bd; border: 1.5px solid #c9a15a; border-radius: 10px 0 14px 0; }
   #content-box.sync-on .verse-block { transition: filter 1.1s ease-in-out, background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
-  #content-box.sync-on.sync-playing .verse-block { opacity: 1; filter: brightness(0.4); }
+  #content-box.sync-on.sync-playing .verse-block { opacity: 1; filter: brightness(0.62); }
   #content-box.sync-on.sync-playing .verse-block.verse-active { filter: none; }
 }
 
@@ -1148,7 +1148,7 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { --box-bg: #fff4d9; }
   #content-box .verse-block::before { top: 6px; background: var(--sep-img) no-repeat center / auto 70%, var(--box-bg);
       transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
-  #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+  #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.38); }
   #content-box .verse-block > .verse-tag, #content-box .verse-block > .verse-label {
       top: 7px; left: 15px; height: var(--tab-h); box-sizing: border-box; display: flex; align-items: center; padding: 0 12px 0 11px;
       border: none; border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; border-radius: 11px 0 10px 0; }
@@ -1163,8 +1163,8 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
   body.dark #content-box .verse-block { --box-bg: #16120c; color: #eadfc6; }
   body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #2d2314; }
   body.dark #content-box .verse-block::before { border-color: #7a6030; }
-  body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
-  body.dark #content-box.sync-on.sync-playing .verse-block { filter: none; opacity: 0.5; }
+  body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.3); }
+  body.dark #content-box.sync-on.sync-playing .verse-block { filter: none; opacity: 0.62; }
   body.dark #content-box.sync-on.sync-playing .verse-block.verse-active { opacity: 1; }
 }
 /* ── DARK THEME, shared: portrait phone + landscape phone. Toggle lives in the topics header (portrait). ── */
@@ -1194,7 +1194,7 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
 @media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
   body.dark #content-box .verse-block { color: #eadfc6; }
   body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed { background: #1d1710; border-color: #7a6030; }
-  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.3); }
+  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: #2d2314; border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.3); }
 }
 /* shorter phones: rail buttons shrink a little so all of them still fit */
 @media (orientation: landscape) and (max-height: 400px) { :root { --rb: 35px; } #navbar { gap: 3px; padding: 4px 5px; } }
@@ -1212,7 +1212,7 @@ body.dark #verseNav button { background: #2b2417e6; color: #e0c58a; border-color
       transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
   /* the "being read" highlight now lights up the verse box itself */
   #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid {
-      background: #fff4d9; border-color: #c9a15a; box-shadow: 0 4px 16px rgba(201,161,90,0.38); }
+      background: #fff4d9; border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,0.38); }
   /* bookmark fold: top-right corner of the verse box */
   #content-box .bookmarked::after { top: 7px; bottom: auto; right: 9px; border-radius: 0 11px 0 0; }
 }
@@ -1265,6 +1265,24 @@ body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !im
 @media (max-width: 700px), (max-height: 520px) {
   #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn { font-size: 10px; letter-spacing: -0.2px; padding: 0; }
 }
+
+/* ── READING MODE (touch devices, while the audio plays): the nav bar + player fade out slowly and the text takes the whole screen.
+   One tap brings them back almost at once; they fade away again after a few idle seconds. Pause / end of audio = they stay. ── */
+#navbar, #audio-dock { transition: opacity 2.4s ease; }
+body.immerse-fade #navbar, body.immerse-fade #audio-dock { opacity: 0; pointer-events: none; }
+body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration: 0.15s; }
+body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 2.4s ease !important; }
+body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
+body.immerse #navbar, body.immerse #audio-dock, body.immerse #verseNav { display: none !important; }
+@media (max-width: 700px) and (orientation: portrait) { body.immerse #outer { height: calc(100dvh - 10px); } }
+@media (min-width: 701px) and (min-height: 521px) { body.immerse #outer { height: calc(100dvh - 24px); margin-bottom: 4px; } }
+#immerseHint {
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 45; max-width: 92vw;
+    padding: 8px 16px; background: #111; border: 1px solid #d8b46a; border-radius: 16px; color: #d8b46a;
+    font: 600 13px/1.2 system-ui, sans-serif; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    pointer-events: none; opacity: 0; transition: opacity .5s ease;
+}
+#immerseHint.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -1332,6 +1350,7 @@ body.dark #navbar #themeBtnNav { background: #d8b46a !important; color: #111 !im
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
             </button>
     <div id="lockHint" role="status" aria-live="polite"></div>
+    <div id="immerseHint" role="status" aria-live="polite">Reading mode &middot; tap anywhere to show the controls</div>
     <span class="rail-sep" aria-hidden="true"></span>
     <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
      <div id="langGroup" role="group" aria-label="Language">
@@ -1547,6 +1566,7 @@ function stopAudioSync() {
     clearTimeout(pendingTapPlay);
     document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
     contentBox.classList.remove("sync-on", "sync-playing");
+    if (window.readingMode) window.readingMode.stop();     // controls back before the player is removed
     audioDock.innerHTML = "";                     // remove the pinned player
     document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
         b.disabled = true; b.classList.remove("active"); b.onclick = null;
@@ -1771,9 +1791,9 @@ function initAudioSync() {
         audio.currentTime = starts[i] + 0.01;
         return true;
     };
-    audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); });
-    audio.addEventListener("pause",      () => contentBox.classList.remove("sync-playing"));
-    audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); });
+    audio.addEventListener("play",       () => { contentBox.classList.add("sync-playing"); update(false); window.readingMode && window.readingMode.play(); });
+    audio.addEventListener("pause",      () => { contentBox.classList.remove("sync-playing"); window.readingMode && window.readingMode.stop(); });
+    audio.addEventListener("ended",      () => { contentBox.classList.remove("sync-playing"); update(false); window.readingMode && window.readingMode.stop(); });
     audio.addEventListener("timeupdate", () => update(false));
     audio.addEventListener("seeked",     () => { syncUserScrollUntil = 0; update(true); });
 
@@ -2531,6 +2551,47 @@ counterEl.textContent = "– / " + CHAPTER_COUNT;
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
     });
+})();
+
+// ── READING MODE ─────────────────────────────────────────────────────────
+// While the audio plays (touch devices only) the nav bar, player and verse arrows fade out slowly and the text takes the whole screen.
+// A tap brings them back almost instantly (that tap does nothing else: no play, no bookmark) and they fade away again after a few idle
+// seconds. Pausing / the end of the audio / opening another chapter brings them back for good.
+window.readingMode = (function () {
+    const body = document.body, hint = document.getElementById("immerseHint");
+    const START_AFTER = 5000, FADE_MS = 2400, IDLE_MS = 5000, HINT_MS = 3200;
+    let playing = false, on = false, tStart = 0, tCollapse = 0, tIdle = 0, tHint = 0, tAlign = 0;
+    const coarse = () => window.matchMedia("(pointer: coarse)").matches;
+    function realign() {            // the text area changed height: let the audio sync put the verse back where it belongs
+        clearTimeout(tAlign);
+        tAlign = setTimeout(() => { const a = document.querySelector("#content-panel audio"); if (a && playing) a.dispatchEvent(new Event("seeked")); }, 160);
+    }
+    function enter() {
+        if (!playing || on) return;
+        on = true;
+        body.classList.remove("immerse-quick");
+        body.classList.add("immerse-fade");                                  // slow fade
+        hint.classList.add("show"); clearTimeout(tHint); tHint = setTimeout(() => hint.classList.remove("show"), HINT_MS);
+        tCollapse = setTimeout(() => { body.classList.add("immerse"); realign(); }, FADE_MS + 100);   // then the text gets the space
+    }
+    function reveal(thenHideAgain) {
+        clearTimeout(tCollapse); clearTimeout(tStart); clearTimeout(tIdle);
+        const wasOn = on; on = false;
+        body.classList.add("immerse-quick");
+        body.classList.remove("immerse");
+        void body.offsetWidth;                                               // bar is back in layout but still transparent...
+        body.classList.remove("immerse-fade");                               // ...and now fades in quickly
+        hint.classList.remove("show");
+        if (wasOn) realign();
+        if (thenHideAgain && playing) tIdle = setTimeout(enter, IDLE_MS);
+    }
+    function play() { playing = true; if (!coarse()) return; clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); }
+    function stop() { playing = false; clearTimeout(tStart); if (on || body.classList.contains("immerse-fade")) reveal(false); else clearTimeout(tIdle); }
+    // a tap while hidden only brings the controls back
+    document.addEventListener("click", e => { if (!on) return; e.stopPropagation(); e.preventDefault(); reveal(true); }, true);
+    // any touch while the controls are showing postpones the next fade-out
+    document.addEventListener("pointerdown", () => { if (playing && !on && coarse()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); } }, true);
+    return { play, stop };
 })();
 
 // ── LANDSCAPE FOCUS MODE buttons: pause/play + mute drive the real (hidden) player; speed uses the existing speed pill ──
