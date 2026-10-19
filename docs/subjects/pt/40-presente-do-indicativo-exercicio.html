@@ -1,0 +1,283 @@
+<div class="pt-presenteex">
+<style>
+.pt-presenteex { color: #2b2b2b; font-family: inherit; }
+.pt-presenteex h2, .pt-presenteex h3, .pt-presenteex h4 { color: #1a1a1a; margin: 0 0 10px 0; }
+
+.pt-presenteex .desc-box {
+  background: #fbfaf7 !important;
+  color: #2b2b2b !important;
+  border-left: 4px solid #c9a15a;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 18px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.pt-presenteex .desc-box h3 { color: #6b4f1d !important; font-size: 1.02em; margin-top: 14px; }
+.pt-presenteex .desc-box h3:first-child { margin-top: 0; }
+.pt-presenteex .desc-box p { color: #2b2b2b !important; line-height: 1.7; margin: 0 0 12px 0; }
+.pt-presenteex .desc-box p:last-child { margin-bottom: 0; }
+.pt-presenteex .pt-word { color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; }
+.pt-presenteex .en { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; }
+
+/* one-item-per-line list, indented one tab, with English equivalent */
+.pt-presenteex .example-list { margin: 0 0 12px 0; }
+.pt-presenteex .ex-line {
+  color: #2b2b2b !important;
+  line-height: 1.7;
+  margin: 0 0 6px 0;
+  padding-left: 2em;
+  position: relative;
+}
+.pt-presenteex .ex-line:last-child { margin-bottom: 0; }
+.pt-presenteex .en-eq { color: #7a7a7a !important; font-size: 0.9em; font-style: italic; margin-left: 8px; }
+.pt-presenteex .en-eq::before { content: "— "; color: #b9b9b9 !important; }
+
+/* ---------- Speak button ---------- */
+.pt-presenteex .desc-box h3 { position: relative; padding-left: 1.9em; }
+.pt-presenteex .desc-box .desc-ex { position: relative; padding-left: 1.9em; margin: 0 0 12px 0; }
+.pt-presenteex .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-presenteex .desc-box .desc-ex .spk-btn { top: 0.85em; transform: none; }
+.pt-presenteex .desc-box h3:hover .spk-btn,
+.pt-presenteex .desc-box .desc-ex:hover .spk-btn,
+.pt-presenteex .ex-line:hover .spk-btn,
+.pt-presenteex .spk-btn:focus-visible { opacity: 1; }
+.pt-presenteex .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+.pt-presenteex .example-box .spk-btn { color: #d8b46a; }
+@media (hover: none) {
+  .pt-presenteex .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Divider between intro paragraph and content below ---------- */
+.pt-presenteex .desc-box hr.desc-divider {
+  border: none;
+  border-top: 1px solid #e6ddc9;
+  margin: 14px 0 18px 0;
+}
+
+/* ---------- Reference tables ---------- */
+.pt-presenteex .compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff !important;
+  margin: 4px 0 10px 0;
+}
+.pt-presenteex .compare-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 0.92em;
+  color: #6b4f1d !important;
+  border-bottom: 2px solid #c9a15a;
+  background: #ffffff !important;
+}
+.pt-presenteex .compare-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #e8e2d5;
+  background: #ffffff !important;
+  color: #2b2b2b !important;
+  vertical-align: top;
+}
+.pt-presenteex .compare-table tr:last-child td { border-bottom: none; }
+.pt-presenteex .compare-table .spk-wrap {
+  position: relative;
+  padding-left: 1.9em;
+}
+.pt-presenteex .compare-table .spk-wrap .spk-btn {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+  font-size: 0.85em;
+  color: #a1521f;
+}
+.pt-presenteex .compare-table .spk-wrap:hover .spk-btn,
+.pt-presenteex .compare-table .spk-btn:focus-visible { opacity: 1; }
+.pt-presenteex .compare-table .spk-btn.speaking { opacity: 1; color: #2f6b52; }
+@media (hover: none) {
+  .pt-presenteex .compare-table .spk-btn { opacity: 0.4; }
+}
+
+/* ---------- Small note under a table ---------- */
+.pt-presenteex .table-note {
+  color: #6b6b6b !important;
+  font-size: 0.88em;
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0 0 18px 0 !important;
+}
+.pt-presenteex .table-note:last-child { margin-bottom: 0 !important; }
+.pt-presenteex .table-note .pt-word { font-size: 1em; }
+
+.pt-presenteex .example-box {
+  background: #1a1a1a !important;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 18px 0;
+}
+.pt-presenteex .example-box h4 {
+  color: #d8b46a !important;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+.pt-presenteex .example-box p { color: #eaeaea !important; line-height: 1.8; margin: 0; }
+.pt-presenteex .example-box .pt-word { color: #d8b46a !important; }
+.pt-presenteex .example-box .ex-line { color: #eaeaea !important; }
+.pt-presenteex .example-box .en-eq { color: #9a9a9a !important; }
+.pt-presenteex .example-box .en-eq::before { color: #6a6a6a !important; }
+
+.pt-presenteex .exercise-box {
+  background: #f6f2fb !important;
+  border: 1px dashed #b79bd6;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+.pt-presenteex .exercise-box > h4 {
+  color: #7a3f9e !important;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.pt-presenteex .exercise-item {
+  background: #ffffff !important;
+  border: 1px solid #e4d9f0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+.pt-presenteex .exercise-item:last-child { margin-bottom: 0; }
+.pt-presenteex .ex-label { color: #7a3f9e !important; font-weight: 700; margin: 0 0 8px 0; font-size: 0.95em; }
+.pt-presenteex .ex-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 0 0 8px 0; }
+
+.pt-presenteex .question { color: #2b2b2b !important; font-family: "Courier New", monospace; font-size: 1.02em; line-height: 2; margin: 0 0 10px 0; }
+.pt-presenteex .blank-word { display: inline-block; }
+.pt-presenteex .underscore { color: #999 !important; }
+.pt-presenteex .fill { display: none; color: #a1521f !important; font-weight: 700; font-family: Georgia, "Times New Roman", serif; }
+
+.pt-presenteex .cue-list { list-style: none; margin: 0; padding: 0; }
+.pt-presenteex .cue-list li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.pt-presenteex .cue-list li:last-child { border-bottom: none; }
+.pt-presenteex .cue { color: #555 !important; font-family: "Courier New", monospace; font-size: 0.95em; }
+.pt-presenteex .reveal { display: none; color: #a1521f !important; font-weight: 600; font-family: Georgia, "Times New Roman", serif; margin-left: 8px; }
+.pt-presenteex .reveal::before { content: "→ "; color: #c9a15a !important; }
+
+.pt-presenteex .check-btn {
+  background: #7a3f9e !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: 0.85em;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.pt-presenteex .check-btn:hover { background: #5f2f7d !important; }
+
+/* ---------- Hindi lines & extras (this lesson) ---------- */
+.pt-presenteex .hi { color: #8a6d3b !important; font-size: 0.9em; }
+.pt-presenteex .hi-eq { display: block; color: #8a6d3b !important; font-size: 0.88em; margin-top: 1px; }
+.pt-presenteex .example-box .hi-eq { color: #c9a874 !important; }
+.pt-presenteex .compare-table td.hi, .pt-presenteex .compare-table td .hi { color: #8a6d3b !important; }
+.pt-presenteex .compare-table .arrow { color: #c9a15a !important; font-weight: 700; }
+.pt-presenteex .worksheet-img { display: block; max-width: 100%; width: 480px; height: auto; border-radius: 8px; border: 1px solid #e4d9f0; background: #fbfaf7; margin: 6px 0 12px 0; }
+.pt-presenteex .src-note { color: #888 !important; font-size: 0.82em; font-style: italic; margin: 10px 0 0 0; }
+.pt-presenteex .bad { color: #b3261e !important; font-weight: 700; }
+.pt-presenteex .good { color: #2f6b52 !important; font-weight: 700; }
+</style>
+
+<h2>Presente do indicativo — exercício <span class="en">(Present tense — practice)</span> <span class="hi">(अभ्यास)</span></h2>
+
+<div class="desc-box">
+  <p class="desc-ex intro-text" data-pt="Presente do indicativo, verbos irregulares: fazer, trazer, poder, querer, pôr e pedir. Verbos muito usados na cozinha e no restaurante."><button class="spk-btn" aria-label="Ouvir">🔊</button>Practice for the irregular present-tense verbs you meet most often around <em>food</em>: <span class="pt-word">fazer</span>, <span class="pt-word">trazer</span>, <span class="pt-word">poder</span>, <span class="pt-word">querer</span>, <span class="pt-word">pôr</span> and <span class="pt-word">pedir</span>. Most of the irregularity sits in the <em>eu</em> form (<em>faço, trago, posso, quero, ponho, peço</em>); the other persons follow a regular pattern. Learn two idioms with them: <span class="pt-word">fazer anos</span> (to have a birthday) and <span class="pt-word">pôr a mesa</span> (to set the table). <span class="hi">ये छह क्रियाएँ खाने-पकाने की बातचीत में बहुत आती हैं; ज़्यादातर बदलाव “eu” वाले रूप में होता है।</span></p>
+  <hr class="desc-divider">
+  <h3 data-pt="Conjugação"><button class="spk-btn" aria-label="Ouvir">🔊</button>Conjugação <span class="en">(Present tense)</span> <span class="hi">वर्तमान काल</span></h3>
+  <table class="compare-table">
+    <thead><tr><th>Infinitivo</th><th>eu</th><th>tu</th><th>você / ele / ela</th><th>nós</th><th>vocês / eles / elas</th><th>English</th><th>हिन्दी</th></tr></thead>
+    <tbody>
+      <tr><td class="spk-wrap" data-pt="fazer: faço. fazes. faz. fazemos. fazem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">fazer</span></td><td>faço</td><td>fazes</td><td>faz</td><td>fazemos</td><td>fazem</td><td>to do / make</td><td class="hi">करना / बनाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="trazer: trago. trazes. traz. trazemos. trazem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">trazer</span></td><td>trago</td><td>trazes</td><td>traz</td><td>trazemos</td><td>trazem</td><td>to bring</td><td class="hi">लाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="poder: posso. podes. pode. podemos. podem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">poder</span></td><td>posso</td><td>podes</td><td>pode</td><td>podemos</td><td>podem</td><td>can / to be able</td><td class="hi">सकना</td></tr>
+      <tr><td class="spk-wrap" data-pt="querer: quero. queres. quer. queremos. querem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">querer</span></td><td>quero</td><td>queres</td><td>quer</td><td>queremos</td><td>querem</td><td>to want</td><td class="hi">चाहना</td></tr>
+      <tr><td class="spk-wrap" data-pt="pôr: ponho. pões. põe. pomos. põem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pôr</span></td><td>ponho</td><td>pões</td><td>põe</td><td>pomos</td><td>põem</td><td>to put / set</td><td class="hi">रखना / लगाना</td></tr>
+      <tr><td class="spk-wrap" data-pt="pedir: peço. pedes. pede. pedimos. pedem"><button class="spk-btn" aria-label="Ouvir">🔊</button><span class="pt-word">pedir</span></td><td>peço</td><td>pedes</td><td>pede</td><td>pedimos</td><td>pedem</td><td>to ask for / order</td><td class="hi">माँगना</td></tr>
+    </tbody>
+  </table>
+  <p class="table-note">Note: <span class="pt-word">pôr</span> keeps its circumflex in the infinitive only; the forms are <em>pões, põe, põem</em> (with a tilde). <span class="pt-word">poder</span> + infinitive = “can / may”: <em>posso comer</em>.</p>
+</div>
+
+<div class="example-box">
+  <h4>Exemplos</h4>
+  <div class="example-list">
+    <p class="ex-line" data-pt="Eu faço o jantar todos os dias."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">faço</span> o jantar todos os dias.<span class="en-eq">I make dinner every day.</span><span class="hi-eq">मैं रोज़ रात का खाना बनाता हूँ।</span></p>
+    <p class="ex-line" data-pt="Ela traz o pão da padaria."><button class="spk-btn" aria-label="Ouvir">🔊</button>Ela <span class="pt-word">traz</span> o pão da padaria.<span class="en-eq">She brings the bread from the bakery.</span><span class="hi-eq">वह बेकरी से ब्रेड लाती है।</span></p>
+    <p class="ex-line" data-pt="Nós podemos jantar às oito."><button class="spk-btn" aria-label="Ouvir">🔊</button>Nós <span class="pt-word">podemos</span> jantar às oito.<span class="en-eq">We can have dinner at eight.</span><span class="hi-eq">हम आठ बजे खाना खा सकते हैं।</span></p>
+    <p class="ex-line" data-pt="Eles querem uma mesa para quatro pessoas."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eles <span class="pt-word">querem</span> uma mesa para quatro pessoas.<span class="en-eq">They want a table for four people.</span><span class="hi-eq">वे चार लोगों के लिए मेज़ चाहते हैं।</span></p>
+    <p class="ex-line" data-pt="Eu ponho o sal na sopa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Eu <span class="pt-word">ponho</span> o sal na sopa.<span class="en-eq">I put the salt in the soup.</span><span class="hi-eq">मैं सूप में नमक डालता हूँ।</span></p>
+    <p class="ex-line" data-pt="Os empregados põem a mesa para o jantar."><button class="spk-btn" aria-label="Ouvir">🔊</button>Os empregados <span class="pt-word">põem</span> a mesa para o jantar.<span class="en-eq">The waiters set the table for dinner.</span><span class="hi-eq">वेटर रात के खाने के लिए मेज़ लगाते हैं।</span></p>
+    <p class="ex-line" data-pt="Tu pedes sempre a mesma sobremesa."><button class="spk-btn" aria-label="Ouvir">🔊</button>Tu <span class="pt-word">pedes</span> sempre a mesma sobremesa.<span class="en-eq">You always order the same dessert.</span><span class="hi-eq">तुम हमेशा वही मिठाई माँगते हो।</span></p>
+    <p class="ex-line" data-pt="Hoje o meu filho faz sete anos."><button class="spk-btn" aria-label="Ouvir">🔊</button>Hoje o meu filho <span class="pt-word">faz</span> sete anos.<span class="en-eq">Today my son turns seven.</span><span class="hi-eq">आज मेरे बेटे का सातवाँ जन्मदिन है।</span></p>
+  </div>
+</div>
+
+<div class="exercise-box">
+  <h4>Exercícios — Presente do Indicativo</h4>
+
+  <div class="exercise-item">
+    <p class="ex-label">1. Complete as frases com o verbo no presente do indicativo.</p>
+    <p class="ex-note">Fonte: Alimentação 1.9 — Caderno de Formação — Propostas de Atividades e Exercícios.</p>
+    <p class="question">
+      1 – Ela <span class="blank-word"><span class="underscore">___</span><span class="fill">faz</span></span> (fazer) muito bem aqueles doces.<br>
+      2 – A Ana e o João <span class="blank-word"><span class="underscore">___</span><span class="fill">trazem</span></span> (trazer) sempre legumes do mercado para as refeições.<br>
+      3 – Eu não <span class="blank-word"><span class="underscore">___</span><span class="fill">posso</span></span> (poder) fazer este prato sozinho. Preciso de ajuda.<br>
+      4 – Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">queremos</span></span> (querer) jantar num restaurante mexicano no próximo sábado.<br>
+      5 – Todos os dias de manhã, os empregados <span class="blank-word"><span class="underscore">___</span><span class="fill">põem</span></span> (pôr) a mesa para o pequeno-almoço.<br>
+      6 – Nós <span class="blank-word"><span class="underscore">___</span><span class="fill">pedimos</span></span> (pedir) conselhos sempre que <span class="blank-word"><span class="underscore">___</span><span class="fill">fazemos</span></span> (fazer) um prato novo.<br>
+      7 – Às vezes, ele <span class="blank-word"><span class="underscore">___</span><span class="fill">traz</span></span> (trazer) pastéis de nata para casa.<br>
+      8 – Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">peço</span></span> (pedir) sempre pão bem cozido, quando vou à padaria.<br>
+      9 – O Abdul e o Sandé <span class="blank-word"><span class="underscore">___</span><span class="fill">querem</span></span> (querer) comprar um bolo de aniversário para a prima, que <span class="blank-word"><span class="underscore">___</span><span class="fill">faz</span></span> (fazer) anos.<br>
+      10 – A Ana e a Irina <span class="blank-word"><span class="underscore">___</span><span class="fill">podem</span></span> (poder) almoçar na cantina da empresa onde trabalham.<br>
+      11 – O Kamal e o Prem são bons amigos. Eles <span class="blank-word"><span class="underscore">___</span><span class="fill">fazem</span></span> (fazer) anos no mesmo dia.<br>
+      12 – Eu <span class="blank-word"><span class="underscore">___</span><span class="fill">ponho</span></span> (pôr) água na panela para a sopa.
+    </p>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check'; item.querySelectorAll('.blank-word').forEach(function(b){ b.querySelector('.underscore').style.display= show?'none':'inline'; b.querySelector('.fill').style.display= show?'inline':'none'; }); this.textContent= show?'Hide':'Check';">Check</button>
+  </div>
+
+  <div class="exercise-item">
+    <p class="ex-label">2. Traduza as frases.</p>
+    <ol class="cue-list">
+      <li><span class="cue">We want to eat now.</span> <span class="reveal">Nós queremos comer agora.</span></li>
+      <li><span class="cue">He brings coffee every morning.</span> <span class="reveal">Ele traz café todas as manhãs.</span></li>
+      <li><span class="cue">I always order water.</span> <span class="reveal">Eu peço sempre água.</span></li>
+      <li><span class="cue">They do the shopping on Saturdays.</span> <span class="reveal">Eles fazem as compras ao sábado.</span></li>
+      <li><span class="cue">She puts the sugar in the coffee.</span> <span class="reveal">Ela põe o açúcar no café.</span></li>
+      <li><span class="cue">Can you (tu) bring bread?</span> <span class="reveal">Podes trazer pão?</span></li>
+    </ol>
+    <button class="check-btn" onclick="var item=this.closest('.exercise-item'); var show=this.textContent==='Check answers'; item.querySelectorAll('.reveal').forEach(function(r){ r.style.display= show?'inline':'none'; }); this.textContent= show?'Hide answers':'Check answers';">Check answers</button>
+  </div>
+
+</div>
+
+</div>
