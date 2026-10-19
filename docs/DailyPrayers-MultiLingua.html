@@ -682,15 +682,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 }
 #navbar #fsBtn:hover { background: #d8b46a33 !important; }
 #navbar #fsBtn svg { width: 17px; height: 17px; flex: 0 0 auto; display: block; }
-/* SCREENSHOT button: a small faint camera in the corner of the reading area, just above the up/down verse arrows (portrait + desktop).
-   In phone landscape the corner one is hidden and the rail one (#shotRail) is used instead. */
-.shot-btn { display: none; align-items: center; justify-content: center; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
-    border-radius: 50%; border: 1.5px solid #d8b46a; color: #d8b46a; background: rgba(26,22,15,0.55); }
-.shot-btn svg { width: 18px; height: 18px; display: block; }
-.shot-btn.busy { opacity: 0.35 !important; pointer-events: none; }
-#shotCorner { position: absolute; right: 22px; bottom: 144px; z-index: 5; width: 34px; height: 34px; opacity: 0.55; display: flex; }
-#shotCorner:hover, #shotCorner:active { opacity: 1; }
-body:has(#content-box .stage.flow) #shotCorner { right: 19px; bottom: 122px; }
 #menuBtn {
     display: none;                       /* shown on phones only */
     position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
@@ -1265,7 +1256,7 @@ body.stage-on { overscroll-behavior-y: none; }
     #copyBtn { display: none !important; }
   }
   #navbar .ls-btn { display: none; }
-  #sidebar, #audio-dock, #copyBtn, #lockHint, #verseNav, #bm-toast, #shotCorner { display: none !important; }
+  #sidebar, #audio-dock, #copyBtn, #lockHint, #verseNav, #bm-toast { display: none !important; }
   body { display: block; }
   #outer { margin: 0; gap: 0; height: 100vh; height: 100dvh; }
   #main-col { gap: 0; }
@@ -1279,7 +1270,7 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
               padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
               background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#themeBtn):not(#shotRail):not(#langGroup):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#themeBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
   /* prayer without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1408,10 +1399,6 @@ body.stage-on { overscroll-behavior-y: none; }
           background: rgba(26, 22, 15, 0.45) !important; border: 1px solid #d8b46a !important; color: #d8b46a !important; cursor: pointer; }
   #navbar #themeBtn svg { width: 20px; height: 20px; }
   body.dark #navbar #themeBtn { background: #d8b46a !important; color: #111 !important; }
-  #navbar #shotRail { display: inline-flex; flex: none; position: static; transform: none; margin: 0; opacity: 1;
-          width: var(--rb); height: var(--rb); min-width: var(--rb);
-          background: rgba(26, 22, 15, 0.45) !important; border: 1px solid #d8b46a !important; color: #d8b46a !important; }
-  #navbar #shotRail svg { width: 20px; height: 20px; }
   /* ── DARK THEME (landscape-only parts: the golden box) ── */
   body.dark #content-box .verse-block { --box-bg: #1d1710; color: #eadfc6; }
   body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #1d1710; }
@@ -1633,7 +1620,6 @@ body.stage-on { overscroll-behavior-y: none; }
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
             </div>
-            <button id="shotCorner" class="shot-btn" type="button" title="Save screenshot" aria-label="Save screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.2" r="3.6"/></svg></button>
             <div id="titleStrip" aria-hidden="true"><span class="ts-name"></span></div>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a prayer from the list to begin.</div>
@@ -1678,7 +1664,6 @@ body.stage-on { overscroll-behavior-y: none; }
          <button id="langMain" class="lang-main" type="button" title="Language" aria-label="Language" aria-haspopup="true" aria-expanded="false"></button>
          <div id="langPop" hidden></div>
      </div>
-    <button id="shotRail" class="shot-btn" type="button" title="Save screenshot" aria-label="Save screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.2" r="3.6"/></svg></button>
     <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
 </div>
 
@@ -3375,74 +3360,6 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 
-</script>
-
-<!-- Screenshot button: loads the screenshot library from the internet the first time it is used, then saves the visible screen as a PNG
-     (phones: opens the share sheet so it can be saved to Photos; desktop: downloads the file). -->
-<script>
-(function () {
-    const LIB = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-    let libPromise = null, busy = false;
-    const note = m => { try { if (typeof showToast === "function") showToast(m); } catch (e) {} };
-    function loadLib() {
-        if (window.html2canvas) return Promise.resolve();
-        if (!libPromise) libPromise = new Promise((ok, bad) => {
-            const sc = document.createElement("script");
-            sc.src = LIB; sc.onload = ok;
-            sc.onerror = () => { libPromise = null; bad(new Error("lib")); };
-            document.head.appendChild(sc);
-        });
-        return libPromise;
-    }
-    function pageBg() {
-        for (const el of [document.body, document.documentElement]) {
-            const c = getComputedStyle(el).backgroundColor;
-            if (c && c !== "transparent" && !/rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c)) return c;
-        }
-        return "#14110d";
-    }
-    const two = n => String(n).padStart(2, "0");
-    async function takeShot() {
-        if (busy) return;
-        busy = true;
-        const btns = document.querySelectorAll(".shot-btn");
-        btns.forEach(b => b.classList.add("busy"));
-        try {
-            await loadLib();
-            if (document.fonts && document.fonts.ready) await document.fonts.ready;
-            const canvas = await window.html2canvas(document.documentElement, {
-                width: window.innerWidth, height: window.innerHeight,
-                windowWidth: window.innerWidth, windowHeight: window.innerHeight,
-                x: 0, y: 0, scrollX: 0, scrollY: 0,
-                useCORS: true, logging: false, backgroundColor: pageBg(),
-                scale: Math.min(window.devicePixelRatio || 1, 2),
-                ignoreElements: el => !!el.classList && (el.classList.contains("shot-btn") || el.id === "bm-toast" || el.id === "topic-tooltip")
-            });
-            const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-            if (!blob) throw new Error("empty");
-            const d = new Date();
-            const name = "DailyPrayers-" + d.getFullYear() + two(d.getMonth() + 1) + two(d.getDate()) + "-" + two(d.getHours()) + two(d.getMinutes()) + two(d.getSeconds()) + ".png";
-            const file = new File([blob], name, { type: "image/png" });
-            if (matchMedia("(pointer: coarse)").matches && navigator.canShare && navigator.canShare({ files: [file] })) {
-                try { await navigator.share({ files: [file], title: name }); }
-                catch (e) { if (e && e.name !== "AbortError") throw e; }
-            } else {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url; a.download = name;
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 4000);
-                note("Screenshot saved");
-            }
-        } catch (e) {
-            note(navigator.onLine === false ? "Screenshot needs internet the first time" : "Could not take the screenshot");
-        } finally {
-            busy = false;
-            btns.forEach(b => b.classList.remove("busy"));
-        }
-    }
-    document.querySelectorAll(".shot-btn").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); takeShot(); }));
-})();
 </script>
 
 <!-- Visit counter (GoatCounter: no cookies, no personal data) -->
