@@ -283,8 +283,19 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     letter-spacing: 0.01em;
     position: relative;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 #lesson-title[hidden] { display: none; }
+#lt-text { flex: 1 1 auto; min-width: 0; }
+#lt-nav { display: none; flex: 0 0 auto; gap: 6px; }          /* shown only in phone landscape */
+#lt-nav button, #lt-nav button:hover {
+    box-sizing: border-box; height: 24px; min-width: 34px; padding: 0 8px;
+    font-size: 16px; line-height: 1; font-weight: 700;
+    background: transparent; color: #00c8ff; border: 1px solid #00c8ff88; border-radius: 6px; box-shadow: none;
+}
+#lt-nav button:hover { background: rgba(0,200,255,0.15); border-color: #00c8ff; }
 
 #content-box {
     flex: 1 1 auto;
@@ -399,7 +410,8 @@ button:active { transform: scale(0.97); }
   body.side-open #main-col { display: none; }
 
   #main-col { gap: 4px; }
-  #lesson-title { padding: 7px 12px; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #lesson-title { padding: 7px 12px; font-size: 17px; }
+  #lt-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Lesson: edge-to-edge; the page is laid out on a fixed-width canvas and scrolls left/right
      instead of being squeezed to the phone width. Change 900px to taste. */
@@ -451,17 +463,29 @@ body.side-open #prevBtn, body.side-open #nextBtn, body.side-open #counter { disp
     #bottom-nav #menuBtn.open { background: #00c8ff; color: #111; }
 }
 
-/* ── PHONE LANDSCAPE: content only. No nav bar, tiny margins, slim one-line title ── */
+/* ── PHONES (portrait + landscape): no outer box, content fills the screen, no scrollbars ── */
+@media (max-width: 700px), (orientation: landscape) and (max-height: 500px) {
+    #outer { margin: 0; gap: 0; }
+    #main-col { gap: 0; }
+    #content-panel, #sidebar { border: none; border-radius: 0; }
+    #content-box, #sidebar { scrollbar-width: none; -ms-overflow-style: none; }
+    #content-box::-webkit-scrollbar, #sidebar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+}
+@media (max-width: 700px) {
+    #outer { height: calc(100dvh - 44px); }   /* just the slim bottom bar below */
+}
+
+/* ── PHONE LANDSCAPE: content only. No bottom bar, slim one-line title with ‹ ☰ › at its right end ── */
 @media (orientation: landscape) and (max-height: 500px) {
     #bottom-nav { display: none !important; }
-    #outer { margin: 3px; gap: 4px; height: calc(100dvh - 6px); }
-    #main-col { gap: 0; }
+    #outer { height: 100dvh; }
     #content-box { padding: 8px 14px 24px 14px; }
     #lesson-title {
-        padding: 3px 12px; font-size: 14px; line-height: 1.2; letter-spacing: 0.02em;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        padding: 3px 8px 3px 12px; font-size: 14px; line-height: 1.2; letter-spacing: 0.02em;
         box-shadow: inset 3px 0 0 #00c8ff, 0 3px 6px rgba(0,0,0,0.4);
     }
+    #lt-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #lt-nav { display: flex; }
     #sidebar-list { padding: 8px; }
 }
 
@@ -556,7 +580,7 @@ body.side-open #prevBtn, body.side-open #nextBtn, body.side-open #counter { disp
     </div>
     <div id="main-col">
         <div id="content-panel">
-            <div id="lesson-title" hidden></div>
+            <div id="lesson-title" hidden><span id="lt-text"></span><span id="lt-nav"><button id="ltPrev" type="button" aria-label="Previous topic" title="Previous">&#8249;</button><button id="ltMenu" type="button" aria-label="All topics" title="All topics">&#9776;</button><button id="ltNext" type="button" aria-label="Next topic" title="Next">&#8250;</button></span></div>
             <div id="content-box"></div>
         </div>
     </div>
@@ -724,16 +748,12 @@ const contentBox  = document.getElementById("content-box");
 const counterEl   = document.getElementById("counter");
 const tooltipEl   = document.getElementById("topic-tooltip");
 const lessonTitle = document.getElementById("lesson-title");
+const ltText = document.getElementById("lt-text");
 
-// Pin the lesson's own top heading in a bar above the scrolling area (the in-page copy is hidden)
-function pinLessonTitle() {
-    const h = contentBox.querySelector("h1") || contentBox.querySelector("h2");
-    if (!h || !h.textContent.trim()) { lessonTitle.hidden = true; return; }
-    const clone = h.cloneNode(true);
-    clone.querySelectorAll(".spk-btn").forEach(b => b.remove());
-    lessonTitle.replaceChildren(...clone.childNodes);
-    lessonTitle.hidden = false;
-    h.style.display = "none";
+// The pinned bar shows the topic name from the list above; the lesson's own big heading is hidden
+function hideChildHeading() {
+    const h = contentBox.querySelector("h1");
+    if (h) h.style.display = "none";
 }
 
 // strip accents + lowercase, so "esse" also matches "essa", "és", etc.
@@ -779,7 +799,8 @@ function loadTopic(i) {
     topicEls[currentIndex].scrollIntoView({ block: "nearest" });
 
     counterEl.textContent = (currentIndex + 1) + " / " + topics.length;
-    lessonTitle.hidden = true;
+    ltText.textContent = topics[currentIndex][1].replace(/\s*\/\s*Credits$/i, "");
+    lessonTitle.hidden = false;
     contentBox.innerHTML = '<div style="color:#666;padding:10px 0;">Loading…</div>';
 
     // stop any speech from the previous topic before swapping content
@@ -787,15 +808,16 @@ function loadTopic(i) {
 
     fetch(BASE_URL + slug + ".html")
         .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " for " + slug + ".html"); return r.text(); })
-        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; pinLessonTitle(); contentBox.scrollTop = 0; contentBox.scrollLeft = 0; })
+        .then(html => { contentBox.innerHTML = '<div class="page-canvas">' + html + '</div>'; hideChildHeading(); contentBox.scrollTop = 0; contentBox.scrollLeft = 0; })
         .catch(err => {
-            lessonTitle.hidden = true;
             contentBox.innerHTML = '<div style="color:#f66;padding:12px 0;">' + err.message + '</div>';
         });
 }
 
 document.getElementById("prevBtn").onclick = goPrev;
 document.getElementById("nextBtn").onclick = () => loadTopic(currentIndex + 1);
+document.getElementById("ltPrev").onclick = goPrev;
+document.getElementById("ltNext").onclick = () => loadTopic(currentIndex + 1);
 
 // ── SEARCH ───────────────────────────────────────────────────────────────
 const searchInput = document.getElementById("topic-search");
@@ -857,6 +879,7 @@ function setSidebarCollapsed(collapsed) {
         topicEls[currentIndex].scrollIntoView({ block: "nearest" });   // coming back: show the box you were on
     }
 }
+document.getElementById("ltMenu").addEventListener("click", () => menuBtn.click());
 toggleBtn.addEventListener("click", () => setSidebarCollapsed(!sidebarEl.classList.contains("collapsed")));
 menuBtn.addEventListener("click", () => {
     if (currentIndex < 0) { setSidebarCollapsed(false); return; }   // nothing opened yet: stay on the boxes
