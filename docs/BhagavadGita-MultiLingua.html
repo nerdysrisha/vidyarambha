@@ -1445,6 +1445,18 @@ body.dark #vsBubble { background: radial-gradient(circle at 50% 50%, rgba(255,25
 /* watermarks: chariot (verse) 20% smaller, lotus (meaning) 30% smaller */
 #content-box .verse-block > .verse-grid::before { transform: scale(.8); }
 #content-box .mtab-panel::before { transform: scale(.7); }
+
+/* ══ ROUND 6: only the thumb itself (plus a small halo) takes touch; the rest of the strip does nothing and the page scrolls normally ══ */
+#verseScrub { pointer-events: none; touch-action: auto; }
+#verseScrub .vs-lane { pointer-events: none; }
+#verseScrub .vs-lane::before { display: none; }
+#verseScrub .vs-thumb { pointer-events: auto; touch-action: none; cursor: grab; }
+#verseScrub .vs-thumb::after { content: ""; position: absolute; inset: -14px -17px; }
+/* landscape: pure black stage (was brownish black) */
+@media (orientation: landscape) and (max-height: 520px) {
+  html, body, #outer, #main-col, body.dark, body.dark #outer, body.dark #main-col,
+  #content-panel, #content-panel.has-dock, #content-box, body.dark #content-panel, body.dark #content-box { background: #000; }
+}
 </style>
 </head>
 <body>
@@ -2970,17 +2982,17 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         const f = (y - PAD) / laneH(), i = N > 1 ? Math.round(f * (N - 1)) : 0;
         put(y, false); say(i);
     }
-    lane.addEventListener("pointerdown", e => {
+    thumb.addEventListener("pointerdown", e => {
         if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); dim.classList.add("on"); contentBox.classList.add("vs-lock"); scrollAnim = null; wake(); clearTimeout(awakeT);
-        try { lane.setPointerCapture(e.pointerId); } catch (x) {}
+        try { thumb.setPointerCapture(e.pointerId); } catch (x) {}
         shown = -1; move(e);
     });
-    lane.addEventListener("pointermove", e => { if (dragging) move(e); });
+    thumb.addEventListener("pointermove", e => { if (dragging) move(e); });
     function release() {
         if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); dim.classList.remove("on"); contentBox.classList.remove("vs-lock"); wake();
         const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
     }
-    lane.addEventListener("pointerup", release); lane.addEventListener("pointercancel", release);
+    thumb.addEventListener("pointerup", release); thumb.addEventListener("pointercancel", release);
     lane.addEventListener("keydown", e => { if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); stepVerse(-1); } else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); stepVerse(1); } });
     window.addEventListener("resize", () => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); });
     if (window.ResizeObserver) new ResizeObserver(() => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); }).observe(contentBox);
