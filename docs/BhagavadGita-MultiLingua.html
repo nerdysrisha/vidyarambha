@@ -1292,22 +1292,9 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
 #verseScrub.awake, #verseScrub.drag, #verseScrub:focus-within { opacity: 1; }
 #verseScrub .vs-lane { position: absolute; inset: 0; cursor: grab; outline: none; }
 #verseScrub.drag .vs-lane { cursor: grabbing; }
-#verseScrub .vs-rail { position: absolute; left: 50%; top: 10px; bottom: 10px; width: 3px; margin-left: -1.5px; border-radius: 3px; background: rgba(201,161,90,.38); }
-#verseScrub .vs-tick { position: absolute; left: 50%; width: 9px; height: 1px; transform: translate(-50%, -50%); background: rgba(122,74,18,.42); }
-#verseScrub .vs-tick.big { width: 14px; height: 1.5px; background: rgba(122,74,18,.6); }
 #verseScrub .vs-thumb { position: absolute; left: 50%; top: 0; width: 8px; height: 34px; border-radius: 6px; background: #c9a15a; border: 1px solid #fbe6bd;
     box-shadow: 0 1px 5px rgba(0,0,0,.35); transform: translate(-50%, -50%); transition: transform .2s ease; will-change: top; }
 #verseScrub.drag .vs-thumb { transform: translate(-50%, -50%) scale(1.5, 1.25); background: #b8862f; }
-#verseScrub .vs-bubble { position: absolute; left: calc(100% + 10px); top: 0; min-width: 60px; height: 60px; box-sizing: border-box; padding: 0 12px; border-radius: 30px;
-    display: flex; align-items: baseline; justify-content: center; gap: 2px; padding-top: 16px;
-    background: #fff4d9; color: #7a4a12; border: 2px solid #c9a15a; box-shadow: 0 3px 12px rgba(0,0,0,.35);
-    font: 700 24px/1 var(--mono, 'IBM Plex Mono', monospace); pointer-events: none; opacity: 0; transform: translateY(-50%) scale(.6); transform-origin: left center;
-    transition: opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2); }
-#verseScrub .vs-bubble i { font: 500 11px/1 var(--mono, monospace); font-style: normal; opacity: .65; }
-#verseScrub.drag .vs-bubble { opacity: 1; transform: translateY(-50%) scale(1); }
-body.dark #verseScrub .vs-rail { background: rgba(216,180,106,.4); }
-body.dark #verseScrub .vs-tick { background: rgba(224,197,138,.45); }
-body.dark #verseScrub .vs-bubble { background: #2b2417; color: #e0c58a; border-color: #c9a15a; }
 body.immerse-fade #verseScrub, body.immerse-fade #splitPill { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
 body.immerse-quick #verseScrub, body.immerse-quick #splitPill { transition-duration: .15s !important; }
 
@@ -1322,7 +1309,6 @@ body.dark #splitPill { background: #2b2417; color: #e0c58a; border-color: #c9a15
 
 @media (orientation: landscape) and (max-height: 520px) {
   #verseScrub { left: auto; right: 0; width: 20px; top: 8px; bottom: 8px; }
-  #verseScrub .vs-bubble { left: auto; right: calc(100% + 10px); transform-origin: right center; }
   #splitPill.show { display: flex; }
   /* two columns: the meaning column (--mw) slides away to the right, the verse column takes the whole width */
   #content-box { --mw: calc(50% - 10px); --mg: 20px; transition: --mw .45s cubic-bezier(.4,0,.2,1), --mg .45s cubic-bezier(.4,0,.2,1); }
@@ -1334,8 +1320,67 @@ body.dark #splitPill { background: #2b2417; color: #e0c58a; border-color: #c9a15
       transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out, background-size .4s ease; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #content-box, #splitPill, #splitPill svg, #verseScrub .vs-thumb, #verseScrub .vs-bubble { transition: none !important; }
+  #content-box, #splitPill, #splitPill svg, #verseScrub .vs-thumb, #vsBubble { transition: none !important; }
 }
+
+/* ══ ROUND 2: glass number bubble, ornament = the tap target (landscape), ONE big box in portrait, live inner glow ══ */
+#vsBubble { position: absolute; z-index: 7; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font: 700 18px/1 var(--mono, 'IBM Plex Mono', monospace); color: #7a4a12; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none;
+    background: radial-gradient(circle at 32% 26%, rgba(255,255,255,.85) 0, rgba(255,255,255,.28) 38%, rgba(255,214,130,.22) 100%);
+    border: 1px solid rgba(255,255,255,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 12px rgba(255,255,255,.55), inset -4px -6px 10px rgba(201,161,90,.25), 0 4px 14px rgba(0,0,0,.28);
+    opacity: 0; transform: translate(-50%, -50%) scale(.7); transition: opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2); }
+#vsBubble.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+body.dark #vsBubble { color: #f6dfa6; text-shadow: none; border-color: rgba(255,255,255,.35);
+    background: radial-gradient(circle at 32% 26%, rgba(255,255,255,.4), rgba(255,255,255,.08) 40%, rgba(216,180,106,.22) 100%); }
+
+/* the ornament itself is the button: invisible hit area + soft pulsing glow; slim gold tab once the verse is tucked */
+#splitPill:not(.tucked) { width: 46px; height: 84px; border-color: transparent; background: transparent; box-shadow: none; border-radius: 23px; }
+body.dark #splitPill:not(.tucked) { background: transparent; border-color: transparent; }
+#splitPill::before { content: ""; position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,190,80,.5), rgba(255,190,80,0) 70%); animation: ornPulse 3.2s ease-in-out infinite; }
+#splitPill.tucked::before { opacity: .5; width: 28px; height: 28px; margin: -14px 0 0 -14px; }
+#splitPill:not(.tucked) svg { position: absolute; bottom: 7px; left: 50%; margin-left: -6px; width: 12px; height: 12px; opacity: .7; }
+#splitPill.tucked { width: 20px; height: 72px; border-radius: 10px; }
+#splitPill { transition: left .45s cubic-bezier(.4,0,.2,1), width .35s ease, height .35s ease, background-color .35s ease, border-color .35s ease; }
+@keyframes ornPulse { 0%, 100% { transform: scale(.85); opacity: .45; } 50% { transform: scale(1.15); opacity: 1; } }
+
+/* live inner glow of the boxes: a slow "breathing" light inside the border (only boxes on screen animate) */
+@keyframes gitaGlow { 0%, 100% { box-shadow: inset 0 0 12px 1px rgba(201,161,90,.14); } 50% { box-shadow: inset 0 0 26px 4px rgba(201,161,90,.30); } }
+@keyframes gitaGlowStrong { 0%, 100% { box-shadow: inset 0 0 16px 2px rgba(201,161,90,.34); } 50% { box-shadow: inset 0 0 30px 5px rgba(201,161,90,.52); } }
+
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px), (orientation: landscape) and (max-height: 520px) {
+  #content-box .verse-block.glow::before { animation: gitaGlow 5.5s ease-in-out infinite; }
+  #content-box .verse-block.glow.verse-focus::before, #content-box.sync-on .verse-block.glow.verse-active::before { animation-name: gitaGlowStrong; }
+}
+@media (prefers-reduced-motion: reduce) { #content-box .verse-block::before { animation: none !important; box-shadow: inset 0 0 18px 2px rgba(201,161,90,.2); } #splitPill::before { animation: none; } }
+
+/* PORTRAIT + DESKTOP: one big golden box; the ornament lies across its middle; the language tabs hang from its right wing */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block { position: relative; isolation: isolate; --box-bg: #fffaf0; }
+  #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { --box-bg: #fff4d9; }
+  #content-box .verse-block::before { content: ""; position: absolute; z-index: -1; pointer-events: none; left: 8px; right: 8px; top: 6px; bottom: 8px;
+      border: 1px solid #c9a15a; border-radius: 12px; background: var(--box-bg);
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
+  #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,.38); }
+  #content-box .verse-block > .verse-grid, #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid,
+  #content-box .verse-block > .mtabs .mtab-panel, #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; box-shadow: none; }
+  #content-box .verse-block > .verse-grid { margin-bottom: 34px; }
+  #content-box .verse-block > .verse-grid::after { left: 0; right: 0; width: auto; height: 34px; margin: 0; top: 100%;
+      background:
+        linear-gradient(90deg, rgba(201,161,90,.9), rgba(201,161,90,.9) 55%, transparent) left center / calc(50% - 118px) 1.2px no-repeat,
+        linear-gradient(270deg, rgba(201,161,90,.9), rgba(201,161,90,.9) 55%, transparent) right center / calc(50% - 118px) 1.2px no-repeat,
+        var(--sep-h-img) center / auto 100% no-repeat; }
+  #content-box .verse-block > .mtabs { margin-top: -17px; }                       /* tabs start exactly on the ornament line */
+  #content-box .mtab:last-child { border-top-right-radius: 0; }
+  body.dark #content-box .verse-block { --box-bg: #1d1710; }
+  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #2d2314; }
+  body.dark #content-box .verse-block::before { border-color: #7a6030; }
+  body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,.3); }
+  body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed,
+  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: transparent; border: none; box-shadow: none; }
+}
+@media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block::before { left: 14px; right: 14px; bottom: 1px; } }
 </style>
 </head>
 <body>
@@ -1372,11 +1417,10 @@ body.dark #splitPill { background: #2b2417; color: #e0c58a; border-color: #c9a15
             </div>
             <div id="verseScrub" aria-label="Go to verse">
                 <div class="vs-lane" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Verse number" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
-                    <div class="vs-rail"></div><div class="vs-ticks"></div>
                     <div class="vs-thumb"></div>
                 </div>
-                <div class="vs-bubble"><b>1</b><i>/1</i></div>
             </div>
+            <div id="vsBubble" aria-hidden="true">1</div>
             <button id="splitPill" type="button" aria-label="Show verse full width" title="Tap: verse full width / back to split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chapter from the left to begin.</div>
@@ -2810,9 +2854,10 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 // verse and the page jumps there with the normal verse fade (same path as the up/down arrows, so audio sync keeps working).
 (function () {
     const scrub = document.getElementById("verseScrub"), lane = scrub.querySelector(".vs-lane"), thumb = scrub.querySelector(".vs-thumb");
-    const bubble = scrub.querySelector(".vs-bubble"), ticks = scrub.querySelector(".vs-ticks");
+    const bubble = document.getElementById("vsBubble");
     const pill = document.getElementById("splitPill"), PAD = 18;
     let blocks = [], N = 0, dragging = false, shown = -1, awakeT, raf = 0;
+    const glowIO = window.IntersectionObserver ? new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("glow", e.isIntersecting)), { root: contentBox, threshold: 0.15 }) : null;
     const landMQ = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const laneH = () => Math.max(1, lane.clientHeight - 2 * PAD);
@@ -2820,12 +2865,11 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     const labelOf = i => { const n = (blocks[i].dataset.n || "").trim(); return /^\d+$/.test(n) ? n : String(i + 1); };
     function put(y, glide) {
         const tr = glide ? "top .4s cubic-bezier(.2,.8,.2,1)" : "none";
-        thumb.style.transition = tr + ", transform .2s ease"; bubble.style.transition = glide ? "top .4s cubic-bezier(.2,.8,.2,1), opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2)" : "";
-        thumb.style.top = y + "px"; bubble.style.top = y + "px";
+        thumb.style.transition = tr + ", transform .2s ease"; thumb.style.top = y + "px";
     }
     function say(i) {
         if (i === shown) return; shown = i;
-        bubble.innerHTML = "<b>" + labelOf(i) + "</b><i>/" + N + "</i>";
+        bubble.textContent = labelOf(i);
         lane.setAttribute("aria-valuenow", i + 1);
         if (navigator.vibrate && dragging) navigator.vibrate(5);
     }
@@ -2833,8 +2877,6 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     function layout() {                     // below the audio dock if there is one; rebuild the ruler ticks
         const dock = contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0;
         if (!landMQ.matches) scrub.style.top = (dock + 10) + "px"; else scrub.style.top = "";
-        ticks.innerHTML = "";
-        if (N > 12) for (let k = 0; k < N; k += 5) { const t = document.createElement("div"); t.className = "vs-tick" + ((k + 1) % 10 === 0 || k === 0 ? " big" : ""); t.style.top = (yOf(k)) + "px"; ticks.appendChild(t); }
         lane.setAttribute("aria-valuemax", N);
     }
     function currentIdx() {                 // the verse the reader is on: the last card whose top is above 35% of the screen
@@ -2846,6 +2888,7 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     contentBox.addEventListener("scroll", () => { if (!N || dragging) return; wake(); if (!raf) raf = requestAnimationFrame(follow); }, { passive: true });
     function refresh() {
         blocks = Array.from(contentBox.querySelectorAll(".verse-block")); N = blocks.length; shown = -1;
+        if (glowIO) { glowIO.disconnect(); blocks.forEach(b => glowIO.observe(b)); }
         scrub.classList.toggle("show", N > 0); pill.classList.toggle("show", N > 0);
         if (!N) return; layout(); const k = currentIdx(); say(k); put(yOf(k), false); placePill();
     }
@@ -2864,13 +2907,13 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         put(y, false); say(i);
     }
     lane.addEventListener("pointerdown", e => {
-        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); wake(); clearTimeout(awakeT);
+        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); wake(); clearTimeout(awakeT);
         try { lane.setPointerCapture(e.pointerId); } catch (x) {}
         shown = -1; move(e);
     });
     lane.addEventListener("pointermove", e => { if (dragging) move(e); });
     function release() {
-        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); wake();
+        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); wake();
         const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
     }
     lane.addEventListener("pointerup", release); lane.addEventListener("pointercancel", release);
