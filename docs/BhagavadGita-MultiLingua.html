@@ -1412,6 +1412,16 @@ body.dark #vsBubble { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 1
   #content-box .verse-block > .mtabs .mtab-panel { padding-top: 16px; }
 }
 @media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block > .mtabs .mtab-bar { right: 15px; } }
+
+/* ══ ROUND 4: scrubber owns the touch (wider invisible strip, page cannot scroll while dragging); smaller, clean glass bubble ══ */
+#verseScrub .vs-lane::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 42px; }
+@media (orientation: landscape) and (max-height: 520px) { #verseScrub .vs-lane::before { left: auto; right: 0; width: 42px; } }
+#content-box.vs-lock { overflow-y: hidden !important; touch-action: none; }
+#vsBubble { width: 60px; height: 60px; font-size: 21px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 58%, rgba(255,214,140,.30) 100%);
+    box-shadow: inset 0 0 14px rgba(255,214,140,.30), 0 0 18px rgba(255,214,140,.5), 0 8px 22px rgba(0,0,0,.5); }
+#vsBubble::after { display: none; }
+body.dark #vsBubble { background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 58%, rgba(255,214,140,.30) 100%); }
 </style>
 </head>
 <body>
@@ -2938,13 +2948,13 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         put(y, false); say(i);
     }
     lane.addEventListener("pointerdown", e => {
-        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); dim.classList.add("on"); wake(); clearTimeout(awakeT);
+        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); dim.classList.add("on"); contentBox.classList.add("vs-lock"); scrollAnim = null; wake(); clearTimeout(awakeT);
         try { lane.setPointerCapture(e.pointerId); } catch (x) {}
         shown = -1; move(e);
     });
     lane.addEventListener("pointermove", e => { if (dragging) move(e); });
     function release() {
-        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); dim.classList.remove("on"); wake();
+        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); dim.classList.remove("on"); contentBox.classList.remove("vs-lock"); wake();
         const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
     }
     lane.addEventListener("pointerup", release); lane.addEventListener("pointercancel", release);
