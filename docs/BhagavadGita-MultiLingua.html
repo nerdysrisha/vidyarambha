@@ -2943,7 +2943,12 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const laneH = () => Math.max(1, lane.clientHeight - 2 * PAD);
     const yOf = i => PAD + (N > 1 ? laneH() * i / (N - 1) : laneH() / 2);
-    const labelOf = i => { const n = (blocks[i].dataset.n || "").trim(); return /^\d+$/.test(n) ? n : String(i + 1); };
+    const NUMV = /^\d[\d\s,\-–]*$/;   // same test as the "k/N" tag on each card: only numbered verses count
+    let isNum = [], numBefore = [], numTotal = 0;
+    const labelOf = i => {              // numbered verse -> its real number (same as the card tag); opening / closing sections -> words
+        if (isNum[i]) return String(numBefore[i]);
+        return numBefore[i] === 0 ? "Intro" : (numBefore[i] >= numTotal ? "End" : "•");
+    };
     function put(y, glide) {
         thumb.style.transition = (glide ? "top .4s cubic-bezier(.2,.8,.2,1), " : "") + "transform .2s ease"; thumb.style.top = y + "px";
     }
@@ -2956,8 +2961,8 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     function wake() { scrub.classList.add("awake"); clearTimeout(awakeT); awakeT = setTimeout(() => scrub.classList.remove("awake"), 1600); }
     function layout() {                     // below the audio dock if there is one; rebuild the ruler ticks
         const dock = contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0;
-        if (!landMQ.matches) scrub.style.top = (dock + 10) + "px"; else scrub.style.top = "";
-        lane.setAttribute("aria-valuemax", N);
+        if (!landMQ.matches) scrub.style.top = (dock + 44) + "px"; else scrub.style.top = "";
+        lane.setAttribute("aria-valuemax", numTotal || N);
     }
     function currentIdx() {                 // the verse the reader is on: the last card whose top is above 35% of the screen
         const box = contentBox.getBoundingClientRect(), line = box.top + contentBox.clientHeight * 0.35; let k = 0;
@@ -2968,6 +2973,7 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     contentBox.addEventListener("scroll", () => { if (!N || dragging) return; wake(); if (!raf) raf = requestAnimationFrame(follow); }, { passive: true });
     function refresh() {
         blocks = Array.from(contentBox.querySelectorAll(".verse-block")); N = blocks.length; shown = -1;
+        let c = 0; isNum = blocks.map(b => NUMV.test((b.dataset.n || "").trim())); numBefore = isNum.map(v => (c += v ? 1 : 0)); numTotal = c;
         if (glowIO) { glowIO.disconnect(); blocks.forEach(b => glowIO.observe(b)); }
         scrub.classList.toggle("show", N > 0); pill.classList.toggle("show", N > 0);
         if (!N) return; layout(); const k = currentIdx(); say(k); put(yOf(k), false); placePill();
