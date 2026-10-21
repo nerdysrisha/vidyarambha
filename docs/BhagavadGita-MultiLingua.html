@@ -1282,6 +1282,60 @@ body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration
 body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
 body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
 body.immerse-fade, body.immerse-fade * { cursor: none !important; }
+
+/* ══ VERSE SCRUBBER (radio-dial style) + LANDSCAPE "TUCK" PILL ══ */
+@property --mw { syntax: '<length-percentage>'; inherits: true; initial-value: 0px; }
+@property --mg { syntax: '<length>'; inherits: true; initial-value: 0px; }
+#verseScrub { position: absolute; left: 0; top: 10px; bottom: 10px; width: 26px; z-index: 6; display: none;
+    touch-action: none; -webkit-user-select: none; user-select: none; opacity: .5; transition: opacity .35s ease; -webkit-tap-highlight-color: transparent; }
+#verseScrub.show { display: block; }
+#verseScrub.awake, #verseScrub.drag, #verseScrub:focus-within { opacity: 1; }
+#verseScrub .vs-lane { position: absolute; inset: 0; cursor: grab; outline: none; }
+#verseScrub.drag .vs-lane { cursor: grabbing; }
+#verseScrub .vs-rail { position: absolute; left: 50%; top: 10px; bottom: 10px; width: 3px; margin-left: -1.5px; border-radius: 3px; background: rgba(201,161,90,.38); }
+#verseScrub .vs-tick { position: absolute; left: 50%; width: 9px; height: 1px; transform: translate(-50%, -50%); background: rgba(122,74,18,.42); }
+#verseScrub .vs-tick.big { width: 14px; height: 1.5px; background: rgba(122,74,18,.6); }
+#verseScrub .vs-thumb { position: absolute; left: 50%; top: 0; width: 8px; height: 34px; border-radius: 6px; background: #c9a15a; border: 1px solid #fbe6bd;
+    box-shadow: 0 1px 5px rgba(0,0,0,.35); transform: translate(-50%, -50%); transition: transform .2s ease; will-change: top; }
+#verseScrub.drag .vs-thumb { transform: translate(-50%, -50%) scale(1.5, 1.25); background: #b8862f; }
+#verseScrub .vs-bubble { position: absolute; left: calc(100% + 10px); top: 0; min-width: 60px; height: 60px; box-sizing: border-box; padding: 0 12px; border-radius: 30px;
+    display: flex; align-items: baseline; justify-content: center; gap: 2px; padding-top: 16px;
+    background: #fff4d9; color: #7a4a12; border: 2px solid #c9a15a; box-shadow: 0 3px 12px rgba(0,0,0,.35);
+    font: 700 24px/1 var(--mono, 'IBM Plex Mono', monospace); pointer-events: none; opacity: 0; transform: translateY(-50%) scale(.6); transform-origin: left center;
+    transition: opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2); }
+#verseScrub .vs-bubble i { font: 500 11px/1 var(--mono, monospace); font-style: normal; opacity: .65; }
+#verseScrub.drag .vs-bubble { opacity: 1; transform: translateY(-50%) scale(1); }
+body.dark #verseScrub .vs-rail { background: rgba(216,180,106,.4); }
+body.dark #verseScrub .vs-tick { background: rgba(224,197,138,.45); }
+body.dark #verseScrub .vs-bubble { background: #2b2417; color: #e0c58a; border-color: #c9a15a; }
+body.immerse-fade #verseScrub, body.immerse-fade #splitPill { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
+body.immerse-quick #verseScrub, body.immerse-quick #splitPill { transition-duration: .15s !important; }
+
+#splitPill { position: absolute; z-index: 6; display: none; left: var(--split-x, 50%); top: calc(50% + 14px); transform: translate(-50%, -50%);
+    width: 22px; height: 64px; padding: 0; border-radius: 11px; border: 1px solid #c9a15a; background: #fbe6bd; color: #7a4a12;
+    align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,.3);
+    transition: left .45s cubic-bezier(.4,0,.2,1); -webkit-tap-highlight-color: transparent; }
+#splitPill::after { content: ""; position: absolute; inset: -8px -10px; }
+#splitPill svg { width: 14px; height: 14px; transition: transform .45s ease; }
+#splitPill.tucked svg { transform: rotate(180deg); }
+body.dark #splitPill { background: #2b2417; color: #e0c58a; border-color: #c9a15a; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #verseScrub { left: auto; right: 0; width: 20px; top: 8px; bottom: 8px; }
+  #verseScrub .vs-bubble { left: auto; right: calc(100% + 10px); transform-origin: right center; }
+  #splitPill.show { display: flex; }
+  /* two columns: the meaning column (--mw) slides away to the right, the verse column takes the whole width */
+  #content-box { --mw: calc(50% - 10px); --mg: 20px; transition: --mw .45s cubic-bezier(.4,0,.2,1), --mg .45s cubic-bezier(.4,0,.2,1); }
+  #content-box.verse-full { --mw: 0px; --mg: 0px; }
+  #content-box .verse-block { grid-template-columns: minmax(0, 1fr) minmax(0, var(--mw)); column-gap: var(--mg); }
+  #content-box .verse-block > .mtabs { overflow: hidden; transition: opacity .3s ease .12s, visibility 0s; }
+  #content-box.verse-full .verse-block > .mtabs { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility 0s .25s; }
+  #content-box.verse-full .verse-block::before { background-size: auto 0%, auto;
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out, background-size .4s ease; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #content-box, #splitPill, #splitPill svg, #verseScrub .vs-thumb, #verseScrub .vs-bubble { transition: none !important; }
+}
 </style>
 </head>
 <body>
@@ -1316,6 +1370,14 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
             </div>
+            <div id="verseScrub" aria-label="Go to verse">
+                <div class="vs-lane" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Verse number" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
+                    <div class="vs-rail"></div><div class="vs-ticks"></div>
+                    <div class="vs-thumb"></div>
+                </div>
+                <div class="vs-bubble"><b>1</b><i>/1</i></div>
+            </div>
+            <button id="splitPill" type="button" aria-label="Show verse full width" title="Tap: verse full width / back to split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chapter from the left to begin.</div>
             </div>
@@ -1912,7 +1974,7 @@ function fitVerses() {
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         let avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        if (land && b.classList.contains("verse-block")) avail = (avail - 20) / 2;   // landscape: verse = left half, purport = right half
+        if (land && b.classList.contains("verse-block")) avail = contentBox.classList.contains("verse-full") ? avail - 18 : (avail - 20) / 2;   // tucked: verse takes the full width (minus room for the pill)   // landscape: verse = left half, purport = right half
         const slEl = b.querySelector(":scope > .verse-grid .sl");
         if (slEl) {   // the verse sits in a bordered box: fit its widest line to the space inside the box
             const gs = getComputedStyle(slEl.parentElement);
@@ -2111,6 +2173,7 @@ function loadTopic(flatIndex) {
     contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
     copyBtn.classList.remove("show");
     document.getElementById("verseNav").classList.remove("show");
+    if (window.gitaScrubHide) gitaScrubHide();
 
     fetch(topic.path)
         .then(r => {
@@ -2132,6 +2195,7 @@ function loadTopic(flatIndex) {
             const hasVerses = !!contentBox.querySelector(".verse-block");
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
+            if (window.gitaScrubRefresh) gitaScrubRefresh();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
@@ -2739,6 +2803,97 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 
+
+// ══ VERSE SCRUBBER (drag like a radio dial) + LANDSCAPE TUCK PILL ═══════════════════════════════
+// Maths: the lane is (height - 2*PAD) px tall and holds N verses, so one verse = laneH / (N-1) px; index = round(fraction * (N-1)).
+// While dragging, the thumb follows the finger freely and the bubble shows the nearest verse; on release the thumb glides to that
+// verse and the page jumps there with the normal verse fade (same path as the up/down arrows, so audio sync keeps working).
+(function () {
+    const scrub = document.getElementById("verseScrub"), lane = scrub.querySelector(".vs-lane"), thumb = scrub.querySelector(".vs-thumb");
+    const bubble = scrub.querySelector(".vs-bubble"), ticks = scrub.querySelector(".vs-ticks");
+    const pill = document.getElementById("splitPill"), PAD = 18;
+    let blocks = [], N = 0, dragging = false, shown = -1, awakeT, raf = 0;
+    const landMQ = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const laneH = () => Math.max(1, lane.clientHeight - 2 * PAD);
+    const yOf = i => PAD + (N > 1 ? laneH() * i / (N - 1) : laneH() / 2);
+    const labelOf = i => { const n = (blocks[i].dataset.n || "").trim(); return /^\d+$/.test(n) ? n : String(i + 1); };
+    function put(y, glide) {
+        const tr = glide ? "top .4s cubic-bezier(.2,.8,.2,1)" : "none";
+        thumb.style.transition = tr + ", transform .2s ease"; bubble.style.transition = glide ? "top .4s cubic-bezier(.2,.8,.2,1), opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2)" : "";
+        thumb.style.top = y + "px"; bubble.style.top = y + "px";
+    }
+    function say(i) {
+        if (i === shown) return; shown = i;
+        bubble.innerHTML = "<b>" + labelOf(i) + "</b><i>/" + N + "</i>";
+        lane.setAttribute("aria-valuenow", i + 1);
+        if (navigator.vibrate && dragging) navigator.vibrate(5);
+    }
+    function wake() { scrub.classList.add("awake"); clearTimeout(awakeT); awakeT = setTimeout(() => scrub.classList.remove("awake"), 1600); }
+    function layout() {                     // below the audio dock if there is one; rebuild the ruler ticks
+        const dock = contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0;
+        if (!landMQ.matches) scrub.style.top = (dock + 10) + "px"; else scrub.style.top = "";
+        ticks.innerHTML = "";
+        if (N > 12) for (let k = 0; k < N; k += 5) { const t = document.createElement("div"); t.className = "vs-tick" + ((k + 1) % 10 === 0 || k === 0 ? " big" : ""); t.style.top = (yOf(k)) + "px"; ticks.appendChild(t); }
+        lane.setAttribute("aria-valuemax", N);
+    }
+    function currentIdx() {                 // the verse the reader is on: the last card whose top is above 35% of the screen
+        const box = contentBox.getBoundingClientRect(), line = box.top + contentBox.clientHeight * 0.35; let k = 0;
+        for (let i = 0; i < blocks.length; i++) { if (blocks[i].getBoundingClientRect().top <= line) k = i; else break; }
+        return k;
+    }
+    function follow() { raf = 0; if (dragging || !N) return; const k = currentIdx(); say(k); put(yOf(k), true); }
+    contentBox.addEventListener("scroll", () => { if (!N || dragging) return; wake(); if (!raf) raf = requestAnimationFrame(follow); }, { passive: true });
+    function refresh() {
+        blocks = Array.from(contentBox.querySelectorAll(".verse-block")); N = blocks.length; shown = -1;
+        scrub.classList.toggle("show", N > 0); pill.classList.toggle("show", N > 0);
+        if (!N) return; layout(); const k = currentIdx(); say(k); put(yOf(k), false); placePill();
+    }
+    window.gitaScrubRefresh = refresh;
+    window.gitaScrubHide = () => { N = 0; blocks = []; scrub.classList.remove("show"); pill.classList.remove("show"); };
+
+    function gotoVerse(i) {                 // same path as the arrows: audio chapters seek, others highlight + fade-jump
+        const box = contentBox.getBoundingClientRect(), r = blocks[i].getBoundingClientRect();
+        blocks.forEach(b => b.classList.remove("verse-focus")); syncUserScrollUntil = 0;
+        if (window.gitaSyncSeek && window.gitaSyncSeek(i)) { if (blocks[i].classList.contains("verse-active")) verseSwap(blocks[i], topOf(r, box)); return; }
+        blocks[i].classList.add("verse-focus"); verseSwap(blocks[i], topOf(r, box));
+    }
+    function move(e) {
+        const r = lane.getBoundingClientRect(), y = clamp(e.clientY - r.top, PAD, r.height - PAD);
+        const f = (y - PAD) / laneH(), i = N > 1 ? Math.round(f * (N - 1)) : 0;
+        put(y, false); say(i);
+    }
+    lane.addEventListener("pointerdown", e => {
+        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); wake(); clearTimeout(awakeT);
+        try { lane.setPointerCapture(e.pointerId); } catch (x) {}
+        shown = -1; move(e);
+    });
+    lane.addEventListener("pointermove", e => { if (dragging) move(e); });
+    function release() {
+        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); wake();
+        const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
+    }
+    lane.addEventListener("pointerup", release); lane.addEventListener("pointercancel", release);
+    lane.addEventListener("keydown", e => { if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); stepVerse(-1); } else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); stepVerse(1); } });
+    window.addEventListener("resize", () => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); });
+    if (window.ResizeObserver) new ResizeObserver(() => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); }).observe(contentBox);
+
+    // ── landscape: tap the pill on the divider = verse goes full width; tap again = split comes back ──
+    function placePill() {
+        if (!landMQ.matches) return;
+        const cs = getComputedStyle(contentBox), pl = parseFloat(cs.paddingLeft) || 0, pr = parseFloat(cs.paddingRight) || 0, W = contentBox.clientWidth;
+        const tucked = contentBox.classList.contains("verse-full");
+        contentPanel.style.setProperty("--split-x", (tucked ? W - pr - 14 - 9 : pl + (W - pl - pr) / 2) + "px");   // centre of the golden box, or its right edge
+        pill.classList.toggle("tucked", tucked);
+        pill.setAttribute("aria-label", tucked ? "Show meaning (split view)" : "Show verse full width");
+    }
+    pill.addEventListener("click", () => {
+        const tuck = !contentBox.classList.contains("verse-full");
+        contentBox.classList.toggle("verse-full", tuck); placePill();
+        if (tuck) setTimeout(fitVerses, 470); else fitVerses();   // growing: re-fit after the slide; shrinking: re-fit first
+    });
+    if (landMQ.addEventListener) landMQ.addEventListener("change", () => { placePill(); fitVerses(); });
+})();
 </script>
 
 </body>
