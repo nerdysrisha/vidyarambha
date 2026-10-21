@@ -1381,6 +1381,37 @@ body.dark #splitPill:not(.tucked) { background: transparent; border-color: trans
   body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: transparent; border: none; box-shadow: none; }
 }
 @media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block::before { left: 14px; right: 14px; bottom: 1px; } }
+
+/* ══ ROUND 3 ══ */
+#verseScrub { z-index: 8; }
+#vsDim { position: absolute; inset: 0; z-index: 6; pointer-events: none; background: rgba(8,6,3,.52); -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px); opacity: 0; transition: opacity .22s ease; }
+#vsDim.on { opacity: 1; }
+#vsBubble { z-index: 9; width: 78px; height: 78px; font-size: 28px; color: #fff; overflow: visible;
+    text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(255,210,120,.8);
+    background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.5) 0, rgba(255,255,255,.14) 34%, rgba(255,255,255,.05) 62%, rgba(255,214,140,.30) 100%);
+    border: 1.5px solid rgba(255,255,255,.75);
+    box-shadow: inset 0 0 20px rgba(255,255,255,.4), inset 0 -10px 18px rgba(255,190,90,.35), 0 0 22px rgba(255,214,140,.55), 0 10px 26px rgba(0,0,0,.5); }
+#vsBubble::after { content: ""; position: absolute; left: 17%; top: 9%; width: 40%; height: 24%; border-radius: 50%; transform: rotate(-28deg);
+    background: linear-gradient(rgba(255,255,255,.9), rgba(255,255,255,0)); pointer-events: none; }
+body.dark #vsBubble { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(255,210,120,.8); border-color: rgba(255,255,255,.7);
+    background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.45) 0, rgba(255,255,255,.12) 34%, rgba(255,255,255,.05) 62%, rgba(255,214,140,.28) 100%); }
+
+@media (max-width: 700px) and (orientation: portrait) { #verseNav, #verseNav.show { display: none !important; } }   /* scrubber + swipe replace the arrows */
+
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  /* ornament wings stop short of the box edges */
+  #content-box .verse-block > .verse-grid::after {
+      background:
+        linear-gradient(90deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) left 20px center / calc(50% - 138px) 1.2px no-repeat,
+        linear-gradient(270deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) right 20px center / calc(50% - 138px) 1.2px no-repeat,
+        var(--sep-h-img) center / auto 100% no-repeat; }
+  /* language tabs: up to the top-right corner of the big box (like landscape) */
+  #content-box .verse-block > .mtabs { position: static; }
+  #content-box .verse-block > .mtabs .mtab-bar { top: 7px; right: 9px; }
+  #content-box .mtab:last-child { border-top-right-radius: 11px; }
+  #content-box .verse-block > .mtabs .mtab-panel { padding-top: 16px; }
+}
+@media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block > .mtabs .mtab-bar { right: 15px; } }
 </style>
 </head>
 <body>
@@ -1420,6 +1451,7 @@ body.dark #splitPill:not(.tucked) { background: transparent; border-color: trans
                     <div class="vs-thumb"></div>
                 </div>
             </div>
+            <div id="vsDim" aria-hidden="true"></div>
             <div id="vsBubble" aria-hidden="true">1</div>
             <button id="splitPill" type="button" aria-label="Show verse full width" title="Tap: verse full width / back to split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <div id="content-box">
@@ -2854,7 +2886,7 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 // verse and the page jumps there with the normal verse fade (same path as the up/down arrows, so audio sync keeps working).
 (function () {
     const scrub = document.getElementById("verseScrub"), lane = scrub.querySelector(".vs-lane"), thumb = scrub.querySelector(".vs-thumb");
-    const bubble = document.getElementById("vsBubble");
+    const bubble = document.getElementById("vsBubble"), dim = document.getElementById("vsDim");
     const pill = document.getElementById("splitPill"), PAD = 18;
     let blocks = [], N = 0, dragging = false, shown = -1, awakeT, raf = 0;
     const glowIO = window.IntersectionObserver ? new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("glow", e.isIntersecting)), { root: contentBox, threshold: 0.15 }) : null;
@@ -2864,8 +2896,7 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     const yOf = i => PAD + (N > 1 ? laneH() * i / (N - 1) : laneH() / 2);
     const labelOf = i => { const n = (blocks[i].dataset.n || "").trim(); return /^\d+$/.test(n) ? n : String(i + 1); };
     function put(y, glide) {
-        const tr = glide ? "top .4s cubic-bezier(.2,.8,.2,1)" : "none";
-        thumb.style.transition = tr + ", transform .2s ease"; thumb.style.top = y + "px";
+        thumb.style.transition = (glide ? "top .4s cubic-bezier(.2,.8,.2,1), " : "") + "transform .2s ease"; thumb.style.top = y + "px";
     }
     function say(i) {
         if (i === shown) return; shown = i;
@@ -2907,13 +2938,13 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         put(y, false); say(i);
     }
     lane.addEventListener("pointerdown", e => {
-        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); wake(); clearTimeout(awakeT);
+        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); dim.classList.add("on"); wake(); clearTimeout(awakeT);
         try { lane.setPointerCapture(e.pointerId); } catch (x) {}
         shown = -1; move(e);
     });
     lane.addEventListener("pointermove", e => { if (dragging) move(e); });
     function release() {
-        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); wake();
+        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); dim.classList.remove("on"); wake();
         const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
     }
     lane.addEventListener("pointerup", release); lane.addEventListener("pointercancel", release);
