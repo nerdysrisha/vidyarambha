@@ -1536,6 +1536,15 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
   #gearPop { border-radius: 12px; }
   #gearPop #langPop { right: auto; width: max-content; max-width: 260px; grid-column: auto; }
 }
+
+/* ══ ROUND 11: kill leftover positioning offsets on the moved buttons (they were shifting icons on top of each other); landscape = same single row ══ */
+#gearPop > button, #gearPop #langMain { position: relative !important; inset: auto !important; top: auto !important; right: auto !important; bottom: auto !important; left: auto !important;
+    transform: none !important; translate: none !important; float: none !important; margin: 0 !important; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearPop { display: flex; grid-template-columns: none; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 12px; width: max-content; left: calc(100% + 8px); right: auto; bottom: -6px; }
+  #gearPop[hidden] { display: none; }
+  #gearPop > button, #gearPop #langMain { width: 46px !important; height: 46px !important; min-width: 46px !important; }
+}
 </style>
 </head>
 <body>
