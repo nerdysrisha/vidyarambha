@@ -1743,6 +1743,8 @@ categories.forEach((cat) => {
         const ttl = document.createElement("div");
         ttl.className = "t-title"; ttl.textContent = chName;
         body.appendChild(ttl);
+        item._en = { title: chName, sub: (chNo || isFront) ? (isFront ? (fm ? fm[1] : label) : "Chapter " + chNo) : "" };   // English originals, for the language switch
+        item.dataset.ch = isFront ? "preface" : chNo; item.dataset.slug = slug;
         item.appendChild(icon); item.appendChild(body);
         item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
 
@@ -1754,8 +1756,9 @@ categories.forEach((cat) => {
         item.addEventListener("click", () => loadTopic(flatIndex));
 
         item.addEventListener("mouseenter", () => {
-            tooltipEl.textContent = desc || "";
-            if (!desc) return;
+            const dd = ((TOPIC_I18N[curLang] || {})["d-" + slug]) || desc || "";   // hover text in the chosen language (from topics file)
+            tooltipEl.textContent = dd;
+            if (!dd) return;
             const rect = item.getBoundingClientRect();
             tooltipEl.style.left = (rect.right + 10) + "px";
             tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
@@ -1772,9 +1775,40 @@ categories.forEach((cat) => {
 if (categories.length === 1) sidebarList.classList.add("single");
 const CHAPTER_COUNT = flatTopics.filter(t => !t.front).length;   // 18: the preface is not counted
 document.getElementById("sidebar-count").textContent = CHAPTER_COUNT + " Chapters";
+// ── TOPICS LIST IN THE CHOSEN LANGUAGE ─────────────────────────────────────────────────────────
+// ONE file holds the listing for every language:  subjects/<category>/topics-multi-lang.html
+//   <div data-lang="te"> <p data-k="chapter1">title</p> … </div>   keys: w-gita, w-chapter, w-chapters, w-preface (words),
+//   preface, chapter1 … chapter18 (titles), d-<slug> (hover text). Missing file / key -> the built-in English text stays.
+let TOPIC_I18N = {};
+const TOPICS_FILE = BASE_URL + categories[0].slug + "/topics" + CHAPTER_SUFFIX + ".html";
+const EN_WORDS = { chapter: "Chapter", chapters: "Chapters", preface: "Preface", gita: "Bhagavad Gita" };
+function topicWord(k) { return ((TOPIC_I18N[curLang] || {})["w-" + k]) || EN_WORDS[k]; }
+function paintTopicLang() {
+    const L = TOPIC_I18N[curLang] || {}, loaded = Object.keys(TOPIC_I18N).length > 0;
+    flatTopics.forEach(t => {
+        const item = t.el, en = item._en, slug = item.dataset.slug, key = item.dataset.ch; if (!en) return;
+        const ttl = item.querySelector(".t-title"), sub = item.querySelector(".t-sub");
+        if (ttl) ttl.textContent = L[slug] || en.title;
+        if (sub) sub.textContent = key === "preface" ? topicWord("preface") : topicWord("chapter") + " " + key;
+        if (loaded && !item._srch) { item._srch = true; item.dataset.search += " " + normalizeSearch(Object.values(TOPIC_I18N).map(x => x[slug]).filter(Boolean).join(" ")); }   // search in any language
+    });
+    const tt = document.querySelector("#sidebar-title .title-text"); if (tt && tt.firstChild) tt.firstChild.textContent = topicWord("gita");
+    document.getElementById("sidebar-count").textContent = CHAPTER_COUNT + " " + topicWord("chapters");
+    document.querySelectorAll(".category-header").forEach((h, i) => {
+        const spans = h.querySelectorAll("span"), c = categories[i]; if (!c) return;
+        spans[0].textContent = c.name === "Bhagavad Gita" ? topicWord("gita") : c.name;
+        if (spans[1] && spans[1].textContent) spans[1].textContent = c.topics.filter(x => !FRONT_SLUGS.has(x[0])).length + " " + topicWord("chapters");
+    });
+    if (currentFlatIndex >= 0) counterEl.textContent = counterText(currentFlatIndex);
+}
+fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
+    doc.querySelectorAll("[data-lang]").forEach(d => { const L = map[d.dataset.lang] = {}; d.querySelectorAll("[data-k]").forEach(e => { L[e.dataset.k] = e.textContent.trim(); }); });
+    TOPIC_I18N = map; paintTopicLang();
+}).catch(() => {});   // no file -> English list as before
 function counterText(i) {   // preface -> "Preface"; chapters -> "n / 18" (n skips front matter)
     if (i < 0 || !flatTopics[i]) return "– / " + CHAPTER_COUNT;
-    if (flatTopics[i].front) return "Preface";
+    if (flatTopics[i].front) return topicWord("preface");
     return flatTopics.slice(0, i + 1).filter(t => !t.front).length + " / " + CHAPTER_COUNT;
 }
 
@@ -2672,6 +2706,7 @@ function paintLang() {
     const cur = LANGS.find(l => l.code === curLang) || LANGS[0];
     langMain.textContent = cur.short; langMain.title = "Language: " + cur.name;
     langPop.querySelectorAll(".lang-btn").forEach(b => b.setAttribute("aria-checked", b.dataset.lang === curLang ? "true" : "false"));
+    paintTopicLang();   // topics list, counter and sidebar title follow the language
 }
 function setLang(code) {
     curLang = code;
