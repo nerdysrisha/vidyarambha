@@ -1493,6 +1493,30 @@ body.dark #content-box .verse-block > .chap-link { background: rgba(43,36,23,.92
 #content-box .verse-block.has-chap-link .mtab-panel { padding-bottom: 46px; }
 @media (orientation: landscape) and (max-height: 520px) { #content-box .verse-block > .chap-prev { left: 30px; } #content-box .verse-block > .chap-next { right: 36px; } }
 @media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block > .chap-prev { left: 28px; } #content-box .verse-block > .chap-next { right: 28px; } }
+
+/* ══ ROUND 9: gear panel = edge-to-edge glass strip (portrait), icons only, stays open until gear / outside tap ══ */
+@keyframes gearGlow {
+  0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.38), inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 8px 0 rgba(201,161,90,.16); }
+  50%      { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.38), inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 16px 2px rgba(201,161,90,.32); } }
+#gearGroup { position: static; }
+#gearPop { left: 0; right: 0; bottom: calc(100% + 10px); grid-template-columns: none; display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; gap: 10px 6px;
+    padding: 14px 10px; border-radius: 22px; background: rgba(24,19,12,.5); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); }
+#gearPop[hidden] { display: none; }
+#gearPop::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;     /* glass reflection along the top + corners */
+    background: linear-gradient(180deg, rgba(255,255,255,.20) 0, rgba(255,255,255,.05) 28%, rgba(255,255,255,0) 55%),
+                linear-gradient(115deg, rgba(255,255,255,.16) 0, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,.10) 100%); }
+#gearPop button { position: relative; z-index: 1; width: 50px; height: 50px; padding: 0; border-radius: 50%; gap: 0; font-size: 18px; }
+#gearPop button::after { display: none; }
+#gearPop button svg { width: 24px; height: 24px; }
+#gearPop #langPop { flex-basis: 100%; }
+#gearPop #langPop .lang-btn { width: auto; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearGroup { position: relative; }
+  #gearPop { left: calc(100% + 8px); right: auto; bottom: -6px; display: grid; grid-template-columns: repeat(3, 48px); gap: 10px; padding: 12px; justify-items: center; border-radius: 20px; }
+  #gearPop[hidden] { display: none; }
+  #gearPop button { width: 48px; height: 48px; }
+  #gearPop #langPop { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
+}
 </style>
 </head>
 <body>
@@ -3039,10 +3063,6 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     gb.addEventListener("click", e => { e.stopPropagation(); setOpen(pop.hidden); });
     document.addEventListener("click", e => { if (!pop.hidden && !grp.contains(e.target)) setOpen(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
-    pop.addEventListener("click", e => {          // capture: runs before each button's own handler (theme stops propagation)
-        const b = e.target.closest("button"); if (!b || b.closest("#langGroup")) return;   // language stays open
-        setTimeout(() => setOpen(false), 180);
-    }, true);
     document.getElementById("bmGo").addEventListener("click", () => goToBookmark());
 })();
 </script>
