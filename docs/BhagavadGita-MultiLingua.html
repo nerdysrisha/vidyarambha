@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
 <title>Bhagavad Gita</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -1013,8 +1014,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 
 /* LEFT CONTROL BAR while the page is full screen: same slate colours as DailyPrayers (strip + pause + mute) */
 @media (min-width: 701px) and (orientation: landscape) and (max-height: 520px) {
-  body.reading #navbar { background: #242937; border-color: #3d455a; }
-  body.reading #navbar button { background: #2c3242; border-color: #3d455a; }
+  /* (slate reading-mode colours removed: the rail keeps the same dark-brown + gold look everywhere, as on GitHub Pages) */
 }
 
 
@@ -1562,6 +1562,29 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
 }
 /* running as an installed / wrapped app: it is already full screen, so the full-screen button is not needed */
 html.in-app #fsBtn { display: none !important; }
+
+/* ══ ROUND 9 ══ */
+/* chapter links on the Intro / End cards: just « and » */
+#content-box .verse-block > .chap-link { font-size: 18px; font-weight: 700; padding: 4px 16px 6px; letter-spacing: 1px; }
+/* the floating verse arrows and the slider are gone: the up / down buttons now live in the bottom bar (left rail in landscape) */
+#verseNav, #verseNav.show, #verseScrub, #verseScrub.show { display: none !important; }
+#navbar .ls-nav { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+@media not all and (orientation: landscape) and (max-height: 520px) {
+  #navbar .ls-btn.ls-nav { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 38px; height: 32px; padding: 0; }
+  #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; display: block; }
+  #navbar #lsUp { margin-left: 8px; }
+  #navbar #lsDown { margin-left: 6px; }                      /* a small gap between the two */
+  body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; }   /* page without verses: dimmed */
+}
+@media (max-width: 380px) { #navbar .ls-btn.ls-nav { width: 32px; } #navbar #lsUp { margin-left: 4px; } #navbar #lsDown { margin-left: 2px; } }
+/* PREFACE: the card border stays still; only the text inside moves, fading slightly at the top and bottom edges */
+#content-box:has(> .preface-language:not([hidden])) { overflow-y: hidden; display: flex; flex-direction: column; padding-bottom: 8px; }
+#content-box > .preface-language:not([hidden]) { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; margin: 0 auto; padding: 20px 6px 14px 6px; overflow: hidden; }
+#content-box .preface-language > .pf-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 24px; }
+#content-box .preface-language > .pf-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+#content-box .preface-language > .pf-scroll.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px); mask-image: linear-gradient(to bottom, transparent 0, #000 30px); }
+#content-box .preface-language > .pf-scroll.fade-b { -webkit-mask-image: linear-gradient(to top, transparent 0, #000 30px); mask-image: linear-gradient(to top, transparent 0, #000 30px); }
+#content-box .preface-language > .pf-scroll.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); }
 </style>
 </head>
 <body>
@@ -2440,10 +2463,26 @@ function applyPreface() {
     const has = c => pages.find(p => p.dataset.lang === c && p.textContent.trim());
     const pick = has(curLang) || has("en") || pages[0];
     pages.forEach(p => { p.hidden = p !== pick; });
+    setTimeout(prefaceFades, 0);
+}
+// the card keeps its border still; its text lives in .pf-scroll, which scrolls with a soft fade at the top / bottom edge
+function prefaceFades() {
+    contentBox.querySelectorAll(".pf-scroll").forEach(w => {
+        w.classList.toggle("fade-t", w.scrollTop > 2);
+        w.classList.toggle("fade-b", w.scrollTop + w.clientHeight < w.scrollHeight - 2);
+    });
 }
 function initPreface() {
     if (!contentBox.querySelector(".preface-language")) return;
+    contentBox.querySelectorAll(".preface-language").forEach(m => {
+        if (m.querySelector(":scope > .pf-scroll")) return;
+        const w = document.createElement("div"); w.className = "pf-scroll";
+        while (m.firstChild) w.appendChild(m.firstChild);
+        m.appendChild(w);
+        w.addEventListener("scroll", prefaceFades, { passive: true });
+    });
     applyPreface();
+    prefaceFades(); setTimeout(prefaceFades, 150); setTimeout(prefaceFades, 600);
     contentBox.querySelectorAll(".preface-language .next").forEach(n => {   // "Tap Next to begin with Chapter 1" is tappable too
         n.setAttribute("role", "button"); n.tabIndex = 0;
         n.onclick = () => loadTopic(currentFlatIndex + 1);
@@ -2557,13 +2596,14 @@ function stepVerse(dir) {
         i = rects.findIndex(r => r.top > line + tol);
         const st = window.gitaSyncState && window.gitaSyncState();
         if (st && st.started && st.active === i) i++;                 // that verse is already being chanted (e.g. the opening, still above its card): go one further
-        if (i < 0 || i >= blocks.length) return;                      // already at the last verse
+        if (i < 0 || i >= blocks.length) i = 0;                       // at the last verse: loop round to the first
     } else {
         for (let k = rects.length - 1; k >= 0; k--) if (rects[k].top < line - tol) { i = k; break; }
-        if (i < 0) {                                                  // above the first verse: back to the very top
+        if (i < 0 && contentBox.scrollTop > 4) {                      // above the first verse: back to the very top
             blocks.forEach(b => b.classList.remove("verse-focus"));
             syncUserScrollUntil = 0; smoothScrollTo(0, 700); return;
         }
+        if (i < 0) i = blocks.length - 1;                             // already at the very top: loop round to the last verse
     }
     blocks.forEach(b => b.classList.remove("verse-focus"));
     syncUserScrollUntil = 0;
@@ -3027,8 +3067,8 @@ window.readingMode = (function () {
 
 
 // up / down in the landscape bar = the same actions as the portrait arrows
-document.getElementById("lsUp").addEventListener("click",   () => stepVerse(-1));
-document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
+document.getElementById("lsUp").addEventListener("click",   () => { if (window.gitaHoldSuppress) { window.gitaHoldSuppress = false; return; } stepVerse(-1); });
+document.getElementById("lsDown").addEventListener("click", () => { if (window.gitaHoldSuppress) { window.gitaHoldSuppress = false; return; } stepVerse(1); });
 
 
 // ── MEANING PANEL (phones): never taller than the space left down to the bottom of the screen; longer text scrolls inside it ──
@@ -3112,12 +3152,12 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         scrub.classList.toggle("show", N > 0); pill.classList.toggle("show", N > 0);
         if (N) {                                   // "‹ Previous chapter" on the first card, "Next chapter ›" on the last (replaces swipe + arrows on touch)
             const addLink = (blk, cls, txt, idx) => {
-                const b = document.createElement("button"); b.type = "button"; b.className = "chap-link " + cls; b.textContent = txt;
+                const b = document.createElement("button"); b.type = "button"; b.className = "chap-link " + cls; b.textContent = txt; b.title = (cls === "chap-prev" ? "Previous chapter" : "Next chapter"); b.setAttribute("aria-label", b.title);
                 ["pointerdown", "click", "dblclick"].forEach(ev => b.addEventListener(ev, e => e.stopPropagation()));
                 b.addEventListener("click", () => loadTopic(idx)); blk.appendChild(b); blk.classList.add("has-chap-link");
             };
-            if (currentFlatIndex > 0) addLink(blocks[0], "chap-prev", "‹ Previous chapter", currentFlatIndex - 1);
-            if (currentFlatIndex < flatTopics.length - 1) addLink(blocks[N - 1], "chap-next", "Next chapter ›", currentFlatIndex + 1);
+            if (currentFlatIndex > 0) addLink(blocks[0], "chap-prev", "«", currentFlatIndex - 1);
+            if (currentFlatIndex < flatTopics.length - 1) addLink(blocks[N - 1], "chap-next", "»", currentFlatIndex + 1);
         }
         if (!N) return; layout(); const k = currentIdx(); say(k); put(yOf(k), false); placePill();
     }
@@ -3147,6 +3187,39 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     }
     thumb.addEventListener("pointerup", release); thumb.addEventListener("pointercancel", release);
     lane.addEventListener("keydown", e => { if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); stepVerse(-1); } else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); stepVerse(1); } });
+    // ── PRESS & HOLD the up / down verse buttons (bottom bar; left rail in landscape) ──
+    // A tap = one verse. Hold = the glass bubble in the middle counts through the verses (looping at both ends, a little faster the longer you hold);
+    // let go and the page jumps to the verse showing in the bubble (same path as the arrows, so audio sync keeps working).
+    (function () {
+        let timer = 0, tick = 0, active = false, dir = 0, idx = 0, steps = 0;
+        const stopAll = () => { clearTimeout(timer); clearTimeout(tick); timer = tick = 0; };
+        function advance() {
+            if (!active || !N) return;
+            idx = (idx + dir + N) % N; say(idx); steps++;
+            tick = setTimeout(advance, steps > 10 ? 70 : steps > 4 ? 110 : 170);
+        }
+        function begin() {
+            timer = 0; if (!N) return;
+            active = true; dragging = true; window.gitaHoldSuppress = true;
+            idx = currentIdx(); shown = -1; say(idx);
+            bubble.classList.add("on"); dim.classList.add("on"); contentBox.classList.add("vs-lock"); scrollAnim = null;
+            tick = setTimeout(advance, 300);
+        }
+        function end() {
+            stopAll();
+            if (!active) return;
+            active = false; dragging = false;
+            bubble.classList.remove("on"); dim.classList.remove("on"); contentBox.classList.remove("vs-lock");
+            gotoVerse(idx);
+            setTimeout(() => { window.gitaHoldSuppress = false; }, 400);
+        }
+        [["lsUp", -1], ["lsDown", 1]].forEach(([id, d]) => {
+            const b = document.getElementById(id);
+            b.addEventListener("pointerdown", e => { if (e.button > 0) return; stopAll(); dir = d; steps = 0; timer = setTimeout(begin, 420); });
+            ["pointerup", "pointercancel", "pointerleave"].forEach(ev => b.addEventListener(ev, end));
+            b.addEventListener("contextmenu", e => e.preventDefault());
+        });
+    })();
     window.addEventListener("resize", () => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); });
     if (window.ResizeObserver) new ResizeObserver(() => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); }).observe(contentBox);
 
