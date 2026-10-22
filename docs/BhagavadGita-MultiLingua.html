@@ -1809,13 +1809,24 @@ function paintTopicLang() {
     if (currentFlatIndex >= 0) counterEl.textContent = counterText(currentFlatIndex);
     paintChapterHead();
 }
-function paintChapterHead() {   // the chapter page's own heading + tagline follow the language (from the topics file); English = original text
+function paintChapterHead() {   // the chapter page's own heading + sub line follow the language (from the topics file); no translation -> original text stays
     const t = flatTopics[currentFlatIndex]; if (!t || t.front) return;
-    const slug = t.el.dataset.slug, key = t.el.dataset.ch, L = TOPIC_I18N[curLang] || {}, outside = x => !x.closest(".verse-block, .preface-language");
-    const h = Array.from(contentBox.querySelectorAll("h1")).find(outside);
-    if (h) { if (h.dataset.en === undefined) h.dataset.en = h.textContent; h.textContent = (curLang !== "en" && L[slug]) ? topicWord("chapter") + " " + key + " — " + L[slug] : h.dataset.en; }
-    const g = Array.from(contentBox.querySelectorAll(".topic-tagline")).find(outside);
-    if (g) { if (g.dataset.en === undefined) g.dataset.en = g.textContent; g.textContent = (curLang !== "en" && L["d-" + slug]) ? L["d-" + slug] : g.dataset.en; }
+    const slug = t.el.dataset.slug, key = t.el.dataset.ch, L = TOPIC_I18N[curLang] || {};
+    const outside = x => !x.closest(".verse-block, .preface-language");
+    const pick = sel => Array.from(contentBox.querySelectorAll(sel)).find(outside);
+
+    const h = pick(".chapter-head h2, .chapter-head h1, h1");
+    if (h) {
+        if (h.dataset.en === undefined) h.dataset.en = h.textContent;
+        h.textContent = L[slug] ? topicWord("chapter") + " " + key + " \u2014 " + L[slug] : h.dataset.en;
+    }
+
+    const s = pick(".chapter-head .sub, .topic-tagline");
+    if (s) {
+        if (s.dataset.en === undefined) s.dataset.en = s.textContent;
+        const tail = (s.dataset.en.match(/\s*\u00b7.*$/) || [""])[0];   // keeps " \u00b7 47 verses" as written in the chapter file
+        s.textContent = L["d-" + slug] ? L["d-" + slug] + tail : s.dataset.en;
+    }
 }
 fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
     const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
