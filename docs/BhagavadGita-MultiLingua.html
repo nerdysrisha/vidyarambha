@@ -1552,6 +1552,16 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
     border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; transform: translateX(-50%) rotate(45deg); border-radius: 0 0 3px 0; }
 #gearPop #langMain[aria-expanded="true"] { background: #d8b46a !important; color: #111 !important; }
 @media (orientation: landscape) and (max-height: 520px) { #gearPop #langPop { left: auto; right: 0; } }   /* sit above the language button (right end of the bar) */
+
+/* ══ ROUND 13 ══ */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* left rail: the same space on the left and the right, so the buttons sit in the middle (an earlier rule had set the right padding to 0) */
+  #navbar { padding-left: 5px; padding-right: 5px; align-items: center; box-sizing: border-box; }
+  /* settings panel: nearly solid. A blur placed inside the see-through rail cannot see the page behind it, so the text showed through sharp. */
+  #gearPop { background: rgba(20, 16, 10, 0.95); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* running as an installed / wrapped app: it is already full screen, so the full-screen button is not needed */
+html.in-app #fsBtn { display: none !important; }
 </style>
 </head>
 <body>
@@ -1638,7 +1648,6 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
         </div>
     </div>
     <div id="lockHint" role="status" aria-live="polite"></div>
-    <span class="rail-sep" aria-hidden="true"></span>
 </div>
 
 <div id="bm-toast" role="status"></div>
@@ -1654,6 +1663,20 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
 const BASE_URL = "subjects/";
 // Chapter files are named <topic><suffix>.html, e.g. chapter8-multi-lang.html. Set to "" to go back to chapter8.html.
 const CHAPTER_SUFFIX = "-multi-lang";
+
+// ── RUNNING AS AN APP? (installed PWA, Capacitor, Android WebView; or add ?app=1 to the address to force it) ──
+// In that case the full-screen button is hidden and the page does not ask for full screen itself. In a normal browser tab (GitHub Pages, desktop) nothing changes.
+const IN_APP = (function () {
+    try {
+        return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+            || navigator.standalone === true
+            || !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())
+            || /; wv\)/.test(navigator.userAgent)
+            || document.referrer.indexOf("android-app://") === 0
+            || new URLSearchParams(location.search).get("app") === "1";
+    } catch (e) { return false; }
+})();
+if (IN_APP) document.documentElement.classList.add("in-app");
 
 // ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
 // Each category: { name, slug, topics: [ [slug, label, desc, keywords, ext?], ... ] }
@@ -2862,7 +2885,7 @@ counterEl.textContent = "– / " + CHAPTER_COUNT;
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && !IN_APP) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
@@ -2992,12 +3015,12 @@ window.readingMode = (function () {
         catch (e) { return Promise.resolve(false); }
     }
     function onTouch() {
-        if (!mq.matches) return;
+        if (IN_APP || !mq.matches) return;
         goFS().then(ok => { if (ok || isFS()) disarm(); });
     }
     function arm()    { if (armed) return; armed = true; document.addEventListener("touchend", onTouch, true); document.addEventListener("click", onTouch, true); }
     function disarm() { armed = false; document.removeEventListener("touchend", onTouch, true); document.removeEventListener("click", onTouch, true); }
-    function onLand() { if (!mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
+    function onLand() { if (IN_APP || !mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
     if (mq.addEventListener) mq.addEventListener("change", onLand); else mq.addListener(onLand);
     onLand();
 })();
