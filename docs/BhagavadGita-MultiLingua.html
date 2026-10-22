@@ -1807,6 +1807,15 @@ function paintTopicLang() {
         if (spans[1] && spans[1].textContent) spans[1].textContent = c.topics.filter(x => !FRONT_SLUGS.has(x[0])).length + " " + topicWord("chapters");
     });
     if (currentFlatIndex >= 0) counterEl.textContent = counterText(currentFlatIndex);
+    paintChapterHead();
+}
+function paintChapterHead() {   // the chapter page's own heading + tagline follow the language (from the topics file); English = original text
+    const t = flatTopics[currentFlatIndex]; if (!t || t.front) return;
+    const slug = t.el.dataset.slug, key = t.el.dataset.ch, L = TOPIC_I18N[curLang] || {}, outside = x => !x.closest(".verse-block, .preface-language");
+    const h = Array.from(contentBox.querySelectorAll("h1")).find(outside);
+    if (h) { if (h.dataset.en === undefined) h.dataset.en = h.textContent; h.textContent = (curLang !== "en" && L[slug]) ? topicWord("chapter") + " " + key + " — " + L[slug] : h.dataset.en; }
+    const g = Array.from(contentBox.querySelectorAll(".topic-tagline")).find(outside);
+    if (g) { if (g.dataset.en === undefined) g.dataset.en = g.textContent; g.textContent = (curLang !== "en" && L["d-" + slug]) ? L["d-" + slug] : g.dataset.en; }
 }
 fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
     const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
@@ -2439,6 +2448,7 @@ function loadTopic(flatIndex) {
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             initPreface();   // preface page (no verses): show the chosen language, wire "Tap Next"
+            paintChapterHead();   // heading + tagline in the chosen language
             buildVerses();   // build tag + shloka + meaning tabs from the language blocks (before audio sync / fitting look at the blocks)
             wireCopyButtons();
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
