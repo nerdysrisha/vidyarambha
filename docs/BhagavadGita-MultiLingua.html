@@ -1545,6 +1545,13 @@ body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
   #gearPop[hidden] { display: none; }
   #gearPop > button, #gearPop #langMain { width: 46px !important; height: 46px !important; min-width: 46px !important; }
 }
+
+/* ══ ROUND 12: language pop-up = solid callout with a caret pointing at the language button ══ */
+#gearPop #langPop { background: #1c160d; -webkit-backdrop-filter: none; backdrop-filter: none; bottom: calc(100% + 6px); border-color: #c9a15a; }
+#gearPop #langPop::after { content: ""; position: absolute; bottom: -8px; left: var(--ax, 85%); width: 14px; height: 14px; background: #1c160d;
+    border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; transform: translateX(-50%) rotate(45deg); border-radius: 0 0 3px 0; }
+#gearPop #langMain[aria-expanded="true"] { background: #d8b46a !important; color: #111 !important; }
+@media (orientation: landscape) and (max-height: 520px) { #gearPop #langPop { left: auto; right: 0; } }   /* sit above the language button (right end of the bar) */
 </style>
 </head>
 <body>
@@ -3127,6 +3134,10 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
     document.addEventListener("click", e => { if (!pop.hidden && !e.composedPath().includes(grp)) setOpen(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
     document.getElementById("bmGo").addEventListener("click", () => goToBookmark());
+    // language pop-up: a caret that points at the language button
+    const lm = document.getElementById("langMain"), lp = document.getElementById("langPop");
+    function caret() { if (lp.hidden) return; const x = lm.getBoundingClientRect(), y = lp.getBoundingClientRect(); lp.style.setProperty("--ax", Math.max(20, Math.min(y.width - 20, x.left + x.width / 2 - y.left)) + "px"); }
+    lm.addEventListener("click", () => requestAnimationFrame(caret)); window.addEventListener("resize", caret);
 })();
 </script>
 
