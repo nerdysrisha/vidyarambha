@@ -1517,6 +1517,25 @@ body.dark #content-box .verse-block > .chap-link { background: rgba(43,36,23,.92
   #gearPop button { width: 48px; height: 48px; }
   #gearPop #langPop { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
 }
+
+/* ══ ROUND 10: flatter glass, one row of equal icons, language as a pop-up above the panel ══ */
+#gearPop { border-radius: 12px; flex-wrap: nowrap; justify-content: space-evenly; gap: 0; padding: 12px 6px; }
+#gearPop > button, #gearPop #langMain { position: relative !important; transform: none !important; width: 46px !important; height: 46px !important; min-width: 46px !important; max-width: 46px !important;
+    margin: 0 !important; padding: 0 !important; opacity: 1 !important; flex: none !important; border-radius: 50% !important; }
+#gearPop > button svg { width: 22px; height: 22px; }
+#gearPop #themeBtnNav .ic-sun { display: none !important; }
+body.dark #gearPop #themeBtnNav .ic-sun { display: block !important; }
+body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
+#gearPop #langMain { font-size: 17px; }
+/* language chips: a small glass pop-up above the panel (no divider line) */
+#gearPop #langPop { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); top: auto; transform: none; flex-basis: auto; grid-column: auto; width: auto; box-sizing: border-box;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; border: 1px solid rgba(216,180,106,.55); border-radius: 12px;
+    background: rgba(24,19,12,.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3); }
+#gearPop #langPop[hidden] { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearPop { border-radius: 12px; }
+  #gearPop #langPop { right: auto; width: max-content; max-width: 260px; grid-column: auto; }
+}
 </style>
 </head>
 <body>
@@ -3061,7 +3080,7 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
         if (!v && typeof closeLangPop === "function") closeLangPop();
     }
     gb.addEventListener("click", e => { e.stopPropagation(); setOpen(pop.hidden); });
-    document.addEventListener("click", e => { if (!pop.hidden && !grp.contains(e.target)) setOpen(false); });
+    document.addEventListener("click", e => { if (!pop.hidden && !e.composedPath().includes(grp)) setOpen(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
     document.getElementById("bmGo").addEventListener("click", () => goToBookmark());
 })();
