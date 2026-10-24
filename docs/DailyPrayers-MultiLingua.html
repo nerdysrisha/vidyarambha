@@ -1582,6 +1582,62 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar #lsUp { margin-bottom: 8px; }
   #navbar #lsDown { margin-bottom: 4px; }
 }
+
+/* ══ SETTINGS GEAR + VERSE ARROWS IN THE BAR (portrait phone, tablet, desktop) ═══════════════════════════════════
+   Everything below is inside "not (landscape phone)", so the landscape left rail is exactly as before.
+   - up / down verse arrows sit in the bar next to prev / next prayer (the floating arrows are hidden)
+   - the gear opens a small panel holding: theme, touch lock, copy (desktop), full screen (browser only), language
+     (the script moves those buttons into the panel here, and back into the rail in landscape) */
+#gearGroup { display: none; }
+@media not all and (orientation: landscape) and (max-height: 520px) {
+  #navbar { padding-right: 46px; gap: 6px; }
+  #navbar .ls-btn.ls-nav { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 38px; height: 32px; padding: 0; }
+  #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; display: block; }
+  body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; }   /* page without verses: dimmed */
+  #verseNav, #verseNav.show { display: none !important; }                                    /* the bar arrows replace the floating ones */
+
+  #gearGroup { display: block; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 50; }
+  #navbar #gearBtn { width: 31px; height: 31px; min-width: 31px; padding: 0; border-radius: 50%; background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
+        display: inline-flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+  #navbar #gearBtn svg { width: 18px; height: 18px; display: block; transition: transform .35s ease; }
+  #navbar #gearBtn:hover, #navbar #gearBtn[aria-expanded="true"] { background: #d8b46a33; }
+  #navbar #gearBtn[aria-expanded="true"] svg { transform: rotate(60deg); }
+
+  #gearPop { position: absolute; right: 0; bottom: calc(100% + 14px); z-index: 60; box-sizing: border-box; width: max-content; max-width: min(300px, calc(100vw - 16px));
+        display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 12px;
+        background: #111; border: 1px solid #d8b46a; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+  #gearPop[hidden] { display: none; }
+  /* every setting = one round gold button (display is left to each button's own rule, so hidden ones stay hidden) */
+  #navbar #gearPop button { position: static; transform: none; order: 0; margin: 0; width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%;
+        align-items: center; justify-content: center; color: #d8b46a; -webkit-tap-highlight-color: transparent; }
+  #navbar #gearPop button svg { width: 22px; height: 22px; flex: none; }
+  #navbar #gearPop #copyBtn { opacity: 1; background: transparent; border: 1.5px solid #d8b46a; }
+  #navbar #gearPop #copyBtn.done { background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
+  #navbar #gearPop #copyBtn:hover { background: #d8b46a33; }
+  /* language: the button, and its choices open as a row inside the panel (no second pop-up) */
+  #navbar #gearPop #langGroup { display: contents; }
+  #navbar #gearPop #langGroup button.lang-main { width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%; font-size: 16px; }
+  #navbar #gearPop #langPop { position: static; transform: none; flex: 1 1 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 2px 0 0; background: transparent; border: 0; box-shadow: none; }
+  #navbar #gearPop #langPop[hidden] { display: none; }
+  #navbar #gearPop #langGroup button.lang-btn { width: auto; min-width: 44px; height: 34px; padding: 0 10px; border-radius: 17px; }
+}
+@media not all and (orientation: landscape) and (max-height: 520px) and (min-width: 701px) {
+  #navbar #gearPop { max-width: 340px; }
+}
+/* phones in portrait: keep prev / counter / next / up / down / speed between the menu button and the gear */
+@media (max-width: 700px) and (orientation: portrait) {
+  #navbar { padding-left: 42px; padding-right: 46px; gap: 4px; }
+  #navbar #prevBtn, #navbar #nextBtn { width: 38px; }
+  #counter { min-width: 40px; }
+}
+@media (max-width: 400px) and (orientation: portrait) {
+  #navbar { gap: 2px; padding-left: 40px; padding-right: 44px; }
+  #navbar #prevBtn, #navbar #nextBtn, #navbar .ls-btn.ls-nav { width: 34px; }
+  #navbar #speedGroup button.speed-main { min-width: 38px; }
+  #counter { min-width: 34px; }
+}
+/* running as an app (see IN_APP in the script): no full screen / minimise button anywhere */
+html.in-app #fsBtn { display: none !important; }
 </style>
 </head>
 <body>
@@ -1665,6 +1721,10 @@ body.stage-on { overscroll-behavior-y: none; }
          <div id="langPop" hidden></div>
      </div>
     <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+    <div id="gearGroup">
+        <button id="gearBtn" type="button" aria-label="Settings" title="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        <div id="gearPop" hidden></div>
+    </div>
 </div>
 
 <div id="bm-toast" role="status"></div>
@@ -1672,6 +1732,21 @@ body.stage-on { overscroll-behavior-y: none; }
 <div id="topic-tooltip"></div>
 
 <script>
+// ── RUNNING AS AN APP? (installed PWA, Capacitor / Cordova, Android WebView, React Native; or add ?app=1 to the address to force it) ──
+// In that case the full screen / minimise button is hidden and the page never asks for full screen itself.
+// In a normal browser tab (GitHub Pages, desktop) nothing changes.
+const IN_APP = (function () {
+    try {
+        return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+            || navigator.standalone === true
+            || !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())
+            || !!window.cordova || !!window.ReactNativeWebView
+            || /; wv\)/.test(navigator.userAgent)
+            || document.referrer.indexOf("android-app://") === 0
+            || new URLSearchParams(location.search).get("app") === "1";
+    } catch (e) { return false; }
+})();
+if (IN_APP) document.documentElement.classList.add("in-app");
 // ════════════════════════════════════════════════════════════════════════
 // WHERE TO CHANGE THINGS (search for the quoted word)
 //   "categories"      add / remove / reorder prayers in the list
@@ -3232,7 +3307,7 @@ counterEl.textContent = counterText(-1);
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req && isTouch) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && isTouch && !IN_APP) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net: remove the screen after 3.2 s even if the fade-out event never fires
@@ -3313,12 +3388,12 @@ counterEl.textContent = counterText(-1);
         catch (e) { return Promise.resolve(false); }
     }
     function onTouch() {
-        if (!mq.matches) return;
+        if (IN_APP || !mq.matches) return;
         goFS().then(ok => { if (ok || isFS()) disarm(); });
     }
     function arm()    { if (armed) return; armed = true; document.addEventListener("touchend", onTouch, true); document.addEventListener("click", onTouch, true); }
     function disarm() { armed = false; document.removeEventListener("touchend", onTouch, true); document.removeEventListener("click", onTouch, true); }
-    function onLand() { if (!mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
+    function onLand() { if (IN_APP || !mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
     if (mq.addEventListener) mq.addEventListener("change", onLand); else mq.addListener(onLand);
     onLand();
 })();
@@ -3360,6 +3435,35 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 
+
+// ── SETTINGS GEAR ────────────────────────────────────────────────────────────────────────────────────────────
+// Portrait / tablet / desktop: theme, touch lock, copy, full screen and language live inside the gear's panel.
+// Phone landscape: they go back to their own places in the left rail (nothing changes there).
+(function () {
+    const grp = document.getElementById("gearGroup"), gb = document.getElementById("gearBtn"), pop = document.getElementById("gearPop");
+    const order = ["themeBtn", "lockBtn", "copyBtn", "fsBtn", "langGroup"];            // order inside the panel
+    const items = {};
+    order.forEach(id => { const el = document.getElementById(id); const ph = document.createComment(id); el.parentNode.insertBefore(ph, el); items[id] = { el, ph }; });
+    const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+    function setOpen(v) {
+        pop.hidden = !v; gb.setAttribute("aria-expanded", v ? "true" : "false");
+        if (!v && typeof closeLangPop === "function") closeLangPop();
+    }
+    function place() {
+        if (land.matches) {                                                              // rail: put every button back where it was
+            setOpen(false);
+            order.forEach(id => { const it = items[id]; if (it.el.parentNode === pop) it.ph.parentNode.insertBefore(it.el, it.ph.nextSibling); });
+        } else {                                                                         // bar: collect them in the panel
+            order.forEach(id => pop.appendChild(items[id].el));
+        }
+    }
+    gb.addEventListener("click", e => { e.stopPropagation(); setOpen(pop.hidden); });
+    document.addEventListener("click", e => { if (!pop.hidden && !e.composedPath().includes(grp)) setOpen(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
+    document.getElementById("speedMain").addEventListener("click", () => setOpen(false));
+    if (land.addEventListener) land.addEventListener("change", place); else land.addListener(place);
+    place();
+})();
 </script>
 
 <!-- Visit counter (GoatCounter: no cookies, no personal data) -->
