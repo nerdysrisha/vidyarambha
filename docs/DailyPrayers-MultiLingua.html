@@ -1870,7 +1870,7 @@ function makeIcon(base) {
     d.style.setProperty("--g1", ic[3]); d.style.setProperty("--g2", ic[4]);
     d.textContent = ic[2];
     const img = new Image();
-    img.alt = ""; img.loading = "lazy";
+    img.alt = "";   // (loading="lazy" removed: a lazy image that is not on the page yet may never start loading, so the icons stayed as emoji)
     img.onload = () => d.appendChild(img);          // real picture covers the emoji once it exists
     img.src = ICON_URL + ic[1] + ".webp";
     return d;
