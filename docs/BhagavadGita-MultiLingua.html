@@ -1836,7 +1836,7 @@ categories.forEach((cat) => {
         icon.style.setProperty("--g1", pc[0]); icon.style.setProperty("--g2", pc[1]);
         icon.textContent = isFront ? "ॐ" : chNo;
         const img = new Image();                      // optional picture: subjects/bhagavadgita/icons/<slug>.webp (e.g. chapter1.webp)
-        img.alt = ""; img.loading = "lazy";
+        img.alt = "";   // (loading="lazy" removed: a lazy image that is not on the page yet may never start loading, so the icons stayed as numbers)
         img.onload = () => icon.appendChild(img);
         img.src = BASE_URL + cat.slug + "/icons/" + slug + ".webp";
         const body = document.createElement("div");
@@ -1855,7 +1855,10 @@ categories.forEach((cat) => {
         const flatIndex = flatTopics.length;
         flatTopics.push({ path, label, catName: cat.name, ext: fileExt, el: item, front: isFront });
 
-        item.addEventListener("click", () => loadTopic(flatIndex));
+        item.addEventListener("click", () => {
+            if (window.playAll && window.playAll.keepIfCurrent(flatIndex)) return;   // PLAY ALL: tapping the chapter already playing does not restart it
+            loadTopic(flatIndex);
+        });
 
         item.addEventListener("mouseenter", () => {
             const dd = ((TOPIC_I18N[curLang] || {})["d-" + slug]) || desc || "";   // hover text in the chosen language (from topics file)
@@ -2682,7 +2685,14 @@ window.playAll = (function () {
     });
 
     paint();   // first draw: circled play icon
-    return { paint, afterLoad };
+    // tap on the chapter that is playing right now (Play All on): just close the list on phones, leave the audio alone
+    function keepIfCurrent(idx) {
+        if (!on || idx !== currentFlatIndex) return false;
+        if (window.closeSidePeek) window.closeSidePeek();
+        if (window.matchMedia("(max-width: 700px)").matches) setSidebarCollapsed(true);
+        return true;
+    }
+    return { paint, afterLoad, keepIfCurrent };
 })();
 // ═════════ PLAY ALL (end) ═════════
 
