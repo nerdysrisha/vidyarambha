@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
 <title>Bhagavad Gita</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -251,21 +252,6 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     font-size: 15px;
     line-height: 1.7;
 }
-/* Copy button: lives in the nav bar now (rules just below); these are its base look */
-#copyBtn { position: absolute; top: 10px; right: 16px; z-index: 5; display: none;
-    width: 30px; height: 30px; padding: 0; border-radius: 8px; cursor: pointer;
-    align-items: center; justify-content: center;
-    border: 1px solid #c9a35a99; background: #fbf8f2e6; color: #7a4a12; opacity: 0.6; }
-#copyBtn.show { display: flex; }
-/* in the nav bar (desktop only: phones and touch devices hide it, see below) */
-#navbar #copyBtn { position: static; width: 34px; height: 30px; padding: 0; margin-left: 4px; align-items: center; justify-content: center; border-radius: 8px; background: transparent; color: #d8b46a; border: 1px solid #d8b46a66; opacity: 0.6; }
-#navbar #copyBtn.show { display: inline-flex; }
-#navbar #copyBtn svg { width: 16px; height: 16px; flex: none; }
-#navbar #copyBtn:hover { opacity: 1; background: #d8b46a33; }
-#navbar #copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
-#copyBtn:hover { opacity: 1; }
-#copyBtn.done { opacity: 1; background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
-#copyBtn svg { width: 16px; height: 16px; }
 /* Verse up/down arrows: bottom-right of the text area, just above the nav bar (thumb reach); only while a chapter with verses is open */
 #content-box .end-spacer { height: 0; }
 #verseNav { position: absolute; right: 16px; bottom: 22px; z-index: 5; display: none; flex-direction: column; gap: 16px; }
@@ -620,8 +606,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box { --wm-img: url("subjects/bhagavadgita/images/watermark-arjuna-krishna.png"); --wm-opacity: 0.10;   /* chariot: was 0.06, a little clearer now; the lotus has its own value below */
     --wm-lotus-img: url("subjects/bhagavadgita/images/watermark-lotus.webp"); --wm-lotus-opacity: 0.06; --tab-h: 24px;
     /* the thin golden separator between verse and meaning (landscape), drawn in code: transparent inside, fades out at both ends */
-    --sep-h-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27400%27%20height%3D%2750%27%20viewBox%3D%270%200%20400%2050%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%27400%27%20height%3D%2750%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M0%2025H188M212%2025H400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2713%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2737%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27240%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27110%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27290%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27332%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2728%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27372%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");   /* same ornament, lying down: used in portrait between verse and meaning */
-    --sep-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2750%27%20height%3D%27400%27%20viewBox%3D%270%200%2050%20400%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%2750%27%20height%3D%27400%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M25%200V188M25%20212V400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%2712%27%2F%3E%3Ccircle%20cx%3D%2713%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3Ccircle%20cx%3D%2737%27%20cy%3D%27200%27%20r%3D%2710%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27160%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27240%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27110%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27290%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2768%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27332%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2728%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27372%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
+    --sep-h-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27400%27%20height%3D%2750%27%20viewBox%3D%270%200%20400%2050%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%27400%27%20height%3D%2750%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M0%2025H188M212%2025H400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%2712%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2725%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27240%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27110%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27290%27%20cy%3D%2725%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2768%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27332%27%20cy%3D%2725%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2728%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%27372%27%20cy%3D%2725%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");   /* same ornament, lying down: used in portrait between verse and meaning */
+    --sep-img: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2750%27%20height%3D%27400%27%20viewBox%3D%270%200%2050%20400%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3Cstop%20offset%3D%270.16%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%270.84%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%271%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23fff%27%20stop-opacity%3D%270%27%2F%3E%3C%2FlinearGradient%3E%3Cmask%20id%3D%27m%27%3E%3Crect%20width%3D%2750%27%20height%3D%27400%27%20fill%3D%27url%28%23g%29%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20mask%3D%27url%28%23m%29%27%3E%3Cpath%20d%3D%27M25%200V188M25%20212V400%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.2%27%20fill%3D%27none%27%2F%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%23c9a15a%27%20stroke-width%3D%271.3%27%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%2712%27%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27200%27%20r%3D%274%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27160%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27240%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27110%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27290%27%20r%3D%273.4%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2768%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27332%27%20r%3D%272.6%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2728%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%27372%27%20r%3D%273.8%27%20fill%3D%27%23b8862f%27%20stroke%3D%27none%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
 #content-box .mtab-panel { isolation: isolate; }
 #content-box .mtab-panel::before {            /* lotus behind the meaning text */
     content: ""; position: absolute; inset: 10px; z-index: -1; pointer-events: none;
@@ -909,7 +895,6 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #content-box.sync-on .verse-block.verse-active { transform: none; }
   #audio-dock .audio-player { padding: 5px 8px; gap: 6px; }
   .ap-time { min-width: 30px; font-size: 11px; }
-  #copyBtn { display: none !important; }   /* phones: no copy button, less clutter */
   #verseNav { bottom: 22px; }
 }
 /* very narrow phones: tighten the centre group so it still fits between menu and lock */
@@ -969,14 +954,13 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 }
 
 /* ── COPY BUTTON: desktop only (hidden on every touch device, portrait and landscape) ── */
-@media (pointer: coarse), (max-width: 700px) { #copyBtn { display: none !important; } }
 
 /* ── PHONE LANDSCAPE: focus mode. Everything disappears; only the verse (Telugu shloka + transliteration) and four floating buttons
    (pause, mute, speed, lock). Meanings (Telugu / English tabs) are hidden. Colours are the same as DailyPrayers' landscape mode.
    Portrait and desktop are untouched. ── */
 #navbar .ls-btn { display: none; }
 @media (orientation: landscape) and (max-height: 520px) {
-  #sidebar, #audio-dock, #copyBtn, #lockHint, #verseNav, #bm-toast { display: none !important; }
+  #sidebar, #audio-dock, #lockHint, #verseNav, #bm-toast { display: none !important; }
   body { display: block; }
   #outer { margin: 0; gap: 0; height: 100vh; height: 100dvh; }
   #main-col { gap: 0; }
@@ -993,7 +977,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
             padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
             background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#langGroup):not(#themeBtnNav):not(#bmBtn):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#gearGroup):not(.rail-sep) { display: none !important; }
   /* chapter without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1030,8 +1014,7 @@ body.touch-locked #content-box .verse-block { cursor: default; }
 
 /* LEFT CONTROL BAR while the page is full screen: same slate colours as DailyPrayers (strip + pause + mute) */
 @media (min-width: 701px) and (orientation: landscape) and (max-height: 520px) {
-  body.reading #navbar { background: #242937; border-color: #3d455a; }
-  body.reading #navbar button { background: #2c3242; border-color: #3d455a; }
+  /* (slate reading-mode colours removed: the rail keeps the same dark-brown + gold look everywhere, as on GitHub Pages) */
 }
 
 
@@ -1282,6 +1265,326 @@ body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration
 body.immerse-fade #verseNav { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
 body.immerse-quick #verseNav { transition-duration: 0.15s !important; }
 body.immerse-fade, body.immerse-fade * { cursor: none !important; }
+
+/* ══ VERSE SCRUBBER (radio-dial style) + LANDSCAPE "TUCK" PILL ══ */
+@property --mw { syntax: '<length-percentage>'; inherits: true; initial-value: 0px; }
+@property --mg { syntax: '<length>'; inherits: true; initial-value: 0px; }
+#verseScrub { position: absolute; left: 0; top: 10px; bottom: 10px; width: 26px; z-index: 6; display: none;
+    touch-action: none; -webkit-user-select: none; user-select: none; opacity: .5; transition: opacity .35s ease; -webkit-tap-highlight-color: transparent; }
+#verseScrub.show { display: block; }
+#verseScrub.awake, #verseScrub.drag, #verseScrub:focus-within { opacity: 1; }
+#verseScrub .vs-lane { position: absolute; inset: 0; cursor: grab; outline: none; }
+#verseScrub.drag .vs-lane { cursor: grabbing; }
+#verseScrub .vs-thumb { position: absolute; left: 50%; top: 0; width: 8px; height: 34px; border-radius: 6px; background: #c9a15a; border: 1px solid #fbe6bd;
+    box-shadow: 0 1px 5px rgba(0,0,0,.35); transform: translate(-50%, -50%); transition: transform .2s ease; will-change: top; }
+#verseScrub.drag .vs-thumb { transform: translate(-50%, -50%) scale(1.5, 1.25); background: #b8862f; }
+body.immerse-fade #verseScrub, body.immerse-fade #splitPill { opacity: 0 !important; pointer-events: none !important; transition: opacity 7s ease !important; }
+body.immerse-quick #verseScrub, body.immerse-quick #splitPill { transition-duration: .15s !important; }
+
+#splitPill { position: absolute; z-index: 6; display: none; left: var(--split-x, 50%); top: calc(50% + 14px); transform: translate(-50%, -50%);
+    width: 22px; height: 64px; padding: 0; border-radius: 11px; border: 1px solid #c9a15a; background: #fbe6bd; color: #7a4a12;
+    align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,.3);
+    transition: left .45s cubic-bezier(.4,0,.2,1); -webkit-tap-highlight-color: transparent; }
+#splitPill::after { content: ""; position: absolute; inset: -8px -10px; }
+#splitPill svg { width: 14px; height: 14px; transition: transform .45s ease; }
+#splitPill.tucked svg { transform: rotate(180deg); }
+body.dark #splitPill { background: #2b2417; color: #e0c58a; border-color: #c9a15a; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  #verseScrub { left: auto; right: 0; width: 20px; top: 8px; bottom: 8px; }
+  #splitPill.show { display: flex; }
+  /* two columns: the meaning column (--mw) slides away to the right, the verse column takes the whole width */
+  #content-box { --mw: calc(50% - 10px); --mg: 20px; transition: --mw .45s cubic-bezier(.4,0,.2,1), --mg .45s cubic-bezier(.4,0,.2,1); }
+  #content-box.verse-full { --mw: 0px; --mg: 0px; }
+  #content-box .verse-block { grid-template-columns: minmax(0, 1fr) minmax(0, var(--mw)); column-gap: var(--mg); }
+  #content-box .verse-block > .mtabs { overflow: hidden; transition: opacity .3s ease .12s, visibility 0s; }
+  #content-box.verse-full .verse-block > .mtabs { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .2s ease, visibility 0s .25s; }
+  #content-box.verse-full .verse-block::before { background-size: auto 0%, auto;
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out, background-size .4s ease; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #content-box, #splitPill, #splitPill svg, #verseScrub .vs-thumb, #vsBubble { transition: none !important; }
+}
+
+/* ══ ROUND 2: glass number bubble, ornament = the tap target (landscape), ONE big box in portrait, live inner glow ══ */
+#vsBubble { position: absolute; z-index: 7; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font: 700 18px/1 var(--mono, 'IBM Plex Mono', monospace); color: #7a4a12; text-shadow: 0 1px 0 rgba(255,255,255,.6); pointer-events: none;
+    background: radial-gradient(circle at 32% 26%, rgba(255,255,255,.85) 0, rgba(255,255,255,.28) 38%, rgba(255,214,130,.22) 100%);
+    border: 1px solid rgba(255,255,255,.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 12px rgba(255,255,255,.55), inset -4px -6px 10px rgba(201,161,90,.25), 0 4px 14px rgba(0,0,0,.28);
+    opacity: 0; transform: translate(-50%, -50%) scale(.7); transition: opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2); }
+#vsBubble.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+body.dark #vsBubble { color: #f6dfa6; text-shadow: none; border-color: rgba(255,255,255,.35);
+    background: radial-gradient(circle at 32% 26%, rgba(255,255,255,.4), rgba(255,255,255,.08) 40%, rgba(216,180,106,.22) 100%); }
+
+/* the ornament itself is the button: invisible hit area + soft pulsing glow; slim gold tab once the verse is tucked */
+#splitPill:not(.tucked) { width: 46px; height: 84px; border-color: transparent; background: transparent; box-shadow: none; border-radius: 23px; }
+body.dark #splitPill:not(.tucked) { background: transparent; border-color: transparent; }
+#splitPill::before { content: ""; position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(255,190,80,.5), rgba(255,190,80,0) 70%); animation: ornPulse 3.2s ease-in-out infinite; }
+#splitPill.tucked::before { opacity: .5; width: 28px; height: 28px; margin: -14px 0 0 -14px; }
+#splitPill:not(.tucked) svg { position: absolute; bottom: 7px; left: 50%; margin-left: -6px; width: 12px; height: 12px; opacity: .7; }
+#splitPill.tucked { width: 20px; height: 72px; border-radius: 10px; }
+#splitPill { transition: left .45s cubic-bezier(.4,0,.2,1), width .35s ease, height .35s ease, background-color .35s ease, border-color .35s ease; }
+@keyframes ornPulse { 0%, 100% { transform: scale(.85); opacity: .45; } 50% { transform: scale(1.15); opacity: 1; } }
+
+/* live inner glow of the boxes: a slow "breathing" light inside the border (only boxes on screen animate) */
+@keyframes gitaGlow { 0%, 100% { box-shadow: inset 0 0 12px 1px rgba(201,161,90,.14); } 50% { box-shadow: inset 0 0 26px 4px rgba(201,161,90,.30); } }
+@keyframes gitaGlowStrong { 0%, 100% { box-shadow: inset 0 0 16px 2px rgba(201,161,90,.34); } 50% { box-shadow: inset 0 0 30px 5px rgba(201,161,90,.52); } }
+
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px), (orientation: landscape) and (max-height: 520px) {
+  #content-box .verse-block.glow::before { animation: gitaGlow 5.5s ease-in-out infinite; }
+  #content-box .verse-block.glow.verse-focus::before, #content-box.sync-on .verse-block.glow.verse-active::before { animation-name: gitaGlowStrong; }
+}
+@media (prefers-reduced-motion: reduce) { #content-box .verse-block::before { animation: none !important; box-shadow: inset 0 0 18px 2px rgba(201,161,90,.2); } #splitPill::before { animation: none; } }
+
+/* PORTRAIT + DESKTOP: one big golden box; the ornament lies across its middle; the language tabs hang from its right wing */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block { position: relative; isolation: isolate; --box-bg: #fffaf0; }
+  #content-box .verse-block.verse-focus, #content-box.sync-on .verse-block.verse-active { --box-bg: #fff4d9; }
+  #content-box .verse-block::before { content: ""; position: absolute; z-index: -1; pointer-events: none; left: 8px; right: 8px; top: 6px; bottom: 8px;
+      border: 1px solid #c9a15a; border-radius: 12px; background: var(--box-bg);
+      transition: background-color 1.4s ease-in-out, border-color 1.4s ease-in-out, box-shadow 1.4s ease-in-out; }
+  #content-box .verse-block.verse-focus::before, #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,.38); }
+  #content-box .verse-block > .verse-grid, #content-box .verse-block.verse-focus > .verse-grid, #content-box.sync-on .verse-block.verse-active > .verse-grid,
+  #content-box .verse-block > .mtabs .mtab-panel, #content-box .verse-block > .mtabs .mtab-closed { background: transparent; border: none; box-shadow: none; }
+  #content-box .verse-block > .verse-grid { margin-bottom: 34px; }
+  #content-box .verse-block > .verse-grid::after { left: 0; right: 0; width: auto; height: 34px; margin: 0; top: 100%;
+      background:
+        linear-gradient(90deg, rgba(201,161,90,.9), rgba(201,161,90,.9) 55%, transparent) left center / calc(50% - 118px) 1.2px no-repeat,
+        linear-gradient(270deg, rgba(201,161,90,.9), rgba(201,161,90,.9) 55%, transparent) right center / calc(50% - 118px) 1.2px no-repeat,
+        var(--sep-h-img) center / auto 100% no-repeat; }
+  #content-box .verse-block > .mtabs { margin-top: -17px; }                       /* tabs start exactly on the ornament line */
+  #content-box .mtab:last-child { border-top-right-radius: 0; }
+  body.dark #content-box .verse-block { --box-bg: #1d1710; }
+  body.dark #content-box .verse-block.verse-focus, body.dark #content-box.sync-on .verse-block.verse-active { --box-bg: #2d2314; }
+  body.dark #content-box .verse-block::before { border-color: #7a6030; }
+  body.dark #content-box .verse-block.verse-focus::before, body.dark #content-box.sync-on .verse-block.verse-active::before { border-color: #c9a15a; box-shadow: inset 0 0 16px 2px rgba(201,161,90,.3); }
+  body.dark #content-box .verse-block > .verse-grid, body.dark #content-box .mtab-panel, body.dark #content-box .mtab-closed,
+  body.dark #content-box .verse-block.verse-focus > .verse-grid, body.dark #content-box.sync-on .verse-block.verse-active > .verse-grid { background: transparent; border: none; box-shadow: none; }
+}
+@media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block::before { left: 14px; right: 14px; bottom: 1px; } }
+
+/* ══ ROUND 3 ══ */
+#verseScrub { z-index: 8; }
+#vsDim { position: absolute; inset: 0; z-index: 6; pointer-events: none; background: rgba(8,6,3,.52); -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px); opacity: 0; transition: opacity .22s ease; }
+#vsDim.on { opacity: 1; }
+#vsBubble { z-index: 9; width: 78px; height: 78px; font-size: 28px; color: #fff; overflow: visible;
+    text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(255,210,120,.8);
+    background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.5) 0, rgba(255,255,255,.14) 34%, rgba(255,255,255,.05) 62%, rgba(255,214,140,.30) 100%);
+    border: 1.5px solid rgba(255,255,255,.75);
+    box-shadow: inset 0 0 20px rgba(255,255,255,.4), inset 0 -10px 18px rgba(255,190,90,.35), 0 0 22px rgba(255,214,140,.55), 0 10px 26px rgba(0,0,0,.5); }
+#vsBubble::after { content: ""; position: absolute; left: 17%; top: 9%; width: 40%; height: 24%; border-radius: 50%; transform: rotate(-28deg);
+    background: linear-gradient(rgba(255,255,255,.9), rgba(255,255,255,0)); pointer-events: none; }
+body.dark #vsBubble { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.55), 0 0 12px rgba(255,210,120,.8); border-color: rgba(255,255,255,.7);
+    background: radial-gradient(circle at 30% 24%, rgba(255,255,255,.45) 0, rgba(255,255,255,.12) 34%, rgba(255,255,255,.05) 62%, rgba(255,214,140,.28) 100%); }
+
+@media (max-width: 700px) and (orientation: portrait) { #verseNav, #verseNav.show { display: none !important; } }   /* scrubber + swipe replace the arrows */
+
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  /* ornament wings stop short of the box edges */
+  #content-box .verse-block > .verse-grid::after {
+      background:
+        linear-gradient(90deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) left 20px center / calc(50% - 138px) 1.2px no-repeat,
+        linear-gradient(270deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) right 20px center / calc(50% - 138px) 1.2px no-repeat,
+        var(--sep-h-img) center / auto 100% no-repeat; }
+  /* language tabs: up to the top-right corner of the big box (like landscape) */
+  #content-box .verse-block > .mtabs { position: static; }
+  #content-box .verse-block > .mtabs .mtab-bar { top: 7px; right: 9px; }
+  #content-box .mtab:last-child { border-top-right-radius: 11px; }
+  #content-box .verse-block > .mtabs .mtab-panel { padding-top: 16px; }
+}
+@media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block > .mtabs .mtab-bar { right: 15px; } }
+
+/* ══ ROUND 4: scrubber owns the touch (wider invisible strip, page cannot scroll while dragging); smaller, clean glass bubble ══ */
+#verseScrub .vs-lane::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 42px; }
+@media (orientation: landscape) and (max-height: 520px) { #verseScrub .vs-lane::before { left: auto; right: 0; width: 42px; } }
+#content-box.vs-lock { overflow-y: hidden !important; touch-action: none; }
+#vsBubble { width: 60px; height: 60px; font-size: 21px;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 58%, rgba(255,214,140,.30) 100%);
+    box-shadow: inset 0 0 14px rgba(255,214,140,.30), 0 0 18px rgba(255,214,140,.5), 0 8px 22px rgba(0,0,0,.5); }
+#vsBubble::after { display: none; }
+body.dark #vsBubble { background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.04) 0, rgba(255,255,255,.08) 58%, rgba(255,214,140,.30) 100%); }
+
+/* ══ ROUND 5 ══ */
+/* landscape: box closer to the side rail */
+@media (orientation: landscape) and (max-height: 520px) {
+  #content-box { padding-left: calc(var(--rb) + 14px); }
+  #content-box .verse-block::before { background-size: auto 52%, auto; }          /* smaller ornament */
+  #content-box.verse-full .verse-block::before { background-size: auto 0%, auto; }
+}
+/* portrait ornament: smaller */
+@media (max-width: 700px) and (orientation: portrait), (min-width: 701px) and (min-height: 521px) {
+  #content-box .verse-block > .verse-grid::after { height: 28px; margin: 3px 0 0;
+      background:
+        linear-gradient(90deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) left 20px center / calc(50% - 114px) 1.2px no-repeat,
+        linear-gradient(270deg, transparent, rgba(201,161,90,.9) 30%, rgba(201,161,90,.9) 65%, transparent) right 20px center / calc(50% - 114px) 1.2px no-repeat,
+        var(--sep-h-img) center / auto 100% no-repeat; }
+}
+/* breathing glow: reaches half as far from the border */
+@keyframes gitaGlow { 0%, 100% { box-shadow: inset 0 0 6px 0 rgba(201,161,90,.14); } 50% { box-shadow: inset 0 0 13px 2px rgba(201,161,90,.30); } }
+@keyframes gitaGlowStrong { 0%, 100% { box-shadow: inset 0 0 8px 1px rgba(201,161,90,.34); } 50% { box-shadow: inset 0 0 15px 2.5px rgba(201,161,90,.52); } }
+@media (prefers-reduced-motion: reduce) { #content-box .verse-block::before { box-shadow: inset 0 0 9px 1px rgba(201,161,90,.2); } }
+/* watermarks: chariot (verse) 20% smaller, lotus (meaning) 30% smaller */
+#content-box .verse-block > .verse-grid::before { transform: scale(.8); }
+#content-box .mtab-panel::before { transform: scale(.7); }
+
+/* ══ ROUND 6: only the thumb itself (plus a small halo) takes touch; the rest of the strip does nothing and the page scrolls normally ══ */
+#verseScrub { pointer-events: none; touch-action: auto; }
+#verseScrub .vs-lane { pointer-events: none; }
+#verseScrub .vs-lane::before { display: none; }
+#verseScrub .vs-thumb { pointer-events: auto; touch-action: none; cursor: grab; }
+#verseScrub .vs-thumb::after { content: ""; position: absolute; inset: -14px -17px; }
+/* landscape: pure black stage (was brownish black) */
+@media (orientation: landscape) and (max-height: 520px) {
+  html, body, #outer, #main-col, body.dark, body.dark #outer, body.dark #main-col,
+  #content-panel, #content-panel.has-dock, #content-box, body.dark #content-panel, body.dark #content-box { background: #000; }
+}
+
+/* ROUND 7: the scrubber never fades away with the other controls (stays dimly visible and usable) */
+body.immerse-fade #verseScrub, body.immerse-quick #verseScrub { opacity: .5 !important; transition: opacity .3s ease !important; }
+body.immerse-fade #verseScrub .vs-thumb { pointer-events: auto !important; }
+
+/* ══ ROUND 8: gear panel, no copy button, no swipe, chapter links on Intro / End cards ══ */
+#navbar { padding-right: 0; }
+#gearGroup { position: relative; display: flex; align-items: center; margin-left: 4px; }
+#navbar #gearBtn { width: 34px; height: 30px; padding: 0; border-radius: 8px; border: 1px solid #d8b46a66; background: transparent; color: #d8b46a;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+#navbar #gearBtn svg { width: 19px; height: 19px; transition: transform .35s ease; }
+#navbar #gearBtn:hover, #navbar #gearBtn[aria-expanded="true"] { background: #d8b46a33; }
+#navbar #gearBtn[aria-expanded="true"] svg { transform: rotate(60deg); }
+@keyframes gearGlow { 0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 6px 0 rgba(201,161,90,.14); } 50% { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 13px 2px rgba(201,161,90,.30); } }
+#gearPop { position: absolute; z-index: 60; right: 0; bottom: calc(100% + 10px); display: grid; grid-template-columns: repeat(3, 76px); gap: 8px; padding: 10px;
+    background: rgba(20,16,10,.62); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
+    border: 1px solid rgba(216,180,106,.55); border-radius: 18px; animation: gearGlow 5.5s ease-in-out infinite; }
+#gearPop[hidden] { display: none; }
+#gearPop button { box-sizing: border-box; position: static; transform: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    width: auto; min-width: 0; height: 64px; margin: 0; padding: 6px 4px; border-radius: 14px; cursor: pointer; opacity: 1; flex: none;
+    border: 1px solid rgba(216,180,106,.45) !important; background: rgba(255,255,255,.07) !important; color: #f3e3bf !important;
+    font-family: inherit; font-size: 17px; font-weight: 700; line-height: 1; }
+#gearPop button::after { content: attr(data-label); display: block; font-size: 10.5px; font-weight: 600; letter-spacing: .2px; white-space: nowrap; }
+#gearPop button svg { position: static; width: 22px; height: 22px; flex: none; display: block; }
+#gearPop #bmBtn svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+#gearPop #bmBtn.has { background: #d8b46a !important; color: #111 !important; }
+#gearPop #bmBtn.has svg { fill: currentColor; }
+#gearPop #themeBtnNav .ic-sun { display: none; }
+body.dark #gearPop #themeBtnNav .ic-sun { display: block; }
+body.dark #gearPop #themeBtnNav .ic-moon { display: none; }
+#gearPop button[aria-pressed="true"], body.reading #gearPop #fsBtn { background: #d8b46a !important; color: #111 !important; }
+#gearPop #langGroup { display: contents; }
+#gearPop #langPop { position: static; transform: none; left: auto; top: auto; bottom: auto; grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+    padding: 8px 0 0; background: transparent; border: none; border-top: 1px solid rgba(216,180,106,.35); border-radius: 0; box-shadow: none; }
+#gearPop #langPop[hidden] { display: none; }
+#gearPop #langPop .lang-btn { height: 34px; min-width: 44px; padding: 0 10px; border-radius: 17px; flex-direction: row; font-size: 14px; }
+#gearPop #langPop .lang-btn::after { display: none; }
+#gearPop #langPop .lang-btn[aria-checked="true"] { background: #d8b46a !important; color: #111 !important; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar #gearBtn { width: var(--rb); height: var(--rb); min-width: var(--rb); border-radius: 50%; background: rgba(26,22,15,.45); }
+  #gearGroup { margin: 0; }
+  #gearPop { right: auto; left: calc(100% + 8px); bottom: -6px; }
+}
+@media (pointer: coarse) { #prevBtn, #nextBtn { display: none !important; } }   /* touch: chapters change via Topics list + Intro/End card links */
+
+/* chapter links on the Intro (previous) / End (next) cards */
+#content-box .verse-block > .chap-link { position: absolute; bottom: 15px; z-index: 4; padding: 6px 13px; border-radius: 14px; cursor: pointer;
+    border: 1px solid #c9a15a; background: rgba(251,230,189,.92); color: #7a4a12; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1; box-shadow: 0 1px 5px rgba(0,0,0,.2); }
+#content-box .verse-block > .chap-prev { left: 22px; } #content-box .verse-block > .chap-next { right: 22px; }
+body.dark #content-box .verse-block > .chap-link { background: rgba(43,36,23,.92); color: #e0c58a; }
+#content-box .verse-block.has-chap-link .mtab-panel { padding-bottom: 46px; }
+@media (orientation: landscape) and (max-height: 520px) { #content-box .verse-block > .chap-prev { left: 30px; } #content-box .verse-block > .chap-next { right: 36px; } }
+@media (min-width: 701px) and (min-height: 521px) { #content-box .verse-block > .chap-prev { left: 28px; } #content-box .verse-block > .chap-next { right: 28px; } }
+
+/* ══ ROUND 9: gear panel = edge-to-edge glass strip (portrait), icons only, stays open until gear / outside tap ══ */
+@keyframes gearGlow {
+  0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.38), inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 8px 0 rgba(201,161,90,.16); }
+  50%      { box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.38), inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 16px 2px rgba(201,161,90,.32); } }
+#gearGroup { position: static; }
+#gearPop { left: 0; right: 0; bottom: calc(100% + 10px); grid-template-columns: none; display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; gap: 10px 6px;
+    padding: 14px 10px; border-radius: 22px; background: rgba(24,19,12,.5); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5); }
+#gearPop[hidden] { display: none; }
+#gearPop::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;     /* glass reflection along the top + corners */
+    background: linear-gradient(180deg, rgba(255,255,255,.20) 0, rgba(255,255,255,.05) 28%, rgba(255,255,255,0) 55%),
+                linear-gradient(115deg, rgba(255,255,255,.16) 0, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,.10) 100%); }
+#gearPop button { position: relative; z-index: 1; width: 50px; height: 50px; padding: 0; border-radius: 50%; gap: 0; font-size: 18px; }
+#gearPop button::after { display: none; }
+#gearPop button svg { width: 24px; height: 24px; }
+#gearPop #langPop { flex-basis: 100%; }
+#gearPop #langPop .lang-btn { width: auto; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearGroup { position: relative; }
+  #gearPop { left: calc(100% + 8px); right: auto; bottom: -6px; display: grid; grid-template-columns: repeat(3, 48px); gap: 10px; padding: 12px; justify-items: center; border-radius: 20px; }
+  #gearPop[hidden] { display: none; }
+  #gearPop button { width: 48px; height: 48px; }
+  #gearPop #langPop { grid-column: 1 / -1; width: 100%; box-sizing: border-box; }
+}
+
+/* ══ ROUND 10: flatter glass, one row of equal icons, language as a pop-up above the panel ══ */
+#gearPop { border-radius: 12px; flex-wrap: nowrap; justify-content: space-evenly; gap: 0; padding: 12px 6px; }
+#gearPop > button, #gearPop #langMain { position: relative !important; transform: none !important; width: 46px !important; height: 46px !important; min-width: 46px !important; max-width: 46px !important;
+    margin: 0 !important; padding: 0 !important; opacity: 1 !important; flex: none !important; border-radius: 50% !important; }
+#gearPop > button svg { width: 22px; height: 22px; }
+#gearPop #themeBtnNav .ic-sun { display: none !important; }
+body.dark #gearPop #themeBtnNav .ic-sun { display: block !important; }
+body.dark #gearPop #themeBtnNav .ic-moon { display: none !important; }
+#gearPop #langMain { font-size: 17px; }
+/* language chips: a small glass pop-up above the panel (no divider line) */
+#gearPop #langPop { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); top: auto; transform: none; flex-basis: auto; grid-column: auto; width: auto; box-sizing: border-box;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px; border: 1px solid rgba(216,180,106,.55); border-radius: 12px;
+    background: rgba(24,19,12,.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.3); }
+#gearPop #langPop[hidden] { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearPop { border-radius: 12px; }
+  #gearPop #langPop { right: auto; width: max-content; max-width: 260px; grid-column: auto; }
+}
+
+/* ══ ROUND 11: kill leftover positioning offsets on the moved buttons (they were shifting icons on top of each other); landscape = same single row ══ */
+#gearPop > button, #gearPop #langMain { position: relative !important; inset: auto !important; top: auto !important; right: auto !important; bottom: auto !important; left: auto !important;
+    transform: none !important; translate: none !important; float: none !important; margin: 0 !important; }
+@media (orientation: landscape) and (max-height: 520px) {
+  #gearPop { display: flex; grid-template-columns: none; flex-wrap: nowrap; justify-content: flex-start; align-items: center; gap: 10px; padding: 10px 12px; width: max-content; left: calc(100% + 8px); right: auto; bottom: -6px; }
+  #gearPop[hidden] { display: none; }
+  #gearPop > button, #gearPop #langMain { width: 46px !important; height: 46px !important; min-width: 46px !important; }
+}
+
+/* ══ ROUND 12: language pop-up = solid callout with a caret pointing at the language button ══ */
+#gearPop #langPop { background: #1c160d; -webkit-backdrop-filter: none; backdrop-filter: none; bottom: calc(100% + 6px); border-color: #c9a15a; }
+#gearPop #langPop::after { content: ""; position: absolute; bottom: -8px; left: var(--ax, 85%); width: 14px; height: 14px; background: #1c160d;
+    border-right: 1px solid #c9a15a; border-bottom: 1px solid #c9a15a; transform: translateX(-50%) rotate(45deg); border-radius: 0 0 3px 0; }
+#gearPop #langMain[aria-expanded="true"] { background: #d8b46a !important; color: #111 !important; }
+@media (orientation: landscape) and (max-height: 520px) { #gearPop #langPop { left: auto; right: 0; } }   /* sit above the language button (right end of the bar) */
+
+/* ══ ROUND 13 ══ */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* left rail: the same space on the left and the right, so the buttons sit in the middle (an earlier rule had set the right padding to 0) */
+  #navbar { padding-left: 5px; padding-right: 5px; align-items: center; box-sizing: border-box; }
+  /* settings panel: nearly solid. A blur placed inside the see-through rail cannot see the page behind it, so the text showed through sharp. */
+  #gearPop { background: rgba(20, 16, 10, 0.95); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* running as an installed / wrapped app: it is already full screen, so the full-screen button is not needed */
+html.in-app #fsBtn { display: none !important; }
+
+/* ══ ROUND 9 ══ */
+/* chapter links on the Intro / End cards: just « and » */
+#content-box .verse-block > .chap-link { font-size: 18px; font-weight: 700; padding: 4px 16px 6px; letter-spacing: 1px; }
+/* the floating verse arrows and the slider are gone: the up / down buttons now live in the bottom bar (left rail in landscape) */
+#verseNav, #verseNav.show, #verseScrub, #verseScrub.show { display: none !important; }
+#navbar .ls-nav { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+@media not all and (orientation: landscape) and (max-height: 520px) {
+  #navbar .ls-btn.ls-nav { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 38px; height: 32px; padding: 0; }
+  #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; display: block; }
+  #navbar #lsUp { margin-left: 8px; }
+  #navbar #lsDown { margin-left: 6px; }                      /* a small gap between the two */
+  body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; }   /* page without verses: dimmed */
+}
+@media (max-width: 380px) { #navbar .ls-btn.ls-nav { width: 32px; } #navbar #lsUp { margin-left: 4px; } #navbar #lsDown { margin-left: 2px; } }
+/* PREFACE: the card border stays still; only the text inside moves, fading slightly at the top and bottom edges */
+#content-box:has(> .preface-language:not([hidden])) { overflow-y: hidden; display: flex; flex-direction: column; padding-bottom: 8px; }
+#content-box > .preface-language:not([hidden]) { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; width: 100%; margin: 0 auto; padding: 20px 6px 14px 6px; overflow: hidden; }
+#content-box .preface-language > .pf-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 24px; }
+#content-box .preface-language > .pf-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+#content-box .preface-language > .pf-scroll.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px); mask-image: linear-gradient(to bottom, transparent 0, #000 30px); }
+#content-box .preface-language > .pf-scroll.fade-b { -webkit-mask-image: linear-gradient(to top, transparent 0, #000 30px); mask-image: linear-gradient(to top, transparent 0, #000 30px); }
+#content-box .preface-language > .pf-scroll.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); }
 </style>
 </head>
 <body>
@@ -1316,6 +1619,14 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
                 <button id="versePrev" type="button" title="Previous verse" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
                 <button id="verseNext" type="button" title="Next verse" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
             </div>
+            <div id="verseScrub" aria-label="Go to verse">
+                <div class="vs-lane" role="slider" tabindex="0" aria-orientation="vertical" aria-label="Verse number" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
+                    <div class="vs-thumb"></div>
+                </div>
+            </div>
+            <div id="vsDim" aria-hidden="true"></div>
+            <div id="vsBubble" aria-hidden="true">1</div>
+            <button id="splitPill" type="button" aria-label="Show verse full width" title="Tap: verse full width / back to split"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
             <div id="content-box">
                 <div style="color:#8a7a5a; text-align:center; padding-top:40px;">🙏 Select a chapter from the left to begin.</div>
             </div>
@@ -1344,20 +1655,22 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
             <button class="speed-btn" data-rate="1.75" title="1.75x speed"  aria-label="1.75x speed"  disabled>1.75x</button>
         </div>
     </div>
-    <button id="bmBtn" aria-label="Bookmark this verse" title="Tap: bookmark this verse. Press and hold: go to your bookmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
-    <button id="copyBtn" title="Copy text" aria-label="Copy all text of this page">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-            </button>
-    <div id="lockHint" role="status" aria-live="polite"></div>
-    <span class="rail-sep" aria-hidden="true"></span>
-    <button id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
-     <div id="langGroup" role="group" aria-label="Language">
-         <button id="langMain" class="lang-main" type="button" title="Language" aria-label="Language" aria-haspopup="true" aria-expanded="false"></button>
+    <div id="gearGroup">
+        <button id="gearBtn" type="button" aria-label="Settings" title="Settings" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+        <div id="gearPop" hidden>
+            <button data-label="Bookmark" id="bmBtn" aria-label="Bookmark this verse" title="Tap: bookmark this verse. Press and hold: go to your bookmark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg></button>
+            <button data-label="Go to bookmark" id="bmGo" type="button" aria-label="Go to my bookmark" title="Go to my bookmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z"/><path d="M9.5 10h5M12.5 7.5l2.5 2.5-2.5 2.5"/></svg></button>
+            <button data-label="Touch lock" id="lockBtn" title="Touch locked: tap to unlock" aria-label="Lock touch" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+            <button data-label="Theme" id="themeBtnNav" type="button" aria-label="Switch to dark theme" title="Dark theme" aria-pressed="false"><svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+            <button data-label="Full screen" id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+            <div id="langGroup" role="group" aria-label="Language">
+         <button data-label="Language" id="langMain" class="lang-main" type="button" title="Language" aria-label="Language" aria-haspopup="true" aria-expanded="false"></button>
          <div id="langPop" hidden></div>
      </div>
-    <button id="themeBtnNav" type="button" aria-label="Switch to dark theme" title="Dark theme" aria-pressed="false"><svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
-         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-    <button id="fsBtn" aria-label="Full screen" title="Full screen / reading mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+        </div>
+    </div>
+    <div id="lockHint" role="status" aria-live="polite"></div>
 </div>
 
 <div id="bm-toast" role="status"></div>
@@ -1373,6 +1686,20 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
 const BASE_URL = "subjects/";
 // Chapter files are named <topic><suffix>.html, e.g. chapter8-multi-lang.html. Set to "" to go back to chapter8.html.
 const CHAPTER_SUFFIX = "-multi-lang";
+
+// ── RUNNING AS AN APP? (installed PWA, Capacitor, Android WebView; or add ?app=1 to the address to force it) ──
+// In that case the full-screen button is hidden and the page does not ask for full screen itself. In a normal browser tab (GitHub Pages, desktop) nothing changes.
+const IN_APP = (function () {
+    try {
+        return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)
+            || navigator.standalone === true
+            || !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform())
+            || /; wv\)/.test(navigator.userAgent)
+            || document.referrer.indexOf("android-app://") === 0
+            || new URLSearchParams(location.search).get("app") === "1";
+    } catch (e) { return false; }
+})();
+if (IN_APP) document.documentElement.classList.add("in-app");
 
 // ── CATEGORY / TOPIC DATA ─────────────────────────────────────────────────
 // Each category: { name, slug, topics: [ [slug, label, desc, keywords, ext?], ... ] }
@@ -1469,6 +1796,8 @@ categories.forEach((cat) => {
         const ttl = document.createElement("div");
         ttl.className = "t-title"; ttl.textContent = chName;
         body.appendChild(ttl);
+        item._en = { title: chName, sub: (chNo || isFront) ? (isFront ? (fm ? fm[1] : label) : "Chapter " + chNo) : "" };   // English originals, for the language switch
+        item.dataset.ch = isFront ? "preface" : chNo; item.dataset.slug = slug;
         item.appendChild(icon); item.appendChild(body);
         item.dataset.search = normalizeSearch(cat.name + " " + label + " " + (keywords || ""));
 
@@ -1480,8 +1809,9 @@ categories.forEach((cat) => {
         item.addEventListener("click", () => loadTopic(flatIndex));
 
         item.addEventListener("mouseenter", () => {
-            tooltipEl.textContent = desc || "";
-            if (!desc) return;
+            const dd = ((TOPIC_I18N[curLang] || {})["d-" + slug]) || desc || "";   // hover text in the chosen language (from topics file)
+            tooltipEl.textContent = dd;
+            if (!dd) return;
             const rect = item.getBoundingClientRect();
             tooltipEl.style.left = (rect.right + 10) + "px";
             tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
@@ -1498,9 +1828,60 @@ categories.forEach((cat) => {
 if (categories.length === 1) sidebarList.classList.add("single");
 const CHAPTER_COUNT = flatTopics.filter(t => !t.front).length;   // 18: the preface is not counted
 document.getElementById("sidebar-count").textContent = CHAPTER_COUNT + " Chapters";
+// ── TOPICS LIST IN THE CHOSEN LANGUAGE ─────────────────────────────────────────────────────────
+// ONE file holds the listing for every language:  subjects/<category>/topics-multi-lang.html
+//   <div data-lang="te"> <p data-k="chapter1">title</p> … </div>   keys: w-gita, w-chapter, w-chapters, w-preface (words),
+//   preface, chapter1 … chapter18 (titles), d-<slug> (hover text). Missing file / key -> the built-in English text stays.
+let TOPIC_I18N = {};
+const TOPICS_FILE = BASE_URL + categories[0].slug + "/topics" + CHAPTER_SUFFIX + ".html";
+const EN_WORDS = { chapter: "Chapter", chapters: "Chapters", preface: "Preface", gita: "Bhagavad Gita" };
+function topicWord(k) { return ((TOPIC_I18N[curLang] || {})["w-" + k]) || EN_WORDS[k]; }
+function paintTopicLang() {
+    const L = TOPIC_I18N[curLang] || {}, loaded = Object.keys(TOPIC_I18N).length > 0;
+    flatTopics.forEach(t => {
+        const item = t.el, en = item._en, slug = item.dataset.slug, key = item.dataset.ch; if (!en) return;
+        const ttl = item.querySelector(".t-title"), sub = item.querySelector(".t-sub");
+        if (ttl) ttl.textContent = L[slug] || en.title;
+        if (sub) sub.textContent = key === "preface" ? topicWord("preface") : topicWord("chapter") + " " + key;
+        if (loaded && !item._srch) { item._srch = true; item.dataset.search += " " + normalizeSearch(Object.values(TOPIC_I18N).map(x => x[slug]).filter(Boolean).join(" ")); }   // search in any language
+    });
+    const tt = document.querySelector("#sidebar-title .title-text"); if (tt && tt.firstChild) tt.firstChild.textContent = topicWord("gita");
+    document.getElementById("sidebar-count").textContent = CHAPTER_COUNT + " " + topicWord("chapters");
+    document.querySelectorAll(".category-header").forEach((h, i) => {
+        const spans = h.querySelectorAll("span"), c = categories[i]; if (!c) return;
+        spans[0].textContent = c.name === "Bhagavad Gita" ? topicWord("gita") : c.name;
+        if (spans[1] && spans[1].textContent) spans[1].textContent = c.topics.filter(x => !FRONT_SLUGS.has(x[0])).length + " " + topicWord("chapters");
+    });
+    if (currentFlatIndex >= 0) counterEl.textContent = counterText(currentFlatIndex);
+    paintChapterHead();
+}
+function paintChapterHead() {   // the chapter page's own heading + sub line follow the language (from the topics file); no translation -> original text stays
+    const t = flatTopics[currentFlatIndex]; if (!t || t.front) return;
+    const slug = t.el.dataset.slug, key = t.el.dataset.ch, L = TOPIC_I18N[curLang] || {};
+    const outside = x => !x.closest(".verse-block, .preface-language");
+    const pick = sel => Array.from(contentBox.querySelectorAll(sel)).find(outside);
+
+    const h = pick(".chapter-head h2, .chapter-head h1, h1");
+    if (h) {
+        if (h.dataset.en === undefined) h.dataset.en = h.textContent;
+        h.textContent = L[slug] ? topicWord("chapter") + " " + key + " \u2014 " + L[slug] : h.dataset.en;
+    }
+
+    const s = pick(".chapter-head .sub, .topic-tagline");
+    if (s) {
+        if (s.dataset.en === undefined) s.dataset.en = s.textContent;
+        const tail = (s.dataset.en.match(/\s*\u00b7.*$/) || [""])[0];   // keeps " \u00b7 47 verses" as written in the chapter file
+        s.textContent = L["d-" + slug] ? L["d-" + slug] + tail : s.dataset.en;
+    }
+}
+fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
+    doc.querySelectorAll("[data-lang]").forEach(d => { const L = map[d.dataset.lang] = {}; d.querySelectorAll("[data-k]").forEach(e => { L[e.dataset.k] = e.textContent.trim(); }); });
+    TOPIC_I18N = map; paintTopicLang();
+}).catch(() => {});   // no file -> English list as before
 function counterText(i) {   // preface -> "Preface"; chapters -> "n / 18" (n skips front matter)
     if (i < 0 || !flatTopics[i]) return "– / " + CHAPTER_COUNT;
-    if (flatTopics[i].front) return "Preface";
+    if (flatTopics[i].front) return topicWord("preface");
     return flatTopics.slice(0, i + 1).filter(t => !t.front).length + " / " + CHAPTER_COUNT;
 }
 
@@ -1912,7 +2293,7 @@ function fitVerses() {
     const results = blocks.map(b => {
         const cs = getComputedStyle(b);
         let avail = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-        if (land && b.classList.contains("verse-block")) avail = (avail - 20) / 2;   // landscape: verse = left half, purport = right half
+        if (land && b.classList.contains("verse-block")) avail = contentBox.classList.contains("verse-full") ? avail - 18 : (avail - 20) / 2;   // tucked: verse takes the full width (minus room for the pill)   // landscape: verse = left half, purport = right half
         const slEl = b.querySelector(":scope > .verse-grid .sl");
         if (slEl) {   // the verse sits in a bordered box: fit its widest line to the space inside the box
             const gs = getComputedStyle(slEl.parentElement);
@@ -2082,10 +2463,26 @@ function applyPreface() {
     const has = c => pages.find(p => p.dataset.lang === c && p.textContent.trim());
     const pick = has(curLang) || has("en") || pages[0];
     pages.forEach(p => { p.hidden = p !== pick; });
+    setTimeout(prefaceFades, 0);
+}
+// the card keeps its border still; its text lives in .pf-scroll, which scrolls with a soft fade at the top / bottom edge
+function prefaceFades() {
+    contentBox.querySelectorAll(".pf-scroll").forEach(w => {
+        w.classList.toggle("fade-t", w.scrollTop > 2);
+        w.classList.toggle("fade-b", w.scrollTop + w.clientHeight < w.scrollHeight - 2);
+    });
 }
 function initPreface() {
     if (!contentBox.querySelector(".preface-language")) return;
+    contentBox.querySelectorAll(".preface-language").forEach(m => {
+        if (m.querySelector(":scope > .pf-scroll")) return;
+        const w = document.createElement("div"); w.className = "pf-scroll";
+        while (m.firstChild) w.appendChild(m.firstChild);
+        m.appendChild(w);
+        w.addEventListener("scroll", prefaceFades, { passive: true });
+    });
     applyPreface();
+    prefaceFades(); setTimeout(prefaceFades, 150); setTimeout(prefaceFades, 600);
     contentBox.querySelectorAll(".preface-language .next").forEach(n => {   // "Tap Next to begin with Chapter 1" is tappable too
         n.setAttribute("role", "button"); n.tabIndex = 0;
         n.onclick = () => loadTopic(currentFlatIndex + 1);
@@ -2109,8 +2506,8 @@ function loadTopic(flatIndex) {
 
     counterEl.textContent = counterText(flatIndex);
     contentBox.innerHTML = '<div style="color:#8a7a5a;text-align:center;padding:40px 0;">Loading…</div>';
-    copyBtn.classList.remove("show");
     document.getElementById("verseNav").classList.remove("show");
+    if (window.gitaScrubHide) gitaScrubHide();
 
     fetch(topic.path)
         .then(r => {
@@ -2124,14 +2521,16 @@ function loadTopic(flatIndex) {
             contentBox.innerHTML = html;
             contentBox.scrollTop = 0;
             initPreface();   // preface page (no verses): show the chosen language, wire "Tap Next"
+            paintChapterHead();   // heading + tagline in the chosen language
             buildVerses();   // build tag + shloka + meaning tabs from the language blocks (before audio sync / fitting look at the blocks)
             wireCopyButtons();
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
             initAudioSync();   // (added) wire up audio highlighting if the page has it
-            placeCopyBtn(); copyBtn.classList.add("show");
+            
             const hasVerses = !!contentBox.querySelector(".verse-block");
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
+            if (window.gitaScrubRefresh) gitaScrubRefresh();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
             fitVerses();
             setTimeout(fitVerses, 300);   // re-fit once fonts settle
@@ -2169,13 +2568,6 @@ function wireCopyButtons() {
     });
 }
 
-// ── COPY BUTTON ──────────────────────────────────────────────────────────
-const copyBtn = document.getElementById("copyBtn");
-function placeCopyBtn() {   // sit just below the audio dock (if any), top-right of the text area
-    copyBtn.style.top = ((contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0) + 8) + "px";
-}
-if (window.ResizeObserver) new ResizeObserver(placeCopyBtn).observe(audioDock);
-window.addEventListener("resize", placeCopyBtn);
 
 // keep the reading-area height in a CSS variable (used by .verse-block min-height)
 function setAreaH() { contentBox.style.setProperty("--area-h", contentBox.clientHeight + "px"); placeVerseNav(); }
@@ -2204,13 +2596,14 @@ function stepVerse(dir) {
         i = rects.findIndex(r => r.top > line + tol);
         const st = window.gitaSyncState && window.gitaSyncState();
         if (st && st.started && st.active === i) i++;                 // that verse is already being chanted (e.g. the opening, still above its card): go one further
-        if (i < 0 || i >= blocks.length) return;                      // already at the last verse
+        if (i < 0 || i >= blocks.length) i = 0;                       // at the last verse: loop round to the first
     } else {
         for (let k = rects.length - 1; k >= 0; k--) if (rects[k].top < line - tol) { i = k; break; }
-        if (i < 0) {                                                  // above the first verse: back to the very top
+        if (i < 0 && contentBox.scrollTop > 4) {                      // above the first verse: back to the very top
             blocks.forEach(b => b.classList.remove("verse-focus"));
             syncUserScrollUntil = 0; smoothScrollTo(0, 700); return;
         }
+        if (i < 0) i = blocks.length - 1;                             // already at the very top: loop round to the last verse
     }
     blocks.forEach(b => b.classList.remove("verse-focus"));
     syncUserScrollUntil = 0;
@@ -2273,12 +2666,6 @@ function copyText(text) {
         try { document.execCommand("copy") ? res() : rej(); } catch (e) { rej(e); } finally { ta.remove(); }
     });
 }
-copyBtn.onclick = () => {
-    copyText(topicPlainText()).then(() => {
-        copyBtn.classList.add("done"); copyBtn.title = "Copied";
-        setTimeout(() => { copyBtn.classList.remove("done"); copyBtn.title = "Copy text"; }, 1600);
-    }).catch(() => { copyBtn.title = "Copy failed"; });
-};
 
 document.getElementById("prevBtn").onclick = () => loadTopic(currentFlatIndex - 1 < 0 ? flatTopics.length - 1 : currentFlatIndex - 1);
 document.getElementById("nextBtn").onclick = () => loadTopic((currentFlatIndex + 1) % flatTopics.length);
@@ -2289,31 +2676,6 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
 });
 
-// Swipe the text area: left = Next chapter, right = Previous chapter (only while unlocked)
-(function () {
-    let sx = 0, sy = 0, st = 0, tracking = false;
-    contentBox.addEventListener("touchstart", e => {
-        tracking = e.touches.length === 1;
-        if (!tracking) return;
-        sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
-    }, { passive: true });
-    contentBox.addEventListener("touchcancel", () => { tracking = false; }, { passive: true });
-    contentBox.addEventListener("touchend", e => {
-        if (!tracking) return;
-        tracking = false;
-        const t = e.changedTouches[0];
-        const dx = t.clientX - sx, dy = t.clientY - sy;
-        if (Date.now() - st > 700) return;                          // slow drag: not a swipe
-        if (Math.abs(dx) < 70 || Math.abs(dy) > Math.abs(dx) * 0.5) return;   // too short, or mostly vertical (scrolling)
-        const sel = window.getSelection && window.getSelection();
-        if (sel && !sel.isCollapsed) return;                        // user is selecting text
-        if (document.body.classList.contains("touch-locked")) {     // touch lock: a real swipe only shows the hint
-            if (window.showLockHint) window.showLockHint();
-            return;
-        }
-        document.getElementById(dx < 0 ? "nextBtn" : "prevBtn").click();
-    }, { passive: true });
-})();
 
 
 // ── SEARCH ───────────────────────────────────────────────────────────────
@@ -2435,6 +2797,7 @@ function paintLang() {
     const cur = LANGS.find(l => l.code === curLang) || LANGS[0];
     langMain.textContent = cur.short; langMain.title = "Language: " + cur.name;
     langPop.querySelectorAll(".lang-btn").forEach(b => b.setAttribute("aria-checked", b.dataset.lang === curLang ? "true" : "false"));
+    paintTopicLang();   // topics list, counter and sidebar title follow the language
 }
 function setLang(code) {
     curLang = code;
@@ -2562,7 +2925,7 @@ counterEl.textContent = "– / " + CHAPTER_COUNT;
     btn.addEventListener("click", () => {
         const el = document.documentElement;
         const req = el.requestFullscreen || el.webkitRequestFullscreen;
-        if (req) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
+        if (req && !IN_APP) { try { const r = req.call(el, { navigationUI: "hide" }); if (r && r.catch) r.catch(() => {}); } catch (e) {} }
         screenEl.classList.add("leaving");
         screenEl.addEventListener("animationend", e => { if (e.target === screenEl) finish(); });
         setTimeout(finish, 3200);   // safety net
@@ -2692,20 +3055,20 @@ window.readingMode = (function () {
         catch (e) { return Promise.resolve(false); }
     }
     function onTouch() {
-        if (!mq.matches) return;
+        if (IN_APP || !mq.matches) return;
         goFS().then(ok => { if (ok || isFS()) disarm(); });
     }
     function arm()    { if (armed) return; armed = true; document.addEventListener("touchend", onTouch, true); document.addEventListener("click", onTouch, true); }
     function disarm() { armed = false; document.removeEventListener("touchend", onTouch, true); document.removeEventListener("click", onTouch, true); }
-    function onLand() { if (!mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
+    function onLand() { if (IN_APP || !mq.matches || isFS()) return; goFS().then(ok => { if (!ok && !isFS()) arm(); }); }
     if (mq.addEventListener) mq.addEventListener("change", onLand); else mq.addListener(onLand);
     onLand();
 })();
 
 
 // up / down in the landscape bar = the same actions as the portrait arrows
-document.getElementById("lsUp").addEventListener("click",   () => stepVerse(-1));
-document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
+document.getElementById("lsUp").addEventListener("click",   () => { if (window.gitaHoldSuppress) { window.gitaHoldSuppress = false; return; } stepVerse(-1); });
+document.getElementById("lsDown").addEventListener("click", () => { if (window.gitaHoldSuppress) { window.gitaHoldSuppress = false; return; } stepVerse(1); });
 
 
 // ── MEANING PANEL (phones): never taller than the space left down to the bottom of the screen; longer text scrolls inside it ──
@@ -2739,6 +3102,160 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 
+
+// ══ VERSE SCRUBBER (drag like a radio dial) + LANDSCAPE TUCK PILL ═══════════════════════════════
+// Maths: the lane is (height - 2*PAD) px tall and holds N verses, so one verse = laneH / (N-1) px; index = round(fraction * (N-1)).
+// While dragging, the thumb follows the finger freely and the bubble shows the nearest verse; on release the thumb glides to that
+// verse and the page jumps there with the normal verse fade (same path as the up/down arrows, so audio sync keeps working).
+(function () {
+    const scrub = document.getElementById("verseScrub"), lane = scrub.querySelector(".vs-lane"), thumb = scrub.querySelector(".vs-thumb");
+    const bubble = document.getElementById("vsBubble"), dim = document.getElementById("vsDim");
+    const pill = document.getElementById("splitPill"), PAD = 18;
+    let blocks = [], N = 0, dragging = false, shown = -1, awakeT, raf = 0;
+    const glowIO = window.IntersectionObserver ? new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("glow", e.isIntersecting)), { root: contentBox, threshold: 0.15 }) : null;
+    const landMQ = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const laneH = () => Math.max(1, lane.clientHeight - 2 * PAD);
+    const yOf = i => PAD + (N > 1 ? laneH() * i / (N - 1) : laneH() / 2);
+    const NUMV = /^\d[\d\s,\-–]*$/;   // same test as the "k/N" tag on each card: only numbered verses count
+    let isNum = [], numBefore = [], numTotal = 0;
+    const labelOf = i => {              // numbered verse -> its real number (same as the card tag); opening / closing sections -> words
+        if (isNum[i]) return String(numBefore[i]);
+        return numBefore[i] === 0 ? "Intro" : (numBefore[i] >= numTotal ? "End" : "•");
+    };
+    function put(y, glide) {
+        thumb.style.transition = (glide ? "top .4s cubic-bezier(.2,.8,.2,1), " : "") + "transform .2s ease"; thumb.style.top = y + "px";
+    }
+    function say(i) {
+        if (i === shown) return; shown = i;
+        bubble.textContent = labelOf(i);
+        lane.setAttribute("aria-valuenow", i + 1);
+        if (navigator.vibrate && dragging) navigator.vibrate(5);
+    }
+    function wake() { scrub.classList.add("awake"); clearTimeout(awakeT); awakeT = setTimeout(() => scrub.classList.remove("awake"), 1600); }
+    function layout() {                     // below the audio dock if there is one; rebuild the ruler ticks
+        const dock = contentPanel.classList.contains("has-dock") ? audioDock.offsetHeight : 0;
+        if (!landMQ.matches) scrub.style.top = (dock + 44) + "px"; else scrub.style.top = "";
+        lane.setAttribute("aria-valuemax", numTotal || N);
+    }
+    function currentIdx() {                 // the verse the reader is on: the last card whose top is above 35% of the screen
+        const box = contentBox.getBoundingClientRect(), line = box.top + contentBox.clientHeight * 0.35; let k = 0;
+        for (let i = 0; i < blocks.length; i++) { if (blocks[i].getBoundingClientRect().top <= line) k = i; else break; }
+        return k;
+    }
+    function follow() { raf = 0; if (dragging || !N) return; const k = currentIdx(); say(k); put(yOf(k), true); }
+    contentBox.addEventListener("scroll", () => { if (!N || dragging) return; wake(); if (!raf) raf = requestAnimationFrame(follow); }, { passive: true });
+    function refresh() {
+        blocks = Array.from(contentBox.querySelectorAll(".verse-block")); N = blocks.length; shown = -1;
+        let c = 0; isNum = blocks.map(b => NUMV.test((b.dataset.n || "").trim())); numBefore = isNum.map(v => (c += v ? 1 : 0)); numTotal = c;
+        if (glowIO) { glowIO.disconnect(); blocks.forEach(b => glowIO.observe(b)); }
+        scrub.classList.toggle("show", N > 0); pill.classList.toggle("show", N > 0);
+        if (N) {                                   // "‹ Previous chapter" on the first card, "Next chapter ›" on the last (replaces swipe + arrows on touch)
+            const addLink = (blk, cls, txt, idx) => {
+                const b = document.createElement("button"); b.type = "button"; b.className = "chap-link " + cls; b.textContent = txt; b.title = (cls === "chap-prev" ? "Previous chapter" : "Next chapter"); b.setAttribute("aria-label", b.title);
+                ["pointerdown", "click", "dblclick"].forEach(ev => b.addEventListener(ev, e => e.stopPropagation()));
+                b.addEventListener("click", () => loadTopic(idx)); blk.appendChild(b); blk.classList.add("has-chap-link");
+            };
+            if (currentFlatIndex > 0) addLink(blocks[0], "chap-prev", "«", currentFlatIndex - 1);
+            if (currentFlatIndex < flatTopics.length - 1) addLink(blocks[N - 1], "chap-next", "»", currentFlatIndex + 1);
+        }
+        if (!N) return; layout(); const k = currentIdx(); say(k); put(yOf(k), false); placePill();
+    }
+    window.gitaScrubRefresh = refresh;
+    window.gitaScrubHide = () => { N = 0; blocks = []; scrub.classList.remove("show"); pill.classList.remove("show"); };
+
+    function gotoVerse(i) {                 // same path as the arrows: audio chapters seek, others highlight + fade-jump
+        const box = contentBox.getBoundingClientRect(), r = blocks[i].getBoundingClientRect();
+        blocks.forEach(b => b.classList.remove("verse-focus")); syncUserScrollUntil = 0;
+        if (window.gitaSyncSeek && window.gitaSyncSeek(i)) { if (blocks[i].classList.contains("verse-active")) verseSwap(blocks[i], topOf(r, box)); return; }
+        blocks[i].classList.add("verse-focus"); verseSwap(blocks[i], topOf(r, box));
+    }
+    function move(e) {
+        const r = lane.getBoundingClientRect(), y = clamp(e.clientY - r.top, PAD, r.height - PAD);
+        const f = (y - PAD) / laneH(), i = N > 1 ? Math.round(f * (N - 1)) : 0;
+        put(y, false); say(i);
+    }
+    thumb.addEventListener("pointerdown", e => {
+        if (!N) return; e.preventDefault(); dragging = true; scrub.classList.add("drag"); bubble.classList.add("on"); dim.classList.add("on"); contentBox.classList.add("vs-lock"); scrollAnim = null; wake(); clearTimeout(awakeT);
+        try { thumb.setPointerCapture(e.pointerId); } catch (x) {}
+        shown = -1; move(e);
+    });
+    thumb.addEventListener("pointermove", e => { if (dragging) move(e); });
+    function release() {
+        if (!dragging) return; dragging = false; scrub.classList.remove("drag"); bubble.classList.remove("on"); dim.classList.remove("on"); contentBox.classList.remove("vs-lock"); wake();
+        const i = shown; put(yOf(i), true); gotoVerse(i);     // thumb glides onto the verse, page fades to it
+    }
+    thumb.addEventListener("pointerup", release); thumb.addEventListener("pointercancel", release);
+    lane.addEventListener("keydown", e => { if (e.key === "ArrowUp" || e.key === "ArrowLeft") { e.preventDefault(); stepVerse(-1); } else if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); stepVerse(1); } });
+    // ── PRESS & HOLD the up / down verse buttons (bottom bar; left rail in landscape) ──
+    // A tap = one verse. Hold = the glass bubble in the middle counts through the verses (looping at both ends, a little faster the longer you hold);
+    // let go and the page jumps to the verse showing in the bubble (same path as the arrows, so audio sync keeps working).
+    (function () {
+        let timer = 0, tick = 0, active = false, dir = 0, idx = 0, steps = 0;
+        const stopAll = () => { clearTimeout(timer); clearTimeout(tick); timer = tick = 0; };
+        function advance() {
+            if (!active || !N) return;
+            idx = (idx + dir + N) % N; say(idx); steps++;
+            tick = setTimeout(advance, steps > 10 ? 70 : steps > 4 ? 110 : 170);
+        }
+        function begin() {
+            timer = 0; if (!N) return;
+            active = true; dragging = true; window.gitaHoldSuppress = true;
+            idx = currentIdx(); shown = -1; say(idx);
+            bubble.classList.add("on"); dim.classList.add("on"); contentBox.classList.add("vs-lock"); scrollAnim = null;
+            tick = setTimeout(advance, 300);
+        }
+        function end() {
+            stopAll();
+            if (!active) return;
+            active = false; dragging = false;
+            bubble.classList.remove("on"); dim.classList.remove("on"); contentBox.classList.remove("vs-lock");
+            gotoVerse(idx);
+            setTimeout(() => { window.gitaHoldSuppress = false; }, 400);
+        }
+        [["lsUp", -1], ["lsDown", 1]].forEach(([id, d]) => {
+            const b = document.getElementById(id);
+            b.addEventListener("pointerdown", e => { if (e.button > 0) return; stopAll(); dir = d; steps = 0; timer = setTimeout(begin, 420); });
+            ["pointerup", "pointercancel", "pointerleave"].forEach(ev => b.addEventListener(ev, end));
+            b.addEventListener("contextmenu", e => e.preventDefault());
+        });
+    })();
+    window.addEventListener("resize", () => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); });
+    if (window.ResizeObserver) new ResizeObserver(() => { if (N) { layout(); put(yOf(shown < 0 ? 0 : shown), false); } placePill(); }).observe(contentBox);
+
+    // ── landscape: tap the pill on the divider = verse goes full width; tap again = split comes back ──
+    function placePill() {
+        if (!landMQ.matches) return;
+        const cs = getComputedStyle(contentBox), pl = parseFloat(cs.paddingLeft) || 0, pr = parseFloat(cs.paddingRight) || 0, W = contentBox.clientWidth;
+        const tucked = contentBox.classList.contains("verse-full");
+        contentPanel.style.setProperty("--split-x", (tucked ? W - pr - 14 - 9 : pl + (W - pl - pr) / 2) + "px");   // centre of the golden box, or its right edge
+        pill.classList.toggle("tucked", tucked);
+        pill.setAttribute("aria-label", tucked ? "Show meaning (split view)" : "Show verse full width");
+    }
+    pill.addEventListener("click", () => {
+        const tuck = !contentBox.classList.contains("verse-full");
+        contentBox.classList.toggle("verse-full", tuck); placePill();
+        if (tuck) setTimeout(fitVerses, 470); else fitVerses();   // growing: re-fit after the slide; shrinking: re-fit first
+    });
+    if (landMQ.addEventListener) landMQ.addEventListener("change", () => { placePill(); fitVerses(); });
+})();
+
+// ══ GEAR PANEL + CHAPTER LINKS ══════════════════════════════════════════════════════════════════
+(function () {
+    const grp = document.getElementById("gearGroup"), gb = document.getElementById("gearBtn"), pop = document.getElementById("gearPop");
+    function setOpen(v) {
+        pop.hidden = !v; gb.setAttribute("aria-expanded", v ? "true" : "false");
+        if (!v && typeof closeLangPop === "function") closeLangPop();
+    }
+    gb.addEventListener("click", e => { e.stopPropagation(); setOpen(pop.hidden); });
+    document.addEventListener("click", e => { if (!pop.hidden && !e.composedPath().includes(grp)) setOpen(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
+    document.getElementById("bmGo").addEventListener("click", () => goToBookmark());
+    // language pop-up: a caret that points at the language button
+    const lm = document.getElementById("langMain"), lp = document.getElementById("langPop");
+    function caret() { if (lp.hidden) return; const x = lm.getBoundingClientRect(), y = lp.getBoundingClientRect(); lp.style.setProperty("--ax", Math.max(20, Math.min(y.width - 20, x.left + x.width / 2 - y.left)) + "px"); }
+    lm.addEventListener("click", () => requestAnimationFrame(caret)); window.addEventListener("resize", caret);
+})();
 </script>
 
 </body>

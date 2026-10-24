@@ -1585,6 +1585,47 @@ html.in-app #fsBtn { display: none !important; }
 #content-box .preface-language > .pf-scroll.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px); mask-image: linear-gradient(to bottom, transparent 0, #000 30px); }
 #content-box .preface-language > .pf-scroll.fade-b { -webkit-mask-image: linear-gradient(to top, transparent 0, #000 30px); mask-image: linear-gradient(to top, transparent 0, #000 30px); }
 #content-box .preface-language > .pf-scroll.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 30px, #000 calc(100% - 30px), transparent 100%); }
+
+/* ═════════ PLAY ALL (start) — remove this whole CSS block to take the feature out ═════════ */
+#pa-ctrl { display: flex; align-items: center; gap: 2px; flex: none; margin-left: auto; }
+#sidebar.collapsed #pa-ctrl { display: none; }
+#pa-ctrl button {
+    width: 22px; height: 22px; padding: 0; flex: none; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    background: none; border: 0; border-radius: 50%; color: #d8b46a;
+}
+#pa-ctrl button svg { width: 14px; height: 14px; display: block; fill: currentColor; }
+#pa-ctrl button:hover { background: #d8b46a33; }
+/* the circled main button: always visible (play, or pause while Play All is running) */
+#pa-ctrl #pa-toggle { display: flex; width: 26px; height: 26px; border: 1.5px solid #d8b46a; }
+#pa-ctrl #pa-toggle svg { width: 13px; height: 13px; }
+/* while Play All is on: previous / next / stop appear around it */
+#pa-ctrl.pa-on #pa-prev, #pa-ctrl.pa-on #pa-next, #pa-ctrl.pa-on #pa-stop { display: flex; }
+#pa-ctrl.pa-on #pa-toggle { background: #d8b46a22; }
+/* the wave on the chapter line being played (four small bars, same idea as the verse wave) */
+.topic-item .pa-wave {
+    flex: none; align-self: center; margin-left: auto; margin-right: 4px; width: 18px; height: 14px;
+    background:
+        linear-gradient(#c2410c, #c2410c) 0 100% / 3px 40% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 5px 100% / 3px 100% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 10px 100% / 3px 60% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 15px 100% / 3px 80% no-repeat;
+    animation: paWave 0.9s ease-in-out infinite;
+}
+.topic-item.pa-hold .pa-wave { animation-play-state: paused; opacity: 0.55; }   /* paused / loading: bars stand still */
+body.dark .topic-item .pa-wave {
+    background:
+        linear-gradient(#d8b46a, #d8b46a) 0 100% / 3px 40% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 5px 100% / 3px 100% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 10px 100% / 3px 60% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 15px 100% / 3px 80% no-repeat;
+}
+@keyframes paWave {
+    0%, 100% { background-size: 3px 40%, 3px 100%, 3px 60%, 3px 80%; }
+    50%      { background-size: 3px 100%, 3px 35%, 3px 95%, 3px 30%; }
+}
+@media (prefers-reduced-motion: reduce) { .topic-item .pa-wave { animation: none; } }
+/* ═════════ PLAY ALL (end) ═════════ */
 </style>
 </head>
 <body>
@@ -1600,6 +1641,14 @@ html.in-app #fsBtn { display: none !important; }
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">Bhagavad Gita<small id="sidebar-count"></small></span>
+            <!-- PLAY ALL (start): controls next to the topics heading -->
+            <span id="pa-ctrl">
+                <button id="pa-prev" type="button" title="Previous chapter" aria-label="Play All: previous chapter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.4v14H6zM20 5v14L9.5 12z"/></svg></button>
+                <button id="pa-toggle" type="button" title="Play All chapters" aria-label="Play All chapters"></button>
+                <button id="pa-next" type="button" title="Next chapter" aria-label="Play All: next chapter"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4zM4 5l10.5 7L4 19z"/></svg></button>
+                <button id="pa-stop" type="button" title="Stop Play All" aria-label="Stop Play All"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+            </span>
+            <!-- PLAY ALL (end) -->
             <button id="sidebar-toggle" type="button" title="Collapse sidebar" aria-label="Collapse sidebar"></button>
         </div>
         <div id="sidebar-search-row">
@@ -2494,6 +2543,7 @@ function loadTopic(flatIndex) {
     if (flatIndex < 0 || flatIndex >= flatTopics.length) return;
     if (window.closeSidePeek) window.closeSidePeek();
     currentFlatIndex = flatIndex;
+    if (window.playAll) window.playAll.paint();   // PLAY ALL: move the wave to this chapter line
     const topic = flatTopics[flatIndex];
     pageLoaded = false;
     try { localStorage.setItem(LAST_KEY, topic.path); } catch (e) {}   // BOOKMARK/REOPEN: remember last chapter
@@ -2526,6 +2576,7 @@ function loadTopic(flatIndex) {
             wireCopyButtons();
             if (window.hljs) contentBox.querySelectorAll("pre code").forEach(b => hljs.highlightElement(b));
             initAudioSync();   // (added) wire up audio highlighting if the page has it
+            if (window.playAll) window.playAll.afterLoad(flatIndex);   // PLAY ALL: start this chapter's audio when Play All is on
             
             const hasVerses = !!contentBox.querySelector(".verse-block");
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
@@ -2538,6 +2589,7 @@ function loadTopic(flatIndex) {
             if (pendingJump) { pendingJump = false; jumpToBookmarkSoon(); }
         })
         .catch(err => {
+            if (window.playAll) window.playAll.afterLoad(flatIndex, true);   // PLAY ALL: page missing / failed -> skip to the next chapter
             if (err.isMissing) {   // missing page = work in progress: just an icon
                 contentBox.innerHTML = '<div role="img" aria-label="Work in progress" title="Work in progress" ' +
                     'style="text-align:center;font-size:64px;padding:70px 0;">🚧</div>';
@@ -2549,6 +2601,90 @@ function loadTopic(flatIndex) {
                 'opening the file directly (file://) blocks fetch() for security reasons.</div>';
         });
 }
+
+// ═════════ PLAY ALL (start) — remove this block (plus the 3 small "PLAY ALL" hook lines inside loadTopic) to take the feature out ═════════
+// Plays the chapters one after another (Ch 1 -> 18). Each chapter keeps its own audio + verse sync; this only
+// starts the audio after a chapter loads and moves on when it ends. The user's own actions always win:
+//   click another chapter -> it loads and plays, Play All carries on from there
+//   pause the chapter audio -> Play All is paused too (the circled button shows play)
+//   tap Stop -> everything stops; chapters behave as before
+window.playAll = (function () {
+    const ctrl = document.getElementById("pa-ctrl");
+    const bToggle = document.getElementById("pa-toggle"), bPrev = document.getElementById("pa-prev"),
+          bNext = document.getElementById("pa-next"), bStop = document.getElementById("pa-stop");
+    const ICON_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+    const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+    let on = false;
+
+    const chapters = () => flatTopics.map((t, i) => t.front ? -1 : i).filter(i => i >= 0);   // preface is skipped
+    const curAudio = () => document.querySelector("#content-panel audio[data-ends]") || document.querySelector("#content-panel audio");
+
+    function paint() {   // buttons + the wave on the chapter line
+        const a = curAudio(), playing = !!(a && !a.paused && !a.ended);
+        ctrl.classList.toggle("pa-on", on);
+        bToggle.innerHTML = (on && playing) ? ICON_PAUSE : ICON_PLAY;
+        const label = !on ? "Play All chapters" : (playing ? "Pause" : "Resume");
+        bToggle.title = label; bToggle.setAttribute("aria-label", label);
+        flatTopics.forEach((t, i) => {
+            const w = t.el.querySelector(".pa-wave"), here = on && i === currentFlatIndex && !t.front;
+            if (!here) { if (w) w.remove(); t.el.classList.remove("pa-hold"); return; }
+            if (!w) { const s = document.createElement("span"); s.className = "pa-wave"; t.el.appendChild(s); }
+            t.el.classList.toggle("pa-hold", !playing);
+        });
+    }
+
+    function stop() {
+        on = false;
+        const a = curAudio(); if (a) a.pause();
+        paint();
+    }
+
+    function go(i) { loadTopic(i); }   // afterLoad() then starts the audio
+
+    function advance() {   // next chapter, or finish after the last one
+        const list = chapters(), nxt = list.find(i => i > currentFlatIndex);
+        if (nxt === undefined) { stop(); return; }
+        go(nxt);
+    }
+
+    function start() {
+        const list = chapters(); if (!list.length) return;
+        on = true; go(list[0]);   // always from chapter 1
+    }
+
+    // called by loadTopic once a chapter's page is on screen (failed = the page is missing / did not load)
+    function afterLoad(idx, failed) {
+        if (!on || idx !== currentFlatIndex) return;
+        if (flatTopics[idx].front) { stop(); return; }   // user opened the preface: they want to read, so Play All ends
+        if (failed) { setTimeout(() => { if (on && idx === currentFlatIndex) advance(); }, 400); return; }
+        const a = curAudio();
+        if (!a) { setTimeout(() => { if (on && idx === currentFlatIndex) advance(); }, 400); return; }   // chapter without audio: skip it
+        a.addEventListener("play",  paint);
+        a.addEventListener("pause", paint);
+        a.addEventListener("ended", () => { if (on && a === curAudio()) advance(); });
+        a.addEventListener("error", () => { if (on && a === curAudio()) setTimeout(advance, 400); });   // mp3 missing: skip it
+        const p = a.play();
+        if (p && p.catch) p.catch(() => paint());   // browser refused to auto-start: control shows play, one tap resumes
+        paint();
+    }
+
+    bToggle.addEventListener("click", () => {
+        if (!on) { start(); return; }
+        const a = curAudio(); if (!a) return;
+        if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else a.pause();
+    });
+    bStop.addEventListener("click", stop);
+    bNext.addEventListener("click", () => { if (on) advance(); });
+    bPrev.addEventListener("click", () => {
+        if (!on) return;
+        const list = chapters().filter(i => i < currentFlatIndex);
+        go(list.length ? list[list.length - 1] : chapters()[0]);
+    });
+
+    paint();   // first draw: circled play icon
+    return { paint, afterLoad };
+})();
+// ═════════ PLAY ALL (end) ═════════
 
 // ── COPY-CODE BUTTONS (on every <pre> in loaded content, as in the original) ──
 function wireCopyButtons() {
