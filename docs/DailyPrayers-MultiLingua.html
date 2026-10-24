@@ -1270,7 +1270,7 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 60; width: auto; height: auto; margin: 0;
               padding: 10px 6px; gap: 13px; flex-direction: column; justify-content: flex-start;
               background: #0d0b08; border: 1px solid #d8b46a55; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#themeBtn):not(#langGroup):not(.rail-sep) { display: none !important; }
+  #navbar > :not(.ls-btn):not(#speedGroup):not(#lockBtn):not(#themeBtn):not(#langGroup):not(#gearGroup):not(.rail-sep) { display: none !important; }
   /* prayer without audio: pause / mute / speed stay but are dimmed and inactive; the lock button keeps working */
   #navbar:has(#speedMain:disabled) .ls-btn, #navbar:has(#speedMain:disabled) #speedGroup { opacity: 0.28; pointer-events: none; }
   #navbar .ls-btn, #navbar #speedGroup button.speed-main, #navbar #speedGroup button.speed-btn,
@@ -1583,46 +1583,53 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar #lsDown { margin-bottom: 4px; }
 }
 
-/* ══ SETTINGS GEAR + VERSE ARROWS IN THE BAR (portrait phone, tablet, desktop) ═══════════════════════════════════
-   Everything below is inside "not (landscape phone)", so the landscape left rail is exactly as before.
-   - up / down verse arrows sit in the bar next to prev / next prayer (the floating arrows are hidden)
-   - the gear opens a small panel holding: theme, touch lock, copy (desktop), full screen (browser only), language
-     (the script moves those buttons into the panel here, and back into the rail in landscape) */
+/* ══ SETTINGS GEAR + VERSE ARROWS IN THE BAR ═══════════════════════════════════════════════════════════════════
+   Portrait / tablet / desktop: up / down verse arrows sit in the bottom bar, the gear sits at its right end.
+   Phone landscape: the gear is the last button of the left rail and its panel opens to the right of the rail.
+   The gear's panel holds: theme, touch lock, copy (desktop), full screen (browser only), language. */
 #gearGroup { display: none; }
+#navbar #gearBtn { width: 31px; height: 31px; min-width: 31px; padding: 0; border-radius: 50%; background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
+      display: inline-flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+#navbar #gearBtn svg { width: 18px; height: 18px; display: block; transition: transform .35s ease; }
+#navbar #gearBtn:hover, #navbar #gearBtn[aria-expanded="true"] { background: #d8b46a33; }
+#navbar #gearBtn[aria-expanded="true"] svg { transform: rotate(60deg); }
+#gearPop { position: absolute; z-index: 60; box-sizing: border-box; width: max-content; max-width: min(300px, calc(100vw - 16px));
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 12px;
+      background: #111; border: 1px solid #d8b46a; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+#gearPop[hidden] { display: none; }
+/* every setting = one round gold button (display is left to each button's own rule, so hidden ones stay hidden) */
+#navbar #gearPop button { position: static; transform: none; order: 0; margin: 0; width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%;
+      align-items: center; justify-content: center; color: #d8b46a; -webkit-tap-highlight-color: transparent; }
+#navbar #gearPop button svg { width: 22px; height: 22px; flex: none; }
+#navbar #gearPop #copyBtn { opacity: 1; background: transparent; border: 1.5px solid #d8b46a; }
+#navbar #gearPop #copyBtn.done { background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
+#navbar #gearPop #copyBtn:hover { background: #d8b46a33; }
+/* language: the button, and its choices open as a row inside the panel (no second pop-up) */
+#navbar #gearPop #langGroup { display: contents; }
+#navbar #gearPop #langGroup button.lang-main { width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%; font-size: 16px; }
+#navbar #gearPop #langPop { position: static; transform: none; flex: 1 1 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 2px 0 0; background: transparent; border: 0; box-shadow: none; }
+#navbar #gearPop #langPop[hidden] { display: none; }
+#navbar #gearPop #langGroup button.lang-btn { width: auto; min-width: 44px; height: 34px; padding: 0 10px; border-radius: 17px; }
+
+/* bar (portrait phone, tablet, desktop) */
 @media not all and (orientation: landscape) and (max-height: 520px) {
   #navbar { padding-right: 46px; gap: 6px; }
   #navbar .ls-btn.ls-nav { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 38px; height: 32px; padding: 0; }
   #navbar .ls-btn.ls-nav svg { width: 20px; height: 20px; fill: none; stroke: currentColor; display: block; }
   body:has(#verseNav:not(.show)) #navbar .ls-nav { opacity: 0.28; pointer-events: none; }   /* page without verses: dimmed */
   #verseNav, #verseNav.show { display: none !important; }                                    /* the bar arrows replace the floating ones */
-
   #gearGroup { display: block; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 50; }
-  #navbar #gearBtn { width: 31px; height: 31px; min-width: 31px; padding: 0; border-radius: 50%; background: transparent; border: 1.5px solid #d8b46a; color: #d8b46a;
-        display: inline-flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-  #navbar #gearBtn svg { width: 18px; height: 18px; display: block; transition: transform .35s ease; }
-  #navbar #gearBtn:hover, #navbar #gearBtn[aria-expanded="true"] { background: #d8b46a33; }
-  #navbar #gearBtn[aria-expanded="true"] svg { transform: rotate(60deg); }
-
-  #gearPop { position: absolute; right: 0; bottom: calc(100% + 14px); z-index: 60; box-sizing: border-box; width: max-content; max-width: min(300px, calc(100vw - 16px));
-        display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 12px;
-        background: #111; border: 1px solid #d8b46a; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
-  #gearPop[hidden] { display: none; }
-  /* every setting = one round gold button (display is left to each button's own rule, so hidden ones stay hidden) */
-  #navbar #gearPop button { position: static; transform: none; order: 0; margin: 0; width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%;
-        align-items: center; justify-content: center; color: #d8b46a; -webkit-tap-highlight-color: transparent; }
-  #navbar #gearPop button svg { width: 22px; height: 22px; flex: none; }
-  #navbar #gearPop #copyBtn { opacity: 1; background: transparent; border: 1.5px solid #d8b46a; }
-  #navbar #gearPop #copyBtn.done { background: #7a1f1f; border-color: #7a1f1f; color: #fff; }
-  #navbar #gearPop #copyBtn:hover { background: #d8b46a33; }
-  /* language: the button, and its choices open as a row inside the panel (no second pop-up) */
-  #navbar #gearPop #langGroup { display: contents; }
-  #navbar #gearPop #langGroup button.lang-main { width: 44px; height: 44px; min-width: 44px; padding: 0; border-radius: 50%; font-size: 16px; }
-  #navbar #gearPop #langPop { position: static; transform: none; flex: 1 1 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 2px 0 0; background: transparent; border: 0; box-shadow: none; }
-  #navbar #gearPop #langPop[hidden] { display: none; }
-  #navbar #gearPop #langGroup button.lang-btn { width: auto; min-width: 44px; height: 34px; padding: 0 10px; border-radius: 17px; }
+  #gearPop { right: 0; bottom: calc(100% + 14px); }
 }
 @media not all and (orientation: landscape) and (max-height: 520px) and (min-width: 701px) {
-  #navbar #gearPop { max-width: 340px; }
+  #gearPop { max-width: 340px; }
+}
+/* phone landscape: gear = last button of the left rail, panel opens to its right */
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar > #gearGroup { display: block; position: relative; flex: none; margin: 0; }
+  #navbar #gearBtn { width: var(--rb, 38px); height: var(--rb, 38px); min-width: var(--rb, 38px); background: #1a160f; }
+  #navbar #gearBtn svg { width: 20px; height: 20px; }
+  #gearPop { left: calc(100% + 12px); right: auto; bottom: -6px; max-width: 300px; }
 }
 /* phones in portrait: keep prev / counter / next / up / down / speed between the menu button and the gear */
 @media (max-width: 700px) and (orientation: portrait) {
@@ -1636,6 +1643,12 @@ body.stage-on { overscroll-behavior-y: none; }
   #navbar #speedGroup button.speed-main { min-width: 38px; }
   #counter { min-width: 34px; }
 }
+/* ── READING MODE: while the audio plays (touch devices, or desktop in full screen) the nav bar / rail and the player fade out slowly;
+   they keep their space, so nothing moves. One tap brings them back almost at once; they fade away again after a few idle seconds. ── */
+#navbar, #audio-dock { transition: opacity 7s ease; }
+body.immerse-fade #navbar, body.immerse-fade #audio-dock { opacity: 0; pointer-events: none; }
+body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration: 0.15s; }
+body.immerse-fade, body.immerse-fade * { cursor: none !important; }
 /* running as an app (see IN_APP in the script): no full screen / minimise button anywhere */
 html.in-app #fsBtn { display: none !important; }
 </style>
@@ -2145,6 +2158,7 @@ function stopAudioSync() {
     clearTimeout(pendingTapPlay);
     document.querySelectorAll("#content-panel audio").forEach(a => a.pause());
     contentBox.classList.remove("sync-on", "sync-playing");
+    if (window.readingMode) window.readingMode.stop();     // controls back before the player is removed
     audioDock.innerHTML = "";                     // remove the pinned player
     document.querySelectorAll("#speedGroup .speed-btn").forEach(b => {
         b.disabled = true; b.hidden = false; b.classList.remove("active"); b.removeAttribute("aria-pressed"); b.onclick = null;
@@ -2231,9 +2245,9 @@ function buildCustomPlayer(audio, holder) {
         if (audio.paused) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
         else audio.pause();
     });
-    audio.addEventListener("play",  () => { paintBtn(); if (!raf) raf = requestAnimationFrame(loop); });
-    audio.addEventListener("pause", () => { paintBtn(); paint(); });
-    audio.addEventListener("ended", () => { paintBtn(); paint(); });
+    audio.addEventListener("play",  () => { paintBtn(); if (!raf) raf = requestAnimationFrame(loop); window.readingMode && window.readingMode.play(); });
+    audio.addEventListener("pause", () => { paintBtn(); paint(); window.readingMode && window.readingMode.stop(); });
+    audio.addEventListener("ended", () => { paintBtn(); paint(); window.readingMode && window.readingMode.stop(); });
     audio.addEventListener("timeupdate", paint);
     audio.addEventListener("seeked", paint);
     ["progress", "loadedmetadata", "loadeddata", "durationchange", "canplay", "canplaythrough", "seeked"]
@@ -2329,6 +2343,7 @@ function initAudioSync() {
         if (active >= 0) blocks[active].classList.remove("verse-active");
         active = -1;
         contentBox.classList.remove("sync-on", "sync-playing");
+        if (window.readingMode) window.readingMode.stop();
         audioDock.innerHTML = '<div class="audio-missing">\uD83D\uDD07 Audio not available for this page</div>';
         scrollAnim = null;
     }
@@ -3437,32 +3452,72 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 // ── SETTINGS GEAR ────────────────────────────────────────────────────────────────────────────────────────────
-// Portrait / tablet / desktop: theme, touch lock, copy, full screen and language live inside the gear's panel.
-// Phone landscape: they go back to their own places in the left rail (nothing changes there).
+// Theme, touch lock, copy, full screen and language live inside the gear's panel (bottom bar in portrait / desktop, left rail in landscape).
 (function () {
     const grp = document.getElementById("gearGroup"), gb = document.getElementById("gearBtn"), pop = document.getElementById("gearPop");
-    const order = ["themeBtn", "lockBtn", "copyBtn", "fsBtn", "langGroup"];            // order inside the panel
-    const items = {};
-    order.forEach(id => { const el = document.getElementById(id); const ph = document.createComment(id); el.parentNode.insertBefore(ph, el); items[id] = { el, ph }; });
-    const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+    ["themeBtn", "lockBtn", "copyBtn", "fsBtn", "langGroup"].forEach(id => pop.appendChild(document.getElementById(id)));
     function setOpen(v) {
         pop.hidden = !v; gb.setAttribute("aria-expanded", v ? "true" : "false");
         if (!v && typeof closeLangPop === "function") closeLangPop();
-    }
-    function place() {
-        if (land.matches) {                                                              // rail: put every button back where it was
-            setOpen(false);
-            order.forEach(id => { const it = items[id]; if (it.el.parentNode === pop) it.ph.parentNode.insertBefore(it.el, it.ph.nextSibling); });
-        } else {                                                                         // bar: collect them in the panel
-            order.forEach(id => pop.appendChild(items[id].el));
-        }
     }
     gb.addEventListener("click", e => { e.stopPropagation(); setOpen(pop.hidden); });
     document.addEventListener("click", e => { if (!pop.hidden && !e.composedPath().includes(grp)) setOpen(false); });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) setOpen(false); });
     document.getElementById("speedMain").addEventListener("click", () => setOpen(false));
-    if (land.addEventListener) land.addEventListener("change", place); else land.addListener(place);
-    place();
+    const land = window.matchMedia("(orientation: landscape) and (max-height: 520px)");
+    if (land.addEventListener) land.addEventListener("change", () => setOpen(false)); else land.addListener(() => setOpen(false));
+    new MutationObserver(() => { if (document.body.classList.contains("immerse-fade")) setOpen(false); }).observe(document.body, { attributes: true, attributeFilter: ["class"] });   // controls fading out: close the panel too
+})();
+
+// ── READING MODE (fade-out) ──────────────────────────────────────────────────────────────────────────────────
+// While the audio plays (touch devices, or desktop in full screen) the nav bar / rail and the player start to fade out 5 s after play begins
+// and take another 7 s to disappear (the 7 s is the CSS transition). Nothing changes size, so the verse boxes stay where they are.
+// A tap brings the controls back almost instantly (that tap does nothing else: no play, no bookmark); after a few idle seconds they fade
+// away again. Pausing / the end of the audio / opening another prayer brings them back for good.
+window.readingMode = (function () {
+    const body = document.body;
+    const START_AFTER = 5000, IDLE_MS = 5000;
+    let playing = false, on = false, tStart = 0, tIdle = 0;
+    const coarse = () => window.matchMedia("(pointer: coarse)").matches;
+    const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const eligible = () => coarse() || isFs();        // phones / tablets always; desktop only while in full screen
+    function enter() {
+        if (!playing || on) return;
+        on = true;
+        body.classList.remove("immerse-quick");
+        body.classList.add("immerse-fade");
+    }
+    function reveal(thenHideAgain) {
+        clearTimeout(tStart); clearTimeout(tIdle);
+        on = false;
+        body.classList.add("immerse-quick");           // quick fade back in
+        body.classList.remove("immerse-fade");
+        if (thenHideAgain && playing) tIdle = setTimeout(enter, IDLE_MS);
+    }
+    function play() { playing = true; if (!eligible()) return; clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); }
+    function stop() { playing = false; clearTimeout(tStart); clearTimeout(tIdle); if (on || body.classList.contains("immerse-fade")) reveal(false); }
+    // a tap while the controls are hidden (or fading) only brings them back
+    document.addEventListener("click", e => { if (!on) return; e.stopPropagation(); e.preventDefault(); reveal(true); }, true);
+    // any touch while the controls are showing postpones the next fade-out
+    document.addEventListener("pointerdown", () => { if (playing && !on && eligible()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); } }, true);
+    // desktop (mouse): no "tap", so moving the mouse brings the controls back; entering / leaving full screen starts / ends the mode
+    let lx = -1, ly = -1;
+    document.addEventListener("mousemove", e => {
+        if (coarse()) return;
+        const moved = lx < 0 || Math.abs(e.clientX - lx) + Math.abs(e.clientY - ly) > 8;
+        if (!moved) return;
+        lx = e.clientX; ly = e.clientY;
+        if (on) reveal(true);
+        else if (playing && isFs()) { clearTimeout(tStart); clearTimeout(tIdle); tIdle = setTimeout(enter, IDLE_MS); }
+    }, { passive: true });
+    function onFsChange() {
+        if (coarse()) return;
+        if (isFs()) { if (playing) { clearTimeout(tStart); tStart = setTimeout(enter, START_AFTER); } }
+        else { clearTimeout(tStart); clearTimeout(tIdle); if (on || body.classList.contains("immerse-fade")) reveal(false); }
+    }
+    document.addEventListener("fullscreenchange", onFsChange);
+    document.addEventListener("webkitfullscreenchange", onFsChange);
+    return { play, stop };
 })();
 </script>
 
