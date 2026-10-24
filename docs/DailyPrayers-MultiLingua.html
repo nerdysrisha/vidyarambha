@@ -755,16 +755,16 @@ body.dark #themeBtn .ic-moon { display: none !important; }
 #titleStrip { position: absolute; left: 0; right: 0; top: 0; z-index: 8; box-sizing: border-box; height: 24px; padding: 0 14px;
     display: flex; align-items: center; justify-content: center; gap: 8px;
     background: #2a2012; color: #f0d18a; font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
-    border-bottom: 1.5px solid #ff9933; box-shadow: 0 3px 8px -1px rgba(255, 153, 51, 0.45);
+    border-bottom: 1.5px solid #ff9933; box-shadow: 0 2.4px 6.4px -0.8px rgba(255, 153, 51, 0.36);
     opacity: 0; visibility: hidden; transform: translateY(-3px); pointer-events: none;
     transition: opacity .25s ease, transform .25s ease, visibility 0s linear .25s; }
 #titleStrip.show { opacity: 1; visibility: visible; transform: none; transition: opacity .25s ease, transform .25s ease, visibility 0s;
     animation: stripGlow 1.8s ease-in-out infinite; }      /* same breathing saffron glow as the Start button */
 @keyframes stripGlow {
-    0%, 100% { box-shadow: 0 2px 6px 0 rgba(255,170,60,0.75), 0 3px 14px 2px rgba(255,150,40,0.45); }
-    50%      { box-shadow: 0 3px 12px 2px rgba(255,190,90,1), 0 4px 24px 5px rgba(255,150,40,0.7); }
+    0%, 100% { box-shadow: 0 1.6px 4.8px 0 rgba(255,170,60,0.6), 0 2.4px 11.2px 1.6px rgba(255,150,40,0.36); }
+    50%      { box-shadow: 0 2.4px 9.6px 1.6px rgba(255,190,90,0.8), 0 3.2px 19.2px 4px rgba(255,150,40,0.56); }
 }
-@media (prefers-reduced-motion: reduce) { #titleStrip.show { animation: none; box-shadow: 0 3px 12px 1px rgba(255,170,60,0.8); } }
+@media (prefers-reduced-motion: reduce) { #titleStrip.show { animation: none; box-shadow: 0 2.4px 9.6px 0.8px rgba(255,170,60,0.64); } }
 #titleStrip.boxed { border: 1px solid #7a6030; border-bottom: 1.5px solid #ff9933; border-radius: 11px 11px 0 0; }   /* sits on top of the golden verse box */
 #titleStrip .ts-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.6; }
 #titleStrip[lang="te"] { font-family: 'Noto Sans Telugu', sans-serif; }
@@ -1649,6 +1649,13 @@ body.stage-on { overscroll-behavior-y: none; }
 body.immerse-fade #navbar, body.immerse-fade #audio-dock { opacity: 0; pointer-events: none; }
 body.immerse-quick #navbar, body.immerse-quick #audio-dock { transition-duration: 0.15s; }
 body.immerse-fade, body.immerse-fade * { cursor: none !important; }
+/* LANDSCAPE RAIL: compact pill centred on the left edge (was full height), buttons closer together */
+@media (orientation: landscape) and (max-height: 520px) {
+  #navbar { top: 50%; bottom: auto; left: 6px; transform: translateY(-50%); height: auto; justify-content: flex-start;
+            gap: 4px; padding: 7px 5px; border-width: 1px; border-radius: 24px; }
+  #navbar .rail-sep { margin: 0; }
+}
+@media (orientation: landscape) and (max-height: 400px) { #navbar { gap: 3px; padding: 6px 5px; } }
 /* running as an app (see IN_APP in the script): no full screen / minimise button anywhere */
 html.in-app #fsBtn { display: none !important; }
 </style>
