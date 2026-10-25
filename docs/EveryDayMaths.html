@@ -1518,6 +1518,7 @@ function applyAnswers() {
             canvas.getContext("2d").clearRect(0,0,canvas.width,canvas.height);
         }
     });
+    document.querySelectorAll("img.shape-answer-img").forEach(im => { im.style.display = showAll ? "block" : "none"; });
     document.querySelectorAll("canvas.shape-answer-canvas").forEach(canvas => {
         if (showAll) {
             if (canvas.style.display !== "block") { canvas.style.display="block"; if (window._drawShape) window._drawShape(canvas, canvas.dataset.shapeName); }
@@ -2979,6 +2980,7 @@ function generate(box, val) {
 
         window._drawShape = drawShape;
 
+        const renderDrawn = () => {
         const idx = pickDailyIndices(val, SHAPES_DATA.length, 4);
         const picked = idx.map(i => SHAPES_DATA[i]);
         const letters = ["a","b","c","d"];
@@ -3029,6 +3031,63 @@ function generate(box, val) {
                 row.appendChild(canvas);
                 box.appendChild(row);
             });
+        };
+
+        // Preferred: real pictures from GitHub (docs/subjects/maths/images/geometric-shapes). The file name is the shape name.
+        const SHAPE_3D = new Set(["cube","cuboid","sphere","cylinder","cone","pyramid","prism"]);
+        const SHAPE_2D = new Set(SHAPES_DATA.filter(x => x.type === "2d").map(x => x.name));
+        const loading = document.createElement("div");
+        loading.style.cssText = "color:#888;padding:12px 20px;font-size:18px;";
+        loading.textContent = "Loading shapes…";
+        box.appendChild(loading);
+
+        fetch("https://api.github.com/repos/nerdysrisha/vidyarambha/contents/docs/subjects/maths/images/geometric-shapes")
+            .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+            .then(files => {
+                const pics = (Array.isArray(files) ? files : [])
+                    .filter(f => /\.(png|webp|jpe?g|svg)$/i.test(f.name))
+                    .sort((x, y) => x.name.localeCompare(y.name));
+                if (!pics.length) throw new Error("no pictures");
+                loading.remove();
+                const idx = pickDailyIndices(val, pics.length, 4);
+                const letters = ["a","b","c","d"];
+                idx.map(i => pics[i]).forEach((file, i) => {
+                    const nm = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+                    const key = nm.toLowerCase();
+                    const row = document.createElement("div");
+                    row.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:14px 20px;"
+                        + "border-bottom:1px solid #1e1e1e;box-sizing:border-box;width:100%;";
+                    const letter = document.createElement("span");
+                    letter.style.cssText = "font-size:36px;font-weight:bold;color:#fff;flex-shrink:0;width:60px;text-align:right;";
+                    letter.textContent = "(" + letters[i] + ")";
+                    row.appendChild(letter);
+                    const kind = SHAPE_3D.has(key) ? "3d" : (SHAPE_2D.has(key) ? "2d" : "");
+                    if (kind) {
+                        const badge = document.createElement("span");
+                        badge.style.cssText = "font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:4px;flex-shrink:0;"
+                            + (kind === "3d" ? "color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);"
+                                             : "color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);");
+                        badge.textContent = kind.toUpperCase();
+                        row.appendChild(badge);
+                    }
+                    const nameSpan = document.createElement("span");
+                    nameSpan.style.cssText = "font-size:40px;font-weight:bold;color:#fff;flex:1;min-width:0;overflow-wrap:anywhere;";
+                    nameSpan.textContent = capitalise(nm);
+                    row.appendChild(nameSpan);
+                    // the answer picture sits on its own line under the name (fits any phone width), shown with "Show"
+                    const img = document.createElement("img");
+                    img.className = "shape-answer-img";
+                    img.alt = nm;
+                    img.src = file.download_url;
+                    img.onerror = () => img.remove();
+                    img.style.cssText = "display:" + ((typeof showAll !== "undefined" && showAll) ? "block" : "none") + ";flex-basis:100%;"
+                        + "width:min(240px,70vw);height:min(240px,70vw);object-fit:contain;margin:4px 0 0 74px;"
+                        + "background:#f4f7fb;border-radius:12px;padding:8px;box-sizing:border-box;";
+                    row.appendChild(img);
+                    box.appendChild(row);
+                });
+            })
+            .catch(() => { loading.remove(); renderDrawn(); });   // no internet / GitHub busy: use the code-drawn shapes
         return;
     }
 
