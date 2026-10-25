@@ -3034,8 +3034,6 @@ function generate(box, val) {
         };
 
         // Preferred: real pictures from GitHub (docs/subjects/maths/images/geometric-shapes). The file name is the shape name.
-        const SHAPE_3D = new Set(["cube","cuboid","sphere","cylinder","cone","pyramid","prism","hemisphere","tetrahedron","torus","triangular prism"]);
-        const SHAPE_2D = new Set(SHAPES_DATA.filter(x => x.type === "2d").map(x => x.name.toLowerCase()).concat(["rhombus","trapezoid","crescent","heart","star","quarter circle"]));
         const loading = document.createElement("div");
         loading.style.cssText = "color:#888;padding:12px 20px;font-size:18px;";
         loading.textContent = "Loading shapes…";
@@ -3053,7 +3051,6 @@ function generate(box, val) {
                 const letters = ["a","b","c","d"];
                 idx.map(i => pics[i]).forEach((file, i) => {
                     const nm = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
-                    const key = nm.toLowerCase();
                     const row = document.createElement("div");
                     row.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:14px 20px;"
                         + "border-bottom:1px solid #1e1e1e;box-sizing:border-box;width:100%;";
@@ -3061,15 +3058,6 @@ function generate(box, val) {
                     letter.style.cssText = "font-size:36px;font-weight:bold;color:#fff;flex-shrink:0;width:60px;text-align:right;";
                     letter.textContent = "(" + letters[i] + ")";
                     row.appendChild(letter);
-                    const kind = SHAPE_3D.has(key) ? "3d" : (SHAPE_2D.has(key) ? "2d" : "");
-                    if (kind) {
-                        const badge = document.createElement("span");
-                        badge.style.cssText = "font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:4px;flex-shrink:0;"
-                            + (kind === "3d" ? "color:#34d399;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);"
-                                             : "color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);");
-                        badge.textContent = kind.toUpperCase();
-                        row.appendChild(badge);
-                    }
                     const nameSpan = document.createElement("span");
                     nameSpan.style.cssText = "font-size:40px;font-weight:bold;color:#fff;flex:1;min-width:0;overflow-wrap:anywhere;";
                     nameSpan.textContent = capitalise(nm);
