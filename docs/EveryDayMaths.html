@@ -3034,8 +3034,8 @@ function generate(box, val) {
         };
 
         // Preferred: real pictures from GitHub (docs/subjects/maths/images/geometric-shapes). The file name is the shape name.
-        const SHAPE_3D = new Set(["cube","cuboid","sphere","cylinder","cone","pyramid","prism"]);
-        const SHAPE_2D = new Set(SHAPES_DATA.filter(x => x.type === "2d").map(x => x.name));
+        const SHAPE_3D = new Set(["cube","cuboid","sphere","cylinder","cone","pyramid","prism","hemisphere","tetrahedron","torus","triangular prism"]);
+        const SHAPE_2D = new Set(SHAPES_DATA.filter(x => x.type === "2d").map(x => x.name.toLowerCase()).concat(["rhombus","trapezoid","crescent","heart","star","quarter circle"]));
         const loading = document.createElement("div");
         loading.style.cssText = "color:#888;padding:12px 20px;font-size:18px;";
         loading.textContent = "Loading shapes…";
@@ -3082,7 +3082,7 @@ function generate(box, val) {
                     img.onerror = () => img.remove();
                     img.style.cssText = "display:" + ((typeof showAll !== "undefined" && showAll) ? "block" : "none") + ";flex-basis:100%;"
                         + "width:min(240px,70vw);height:min(240px,70vw);object-fit:contain;margin:4px 0 0 74px;"
-                        + "background:#f4f7fb;border-radius:12px;padding:8px;box-sizing:border-box;";
+                        + "background:#0d1a0d;border:2px solid #1e3a1e;border-radius:12px;padding:0;box-sizing:border-box;";
                     row.appendChild(img);
                     box.appendChild(row);
                 });
