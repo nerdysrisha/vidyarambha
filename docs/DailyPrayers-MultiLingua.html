@@ -1907,8 +1907,9 @@ categories.forEach((cat) => {
         const tip = (desc || "").replace(/\s*\([^)]*\)\s*$/, "");
         item.addEventListener("click", () => loadTopic(flatIndex));      // tap a row = open that prayer
         item.addEventListener("mouseenter", () => {                      // desktop: tooltip beside the row
-            if (!tip) return;
-            tooltipEl.textContent = tip;
+            const tipTxt = tVal("d-" + slug.replace(/-multi-lingua$/, "")) || tip;   // hover text in the chosen language (topics-multi-lang.html)
+            if (!tipTxt) return;
+            tooltipEl.textContent = tipTxt;
             const rect = item.getBoundingClientRect();
             tooltipEl.style.left = (rect.right + 10) + "px";
             tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
@@ -1916,7 +1917,7 @@ categories.forEach((cat) => {
         });
         item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
 
-        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item, front: isFront });
+        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item, front: isFront, key: slug.replace(/-multi-lingua$/, "") });   // key = the name used in topics-multi-lang.html
         list.appendChild(item);
     });
     header.querySelector(".count").textContent = cat.topics.filter(tp => !/^preface/i.test(tp[0])).length || "";
@@ -1925,14 +1926,51 @@ categories.forEach((cat) => {
 });
 if (categories.length === 1) sidebarList.classList.add("single");   // one group only: its header bar is hidden
 const PRAYER_COUNT = flatTopics.filter(f => !f.front).length;   // the preface is not counted
-document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " Prayers";   // small line under the banner title
+document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " Prayers";   // small line under the banner title (re-worded by paintTopicLang)
 
 // text for the counter in the nav bar: the preface shows "Preface"; prayers show "n / total" (the preface is not counted). i = -1: nothing opened yet
 function counterText(i) {
     if (i < 0 || !flatTopics[i]) return "– / " + PRAYER_COUNT;
-    if (flatTopics[i].front) return "Preface";
+    if (flatTopics[i].front) return topicWord("preface");
     return flatTopics.slice(0, i + 1).filter(f => !f.front).length + " / " + PRAYER_COUNT;
 }
+
+// ── TOPICS LIST IN THE CHOSEN LANGUAGE ─────────────────────────────────
+// ONE file holds the listing for every language:  subjects/dailyprayers/topics-multi-lang.html
+//   <div data-lang="te"> <p data-k="hanuman-chalisa">title</p> … </div>
+//   keys: w-title, w-prayers, w-preface, w-search (words), <prayer key> (title; key = page file name without "-multi-lingua"),
+//         d-<prayer key> (hover text). A value of WIP, a missing key or a missing file -> the built-in English text stays.
+let TOPIC_I18N = {};
+const TOPICS_FILE = BASE_URL + "topics-multi-lang.html";
+const EN_WORDS = { title: "Spiritual Learnings", prayers: "Prayers", preface: "Preface", search: "Search prayers..." };
+function tVal(k, code) {   // text for key k in a language (default: the chosen one); "" when not filled in yet
+    const v = ((TOPIC_I18N[code || curLang] || {})[k] || "").trim();
+    return v.toUpperCase() === "WIP" ? "" : v;
+}
+function topicWord(k) { return tVal("w-" + k) || EN_WORDS[k]; }
+function topicName(t) { return tVal(t.key) || cleanLabel(t.label); }
+function paintTopicLang() {
+    const loaded = Object.keys(TOPIC_I18N).length > 0;
+    flatTopics.forEach(t => {
+        const ttl = t.el.querySelector(".t-title"); if (ttl) ttl.textContent = topicName(t);
+        if (loaded && !t.el._srch) {   // the search box also finds a prayer by its name in any language
+            t.el._srch = true;
+            t.el.dataset.search += " " + normalizeSearch(Object.keys(TOPIC_I18N).map(c => tVal(t.key, c)).filter(Boolean).join(" "));
+        }
+    });
+    const tt = document.querySelector("#sidebar-title .title-text"); if (tt && tt.firstChild) tt.firstChild.textContent = topicWord("title");
+    document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " " + topicWord("prayers");
+    const si = document.getElementById("topic-search"); if (si) si.placeholder = topicWord("search");
+    if (currentFlatIndex >= 0) {
+        counterEl.textContent = counterText(currentFlatIndex);
+        if (!flatTopics[currentFlatIndex].front) { stripFallback = topicName(flatTopics[currentFlatIndex]); stripSetName(); }   // prayer-name strip, when the page has no names of its own
+    }
+}
+fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
+    doc.querySelectorAll("[data-lang]").forEach(d => { const L = map[d.dataset.lang] = {}; d.querySelectorAll("[data-k]").forEach(e => { L[e.dataset.k] = e.textContent.trim(); }); });
+    TOPIC_I18N = map; paintTopicLang();
+}).catch(() => {});   // no file -> English list as before
 
 // ── AUDIO SYNC ─────────────────────────────────────────────────────────
 // A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
@@ -2829,7 +2867,7 @@ function loadTopic(flatIndex) {
             initAudioSync();   // (added) wire up audio highlighting if the page has it
             placeCopyBtn(); copyBtn.classList.add("show");
             const hasVerses = !!contentBox.querySelector(".verse-block");
-            stripEnable(hasVerses, cleanLabel(topic.label));   // the strip only exists on pages with verses
+            stripEnable(hasVerses, topicName(topic));   // the strip only exists on pages with verses
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
@@ -3182,6 +3220,7 @@ function setLang(code) {
     curLang = code;
     try { localStorage.setItem(LANG_KEY, code); } catch (e) {}
     paintLang();
+    paintTopicLang();   // prayers list, counter and hover texts in the new language
     contentBox.querySelectorAll(".verse-block").forEach(b => { if (b._apply) b._apply(code); });
     stripSetName();   // prayer-name strip: new language
     applyPreface();   // preface page: swap to the chosen language's <main>
