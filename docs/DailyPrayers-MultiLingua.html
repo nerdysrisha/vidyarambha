@@ -1656,6 +1656,46 @@ body.immerse-fade, body.immerse-fade * { cursor: none !important; }
   #navbar .rail-sep { margin: 0; }
 }
 @media (orientation: landscape) and (max-height: 400px) { #navbar { gap: 3px; padding: 6px 5px; } }
+/* ═════════ PLAY ALL (start) ═ remove this whole CSS block to take the feature out ═════════ */
+#pa-ctrl { display: flex; align-items: center; gap: 2px; flex: none; margin-left: auto; }
+#sidebar.collapsed #pa-ctrl { display: none; }
+#pa-ctrl button {
+    width: 22px; height: 22px; padding: 0; flex: none; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+    background: none; border: 0; border-radius: 50%; color: #d8b46a;
+}
+#pa-ctrl button svg { width: 14px; height: 14px; display: block; fill: currentColor; }
+#pa-ctrl button:hover { background: #d8b46a33; }
+/* the circled main button: always visible (play, or pause while Play All is running) */
+#pa-ctrl #pa-toggle { display: flex; width: 26px; height: 26px; border: 1.5px solid #d8b46a; }
+#pa-ctrl #pa-toggle svg { width: 13px; height: 13px; }
+/* while Play All is on: previous / next / stop appear around it */
+#pa-ctrl.pa-on #pa-prev, #pa-ctrl.pa-on #pa-next, #pa-ctrl.pa-on #pa-stop { display: flex; }
+#pa-ctrl.pa-on #pa-toggle { background: #d8b46a22; }
+/* the wave on the prayer line being played (four small bars) */
+.topic-item .pa-wave {
+    flex: none; align-self: center; margin-left: auto; margin-right: 4px; width: 18px; height: 14px;
+    background:
+        linear-gradient(#c2410c, #c2410c) 0 100% / 3px 40% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 5px 100% / 3px 100% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 10px 100% / 3px 60% no-repeat,
+        linear-gradient(#c2410c, #c2410c) 15px 100% / 3px 80% no-repeat;
+    animation: paWave 0.9s ease-in-out infinite;
+}
+.topic-item.pa-hold .pa-wave { animation-play-state: paused; opacity: 0.55; }   /* paused / loading: bars stand still */
+body.dark .topic-item .pa-wave {
+    background:
+        linear-gradient(#d8b46a, #d8b46a) 0 100% / 3px 40% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 5px 100% / 3px 100% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 10px 100% / 3px 60% no-repeat,
+        linear-gradient(#d8b46a, #d8b46a) 15px 100% / 3px 80% no-repeat;
+}
+@keyframes paWave {
+    0%, 100% { background-size: 3px 40%, 3px 100%, 3px 60%, 3px 80%; }
+    50%      { background-size: 3px 100%, 3px 35%, 3px 95%, 3px 30%; }
+}
+@media (prefers-reduced-motion: reduce) { .topic-item .pa-wave { animation: none; } }
+/* ═════════ PLAY ALL (end) ═════════ */
 /* running as an app (see IN_APP in the script): no full screen / minimise button anywhere */
 html.in-app #fsBtn { display: none !important; }
 </style>
@@ -1675,6 +1715,14 @@ html.in-app #fsBtn { display: none !important; }
     <div id="sidebar">
         <div id="sidebar-title">
             <span class="title-text">Spiritual Learnings<small id="sidebar-count"></small></span>
+            <!-- PLAY ALL (start): controls next to the heading -->
+            <span id="pa-ctrl">
+                <button id="pa-prev" type="button" title="Previous prayer" aria-label="Play All: previous prayer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2.4v14H6zM20 5v14L9.5 12z"/></svg></button>
+                <button id="pa-toggle" type="button" title="Play All prayers" aria-label="Play All prayers"></button>
+                <button id="pa-next" type="button" title="Next prayer" aria-label="Play All: next prayer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.6 5H18v14h-2.4zM4 5l10.5 7L4 19z"/></svg></button>
+                <button id="pa-stop" type="button" title="Stop Play All" aria-label="Stop Play All"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+            </span>
+            <!-- PLAY ALL (end) -->
             <button id="sidebar-toggle" type="button" title="Collapse sidebar" aria-label="Collapse sidebar"></button>
         </div>
         <!-- Search box: hidden for now (CSS: #sidebar-search-row { display: none }). Delete that line to switch it on; the script is ready. -->
@@ -1907,9 +1955,8 @@ categories.forEach((cat) => {
         const tip = (desc || "").replace(/\s*\([^)]*\)\s*$/, "");
         item.addEventListener("click", () => loadTopic(flatIndex));      // tap a row = open that prayer
         item.addEventListener("mouseenter", () => {                      // desktop: tooltip beside the row
-            const tipTxt = tVal("d-" + slug.replace(/-multi-lingua$/, "")) || tip;   // hover text in the chosen language (topics-multi-lang.html)
-            if (!tipTxt) return;
-            tooltipEl.textContent = tipTxt;
+            if (!tip) return;
+            tooltipEl.textContent = tip;
             const rect = item.getBoundingClientRect();
             tooltipEl.style.left = (rect.right + 10) + "px";
             tooltipEl.style.top  = (rect.top + rect.height / 2) + "px";
@@ -1917,7 +1964,7 @@ categories.forEach((cat) => {
         });
         item.addEventListener("mouseleave", () => tooltipEl.classList.remove("visible"));
 
-        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item, front: isFront, key: slug.replace(/-multi-lingua$/, "") });   // key = the name used in topics-multi-lang.html
+        flatTopics.push({ path: BASE_URL + slug + ".html", label, catName: cat.name, el: item, front: isFront });
         list.appendChild(item);
     });
     header.querySelector(".count").textContent = cat.topics.filter(tp => !/^preface/i.test(tp[0])).length || "";
@@ -1926,51 +1973,14 @@ categories.forEach((cat) => {
 });
 if (categories.length === 1) sidebarList.classList.add("single");   // one group only: its header bar is hidden
 const PRAYER_COUNT = flatTopics.filter(f => !f.front).length;   // the preface is not counted
-document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " Prayers";   // small line under the banner title (re-worded by paintTopicLang)
+document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " Prayers";   // small line under the banner title
 
 // text for the counter in the nav bar: the preface shows "Preface"; prayers show "n / total" (the preface is not counted). i = -1: nothing opened yet
 function counterText(i) {
     if (i < 0 || !flatTopics[i]) return "– / " + PRAYER_COUNT;
-    if (flatTopics[i].front) return topicWord("preface");
+    if (flatTopics[i].front) return "Preface";
     return flatTopics.slice(0, i + 1).filter(f => !f.front).length + " / " + PRAYER_COUNT;
 }
-
-// ── TOPICS LIST IN THE CHOSEN LANGUAGE ─────────────────────────────────
-// ONE file holds the listing for every language:  subjects/dailyprayers/topics-multi-lang.html
-//   <div data-lang="te"> <p data-k="hanuman-chalisa">title</p> … </div>
-//   keys: w-title, w-prayers, w-preface, w-search (words), <prayer key> (title; key = page file name without "-multi-lingua"),
-//         d-<prayer key> (hover text). A value of WIP, a missing key or a missing file -> the built-in English text stays.
-let TOPIC_I18N = {};
-const TOPICS_FILE = BASE_URL + "topics-multi-lang.html";
-const EN_WORDS = { title: "Spiritual Learnings", prayers: "Prayers", preface: "Preface", search: "Search prayers..." };
-function tVal(k, code) {   // text for key k in a language (default: the chosen one); "" when not filled in yet
-    const v = ((TOPIC_I18N[code || curLang] || {})[k] || "").trim();
-    return v.toUpperCase() === "WIP" ? "" : v;
-}
-function topicWord(k) { return tVal("w-" + k) || EN_WORDS[k]; }
-function topicName(t) { return tVal(t.key) || cleanLabel(t.label); }
-function paintTopicLang() {
-    const loaded = Object.keys(TOPIC_I18N).length > 0;
-    flatTopics.forEach(t => {
-        const ttl = t.el.querySelector(".t-title"); if (ttl) ttl.textContent = topicName(t);
-        if (loaded && !t.el._srch) {   // the search box also finds a prayer by its name in any language
-            t.el._srch = true;
-            t.el.dataset.search += " " + normalizeSearch(Object.keys(TOPIC_I18N).map(c => tVal(t.key, c)).filter(Boolean).join(" "));
-        }
-    });
-    const tt = document.querySelector("#sidebar-title .title-text"); if (tt && tt.firstChild) tt.firstChild.textContent = topicWord("title");
-    document.getElementById("sidebar-count").textContent = PRAYER_COUNT + " " + topicWord("prayers");
-    const si = document.getElementById("topic-search"); if (si) si.placeholder = topicWord("search");
-    if (currentFlatIndex >= 0) {
-        counterEl.textContent = counterText(currentFlatIndex);
-        if (!flatTopics[currentFlatIndex].front) { stripFallback = topicName(flatTopics[currentFlatIndex]); stripSetName(); }   // prayer-name strip, when the page has no names of its own
-    }
-}
-fetch(TOPICS_FILE).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }).then(html => {
-    const doc = new DOMParser().parseFromString(html, "text/html"), map = {};
-    doc.querySelectorAll("[data-lang]").forEach(d => { const L = map[d.dataset.lang] = {}; d.querySelectorAll("[data-k]").forEach(e => { L[e.dataset.k] = e.textContent.trim(); }); });
-    TOPIC_I18N = map; paintTopicLang();
-}).catch(() => {});   // no file -> English list as before
 
 // ── AUDIO SYNC ─────────────────────────────────────────────────────────
 // A topic page opts in by having  <audio data-ends="35,69,105,...">  where the
@@ -2834,6 +2844,7 @@ function loadTopic(flatIndex) {
     }
     rememberPosition(currentFlatIndex);   // leaving a prayer: note where you were
     currentFlatIndex = flatIndex;
+    if (window.playAll) window.playAll.paint();   // PLAY ALL: move the wave to this prayer line
     const topic = flatTopics[flatIndex];
     pageLoaded = false;
     try { localStorage.setItem(LAST_KEY, topic.path); } catch (e) {}   // BOOKMARK/REOPEN: remember last prayer
@@ -2865,9 +2876,10 @@ function loadTopic(flatIndex) {
             initPreface();   // preface page (no verses): show the chosen language, wire "Tap Next"
             buildVerses();   // build tag + shloka + meaning tabs from the language blocks (before audio sync / fitting look at the blocks)
             initAudioSync();   // (added) wire up audio highlighting if the page has it
+            if (window.playAll) window.playAll.afterLoad(flatIndex);   // PLAY ALL: start this prayer's audio when Play All is on
             placeCopyBtn(); copyBtn.classList.add("show");
             const hasVerses = !!contentBox.querySelector(".verse-block");
-            stripEnable(hasVerses, topicName(topic));   // the strip only exists on pages with verses
+            stripEnable(hasVerses, cleanLabel(topic.label));   // the strip only exists on pages with verses
             document.getElementById("verseNav").classList.toggle("show", hasVerses);
             placeVerseNav();
             if (hasVerses) { const sp = document.createElement("div"); sp.className = "end-spacer"; contentBox.appendChild(sp); }
@@ -2881,6 +2893,7 @@ function loadTopic(flatIndex) {
             if (pendingJump) { pendingJump = false; jumpToBookmarkSoon(); }
         })
         .catch(err => {
+            if (window.playAll) window.playAll.afterLoad(flatIndex, true);   // PLAY ALL: page missing / failed -> skip to the next prayer
             if (err.isMissing) {   // missing page = work in progress: just an icon
                 contentBox.innerHTML = '<div role="img" aria-label="Work in progress" title="Work in progress" ' +
                     'style="text-align:center;font-size:64px;padding:70px 0;">🚧</div>';
@@ -3220,7 +3233,6 @@ function setLang(code) {
     curLang = code;
     try { localStorage.setItem(LANG_KEY, code); } catch (e) {}
     paintLang();
-    paintTopicLang();   // prayers list, counter and hover texts in the new language
     contentBox.querySelectorAll(".verse-block").forEach(b => { if (b._apply) b._apply(code); });
     stripSetName();   // prayer-name strip: new language
     applyPreface();   // preface page: swap to the chosen language's <main>
@@ -3496,6 +3508,103 @@ document.getElementById("lsDown").addEventListener("click", () => stepVerse(1));
 
 
 
+
+// ═════════ PLAY ALL (start) ═ to take the feature out: delete this block, the PLAY ALL CSS block, the PLAY ALL controls in the sidebar HTML,
+//            and the 3 small "PLAY ALL" hook lines inside loadTopic (or just set PLAY_ALL_ON = false: the controls disappear, nothing else changes) ═════════
+// Plays the prayers one after another (top of the list to the bottom). Each prayer keeps its own audio + verse sync; this only
+// starts the audio after a prayer loads and moves on when it ends. The user's own actions always win:
+//   tap another prayer -> it loads and plays, Play All carries on from there
+//   pause the prayer audio -> Play All is paused too (the circled button shows play)
+//   tap Stop -> everything stops; prayers behave as before
+const PLAY_ALL_ON = true;
+window.playAll = (function () {
+    const ctrl = document.getElementById("pa-ctrl");
+    if (!PLAY_ALL_ON) { ctrl.remove(); return null; }
+    const bToggle = document.getElementById("pa-toggle"), bPrev = document.getElementById("pa-prev"),
+          bNext = document.getElementById("pa-next"), bStop = document.getElementById("pa-stop");
+    const ICON_PLAY  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+    const ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+    let on = false;
+
+    const prayers = () => flatTopics.map((t, i) => t.front ? -1 : i).filter(i => i >= 0);   // the Preface is skipped
+    const curAudio = () => document.querySelector("#content-panel audio[data-ends]") || document.querySelector("#content-panel audio");
+
+    function paint() {   // buttons + the wave on the prayer line
+        const a = curAudio(), playing = !!(a && !a.paused && !a.ended);
+        ctrl.classList.toggle("pa-on", on);
+        bToggle.innerHTML = (on && playing) ? ICON_PAUSE : ICON_PLAY;
+        const label = !on ? "Play All prayers" : (playing ? "Pause" : "Resume");
+        bToggle.title = label; bToggle.setAttribute("aria-label", label);
+        flatTopics.forEach((t, i) => {
+            const w = t.el.querySelector(".pa-wave"), here = on && i === currentFlatIndex && !t.front;
+            if (!here) { if (w) w.remove(); t.el.classList.remove("pa-hold"); return; }
+            if (!w) { const sp = document.createElement("span"); sp.className = "pa-wave"; t.el.appendChild(sp); }
+            t.el.classList.toggle("pa-hold", !playing);
+        });
+    }
+
+    function stop() {
+        on = false;
+        const a = curAudio(); if (a) a.pause();
+        paint();
+    }
+
+    function go(i) {   // open prayer i; afterLoad() then starts its audio
+        if (i === currentFlatIndex && pageLoaded) {   // already open (loadTopic would do nothing): play it again from the start
+            const a = curAudio(); if (a) a.currentTime = 0;
+            afterLoad(i);
+            return;
+        }
+        loadTopic(i);
+    }
+
+    function advance() {   // next prayer, or finish after the last one
+        const list = prayers(), nxt = list.find(i => i > currentFlatIndex);
+        if (nxt === undefined) { stop(); return; }
+        go(nxt);
+    }
+
+    function start() {
+        const list = prayers(); if (!list.length) return;
+        on = true; go(list[0]);   // always from the first prayer
+    }
+
+    // called by loadTopic once a prayer's page is on screen (failed = the page is missing / did not load)
+    function afterLoad(idx, failed) {
+        if (!on || idx !== currentFlatIndex) return;
+        if (flatTopics[idx].front) { stop(); return; }   // user opened the Preface: they want to read, so Play All ends
+        if (failed) { if (curAudio()) return; setTimeout(() => { if (on && idx === currentFlatIndex) advance(); }, 400); return; }
+        const a = curAudio();
+        if (!a) { setTimeout(() => { if (on && idx === currentFlatIndex) advance(); }, 400); return; }   // prayer without audio: skip it
+        if (!a.__paWired) {   // each audio element is wired once
+            a.__paWired = true;
+            a.addEventListener("play",  paint);
+            a.addEventListener("pause", paint);
+            a.addEventListener("ended", () => { if (on && a === curAudio()) advance(); });
+            a.addEventListener("error", () => { if (on && a === curAudio()) setTimeout(advance, 400); });   // mp3 missing: skip it
+        }
+        const p = a.play();
+        if (p && p.catch) p.catch(() => paint());   // browser refused to auto-start: control shows play, one tap resumes
+        paint();
+    }
+
+    bToggle.addEventListener("click", () => {
+        if (!on) { start(); return; }
+        const a = curAudio(); if (!a) return;
+        if (a.paused) { const p = a.play(); if (p && p.catch) p.catch(() => {}); } else a.pause();
+    });
+    bStop.addEventListener("click", stop);
+    bNext.addEventListener("click", () => { if (on) advance(); });
+    bPrev.addEventListener("click", () => {
+        if (!on) return;
+        const list = prayers().filter(i => i < currentFlatIndex);
+        go(list.length ? list[list.length - 1] : prayers()[0]);
+    });
+
+    paint();   // first draw: circled play icon
+    return { paint, afterLoad };
+})();
+// ═════════ PLAY ALL (end) ═════════
 
 // ── SETTINGS GEAR ────────────────────────────────────────────────────────────────────────────────────────────
 // Theme, touch lock, copy, full screen and language live inside the gear's panel (bottom bar in portrait / desktop, left rail in landscape).
