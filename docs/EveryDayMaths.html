@@ -704,6 +704,19 @@ DATEREMOVAL--
     .eng-wq { font-size:19px; padding-left:4px; }
     .eng-wline { height:68px; margin-left:4px; }
 }
+/* ── TEXT SIZE BUTTONS: content grows with --txt-zoom, controls bar and lesson ribbon stay as they are ── */
+.stack-box:not(.eng-host) { zoom: var(--txt-zoom, 1); }
+.eng-body { zoom: var(--txt-zoom, 1); }
+.stack-box:not(.eng-host) { padding-bottom: 70px !important; }
+.eng-body { padding-bottom: 70px; }
+#font-fab { position:absolute; right:10px; bottom:10px; z-index:60; display:flex; flex-direction:column; gap:8px; }
+#questions:not(:has(.stack-wrapper.visible-stack)) #font-fab { display:none; }
+#font-fab button { width:42px; height:42px; padding:0; border-radius:50%; font-size:16px; font-weight:bold; line-height:1;
+    background:rgba(20,20,30,0.72); color:#cfe9ff; border:1px solid rgba(160,200,255,0.5); box-shadow:none; opacity:0.85;
+    -webkit-tap-highlight-color:transparent; }
+#font-fab button:disabled { opacity:0.25; cursor:default; transform:none; filter:none; }
+@media (max-width: 700px) { #font-fab button { width:38px; height:38px; font-size:15px; } #font-fab { right:8px; bottom:8px; } }
+
 /* ── LESSON RIBBON (shared by English / Telugu / Hindi): sits right under the top controls bar, never scrolls away ── */
 .stack-wrapper:has(.eng-host) { overflow:hidden !important; }
 .stack-box.eng-host { height:100%; display:flex; flex-direction:column; overflow:hidden; padding:0; border:none; background:transparent; }
@@ -905,6 +918,11 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
 
     <fieldset id="questions">
         <!--<legend>Questions Panel</legend> -->
+        <!-- TEXT SIZE: floating A+ / A- (base size = smallest; only grows) -->
+        <div id="font-fab">
+            <button type="button" id="fab-plus" aria-label="Bigger text" title="Bigger text">A+</button>
+            <button type="button" id="fab-minus" aria-label="Smaller text" title="Smaller text">A&minus;</button>
+        </div>
         <!-- IDLE GLOBE: floating numbers + letters while no topic is showing -->
         <div id="idle-globe" aria-hidden="true">
             <canvas id="idle-canvas"></canvas>
@@ -3080,7 +3098,7 @@ function generate(box, val) {
                     img.src = file.download_url;
                     img.onerror = () => img.remove();
                     img.style.cssText = "display:" + ((typeof showAll !== "undefined" && showAll) ? "block" : "none") + ";flex-basis:100%;"
-                        + "width:min(240px,70vw);height:min(240px,70vw);object-fit:contain;margin:4px 0 0 74px;"
+                        + "width:min(240px,70%);aspect-ratio:1/1;height:auto;object-fit:contain;margin:4px 0 0 74px;"
                         + "background:#000;border:2px solid #222;border-radius:12px;padding:0;box-sizing:border-box;";
                     row.appendChild(img);
                     box.appendChild(row);
@@ -3816,6 +3834,24 @@ document.addEventListener("visibilitychange", ()=>{
     if (wakeLock!==null && document.visibilityState==="visible") requestWakeLock();
 });
 requestWakeLock();
+
+// ── Text size buttons: A+ grows the content step by step, A- goes back; base size is the smallest ──
+(function () {
+    const LEVELS = [1, 1.15, 1.3, 1.5, 1.75, 2];
+    let lvl = 0;
+    try { const v = parseInt(localStorage.getItem("emTextLevel"), 10); if (v >= 0 && v < LEVELS.length) lvl = v; } catch (e) {}
+    const plus = document.getElementById("fab-plus"), minus = document.getElementById("fab-minus");
+    if (!plus || !minus) return;
+    function apply() {
+        document.documentElement.style.setProperty("--txt-zoom", LEVELS[lvl]);
+        plus.disabled  = lvl >= LEVELS.length - 1;
+        minus.disabled = lvl <= 0;
+        try { localStorage.setItem("emTextLevel", String(lvl)); } catch (e) {}
+    }
+    plus.onclick  = () => { if (lvl < LEVELS.length - 1) { lvl++; apply(); } };
+    minus.onclick = () => { if (lvl > 0) { lvl--; apply(); } };
+    apply();
+})();
 </script>
 </body>
 </html>
