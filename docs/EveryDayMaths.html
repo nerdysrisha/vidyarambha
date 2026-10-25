@@ -3047,7 +3047,18 @@ function generate(box, val) {
                     .sort((x, y) => x.name.localeCompare(y.name));
                 if (!pics.length) throw new Error("no pictures");
                 loading.remove();
-                const idx = pickDailyIndices(val, pics.length, 4);
+                // Fixed rotation: 4 new pictures every day, walking through the whole folder in order
+                // (alphabetical), so every shape appears before any repeats. The refresh button still gives a random 4.
+                let idx;
+                if (refreshSeeds[val]) {
+                    idx = pickDailyIndices(val, pics.length, 4);
+                } else {
+                    const n = Math.min(4, pics.length);
+                    const t = new Date();
+                    const dayNo = Math.floor(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()) / 86400000);
+                    const start = (dayNo * 4) % pics.length;
+                    idx = Array.from({ length: n }, (_, k) => (start + k) % pics.length);
+                }
                 const letters = ["a","b","c","d"];
                 idx.map(i => pics[i]).forEach((file, i) => {
                     const nm = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
