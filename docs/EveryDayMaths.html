@@ -34,16 +34,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 
 /* CONTROL PANEL */
 #control {
-    position: sticky;
-    top: 0;
-    z-index: 10;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 4px 10px;
-    background: #0a0a0a;
-    border: 1px solid #444;
-    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid #2c2c3e;
+    margin: 4px 0 0;
+    padding: 8px 10px 4px;
+    min-width: 0;
 }
+#control legend { display: none; }
 
 #control legend { padding: 0 10px; font-size: 14px; color: #aaa; }
 
@@ -64,17 +65,17 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     display: flex;
     flex-direction: column;
     transition: flex-basis 0.3s ease, min-height 0.3s ease;
-    min-height: 40px;
-    overflow: hidden;
-}
-
-#control-container.shrink {
-    flex-basis: auto;
     min-height: 64px;
+    overflow: hidden;
+    flex-shrink: 0;
     padding: 4px 8px;
     border: 1px solid #333;
     border-radius: 8px;
     background: linear-gradient(135deg, #111 0%, #1a1a2e 100%);
+}
+
+#control-container.shrink {
+    flex-basis: auto;
 }
 
 #control-container.shrink #control { display: none; }
@@ -171,11 +172,11 @@ DATEREMOVAL--
 #questions {
     position: relative;
     overflow: hidden;
-    border: 1px solid #333;
+    border: none;
     border-radius: 8px;
     flex: 1;
     min-height: 0;
-    padding: 8px;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -184,7 +185,7 @@ DATEREMOVAL--
 .stack-wrapper {
     display: none;
     position: absolute;
-    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    top: 0; left: 0; right: 0; bottom: 0;
     overflow: hidden;
     box-sizing: border-box;
     scrollbar-width: none;
@@ -605,8 +606,8 @@ DATEREMOVAL--
     .ctrl-item { font-size: 13px; white-space: normal; padding: 4px 0; gap: 7px; }
     .ctrl-item input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
 
-    #questions { padding: 2px; }
-    .stack-wrapper { top: 2px; left: 2px; right: 2px; bottom: 2px; }
+    #questions { padding: 0; }
+    .stack-wrapper { top: 0; left: 0; right: 0; bottom: 0; }
     .stack-box { padding: 8px 8px; }
     .problem-title { font-size: 18px; padding-right: 42px; margin-bottom: 4px; }
     .refresh-btn { top: 6px; right: 6px; width: 34px; height: 30px; padding: 0 !important; font-size: 18px !important; }
@@ -703,24 +704,31 @@ DATEREMOVAL--
     .eng-wq { font-size:19px; padding-left:4px; }
     .eng-wline { height:68px; margin-left:4px; }
 }
-/* ── LESSON RIBBON (shared by English / Telugu / Hindi): stays on top while the lesson scrolls underneath ── */
-.eng-ribbon { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px;
-    margin:0 0 14px; padding:8px 12px; border-radius:16px;
+/* ── LESSON RIBBON (shared by English / Telugu / Hindi): sits right under the top controls bar, never scrolls away ── */
+.stack-wrapper:has(.eng-host) { overflow:hidden !important; }
+.stack-box.eng-host { height:100%; display:flex; flex-direction:column; overflow:hidden; padding:0; border:none; background:transparent; }
+.stack-box.eng-host.eng-reading > .problem-title { display:none; }
+.stack-box.eng-host > .problem-title { padding:6px 4px 0; }
+.eng-host .eng-root { flex:1; min-height:0; display:flex; flex-direction:column; }
+.eng-body { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:0 2px 10px; scrollbar-width:none; -ms-overflow-style:none; }
+.eng-body::-webkit-scrollbar { width:0; height:0; background:transparent; }
+.eng-ribbon { flex:none; display:flex; align-items:center; gap:12px;
+    margin:0 0 8px; padding:6px 12px; border-radius:14px;
     background:linear-gradient(135deg, #17302a 0%, #1a2840 100%);
-    border:1px solid rgba(130,220,190,0.35); box-shadow:0 6px 14px rgba(0,0,0,0.55); font-family:Arial, sans-serif; }
+    border:1px solid rgba(130,220,190,0.35); font-family:Arial, sans-serif; }
 .eng-ribbon-title { flex:1; min-width:0; font-size:20px; font-weight:bold; color:#bff3dc;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.eng-ribbon-nav { display:flex; gap:12px; flex-shrink:0; margin-left:6px; }
+.eng-ribbon-nav { display:flex; gap:14px; flex-shrink:0; margin-left:6px; }
 .eng-rbtn { background:rgba(255,255,255,0.08); color:#d7f5ea; border:1px solid rgba(130,220,190,0.45);
-    border-radius:12px; padding:6px 14px; font-size:15px; font-weight:bold; box-shadow:none; }
-.eng-rbtn.menu { padding:6px 11px; font-size:20px; line-height:1; }
+    border-radius:12px; width:42px; height:36px; padding:0; font-size:24px; line-height:1; font-weight:bold; box-shadow:none; }
+.eng-rbtn.menu { font-size:20px; }
 .eng-rbtn:disabled { opacity:0.3; cursor:default; transform:none; filter:none; }
 @media (max-width: 700px) {
-    .eng-ribbon { gap:8px; padding:6px 8px; border-radius:14px; margin-bottom:10px; }
+    .eng-ribbon { gap:8px; padding:4px 8px; border-radius:12px; margin-bottom:6px; }
     .eng-ribbon-title { font-size:15px; }
-    .eng-ribbon-nav { gap:8px; margin-left:0; }
-    .eng-rbtn { padding:6px 10px; font-size:13px; }
-    .eng-rbtn.menu { font-size:18px; padding:5px 9px; }
+    .eng-ribbon-nav { gap:10px; margin-left:0; }
+    .eng-rbtn { width:38px; height:34px; font-size:22px; }
+    .eng-rbtn.menu { font-size:18px; }
 }
 #eng-lightbox { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.92); z-index:9999; display:flex; align-items:center; justify-content:center; cursor:zoom-out; }
 #eng-lightbox img { max-width:96vw; max-height:96vh; border-radius:8px; }
@@ -842,8 +850,8 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
 @media (orientation: landscape) and (max-height: 520px) {
     #control-container, #bottom-nav { display: none !important; }
     #outer { margin: 3px; gap: 0; height: calc(100vh - 6px); height: calc(100dvh - 6px); }
-    #questions { padding: 2px; }
-    .stack-wrapper { top: 2px; left: 2px; right: 2px; bottom: 2px; }
+    #questions { padding: 0; }
+    .stack-wrapper { top: 0; left: 0; right: 0; bottom: 0; }
     .stack-box { padding: 6px 10px; }
     .problem-title { font-size: 18px; padding-right: 42px; margin-bottom: 2px; }
     .refresh-btn { top: 4px; right: 4px; width: 34px; height: 30px; padding: 0 !important; font-size: 18px !important; }
@@ -2474,6 +2482,8 @@ function engTop(root) {
     const b = root.closest(".stack-box"), w = root.closest(".stack-wrapper");
     if (b) b.scrollTop = 0;
     if (w) w.scrollTop = 0;
+    const body = root.querySelector(".eng-body");
+    if (body) body.scrollTop = 0;
 }
 function engIsTrue(v) { return v === true || ["true", "t", "yes"].includes(String(v).toLowerCase()); }
 
@@ -2505,6 +2515,7 @@ function engOpenImage(src) {
 function renderLessons(box, val) {
     engStop();
     const cfg = ENG_LANGS[val];
+    box.classList.add("eng-host");
     const root = engEl("div", "eng-root" + (cfg.cls ? " " + cfg.cls : ""));
     box.appendChild(root);
     root.appendChild(engEl("div", "eng-intro", "Loading lessons…"));
@@ -2519,6 +2530,8 @@ function engShowPicker(root, idx, cfg) {
     root.innerHTML = "";
     const titles = idx.lessons || {};
     const total  = idx.total || Object.keys(titles).length;
+    const host = root.closest(".stack-box"); if (host) host.classList.remove("eng-reading");
+    const body = engEl("div", "eng-body");
 
     const grid = engEl("div", "eng-grid");
     for (let n = 1; n <= total; n++) {
@@ -2530,7 +2543,8 @@ function engShowPicker(root, idx, cfg) {
         else b.disabled = true;
         grid.appendChild(b);
     }
-    root.appendChild(grid);
+    body.appendChild(grid);
+    root.appendChild(body);
     engTop(root);
 }
 
@@ -2604,7 +2618,10 @@ function engRenderLesson(root, idx, n, L, cfg) {
     root.innerHTML = "";
 
     // sticky ribbon: ☰ All lessons | title | Prev / Next (same for every subject)
+    const host = root.closest(".stack-box"); if (host) host.classList.add("eng-reading");
     root.appendChild(engRibbon(root, idx, n, L, cfg));
+    const body = engEl("div", "eng-body");
+    root.appendChild(body);
     const bar = engEl("div", "eng-bar");   // holds Read aloud for the original layout
 
     if (Array.isArray(L.blocks)) {
@@ -2614,21 +2631,21 @@ function engRenderLesson(root, idx, n, L, cfg) {
             if (ctx.length) {
                 const { card, plain } = engStoryCard(ctx, cfg);
                 const rb = engReadBtn(plain, cfg);
-                if (rb) { const row = engEl("div", "eng-bar"); row.appendChild(rb); root.appendChild(row); }
-                root.appendChild(card);
+                if (rb) { const row = engEl("div", "eng-bar"); row.appendChild(rb); body.appendChild(row); }
+                body.appendChild(card);
             }
-            engRenderSections(root, blk.sections || [], n, bi, cfg);
+            engRenderSections(body, blk.sections || [], n, bi, cfg);
         });
     } else {
         // ORIGINAL layout: whole story first, then all questions (lesson 1 style)
         const { card, plain } = engStoryCard(L.story || [], cfg);
-        root.appendChild(card);
+        body.appendChild(card);
         const rb = engReadBtn(plain, cfg);
-        if (rb) { bar.appendChild(rb); root.insertBefore(bar, card); }
-        engRenderSections(root, L.sections || [], n, 0, cfg);
+        if (rb) { bar.appendChild(rb); body.insertBefore(bar, card); }
+        engRenderSections(body, L.sections || [], n, 0, cfg);
     }
 
-    root.appendChild(engEl("div", "eng-foot"));   // small breathing space at the end
+    body.appendChild(engEl("div", "eng-foot"));   // small breathing space at the end
     engTop(root);
 }
 
@@ -2648,14 +2665,15 @@ function engRibbon(root, idx, n, L, cfg) {
     rib.appendChild(menu);
     rib.appendChild(engEl("div", "eng-ribbon-title", "Lesson " + n + " · " + (L.title || "")));
     const nav = engEl("div", "eng-ribbon-nav");
-    const mk = (label, target) => {
+    const mk = (label, target, tip) => {
         const b = engEl("button", "eng-rbtn", label);
+        b.title = tip; b.setAttribute("aria-label", tip);
         if (target) b.onclick = () => engOpenLesson(root, idx, target, cfg);
         else b.disabled = true;
         return b;
     };
-    nav.appendChild(mk("‹ Prev", engNeighbour(idx, n, -1)));
-    nav.appendChild(mk("Next ›", engNeighbour(idx, n, 1)));
+    nav.appendChild(mk("‹", engNeighbour(idx, n, -1), "Previous lesson"));
+    nav.appendChild(mk("›", engNeighbour(idx, n, 1), "Next lesson"));
     rib.appendChild(nav);
     return rib;
 }
