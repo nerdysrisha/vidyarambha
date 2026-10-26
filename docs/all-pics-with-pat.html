@@ -29,6 +29,7 @@ body[data-v=login] footer{display:none}
 .kids{display:none;margin:-2px 0 8px 12px;padding-left:10px;border-left:2px solid var(--line)}
 .grp.open>.kids{display:block}
 .kids .topic:last-child{margin-bottom:0}
+.bm{display:inline-block;width:15px;height:15px;margin-left:8px;vertical-align:-2px;fill:#f5b942;stroke:#f5b942;stroke-width:1.5;stroke-linejoin:round}
 .link{display:block;margin:14px auto 0;background:none;border:0;color:var(--mute);height:auto;padding:8px;font-size:14px}
 #track{display:flex;position:absolute;left:0;top:0}
 #track>.msg{flex:0 0 100%}
@@ -134,6 +135,9 @@ const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
 let mem = "";
 const getTok = () => { try { return localStorage.getItem("ghtok") || mem; } catch (e) { return mem; } };
 const setTok = v => { mem = v; try { v ? localStorage.setItem("ghtok", v) : localStorage.removeItem("ghtok"); } catch (e) {} };
+const getLast = () => { try { return localStorage.getItem("lastFolder") || ""; } catch (e) { return ""; } };
+const setLast = v => { try { localStorage.setItem("lastFolder", v); } catch (e) {} };
+const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
@@ -172,8 +176,11 @@ async function loadFolders() {
 
 // ── FOLDER LIST ─────────────────────────────────────────────────────────
 const openGroups = new Set();                              // which top-level folders are expanded
+let autoOpened = false;                                  // open the last-visited group once, on first list render
 function renderList() {
   const g = $("box"); g.innerHTML = "";
+  const last = getLast(), lastTop = last.split("/")[0];
+  if (!autoOpened) { autoOpened = true; if (last) openGroups.add(lastTop); }
   const groups = new Map();                                // top-level folder -> its entries (itself and/or sub-folders)
   parsed.forEach(f => { const top = f.n.split("/")[0]; if (!groups.has(top)) groups.set(top, []); groups.get(top).push(f); });
   const dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
@@ -181,6 +188,7 @@ function renderList() {
     const b = document.createElement("button");
     b.className = "topic"; b.innerHTML = "<b></b><small></small>";
     b.firstChild.textContent = title; b.lastChild.textContent = sub;
+    if (last && f.n === last) b.firstChild.appendChild(bmIcon());
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
     return b;
   };
@@ -191,6 +199,7 @@ function renderList() {
     const h = document.createElement("button");
     h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><i>&#9656;</i>";
     h.firstChild.firstChild.textContent = t.t;
+    if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
     h.firstChild.lastChild.textContent = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
     h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
     const kids = document.createElement("div"); kids.className = "kids";
@@ -223,7 +232,7 @@ function updateBar() {
 }
 
 async function openFolder(i) {
-  const my = ++ticket; cur = i; freeUrls(); resetZoom();
+  const my = ++ticket; cur = i; setLast(parsed[i].n); freeUrls(); resetZoom();
   track.style.transition = "none"; track.style.transform = "";
   note("Loading photos..."); show("view"); fit();
   try {
