@@ -112,7 +112,8 @@ body.max #app{padding-top:0}
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────────
 const OWNER = "nerdysrisha", REPO = "pictures";
-// Folders are discovered automatically from the repo root: any new folder you push shows up on next load.
+// Folders are discovered automatically, including sub-folders at any depth (one call to GitHub lists the whole repo).
+// Any folder that directly contains photos becomes one entry, e.g. "all designs / Kitchen". New folders show up on refresh.
 // Landscape phone + landscape photo: fill the whole screen (crops edges). Max share of the photo allowed to be
 // cropped; 0.5 fills normal 4:3 / 16:9 photos. Set 0 to never fill (always show the whole photo).
 const FILL_MAX_CROP = 0.5;
@@ -133,23 +134,32 @@ const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" +
 const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); };
 
 // Folders are fetched from the repo root and sorted newest first (names start with yyyy mm dd)
-let parsed = [], loaded = false;
+let parsed = [], loaded = false, truncated = false;
 const parseFolder = n => {
   const m = n.match(/^(\d{4}) (\d{2}) (\d{2}) (.*)$/);
-  return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: m[4]} : {n, y: 0, mo: 0, d: 0, t: n};
+  const nice = x => x.replace(/\//g, " / ");
+  return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
 };
 async function loadFolders() {
   const my = ++ticket;
   $("box").innerHTML = '<div class="msg">Loading folders...</div>'; show("list");
   try {
-    const r = await api("");
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/git/trees/HEAD?recursive=1", {headers: hdr(false)});
     if (my !== ticket) return false;
     if (r.status === 401) { setTok(""); fail("PIN was rejected. Enter it again."); return false; }
     if (!r.ok) { $("box").innerHTML = '<div class="msg">Could not load folders (error ' + r.status + '). Reload to retry.</div>'; return false; }
-    const items = await r.json();
+    const data = await r.json();
     if (my !== ticket) return false;
-    parsed = items.filter(x => x.type === "dir" && !x.name.startsWith(".")).map(x => parseFolder(x.name))
-      .sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+    const dirs = {};                                         // folder path -> its photos (same shape as a folder listing)
+    (data.tree || []).forEach(x => {
+      if (x.type !== "blob" || !/\.(webp|jpe?g|png|gif)$/i.test(x.path)) return;
+      const i = x.path.lastIndexOf("/"); if (i < 0) return;  // ignore loose files in the repo root
+      const dir = x.path.slice(0, i);
+      if (dir.split("/").some(seg => seg.startsWith("."))) return;
+      (dirs[dir] = dirs[dir] || []).push({name: x.path.slice(i + 1), type: "file", sha: x.sha});
+    });
+    listCache = dirs; truncated = !!data.truncated;
+    parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
     loaded = true; renderList(); return true;
   } catch (e) { if (my === ticket) $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; return false; }
 }
@@ -165,6 +175,9 @@ function renderList() {
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
     g.appendChild(b);
   });
+  const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
+  if (!parsed.length) note2("No folders with photos found.");
+  if (truncated) note2("The repo is very large, so this list may be incomplete.");
 }
 
 // ── VIEWER STATE ────────────────────────────────────────────────────────
