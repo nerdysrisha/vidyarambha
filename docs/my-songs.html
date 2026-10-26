@@ -115,10 +115,18 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #lsprv,#lsnx{font-size:clamp(14px,4vh,20px);color:rgba(139,155,176,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lsnow{flex:none;font-size:clamp(24px,8vh,42px);font-weight:700;line-height:1.3;margin:6px 0}
 #lsarr{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:14px}
-.lsin{animation:lsin .45s ease-out}
-.lsin.up{--dy:16px}.lsin.dn{--dy:-16px}
-@keyframes lsin{from{opacity:0;transform:translateY(var(--dy))}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.lsin{animation:none}}
+.lsout{animation:lsout .4s ease-in forwards}
+.lsout.up{--o:-24px}.lsout.dn{--o:24px}
+.lsin{animation:lsin .8s cubic-bezier(.2,.7,.2,1) both}
+.lsin.up{--i:36px}.lsin.dn{--i:-36px}
+#lsnow.lsin{animation-delay:0s}#lsprv.lsin{animation-delay:.08s}#lsnx.lsin{animation-delay:.18s}
+@keyframes lsout{to{opacity:0;transform:translateY(var(--o))}}
+@keyframes lsin{from{opacity:0;transform:translateY(var(--i))}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.lsout,.lsin{animation:none}}
+#gnr{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:5;max-width:86%;text-align:center;background:rgba(10,16,24,.82);border:1px solid var(--accent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:8px 20px;pointer-events:none;opacity:0;transition:opacity 2s ease}
+#gnr.on{opacity:1;transition:opacity .5s ease}
+#gnr small{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+#gnr b{font-size:16px}
 #ls:not(.playing) .mq .t.run{animation-play-state:paused}
 #lsfx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 #lsrip{position:absolute;left:-130px;bottom:-130px;width:260px;height:260px}
@@ -138,6 +146,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @media (orientation:landscape) and (max-height:520px){
   body.hasq:not([data-v=login]) :is(#top,#list,#songs,#menu,#gear,#prevS,#nextS,#rep){display:none}
   body.hasq:not([data-v=login]) #ls{display:flex}
+  body.hasq:not([data-v=login]) #gnr{top:10px}
   body.hasq:not([data-v=login]) footer{display:flex;align-items:center;gap:10px;padding-top:6px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
   body.hasq:not([data-v=login]) #bar{flex:1;min-width:0;margin-bottom:0}
   body.hasq:not([data-v=login]) #ctl{flex:none}
@@ -168,6 +177,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
     <p id="lerr"></p>
   </div>
   <div id="ls"><div id="lsfx"><div id="lsrip"><i></i><i></i><i></i></div><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div id="lsprv"></div><div id="lsnow" class="mq"><span class="t"></span></div><div id="lsnx"></div><div id="lsarr"><button id="lsup" aria-label="Previous song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><button id="lsdn" aria-label="Next song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
+  <div id="gnr"><small>New genre</small><b></b></div>
   <div id="toast"><b></b></div>
   <footer id="foot">
     <div id="bar" hidden><span id="tcur">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek"><span id="tdur">0:00</span><button id="mute" aria-label="Mute"></button></div>
@@ -218,14 +228,30 @@ const setLast = v => { try { localStorage.setItem(LAST_KEY, v); } catch (e) {} }
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
 const RPI = '<svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
 const curName = () => Q ? pretty(Q.names[Q.pos]) : "";
-let lsDir = 1;                                             // 1 = moving forward, -1 = back (sets the slide direction)
-function lsSet(id, txt) {                                  // update a landscape line; fade/slide it in only when the text changed
-  const el = $(id); if (el._k === txt) return;
-  const first = el._k === undefined; el._k = txt;
-  if (id !== "lsnow") el.textContent = txt;                // the current name is drawn by fitMarquees
-  if (first) return;
-  el.classList.remove("lsin", "up", "dn"); void el.offsetWidth;
-  el.classList.add("lsin", lsDir > 0 ? "up" : "dn");
+let lsDir = 1, lsShown = null, lsBusy = false, lsWant = null;   // landscape lines: slide direction, what is drawn, wanted state
+function lsApply(w) {
+  lsShown = w; $("lsprv").textContent = w.prev; $("lsnx").textContent = w.next;
+  $("lsnow").dataset.t = w.cur; fitMarquees();
+}
+function lsUpdate(w) {                                     // old lines fade out and drift away, then the new ones rise into place
+  lsWant = w;
+  if (lsBusy) return;
+  const sh = lsShown;
+  if (sh && sh.prev === w.prev && sh.cur === w.cur && sh.next === w.next) return;
+  if (!sh || !w.cur || !sh.cur) return lsApply(w);         // first draw or stopped: no animation
+  lsBusy = true;
+  const dir = lsDir > 0 ? "up" : "dn", els = ["lsprv", "lsnow", "lsnx"].map($);
+  els.forEach(e => e.classList.add("lsout", dir));
+  setTimeout(() => {
+    lsApply(lsWant);
+    els.forEach(e => { e.classList.remove("lsout"); void e.offsetWidth; e.classList.add("lsin"); });
+    setTimeout(() => { els.forEach(e => e.classList.remove("lsin", "up", "dn")); lsBusy = false; lsUpdate(lsWant); }, 1050);
+  }, 400);
+}
+let gnrT = 0;
+function showGenre(dir) {                                  // banner: new genre, stays ~6s, then fades slowly
+  const el = $("gnr"); el.lastChild.textContent = nice(dir); el.classList.add("on");
+  clearTimeout(gnrT); gnrT = setTimeout(() => el.classList.remove("on"), 6000);
 }
 const nextName = () => {                                   // name of the song that follows (may be the first of the next folder)
   if (!Q) return "";
@@ -432,7 +458,7 @@ function advance(d) {
   lsDir = d > 0 ? 1 : -1;
   if (d > 0) {
     if (Q.pos + 1 < Q.names.length) Q.pos++;
-    else { const nq = Q.next || buildQ(nextDir(Q.dir), Q.global); if (!nq.names.length) return stopAll(); Q = nq; }
+    else { const nq = Q.next || buildQ(nextDir(Q.dir), Q.global); if (!nq.names.length) return stopAll(); if (nq.dir !== Q.dir) showGenre(nq.dir); Q = nq; }
   } else {
     if (Q.pos === 0 || au.currentTime > 3) { au.currentTime = 0; if (au.paused && !loading) au.play().catch(() => {}); return; }
     Q.pos--;
@@ -474,10 +500,10 @@ function syncPlay() {
 function setNow() {
   const pd = Q ? Q.dir : "";
   if (pd !== shownPD) { shownPD = pd; refreshMarks(); }     // playing folder changed: move the wave in the folder list
-  document.querySelectorAll(".mq").forEach(m => { m.dataset.t = curName(); }); fitMarquees();   // new song: update the name in the list
+  document.querySelectorAll(".mq:not(#lsnow)").forEach(m => { m.dataset.t = curName(); }); fitMarquees();   // new song: update the name in the list
   $("bar").hidden = !Q;
   document.body.classList.toggle("hasq", !!Q);
-  lsSet("lsprv", Q && Q.pos > 0 ? pretty(Q.names[Q.pos - 1]) : ""); lsSet("lsnx", nextName()); lsSet("lsnow", curName());
+  lsUpdate({prev: Q && Q.pos > 0 ? pretty(Q.names[Q.pos - 1]) : "", cur: curName(), next: nextName()});
   if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
   markNow(); syncPlay(); updateBar();
 }
