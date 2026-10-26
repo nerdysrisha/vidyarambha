@@ -23,6 +23,12 @@ body[data-v=login] footer{display:none}
 .topic{display:block;width:100%;height:auto;min-height:52px;margin:0 0 6px;padding:8px 14px;text-align:left}
 .topic b{display:block;font-weight:600;font-size:16px}
 .topic small{color:var(--mute)}
+.topic.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.grp.open>.hd i{transform:rotate(90deg)}
+.kids{display:none;margin:-2px 0 8px 12px;padding-left:10px;border-left:2px solid var(--line)}
+.grp.open>.kids{display:block}
+.kids .topic:last-child{margin-bottom:0}
 .link{display:block;margin:14px auto 0;background:none;border:0;color:var(--mute);height:auto;padding:8px;font-size:14px}
 #track{display:flex;position:absolute;left:0;top:0}
 #track>.msg{flex:0 0 100%}
@@ -165,15 +171,31 @@ async function loadFolders() {
 }
 
 // ── FOLDER LIST ─────────────────────────────────────────────────────────
+const openGroups = new Set();                              // which top-level folders are expanded
 function renderList() {
   const g = $("box"); g.innerHTML = "";
-  parsed.forEach(f => {
+  const groups = new Map();                                // top-level folder -> its entries (itself and/or sub-folders)
+  parsed.forEach(f => { const top = f.n.split("/")[0]; if (!groups.has(top)) groups.set(top, []); groups.get(top).push(f); });
+  const dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
+  const row = (f, title, sub) => {
     const b = document.createElement("button");
     b.className = "topic"; b.innerHTML = "<b></b><small></small>";
-    b.firstChild.textContent = f.t;
-    b.lastChild.textContent = f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
+    b.firstChild.textContent = title; b.lastChild.textContent = sub;
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
-    g.appendChild(b);
+    return b;
+  };
+  groups.forEach((list, top) => {
+    if (list.length === 1 && list[0].n === top) { g.appendChild(row(list[0], list[0].t, dstr(list[0]))); return; }
+    const t = parseFolder(top), wrap = document.createElement("div");
+    wrap.className = "grp" + (openGroups.has(top) ? " open" : "");
+    const h = document.createElement("button");
+    h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><i>&#9656;</i>";
+    h.firstChild.firstChild.textContent = t.t;
+    h.firstChild.lastChild.textContent = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
+    const kids = document.createElement("div"); kids.className = "kids";
+    list.forEach(f => kids.appendChild(row(f, f.n === top ? "Photos in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), "")));
+    wrap.appendChild(h); wrap.appendChild(kids); g.appendChild(wrap);
   });
   const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
   if (!parsed.length) note2("No folders with photos found.");
