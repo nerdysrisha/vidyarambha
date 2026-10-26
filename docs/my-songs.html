@@ -283,6 +283,7 @@ function showGenre(dir) {                                  // banner: new genre,
 const nextName = () => {                                   // name of the song that follows (may be the first of the next folder)
   if (!Q) return "";
   if (Q.pos + 1 < Q.names.length) return pretty(Q.names[Q.pos + 1]);
+  if (!Q.global) return "";
   if (!Q.next && parsed.length) Q.next = buildQ(nextDir(Q.dir), Q.global);
   return Q.next && Q.next.names.length ? pretty(Q.next.names[0]) : "";
 };
@@ -442,7 +443,7 @@ function preloadNext() {                                   // download the next 
   if (!Q) return null;
   let p = null;
   if (Q.pos + 1 < Q.names.length) p = Q.dir + "/" + Q.names[Q.pos + 1];
-  else if (parsed.length) {
+  else if (parsed.length && Q.global) {                    // only Global Play moves on to the next folder
     if (!Q.next) Q.next = buildQ(nextDir(Q.dir), Q.global);
     if (Q.next.names.length) p = Q.next.dir + "/" + Q.next.names[0];
   }
@@ -493,7 +494,8 @@ function advance(d) {
   lsDir = d > 0 ? 1 : -1;
   if (d > 0) {
     if (Q.pos + 1 < Q.names.length) Q.pos++;
-    else { const nq = Q.next || buildQ(nextDir(Q.dir), Q.global); if (!nq.names.length) return stopAll(); if (nq.dir !== Q.dir) showGenre(nq.dir); Q = nq; }
+    else { if (!Q.global) { toast("Folder finished"); return stopAll(); }   // Global Play off: stop after the last song
+      const nq = Q.next || buildQ(nextDir(Q.dir), Q.global); if (!nq.names.length) return stopAll(); if (nq.dir !== Q.dir) showGenre(nq.dir); Q = nq; }
   } else {
     if (Q.pos === 0 || au.currentTime > 3) { au.currentTime = 0; if (au.paused && !loading) au.play().catch(() => {}); return; }
     Q.pos--;
