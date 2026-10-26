@@ -114,7 +114,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #lsprv,#lsnx{font-size:clamp(14px,4vh,20px);color:rgba(139,155,176,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lsnow{flex:none;font-size:clamp(24px,8vh,42px);font-weight:700;line-height:1.3;margin:6px 0}
 #lsarr{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:14px}
-.lsout{animation:lsout .6s ease-in-out forwards}
+.lsout{animation:lsout 2s ease-in-out forwards}
 .lsout.up{--o:-24px}.lsout.dn{--o:24px}
 .lsin{animation:lsin 1.3s cubic-bezier(.22,.61,.36,1) both}
 .lsin.up{--i:36px}.lsin.dn{--i:-36px}
@@ -151,6 +151,30 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
   body.hasq:not([data-v=login]) #ctl{flex:none}
 }
 
+/* start screen: title + glowing round Start button; tapping it goes full screen and the screen fades away.
+   Optional picture: set --start-img: url("...") below. */
+#start-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 24px calc(32px + env(safe-area-inset-bottom,0px)) 0;background:radial-gradient(circle at 50% 38%,#16355a 0%,#0a1018 70%);--start-img:none}
+#start-screen::before{content:"";position:absolute;inset:0;background:var(--start-img) center/cover no-repeat;opacity:0}
+#start-screen.ready::before{animation:startReveal 5s ease-in-out forwards}
+@keyframes startReveal{to{opacity:1}}
+#start-text{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);padding:0 20px;text-align:center;pointer-events:none}
+#start-text h1{margin:0 0 10px;font-size:clamp(30px,min(9vw,14vh),56px);letter-spacing:.5px;text-shadow:0 2px 12px rgba(0,0,0,.6);opacity:0;transform:translateY(28px)}
+#start-text p{margin:0;color:var(--mute);font-size:15px;opacity:0;transform:translateY(28px)}
+#start-screen.ready #start-text h1{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) .6s forwards}
+#start-screen.ready #start-text p{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) 1.6s forwards}
+@keyframes textRise{to{opacity:1;transform:none}}
+#start-btn{position:relative;z-index:1;appearance:none;cursor:pointer;width:76px;height:76px;min-width:0;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.9);color:#05213f;font:700 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:radial-gradient(circle at 35% 30%,#cfe5ff 0%,#4f93e0 60%,#2f78cc 100%);opacity:0;pointer-events:none}
+#start-screen.btn-on #start-btn{pointer-events:auto;animation:startBtnIn .8s ease-out forwards,startGlow 1.8s ease-in-out infinite}
+@keyframes startBtnIn{to{opacity:1}}
+#start-btn:active{transform:scale(.95)}
+@keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(79,147,224,.75),0 0 18px 6px rgba(79,147,224,.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(120,175,240,1),0 0 34px 14px rgba(79,147,224,.7),inset 0 1px 0 rgba(255,255,255,.7)}}
+#start-screen.leaving{pointer-events:none;animation:startFade 2.5s ease forwards}
+#start-screen.leaving #start-btn{animation:startBtnOut 2.5s ease forwards}
+@keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
+@keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
+#prevS,#nextS,#lsup,#lsdn{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+
 /* login */
 #login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
 #login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}
@@ -158,6 +182,10 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 </style>
 </head>
 <body data-v="list">
+<div id="start-screen">
+  <div id="start-text"><h1>My Songs</h1><p>Swipe a folder right to play it</p></div>
+  <button id="start-btn" type="button">Start</button>
+</div>
 <div id="app">
   <header id="top">
     <h1>My Songs</h1>
@@ -245,7 +273,7 @@ function lsUpdate(w) {                                     // old lines fade out
     lsApply(lsWant);
     els.forEach(e => { e.classList.remove("lsout"); void e.offsetWidth; e.classList.add("lsin"); });
     setTimeout(() => { els.forEach(e => e.classList.remove("lsin", "up", "dn")); lsBusy = false; lsUpdate(lsWant); }, 1650);
-  }, 600);
+  }, 2000);
 }
 let gnrT = 0;
 function showGenre(dir) {                                  // banner: new genre, stays ~6s, then fades slowly
@@ -585,12 +613,38 @@ if ("mediaSession" in navigator) {
   box.addEventListener("click", e => { if (swiped) { e.stopPropagation(); e.preventDefault(); } }, true);
 })();
 
+// ── HOLD PREV / NEXT = SLIDE BACKWARD / FORWARD THROUGH THE SONG ────────
+function holdSeek(btn, dir, tap) {
+  let to = 0, iv = 0, held = false, t0 = 0, after = 0;
+  const stop = () => { clearTimeout(to); clearInterval(iv); to = iv = 0; };
+  btn.addEventListener("pointerdown", e => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    stop(); held = false;
+    to = setTimeout(() => {
+      held = true; t0 = Date.now(); seeking = true;
+      iv = setInterval(() => {
+        const d = au.duration; if (!Q || !isFinite(d) || d <= 0) return;
+        const step = Math.min(5, 1.5 + (Date.now() - t0) / 2000 * 1.5);   // speeds up the longer you hold
+        const t = Math.max(0, Math.min(d - 0.5, au.currentTime + dir * step));
+        au.currentTime = t; $("seek").value = t / d * 1000; $("tcur").textContent = fmt(t);
+      }, 100);
+    }, 450);
+  });
+  const end = () => {
+    stop();
+    if (held) { seeking = false; tick(); clearTimeout(after); after = setTimeout(() => { held = false; }, 400); }   // swallow the click that follows a long press
+  };
+  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => btn.addEventListener(ev, end));
+  btn.addEventListener("contextmenu", e => e.preventDefault());
+  btn.onclick = () => { if (held) { held = false; return; } tap(); };
+}
+holdSeek($("prevS"), -1, () => advance(-1)); holdSeek($("nextS"), 1, () => advance(1));
+holdSeek($("lsup"), -1, () => advance(-1)); holdSeek($("lsdn"), 1, () => advance(1));
+
 // ── BUTTONS + KEYS ──────────────────────────────────────────────────────
 $("gps").onchange = () => { $("gps").checked ? globalOn() : stopAll(); };
 $("play").onclick = togglePlay;
 $("rep").onclick = () => { if (Q) setRepeat(!repeat); };
-$("prevS").onclick = () => advance(-1); $("nextS").onclick = () => advance(1);
-$("lsup").onclick = () => advance(-1); $("lsdn").onclick = () => advance(1);
 $("menu").onclick = () => { location.hash = ""; };
 // full screen (iPhone Safari has no API: hide the banner instead)
 const EXP = '<svg class="ico" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
@@ -659,6 +713,25 @@ window.addEventListener("hashchange", route);
 window.addEventListener("resize", fitMarquees);
 setNow();
 route();
+
+// ── START SCREEN ────────────────────────────────────────────────────────
+// Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
+// (iPhone Safari has no full-screen API: there the banner is hidden instead, like the full-screen button does.)
+(function () {
+  const scr = $("start-screen"), btn = $("start-btn");
+  const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(scr).getPropertyValue("--start-img"));
+  const ready = () => scr.classList.add("ready");
+  if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else ready();
+  setTimeout(() => scr.classList.add("btn-on"), 1000);       // the glowing button comes up 1 second after the screen opens
+  let done = false;
+  const finish = () => { if (!done) { done = true; scr.remove(); } };
+  btn.addEventListener("click", () => {
+    setMax(true);
+    scr.classList.add("leaving");
+    scr.addEventListener("animationend", e => { if (e.target === scr) finish(); });
+    setTimeout(finish, 3200);                                // safety net
+  });
+})();
 </script>
 </body>
 </html>
