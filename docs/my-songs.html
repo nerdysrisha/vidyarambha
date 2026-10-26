@@ -63,7 +63,16 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 .song.now .ic::before{border-left-color:var(--accent)}
 .wave{display:none;align-items:flex-end;gap:3px;height:20px;flex:none}
 .song.now .wave{display:flex}
-.wave.mini{display:inline-flex;height:14px;margin-left:10px;vertical-align:-1px}
+.wave.mini{display:inline-flex;height:14px;margin:0}
+.nl{display:flex;align-items:center;gap:10px;margin:4px 0 2px;color:var(--accent);font-size:13px;font-weight:600}
+.mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.mq .t{display:inline-block;white-space:nowrap}
+.mq .t.run{animation:mq linear infinite}
+.mq .t.run span{display:inline-block;padding-right:36px}
+#box:not(.playing) .mq .t.run{animation-play-state:paused}
+.grp.open>.hd .mq{display:none}
+@keyframes mq{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.mq .t.run{animation:none}}
 .wave.mini i{height:14px}
 .wave i{display:block;width:3px;height:20px;border-radius:2px;background:var(--accent);transform-origin:bottom;transform:scaleY(.3)}
 .playing .wave i{animation:eq .9s ease-in-out infinite}
@@ -164,7 +173,23 @@ const setTok = v => { mem = v; try { v ? localStorage.setItem(TOK_KEY, v) : loca
 const getLast = () => { try { return localStorage.getItem(LAST_KEY) || ""; } catch (e) { return ""; } };
 const setLast = v => { try { localStorage.setItem(LAST_KEY, v); } catch (e) {} };
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
-const waveIcon = () => { const s = document.createElement("span"); s.innerHTML = '<span class="wave mini"><i></i><i></i><i></i><i></i></span>'; return s.firstChild; };
+const curName = () => Q ? pretty(Q.names[Q.pos]) : "";
+const nowLine = () => {                                    // wave + song name (loops right to left when too long)
+  const d = document.createElement("div"); d.className = "nl";
+  d.innerHTML = '<span class="wave mini"><i></i><i></i><i></i><i></i></span><span class="mq"><span class="t"></span></span>';
+  d.querySelector(".mq").dataset.t = curName(); return d;
+};
+function fitMarquees() {
+  document.querySelectorAll(".mq").forEach(mq => {
+    const t = mq.firstChild, txt = mq.dataset.t || "";
+    t.className = "t"; t.style.animationDuration = ""; t.innerHTML = "";
+    const a = document.createElement("span"); a.textContent = txt; t.appendChild(a);
+    if (mq.clientWidth && a.offsetWidth > mq.clientWidth) {           // too long for the row: scroll it
+      const b = document.createElement("span"); b.textContent = txt; t.appendChild(b);
+      t.classList.add("run"); t.style.animationDuration = Math.max(6, a.offsetWidth / 40) + "s";
+    }
+  });
+}
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
@@ -219,7 +244,7 @@ function renderList() {
     b.className = "topic"; b.innerHTML = "<b></b><small></small>";
     b.firstChild.textContent = title; b.lastChild.textContent = sub;
     if (last && f.n === last) b.firstChild.appendChild(bmIcon());
-    if (pdir && f.n === pdir) b.firstChild.appendChild(waveIcon());
+    if (pdir && f.n === pdir) b.insertBefore(nowLine(), b.lastChild);
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
     return b;
   };
@@ -231,9 +256,9 @@ function renderList() {
     h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><i>&#9656;</i>";
     h.firstChild.firstChild.textContent = top;
     if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
-    if (pdir && top === ptop) h.firstChild.firstChild.appendChild(waveIcon());
+    if (pdir && top === ptop) h.firstChild.insertBefore(nowLine(), h.firstChild.lastChild);
     h.firstChild.lastChild.textContent = list.length + (list.length === 1 ? " folder" : " folders") + " \u00b7 " + cnt(list.reduce((a, f) => a + f.count, 0));
-    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); fitMarquees(); };
     const kids = document.createElement("div"); kids.className = "kids";
     list.forEach(f => kids.appendChild(row(f, f.n === top ? "Songs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), cnt(f.count))));
     wrap.appendChild(h); wrap.appendChild(kids); g.appendChild(wrap);
@@ -241,6 +266,7 @@ function renderList() {
   const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
   if (!parsed.length) note2("No folders with songs found.");
   if (truncated) note2("The repo is very large, so this list may be incomplete.");
+  fitMarquees();
 }
 
 // ── SONG LIST OF ONE FOLDER (shown only, nothing plays until tapped) ────
@@ -380,6 +406,7 @@ function syncPlay() {
 function setNow() {
   const pd = Q ? Q.dir : "";
   if (pd !== shownPD) { shownPD = pd; refreshMarks(); }     // playing folder changed: move the wave in the folder list
+  document.querySelectorAll(".mq").forEach(m => { m.dataset.t = curName(); }); fitMarquees();   // new song: update the name in the list
   $("bar").hidden = !Q;
   if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
   markNow(); syncPlay(); updateBar();
@@ -485,12 +512,13 @@ async function route() {
   if (!getTok()) { ++ticket; return show("login"); }
   if (!loaded && !(await loadFolders())) return;
   const m = location.hash.match(/^#f=(.+)$/);
-  if (!m) { ++ticket; cur = -1; renderList(); show("list"); $("box").scrollTop = savedScroll; return; }
+  if (!m) { ++ticket; cur = -1; renderList(); show("list"); fitMarquees(); $("box").scrollTop = savedScroll; return; }
   const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
   if (i < 0) { location.hash = ""; return; }
   openFolder(i);
 }
 window.addEventListener("hashchange", route);
+window.addEventListener("resize", fitMarquees);
 setNow();
 route();
 </script>
