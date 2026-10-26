@@ -63,18 +63,22 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 .song.now .ic::before{border-left-color:var(--accent)}
 .wave{display:none;align-items:flex-end;gap:3px;height:20px;flex:none}
 .song.now .wave{display:flex}
+.wave.mini{display:inline-flex;height:14px;margin-left:10px;vertical-align:-1px}
+.wave.mini i{height:14px}
 .wave i{display:block;width:3px;height:20px;border-radius:2px;background:var(--accent);transform-origin:bottom;transform:scaleY(.3)}
-#sbox.playing .song.now .wave i{animation:eq .9s ease-in-out infinite}
-#sbox.playing .song.now .wave i:nth-child(2){animation-duration:1.1s;animation-delay:-.3s}
-#sbox.playing .song.now .wave i:nth-child(3){animation-duration:.7s;animation-delay:-.5s}
-#sbox.playing .song.now .wave i:nth-child(4){animation-duration:1s;animation-delay:-.2s}
+.playing .wave i{animation:eq .9s ease-in-out infinite}
+.playing .wave i:nth-child(2){animation-duration:1.1s;animation-delay:-.3s}
+.playing .wave i:nth-child(3){animation-duration:.7s;animation-delay:-.5s}
+.playing .wave i:nth-child(4){animation-duration:1s;animation-delay:-.2s}
 @keyframes eq{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
-@media (prefers-reduced-motion:reduce){#sbox.playing .song.now .wave i{animation:none}}
+@media (prefers-reduced-motion:reduce){.playing .wave i{animation:none}}
 .msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
 
 /* footer player */
 footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
 #bar[hidden]{display:none}
+#mute{min-width:36px;width:36px;height:36px;border-radius:50%;flex:none}
+#mute svg.ico{width:20px;height:20px}
 #bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute);margin-bottom:6px}
 #seek{flex:1;min-width:0;height:24px;accent-color:var(--accent)}
 #ctl{display:flex;align-items:center;justify-content:space-between}
@@ -115,7 +119,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
   </div>
   <div id="toast"><b></b></div>
   <footer id="foot">
-    <div id="bar" hidden><span id="tcur">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek"><span id="tdur">0:00</span></div>
+    <div id="bar" hidden><span id="tcur">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek"><span id="tdur">0:00</span><button id="mute" aria-label="Mute"></button></div>
     <div id="ctl">
       <button id="menu" aria-label="Folders"><svg class="ico" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       <div class="mid">
@@ -160,6 +164,7 @@ const setTok = v => { mem = v; try { v ? localStorage.setItem(TOK_KEY, v) : loca
 const getLast = () => { try { return localStorage.getItem(LAST_KEY) || ""; } catch (e) { return ""; } };
 const setLast = v => { try { localStorage.setItem(LAST_KEY, v); } catch (e) {} };
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
+const waveIcon = () => { const s = document.createElement("span"); s.innerHTML = '<span class="wave mini"><i></i><i></i><i></i><i></i></span>'; return s.firstChild; };
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
@@ -169,6 +174,7 @@ const fail = t => { $("lerr").textContent = t; show("login"); };
 // ── STATE ───────────────────────────────────────────────────────────────
 let parsed = [], loaded = false, truncated = false, listCache = {}, ticket = 0, cur = -1, savedScroll = 0;
 const au = new Audio(); au.preload = "auto";
+let shownPD = "";                                          // which folder the list last showed as "playing"
 let Q = null, gActive = false, loading = false, playTicket = 0, errRun = 0, seeking = false, toastT = 0;
 const urlCache = new Map();                                // song path -> Promise of its playable blob url
 
@@ -204,6 +210,7 @@ let autoOpened = false;                                    // open the last-visi
 function renderList() {
   const g = $("box"); g.innerHTML = "";
   const last = getLast(), lastTop = last.split("/")[0];
+  const pdir = Q ? Q.dir : "", ptop = pdir.split("/")[0];   // folder that is playing right now (gets the wave)
   if (!autoOpened) { autoOpened = true; if (last) openGroups.add(lastTop); }
   const groups = new Map();                                // top-level folder -> its entries (itself and/or sub-folders)
   parsed.forEach(f => { const top = f.n.split("/")[0]; if (!groups.has(top)) groups.set(top, []); groups.get(top).push(f); });
@@ -212,6 +219,7 @@ function renderList() {
     b.className = "topic"; b.innerHTML = "<b></b><small></small>";
     b.firstChild.textContent = title; b.lastChild.textContent = sub;
     if (last && f.n === last) b.firstChild.appendChild(bmIcon());
+    if (pdir && f.n === pdir) b.firstChild.appendChild(waveIcon());
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
     return b;
   };
@@ -223,6 +231,7 @@ function renderList() {
     h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><i>&#9656;</i>";
     h.firstChild.firstChild.textContent = top;
     if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
+    if (pdir && top === ptop) h.firstChild.firstChild.appendChild(waveIcon());
     h.firstChild.lastChild.textContent = list.length + (list.length === 1 ? " folder" : " folders") + " \u00b7 " + cnt(list.reduce((a, f) => a + f.count, 0));
     h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
     const kids = document.createElement("div"); kids.className = "kids";
@@ -363,11 +372,14 @@ const PLAY = '<svg class="ico f" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/>
 const PAUSE = '<svg class="ico f" viewBox="0 0 24 24"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z"/></svg>';
 function syncPlay() {
   const on = !au.paused || loading;
-  $("sbox").classList.toggle("playing", !au.paused && !loading);      // wave moves only while music is really playing
+  const pl = !au.paused && !loading;                                  // waves move only while music is really playing
+  $("sbox").classList.toggle("playing", pl); $("box").classList.toggle("playing", pl);
   $("play").innerHTML = on ? PAUSE : PLAY; $("play").setAttribute("aria-label", on ? "Pause" : "Play");
   if ("mediaSession" in navigator) navigator.mediaSession.playbackState = Q ? (au.paused ? "paused" : "playing") : "none";
 }
 function setNow() {
+  const pd = Q ? Q.dir : "";
+  if (pd !== shownPD) { shownPD = pd; refreshMarks(); }     // playing folder changed: move the wave in the folder list
   $("bar").hidden = !Q;
   if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
   markNow(); syncPlay(); updateBar();
@@ -391,6 +403,12 @@ au.addEventListener("play", syncPlay); au.addEventListener("pause", syncPlay);
 au.addEventListener("playing", () => { errRun = 0; });
 au.addEventListener("timeupdate", tick); au.addEventListener("durationchange", tick);
 au.addEventListener("error", () => { if (!Q || !au.getAttribute("src")) return; toast("Could not play this song"); skip(); });
+const SPK = '<svg class="ico" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>';
+const MUTED = '<svg class="ico" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4zM23 9l-6 6M17 9l6 6"/></svg>';
+function syncMute() { $("mute").innerHTML = au.muted ? MUTED : SPK; $("mute").setAttribute("aria-label", au.muted ? "Unmute" : "Mute"); $("mute").style.color = au.muted ? "#ff8f8f" : ""; }
+$("mute").onclick = () => { au.muted = !au.muted; syncMute(); };
+au.addEventListener("volumechange", syncMute);
+syncMute();
 $("seek").addEventListener("input", () => { seeking = true; $("tcur").textContent = fmt($("seek").value / 1000 * au.duration); });
 $("seek").addEventListener("change", () => { if (isFinite(au.duration)) au.currentTime = $("seek").value / 1000 * au.duration; seeking = false; });
 
@@ -467,7 +485,7 @@ async function route() {
   if (!getTok()) { ++ticket; return show("login"); }
   if (!loaded && !(await loadFolders())) return;
   const m = location.hash.match(/^#f=(.+)$/);
-  if (!m) { ++ticket; cur = -1; show("list"); $("box").scrollTop = savedScroll; return; }
+  if (!m) { ++ticket; cur = -1; renderList(); show("list"); $("box").scrollTop = savedScroll; return; }
   const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
   if (i < 0) { location.hash = ""; return; }
   openFolder(i);
