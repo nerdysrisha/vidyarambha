@@ -112,24 +112,27 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 /* landscape: now-playing view (only while a song is loaded) */
 #ls{display:none;position:relative;overflow:hidden;flex:1;min-height:0;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:0 72px}
 #lsprv,#lsnow,#lsnx{position:relative;z-index:1;width:100%;min-height:1.3em}
-#lsprv,#lsnx{font-size:clamp(14px,4vh,20px);color:var(--mute);opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lsprv,#lsnx{font-size:clamp(14px,4vh,20px);color:rgba(139,155,176,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lsnow{flex:none;font-size:clamp(24px,8vh,42px);font-weight:700;line-height:1.3;margin:6px 0}
 #lsarr{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:14px}
+.lsin{animation:lsin .45s ease-out}
+.lsin.up{--dy:16px}.lsin.dn{--dy:-16px}
+@keyframes lsin{from{opacity:0;transform:translateY(var(--dy))}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.lsin{animation:none}}
 #ls:not(.playing) .mq .t.run{animation-play-state:paused}
 #lsfx{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-#lswave{position:absolute;left:0;right:0;bottom:0;height:34%;display:flex;align-items:flex-end;gap:4px;padding:0 6px;opacity:.28}
-#lswave i{flex:1;height:100%;border-radius:3px 3px 0 0;background:linear-gradient(to top,var(--accent),transparent);transform-origin:bottom;transform:scaleY(.15);animation:lsw 1.2s ease-in-out infinite}
-@keyframes lsw{0%,100%{transform:scaleY(.15)}50%{transform:scaleY(1)}}
-.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#7db5f5;box-shadow:0 0 10px 3px rgba(79,147,224,.55);opacity:.7;animation:drift 14s ease-in-out infinite}
+#lsrip{position:absolute;left:-130px;bottom:-130px;width:260px;height:260px}
+#lsrip i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--accent);opacity:0;transform:scale(.2);animation:rip 6s ease-out infinite}
+#lsrip i:nth-child(2){animation-delay:-2s}
+#lsrip i:nth-child(3){animation-delay:-4s}
+@keyframes rip{0%{opacity:.55;transform:scale(.2)}100%{opacity:0;transform:scale(1)}}
+.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#7db5f5;box-shadow:0 0 10px 3px rgba(79,147,224,.55);opacity:.7;animation:drift 32s ease-in-out infinite}
 .dot:nth-child(1){left:10%;top:22%}
-.dot:nth-child(2){left:80%;top:16%;width:4px;height:4px;animation-duration:18s;animation-delay:-6s}
-.dot:nth-child(3){left:30%;top:60%;width:8px;height:8px;animation-duration:21s;animation-delay:-3s;opacity:.45}
-.dot:nth-child(4){left:65%;top:50%;animation-duration:16s;animation-delay:-9s}
-.dot:nth-child(5){left:48%;top:12%;width:4px;height:4px;animation-duration:24s;animation-delay:-12s}
+.dot:nth-child(2){left:80%;top:16%;width:4px;height:4px;animation-duration:40s;animation-delay:-14s}
+.dot:nth-child(3){left:30%;top:60%;width:8px;height:8px;animation-duration:46s;animation-delay:-8s;opacity:.45}
+.dot:nth-child(4){left:65%;top:50%;animation-duration:36s;animation-delay:-20s}
+.dot:nth-child(5){left:48%;top:12%;width:4px;height:4px;animation-duration:52s;animation-delay:-26s}
 @keyframes drift{0%,100%{transform:translate(0,0)}25%{transform:translate(18vw,8vh)}50%{transform:translate(-6vw,22vh)}75%{transform:translate(-20vw,-6vh)}}
-.shoot{position:absolute;top:-10px;left:-120px;width:90px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#a8d0ff);opacity:0;animation:shoot 8s linear infinite}
-.shoot:nth-child(7){top:30%;animation-delay:-4s;animation-duration:11s}
-@keyframes shoot{0%{opacity:0;transform:translate(0,0) rotate(25deg)}3%{opacity:.9}16%{opacity:0;transform:translate(75vw,35vh) rotate(25deg)}100%{opacity:0;transform:translate(75vw,35vh) rotate(25deg)}}
 #ls:not(.playing) #lsfx *{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){#lsfx *{animation:none}}
 @media (orientation:landscape) and (max-height:520px){
@@ -164,7 +167,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
     <button id="tsave">Save PIN</button>
     <p id="lerr"></p>
   </div>
-  <div id="ls"><div id="lsfx"><div id="lswave"></div><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="shoot"></span><span class="shoot"></span></div><div id="lsprv"></div><div id="lsnow" class="mq"><span class="t"></span></div><div id="lsnx"></div><div id="lsarr"><button id="lsup" aria-label="Previous song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><button id="lsdn" aria-label="Next song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
+  <div id="ls"><div id="lsfx"><div id="lsrip"><i></i><i></i><i></i></div><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div id="lsprv"></div><div id="lsnow" class="mq"><span class="t"></span></div><div id="lsnx"></div><div id="lsarr"><button id="lsup" aria-label="Previous song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button><button id="lsdn" aria-label="Next song"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div></div>
   <div id="toast"><b></b></div>
   <footer id="foot">
     <div id="bar" hidden><span id="tcur">0:00</span><input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek"><span id="tdur">0:00</span><button id="mute" aria-label="Mute"></button></div>
@@ -215,6 +218,15 @@ const setLast = v => { try { localStorage.setItem(LAST_KEY, v); } catch (e) {} }
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
 const RPI = '<svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
 const curName = () => Q ? pretty(Q.names[Q.pos]) : "";
+let lsDir = 1;                                             // 1 = moving forward, -1 = back (sets the slide direction)
+function lsSet(id, txt) {                                  // update a landscape line; fade/slide it in only when the text changed
+  const el = $(id); if (el._k === txt) return;
+  const first = el._k === undefined; el._k = txt;
+  if (id !== "lsnow") el.textContent = txt;                // the current name is drawn by fitMarquees
+  if (first) return;
+  el.classList.remove("lsin", "up", "dn"); void el.offsetWidth;
+  el.classList.add("lsin", lsDir > 0 ? "up" : "dn");
+}
 const nextName = () => {                                   // name of the song that follows (may be the first of the next folder)
   if (!Q) return "";
   if (Q.pos + 1 < Q.names.length) return pretty(Q.names[Q.pos + 1]);
@@ -402,7 +414,7 @@ function startQueue(dir, k) {                              // tapped a song: pla
   const all = filesOf(dir);
   if (gActive) Q = {dir, names: [all[k], ...shuffle(all.filter((_, i) => i !== k))], pos: 0, global: true, next: null};   // Global Play on: shuffle the rest
   else Q = {dir, names: all, pos: k, global: false, next: null};
-  errRun = 0; playCurrent();
+  errRun = 0; lsDir = 1; playCurrent();
 }
 function globalOn() {                                      // shuffle ONE folder at a time, then on to the next folder
   if (!parsed.length) { setGlobal(false); return toast("No songs found yet"); }
@@ -417,6 +429,7 @@ function globalOn() {                                      // shuffle ONE folder
 }
 function advance(d) {
   if (!Q || !parsed.length) return;
+  lsDir = d > 0 ? 1 : -1;
   if (d > 0) {
     if (Q.pos + 1 < Q.names.length) Q.pos++;
     else { const nq = Q.next || buildQ(nextDir(Q.dir), Q.global); if (!nq.names.length) return stopAll(); Q = nq; }
@@ -464,7 +477,7 @@ function setNow() {
   document.querySelectorAll(".mq").forEach(m => { m.dataset.t = curName(); }); fitMarquees();   // new song: update the name in the list
   $("bar").hidden = !Q;
   document.body.classList.toggle("hasq", !!Q);
-  $("lsprv").textContent = Q && Q.pos > 0 ? pretty(Q.names[Q.pos - 1]) : ""; $("lsnx").textContent = nextName();
+  lsSet("lsprv", Q && Q.pos > 0 ? pretty(Q.names[Q.pos - 1]) : ""); lsSet("lsnx", nextName()); lsSet("lsnow", curName());
   if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
   markNow(); syncPlay(); updateBar();
 }
@@ -545,7 +558,6 @@ $("play").onclick = togglePlay;
 $("rep").onclick = () => { if (Q) setRepeat(!repeat); };
 $("prevS").onclick = () => advance(-1); $("nextS").onclick = () => advance(1);
 $("lsup").onclick = () => advance(-1); $("lsdn").onclick = () => advance(1);
-(function () { const w = $("lswave"); for (let i = 0; i < 32; i++) { const b = document.createElement("i"); b.style.animationDuration = (0.8 + Math.random()).toFixed(2) + "s"; b.style.animationDelay = (-Math.random() * 2).toFixed(2) + "s"; w.appendChild(b); } })();
 $("menu").onclick = () => { location.hash = ""; };
 // full screen (iPhone Safari has no API: hide the banner instead)
 const EXP = '<svg class="ico" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
