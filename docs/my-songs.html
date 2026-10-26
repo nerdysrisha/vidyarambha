@@ -64,6 +64,10 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 .wave{display:none;align-items:flex-end;gap:3px;height:20px;flex:none}
 .song.now .wave{display:flex}
 .wave.mini{display:inline-flex;height:14px;margin:0}
+.rp{display:none;flex:none}
+.rp svg{width:14px;height:14px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;display:block}
+.rep .song.now .rp,.rep .nl .rp{display:flex}
+#rep.on{border-color:var(--accent);color:var(--accent)}
 .nl{display:flex;align-items:center;gap:10px;margin:4px 0 2px;color:var(--accent);font-size:13px;font-weight:600}
 .mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
 .mq .t{display:inline-block;white-space:nowrap}
@@ -135,6 +139,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
         <button id="prevS" aria-label="Previous song"><svg class="ico" viewBox="0 0 24 24"><path d="M19 20L9 12l10-8zM5 19V5"/></svg></button>
         <button id="play" aria-label="Play"></button>
         <button id="nextS" aria-label="Next song"><svg class="ico" viewBox="0 0 24 24"><path d="M5 4l10 8-10 8zM19 5v14"/></svg></button>
+        <button id="rep" aria-label="Repeat this song" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
       </div>
       <button id="gear" aria-label="Settings"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
@@ -173,10 +178,11 @@ const setTok = v => { mem = v; try { v ? localStorage.setItem(TOK_KEY, v) : loca
 const getLast = () => { try { return localStorage.getItem(LAST_KEY) || ""; } catch (e) { return ""; } };
 const setLast = v => { try { localStorage.setItem(LAST_KEY, v); } catch (e) {} };
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
+const RPI = '<svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
 const curName = () => Q ? pretty(Q.names[Q.pos]) : "";
 const nowLine = () => {                                    // wave + song name (loops right to left when too long)
   const d = document.createElement("div"); d.className = "nl";
-  d.innerHTML = '<span class="wave mini"><i></i><i></i><i></i><i></i></span><span class="mq"><span class="t"></span></span>';
+  d.innerHTML = '<span class="wave mini"><i></i><i></i><i></i><i></i></span><span class="rp">' + RPI + '</span><span class="mq"><span class="t"></span></span>';
   d.querySelector(".mq").dataset.t = curName(); return d;
 };
 function fitMarquees() {
@@ -199,6 +205,7 @@ const fail = t => { $("lerr").textContent = t; show("login"); };
 // ── STATE ───────────────────────────────────────────────────────────────
 let parsed = [], loaded = false, truncated = false, listCache = {}, ticket = 0, cur = -1, savedScroll = 0;
 const au = new Audio(); au.preload = "auto";
+let repeat = false, repPath = "";                           // repeat-one: loop a single song until switched off
 let shownPD = "";                                          // which folder the list last showed as "playing"
 let Q = null, gActive = false, loading = false, playTicket = 0, errRun = 0, seeking = false, toastT = 0;
 const urlCache = new Map();                                // song path -> Promise of its playable blob url
@@ -282,7 +289,7 @@ function renderSongs() {
   if (!names.length) { box.innerHTML = '<div class="msg">No songs in this folder.</div>'; return; }
   names.forEach((name, k) => {
     const b = document.createElement("button");
-    b.className = "topic song"; b.dataset.p = dir + "/" + name; b.innerHTML = '<span class="ic"></span><b></b><span class="wave"><i></i><i></i><i></i><i></i></span>';
+    b.className = "topic song"; b.dataset.p = dir + "/" + name; b.innerHTML = '<span class="ic"></span><b></b><span class="rp">' + RPI + '</span><span class="wave"><i></i><i></i><i></i><i></i></span>';
     b.querySelector("b").textContent = pretty(name);
     b.onclick = () => { if (Q && curPath() === dir + "/" + name) togglePlay(); else startQueue(dir, k); };
     box.appendChild(b);
@@ -331,6 +338,7 @@ function preloadNext() {                                   // download the next 
 async function playCurrent() {
   if (!Q) return;
   const my = ++playTicket, path = curPath();
+  if (repeat && path !== repPath) setRepeat(false);          // repeat belongs to one song only
   loading = true; $("seek").value = 0; $("tcur").textContent = "0:00"; $("tdur").textContent = "\u2026"; setNow();
   if (getLast() !== Q.dir) { setLast(Q.dir); refreshMarks(); }   // bookmark follows the folder that is playing
   try {
@@ -385,8 +393,13 @@ function togglePlay() {
   if (!Q || loading) return;
   if (au.paused) { if (au.getAttribute("src")) au.play().catch(() => {}); else playCurrent(); } else au.pause();
 }
+function setRepeat(on) {                                   // loop the song that is playing, forever
+  repeat = on && !!Q; repPath = repeat ? curPath() : ""; au.loop = repeat;
+  $("rep").classList.toggle("on", repeat); $("rep").setAttribute("aria-pressed", repeat ? "true" : "false");
+  $("sbox").classList.toggle("rep", repeat); $("box").classList.toggle("rep", repeat);
+}
 function stopAll() {
-  playTicket++; Q = null; loading = false; setGlobal(false);
+  playTicket++; Q = null; loading = false; setGlobal(false); setRepeat(false);
   au.pause(); au.removeAttribute("src"); au.load();
   trimCache([]); $("seek").value = 0; $("tcur").textContent = $("tdur").textContent = "0:00";
   if ("mediaSession" in navigator) navigator.mediaSession.metadata = null;
@@ -411,7 +424,7 @@ function setNow() {
   if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
   markNow(); syncPlay(); updateBar();
 }
-function updateBar() { $("prevS").disabled = $("nextS").disabled = $("play").disabled = !Q; }
+function updateBar() { $("prevS").disabled = $("nextS").disabled = $("play").disabled = $("rep").disabled = !Q; }
 function tick() {
   const d = au.duration;
   if (!seeking && isFinite(d) && d > 0) { $("seek").value = au.currentTime / d * 1000; $("tcur").textContent = fmt(au.currentTime); }
@@ -452,6 +465,7 @@ if ("mediaSession" in navigator) {
 // ── BUTTONS + KEYS ──────────────────────────────────────────────────────
 $("gps").onchange = () => { $("gps").checked ? globalOn() : stopAll(); };
 $("play").onclick = togglePlay;
+$("rep").onclick = () => { if (Q) setRepeat(!repeat); };
 $("prevS").onclick = () => advance(-1); $("nextS").onclick = () => advance(1);
 $("menu").onclick = () => { location.hash = ""; };
 // full screen (iPhone Safari has no API: hide the banner instead)
