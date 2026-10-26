@@ -75,10 +75,10 @@ body.max #app{padding-top:0}
 <div id="app">
   <div id="list"><div id="box"></div></div>
   <div id="login">
-    <h2>Enter access token</h2>
-    <p>Paste your GitHub token (Contents: read &amp; write is needed to delete photos). It is saved only in this browser on this device.</p>
+    <h2>Enter 4 Digits PIN</h2>
+    <p>Saved only in this browser on this device.</p>
     <input id="tokin" type="password" autocomplete="off" placeholder="github_pat_...">
-    <button id="tsave">Save token</button>
+    <button id="tsave">Save PIN</button>
     <p id="lerr"></p>
   </div>
   <div id="viewer">
@@ -144,7 +144,7 @@ async function loadFolders() {
   try {
     const r = await api("");
     if (my !== ticket) return false;
-    if (r.status === 401) { setTok(""); fail("Token was rejected. Enter it again."); return false; }
+    if (r.status === 401) { setTok(""); fail("PIN was rejected. Enter it again."); return false; }
     if (!r.ok) { $("box").innerHTML = '<div class="msg">Could not load folders (error ' + r.status + '). Reload to retry.</div>'; return false; }
     const items = await r.json();
     if (my !== ticket) return false;
@@ -196,8 +196,8 @@ async function openFolder(i) {
     if (!list) {
       const r = await api(parsed[i].n);
       if (my !== ticket) return;
-      if (r.status === 401) { setTok(""); return fail("Token was rejected. Enter it again."); }
-      if (!r.ok) return note("Could not open this folder (error " + r.status + "). Check the folder name exists in the repo and the token can read it.");
+      if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
+      if (!r.ok) return note("Could not open this folder (error " + r.status + "). Check the folder name exists in the repo and the PIN can read it.");
       list = await r.json();
       if (my !== ticket) return;
       listCache[parsed[i].n] = list;
@@ -225,7 +225,7 @@ function load(k) {
   const p = api(parsed[cur].n + "/" + files[k], true)
     .then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); })
     .then(b => { const u = URL.createObjectURL(b); if (my === ticket && im.isConnected) im.src = u; else URL.revokeObjectURL(u); return u; })
-    .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("Token was rejected. Enter it again."); } });
+    .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("PIN was rejected. Enter it again."); } });
   cache[k] = p;
 }
 function loadNear(i) {
@@ -375,7 +375,7 @@ function tryPin() {
 $("pinok").onclick = tryPin;
 $("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
 
-// permanently delete the photo on screen (needs the token to have Contents: read & write)
+// permanently delete the photo on screen (needs the PIN to have Contents: read & write)
 async function delPhoto(expect) {
   if (!unlocked || !files.length || delBusy || files[idx] !== expect) return;
   const name = files[idx], folder = parsed[cur].n, k = idx;
@@ -386,7 +386,7 @@ async function delPhoto(expect) {
     const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
       method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"},
       body: JSON.stringify({message: "Delete " + name, sha: ent.sha})});
-    if (!r.ok) return toast("Delete failed (" + r.status + ")", r.status === 401 || r.status === 403 || r.status === 404 ? "Token needs Contents: read & write" : "Tap refresh and try again");
+    if (!r.ok) return toast("Delete failed (" + r.status + ")", r.status === 401 || r.status === 403 || r.status === 404 ? "PIN needs Contents: read & write" : "Tap refresh and try again");
     listCache[folder] = listCache[folder].filter(x => x.name !== name);
     if (cur >= 0 && parsed[cur].n === folder && files[k] === name) removeSlide(k, folder);
   } catch (e) { toast("", "Network error, not deleted"); }
@@ -446,7 +446,7 @@ $("fsx").onclick = () => setMax(false);
 document.addEventListener("fullscreenchange", () => setIcon(!!document.fullscreenElement));
 setIcon(false);
 
-// ── TOKEN ───────────────────────────────────────────────────────────────
+// ── PIN ───────────────────────────────────────────────────────────────
 function changeToken() { setTok(""); unlocked = false; syncLock(); $("lerr").textContent = ""; $("tokin").value = ""; route(); }
 async function saveToken() {
   const v = $("tokin").value.trim(); if (!v) return;
@@ -455,8 +455,8 @@ async function saveToken() {
   try {
     const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO, {headers: hdr(false)});
     if (r.ok) { $("lerr").textContent = ""; $("tokin").value = ""; return route(); }
-    setTok(""); $("lerr").textContent = r.status === 401 ? "GitHub rejected this token. Check it and try again."
-      : "This token cannot read " + OWNER + "/" + REPO + " (error " + r.status + "). Check its repository access.";
+    setTok(""); $("lerr").textContent = r.status === 401 ? "GitHub rejected this PIN. Check it and try again."
+      : "This PIN cannot read " + OWNER + "/" + REPO + " (error " + r.status + "). Check its repository access.";
   } catch (e) { setTok(""); $("lerr").textContent = "Network error. Check your connection and try again."; }
 }
 $("tsave").onclick = saveToken;
