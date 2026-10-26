@@ -145,6 +145,8 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @media (orientation:landscape) and (max-height:520px){
   body.hasq:not([data-v=login]) :is(#top,#list,#songs,#menu,#gear,#prevS,#nextS,#rep){display:none}
   body.hasq:not([data-v=login]) #ls{display:flex}
+  body.hasq:not([data-v=login]) :is(footer,#lsarr){transition:opacity .35s ease}
+  body.hasq:not([data-v=login]).ctl-fade :is(footer,#lsarr){opacity:0;pointer-events:none;transition:opacity 6s ease}
   body.hasq:not([data-v=login]) #gnr{top:10px}
   body.hasq:not([data-v=login]) footer{display:flex;align-items:center;gap:10px;padding-top:6px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
   body.hasq:not([data-v=login]) #bar{flex:1;min-width:0;margin-bottom:0}
@@ -175,6 +177,30 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @media (prefers-reduced-motion:reduce){#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
 #prevS,#nextS,#lsup,#lsdn{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 
+/* swipe-left hint, now-playing card in the folder view */
+.topic[data-dir]{position:relative}
+.topic.dragl::after{content:"\21C4";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:18px}
+.topic.go.dragl::after{color:var(--accent)}
+#npc{display:none;flex:none;align-items:center;gap:12px;margin:0 0 10px;padding:10px 14px;border:1px solid var(--accent);background:#1a2c44;border-radius:12px;cursor:pointer}
+#npc:not([hidden]){display:flex}
+#npc .wave{display:flex}
+#npc b{display:block;flex:1;min-width:0;font-size:16px;font-weight:600;color:var(--accent);overflow-wrap:anywhere}
+.npout{animation:npout .6s ease-in-out forwards}
+.npin{animation:npin .9s cubic-bezier(.22,.61,.36,1) both}
+@keyframes npout{to{opacity:0;transform:translateY(-8px)}}
+@keyframes npin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.npout,.npin{animation:none}}
+#npc:not(.playing) .wave i{animation-play-state:paused}
+
+/* landscape song name: light sweep across the letters + reveal from left to right on a new song */
+#lsnow .t{filter:drop-shadow(0 0 10px rgba(79,147,224,.35))}
+#lsnow .t span{background:linear-gradient(100deg,var(--text) 0%,var(--text) 42%,#bfe0ff 49%,#fff 52%,#bfe0ff 55%,var(--text) 62%,var(--text) 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 8s ease-in-out infinite}
+@keyframes shim{0%,45%{background-position:100% 0}100%{background-position:0 0}}
+#ls:not(.playing) #lsnow .t span{animation-play-state:paused}
+#lsnow.lsin{-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;animation:lsin 1.3s cubic-bezier(.22,.61,.36,1) both,lsreveal 2.4s ease-out both}
+@keyframes lsreveal{from{-webkit-mask-position:100% 0;mask-position:100% 0;filter:blur(7px)}to{-webkit-mask-position:0 0;mask-position:0 0;filter:blur(0)}}
+@media (prefers-reduced-motion:reduce){#lsnow .t span{animation:none}#lsnow.lsin{animation:none;-webkit-mask-image:none;mask-image:none}}
+
 /* login */
 #login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
 #login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}
@@ -194,6 +220,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
   <div id="list"><div id="box"></div></div>
   <div id="songs">
     <div id="shead"><b id="sttl"></b><small id="scnt"></small></div>
+    <div id="npc" hidden><span class="wave"><i></i><i></i><i></i><i></i></span><b></b></div>
     <div id="sbox"></div>
   </div>
   <div id="login">
@@ -344,7 +371,7 @@ async function loadFolders() {
 const filesOf = dir => (listCache[dir] || []).map(x => x.name).sort(nat);
 const cnt = n => n + (n === 1 ? " song" : " songs");
 function updateCounts() {                                  // the playing folder shows "position/total songs"
-  const fmtC = f => Q && Q.dir === f.n ? (Q.pos + 1) + "/" + cnt(f.count) : cnt(f.count);
+  const fmtC = f => Q && Q.dir === f.n ? (Q.pos + 1) + "/" + cnt(f.count) + (Q.shuf ? " · shuffle" : "") : cnt(f.count);
   document.querySelectorAll("#box .topic[data-dir]").forEach(b => {
     const f = parsed.find(x => x.n === b.dataset.dir), sm = b.querySelector("small");
     if (f && sm) sm.textContent = fmtC(f);
@@ -396,6 +423,7 @@ function openFolder(i) {
   cur = i; setLast(parsed[i].n);
   $("sttl").textContent = parsed[i].t; $("scnt").textContent = cnt(parsed[i].count);
   renderSongs(); show("folder"); $("sbox").scrollTop = 0;
+  npShown = null; npUpdate(); centerNow(true, false);
 }
 function renderSongs() {
   const box = $("sbox"); box.innerHTML = "";
@@ -418,6 +446,38 @@ function refreshMarks() {                                  // redraw the folder 
 function markNow() {
   const p = curPath();
   document.querySelectorAll("#sbox .song").forEach(b => b.classList.toggle("now", !!p && b.dataset.p === p));
+  npUpdate(); centerNow(false, true);
+}
+// pinned now-playing card at the top of the opened folder: old name fades out, new one fades in
+let npShown = null, npT = 0, npT2 = 0;
+function npUpdate() {
+  const c = $("npc"), show = !!(Q && parsed[cur] && Q.dir === parsed[cur].n && document.body.dataset.v === "folder");
+  c.hidden = !show; c.classList.toggle("playing", !au.paused && !loading);
+  if (!show) { npShown = null; return; }
+  const b = c.querySelector("b"), txt = pretty(Q.names[Q.pos]);
+  if (npShown === null) { b.textContent = txt; npShown = txt; return; }
+  if (npShown === txt) return;
+  npShown = txt; clearTimeout(npT); clearTimeout(npT2); b.classList.remove("npin"); b.classList.add("npout");
+  npT = setTimeout(() => {
+    b.textContent = npShown; b.classList.remove("npout"); void b.offsetWidth; b.classList.add("npin");
+    npT2 = setTimeout(() => b.classList.remove("npin"), 1000);
+  }, 600);
+}
+$("npc").onclick = () => { if (Q) togglePlay(); };
+// keep the playing song centred in the opened folder; a manual scroll pauses this for 5 s
+let userScrollAt = 0, centerP = "", centerT = 0;
+["touchstart", "wheel", "pointerdown"].forEach(ev => $("sbox").addEventListener(ev, () => { userScrollAt = Date.now(); }, {passive: true}));
+function centerNow(force, smooth) {
+  if (document.body.dataset.v !== "folder") return;
+  const row = document.querySelector("#sbox .song.now"), p = curPath();
+  if (!row || (!force && p === centerP)) return;
+  const wait = 5000 - (Date.now() - userScrollAt);
+  clearTimeout(centerT);
+  if (!force && wait > 0) { centerT = setTimeout(() => { centerP = ""; centerNow(false, true); }, wait + 50); return; }
+  centerP = p;
+  const box = $("sbox"), rb = row.getBoundingClientRect(), bb = box.getBoundingClientRect();
+  const top = box.scrollTop + (rb.top - bb.top) - (bb.height - rb.height) / 2;
+  box.scrollTo({top: Math.max(0, top), behavior: smooth ? "smooth" : "auto"});
 }
 
 // ── PLAYER ──────────────────────────────────────────────────────────────
@@ -476,6 +536,12 @@ function startQueue(dir, k) {                              // tapped a song: pla
   const all = filesOf(dir);
   if (gActive) Q = {dir, names: [all[k], ...shuffle(all.filter((_, i) => i !== k))], pos: 0, global: true, next: null};   // Global Play on: shuffle the rest
   else Q = {dir, names: all, pos: k, global: false, next: null};
+  errRun = 0; lsDir = 1; playCurrent();
+}
+function startShuffle(dir) {                               // swipe left: shuffle this folder, stop when it ends (Global Play on = carry on to the next folder)
+  const names = filesOf(dir); if (!names.length) return;
+  shuffle(names);
+  Q = {dir, names, pos: 0, global: gActive, next: null, shuf: true};
   errRun = 0; lsDir = 1; playCurrent();
 }
 function globalOn() {                                      // shuffle ONE folder at a time, then on to the next folder
@@ -582,7 +648,7 @@ if ("mediaSession" in navigator) {
   act("seekto", d => { if (d.seekTime != null) au.currentTime = d.seekTime; });
 }
 
-// ── SWIPE A FOLDER RIGHT = PLAY IT FROM THE START ───────────────────────
+// ── SWIPE A FOLDER RIGHT = PLAY IN ORDER, LEFT = SHUFFLED ───────────────────────
 (function () {
   const box = $("box"), TH = 60, MAXS = 12;
   let row = null, sx = 0, sy = 0, dx = 0, mode = 0, swiped = false;   // mode: 0 undecided, 1 horizontal swipe, 2 ignore (scrolling)
@@ -596,20 +662,23 @@ if ("mediaSession" in navigator) {
     dx = e.clientX - sx; const dy = e.clientY - sy;
     if (mode === 0) {
       if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { mode = 2; return; }
-      if (dx < -8) { mode = 2; return; }
-      if (dx > 8 && dx > Math.abs(dy) * 1.5) { mode = 1; row.classList.add("drag"); } else return;
+      if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.5) { mode = 1; row.classList.add("drag"); } else return;
     }
-    const s = Math.max(0, Math.min(MAXS, dx * 0.2));              // panel follows the finger, up to 12px
+    const s = Math.max(-MAXS, Math.min(MAXS, dx * 0.2));          // panel follows the finger, up to 12px either way
     row.style.transform = s ? "translateX(" + s + "px)" : "";
-    row.classList.toggle("go", dx >= TH);
+    row.classList.toggle("dragl", dx < 0);
+    row.classList.toggle("go", Math.abs(dx) >= TH);
   });
   const end = e => {
     if (!row) return;
-    const r = row, m = mode, go = m === 1 && e.type === "pointerup" && dx >= TH;
+    const r = row, m = mode, go = m === 1 && e.type === "pointerup" && Math.abs(dx) >= TH, left = dx < 0;
     row = null; mode = 0;
-    r.classList.remove("drag", "go"); r.style.transform = "";      // snap back
+    r.classList.remove("drag", "go", "dragl"); r.style.transform = "";      // snap back
     if (m === 1) { swiped = true; setTimeout(() => { swiped = false; }, 350); }
-    if (go) { startQueue(r.dataset.dir, 0); toast("Playing " + nice(r.dataset.dir)); }
+    if (go) {
+      if (left) { startShuffle(r.dataset.dir); toast("Shuffling " + nice(r.dataset.dir)); }
+      else { startQueue(r.dataset.dir, 0); toast("Playing " + nice(r.dataset.dir)); }
+    }
   };
   box.addEventListener("pointerup", end); box.addEventListener("pointercancel", end);
   box.addEventListener("click", e => { if (swiped) { e.stopPropagation(); e.preventDefault(); } }, true);
@@ -715,6 +784,18 @@ window.addEventListener("hashchange", route);
 window.addEventListener("resize", fitMarquees);
 setNow();
 route();
+
+// ── LANDSCAPE: CONTROLS FADE AWAY AFTER ~7.5 s WITHOUT A TOUCH (then ~6 s fade); A TOUCH BRINGS THEM BACK ──
+(function () {
+  const B = document.body; let t = 0;
+  const arm = () => { clearTimeout(t); t = setTimeout(() => { if (!au.paused) B.classList.add("ctl-fade"); }, 7500); };
+  const wake = () => { B.classList.remove("ctl-fade"); arm(); };
+  document.addEventListener("pointerdown", wake, true);
+  document.addEventListener("keydown", wake, true);
+  au.addEventListener("pause", () => { if (!au.ended && !loading) wake(); });   // paused: keep the controls visible
+  au.addEventListener("playing", arm);
+  wake();
+})();
 
 // ── START SCREEN ────────────────────────────────────────────────────────
 // Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
