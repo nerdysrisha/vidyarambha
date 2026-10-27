@@ -119,7 +119,10 @@ body.max #app{padding-top:0}
 #ubox label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
 #ubox label[hidden]{display:none}
 #ubox input[type=text],#ubox select{height:42px;border-radius:10px;border:1px solid var(--line);background:var(--ink);color:var(--text);padding:0 12px;font:inherit;font-size:14px;min-width:0}
-#ubox input:disabled,#ubox select:disabled{opacity:.5}
+#ubox input:disabled,#ubox select:disabled,#unewb:disabled{opacity:.5}
+#ufrow{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute)}
+#unewb{min-width:34px;width:34px;height:34px;border-radius:10px;color:#ffb25c;border-color:rgba(255,153,51,.4)}
+#unewb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 #usum{margin:0;font-size:13px;color:#e2b877}
 #uprev{color:var(--mute);font-size:12px;min-height:15px;word-break:break-all}
 #uprog{display:flex;flex-direction:column;gap:6px}
@@ -195,8 +198,9 @@ body{-webkit-touch-callout:none}
 <div id="ud" hidden><div id="ubox" role="dialog" aria-label="Upload photos">
   <h3>Upload photos</h3>
   <p id="usum"></p>
-  <label>Folder<select id="ufold"></select></label>
-  <label id="unewrow" hidden>New folder name (use / for a sub-folder)<input id="unew" type="text" autocomplete="off" autocapitalize="off"></label>
+  <div id="ufrow"><span>Folder</span><button id="unewb" type="button" aria-label="New folder"></button></div>
+  <select id="ufold"></select>
+  <input id="unew" type="text" placeholder="Folder name (use / for a sub-folder)" autocomplete="off" autocapitalize="off" hidden>
   <label>First file name<input id="uname" type="text" autocomplete="off" autocapitalize="off"></label>
   <small id="uprev"></small>
   <div id="uprog" hidden><div id="ubar"><i></i></div><small id="ust"></small></div>
@@ -620,9 +624,10 @@ route();
 // Pick photos from the gallery -> choose / create a folder -> each photo is converted to WebP (quality 80%, JPEG if the browser cannot)
 // and pushed to the repo with the next free number as its name. GIFs and photos that are already WebP are sent as they are.
 const WEBP_OK = (() => { try { return document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp"); } catch (e) { return false; } })();
-const UQ = 0.8, UMAX = 4096, NEWF = "\u0000new";
+const UQ = 0.8, UMAX = 4096;
+const PLUS = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"/></svg>', BACK = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const IMG_RE = /\.(webp|jpe?g|png|gif)$/i;
-let upFiles = [], upBusy = false, upStop = false;
+let upFiles = [], upBusy = false, upStop = false, upNew = false;
 
 const folderNames = f => (listCache[f] || []).filter(x => x.type === "file").map(x => x.name);
 function suggestName(folder) {                       // last number in the folder + 1, same prefix and zero padding
@@ -638,7 +643,7 @@ function makeNamer(val, taken) {                     // "0043" -> 0043, 0044, 00
 }
 const takenSet = folder => new Set(folderNames(folder).map(n => n.toLowerCase()));
 const today = () => { const d = new Date(); return d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0") + " "; };
-const destFolder = () => $("ufold").value === NEWF ? $("unew").value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") : $("ufold").value;
+const destFolder = () => upNew ? $("unew").value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") : $("ufold").value;
 const upErr = t => { $("uerr").textContent = t || ""; };
 
 function upPreview() {
@@ -648,26 +653,26 @@ function upPreview() {
   for (let i = 1; i < upFiles.length; i++) b = nm(ext);
   $("uprev").textContent = upFiles.length > 1 ? "Saved as " + a + " \u2026 " + b : "Saved as " + a;
 }
-function upFolderChanged() {
-  const isNew = $("ufold").value === NEWF;
-  $("unewrow").hidden = !isNew;
-  if (isNew && !$("unew").value) $("unew").value = today();
-  $("uname").value = suggestName(isNew ? "" : $("ufold").value);
+function upFolderChanged(focus) {
+  $("ufold").hidden = upNew; $("unew").hidden = !upNew;
+  $("unewb").innerHTML = upNew ? BACK : PLUS; $("unewb").setAttribute("aria-label", upNew ? "Choose an existing folder" : "New folder");
+  if (upNew && !$("unew").value) $("unew").value = today();
+  $("uname").value = suggestName(upNew ? "" : $("ufold").value);
   upErr(); upPreview();
-  if (isNew) { $("unew").focus(); }
+  if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
 }
 function openUpload(files) {
   upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest photo first, so numbers follow the date taken
   const sel = $("ufold"); sel.innerHTML = "";
   parsed.forEach(f => { const o = document.createElement("option"); o.value = f.n; o.textContent = f.n.replace(/\//g, " / "); sel.appendChild(o); });
-  const o = document.createElement("option"); o.value = NEWF; o.textContent = "+ New folder\u2026"; sel.appendChild(o);
   const last = getLast();
-  sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : (parsed[0] ? parsed[0].n : NEWF));
+  upNew = !parsed.length;
+  if (parsed.length) sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : parsed[0].n);
   $("unew").value = "";
   $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected");
   $("uprog").hidden = true; $("ubar").firstChild.style.width = "0";
   $("ugo").disabled = false; $("ugo").textContent = "Upload"; $("ucancel").textContent = "Cancel";
-  ["ufold", "unew", "uname"].forEach(i => $(i).disabled = false);
+  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = false);
   upFolderChanged();
   $("ud").hidden = false;
 }
@@ -675,7 +680,8 @@ const closeUpload = () => { if (upBusy) return; $("ud").hidden = true; upFiles =
 
 $("upl").onclick = () => { closePanel(); $("ufile").click(); };
 $("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^image\//.test(f.type) || IMG_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
-$("ufold").onchange = upFolderChanged;
+$("ufold").onchange = () => upFolderChanged();
+$("unewb").onclick = () => { upNew = !upNew; upFolderChanged(true); };
 $("unew").oninput = () => { upErr(); upPreview(); };
 $("uname").oninput = upPreview;
 $("ucancel").onclick = () => { if (upBusy) { upStop = true; $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
@@ -705,7 +711,7 @@ $("ugo").onclick = async () => {
   if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
   if (!$("uname").value.trim()) return upErr("Type the first file name.");
   upErr(); upBusy = true; upStop = false;
-  ["ufold", "unew", "uname"].forEach(i => $(i).disabled = true);
+  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
   $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
   const total = upFiles.length, next = makeNamer($("uname").value, takenSet(folder));
   let ok = 0, bad = 0, msg = "";
