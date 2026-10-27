@@ -111,6 +111,29 @@ body.max #app{padding-top:0}
 @keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
 @media (prefers-reduced-motion:reduce){#top,#top .glint{animation:none}#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
 
+/* ── upload dialog ── */
+#ud{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,12,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#ud[hidden]{display:none}
+#ubox{width:min(420px,100%);max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:16px;background:var(--panel);border:1px solid rgba(255,153,51,.45);border-radius:16px;box-shadow:0 0 28px -6px rgba(255,153,51,.4)}
+#ubox h3{margin:0;font-size:17px;color:#ffd9a0}
+#ubox label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
+#ubox label[hidden]{display:none}
+#ubox input[type=text],#ubox select{height:42px;border-radius:10px;border:1px solid var(--line);background:var(--ink);color:var(--text);padding:0 12px;font:inherit;font-size:14px;min-width:0}
+#ubox input:disabled,#ubox select:disabled{opacity:.5}
+#usum{margin:0;font-size:13px;color:#e2b877}
+#uprev{color:var(--mute);font-size:12px;min-height:15px;word-break:break-all}
+#uprog{display:flex;flex-direction:column;gap:6px}
+#uprog[hidden]{display:none}
+#ubar{height:6px;border-radius:3px;background:var(--ink);overflow:hidden}
+#ubar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9933,#ffd9a0);transition:width .2s}
+#ust{font-size:12px;color:var(--mute)}
+#uerr{margin:0;color:#ff8f8f;font-size:13px;line-height:1.4}
+#uerr:empty{display:none}
+.urow{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+.urow button{min-width:88px;padding:0 16px}
+#ugo{background:linear-gradient(135deg,#ffb25c,#ff9933);color:#3a1c02;font-weight:700;border-color:transparent}
+#ugo:disabled{opacity:.4}
+
 /* ── mobile app (Capacitor or installed to home screen): already full screen, so no max / min buttons ── */
 body.app #max,body.app #fsx{display:none!important}
 body{-webkit-touch-callout:none}
@@ -157,6 +180,7 @@ body{-webkit-touch-callout:none}
     <div id="panel" hidden>
       <div id="prow">
         <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
+        <button id="upl" aria-label="Upload photos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="key" aria-label="Change token"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
         <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
@@ -167,6 +191,18 @@ body{-webkit-touch-callout:none}
     <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
   </footer>
 </div>
+<input id="ufile" type="file" accept="image/*" multiple hidden>
+<div id="ud" hidden><div id="ubox" role="dialog" aria-label="Upload photos">
+  <h3>Upload photos</h3>
+  <p id="usum"></p>
+  <label>Folder<select id="ufold"></select></label>
+  <label id="unewrow" hidden>New folder name (use / for a sub-folder)<input id="unew" type="text" autocomplete="off" autocapitalize="off"></label>
+  <label>First file name<input id="uname" type="text" autocomplete="off" autocapitalize="off"></label>
+  <small id="uprev"></small>
+  <div id="uprog" hidden><div id="ubar"><i></i></div><small id="ust"></small></div>
+  <p id="uerr"></p>
+  <div class="urow"><button id="ucancel" type="button">Cancel</button><button id="ugo" type="button">Upload</button></div>
+</div></div>
 <button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 
 <script>
@@ -528,7 +564,7 @@ function endSlide(e) {
 }
 hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel", endSlide);
 document.addEventListener("keydown", e => {
-  if (e.target.tagName === "INPUT" || document.body.dataset.v !== "view") return;
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || !$("ud").hidden || document.body.dataset.v !== "view") return;
   if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
   else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
   else if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
@@ -579,6 +615,139 @@ async function route() {
 }
 window.addEventListener("hashchange", route);
 route();
+
+// ── UPLOAD (gear panel) ─────────────────────────────────────────────────
+// Pick photos from the gallery -> choose / create a folder -> each photo is converted to WebP (quality 80%, JPEG if the browser cannot)
+// and pushed to the repo with the next free number as its name. GIFs and photos that are already WebP are sent as they are.
+const WEBP_OK = (() => { try { return document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp"); } catch (e) { return false; } })();
+const UQ = 0.8, UMAX = 4096, NEWF = "\u0000new";
+const IMG_RE = /\.(webp|jpe?g|png|gif)$/i;
+let upFiles = [], upBusy = false, upStop = false;
+
+const folderNames = f => (listCache[f] || []).filter(x => x.type === "file").map(x => x.name);
+function suggestName(folder) {                       // last number in the folder + 1, same prefix and zero padding
+  let best = null;
+  folderNames(folder).forEach(n => { const m = n.match(/^(.*?)(\d+)\.[A-Za-z0-9]+$/); if (m && (!best || +m[2] > best.num)) best = {p: m[1], num: +m[2], w: m[2].length}; });
+  return best ? best.p + String(best.num + 1).padStart(best.w, "0") : "0001";
+}
+function makeNamer(val, taken) {                     // "0043" -> 0043, 0044, 0045 ... skipping names already in the folder
+  val = val.trim().replace(IMG_RE, "");
+  const m = val.match(/^(.*?)(\d+)$/);
+  let p = m ? m[1] : (val ? val + " " : ""), num = m ? +m[2] : 1, w = m ? m[2].length : 0;
+  return ext => { for (;;) { const n = p + String(num++).padStart(w, "0") + "." + ext; if (!taken.has(n.toLowerCase())) { taken.add(n.toLowerCase()); return n; } } };
+}
+const takenSet = folder => new Set(folderNames(folder).map(n => n.toLowerCase()));
+const today = () => { const d = new Date(); return d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0") + " "; };
+const destFolder = () => $("ufold").value === NEWF ? $("unew").value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") : $("ufold").value;
+const upErr = t => { $("uerr").textContent = t || ""; };
+
+function upPreview() {
+  const f = destFolder(), ext = WEBP_OK ? "webp" : "jpg";
+  if (!f || !upFiles.length) { $("uprev").textContent = ""; return; }
+  const nm = makeNamer($("uname").value, takenSet(f)); let a = nm(ext), b = a;
+  for (let i = 1; i < upFiles.length; i++) b = nm(ext);
+  $("uprev").textContent = upFiles.length > 1 ? "Saved as " + a + " \u2026 " + b : "Saved as " + a;
+}
+function upFolderChanged() {
+  const isNew = $("ufold").value === NEWF;
+  $("unewrow").hidden = !isNew;
+  if (isNew && !$("unew").value) $("unew").value = today();
+  $("uname").value = suggestName(isNew ? "" : $("ufold").value);
+  upErr(); upPreview();
+  if (isNew) { $("unew").focus(); }
+}
+function openUpload(files) {
+  upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest photo first, so numbers follow the date taken
+  const sel = $("ufold"); sel.innerHTML = "";
+  parsed.forEach(f => { const o = document.createElement("option"); o.value = f.n; o.textContent = f.n.replace(/\//g, " / "); sel.appendChild(o); });
+  const o = document.createElement("option"); o.value = NEWF; o.textContent = "+ New folder\u2026"; sel.appendChild(o);
+  const last = getLast();
+  sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : (parsed[0] ? parsed[0].n : NEWF));
+  $("unew").value = "";
+  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected");
+  $("uprog").hidden = true; $("ubar").firstChild.style.width = "0";
+  $("ugo").disabled = false; $("ugo").textContent = "Upload"; $("ucancel").textContent = "Cancel";
+  ["ufold", "unew", "uname"].forEach(i => $(i).disabled = false);
+  upFolderChanged();
+  $("ud").hidden = false;
+}
+const closeUpload = () => { if (upBusy) return; $("ud").hidden = true; upFiles = []; };
+
+$("upl").onclick = () => { closePanel(); $("ufile").click(); };
+$("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^image\//.test(f.type) || IMG_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
+$("ufold").onchange = upFolderChanged;
+$("unew").oninput = () => { upErr(); upPreview(); };
+$("uname").oninput = upPreview;
+$("ucancel").onclick = () => { if (upBusy) { upStop = true; $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) closeUpload(); });
+
+const readB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(",")[1]); r.onerror = () => rej(new Error("read")); r.readAsDataURL(b); });
+const loadImg = f => new Promise((res, rej) => { const u = URL.createObjectURL(f), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error("decode")); }; im.src = u; });
+const canvasBlob = (c, type, q) => new Promise(res => c.toBlob(res, type, q));
+async function convert(file) {
+  const gif = file.type === "image/gif" || /\.gif$/i.test(file.name), web = file.type === "image/webp" || /\.webp$/i.test(file.name);
+  if (gif || web) return {blob: file, ext: gif ? "gif" : "webp"};
+  let src; try { src = await createImageBitmap(file, {imageOrientation: "from-image"}); } catch (e) { src = await loadImg(file); }
+  const w0 = src.width || src.naturalWidth, h0 = src.height || src.naturalHeight, k = Math.min(1, UMAX / Math.max(w0, h0));
+  const c = document.createElement("canvas"); c.width = Math.round(w0 * k); c.height = Math.round(h0 * k);
+  const x = c.getContext("2d"); x.drawImage(src, 0, 0, c.width, c.height);
+  let blob = await canvasBlob(c, "image/webp", UQ), ext = "webp";
+  if (!blob || blob.type !== "image/webp") { x.globalCompositeOperation = "destination-over"; x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); blob = await canvasBlob(c, "image/jpeg", UQ); ext = "jpg"; }
+  if (src.close) src.close(); c.width = c.height = 0;
+  if (!blob) throw new Error("convert");
+  return {blob, ext};
+}
+
+$("ugo").onclick = async () => {
+  if (upBusy) return;
+  const folder = destFolder();
+  if (!folder) return upErr("Type a folder name.");
+  if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
+  if (!$("uname").value.trim()) return upErr("Type the first file name.");
+  upErr(); upBusy = true; upStop = false;
+  ["ufold", "unew", "uname"].forEach(i => $(i).disabled = true);
+  $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
+  const total = upFiles.length, next = makeNamer($("uname").value, takenSet(folder));
+  let ok = 0, bad = 0, msg = "";
+  for (let i = 0; i < total && !upStop; i++) {
+    $("ust").textContent = "Uploading " + (i + 1) + " of " + total + (bad ? " \u00b7 " + bad + " failed" : "");
+    $("ubar").firstChild.style.width = Math.round(i / total * 100) + "%";
+    let conv, b64;
+    try { conv = await convert(upFiles[i]); b64 = await readB64(conv.blob); }
+    catch (e) { bad++; continue; }
+    let sent = false, fatal = false;
+    for (let t = 0; t < 6 && !sent; t++) {
+      const name = next(conv.ext);
+      try {
+        const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
+          method: "PUT", headers: {...hdr(false), "Content-Type": "application/json"},
+          body: JSON.stringify({message: "Add " + name, content: b64})});
+        if (r.ok) {
+          const j = await r.json();
+          if (!listCache[folder]) listCache[folder] = [];
+          if (!parsed.some(f => f.n === folder)) {          // brand-new folder: add it to the list
+            const keep = cur >= 0 && parsed[cur] ? parsed[cur].n : null;
+            parsed.push(parseFolder(folder)); parsed.sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+            if (keep) cur = parsed.findIndex(f => f.n === keep);
+          }
+          listCache[folder].push({name, type: "file", sha: j.content && j.content.sha});
+          sent = true; ok++;
+        } else if (r.status === 422) continue;               // name already taken: try the next number
+        else { fatal = true; msg = r.status === 401 || r.status === 403 || r.status === 404 ? "The PIN needs Contents: read & write for this repository." : "GitHub error " + r.status + "."; break; }
+      } catch (e) { fatal = true; msg = "Network error."; break; }
+    }
+    if (fatal) { bad += total - i; break; }
+    if (!sent) bad++;
+  }
+  upBusy = false;
+  $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
+  if (document.body.dataset.v === "list") { renderList(); }
+  updateBar();
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; toast("", "Uploaded " + ok + (ok === 1 ? " photo" : " photos") + " to " + folder.replace(/\//g, " / ")); return; }
+  $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
+  upErr(msg || (bad && !upStop ? "Some photos could not be read or uploaded." : ""));
+  $("ucancel").disabled = false; $("ucancel").textContent = "Close";
+};
 
 // ── START SCREEN ────────────────────────────────────────────────────────
 // Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).

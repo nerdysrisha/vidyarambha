@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a1604">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pictures</title>
+<style>
+:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:0}
+button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
+button:active{background:var(--line)}
+button:disabled{opacity:.3;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
+#list,#viewer,#login{display:none;flex:1;min-height:0}
+body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px}
+#box{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:6px}
+body[data-v=view] #viewer{display:block;position:relative;overflow:hidden;touch-action:none}
+body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
+body[data-v=login] footer{display:none}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
+.topic>span:first-child{flex:1;min-width:0}
+.topic b{display:block;font-weight:600;font-size:14px;line-height:1.3}
+.topic small{display:block;color:var(--mute);font-size:11px;line-height:1.3}
+.topic small:empty{display:none}
+.topic .r{flex:none;display:flex;align-items:center;gap:8px}
+.topic em.n{flex:none;font-style:normal;font-size:11px;font-weight:600;line-height:1;padding:3px 8px;border-radius:10px;color:#e2b877;background:rgba(255,153,51,.1);border:1px solid rgba(255,153,51,.3);font-variant-numeric:tabular-nums}
+.topic.hd{display:flex}
+.topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.grp.open>.hd i{transform:rotate(90deg)}
+.kids{display:none;margin:-1px 0 6px 10px;padding-left:8px;border-left:2px solid var(--line)}
+.grp.open>.kids{display:block}
+.kids .topic:last-child{margin-bottom:0}
+.bm{display:inline-block;width:15px;height:15px;margin-left:8px;vertical-align:-2px;fill:#f5b942;stroke:#f5b942;stroke-width:1.5;stroke-linejoin:round}
+.link{display:block;margin:14px auto 0;background:none;border:0;color:var(--mute);height:auto;padding:8px;font-size:14px}
+#track{display:flex;position:absolute;left:0;top:0}
+#track>.msg{flex:0 0 100%}
+.slide{flex:none;position:relative}
+.slide img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain;border-radius:6px;transform-origin:center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.slide img:not([src]){visibility:hidden}
+.msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
+.arrow{display:none;position:absolute;top:50%;margin-top:-22px;z-index:3;border-radius:50%;background:#0a1018cc;font-size:26px;line-height:1;place-items:center}
+#toast{position:absolute;top:76px;left:50%;transform:translateX(-50%);z-index:8;background:#0a1018e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s ease}
+#toast.on{opacity:1;transition:opacity .2s}
+#toast small{display:block;color:var(--mute);font-size:12px}
+#toast b{font-size:15px}
+#aL{left:10px}#aR{right:10px}
+@media (pointer:fine){body[data-v=view] .arrow{display:grid}}
+footer{position:relative;display:flex;gap:6px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,153,51,.28)}
+.mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
+footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#info{position:absolute;left:0;right:0;bottom:calc(100% + 4px);text-align:center;line-height:1.25;pointer-events:none;color:rgba(232,238,246,.6);text-shadow:0 1px 3px rgba(0,0,0,.85)}
+#cnt{display:block;font-size:13px;font-weight:600}
+#lbl{display:block;font-size:11px;padding:0 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
+#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(20,32,48,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel[hidden],#pinrow[hidden]{display:none}
+#prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
+#pinerr{color:#ff8f8f;font-size:12px;min-height:0}
+#del.on{border-color:#e5484d;color:#ff8f8f}
+#slide{flex:1;min-width:0;max-width:340px;height:44px;position:relative;margin:0 4px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.04);overflow:hidden}
+#slide.off{display:none}
+#fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(229,72,77,.28)}
+#hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:11px;letter-spacing:.3px;color:var(--mute);white-space:nowrap;pointer-events:none}
+#trash{position:absolute;left:2px;top:2px;min-width:38px;width:38px;height:38px;border-radius:50%;color:#ff8f8f;border-color:#e5484d66;touch-action:none;cursor:grab;transition:transform .2s ease}
+#trash.drag{transition:none;cursor:grabbing}
+#trash svg{width:20px;height:20px}
+#info.warn{color:#ff9a9a}
+body.max footer{display:none!important}
+body.max #fsx{display:block}
+/* ── saffron top ribbon ── */
+#top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
+#top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
+#rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
+#top .glint{position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,170,70,.24),transparent);transform:translateX(-120%) skewX(-18deg);animation:ribSweep 7s ease-in-out infinite}
+@keyframes ribGlow{0%,100%{box-shadow:0 4px 16px -6px rgba(255,153,51,.35)}50%{box-shadow:0 6px 28px -4px rgba(255,153,51,.75)}}
+@keyframes ribSweep{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}
+body[data-v=login] #top,body[data-v=view] #top{display:none}
+body[data-v=login] #app,body[data-v=view] #app,body.nobar #app{padding-top:env(safe-area-inset-top)}
+body[data-v=view] #toast{top:calc(14px + env(safe-area-inset-top))}
+body.nobar #top{display:none}
+body.max #top{display:none}
+body.max #app{padding-top:0}
+
+/* ── start screen: title + glowing saffron Start button; tap = full screen, then it fades away ── */
+#start-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 24px calc(32px + env(safe-area-inset-bottom,0px)) 0;background:radial-gradient(circle at 50% 38%,#4a2606 0%,#0a1018 70%);--start-img:none}
+#start-screen::before{content:"";position:absolute;inset:0;background:var(--start-img) center/cover no-repeat;opacity:0}
+#start-screen.ready::before{animation:startReveal 5s ease-in-out forwards}
+@keyframes startReveal{to{opacity:1}}
+#start-text{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);padding:0 20px;text-align:center;pointer-events:none}
+#start-text h1{margin:0 0 10px;font-size:clamp(30px,min(9vw,14vh),56px);letter-spacing:.5px;color:#ffd9a0;text-shadow:0 0 24px rgba(255,153,51,.6),0 2px 12px rgba(0,0,0,.6);opacity:0;transform:translateY(28px)}
+#start-text p{margin:0;color:#e2b877;font-size:15px;opacity:0;transform:translateY(28px)}
+#start-screen.ready #start-text h1{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) .6s forwards}
+#start-screen.ready #start-text p{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) 1.6s forwards}
+@keyframes textRise{to{opacity:1;transform:none}}
+#start-btn{position:relative;z-index:1;appearance:none;cursor:pointer;width:76px;height:76px;min-width:0;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.9);color:#3a1c02;font:700 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:radial-gradient(circle at 35% 30%,#ffe9c9 0%,#ff9933 60%,#e07a14 100%);opacity:0;pointer-events:none}
+#start-screen.btn-on #start-btn{pointer-events:auto;animation:startBtnIn .8s ease-out forwards,startGlow 1.8s ease-in-out infinite}
+@keyframes startBtnIn{to{opacity:1}}
+#start-btn:active{transform:scale(.95)}
+@keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(255,153,51,.75),0 0 18px 6px rgba(255,153,51,.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(255,190,110,1),0 0 34px 14px rgba(255,153,51,.7),inset 0 1px 0 rgba(255,255,255,.7)}}
+#start-screen.leaving{pointer-events:none;animation:startFade 2.5s ease forwards}
+#start-screen.leaving #start-btn{animation:startBtnOut 2.5s ease forwards}
+@keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
+@keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){#top,#top .glint{animation:none}#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
+
+/* ── mobile app (Capacitor or installed to home screen): already full screen, so no max / min buttons ── */
+body.app #max,body.app #fsx{display:none!important}
+body{-webkit-touch-callout:none}
+#login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
+#login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}
+#lerr{color:#ff8f8f}
+@media (orientation:landscape) and (pointer:coarse), (orientation:landscape) and (max-height:500px){
+  body[data-v=view] footer{display:none}
+  body[data-v=view] #app{max-width:none;margin:0;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+  body[data-v=view] .slide img{inset:0;width:100%;height:100%;border-radius:0}
+}
+</style>
+</head>
+<body data-v="list">
+<div id="start-screen">
+  <div id="start-text"><h1>Pictures</h1><p>Tap a folder to open its photos</p></div>
+  <button id="start-btn" type="button">Start</button>
+</div>
+<div id="app">
+  <header id="top"><h1>Pictures</h1><small id="rtxt"></small><i class="glint"></i></header>
+  <div id="list"><div id="box"></div></div>
+  <div id="login">
+    <h2>Enter 4 Digits PIN</h2>
+    <p>Saved only in this browser on this device.</p>
+    <input id="tokin" type="password" autocomplete="off" placeholder="Aak Sri. He has the PIN ...">
+    <button id="tsave">Save PIN</button>
+    <p id="lerr"></p>
+  </div>
+  <div id="viewer">
+    <div id="track"></div>
+    <button class="arrow" id="aL" aria-label="Previous photo">&#8249;</button>
+    <button class="arrow" id="aR" aria-label="Next photo">&#8250;</button>
+    <div id="toast"><small></small><b></b></div>
+  </div>
+  <footer id="foot">
+    <button id="menu" aria-label="Folders"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="mid">
+    <button id="prevF" aria-label="Previous folder"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
+      <button id="trash" aria-label="Slide right to delete this photo"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></div>
+    <button id="nextF" aria-label="Next folder"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div id="panel" hidden>
+      <div id="prow">
+        <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
+        <button id="max" aria-label="Full screen"></button>
+        <button id="key" aria-label="Change token"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
+        <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
+      </div>
+      <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
+      <small id="pinerr"></small>
+    </div>
+    <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
+  </footer>
+</div>
+<button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
+
+<script>
+// Running as an app (Android Capacitor, or installed to the home screen)? Already full screen: no max / min buttons.
+const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
+  || matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+if (IN_APP) document.body.classList.add("app");
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const OWNER = "nerdysrisha", REPO = "pictures";
+// Folders are discovered automatically, including sub-folders at any depth (one call to GitHub lists the whole repo).
+// Any folder that directly contains photos becomes one entry, e.g. "all designs / Kitchen". New folders show up on refresh.
+// Landscape phone + landscape photo: fill the whole screen (crops edges). Max share of the photo allowed to be
+// cropped; 0.5 fills normal 4:3 / 16:9 photos. Set 0 to never fill (always show the whole photo).
+const FILL_MAX_CROP = 0.5;
+const DELETE_PIN = "6559";                                   // PIN that unlocks delete mode (change it here)
+const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1;   // preload: first 5 on open, then 2 ahead / 1 behind
+
+// ── HELPERS ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
+let mem = "";
+const getTok = () => { try { return localStorage.getItem("ghtok") || mem; } catch (e) { return mem; } };
+const setTok = v => { mem = v; try { v ? localStorage.setItem("ghtok", v) : localStorage.removeItem("ghtok"); } catch (e) {} };
+const getLast = () => { try { return localStorage.getItem("lastFolder") || ""; } catch (e) { return ""; } };
+const setLast = v => { try { localStorage.setItem("lastFolder", v); } catch (e) {} };
+const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
+const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
+const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); };
+
+// Folders are fetched from the repo root and sorted newest first (names start with yyyy mm dd)
+let parsed = [], loaded = false, truncated = false;
+const parseFolder = n => {
+  const m = n.match(/^(\d{4}) (\d{2}) (\d{2}) (.*)$/);
+  const nice = x => x.replace(/\//g, " / ");
+  return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
+};
+async function loadFolders() {
+  const my = ++ticket;
+  $("box").innerHTML = '<div class="msg">Loading folders...</div>'; show("list");
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/git/trees/HEAD?recursive=1", {headers: hdr(false)});
+    if (my !== ticket) return false;
+    if (r.status === 401) { setTok(""); fail("PIN was rejected. Enter it again."); return false; }
+    if (!r.ok) { $("box").innerHTML = '<div class="msg">Could not load folders (error ' + r.status + '). Reload to retry.</div>'; return false; }
+    const data = await r.json();
+    if (my !== ticket) return false;
+    const dirs = {};                                         // folder path -> its photos (same shape as a folder listing)
+    (data.tree || []).forEach(x => {
+      if (x.type !== "blob" || !/\.(webp|jpe?g|png|gif)$/i.test(x.path)) return;
+      const i = x.path.lastIndexOf("/"); if (i < 0) return;  // ignore loose files in the repo root
+      const dir = x.path.slice(0, i);
+      if (dir.split("/").some(seg => seg.startsWith("."))) return;
+      (dirs[dir] = dirs[dir] || []).push({name: x.path.slice(i + 1), type: "file", sha: x.sha});
+    });
+    listCache = dirs; truncated = !!data.truncated;
+    parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+    loaded = true; renderList(); return true;
+  } catch (e) { if (my === ticket) $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; return false; }
+}
+
+// ── FOLDER LIST ─────────────────────────────────────────────────────────
+const openGroups = new Set();                              // which top-level folders are expanded
+let autoOpened = false;                                  // open the last-visited group once, on first list render
+function renderList() {
+  const g = $("box"); g.innerHTML = "";
+  const last = getLast(), lastTop = last.split("/")[0];
+  if (!autoOpened) { autoOpened = true; if (last) openGroups.add(lastTop); }
+  const groups = new Map();                                // top-level folder -> its entries (itself and/or sub-folders)
+  parsed.forEach(f => { const top = f.n.split("/")[0]; if (!groups.has(top)) groups.set(top, []); groups.get(top).push(f); });
+  const cnt = f => (listCache[f.n] || []).filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name)).length;
+  const dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
+  const row = (f, title, sub) => {
+    const b = document.createElement("button");
+    b.className = "topic"; b.innerHTML = "<span><b></b><small></small></span><em class=\"n\"></em>";
+    const tb = b.firstChild.firstChild;
+    tb.textContent = title; tb.nextSibling.textContent = sub; b.lastChild.textContent = cnt(f);
+    if (last && f.n === last) tb.appendChild(bmIcon());
+    b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
+    return b;
+  };
+  groups.forEach((list, top) => {
+    if (list.length === 1 && list[0].n === top) { g.appendChild(row(list[0], list[0].t, dstr(list[0]))); return; }
+    const t = parseFolder(top), wrap = document.createElement("div");
+    wrap.className = "grp" + (openGroups.has(top) ? " open" : "");
+    const h = document.createElement("button");
+    h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><span class=\"r\"><em class=\"n\"></em><i>&#9656;</i></span>";
+    const tot = list.reduce((a, f) => a + cnt(f), 0); h.querySelector("em").textContent = tot;
+    h.firstChild.firstChild.textContent = t.t;
+    if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
+    h.firstChild.lastChild.textContent = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
+    const kids = document.createElement("div"); kids.className = "kids";
+    list.forEach(f => kids.appendChild(row(f, f.n === top ? "Photos in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), "")));
+    wrap.appendChild(h); wrap.appendChild(kids); g.appendChild(wrap);
+  });
+  const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
+  if (!parsed.length) note2("No folders with photos found.");
+  if (truncated) note2("The repo is very large, so this list may be incomplete.");
+}
+
+// ── VIEWER STATE ────────────────────────────────────────────────────────
+const track = $("track"), V = $("viewer");
+let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
+let unlocked = false, delBusy = false;
+let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
+let SW = 0, SH = 0, sc = 1, tx = 0, ty = 0, g = null, lastTap = 0, wheelLock = 0;
+
+const note = t => { track.innerHTML = ""; const d = document.createElement("div"); d.className = "msg"; d.textContent = t; track.appendChild(d); };
+const fail = t => { $("lerr").textContent = t; show("login"); };
+function freeUrls() { cache.forEach(p => p && p.then && p.then(u => u && URL.revokeObjectURL(u))); cache = []; imgs = []; files = []; }
+
+function updateBar() {
+  const v = document.body.dataset.v, inView = v === "view";
+  $("cnt").textContent = inView ? (files.length ? (idx + 1) + " / " + files.length : "") : (v === "list" ? parsed.length + " folders" : "");
+  $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Pictures";
+  $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
+  $("slide").classList.toggle("off", !(unlocked && inView && files.length));
+  $("prevF").disabled = !inView;
+  $("nextF").disabled = !inView;
+}
+
+async function openFolder(i) {
+  const my = ++ticket; cur = i; setLast(parsed[i].n); freeUrls(); resetZoom();
+  track.style.transition = "none"; track.style.transform = "";
+  note("Loading photos..."); show("view"); fit();
+  try {
+    let list = listCache[parsed[i].n];
+    if (!list) {
+      const r = await api(parsed[i].n);
+      if (my !== ticket) return;
+      if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
+      if (!r.ok) return note("Could not open this folder (error " + r.status + "). Check the folder name exists in the repo and the PIN can read it.");
+      list = await r.json();
+      if (my !== ticket) return;
+      listCache[parsed[i].n] = list;
+    }
+    files = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name)).map(x => x.name).sort(nat);
+    if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No photos in this folder."); }
+    track.innerHTML = ""; cache = new Array(files.length); imgs = [];
+    files.forEach(() => {
+      const s = document.createElement("div"); s.className = "slide";
+      const im = document.createElement("img"); im.alt = ""; im.draggable = false; im.onload = () => applyFill(im);
+      s.appendChild(im); track.appendChild(s); imgs.push(im);
+    });
+    fit();
+    const n = files.length, s0 = startEnd ? Math.max(0, n - FIRST) : 0;
+    place(startEnd ? n - 1 : 0, false);
+    for (let k = s0; k < s0 + FIRST; k++) load(k);
+    startEnd = false;
+    if (pending) { toast(pending.a, pending.b); pending = null; }
+  } catch (e) { if (my === ticket) note("Network error. Check your connection and try again."); }
+}
+
+function load(k) {
+  if (k < 0 || k >= files.length || cache[k]) return;
+  const my = ticket, im = imgs[k];
+  const p = api(parsed[cur].n + "/" + files[k], true)
+    .then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); })
+    .then(b => { const u = URL.createObjectURL(b); if (my === ticket && im.isConnected) im.src = u; else URL.revokeObjectURL(u); return u; })
+    .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("PIN was rejected. Enter it again."); } });
+  cache[k] = p;
+}
+function loadNear(i) {
+  const n = files.length;
+  for (let d = -BEHIND; d <= AHEAD; d++) load(i + d);
+}
+
+function place(i, anim) {
+  idx = i;
+  track.style.transition = anim ? "transform .28s ease" : "none";
+  track.style.transform = "translateX(" + (-i * SW) + "px)";
+  updateBar(); loadNear(i);
+  if (i >= files.length - 2) prefetch(cur + 1);
+  if (i <= 1) prefetch(cur - 1);
+}
+function go(d) {
+  const n = files.length; if (!n) return;
+  const j = idx + d;
+  if (j >= 0 && j < n) { resetZoom(); return place(j, true); }
+  const L = parsed.length;
+  if (L < 2) { resetZoom(); return place(d > 0 ? 0 : n - 1, true); }
+  const f = (cur + (d > 0 ? 1 : -1) + L) % L;             // past the last / first photo: next / previous folder (loops)
+  const wrapped = d > 0 ? cur === L - 1 : cur === 0;
+  startEnd = d < 0;
+  pending = {a: wrapped ? (d > 0 ? "Back to the first folder" : "Back to the last folder") : (d > 0 ? "Next folder" : "Previous folder"), b: parsed[f].t};
+  location.replace("#f=" + encodeURIComponent(parsed[f].n));
+}
+function prefetch(j) {                                    // fetch the neighbouring folder's photo list in advance
+  j = (j + parsed.length) % parsed.length;
+  if (listCache[parsed[j].n] || listCache["~" + j]) return;
+  listCache["~" + j] = 1;
+  api(parsed[j].n).then(r => r.ok ? r.json() : null).then(l => { if (l) listCache[parsed[j].n] = l; }).catch(() => {});
+}
+function toast(a, b) {
+  const t = $("toast"); t.firstChild.textContent = a; t.firstChild.style.display = a ? "block" : "none"; t.lastChild.textContent = b;
+  t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
+}
+function step(d) {
+  const j = (cur + d + parsed.length) % parsed.length;
+  if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n));
+}
+
+// ── ZOOM + SWIPE ────────────────────────────────────────────────────────
+function paint() { const im = imgs[idx]; if (im) im.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + sc + ")"; }
+function resetZoom() { sc = 1; tx = ty = 0; paint(); }
+function clamp() {
+  const mx = V.clientWidth * (sc - 1) / 2, my = V.clientHeight * (sc - 1) / 2;
+  tx = Math.max(-mx, Math.min(mx, tx)); ty = Math.max(-my, Math.min(my, ty));
+}
+function zoomAt(x, y, s) {
+  const r = V.getBoundingClientRect(); sc = s;
+  tx = -(x - r.left - r.width / 2) * (s - 1); ty = -(y - r.top - r.height / 2) * (s - 1);
+  clamp(); paint();
+}
+const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+V.addEventListener("touchstart", e => {
+  if (!files.length) return;
+  if (e.touches.length === 2) { place(idx, false); g = {m: "pinch", d: dist(e.touches), s: sc}; return; }
+  const t = e.touches[0];
+  g = {m: sc > 1 ? "pan" : "swipe", x: t.clientX, y: t.clientY, tx, ty, moved: false};
+}, {passive: true});
+V.addEventListener("touchmove", e => {
+  if (!g) return; e.preventDefault();
+  if (g.m === "pinch") { if (e.touches.length === 2) { sc = Math.min(6, Math.max(1, g.s * dist(e.touches) / g.d)); clamp(); paint(); } return; }
+  const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+  if (Math.abs(dx) > 8 || Math.abs(dy) > 8) g.moved = true;
+  if (g.m === "pan") { tx = g.tx + dx; ty = g.ty + dy; clamp(); paint(); }
+  else { track.style.transition = "none"; track.style.transform = "translateX(" + (-idx * SW + dx) + "px)"; }
+}, {passive: false});
+V.addEventListener("touchend", e => {
+  if (!g) return;
+  if (e.touches.length > 0) { g = null; return; }               // one finger of a pinch lifted
+  const t = e.changedTouches[0], now = Date.now();
+  if (g.m === "pinch") { if (sc < 1.02) resetZoom(); g = null; return; }
+  if (!g.moved) {                                                // tap: double-tap toggles zoom
+    if (now - lastTap < 300) { lastTap = 0; sc > 1 ? resetZoom() : zoomAt(t.clientX, t.clientY, 2.5); }
+    else lastTap = now;
+  } else if (g.m === "swipe") {
+    const dx = t.clientX - g.x;
+    Math.abs(dx) > 50 ? go(dx < 0 ? 1 : -1) : place(idx, true);
+  }
+  g = null;
+});
+V.addEventListener("touchcancel", () => { if (g && g.m === "swipe") place(idx, true); g = null; });
+V.addEventListener("wheel", e => {
+  e.preventDefault();
+  if (e.ctrlKey) { zoomAt(e.clientX, e.clientY, Math.min(6, Math.max(1, sc * (e.deltaY < 0 ? 1.15 : 0.87)))); return; }
+  if (sc > 1) { tx -= e.deltaX; ty -= e.deltaY; clamp(); paint(); return; }
+  if (Date.now() < wheelLock) return; wheelLock = Date.now() + 400;
+  go((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1);
+}, {passive: false});
+V.addEventListener("dblclick", e => { if (matchMedia("(pointer:fine)").matches) sc > 1 ? resetZoom() : zoomAt(e.clientX, e.clientY, 2.5); });
+function fit() {                                          // size app, viewer and slides in pixels (robust in landscape)
+  const vv = window.visualViewport, H0 = Math.round(vv ? vv.height : innerHeight);
+  $("app").style.height = H0 + "px";
+  if (document.body.dataset.v !== "view") return;
+  const foot = $("foot"), fb = getComputedStyle(foot).display === "none" ? 0 : foot.offsetHeight;
+  SW = V.clientWidth;
+  const H = Math.max(50, H0 - Math.round(V.getBoundingClientRect().top) - fb);
+  const sl = track.querySelectorAll(".slide");
+  track.style.width = (sl.length ? sl.length * SW : SW) + "px"; track.style.height = H + "px";
+  sl.forEach(x => { x.style.width = SW + "px"; x.style.height = H + "px"; });
+  SH = H; imgs.forEach(applyFill);
+}
+function applyFill(im) {
+  const w = im.naturalWidth, h = im.naturalHeight; if (!w || !h || !SH) return;
+  const rs = SW / SH, rp = w / h, crop = 1 - Math.min(rs / rp, rp / rs);
+  im.style.objectFit = (SW > SH && w > h && crop <= FILL_MAX_CROP) ? "cover" : "contain";
+}
+function realign() { fit(); if (files.length) { resetZoom(); place(idx, false); } }
+window.addEventListener("resize", realign);
+window.addEventListener("orientationchange", () => { setTimeout(realign, 100); setTimeout(realign, 500); });
+if (window.visualViewport) visualViewport.addEventListener("resize", realign);
+document.addEventListener("fullscreenchange", () => setTimeout(realign, 150));
+
+// ── BUTTONS + KEYS ──────────────────────────────────────────────────────
+$("aL").onclick = () => go(-1); $("aR").onclick = () => go(1);
+$("prevF").onclick = () => step(-1); $("nextF").onclick = () => step(1);
+$("menu").onclick = () => { location.hash = ""; };
+// settings panel (gear): refresh, full screen, delete mode
+const panel = $("panel");
+function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
+$("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
+panel.addEventListener("click", e => e.stopPropagation());
+document.addEventListener("click", closePanel);
+$("refresh").onclick = () => {                                   // re-read the folder list (and photo lists) from GitHub
+  closePanel();
+  if (document.body.dataset.v === "list") savedScroll = $("box").scrollTop;
+  loaded = false; listCache = {}; route();
+};
+const syncLock = () => { $("del").classList.toggle("on", unlocked); updateBar(); };
+let pinFor = "";                                                  // what the PIN is being asked for: "del" or "tok"
+const askPin = what => { pinFor = what; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
+$("del").onclick = () => {
+  if (unlocked) { unlocked = false; closePanel(); syncLock(); return; }
+  askPin("del");
+};
+$("key").onclick = () => askPin("tok");
+function tryPin() {
+  if ($("pin").value === DELETE_PIN) {
+    closePanel();
+    if (pinFor === "tok") changeToken();
+    else { unlocked = true; syncLock(); toast("", "Delete unlocked"); }
+  }
+  else { $("pinerr").textContent = "Wrong PIN"; $("pin").value = ""; }
+}
+$("pinok").onclick = tryPin;
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
+
+// permanently delete the photo on screen (needs the PIN to have Contents: read & write)
+async function delPhoto(expect) {
+  if (!unlocked || !files.length || delBusy || files[idx] !== expect) return;
+  const name = files[idx], folder = parsed[cur].n, k = idx;
+  const ent = (listCache[folder] || []).find(x => x.name === name);
+  if (!ent) return toast("", "Tap refresh, then try again");
+  delBusy = true; $("trash").disabled = true;
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
+      method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"},
+      body: JSON.stringify({message: "Delete " + name, sha: ent.sha})});
+    if (!r.ok) return toast("Delete failed (" + r.status + ")", r.status === 401 || r.status === 403 || r.status === 404 ? "PIN needs Contents: read & write" : "Tap refresh and try again");
+    listCache[folder] = listCache[folder].filter(x => x.name !== name);
+    if (cur >= 0 && parsed[cur].n === folder && files[k] === name) removeSlide(k, folder);
+  } catch (e) { toast("", "Network error, not deleted"); }
+  finally { delBusy = false; $("trash").disabled = false; }
+}
+function removeSlide(k, folder) {
+  resetZoom();
+  const c = cache[k]; c && c.then && c.then(u => u && URL.revokeObjectURL(u));
+  files.splice(k, 1); cache.splice(k, 1); imgs.splice(k, 1); track.removeChild(track.children[k]);
+  if (!files.length) {
+    if (!listCache[folder].length) { loaded = false; listCache = {}; location.hash = ""; return; }   // empty folder disappears from git
+    note("No photos in this folder."); updateBar(); return;
+  }
+  fit(); place(Math.min(k, files.length - 1), false); toast("", "Deleted");
+}
+
+// slide-to-delete: drag the trash handle all the way to the right (releasing early springs back)
+const hd = $("trash"), sl = $("slide");
+let sd = null;
+const maxX = () => sl.clientWidth - hd.offsetWidth - 4;
+function slideTo(x) { hd.style.transform = "translateX(" + x + "px)"; $("fill").style.width = x > 0 ? (x + hd.offsetWidth + 2) + "px" : "0"; }
+hd.addEventListener("pointerdown", e => {
+  if (delBusy || !unlocked || !files.length) return;
+  sd = {x: e.clientX, dx: 0, name: files[idx]};
+  hd.setPointerCapture(e.pointerId); hd.classList.add("drag");
+  $("info").classList.add("warn"); $("lbl").textContent = "Delete: " + sd.name;
+});
+hd.addEventListener("pointermove", e => { if (sd) { sd.dx = Math.max(0, Math.min(maxX(), e.clientX - sd.x)); slideTo(sd.dx); } });
+function endSlide(e) {
+  if (!sd) return;
+  const d = sd; sd = null; hd.classList.remove("drag"); $("info").classList.remove("warn"); updateBar();
+  if (e.type === "pointerup" && d.dx >= maxX() * 0.9) { slideTo(maxX()); delPhoto(d.name).finally(() => slideTo(0)); }
+  else slideTo(0);
+}
+hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel", endSlide);
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || document.body.dataset.v !== "view") return;
+  if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+  else if (e.key === "Escape" && !document.body.classList.contains("max")) location.hash = "";
+});
+
+// full screen (iPhone Safari has no API: hide the bar instead)
+const EXP = '<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+const COL = '<svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+const root = document.documentElement, canFS = !!root.requestFullscreen;
+const setIcon = on => { $("max").innerHTML = on ? COL : EXP; };
+function setMax(on) {
+  if (canFS) { if (on) root.requestFullscreen().catch(() => {}); else if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+  else document.body.classList.toggle("max", on);
+  setIcon(on); setTimeout(realign, 60);
+}
+$("max").onclick = () => { closePanel(); setMax(canFS ? !document.fullscreenElement : !document.body.classList.contains("max")); };
+$("fsx").onclick = () => setMax(false);
+document.addEventListener("fullscreenchange", () => setIcon(!!document.fullscreenElement));
+setIcon(false);
+
+// ── PIN ───────────────────────────────────────────────────────────────
+function changeToken() { setTok(""); unlocked = false; syncLock(); $("lerr").textContent = ""; $("tokin").value = ""; route(); }
+async function saveToken() {
+  const v = $("tokin").value.trim(); if (!v) return;
+  $("lerr").textContent = "Checking...";
+  setTok(v);
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO, {headers: hdr(false)});
+    if (r.ok) { $("lerr").textContent = ""; $("tokin").value = ""; return route(); }
+    setTok(""); $("lerr").textContent = r.status === 401 ? "GitHub rejected this PIN. Check it and try again."
+      : "This PIN cannot read " + OWNER + "/" + REPO + " (error " + r.status + "). Check its repository access.";
+  } catch (e) { setTok(""); $("lerr").textContent = "Network error. Check your connection and try again."; }
+}
+$("tsave").onclick = saveToken;
+$("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
+
+// ── ROUTING (#f=<folder name>) ──────────────────────────────────────────
+async function route() {
+  if (!getTok()) { ++ticket; return show("login"); }
+  if (!loaded && !(await loadFolders())) return;
+  const m = location.hash.match(/^#f=(.+)$/);
+  if (!m) { ++ticket; freeUrls(); cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll; return; }
+  const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
+  if (i < 0) { location.hash = ""; return; }
+  openFolder(i);
+}
+window.addEventListener("hashchange", route);
+route();
+
+// ── START SCREEN ────────────────────────────────────────────────────────
+// Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
+// (iPhone Safari has no full-screen API: there only the top ribbon is hidden. In an app it is already full screen.)
+(function () {
+  const scr = $("start-screen"), btn = $("start-btn");
+  const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(scr).getPropertyValue("--start-img"));
+  const ready = () => scr.classList.add("ready");
+  if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else ready();
+  setTimeout(() => scr.classList.add("btn-on"), 1000);
+  let done = false;
+  const finish = () => { if (!done) { done = true; scr.remove(); realign(); } };
+  btn.addEventListener("click", () => {
+    if (!IN_APP) { if (canFS) setMax(true); else document.body.classList.add("nobar"); }
+    setTimeout(realign, 150);
+    scr.classList.add("leaving");
+    scr.addEventListener("animationend", e => { if (e.target === scr) finish(); });
+    setTimeout(finish, 3200);
+  });
+})();
+</script>
+</body>
+</html>
