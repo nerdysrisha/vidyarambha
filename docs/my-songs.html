@@ -44,49 +44,50 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 @container shead (max-width:400px){#shead .cw{display:none}}
 /* play-all slider: left = shuffle, right = in order, centre = idle */
 #pall{flex:none;position:relative;width:96px;height:28px;border-radius:14px;background:var(--ink);border:1px solid var(--line);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;transition:border-color .8s ease,background .8s ease}
-#pall .pi{position:absolute;top:50%;width:13px;height:13px;margin-top:-6.5px;fill:none;stroke:var(--mute);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.85;transition:stroke .8s ease}
+#pall .pi{position:absolute;top:50%;width:13px;height:13px;margin-top:-6.5px;fill:none;stroke:var(--mute);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.4;transition:stroke .8s ease,opacity .4s ease,filter .4s ease}
+#pall.sh-on .pi.l{stroke:#ff9933;opacity:1;filter:drop-shadow(0 0 4px rgba(255,153,51,.85))}
+#pall.ord-on .pi.r{stroke:var(--accent);opacity:1}
 #pall .pi.l{left:8px}#pall .pi.r{right:8px}
 #pthumb{position:absolute;top:1px;left:calc(50% - 12px);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bcdcff,#4f93e0 70%);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .25s ease}
-#pthumb svg{width:11px;height:11px;fill:#05213f;margin-left:1px}
 #pall.drag #pthumb{transition:none}
 /* bottom ribbon: blank, or the playing song when it is scrolled out of view, or a slow glint when it is in view */
 #sfoot{position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;min-height:40px;padding:5px 14px;background:var(--panel);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;transition:background .8s ease,border-color .8s ease}
-#sfoot.away{cursor:pointer}
-#sfarr{flex:none;width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .35s ease,stroke .8s ease}
 #sfnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600;opacity:0;transition:opacity .35s ease,color .8s ease}
-#sfoot.away #sfarr,#sfoot.away #sfnm{opacity:1}
+#sfoot.away #sfnm{opacity:1}
 #sfnm.sw{animation:sfin .6s ease both}
 @keyframes sfin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.glint{display:none;position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(170,205,255,.26),transparent);transform:translateX(-120%) skewX(-18deg);opacity:0}
+.glint{display:none;position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(170,205,255,.15),transparent);transform:translateX(-120%) skewX(-18deg);opacity:0}
 #sfoot.view .glint{display:block;animation:glint 5.5s ease-in-out infinite;animation-play-state:paused}
 #sbox.playing ~ #sfoot.view .glint{animation-play-state:running}
 @keyframes glint{0%{transform:translateX(-120%) skewX(-18deg);opacity:0}12%{opacity:1}55%{opacity:.9}70%{transform:translateX(300%) skewX(-18deg);opacity:0}100%{transform:translateX(300%) skewX(-18deg);opacity:0}}
-/* controls gone -> both ribbons turn saffron and breathe softly (inward) */
-body.ctl-fade :is(#shead,#sfoot){background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
-body.ctl-fade :is(#sttl,#sfnm){color:#ffd9a0}
-body.ctl-fade #scnt{color:#e2b877}
-body.ctl-fade #sfarr{stroke:#ffb347}
-body.ctl-fade .glint{background:linear-gradient(90deg,transparent,rgba(255,170,70,.30),transparent)}
-body.ctl-fade #pall{background:#150c03;border-color:rgba(255,153,51,.45)}
-body.ctl-fade #pall .pi{stroke:#e2b877}
-body.ctl-fade #pthumb{background:radial-gradient(circle at 35% 30%,#ffe2b8,#ff9933 70%)}
-body.ctl-fade #shead .shf{color:rgba(255,217,160,.35)}
-body.ctl-fade #shead .shf.on{color:#ffb347;filter:drop-shadow(0 0 6px rgba(255,153,51,.9))}
-@keyframes saf{0%,100%{box-shadow:inset 0 0 7px 1px rgba(255,153,51,.30),inset 0 0 16px 3px rgba(255,153,51,.14)}50%{box-shadow:inset 0 0 12px 3px rgba(255,153,51,.52),inset 0 0 26px 7px rgba(255,153,51,.24)}}
-@media (prefers-reduced-motion:reduce){body.ctl-fade :is(#shead,#sfoot){animation:none}.glint{animation:none!important}}
+/* once the controls are almost gone (~80% faded) both ribbons turn saffron and breathe softly (inward) */
+body.ctl-gone :is(#shead,#sfoot){background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
+body.ctl-gone :is(#sttl,#sfnm){color:#ffd9a0}
+body.ctl-gone #scnt{color:#e2b877}
+body.ctl-gone .glint{background:linear-gradient(90deg,transparent,rgba(255,170,70,.20),transparent)}
+body.ctl-gone #pall{background:#150c03;border-color:rgba(255,153,51,.45)}
+body.ctl-gone #pall .pi{stroke:#e2b877}
+body.ctl-gone #pthumb{background:radial-gradient(circle at 35% 30%,#ffe2b8,#ff9933 70%)}
+body.ctl-gone #shead .shf{color:rgba(255,217,160,.35)}
+body.ctl-gone #shead .shf.on{color:#ffb347;filter:drop-shadow(0 0 6px rgba(255,153,51,.9))}
+@keyframes saf{0%,100%{box-shadow:inset 0 0 5px 1px rgba(255,153,51,.22),inset 0 0 12px 2px rgba(255,153,51,.10)}50%{box-shadow:inset 0 0 9px 2px rgba(255,153,51,.40),inset 0 0 20px 5px rgba(255,153,51,.18)}}
+@media (prefers-reduced-motion:reduce){body.ctl-gone :is(#shead,#sfoot){animation:none}.glint{animation:none!important}}
 
 /* folder rows */
 .topic{display:block;width:100%;height:auto;min-height:47px;margin:0 0 5px;padding:7px 13px;text-align:left}
 .topic[data-dir]{touch-action:pan-y;transition:transform .18s ease,border-color .15s,background .15s,opacity .35s ease}
 #sbox .song{transition:opacity .35s ease}
-body.hasq #sbox .song:not(.now){opacity:.6}
-body.hasq #box .topic[data-dir]:not(.pl){opacity:.6}
+body.hasq #sbox .song:not(.now){opacity:.42}
+body.hasq #sbox .song.now{background:#213a5a;filter:brightness(1.18)}
+body.hasq #sbox .song.now b{color:#9dccff}
+body.hasq #box .topic[data-dir]:not(.pl){opacity:.42}
+body.hasq #box .topic[data-dir].pl{filter:brightness(1.18)}
 .topic.drag{transition:none}
 .topic.go{border-color:var(--accent);background:#1a2c44}
 .topic b{display:block;font-weight:600;font-size:14.5px}
 .topic small{color:var(--mute);font-size:12px}
-.shf{display:inline-flex;align-items:center;vertical-align:-3px;color:#5d6a7c}
-.shf.on{color:#ff9933;filter:drop-shadow(0 0 4px rgba(255,153,51,.75))}
+.shf{display:inline-flex;align-items:center;vertical-align:-3px;color:#5d6a7c;opacity:.55}
+.shf.on{color:#ff9933;opacity:1;filter:drop-shadow(0 0 4px rgba(255,153,51,.75))}
 .shf svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .topic.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
@@ -187,8 +188,8 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
   body.hasq:not([data-v=login]) #ls{display:flex}
   body.hasq:not([data-v=login]) #app{padding:10px max(14px,env(safe-area-inset-left)) 10px max(14px,env(safe-area-inset-right))}
   body.hasq:not([data-v=login]) #app::after{content:"";position:absolute;inset:4px;border:1px solid var(--line);border-radius:20px;pointer-events:none;z-index:5;transition:border-color .8s ease}
-  body.hasq:not([data-v=login]).ctl-fade #app::after{border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
-  @media (prefers-reduced-motion:reduce){body.hasq:not([data-v=login]).ctl-fade #app::after{animation:none}}
+  body.hasq:not([data-v=login]).ctl-gone #app::after{border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
+  @media (prefers-reduced-motion:reduce){body.hasq:not([data-v=login]).ctl-gone #app::after{animation:none}}
   body.hasq:not([data-v=login]) :is(footer,#lsarr){transition:opacity .35s ease}
   body.hasq:not([data-v=login]).ctl-fade :is(footer,#lsarr){opacity:0;pointer-events:none;transition:opacity 6s ease}
   body.hasq:not([data-v=login]) #gnr{top:10px}
@@ -265,9 +266,9 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
   </header>
   <div id="list"><div id="box"></div></div>
   <div id="songs">
-    <div id="shead"><b id="sttl"></b><small id="scnt"></small><div id="pall" role="group" aria-label="Play all: slide left to shuffle, right to play in order"><svg class="pi l" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><svg class="pi r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i id="pthumb"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg></i></div></div>
+    <div id="shead"><b id="sttl"></b><small id="scnt"></small><div id="pall" role="group" aria-label="Play all: slide left to shuffle, right to play in order"><svg class="pi l" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><svg class="pi r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i id="pthumb"></i></div></div>
     <div id="sbox"></div>
-    <div id="sfoot"><i class="glint"></i><svg id="sfarr" viewBox="0 0 24 24"></svg><span id="sfnm"></span></div>
+    <div id="sfoot"><i class="glint"></i><span id="sfnm"></span></div>
   </div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
@@ -427,7 +428,7 @@ async function loadFolders() {
 const filesOf = dir => (listCache[dir] || []).map(x => x.name).sort(nat);
 const cnt = n => n + (n === 1 ? " song" : " songs");
 const cntH = n => n + (n === 1 ? ' <span class="cw">song</span>' : ' <span class="cw">songs</span>');   // the word hides itself when the ribbon is narrow
-let palOff = 0, palDrag = false; const PAL_MAX = 34, PAL_TRIG = 20;
+let palOff = 0, palDrag = false, palHold = false; const PAL_MAX = 34, PAL_TRIG = 20;
 function updateCounts() {                                  // the playing folder shows "position/total songs"
   const SH = '<path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>';
   const fmtC = f => {
@@ -443,11 +444,10 @@ function updateCounts() {                                  // the playing folder
   if (cur >= 0 && parsed[cur]) $("scnt").innerHTML = fmtC(parsed[cur]);
   syncPall();
 }
-function syncPall() {                                      // slider thumb: centre when idle, left = shuffle, right = in order
-  if (palDrag) return;
-  const mine = !!(Q && parsed[cur] && Q.dir === parsed[cur].n);
-  palOff = mine ? ((Q.shuf || Q.global) ? -PAL_MAX : PAL_MAX) : 0;
-  $("pthumb").style.transform = "translateX(" + palOff + "px)";
+function syncPall() {                                      // slider thumb always rests in the centre; the icons show the mode (left = shuffle, right = in order)
+  const mine = !!(Q && parsed[cur] && Q.dir === parsed[cur].n), sh = !!(Q && (Q.shuf || Q.global)), p = $("pall");
+  p.classList.toggle("sh-on", mine && sh); p.classList.toggle("ord-on", mine && !sh);
+  if (!palDrag && !palHold) $("pthumb").style.transform = "";
 }
 
 const openGroups = new Set();                              // which top-level folders are expanded
@@ -528,13 +528,11 @@ function updateSfoot() {
   const bb = $("sbox").getBoundingClientRect(), rb = row.getBoundingClientRect(); if (!bb.height) return;
   const mid = rb.top + rb.height / 2, up = mid <= bb.top + 24;
   if (!up && mid < bb.bottom - 24) { f.className = "view"; return; }
-  $("sfarr").innerHTML = up ? '<path d="M6 15l6-6 6 6"/>' : '<path d="M6 9l6 6 6-6"/>';
   const nm = pretty(Q.names[Q.pos]), n = $("sfnm");
   if (nm !== sfLast) { sfLast = nm; n.textContent = nm; n.classList.remove("sw"); void n.offsetWidth; n.classList.add("sw"); }
   f.className = "away";
 }
 $("sbox").addEventListener("scroll", () => { if (!sfRaf) sfRaf = requestAnimationFrame(() => { sfRaf = 0; updateSfoot(); }); }, {passive: true});
-$("sfoot").onclick = () => { if ($("sfoot").classList.contains("away")) centerNow(true, true); };
 window.addEventListener("resize", updateSfoot);
 // keep the playing song centred in the opened folder; a manual scroll pauses this for 5 s
 let userScrollAt = 0, autoActive = false, autoT = 0, centerP = "", centerT = 0;
@@ -891,6 +889,7 @@ route();
       const dir = parsed[cur].n, shuf = d < 0;
       th.style.transform = "translateX(" + (shuf ? -PAL_MAX : PAL_MAX) + "px)";
       if (shuf) { startShuffle(dir); toast("Shuffling " + nice(dir)); } else { startQueue(dir, 0); toast("Playing " + nice(dir)); }
+      palHold = true; setTimeout(() => { palHold = false; th.style.transform = ""; }, 220);   // then the pill glides back to the centre
     }
     syncPall();
   };
@@ -899,9 +898,11 @@ route();
 
 // ── LANDSCAPE: CONTROLS FADE AWAY AFTER ~7.5 s WITHOUT A TOUCH (then ~6 s fade); A TOUCH BRINGS THEM BACK ──
 (function () {
-  const B = document.body; let t = 0;
-  const arm = () => { clearTimeout(t); t = setTimeout(() => { if (!au.paused && $("panel").hidden) B.classList.add("ctl-fade"); }, 7500); };
-  const wake = () => { B.classList.remove("ctl-fade"); arm(); };
+  const B = document.body; let t = 0, g = 0;
+  const arm = () => { clearTimeout(t); t = setTimeout(() => {
+    if (!au.paused && $("panel").hidden) { B.classList.add("ctl-fade"); clearTimeout(g); g = setTimeout(() => B.classList.add("ctl-gone"), 4800); }   // saffron joins when ~20% of the 6 s fade is left
+  }, 7500); };
+  const wake = () => { clearTimeout(g); B.classList.remove("ctl-fade", "ctl-gone"); arm(); };
   const land = matchMedia("(orientation:landscape) and (max-height:520px)");
   const inEdge = e => {                                    // portrait: only the top strip or the bottom strip counts, not the list
     const tp = $("top").getBoundingClientRect(), ft = $("foot").getBoundingClientRect();
