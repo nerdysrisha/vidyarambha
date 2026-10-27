@@ -70,10 +70,24 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 #landing .logo{width:78px;height:78px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(var(--a),.55))}
 #landing h1{margin:4px 0 0;font-size:36px;letter-spacing:.5px}
 #landing p{margin:0;color:var(--mute);font-size:14px}
-#start{margin-top:22px;min-width:200px;height:60px;border-radius:30px;font-size:19px;font-weight:700;letter-spacing:1.5px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#5aa0ee,#3a78c4);animation:glow 2s ease-in-out infinite}
+#landing{position:relative}
+#start{position:absolute;right:24px;bottom:calc(30px + env(safe-area-inset-bottom));min-width:0;width:88px;height:88px;padding:0;border-radius:50%;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#5aa0ee,#3a78c4);animation:glow 2s ease-in-out infinite}
 #start:active{transform:scale(.97);background:#3a78c4}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
 @media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
+.topic.pdf{background:transparent;border-color:transparent;border-left:2px solid rgba(245,185,66,.45);border-radius:6px 10px 10px 6px}
+.topic.pdf b{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:14.5px;color:#f3d9a4}
+.topic.pdf small{color:#b9a374}
+.topic.pdf:active{background:rgba(245,185,66,.1)}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+#fup,#fdn{display:none;position:fixed;right:calc(12px + env(safe-area-inset-right));z-index:5;width:50px;height:50px;min-width:0;padding:0;border-radius:50%;background:rgba(10,16,24,.7);align-items:center;justify-content:center}
+#fup{top:calc(50% - 56px)}#fdn{top:calc(50% + 6px)}
+#fup svg,#fdn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block}
+@media (orientation:landscape) and (max-height:500px){
+  footer{display:none!important}
+  body[data-v=view] #fup,body[data-v=view] #fdn{display:flex}
+}
 </style>
 </head>
 <body data-v="landing">
@@ -95,10 +109,10 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
   <footer id="foot">
     <button id="menu" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <div class="mid">
-      <button id="prevF"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="prevF"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
         <button id="trash" aria-label="Slide right to delete this PDF"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></div>
-      <button id="nextF"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      <button id="nextF"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
     </div>
     <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <div id="panel" hidden>
@@ -117,6 +131,8 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
     <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
   </footer>
 </div>
+<button id="fup" aria-label="Page up"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<button id="fdn" aria-label="Page down"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
 <input id="ufile" type="file" accept="application/pdf,.pdf" multiple hidden>
 <button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 
@@ -199,9 +215,9 @@ function renderList() {
   parsed.forEach(f => { const t = topOf(f.n); if (!groups.has(t)) groups.set(t, []); groups.get(t).push(f); });
   const cnt = f => (dirs[f.n] || []).length, dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
   const pdfRow = x => {
-    const b = document.createElement("button"); b.className = "topic"; b.innerHTML = "<span><b></b><small></small></span><em class=\"n\"></em>";
+    const b = document.createElement("button"); b.className = "topic pdf"; b.innerHTML = "<span><b></b><small></small></span>";
     const tb = b.firstChild.firstChild, p = getPos(x.path);
-    tb.textContent = x.name.replace(PDF_RE, ""); tb.nextSibling.textContent = p ? "Last read: page " + (p + 1) : ""; b.lastChild.textContent = mb(x.size);
+    tb.textContent = x.name.replace(PDF_RE, ""); tb.nextSibling.textContent = p ? "Last read: page " + (p + 1) : "";
     if (x.path === lastPdf) tb.appendChild(bmIcon());
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "p=" + encodeURIComponent(x.path); };
     return b;
@@ -411,6 +427,7 @@ panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
 $("prevF").onclick = () => { if (document.body.dataset.v === "view") go(-1); };
 $("nextF").onclick = () => { if (document.body.dataset.v === "view") go(1); };
+$("fup").onclick = () => go(-1); $("fdn").onclick = () => go(1);
 $("menu").onclick = () => { if (document.body.dataset.v === "view") location.hash = ""; };
 $("refresh").onclick = async () => {
   closePanel(); const v = document.body.dataset.v;
