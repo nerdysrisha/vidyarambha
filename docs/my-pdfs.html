@@ -75,7 +75,7 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 #start:active{transform:scale(.97);background:#3a78c4}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
 @media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
-.topic.pdf{background:transparent;border-color:transparent;border-left:2px solid rgba(245,185,66,.45);border-radius:6px 10px 10px 6px}
+.topic.pdf{background:transparent;border-color:transparent}
 .topic.pdf b{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:14.5px;color:#f3d9a4}
 .topic.pdf small{color:#b9a374}
 .topic.pdf:active{background:rgba(245,185,66,.1)}
@@ -382,7 +382,7 @@ V.addEventListener("touchstart", e => {
   if (e.touches.length === 2) {
     const [cx, cy] = rel((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
     gs = {m: "pinch", d: dist(e.touches), z: zoom, r: 1, cx, cy}; pagesEl.style.transformOrigin = (V.scrollLeft + cx) + "px " + (V.scrollTop + cy) + "px";
-  } else if (e.touches.length === 1) gs = {m: "tap", x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false};
+  } else if (e.touches.length === 1) gs = {m: "tap", x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false, t: Date.now()};
 }, {passive: true});
 V.addEventListener("touchmove", e => {
   if (!gs) return;
@@ -392,13 +392,24 @@ V.addEventListener("touchmove", e => {
 V.addEventListener("touchend", e => {
   if (!gs) return; const g = gs;
   if (g.m === "pinch") { if (e.touches.length < 2) { gs = null; pagesEl.style.transform = ""; pagesEl.style.transformOrigin = ""; setZoom(g.z * g.r, g.cx, g.cy); } return; }
-  gs = null; if (e.touches.length || g.moved) return;
+  gs = null; if (e.touches.length) return;
+  if (g.moved) {                                           // horizontal swipe (only when not zoomed in)
+    const t = e.changedTouches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+    if (zoom <= 1.05 && Math.abs(dx) > 70 && Math.abs(dx) > 1.8 * Math.abs(dy) && Date.now() - g.t < 800) stepPdf(dx < 0 ? 1 : -1);
+    return;
+  }
   const now = Date.now(), t = e.changedTouches[0];
   if (now - lastTap < 300) { lastTap = 0; const [x, y] = rel(t.clientX, t.clientY); zoom > 1.05 ? setZoom(1, x, y) : setZoom(2.5, x, y); } else lastTap = now;
 });
 V.addEventListener("touchcancel", () => { gs = null; pagesEl.style.transform = ""; });
 V.addEventListener("wheel", e => { if (!e.ctrlKey || !doc) return; e.preventDefault(); const [x, y] = rel(e.clientX, e.clientY); setZoom(zoom * (e.deltaY < 0 ? 1.15 : 0.87), x, y); }, {passive: false});
 V.addEventListener("dblclick", e => { if (!doc || !matchMedia("(pointer:fine)").matches) return; const [x, y] = rel(e.clientX, e.clientY); zoom > 1.05 ? setZoom(1, x, y) : setZoom(2.5, x, y); });
+
+function stepPdf(d) {
+  if (!curFile) return; const a = dirs[curFile.fid] || [], i = a.findIndex(x => x.path === curFile.path), j = i + d;
+  if (i < 0 || j < 0 || j >= a.length) { toast("", d > 0 ? "Last PDF in this folder" : "First PDF in this folder"); return; }
+  toast("", a[j].name.replace(PDF_RE, "")); location.replace("#p=" + encodeURIComponent(a[j].path));
+}
 
 // ── BAR ─────────────────────────────────────────────────────────────────
 let unlocked = false, delBusy = false, sd = null;
