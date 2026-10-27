@@ -178,6 +178,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
 @keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
 @media (prefers-reduced-motion:reduce){#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
+body.app #max{display:none}
 #prevS,#nextS,#lsup,#lsdn{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 
 /* swipe-left hint */
@@ -251,6 +252,9 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 </div>
 
 <script>
+// Running inside the Android app (Capacitor)? The app is already full screen, so the full-screen button and the banner-hiding are not needed.
+const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform());
+if (IN_APP) document.body.classList.add("app");
 // ── CONFIG ──────────────────────────────────────────────────────────────
 const OWNER = "nerdysrisha", REPO = "mysongs";
 // Every folder that directly contains songs (at any depth) becomes one entry. New folders show up on refresh.
@@ -801,7 +805,7 @@ route();
   let done = false;
   const finish = () => { if (!done) { done = true; scr.remove(); } };
   btn.addEventListener("click", () => {
-    setMax(true);
+    if (!IN_APP) setMax(true);                               // in the Android app it is already full screen
     scr.classList.add("leaving");
     scr.addEventListener("animationend", e => { if (e.target === scr) finish(); });
     setTimeout(finish, 3200);                                // safety net
