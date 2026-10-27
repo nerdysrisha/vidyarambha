@@ -45,8 +45,8 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 body.ctl-fade #shead{background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
 body.ctl-fade #sttl{color:#ffd9a0}
 body.ctl-fade #scnt{color:#e2b877}
-body.ctl-fade #shead .shf{color:rgba(255,217,160,.6)}
-body.ctl-fade #shead .shf.on{color:#ffd28a}
+body.ctl-fade #shead .shf{color:rgba(255,217,160,.35)}
+body.ctl-fade #shead .shf.on{color:#ffb347;filter:drop-shadow(0 0 6px rgba(255,153,51,.9))}
 @keyframes saf{0%,100%{box-shadow:0 0 5px 1px rgba(255,153,51,.22),0 0 12px 2px rgba(255,153,51,.10),inset 0 0 6px rgba(255,153,51,.10)}50%{box-shadow:0 0 9px 2px rgba(255,153,51,.42),0 0 20px 5px rgba(255,153,51,.18),inset 0 0 9px rgba(255,153,51,.18)}}
 @media (prefers-reduced-motion:reduce){body.ctl-fade #shead{animation:none}}
 
@@ -57,9 +57,9 @@ body.ctl-fade #shead .shf.on{color:#ffd28a}
 .topic.go{border-color:var(--accent);background:#1a2c44}
 .topic b{display:block;font-weight:600;font-size:14.5px}
 .topic small{color:var(--mute);font-size:12px}
-.shf{display:inline-flex;align-items:center;gap:4px;vertical-align:-2px;color:var(--mute)}
-.shf.on{color:var(--accent)}
-.shf svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.shf{display:inline-flex;align-items:center;vertical-align:-3px;color:#5d6a7c}
+.shf.on{color:#ff9933;filter:drop-shadow(0 0 4px rgba(255,153,51,.75))}
+.shf svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .topic.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
 .grp.open>.hd i{transform:rotate(90deg)}
@@ -156,7 +156,9 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @media (prefers-reduced-motion:reduce){#lsfx *{animation:none}}
 @media (orientation:landscape) and (max-height:520px){
   body.hasq:not([data-v=login]) :is(#top,#list,#songs,#menu,#gear,#prevS,#nextS,#rep){display:none}
-  body.hasq:not([data-v=login]) #ls{display:flex}
+  body.hasq:not([data-v=login]) #ls{display:flex;margin:8px max(12px,env(safe-area-inset-left)) 6px;border:1px solid var(--line);border-radius:18px;transition:border-color .8s ease}
+  body.hasq:not([data-v=login]).ctl-fade #ls{border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
+  @media (prefers-reduced-motion:reduce){body.hasq:not([data-v=login]).ctl-fade #ls{animation:none}}
   body.hasq:not([data-v=login]) :is(footer,#lsarr){transition:opacity .35s ease}
   body.hasq:not([data-v=login]).ctl-fade :is(footer,#lsarr){opacity:0;pointer-events:none;transition:opacity 6s ease}
   body.hasq:not([data-v=login]) #gnr{top:10px}
@@ -193,6 +195,12 @@ body.app #max{display:none}
 /* while playing, the top banner and bottom controls fade away completely */
 #top,footer{transition:opacity .35s ease}
 body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 6s ease}
+
+/* rows fade softly near the top / bottom edge of a list while there is more to scroll */
+#box::before,#box::after,#sbox::before,#sbox::after{content:"";display:block;position:sticky;height:30px;z-index:3;pointer-events:none;opacity:0;transition:opacity .25s ease}
+#box::before,#sbox::before{top:0;margin-bottom:-30px;background:linear-gradient(var(--ink),rgba(10,16,24,0))}
+#box::after,#sbox::after{bottom:0;margin-top:-30px;background:linear-gradient(rgba(10,16,24,0),var(--ink))}
+#box.eft::before,#sbox.eft::before,#box.efb::after,#sbox.efb::after{opacity:1}
 
 /* swipe-left hint */
 .topic[data-dir]{position:relative}
@@ -343,7 +351,14 @@ function fitMarquees() {
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
-const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); };
+const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); requestAnimationFrame(() => ["sbox", "box"].forEach(id => edgeFade($(id)))); };
+function edgeFade(b) { b.classList.toggle("eft", b.scrollTop > 4); b.classList.toggle("efb", b.scrollTop + b.clientHeight < b.scrollHeight - 4); }
+["sbox", "box"].forEach(id => {
+  const b = $(id), f = () => edgeFade(b);
+  b.addEventListener("scroll", f, {passive: true});
+  new MutationObserver(f).observe(b, {childList: true, subtree: true, attributes: true, attributeFilter: ["class"]});
+});
+window.addEventListener("resize", () => ["sbox", "box"].forEach(id => edgeFade($(id))));
 const fail = t => { $("lerr").textContent = t; show("login"); };
 
 // ── STATE ───────────────────────────────────────────────────────────────
@@ -385,7 +400,7 @@ function updateCounts() {                                  // the playing folder
   const fmtC = f => {
     if (!(Q && Q.dir === f.n)) return cnt(f.count);
     const on = !!(Q.shuf || Q.global);                      // shuffled swipe or Global Play = shuffle on
-    return (Q.pos + 1) + "/" + cnt(f.count) + ' · <span class="shf ' + (on ? "on" : "off") + '"><svg viewBox="0 0 24 24">' + SH + (on ? "" : '<path d="M3 3l18 18" stroke-width="2.6"/>') + "</svg>" + (on ? "Shuffle Mode On" : "Shuffle Mode Off") + "</span>";
+    return (Q.pos + 1) + "/" + cnt(f.count) +  ' · <span class="shf ' + (on ? "on" : "off") + '" role="img" aria-label="' + (on ? "Shuffle on" : "Shuffle off") + '"><svg viewBox="0 0 24 24">' + SH + (on ? "" : '<path d="M3 3l18 18" stroke-width="2.6"/>') + "</svg></span>";
   };
   document.querySelectorAll("#box .topic[data-dir]").forEach(b => {
     const f = parsed.find(x => x.n === b.dataset.dir), sm = b.querySelector("small");
@@ -437,7 +452,7 @@ function renderList() {
 function openFolder(i) {
   cur = i; setLast(parsed[i].n);
   $("sttl").textContent = parsed[i].t; $("scnt").textContent = cnt(parsed[i].count);
-  renderSongs(); show("folder"); lastAuto = Date.now(); $("sbox").scrollTop = 0;
+  renderSongs(); show("folder"); autoMark(); $("sbox").scrollTop = 0;
   centerNow(true, false);
 }
 function renderSongs() {
@@ -456,7 +471,7 @@ function renderSongs() {
 }
 function refreshMarks() {                                  // redraw the folder list so the bookmark moves (keeps scroll)
   if (document.body.dataset.v !== "list") return;
-  const st = $("box").scrollTop; lastAuto = Date.now(); renderList(); $("box").scrollTop = st; centerFolder(false);
+  const st = $("box").scrollTop; autoMark(); renderList(); $("box").scrollTop = st; centerFolder(false);
 }
 function markNow() {
   const p = curPath();
@@ -464,11 +479,15 @@ function markNow() {
   centerNow(false, true);
 }
 // keep the playing song centred in the opened folder; a manual scroll pauses this for 5 s
-let userScrollAt = 0, lastAuto = 0, centerP = "", centerT = 0;
-["sbox", "box"].forEach(id => $(id).addEventListener("scroll", () => { if (Date.now() - lastAuto > 1500) userScrollAt = Date.now(); }, {passive: true}));   // scrolls we did ourselves don't count
+let userScrollAt = 0, autoActive = false, autoT = 0, centerP = "", centerT = 0;
+const autoMark = () => { autoActive = true; clearTimeout(autoT); autoT = setTimeout(() => { autoActive = false; }, 700); };   // marks a scroll we start ourselves
+["sbox", "box"].forEach(id => $(id).addEventListener("scroll", () => {
+  if (autoActive) { clearTimeout(autoT); autoT = setTimeout(() => { autoActive = false; }, 200); return; }   // still our own scroll (long jumps in shuffle take a while)
+  userScrollAt = Date.now();
+}, {passive: true}));
 function scrollCentered(box, row, smooth) {
   const rb = row.getBoundingClientRect(), bb = box.getBoundingClientRect();
-  lastAuto = Date.now();
+  autoMark();
   box.scrollTo({top: Math.max(0, box.scrollTop + (rb.top - bb.top) - (bb.height - rb.height) / 2), behavior: smooth ? "smooth" : "auto"});
 }
 function centerFolder(force) {                             // folder list: bring the playing folder to the middle
