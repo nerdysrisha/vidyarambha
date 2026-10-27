@@ -52,17 +52,13 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 #pall.drag #pthumb{transition:none}
 /* bottom ribbon: blank, or the playing song when it is scrolled out of view, or a slow glint when it is in view */
 #sfoot{position:relative;overflow:hidden;display:flex;align-items:center;min-height:40px;padding:5px 14px;background:var(--panel);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;transition:background .8s ease,border-color .8s ease}
-#sfnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600;color:var(--text);opacity:0;transition:opacity .35s ease,color .8s ease}
-#sfoot.away #sfnm{opacity:1}
-#sfnm.sw{animation:sfin .6s ease backwards}
-@keyframes sfin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .glint{display:none;position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(170,205,255,.15),transparent);transform:translateX(-120%) skewX(-18deg);opacity:0}
 #sfoot.view .glint{display:block;animation:glint 5.5s ease-in-out infinite;animation-play-state:paused}
 #sbox.playing ~ #sfoot.view .glint{animation-play-state:running}
 @keyframes glint{0%{transform:translateX(-120%) skewX(-18deg);opacity:0}12%{opacity:1}55%{opacity:.9}70%{transform:translateX(300%) skewX(-18deg);opacity:0}100%{transform:translateX(300%) skewX(-18deg);opacity:0}}
 /* once the controls are almost gone (~80% faded) both ribbons turn saffron and breathe softly (inward) */
 body.ctl-gone :is(#shead,#sfoot){background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
-body.ctl-gone :is(#sttl,#sfnm){color:#ffd9a0}
+body.ctl-gone #sttl{color:#ffd9a0}
 body.ctl-gone #scnt{color:#e2b877}
 body.ctl-gone .glint{background:linear-gradient(90deg,transparent,rgba(255,170,70,.20),transparent)}
 body.ctl-gone #pall{background:#150c03;border-color:rgba(255,153,51,.45)}
@@ -268,7 +264,7 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
   <div id="songs">
     <div id="shead"><b id="sttl"></b><small id="scnt"></small><div id="pall" role="group" aria-label="Play all: slide left to shuffle, right to play in order"><svg class="pi l" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><svg class="pi r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i id="pthumb"></i></div></div>
     <div id="sbox"></div>
-    <div id="sfoot"><i class="glint"></i><span id="sfnm"></span></div>
+    <div id="sfoot"><i class="glint"></i></div>
   </div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
@@ -519,22 +515,11 @@ function markNow() {
   document.querySelectorAll("#sbox .song").forEach(b => b.classList.toggle("now", !!p && b.dataset.p === p));
   centerNow(false, true); updateSfoot();
 }
-// bottom ribbon: blank at first; shows the playing song (with ▲/▼) when it is scrolled out of view; slow glint when it is in view
-let sfLast = "", sfRaf = 0;
+// bottom ribbon: carries only the slow moving light, while the opened folder is the one that is loaded
 function updateSfoot() {
-  const f = $("sfoot"); if (!f || autoActive) return;        // wait until our own scroll has finished
-  const row = document.querySelector("#sbox .song.now");
-  const gone = () => { $("sfnm").classList.remove("sw"); sfLast = ""; };
-  if (!Q || !row || document.body.dataset.v !== "folder") { gone(); f.className = ""; return; }
-  const bb = $("sbox").getBoundingClientRect(), rb = row.getBoundingClientRect(); if (!bb.height) return;
-  const mid = rb.top + rb.height / 2, up = mid <= bb.top + 24;
-  if (!up && mid < bb.bottom - 24) { gone(); f.className = "view"; return; }
-  const nm = pretty(Q.names[Q.pos]), n = $("sfnm");
-  if (nm !== sfLast) { sfLast = nm; n.textContent = nm; n.classList.remove("sw"); void n.offsetWidth; n.classList.add("sw"); }
-  f.className = "away";
+  const f = $("sfoot");
+  if (f) f.className = (Q && parsed[cur] && Q.dir === parsed[cur].n && document.body.dataset.v === "folder") ? "view" : "";
 }
-$("sbox").addEventListener("scroll", () => { if (!sfRaf) sfRaf = requestAnimationFrame(() => { sfRaf = 0; updateSfoot(); }); }, {passive: true});
-window.addEventListener("resize", updateSfoot);
 // keep the playing song centred in the opened folder; a manual scroll pauses this for 5 s
 let userScrollAt = 0, autoActive = false, autoT = 0, centerP = "", centerT = 0;
 const autoMark = () => { autoActive = true; clearTimeout(autoT); autoT = setTimeout(() => { autoActive = false; updateSfoot(); }, 700); };   // marks a scroll we start ourselves
