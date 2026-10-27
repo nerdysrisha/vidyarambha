@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1018">
+<title>My PDFs</title>
+<style>
+:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:760px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#142030,#0f2a4a)}
+h1{margin:0;font-size:19px}
+button,input{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;height:44px;padding:0 14px}
+button{cursor:pointer}button:active{background:var(--line)}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent)}
+#login{display:none;flex-direction:column;justify-content:center;gap:12px;padding:24px;flex:1}
+#main{display:none;flex-direction:column;flex:1;min-height:0;padding:10px 12px}
+#q{width:100%;margin-bottom:8px}
+#list{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:8px}
+.dir{margin:10px 4px 6px;color:var(--accent);font-size:13px;font-weight:600}
+.pdf{display:flex;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:48px;padding:8px 14px;margin-bottom:6px;text-align:left}
+.pdf b{font-weight:500;font-size:15px;overflow-wrap:anywhere}
+.pdf small{color:var(--mute);white-space:nowrap}
+#msg{min-height:22px;padding:8px 4px 0;color:var(--mute);font-size:13px}
+.err{color:#ff8a80!important}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1>My PDFs</h1><button id="chg" hidden>Change PIN</button></header>
+  <div id="login">
+    <div>Enter your PIN to connect to your PDFs.</div>
+    <input id="tok" type="password" placeholder="PIN" autocomplete="off">
+    <button id="save">Connect</button>
+    <div id="lerr" class="err"></div>
+  </div>
+  <div id="main">
+    <input id="q" type="search" placeholder="Search PDFs">
+    <div id="list"></div>
+    <div id="msg"></div>
+  </div>
+</div>
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const OWNER = "nerdysrisha", REPO = "mypdfs";
+const TOK_KEY = "ghtok_pdfs";
+const PDF_RE = /\.pdf$/i;
+
+// ── HELPERS ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+const mb = n => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+let mem = "", files = [];
+const getTok = () => { try { return localStorage.getItem(TOK_KEY) || mem; } catch (e) { return mem; } };
+const setTok = v => { mem = v; try { v ? localStorage.setItem(TOK_KEY, v) : localStorage.removeItem(TOK_KEY); } catch (e) {} };
+const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
+const say = (t, bad) => { const m = $("msg"); m.textContent = t; m.className = bad ? "err" : ""; };
+function show(v) {
+  $("login").style.display = v === "login" ? "flex" : "none";
+  $("main").style.display = v === "main" ? "flex" : "none";
+  $("chg").hidden = v !== "main";
+}
+
+// ── LOAD THE LIST OF PDFs (one call lists the whole repo) ───────────────
+async function load() {
+  show("main"); $("list").innerHTML = ""; say("Loading…");
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/git/trees/HEAD?recursive=1", {headers: hdr(false)});
+    if (r.status === 401) { setTok(""); show("login"); $("lerr").textContent = "PIN was rejected. Enter it again."; return; }
+    if (!r.ok) { say("Could not load the list (error " + r.status + "). Reload to retry.", true); return; }
+    const data = await r.json();
+    files = (data.tree || []).filter(x => x.type === "blob" && PDF_RE.test(x.path) && !x.path.split("/").some(s => s.startsWith(".")))
+      .map(x => ({path: x.path, name: x.path.slice(x.path.lastIndexOf("/") + 1), dir: x.path.includes("/") ? x.path.slice(0, x.path.lastIndexOf("/")) : "", size: x.size || 0}))
+      .sort((a, b) => nat(a.dir, b.dir) || nat(a.name, b.name));
+    render();
+    say(files.length + " PDF" + (files.length === 1 ? "" : "s") + (data.truncated ? " (list was cut short, the repo is very large)" : ""));
+  } catch (e) { say("Network error. Check your connection and reload.", true); }
+}
+
+function render() {
+  const q = $("q").value.trim().toLowerCase(), box = $("list"); box.innerHTML = "";
+  let last = null;
+  files.filter(f => !q || f.path.toLowerCase().includes(q)).forEach(f => {
+    if (f.dir !== last) { last = f.dir; const d = document.createElement("div"); d.className = "dir"; d.textContent = f.dir || "Main folder"; box.appendChild(d); }
+    const b = document.createElement("button"); b.className = "pdf";
+    b.innerHTML = "<b></b><small>" + mb(f.size) + "</small>"; b.firstChild.textContent = f.name.replace(PDF_RE, "");
+    b.onclick = () => openPdf(f); box.appendChild(b);
+  });
+  if (!box.children.length) box.innerHTML = '<div id="msg">No PDFs found.</div>';
+}
+
+// ── TAP A PDF: for now just download it to prove the connection works ───
+async function openPdf(f) {
+  say("Downloading " + f.name + "…");
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(f.path), {headers: hdr(true)});
+    if (!r.ok) return say("Could not download (error " + r.status + ").", true);
+    const buf = await r.arrayBuffer();
+    const ok = new TextDecoder().decode(buf.slice(0, 5)) === "%PDF-";
+    say((ok ? "Downloaded OK: " : "Downloaded, but it does not look like a PDF: ") + f.name + " (" + mb(buf.byteLength) + "). The reader comes next.", !ok);
+  } catch (e) { say("Network error while downloading.", true); }
+}
+
+// ── PIN ─────────────────────────────────────────────────────────────────
+async function connect() {
+  const v = $("tok").value.trim(); if (!v) return;
+  $("lerr").textContent = "Checking…"; setTok(v);
+  try {
+    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO, {headers: hdr(false)});
+    if (r.ok) { $("lerr").textContent = ""; $("tok").value = ""; return load(); }
+    setTok("");
+    $("lerr").textContent = r.status === 401 ? "GitHub rejected this PIN. Check it and try again."
+      : "This PIN cannot read " + OWNER + "/" + REPO + " (error " + r.status + "). Check its repository access.";
+  } catch (e) { setTok(""); $("lerr").textContent = "Network error. Check your connection and try again."; }
+}
+$("save").onclick = connect;
+$("tok").addEventListener("keydown", e => { if (e.key === "Enter") connect(); });
+$("chg").onclick = () => { setTok(""); files = []; $("tok").value = ""; $("lerr").textContent = ""; show("login"); };
+$("q").addEventListener("input", render);
+
+getTok() ? load() : show("login");
+</script>
+</body>
+</html>
