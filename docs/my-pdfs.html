@@ -263,18 +263,19 @@ function pdfjsReady() {
 function vnote(t, bad) { const m = $("vmsg"); m.textContent = t || ""; m.hidden = !t; m.classList.toggle("bad", !!bad); }
 const ph = i => { const e = document.createElement("i"); e.textContent = i + 1; return e; };
 function closeDoc() {
-  if (curFile && doc) setPos(curFile.path, curPg);
+  if (curFile && doc && !curFile.local) setPos(curFile.path, curPg);
   docGen++; pg.forEach(s => { if (s.task) try { s.task.cancel(); } catch (e) {} });
   if (doc) try { doc.destroy(); } catch (e) {}
   doc = null; N = 0; pg = []; ratio = []; tops = []; hs = []; curPg = 0; zoom = 1; curFile = null;
   pagesEl.innerHTML = ""; pagesEl.style.transform = ""; vnote("");
 }
 async function openPdf(f) {
-  const my = ++ticket; closeDoc(); curFile = f; ls("lastPdf_pdfs", f.path); ls("lastFolder_pdfs", f.fid); openGroups.add(f.fid); openGroups.add("g:" + topOf(f.fid));
+  const my = ++ticket; closeDoc(); curFile = f;
+  if (!f.local) { ls("lastPdf_pdfs", f.path); ls("lastFolder_pdfs", f.fid); openGroups.add(f.fid); openGroups.add("g:" + topOf(f.fid)); }
   show("view"); vnote("Loading..."); V.scrollTop = 0; V.scrollLeft = 0;
   try {
     await pdfjsReady(); if (my !== ticket) return;
-    const r = await api(f.path, true); if (my !== ticket) return;
+    const r = f.local ? await fetch(f.local) : await api(f.path, true); if (my !== ticket) return;
     if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
     if (!r.ok) return vnote("Could not open this PDF (error " + r.status + "). Check the file exists and the PIN can read it.", true);
     const total = f.size || +r.headers.get("content-length") || 0; let buf;
@@ -366,7 +367,7 @@ function onScroll() {
   if (!doc) return;
   const end = V.scrollTop > 0 && V.scrollTop + V.clientHeight >= V.scrollHeight - 2;
   const i = end ? N - 1 : pageAt(V.scrollTop + V.clientHeight * 0.35);
-  if (i !== curPg) { curPg = i; updateBar(); clearTimeout(posT); posT = setTimeout(() => curFile && setPos(curFile.path, curPg), 600); }
+  if (i !== curPg) { curPg = i; updateBar(); clearTimeout(posT); posT = setTimeout(() => curFile && !curFile.local && setPos(curFile.path, curPg), 600); }
   refresh();
 }
 function setZoom(z, cx, cy) {                                  // cx, cy: point (px inside the viewer) that stays put
@@ -406,7 +407,7 @@ V.addEventListener("wheel", e => { if (!e.ctrlKey || !doc) return; e.preventDefa
 V.addEventListener("dblclick", e => { if (!doc || !matchMedia("(pointer:fine)").matches) return; const [x, y] = rel(e.clientX, e.clientY); zoom > 1.05 ? setZoom(1, x, y) : setZoom(2.5, x, y); });
 
 function stepPdf(d) {
-  if (!curFile) return; const a = dirs[curFile.fid] || [], i = a.findIndex(x => x.path === curFile.path), j = i + d;
+  if (!curFile || curFile.local) return; const a = dirs[curFile.fid] || [], i = a.findIndex(x => x.path === curFile.path), j = i + d;
   if (i < 0 || j < 0 || j >= a.length) { toast("", d > 0 ? "Last PDF in this folder" : "First PDF in this folder"); return; }
   toast("", a[j].name.replace(PDF_RE, "")); location.replace("#p=" + encodeURIComponent(a[j].path));
 }
@@ -418,7 +419,7 @@ function updateBar() {
   if (inView && curFile) { c = N ? (curPg + 1) + " / " + N : ""; l = curFile.name.replace(PDF_RE, ""); }
   $("cnt").textContent = c; if (!sd) $("lbl").textContent = l;
   $("info").classList.toggle("none", !(c || l));
-  $("slide").classList.toggle("off", !(unlocked && inView && doc));
+  $("slide").classList.toggle("off", !(unlocked && inView && doc && curFile && !curFile.local));
   $("menu").disabled = !inView;
   $("goBtn").hidden = !(inView && N > 1);
   $("prevF").disabled = !inView || curPg <= 0; $("nextF").disabled = !inView || curPg >= N - 1;
@@ -439,7 +440,7 @@ document.addEventListener("click", closePanel);
 $("prevF").onclick = () => { if (document.body.dataset.v === "view") go(-1); };
 $("nextF").onclick = () => { if (document.body.dataset.v === "view") go(1); };
 $("fup").onclick = () => go(-1); $("fdn").onclick = () => go(1);
-$("menu").onclick = () => { if (document.body.dataset.v === "view") location.hash = ""; };
+$("menu").onclick = () => { if (document.body.dataset.v !== "view") return; if (curFile && curFile.local) route(); else location.hash = ""; };
 $("refresh").onclick = async () => {
   closePanel(); const v = document.body.dataset.v;
   if (v === "list") savedScroll = $("box").scrollTop;
@@ -568,11 +569,22 @@ async function route() {
   ++ticket; closeDoc();
   show("list"); renderList(); $("box").scrollTop = savedScroll;
 }
+// PDF handed over by Android ("Open with" / Share): MainActivity copies it to cache, page opens it
+function checkIncoming() {
+  try {
+    if (!(window.AndroidPdf && window.AndroidPdf.pending)) return false;
+    const j = window.AndroidPdf.pending(); if (!j) return false;
+    const o = JSON.parse(j); started = true;
+    openPdf({path: "local:" + o.name, name: o.name, fid: "\u0000local", size: o.size || 0, local: window.Capacitor.convertFileSrc("file://" + o.path)});
+    return true;
+  } catch (e) { return false; }
+}
+window.addEventListener("incomingpdf", checkIncoming);
 window.addEventListener("hashchange", route);
 // START: web = go full screen (needs this tap); installed app is already full screen
-$("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); route(); };
+$("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); if (!checkIncoming()) route(); };
 if (getTok()) pdfjsReady().catch(() => {});
-route();
+if (!checkIncoming()) route();
 </script>
 </body>
 </html>
