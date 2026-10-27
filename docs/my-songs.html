@@ -38,7 +38,7 @@ body[data-v=folder] #songs{display:flex;flex-direction:column;padding:10px 12px 
 body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
 #box,#sbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:8px}
 #shead{container:shead/inline-size;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;padding:5px 12px 5px 14px;background:var(--panel);border:1px solid var(--line);border-bottom:none;border-radius:14px 14px 0 0;transition:background .8s ease,border-color .8s ease}
-#sbox{border-radius:0 0 14px 14px}
+#sbox{border-radius:0}
 #sttl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:700;transition:color .8s ease}
 #scnt{flex:none;white-space:nowrap;color:var(--mute);font-size:12px;transition:color .8s ease}
 @container shead (max-width:400px){#shead .cw{display:none}}
@@ -51,7 +51,7 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 #pthumb{position:absolute;top:1px;left:calc(50% - 12px);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bcdcff,#4f93e0 70%);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .25s ease}
 #pall.drag #pthumb{transition:none}
 /* bottom ribbon: blank, or the playing song when it is scrolled out of view, or a slow glint when it is in view */
-#sfoot{position:relative;overflow:hidden;display:flex;align-items:center;min-height:36px;padding:4px 14px}
+#sfoot{position:relative;overflow:hidden;display:flex;align-items:center;min-height:40px;padding:5px 14px;background:var(--panel);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;transition:background .8s ease,border-color .8s ease}
 #sfnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600;color:var(--text);opacity:0;transition:opacity .35s ease,color .8s ease}
 #sfoot.away #sfnm{opacity:1}
 #sfnm.sw{animation:sfin .6s ease backwards}
@@ -61,7 +61,7 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 #sbox.playing ~ #sfoot.view .glint{animation-play-state:running}
 @keyframes glint{0%{transform:translateX(-120%) skewX(-18deg);opacity:0}12%{opacity:1}55%{opacity:.9}70%{transform:translateX(300%) skewX(-18deg);opacity:0}100%{transform:translateX(300%) skewX(-18deg);opacity:0}}
 /* once the controls are almost gone (~80% faded) both ribbons turn saffron and breathe softly (inward) */
-body.ctl-gone #shead{background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
+body.ctl-gone :is(#shead,#sfoot){background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
 body.ctl-gone :is(#sttl,#sfnm){color:#ffd9a0}
 body.ctl-gone #scnt{color:#e2b877}
 body.ctl-gone .glint{background:linear-gradient(90deg,transparent,rgba(255,170,70,.20),transparent)}
@@ -71,7 +71,7 @@ body.ctl-gone #pthumb{background:radial-gradient(circle at 35% 30%,#ffe2b8,#ff99
 body.ctl-gone #shead .shf{color:rgba(255,217,160,.35)}
 body.ctl-gone #shead .shf.on{color:#ffb347;filter:drop-shadow(0 0 6px rgba(255,153,51,.9))}
 @keyframes saf{0%,100%{box-shadow:inset 0 0 4px 1px rgba(255,153,51,.14),inset 0 0 10px 2px rgba(255,153,51,.06)}50%{box-shadow:inset 0 0 7px 1px rgba(255,153,51,.25),inset 0 0 14px 3px rgba(255,153,51,.10)}}
-@media (prefers-reduced-motion:reduce){body.ctl-gone #shead{animation:none}.glint{animation:none!important}}
+@media (prefers-reduced-motion:reduce){body.ctl-gone :is(#shead,#sfoot){animation:none}.glint{animation:none!important}}
 
 /* folder rows */
 .topic{display:block;width:100%;height:auto;min-height:47px;margin:0 0 5px;padding:7px 13px;text-align:left}
@@ -909,10 +909,21 @@ route();
     const tp = $("top").getBoundingClientRect(), ft = $("foot").getBoundingClientRect();
     return e.clientY <= tp.bottom || e.clientY >= ft.top;
   };
-  let swallowUntil = 0;
+  let swallowUntil = 0, down = null, vis = false;
+  const DEAD = 28;                                         // px along the screen edges: Android's swipe-in zone (system bars / back gesture)
+  const inDead = e => e.clientY < DEAD || e.clientY > innerHeight - DEAD || e.clientX < DEAD || e.clientX > innerWidth - DEAD;
   document.addEventListener("pointerdown", e => {
-    if (land.matches || inEdge(e)) { if (B.classList.contains("ctl-fade")) swallowUntil = Date.now() + 700; wake(); }
+    down = null; vis = false;
+    if (!(land.matches || inEdge(e)) || inDead(e)) return;
+    if (B.classList.contains("ctl-fade")) down = {x: e.clientX, y: e.clientY, t: Date.now()};   // faded: wait and see if it is a tap
+    else { vis = true; arm(); }                            // visible: touching the controls keeps them up
   }, true);
+  document.addEventListener("pointerup", e => {
+    if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 12 && Date.now() - down.t < 600) { swallowUntil = Date.now() + 700; wake(); }
+    else if (vis) arm();
+    down = null; vis = false;
+  }, true);
+  document.addEventListener("pointercancel", () => { down = null; vis = false; }, true);
   document.addEventListener("click", e => { if (Date.now() < swallowUntil) { swallowUntil = 0; e.stopPropagation(); e.preventDefault(); } }, true);   // the revealing tap must not press the control under it
   document.addEventListener("keydown", wake, true);
   au.addEventListener("pause", () => { if (!au.ended && !loading) wake(); });   // paused: keep the controls visible
