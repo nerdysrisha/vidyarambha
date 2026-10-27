@@ -16,12 +16,17 @@ html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);co
 button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
 button:active{background:var(--line)}button:disabled{opacity:.3;cursor:default}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
-#list,#files,#viewer,#login{display:none;flex:1;min-height:0}
-body[data-v=list] #list,body[data-v=files] #files{display:flex;flex-direction:column;padding:10px 12px 6px}
-#box,#fbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:6px 6px 44px}
+#landing,#list,#viewer,#login{display:none;flex:1;min-height:0}
+body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px}
+#frame{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;margin-top:20px}
+#box{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:26px 6px 44px}
+#ribbon{position:absolute;top:-17px;left:50%;transform:translateX(-50%);z-index:3;height:34px;padding:0 30px;display:flex;align-items:center;justify-content:center;border-radius:17px;background:linear-gradient(180deg,#5aa0ee,#3a78c4);color:#fff;font-size:16px;font-weight:700;letter-spacing:.6px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 2px 10px rgba(var(--a),.35),inset 0 1px 0 rgba(255,255,255,.25);pointer-events:none}
+#ribbon::before,#ribbon::after{content:"";position:absolute;top:7px;width:26px;height:34px;background:#2a5a96;z-index:-1;border-radius:6px}
+#ribbon::before{left:-18px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,28% 50%)}
+#ribbon::after{right:-18px;clip-path:polygon(0 0,100% 0,72% 50%,100% 100%,0 100%)}
 body[data-v=view] #viewer{display:block;position:relative;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;outline:none}
 body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
-body[data-v=login] footer,body[data-v=login] #info{display:none}
+body[data-v=login] footer,body[data-v=login] #info,body[data-v=landing] footer,body[data-v=landing] #info{display:none}
 .topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
 .topic>span:first-child{flex:1;min-width:0}
 .topic b{display:block;font-weight:600;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
@@ -61,12 +66,24 @@ body.max footer{display:none!important}body.max #fsx{display:block}
 body.app #max,body.app #fsx,body.app #upl{display:none!important}
 #login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
 #login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}#lerr{color:#ff8f8f!important}
+body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(var(--a),.16),transparent 62%)}
+#landing .logo{width:78px;height:78px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(var(--a),.55))}
+#landing h1{margin:4px 0 0;font-size:36px;letter-spacing:.5px}
+#landing p{margin:0;color:var(--mute);font-size:14px}
+#start{margin-top:22px;min-width:200px;height:60px;border-radius:30px;font-size:19px;font-weight:700;letter-spacing:1.5px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#5aa0ee,#3a78c4);animation:glow 2s ease-in-out infinite}
+#start:active{transform:scale(.97);background:#3a78c4}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
+@media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
 </style>
 </head>
-<body data-v="list">
+<body data-v="landing">
 <div id="app">
-  <div id="list"><div id="box"></div></div>
-  <div id="files"><div id="fbox"></div></div>
+  <div id="landing">
+    <svg class="logo" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6M9 16h4"/></svg>
+    <h1>My PDFs</h1><p>All your documents, one tap away</p>
+    <button id="start">START</button>
+  </div>
+  <div id="list"><div id="frame"><div id="ribbon">My PDFs</div><div id="box"></div></div></div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2><p>Saved only in this browser on this device.</p>
     <input id="tokin" type="password" autocomplete="off" placeholder="PIN">
@@ -172,56 +189,44 @@ async function loadTree(quiet) {
   } catch (e) { if (my === ticket) { if (quiet) toast("", "Network error"); else $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; } return false; }
 }
 
-// ── FOLDER LIST (folders only) ──────────────────────────────────────────
-const openGroups = new Set(); let autoOpened = false, savedScroll = 0, cur = -1, fScroll = {id: "", top: 0};
+// ── FOLDER LIST: tap a folder, its PDFs open right under it; tap a PDF to read ──
+const openGroups = new Set(); let autoOpened = false, savedScroll = 0;
 function renderList() {
   const g = $("box"); g.innerHTML = "";
-  const last = ls("lastFolder_pdfs"), lastTop = last ? topOf(last) : "";
-  if (!autoOpened) { autoOpened = true; if (last) openGroups.add(lastTop); }
+  const last = ls("lastFolder_pdfs"), lastPdf = ls("lastPdf_pdfs"), lastTop = last ? topOf(last) : "";
+  if (!autoOpened) { autoOpened = true; if (last) { openGroups.add(last); openGroups.add("g:" + lastTop); } }
   const groups = new Map();
   parsed.forEach(f => { const t = topOf(f.n); if (!groups.has(t)) groups.set(t, []); groups.get(t).push(f); });
   const cnt = f => (dirs[f.n] || []).length, dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
-  const row = (f, title, sub) => {
+  const pdfRow = x => {
     const b = document.createElement("button"); b.className = "topic"; b.innerHTML = "<span><b></b><small></small></span><em class=\"n\"></em>";
-    const tb = b.firstChild.firstChild; tb.textContent = title; tb.nextSibling.textContent = sub; b.lastChild.textContent = cnt(f);
-    if (last && f.n === last) tb.appendChild(bmIcon());
-    b.onclick = () => { savedScroll = g.scrollTop; location.hash = "d=" + encodeURIComponent(f.n); };
+    const tb = b.firstChild.firstChild, p = getPos(x.path);
+    tb.textContent = x.name.replace(PDF_RE, ""); tb.nextSibling.textContent = p ? "Last read: page " + (p + 1) : ""; b.lastChild.textContent = mb(x.size);
+    if (x.path === lastPdf) tb.appendChild(bmIcon());
+    b.onclick = () => { savedScroll = g.scrollTop; location.hash = "p=" + encodeURIComponent(x.path); };
     return b;
   };
-  groups.forEach((list, top) => {
-    if (list.length === 1 && list[0].n === top) { g.appendChild(row(list[0], list[0].t, dstr(list[0]))); return; }
-    const t = parseFolder(top), wrap = document.createElement("div"); wrap.className = "grp" + (openGroups.has(top) ? " open" : "");
+  const accordion = (key, title, sub, count, isLast, fill) => {
+    const wrap = document.createElement("div"); wrap.className = "grp" + (openGroups.has(key) ? " open" : "");
     const h = document.createElement("button"); h.className = "topic hd";
     h.innerHTML = "<span><b></b><small></small></span><span class=\"r\"><em class=\"n\"></em><i>&#9656;</i></span>";
-    h.querySelector("em").textContent = list.reduce((a, f) => a + cnt(f), 0);
-    h.firstChild.firstChild.textContent = t.t;
-    if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
-    h.firstChild.lastChild.textContent = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
-    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
-    const kids = document.createElement("div"); kids.className = "kids";
-    list.forEach(f => kids.appendChild(row(f, f.n === top ? "PDFs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), "")));
-    wrap.appendChild(h); wrap.appendChild(kids); g.appendChild(wrap);
+    h.querySelector("em").textContent = count; h.firstChild.firstChild.textContent = title; h.firstChild.lastChild.textContent = sub;
+    if (isLast) h.firstChild.firstChild.appendChild(bmIcon());
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(key) : openGroups.delete(key); };
+    const kids = document.createElement("div"); kids.className = "kids"; fill(kids);
+    wrap.appendChild(h); wrap.appendChild(kids); return wrap;
+  };
+  const folderAcc = (f, title) => accordion(f.n, title, dstr(f), cnt(f), !!last && f.n === last, k => (dirs[f.n] || []).forEach(x => k.appendChild(pdfRow(x))));
+  groups.forEach((list, top) => {
+    if (list.length === 1 && list[0].n === top) { g.appendChild(folderAcc(list[0], list[0].t)); return; }
+    const t = parseFolder(top), sub = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
+    g.appendChild(accordion("g:" + top, t.t, sub, list.reduce((a, f) => a + cnt(f), 0), !!last && top === lastTop,
+      k => list.forEach(f => k.appendChild(folderAcc(f, f.n === top ? "PDFs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "))))));
   });
   const note = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
   if (!parsed.length) note("No folders with PDFs found.");
   if (truncated) note("The repo is very large, so this list may be incomplete.");
 }
-
-// ── PDF LIST (inside one folder) ────────────────────────────────────────
-function showFiles(i) { cur = i; ls("lastFolder_pdfs", parsed[i].n); show("files"); renderFiles(); }
-function renderFiles() {
-  const g = $("fbox"), f = parsed[cur], lastPdf = ls("lastPdf_pdfs"); g.innerHTML = "";
-  (dirs[f.n] || []).forEach(x => {
-    const b = document.createElement("button"); b.className = "topic"; b.innerHTML = "<span><b></b><small></small></span><em class=\"n\"></em>";
-    const tb = b.firstChild.firstChild, p = getPos(x.path);
-    tb.textContent = x.name.replace(PDF_RE, ""); tb.nextSibling.textContent = p ? "Last read: page " + (p + 1) : ""; b.lastChild.textContent = mb(x.size);
-    if (x.path === lastPdf) tb.appendChild(bmIcon());
-    b.onclick = () => { fScroll = {id: f.n, top: g.scrollTop}; location.hash = "p=" + encodeURIComponent(x.path); };
-    g.appendChild(b);
-  });
-  g.scrollTop = fScroll.id === f.n ? fScroll.top : 0;
-}
-function stepFolder(d) { const j = (cur + d + parsed.length) % parsed.length; if (j !== cur) location.replace("#d=" + encodeURIComponent(parsed[j].n)); }
 
 // ── READER (pdf.js, continuous scroll, pages drawn only when near the screen) ──
 const V = $("viewer"), pagesEl = $("pages"), PADX = 8, GAP = 8, PADT = 8;
@@ -249,7 +254,7 @@ function closeDoc() {
   pagesEl.innerHTML = ""; pagesEl.style.transform = ""; vnote("");
 }
 async function openPdf(f) {
-  const my = ++ticket; closeDoc(); curFile = f; ls("lastPdf_pdfs", f.path); ls("lastFolder_pdfs", f.fid);
+  const my = ++ticket; closeDoc(); curFile = f; ls("lastPdf_pdfs", f.path); ls("lastFolder_pdfs", f.fid); openGroups.add(f.fid); openGroups.add("g:" + topOf(f.fid));
   show("view"); vnote("Loading..."); V.scrollTop = 0; V.scrollLeft = 0;
   try {
     await pdfjsReady(); if (my !== ticket) return;
@@ -383,17 +388,14 @@ V.addEventListener("dblclick", e => { if (!doc || !matchMedia("(pointer:fine)").
 let unlocked = false, delBusy = false, sd = null;
 function updateBar() {
   const v = document.body.dataset.v, inView = v === "view"; let c = "", l = "";
-  if (v === "list") { c = parsed.length + (parsed.length === 1 ? " folder" : " folders"); l = "My PDFs"; }
-  else if (v === "files" && parsed[cur]) { const n = (dirs[parsed[cur].n] || []).length; c = n + (n === 1 ? " PDF" : " PDFs"); l = parsed[cur].t; }
-  else if (inView && curFile) { c = N ? (curPg + 1) + " / " + N : ""; l = curFile.name.replace(PDF_RE, ""); }
+  if (inView && curFile) { c = N ? (curPg + 1) + " / " + N : ""; l = curFile.name.replace(PDF_RE, ""); }
   $("cnt").textContent = c; if (!sd) $("lbl").textContent = l;
   $("info").classList.toggle("none", !(c || l));
   $("slide").classList.toggle("off", !(unlocked && inView && doc));
-  $("menu").disabled = v === "list" || v === "login";
+  $("menu").disabled = !inView;
   $("goBtn").hidden = !(inView && N > 1);
-  const nf = v === "files" && parsed.length > 1;
-  $("prevF").disabled = inView ? curPg <= 0 : !nf; $("nextF").disabled = inView ? curPg >= N - 1 : !nf;
-  $("prevF").setAttribute("aria-label", inView ? "Previous page" : "Previous folder"); $("nextF").setAttribute("aria-label", inView ? "Next page" : "Next folder");
+  $("prevF").disabled = !inView || curPg <= 0; $("nextF").disabled = !inView || curPg >= N - 1;
+  $("prevF").setAttribute("aria-label", "Previous page"); $("nextF").setAttribute("aria-label", "Next page");
 }
 function fit() { const vv = window.visualViewport; $("app").style.height = Math.round(vv ? vv.height : innerHeight) + "px"; }
 function realign() { fit(); if (doc && V.clientWidth && V.clientWidth !== lastCW) { lastCW = V.clientWidth; relayout(); } else refresh(); }
@@ -407,15 +409,14 @@ function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("gorow
 $("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
 panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
-$("prevF").onclick = () => document.body.dataset.v === "view" ? go(-1) : stepFolder(-1);
-$("nextF").onclick = () => document.body.dataset.v === "view" ? go(1) : stepFolder(1);
-$("menu").onclick = () => { location.hash = document.body.dataset.v === "view" && curFile ? "d=" + encodeURIComponent(curFile.fid) : ""; };
+$("prevF").onclick = () => { if (document.body.dataset.v === "view") go(-1); };
+$("nextF").onclick = () => { if (document.body.dataset.v === "view") go(1); };
+$("menu").onclick = () => { if (document.body.dataset.v === "view") location.hash = ""; };
 $("refresh").onclick = async () => {
-  closePanel(); const v = document.body.dataset.v, id = parsed[cur] ? parsed[cur].n : "";
-  if (v === "list") savedScroll = $("box").scrollTop; if (v === "files") fScroll = {id, top: $("fbox").scrollTop};
+  closePanel(); const v = document.body.dataset.v;
+  if (v === "list") savedScroll = $("box").scrollTop;
   if (!(await loadTree(true))) return;
   if (v === "list") { renderList(); $("box").scrollTop = savedScroll; }
-  else if (v === "files") { cur = parsed.findIndex(x => x.n === id); if (cur < 0) { location.hash = ""; return; } renderFiles(); }
   updateBar(); toast("", "Refreshed");
 };
 $("goBtn").onclick = () => { $("pinrow").hidden = true; $("gorow").hidden = false; $("gopg").placeholder = "1-" + N; $("gopg").focus(); };
@@ -443,7 +444,7 @@ async function delPdf(expect) {
     delete byPath[f.path]; setPos(f.path, 0);
     const a = (dirs[f.fid] || []).filter(x => x.path !== f.path);
     if (a.length) dirs[f.fid] = a; else { delete dirs[f.fid]; parsed = parsed.filter(x => x.n !== f.fid); }
-    toast("", "Deleted"); location.hash = a.length ? "d=" + encodeURIComponent(f.fid) : "";
+    toast("", "Deleted"); location.hash = "";
   } catch (e) { toast("", "Network error, not deleted"); }
   finally { delBusy = false; $("trash").disabled = false; }
 }
@@ -464,12 +465,12 @@ hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel",
 // ── KEYS + FULL SCREEN (web only) ───────────────────────────────────────
 document.addEventListener("keydown", e => {
   const v = document.body.dataset.v; if (e.target.tagName === "INPUT") return;
-  if (e.key === "Escape" && !document.body.classList.contains("max")) { if (v === "view" || v === "files") $("menu").click(); }
+  if (e.key === "Escape" && !document.body.classList.contains("max")) { if (v === "view") $("menu").click(); }
   else if (v === "view") {
     if (e.key === "ArrowRight") { e.preventDefault(); go(1); } else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
     else if (e.key === "+" || e.key === "=") setZoom(zoom * 1.25, V.clientWidth / 2, V.clientHeight / 2);
     else if (e.key === "-") setZoom(zoom / 1.25, V.clientWidth / 2, V.clientHeight / 2);
-  } else if (v === "files") { if (e.key === "ArrowRight") stepFolder(1); else if (e.key === "ArrowLeft") stepFolder(-1); }
+  }
 });
 const EXP = '<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>', COL = '<svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
 const root = document.documentElement, canFS = !!root.requestFullscreen, setIcon = on => { $("max").innerHTML = on ? COL : EXP; };
@@ -487,11 +488,11 @@ const readB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.o
 let upBusy = false;
 $("upl").onclick = () => {
   closePanel(); const v = document.body.dataset.v;
-  if (v === "files" || v === "view") $("ufile").click(); else toast("Open a folder first", "PDFs are added to the open folder");
+  if (v === "view") $("ufile").click(); else toast("Open a PDF first", "New PDFs are added to the same folder");
 };
 $("ufile").onchange = async () => {
   const fl = Array.from($("ufile").files || []).filter(f => f.type === "application/pdf" || PDF_RE.test(f.name)); $("ufile").value = "";
-  const fid = document.body.dataset.v === "view" && curFile ? curFile.fid : (parsed[cur] && parsed[cur].n); if (!fl.length || !fid || upBusy) return;
+  const fid = document.body.dataset.v === "view" && curFile ? curFile.fid : ""; if (!fl.length || !fid || upBusy) return;
   upBusy = true; const dir = fid === "/" ? "" : fid, taken = new Set((dirs[fid] || []).map(f => f.name.toLowerCase())); let ok = 0, bad = 0;
   for (let i = 0; i < fl.length; i++) {
     toast("Uploading " + (i + 1) + " of " + fl.length, fl[i].name);
@@ -512,7 +513,7 @@ $("ufile").onchange = async () => {
     }
     if (!sent) bad++;
   }
-  upBusy = false; if (document.body.dataset.v === "files") renderFiles(); updateBar();
+  upBusy = false; updateBar();
   toast(bad ? "Uploaded " + ok + ", failed " + bad : "Uploaded " + ok + (ok === 1 ? " PDF" : " PDFs"), bad ? "Needs Contents: read & write, and files under 50 MB" : "");
 };
 
@@ -528,17 +529,20 @@ async function saveToken() {
 }
 $("tsave").onclick = saveToken; $("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
 
-// ── ROUTING: (none) = folders, #d=<folder> = its PDFs, #p=<path> = reader ──
+// ── ROUTING: landing -> (none) = folders with PDFs under them, #p=<path> = reader ──
+let started = false;
 async function route() {
+  if (!started) { ++ticket; closeDoc(); return show("landing"); }
   if (!getTok()) { ++ticket; closeDoc(); return show("login"); }
   if (!loaded && !(await loadTree())) return;
   const h = location.hash; let m;
   if ((m = h.match(/^#p=(.+)$/))) { const f = byPath[decodeURIComponent(m[1])]; if (!f) { location.hash = ""; return; } return openPdf(f); }
   ++ticket; closeDoc();
-  if ((m = h.match(/^#d=(.+)$/))) { const i = parsed.findIndex(x => x.n === decodeURIComponent(m[1])); if (i < 0) { location.hash = ""; return; } return showFiles(i); }
-  cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll;
+  show("list"); renderList(); $("box").scrollTop = savedScroll;
 }
 window.addEventListener("hashchange", route);
+// START: web = go full screen (needs this tap); installed app is already full screen
+$("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); route(); };
 if (getTok()) pdfjsReady().catch(() => {});
 route();
 </script>
