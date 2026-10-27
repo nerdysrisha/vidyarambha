@@ -156,9 +156,9 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #lsarr{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:14px}
 .lsout{animation:lsout 2s ease-in-out forwards}
 .lsout.up{--o:-24px}.lsout.dn{--o:24px}
-.lsin{animation:lsin 1.3s cubic-bezier(.22,.61,.36,1) both}
+.lsin{animation:lsin 2.4s cubic-bezier(.22,.61,.36,1) both}
 .lsin.up{--i:36px}.lsin.dn{--i:-36px}
-#lsnow.lsin{animation-delay:0s}#lsprv.lsin{animation-delay:.12s}#lsnx.lsin{animation-delay:.28s}
+#lsnow.lsin{animation-delay:0s}#lsprv.lsin{animation-delay:.24s}#lsnx.lsin{animation-delay:.56s}
 @keyframes lsout{to{opacity:0;transform:translateY(var(--o))}}
 @keyframes lsin{from{opacity:0;transform:translateY(var(--i))}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.lsout,.lsin{animation:none}}
@@ -243,7 +243,7 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
 @keyframes shimglow{0%,42%{filter:none}72%{filter:drop-shadow(0 0 12px rgba(170,215,255,.95))}100%{filter:none}}
 @keyframes shim{0%,45%{background-position:100% 0}100%{background-position:0 0}}
 #ls:not(.playing) #lsnow .t span{animation-play-state:paused}
-#lsnow.lsin{-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;animation:lsin 1.3s cubic-bezier(.22,.61,.36,1) both,lsreveal 2.6s ease-out .5s both}
+#lsnow.lsin{-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,#000 33.3%,transparent 66.6%,transparent 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;animation:lsin 2.4s cubic-bezier(.22,.61,.36,1) both,lsreveal 5.2s ease-out 1s both}
 @keyframes lsreveal{from{-webkit-mask-position:100% 0;mask-position:100% 0;filter:blur(7px)}to{-webkit-mask-position:0 0;mask-position:0 0;filter:blur(0)}}
 @media (prefers-reduced-motion:reduce){#lsnow .t span{animation:none}#lsnow.lsin{animation:none;-webkit-mask-image:none;mask-image:none}}
 
@@ -351,7 +351,7 @@ function lsUpdate(w) {                                     // old lines fade out
     const geo = lsGeo(lsWant.cur);                         // measured at rest, before the rise animation moves anything
     void els[0].offsetWidth; els.forEach(e => e.classList.add("lsin"));
     lsGather(geo);
-    setTimeout(() => { els.forEach(e => e.classList.remove("lsin", "up", "dn")); lsBusy = false; lsUpdate(lsWant); }, 3100);
+    setTimeout(() => { els.forEach(e => e.classList.remove("lsin", "up", "dn")); lsBusy = false; lsUpdate(lsWant); }, 6400);
   }, 2000);
 }
 function lsGeo(txt) {
@@ -376,18 +376,18 @@ function lsGather(g) {                                     // dust drifts in fro
   const P = pts.filter(() => Math.random() < keep).map(([x, y]) => {
     const a = Math.random() * 6.283, r = (0.3 + Math.random() * 0.7) * reach;
     return {tx: g.ox + x, ty: g.oy + y, sx: g.ox + x + Math.cos(a) * r, sy: g.oy + y + Math.sin(a) * r * 0.7,
-            d: (x / g.bw) * 0.6 + Math.random() * 0.35, du: 0.9 + Math.random() * 0.6, sw: (Math.random() - 0.5) * 70, z: 1 + Math.random() * 1.2, ph: Math.random() * 6.283};
+            d: (x / g.bw) * 1.2 + Math.random() * 0.7, du: 1.8 + Math.random() * 1.2, sw: (Math.random() - 0.5) * 70, z: 1 + Math.random() * 1.2, ph: Math.random() * 6.283};
   });
   const col = document.body.classList.contains("ctl-gone") ? "255,190,110" : "190,224,255", t0 = performance.now();
   const frame = now => {
     const t = (now - t0) / 1000;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, g.W, g.H); ctx.globalCompositeOperation = "lighter";
-    if (t > 3.4) { ctx.clearRect(0, 0, g.W, g.H); return; }
+    if (t > 6.8) { ctx.clearRect(0, 0, g.W, g.H); return; }
     for (const p of P) {
       const u = (t - p.d) / p.du; let x, y, a;
-      if (u < 0) { x = p.sx + Math.sin(t * 2 + p.ph) * 3; y = p.sy + Math.cos(t * 1.7 + p.ph) * 3; a = Math.min(1, t / 0.4) * 0.5; }      // drifting, waiting its turn
+      if (u < 0) { x = p.sx + Math.sin(t * 1 + p.ph) * 3; y = p.sy + Math.cos(t * 0.85 + p.ph) * 3; a = Math.min(1, t / 0.8) * 0.5; }      // drifting, waiting its turn
       else if (u <= 1) { const e = 1 - Math.pow(1 - u, 3), s = Math.sin(u * Math.PI) * (1 - u); x = p.sx + (p.tx - p.sx) * e + p.sw * s; y = p.sy + (p.ty - p.sy) * e - p.sw * 0.5 * s; a = 0.5 + 0.5 * u; }
-      else { x = p.tx; y = p.ty; a = Math.max(0, 1 - (t - p.d - p.du) / 0.7); }                                                              // landed: dissolve into the text
+      else { x = p.tx; y = p.ty; a = Math.max(0, 1 - (t - p.d - p.du) / 1.4); }                                                              // landed: dissolve into the text
       if (a <= 0) continue;
       ctx.fillStyle = "rgba(" + col + "," + a.toFixed(2) + ")"; ctx.beginPath(); ctx.arc(x, y, p.z, 0, 6.283); ctx.fill();
     }
