@@ -37,9 +37,18 @@ body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px
 body[data-v=folder] #songs{display:flex;flex-direction:column;padding:10px 12px 6px}
 body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
 #box,#sbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:8px}
-#shead{display:flex;align-items:baseline;gap:10px;padding:2px 4px 8px}
-#sttl{font-size:17px;font-weight:700}
-#scnt{color:var(--mute);font-size:13px}
+#shead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:7px 14px;background:var(--panel);border:1px solid var(--line);border-bottom:none;border-radius:14px 14px 0 0;transition:background .8s ease,border-color .8s ease}
+#sbox{border-radius:0 0 14px 14px}
+#sttl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:700;transition:color .8s ease}
+#scnt{flex:none;white-space:nowrap;color:var(--mute);font-size:12px;transition:color .8s ease}
+/* controls gone -> the banner turns saffron and breathes softly */
+body.ctl-fade #shead{background:#241505;border-color:rgba(255,153,51,.55);animation:saf 4.5s ease-in-out infinite}
+body.ctl-fade #sttl{color:#ffd9a0}
+body.ctl-fade #scnt{color:#e2b877}
+body.ctl-fade #shead .shf{color:rgba(255,217,160,.6)}
+body.ctl-fade #shead .shf.on{color:#ffd28a}
+@keyframes saf{0%,100%{box-shadow:0 0 5px 1px rgba(255,153,51,.22),0 0 12px 2px rgba(255,153,51,.10),inset 0 0 6px rgba(255,153,51,.10)}50%{box-shadow:0 0 9px 2px rgba(255,153,51,.42),0 0 20px 5px rgba(255,153,51,.18),inset 0 0 9px rgba(255,153,51,.18)}}
+@media (prefers-reduced-motion:reduce){body.ctl-fade #shead{animation:none}}
 
 /* folder rows */
 .topic{display:block;width:100%;height:auto;min-height:47px;margin:0 0 5px;padding:7px 13px;text-align:left}
@@ -180,6 +189,10 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @media (prefers-reduced-motion:reduce){#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
 body.app #max{display:none}
 #prevS,#nextS,#lsup,#lsdn{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+
+/* while playing, the top banner and bottom controls fade away completely */
+#top,footer{transition:opacity .35s ease}
+body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 6s ease}
 
 /* swipe-left hint */
 .topic[data-dir]{position:relative}
@@ -784,9 +797,14 @@ route();
 // ── LANDSCAPE: CONTROLS FADE AWAY AFTER ~7.5 s WITHOUT A TOUCH (then ~6 s fade); A TOUCH BRINGS THEM BACK ──
 (function () {
   const B = document.body; let t = 0;
-  const arm = () => { clearTimeout(t); t = setTimeout(() => { if (!au.paused) B.classList.add("ctl-fade"); }, 7500); };
+  const arm = () => { clearTimeout(t); t = setTimeout(() => { if (!au.paused && $("panel").hidden) B.classList.add("ctl-fade"); }, 7500); };
   const wake = () => { B.classList.remove("ctl-fade"); arm(); };
-  document.addEventListener("pointerdown", wake, true);
+  const land = matchMedia("(orientation:landscape) and (max-height:520px)");
+  const inEdge = e => {                                    // portrait: only the top strip or the bottom strip counts, not the list
+    const tp = $("top").getBoundingClientRect(), ft = $("foot").getBoundingClientRect();
+    return e.clientY <= tp.bottom || e.clientY >= ft.top;
+  };
+  document.addEventListener("pointerdown", e => { if (land.matches || inEdge(e)) wake(); }, true);
   document.addEventListener("keydown", wake, true);
   au.addEventListener("pause", () => { if (!au.ended && !loading) wake(); });   // paused: keep the controls visible
   au.addEventListener("playing", arm);
