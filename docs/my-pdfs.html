@@ -95,6 +95,10 @@ body.dark .pg{background:#0e0e10}
 body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #srchBtn[hidden]{display:none}
 #sp{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(14,22,34,.74);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+#sp{transition:opacity .3s}
+#sp.scrolling{opacity:.2;pointer-events:none;transition:opacity .12s}
+#sp.scrolling .sitem span{visibility:hidden}
+#trimBtn[hidden]{display:none}#trimBtn.on{border-color:rgba(var(--a),.9);color:var(--accent)}
 #sp[hidden],body:not([data-v=view]) #sp{display:none}
 #sp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 .sr1,.sr2{display:flex;gap:6px;align-items:center}
@@ -111,7 +115,7 @@ body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #sp.mini .sr1,#sp.mini #sinfo,#sp.mini #slist{display:none}
 #sp:not(.mini) .sr2{display:none}
 #spos{flex:1;text-align:center;font-size:13px;font-weight:600}
-.hl{position:absolute;inset:0;pointer-events:none}
+.hl{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 .hl b{position:absolute;background:rgba(255,222,0,.4);border-radius:2px}
 .hl b.cur{background:rgba(255,140,0,.6);outline:1px solid rgba(255,140,0,.95)}
 </style>
@@ -164,6 +168,7 @@ body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
         <button id="refresh" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="goBtn" aria-label="Go to page" hidden><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></button>
         <button id="srchBtn" aria-label="Search in PDF" hidden><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+        <button id="trimBtn" aria-label="Trim page margins" hidden><svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></button>
         <button id="upl" aria-label="Upload PDFs"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="key" aria-label="Change PIN"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
@@ -293,7 +298,34 @@ function renderList() {
 // ── READER (pdf.js, continuous scroll, pages drawn only when near the screen) ──
 const V = $("viewer"), pagesEl = $("pages"), PADX = 8, GAP = 8, PADT = 8;
 let doc = null, N = 0, pg = [], ratio = [], tops = [], hs = [], W = 0, zoom = 1, curPg = 0, curFile = null, docGen = 0, lastCW = 0, navTgt = 0, navUntil = 0;
-let pdfReady = null;
+let pdfReady = null, cropL = 0, cropR = 0, cropOn = ls("pdfTrim") !== "0";
+const vwf = () => cropOn ? Math.max(0.3, 1 - cropL - cropR) : 1, clf = () => cropOn ? cropL : 0;
+function cropStyle(e) { const v = vwf(); e.style.width = (100 / v) + "%"; e.style.marginLeft = (-clf() / v * 100) + "%"; }
+async function detectCrop(my) {                               // look at a few pages at low size, find where the ink really starts and ends
+  try {
+    const n = Math.min(N, 8); let l = 1, r = 0, got = 0;
+    for (let k = 0; k < n; k++) {
+      const i = n === 1 ? 0 : Math.floor(k * (N - 1) / (n - 1)), page = await doc.getPage(i + 1); if (my !== ticket) return;
+      const sc = 160 / page.getViewport({scale: 1}).width, vp = page.getViewport({scale: sc}), c = document.createElement("canvas");
+      c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
+      const cx = c.getContext("2d", {willReadFrequently: true}); cx.fillStyle = "#fff"; cx.fillRect(0, 0, c.width, c.height);
+      await page.render({canvasContext: cx, viewport: vp}).promise; if (my !== ticket) return;
+      const d = cx.getImageData(0, 0, c.width, c.height).data, w = c.width; let x0 = w, x1 = -1;
+      for (let o = 0, q = 0; o < d.length; o += 4, q++) { if (d[o] < 235 || d[o + 1] < 235 || d[o + 2] < 235) { const x = q % w; if (x < x0) x0 = x; if (x > x1) x1 = x; } }
+      if (x1 >= 0) { l = Math.min(l, x0 / w); r = Math.max(r, (x1 + 1) / w); got++; }
+      page.cleanup(); c.width = 0;
+    }
+    if (!got) return;
+    const a = Math.min(0.35, Math.max(0, l - 0.025)), b = Math.min(0.35, Math.max(0, 1 - r - 0.025));
+    if (a + b >= 0.04) { cropL = a; cropR = b; }
+  } catch (e) {}
+}
+function applyCrop() {
+  if (!doc) return;
+  pagesEl.querySelectorAll(".pg canvas,.hl").forEach(cropStyle);
+  pg.forEach(s => { s.gen++; if (s.task) try { s.task.cancel(); } catch (e) {} s.task = null; s.busy = false; s.done = false; });
+  relayout();
+}
 function pdfjsReady() {
   return pdfReady || (pdfReady = new Promise((res, rej) => {
     const s = document.createElement("script"); s.src = CDN + "pdf.min.js";
@@ -312,7 +344,7 @@ function closeDoc() {
   if (curFile && doc && !curFile.local) setPos(curFile.path, curPg);
   docGen++; pg.forEach(s => { if (s.task) try { s.task.cancel(); } catch (e) {} });
   if (doc) try { doc.destroy(); } catch (e) {}
-  doc = null; N = 0; pg = []; ratio = []; tops = []; hs = []; curPg = 0; zoom = 1; curFile = null;
+  doc = null; N = 0; pg = []; ratio = []; tops = []; hs = []; curPg = 0; zoom = 1; curFile = null; cropL = cropR = 0;
   pagesEl.innerHTML = ""; pagesEl.style.transform = ""; vnote(""); searchReset();
 }
 async function openPdf(f) {
@@ -346,6 +378,9 @@ async function openPdf(f) {
       ratio[i] = v1.height / v1.width; const el = document.createElement("div"); el.className = "pg"; el.appendChild(ph(i)); pagesEl.appendChild(el);
       pg.push({el, done: false, busy: false, err: false, gen: 0, dw: 0, task: null});
     }
+    { const key = f.local ? "" : "crop_" + f.path + "_" + (f.size || 0), c = key ? ls(key) : "";
+      if (c) { const a = c.split(","); cropL = +a[0] || 0; cropR = +a[1] || 0; }
+      else { vnote("Fitting margins..."); await detectCrop(my); if (my !== ticket) return; if (key) ls(key, cropL + "," + cropR); } }
     vnote(""); lastCW = V.clientWidth; layout();
     const p = Math.min(getPos(f.path), N - 1); curPg = p; if (p > 0) V.scrollTop = tops[p] - 6;
     refresh(); updateBar(); V.focus({preventScroll: true}); loadRatios(docGen);
@@ -365,7 +400,7 @@ async function loadRatios(gen) {                              // real size of ev
 function layout() {
   const cw = V.clientWidth; if (!cw || !N) return;
   W = Math.max(100, Math.round((cw - 2 * PADX) * zoom)); let y = PADT;
-  for (let i = 0; i < N; i++) { const h = Math.max(20, Math.round(W * ratio[i])), s = pg[i].el.style; hs[i] = h; tops[i] = y; y += h + GAP; s.width = W + "px"; s.height = h + "px"; }
+  for (let i = 0; i < N; i++) { const h = Math.max(20, Math.round(W / vwf() * ratio[i])), s = pg[i].el.style; hs[i] = h; tops[i] = y; y += h + GAP; s.width = W + "px"; s.height = h + "px"; }
 }
 function relayout() {
   if (!doc) return; const i = curPg, fr = hs[i] ? (V.scrollTop - tops[i]) / hs[i] : 0;
@@ -391,14 +426,14 @@ async function renderPage(i) {
   const s = pg[i], my = docGen, g = ++s.gen; s.busy = true;
   try {
     const page = await doc.getPage(i + 1); if (my !== docGen || g !== s.gen) return;
-    const cw = W, v1 = page.getViewport({scale: 1});
+    const cw = Math.round(W / vwf()), v1 = page.getViewport({scale: 1});
     let k = cw / v1.width * Math.min(window.devicePixelRatio || 1, 2.5);
     const px = v1.width * k * v1.height * k; if (px > MAXPX) k *= Math.sqrt(MAXPX / px);
     const vp = page.getViewport({scale: k}), c = document.createElement("canvas");
     c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
     s.task = page.render({canvasContext: c.getContext("2d"), viewport: vp}); await s.task.promise;
     if (my !== docGen || g !== s.gen) { c.width = 0; return; }
-    s.el.textContent = ""; s.el.appendChild(c); s.done = true; s.dw = cw; page.cleanup(); if (pgM.size) addHl(i);
+    s.el.textContent = ""; cropStyle(c); s.el.appendChild(c); s.done = true; s.dw = W; page.cleanup(); if (pgM.size) addHl(i);
   } catch (e) { if (g === s.gen && !(e && e.name === "RenderingCancelledException")) s.err = true; }
   finally { if (my === docGen) { if (g === s.gen) { s.busy = false; s.task = null; } sched(); } }
 }
@@ -467,7 +502,7 @@ function updateBar() {
   $("info").classList.toggle("none", !(c || l));
   $("slide").classList.toggle("off", !(unlocked && inView && doc && curFile && !curFile.local));
   $("menu").disabled = !inView;
-  $("goBtn").hidden = !(inView && N > 1); $("srchBtn").hidden = !(inView && N > 0);
+  $("goBtn").hidden = !(inView && N > 1); $("srchBtn").hidden = !(inView && N > 0); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn);
   $("prevF").disabled = !inView || curPg <= 0; $("nextF").disabled = !inView || curPg >= N - 1;
   $("prevF").setAttribute("aria-label", "Previous page"); $("nextF").setAttribute("aria-label", "Next page");
 }
@@ -518,7 +553,7 @@ function rectsOf(t, a, b) {                                   // yellow boxes as
 function addHl(i) {
   const ks = pgM.get(i), el = pg[i] && pg[i].el; if (!ks || !el || !stx[i]) return;
   const old = el.querySelector(".hl"); if (old) old.remove();
-  const L = document.createElement("div"); L.className = "hl";
+  const L = document.createElement("div"); L.className = "hl"; cropStyle(L);
   ks.forEach(k => rectsOf(stx[i], M[k].a, M[k].b).forEach(r => {
     const b = document.createElement("b"); b.dataset.k = k; if (k === curM) b.className = "cur";
     b.style.cssText = "left:" + r[0] + "%;top:" + r[1] + "%;width:" + r[2] + "%;height:" + r[3] + "%"; L.appendChild(b);
@@ -546,7 +581,7 @@ function gotoMatch(k) {
   if (act && !SP.classList.contains("mini")) L.scrollTop = act.offsetTop - L.clientHeight / 2 + act.offsetHeight / 2;
   $("spos").textContent = (k + 1) + " / " + M.length + " \u00b7 p. " + (m.p + 1);
   const r = rectsOf(stx[m.p], m.a, m.b)[0]; if (!r || !hs[m.p]) return;
-  const y = tops[m.p] + r[1] / 100 * hs[m.p], x = PADX + r[0] / 100 * W, pb = SP.hidden ? 0 : SP.getBoundingClientRect().bottom - V.getBoundingClientRect().top;
+  const y = tops[m.p] + r[1] / 100 * hs[m.p], x = PADX + (r[0] / 100 - clf()) * W / vwf(), pb = SP.hidden ? 0 : SP.getBoundingClientRect().bottom - V.getBoundingClientRect().top;
   const want = Math.min(Math.max(V.clientHeight * 0.35, pb + 50), V.clientHeight - 70);
   V.scrollTo({top: Math.max(0, y - want), left: zoom > 1.05 ? Math.max(0, x - V.clientWidth / 2) : V.scrollLeft, behavior: "smooth"});
 }
@@ -577,11 +612,17 @@ async function openSearch() {
   if (!any) noText(); else { sScan = false; setInfo(""); }
 }
 function closeSearch() {
-  sTok++; SP.hidden = true; SP.classList.remove("mini"); clearHl(); M = []; pgM = new Map(); curM = -1;
+  sTok++; clearTimeout(scT); SP.classList.remove("scrolling"); SP.hidden = true; SP.classList.remove("mini"); clearHl(); M = []; pgM = new Map(); curM = -1;
   $("slist").textContent = ""; $("scol").hidden = true; $("spos").textContent = ""; SQ.blur();
   if (!sScan) setInfo("");
 }
 function searchReset() { closeSearch(); stx = []; sScan = null; sQuery = ""; SQ.value = ""; SQ.disabled = false; $("sgo").disabled = false; setInfo(""); }
+$("trimBtn").onclick = () => {
+  cropOn = !cropOn; ls("pdfTrim", cropOn ? "1" : "0"); closePanel(); applyCrop();
+  toast("", cropOn ? (vwf() < 1 ? "Margins trimmed" : "No extra margins found") : "Margins trim off"); updateBar();
+};
+let scT = 0;
+V.addEventListener("scroll", () => { if (SP.hidden) return; SP.classList.add("scrolling"); clearTimeout(scT); scT = setTimeout(() => SP.classList.remove("scrolling"), 500); }, {passive: true});
 $("srchBtn").onclick = openSearch; $("fsearch").onclick = openSearch;
 $("sgo").onclick = doSearch; SQ.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
 $("sx").onclick = closeSearch; $("sx2").onclick = closeSearch;
