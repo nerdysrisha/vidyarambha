@@ -669,11 +669,13 @@ window.addEventListener("keydown", e => {
 }, true);
 
 // ── FILE NAME SEARCH (folder list): opens the folders and marks the file names ──
-const FS = $("fs"), FQ = $("fq"); let fileQ = "", fCur = -1, fT = 0;
+const FS = $("fs"), FQ = $("fq"); let fileQ = "", fCur = -1, fT = 0, openBefore = null, scrollBefore = 0;
 const fileHits = () => [...$("box").querySelectorAll(".topic.hit")];
 function fileSearchRun() {
   const raw = FQ.value.trim(); fileQ = raw ? normStr(raw.replace(/\s+/g, " ")) : "";
+  openGroups.clear();                                          // only the folders with a match stay open
   if (fileQ) parsed.forEach(f => { if ((dirs[f.n] || []).some(x => normStr(x.name.replace(PDF_RE, "")).includes(fileQ))) { openGroups.add(f.n); openGroups.add("g:" + topOf(f.n)); } });
+  else if (openBefore) openBefore.forEach(k => openGroups.add(k));
   renderList(); fCur = -1; const n = fileHits().length;
   $("finfo").textContent = fileQ && !n ? "None found" : ""; if (n) fileGo(0);
 }
@@ -682,10 +684,14 @@ function fileGo(k) {
   h.forEach((e, i) => e.classList.toggle("cur", i === fCur)); $("finfo").textContent = (fCur + 1) + "/" + h.length;
   const box = $("box"); box.scrollTo({top: Math.max(0, box.scrollTop + h[fCur].getBoundingClientRect().top - box.getBoundingClientRect().top - 110), behavior: "smooth"});
 }
-function openFileSearch() { closePanel(); FS.hidden = false; FQ.focus(); FQ.select(); }
+function openFileSearch() {
+  closePanel(); if (FS.hidden || !openBefore) { openBefore = new Set(openGroups); scrollBefore = $("box").scrollTop; }
+  FS.hidden = false; FQ.focus(); FQ.select();
+}
 function closeFileSearch() {
   FS.hidden = true; FQ.blur(); FQ.value = ""; fileQ = ""; fCur = -1; $("finfo").textContent = "";
-  if (document.body.dataset.v === "list") { const t = $("box").scrollTop; renderList(); $("box").scrollTop = t; }
+  if (openBefore) { openGroups.clear(); openBefore.forEach(k => openGroups.add(k)); openBefore = null; }   // put the folders back as they were
+  if (document.body.dataset.v === "list") { renderList(); $("box").scrollTop = scrollBefore; }
 }
 FQ.addEventListener("input", () => { clearTimeout(fT); fT = setTimeout(fileSearchRun, 250); });
 FQ.addEventListener("keydown", e => { if (e.key === "Enter") { clearTimeout(fT); if (fCur < 0) fileSearchRun(); else fileGo(fCur + 1); FQ.blur(); } });
