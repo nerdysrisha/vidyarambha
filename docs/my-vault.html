@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#3b6df5">
+<title>Secure Vault</title>
+<style>
+  :root {
+    --bg:#f4f5f7; --card:#ffffff; --text:#16181d; --muted:#6b7280; --accent:#3b6df5;
+    --accent-text:#ffffff; --danger:#d93025; --line:#e5e7eb; --shadow:0 2px 10px rgba(0,0,0,.08);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1115; --card:#1a1d24; --text:#eceef2; --muted:#9aa1ad; --accent:#6f95ff;
+            --accent-text:#0b1020; --danger:#ff6b60; --line:#2a2e38; --shadow:none; }
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font:16px/1.4 system-ui,-apple-system,Roboto,"Segoe UI",sans-serif; overscroll-behavior:none; }
+  body { -webkit-user-select:none; user-select:none; }
+  input { -webkit-user-select:text; user-select:text; }
+  #app { height:100%; display:flex; flex-direction:column;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  h1 { font-size:26px; margin:6px 0 2px; }
+  h2 { font-size:20px; margin:4px 0 6px; }
+  p { margin:0 0 12px; }
+  .muted { color:var(--muted); }
+  .err { color:var(--danger); min-height:22px; margin:6px 0; font-size:14px; text-align:center; }
+
+  /* login */
+  .login { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; text-align:center; }
+  .lockicon { font-size:64px; }
+  .login .pin { margin-top:12px; }
+  .login .btn { max-width:320px; }
+
+  /* inputs & buttons */
+  .pin, .field { width:100%; max-width:320px; height:54px; border-radius:14px; border:1.5px solid var(--line);
+    background:var(--card); color:var(--text); font-size:20px; text-align:center; letter-spacing:6px; outline:none; }
+  .field { letter-spacing:4px; max-width:none; margin:6px 0; }
+  .pin:focus, .field:focus { border-color:var(--accent); }
+  .btn { display:block; width:100%; height:52px; border-radius:14px; border:0; margin:8px 0 0;
+    font-size:16px; font-weight:600; background:var(--card); color:var(--text); box-shadow:var(--shadow); }
+  .btn.primary { background:var(--accent); color:var(--accent-text); }
+  .btn.danger { color:var(--danger); }
+  .btn.ghost { background:transparent; box-shadow:none; color:var(--muted); }
+  .btn:active { opacity:.7; }
+
+  /* main */
+  .bar { display:flex; align-items:center; padding:10px 8px 10px 18px; }
+  .bar .title { flex:1; font-size:22px; font-weight:700; }
+  .iconbtn { width:48px; height:48px; border:0; border-radius:24px; background:transparent; color:var(--text); font-size:22px; }
+  .iconbtn:active { background:var(--line); }
+  .list { flex:1; overflow-y:auto; padding:6px 14px 110px; }
+  .row { display:flex; align-items:center; gap:12px; background:var(--card); border-radius:16px;
+    padding:10px 4px 10px 14px; margin-bottom:10px; box-shadow:var(--shadow); min-height:64px; }
+  .row:active { opacity:.75; }
+  .ficon { font-size:28px; width:34px; text-align:center; }
+  .info { flex:1; min-width:0; }
+  .fname { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .fmeta { font-size:13px; color:var(--muted); }
+  .empty { text-align:center; color:var(--muted); margin-top:18vh; padding:0 30px; }
+  .empty .big { font-size:54px; }
+  .count { text-align:center; color:var(--muted); font-size:13px; margin-top:8px; }
+  .fab { position:fixed; right:20px; bottom:calc(22px + env(safe-area-inset-bottom,0px)); width:60px; height:60px;
+    border-radius:30px; border:0; background:var(--accent); color:var(--accent-text); font-size:32px;
+    box-shadow:0 4px 14px rgba(0,0,0,.3); }
+  .fab:active { transform:scale(.95); }
+
+  /* bottom sheets */
+  .overlay { position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.45); display:flex; align-items:flex-end;
+    opacity:0; transition:opacity .18s; }
+  .overlay.show { opacity:1; }
+  .sheet { width:100%; max-height:92%; overflow-y:auto; background:var(--card); border-radius:22px 22px 0 0;
+    padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px)); transform:translateY(100%); transition:transform .2s; }
+  .overlay.show .sheet { transform:translateY(0); }
+  .grab { width:40px; height:5px; border-radius:3px; background:var(--line); margin:0 auto 12px; }
+  .sheet .btn { box-shadow:none; background:var(--bg); }
+  .sheet .btn.primary { background:var(--accent); }
+  .sheet .btn.ghost { background:transparent; }
+  .sheet .field { display:block; width:100%; }
+  .sheet h2 { word-break:break-all; }
+
+  #toast { position:fixed; left:50%; bottom:calc(100px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
+    max-width:88%; background:#222; color:#fff; padding:12px 18px; border-radius:24px; font-size:14px; z-index:80;
+    opacity:0; pointer-events:none; transition:opacity .2s; text-align:center; }
+  #toast.show { opacity:1; }
+  .busy { position:fixed; inset:0; z-index:90; background:rgba(0,0,0,.5); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; color:#fff; }
+  .spinner { width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.3); border-top-color:#fff;
+    animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+'use strict';
+/* ====================================================================
+   Secure Vault (Capacitor / Android)
+   - Single container file "vault.dat" in the app's PRIVATE storage.
+   - Random master key (AES-GCM 256) wrapped by a key derived from the PIN
+     (PBKDF2-SHA256, 600k iterations). Changing PIN = re-wrap, instant.
+   - File names are stored inside the encrypted index.
+   Container: [mustChange 1][salt 16][wrapped master 60][idxLen u32][index blob][file blobs...]
+   ==================================================================== */
+
+const CFG = {
+  VAULT_FILE: 'vault.dat',
+  DEFAULT_PIN: '0000',
+  MIN_PIN: 4,
+  PBKDF2_ITER: 600000,
+  MAX_FAILS: 5,
+  COOLDOWN_SEC: 30,
+  IDLE_LOCK_SEC: 300,        // lock after 5 min of no touches
+  BG_LOCK_SEC: 60,           // lock if app was in background longer than this
+  TEMP_DIR: 'CACHE',         // where decrypted temp copies live (wiped on lock / app start)
+  TEMP_SUB: 'vault_tmp',
+};
+
+const G = globalThis;
+const CAP = G.Capacitor;
+const isNative = !!(CAP && typeof CAP.isNativePlatform === 'function' && CAP.isNativePlatform());
+const plug = (n) => (CAP && CAP.Plugins && CAP.Plugins[n]) || null;
+const enc = new TextEncoder(), dec = new TextDecoder();
+const rnd = (n) => G.crypto.getRandomValues(new Uint8Array(n));
+const hex = (u8) => Array.from(u8, (b) => b.toString(16).padStart(2, '0')).join('');
+
+/* ---------- byte / base64 helpers ---------- */
+function concat(...parts) {
+  const out = new Uint8Array(parts.reduce((s, p) => s + p.length, 0));
+  let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
+}
+function bytesToB64(u8) {
+  let s = ''; const C = 0x8000;
+  for (let i = 0; i < u8.length; i += C) s += String.fromCharCode.apply(null, u8.subarray(i, i + C));
+  return btoa(s);
+}
+function b64ToBytes(b64) {
+  const s = atob(b64), u = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+  return u;
+}
+
+/* ---------- storage (native file in app-private dir; IndexedDB/memory when testing in a browser) ---------- */
+const mem = {};
+const idb = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      if (this.db) return res(this.db);
+      const r = indexedDB.open('vaultdb', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { this.db = r.result; res(r.result); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async get(k) {
+    const db = await this.open();
+    return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k);
+      q.onsuccess = () => res(q.result || null); q.onerror = () => rej(q.error); });
+  },
+  async set(k, v) {
+    const db = await this.open();
+    return new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k);
+      t.oncomplete = () => res(); t.onerror = () => rej(t.error); });
+  },
+};
+const kv = {
+  get: (k) => (typeof indexedDB !== 'undefined' ? idb.get(k) : Promise.resolve(mem[k] || null)),
+  set: (k, v) => (typeof indexedDB !== 'undefined' ? idb.set(k, v) : Promise.resolve((mem[k] = v, undefined))),
+};
+function fs() {
+  const f = plug('Filesystem');
+  if (!f) throw new Error('Filesystem plugin is not installed');
+  return f;
+}
+const store = {
+  async read() {
+    let bytes = null;
+    if (isNative) {
+      try {
+        const r = await fs().readFile({ path: CFG.VAULT_FILE, directory: 'DATA' });
+        bytes = b64ToBytes(r.data);
+      } catch (e) {
+        if (/not exist|no such file|not found/i.test(String(e && e.message || e))) return null;
+        throw e;
+      }
+    } else {
+      bytes = await kv.get(CFG.VAULT_FILE);
+    }
+    if (!bytes) return null;
+    if (!validContainer(bytes)) throw new Error('Vault file is damaged');
+    return bytes;
+  },
+  async write(bytes) {
+    if (isNative) await fs().writeFile({ path: CFG.VAULT_FILE, directory: 'DATA', data: bytesToB64(bytes) });
+    else await kv.set(CFG.VAULT_FILE, bytes);
+  },
+};
+
+/* ---------- crypto ---------- */
+const subtle = G.crypto && G.crypto.subtle;
+async function deriveWrapKey(pin, salt) {
+  const base = await subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+  return subtle.deriveKey({ name: 'PBKDF2', salt, iterations: CFG.PBKDF2_ITER, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+const importMaster = (raw) => subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
+async function seal(key, data) {
+  const iv = rnd(12);
+  const ct = new Uint8Array(await subtle.encrypt({ name: 'AES-GCM', iv }, key, data));
+  return concat(iv, ct);
+}
+async function unseal(key, blob) {
+  return new Uint8Array(await subtle.decrypt({ name: 'AES-GCM', iv: blob.slice(0, 12) }, key, blob.slice(12)));
+}
+
+/* ---------- container format ---------- */
+const HDR = 81; // 1 + 16 + 60 + 4
+function validContainer(b) {
+  if (!b || b.length < HDR) return false;
+  const il = new DataView(b.buffer, b.byteOffset, b.byteLength).getUint32(77);
+  return HDR + il <= b.length;
+}
+function parseContainer(b) {
+  if (!validContainer(b)) throw new Error('Not a valid vault file');
+  const il = new DataView(b.buffer, b.byteOffset, b.byteLength).getUint32(77);
+  return { mustChange: b[0] === 1, salt: b.slice(1, 17), wrapped: b.slice(17, 77),
+           indexBlob: b.slice(HDR, HDR + il), dataStart: HDR + il };
+}
+function buildContainer(s) {
+  const head = new Uint8Array(HDR);
+  head[0] = s.mustChange ? 1 : 0;
+  head.set(s.salt, 1);
+  head.set(s.wrapped, 17);
+  new DataView(head.buffer).setUint32(77, s.indexBlob.length);
+  return concat(head, s.indexBlob, ...s.blobs);
+}
+
+/* ---------- vault logic ---------- */
+let V = null; // {master, key, mustChange, salt, wrapped, entries[], blobs{id:Uint8Array}}
+
+async function createNew() {
+  const master = rnd(32), salt = rnd(16);
+  const wrapped = await seal(await deriveWrapKey(CFG.DEFAULT_PIN, salt), master);
+  const indexBlob = await seal(await importMaster(master), enc.encode('[]'));
+  await store.write(buildContainer({ mustChange: true, salt, wrapped, indexBlob, blobs: [] }));
+}
+
+async function unlock(pin) {
+  let bytes = await store.read();
+  if (!bytes) { await createNew(); bytes = await store.read(); }
+  const h = parseContainer(bytes);
+  let master;
+  try { master = await unseal(await deriveWrapKey(pin, h.salt), h.wrapped); }
+  catch (e) { return false; }
+  const key = await importMaster(master);
+  const entries = JSON.parse(dec.decode(await unseal(key, h.indexBlob)));
+  const blobs = {}; let p = h.dataStart;
+  for (const e of entries) { blobs[e.id] = bytes.slice(p, p + e.len); p += e.len; }
+  V = { master, key, mustChange: h.mustChange, salt: h.salt, wrapped: h.wrapped, entries, blobs };
+  return true;
+}
+
+async function verifyPin(pin) {
+  if (!V) return false;
+  try { await unseal(await deriveWrapKey(pin, V.salt), V.wrapped); return true; }
+  catch (e) { return false; }
+}
+
+async function persist() {
+  const indexBlob = await seal(V.key, enc.encode(JSON.stringify(V.entries)));
+  await store.write(buildContainer({ mustChange: V.mustChange, salt: V.salt, wrapped: V.wrapped,
+    indexBlob, blobs: V.entries.map((e) => V.blobs[e.id]) }));
+}
+
+async function changePin(newPin) {
+  const salt = rnd(16);
+  const wrapped = await seal(await deriveWrapKey(newPin, salt), V.master);
+  const prev = { salt: V.salt, wrapped: V.wrapped, mustChange: V.mustChange };
+  Object.assign(V, { salt, wrapped, mustChange: false });
+  try { await persist(); } catch (e) { Object.assign(V, prev); throw e; }
+}
+
+async function addFiles(files) {
+  const added = [], newBlobs = {};
+  for (const f of files) {
+    const bytes = new Uint8Array(await f.arrayBuffer());
+    const blob = await seal(V.key, bytes);
+    const e = { id: hex(rnd(8)), name: f.name || 'file', size: bytes.length, type: mimeOf(f.name, f.type),
+                added: new Date().toISOString(), len: blob.length };
+    added.push(e); newBlobs[e.id] = blob;
+  }
+  const prevEntries = V.entries;
+  V.entries = [...V.entries, ...added];
+  Object.assign(V.blobs, newBlobs);
+  try { await persist(); }
+  catch (e) { V.entries = prevEntries; for (const id in newBlobs) delete V.blobs[id]; throw e; }
+  return added.length;
+}
+
+async function removeEntry(entry) {
+  const prevEntries = V.entries, prevBlob = V.blobs[entry.id];
+  V.entries = V.entries.filter((e) => e.id !== entry.id);
+  delete V.blobs[entry.id];
+  try { await persist(); } catch (e) { V.entries = prevEntries; V.blobs[entry.id] = prevBlob; throw e; }
+}
+
+const decryptEntry = (e) => unseal(V.key, V.blobs[e.id]);
+function lockCore() { if (V) V.master.fill(0); V = null; }
+
+/* ---------- misc helpers ---------- */
+const MIME = { pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+  webp: 'image/webp', txt: 'text/plain', mp4: 'video/mp4', mp3: 'audio/mpeg', doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', zip: 'application/zip' };
+function mimeOf(name, type) {
+  if (type) return type;
+  return MIME[((name || '').split('.').pop() || '').toLowerCase()] || 'application/octet-stream';
+}
+function human(n) {
+  const u = ['B', 'KB', 'MB', 'GB']; let i = 0;
+  while (n >= 1024 && i < 3) { n /= 1024; i++; }
+  return (i === 0 ? n : n.toFixed(1)) + ' ' + u[i];
+}
+const fmtDate = (iso) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+function iconFor(e) {
+  const t = e.type || '';
+  if (t.includes('pdf')) return '📕';
+  if (t.startsWith('image/')) return '🖼️';
+  if (t.startsWith('video/')) return '🎞️';
+  if (t.startsWith('audio/')) return '🎵';
+  if (t.startsWith('text/')) return '📄';
+  if (t.includes('zip')) return '🗜️';
+  return '📎';
+}
+const safeName = (n) => (n || 'file').replace(/[\\/:*?"<>|]+/g, '_');
+
+/* ---------- temp files for opening / sharing ---------- */
+async function writeTemp(name, bytes) {
+  const path = `${CFG.TEMP_SUB}/${hex(rnd(6))}/${safeName(name)}`;
+  await fs().writeFile({ path, directory: CFG.TEMP_DIR, data: bytesToB64(bytes), recursive: true });
+  const { uri } = await fs().getUri({ path, directory: CFG.TEMP_DIR });
+  return uri;
+}
+async function cleanupTemp() {
+  if (!isNative || !plug('Filesystem')) return;
+  try { await plug('Filesystem').rmdir({ path: CFG.TEMP_SUB, directory: CFG.TEMP_DIR, recursive: true }); } catch (e) { /* nothing to clean */ }
+}
+function browserDownload(name, bytes, type) {
+  const url = URL.createObjectURL(new Blob([bytes], { type: type || 'application/octet-stream' }));
+  const a = document.createElement('a'); a.href = url; a.download = safeName(name);
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+/* ====================================================================
+   UI
+   ==================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+let toastT;
+function toast(msg) {
+  let t = $('#toast');
+  if (!t) { t = el('div'); t.id = 'toast'; document.body.append(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3500);
+}
+async function withBusy(msg, fn) {
+  const o = el('div', 'busy'); o.append(el('div', 'spinner'), el('div', null, msg)); document.body.append(o);
+  await new Promise((r) => setTimeout(r, 30));
+  try { return await fn(); } finally { o.remove(); }
+}
+function closeAllSheets() { document.querySelectorAll('.overlay').forEach((o) => o.remove()); }
+
+function sheet(build, { dismiss = true } = {}) {
+  return new Promise((resolve) => {
+    const ov = el('div', 'overlay'), sh = el('div', 'sheet');
+    ov.append(sh);
+    const done = (v) => { ov.classList.remove('show'); setTimeout(() => ov.remove(), 220); resolve(v); };
+    sh.append(el('div', 'grab'), build(done));
+    if (dismiss) ov.addEventListener('click', (e) => { if (e.target === ov) done(undefined); });
+    document.body.append(ov);
+    requestAnimationFrame(() => ov.classList.add('show'));
+    const f = sh.querySelector('input'); if (f) setTimeout(() => f.focus(), 280);
+  });
+}
+function pinInput(cls, placeholder) {
+  const i = el('input', cls);
+  i.type = 'password'; i.inputMode = 'numeric'; i.autocomplete = 'off'; i.maxLength = 12;
+  i.placeholder = placeholder || '';
+  return i;
+}
+const btn = (label, cls, onclick) => { const b = el('button', 'btn ' + (cls || ''), label); b.onclick = onclick; return b; };
+
+/* ---------- sheets ---------- */
+function askPin(reason) {
+  return sheet((done) => {
+    const w = el('div');
+    const inp = pinInput('field', 'PIN'), err = el('div', 'err');
+    const go = async () => {
+      const pin = inp.value; if (!pin) return;
+      const good = await withBusy('Checking…', () => verifyPin(pin));
+      if (good) done(true); else { err.textContent = 'Wrong PIN.'; inp.value = ''; }
+    };
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+    w.append(el('h2', null, 'Enter PIN'), el('p', 'muted', `PIN required to ${reason}.`), inp, err,
+      btn('Confirm', 'primary', go), btn('Cancel', 'ghost', () => done(false)));
+    return w;
+  }).then((v) => !!v);
+}
+function confirmSheet(title, msg, label, danger) {
+  return sheet((done) => {
+    const w = el('div');
+    w.append(el('h2', null, title), el('p', 'muted', msg),
+      btn(label, danger ? 'danger' : 'primary', () => done(true)), btn('Cancel', 'ghost', () => done(false)));
+    return w;
+  }).then((v) => !!v);
+}
+function changePinSheet(force) {
+  return sheet((done) => {
+    const w = el('div');
+    const old = force ? null : pinInput('field', 'Current PIN');
+    const n1 = pinInput('field', 'New PIN'), n2 = pinInput('field', 'Confirm new PIN'), err = el('div', 'err');
+    const save = async () => {
+      const a = n1.value, b = n2.value;
+      if (old && !(await withBusy('Checking…', () => verifyPin(old.value)))) { err.textContent = 'Current PIN is wrong.'; return; }
+      if (!new RegExp('^\\d{' + CFG.MIN_PIN + ',12}$').test(a)) { err.textContent = `PIN must be ${CFG.MIN_PIN}–12 digits (6+ is better).`; return; }
+      if (a === CFG.DEFAULT_PIN) { err.textContent = 'PIN cannot be ' + CFG.DEFAULT_PIN + '.'; return; }
+      if (old && a === old.value) { err.textContent = 'New PIN must differ from the current one.'; return; }
+      if (a !== b) { err.textContent = 'PINs do not match.'; return; }
+      try { await withBusy('Saving…', () => changePin(a)); toast('PIN changed'); done(true); }
+      catch (e) { err.textContent = 'Could not save: ' + (e.message || e); }
+    };
+    w.append(el('h2', null, force ? 'Set a new PIN' : 'Change PIN'));
+    if (force) w.append(el('p', 'muted', 'First login: replace the default PIN before continuing.'));
+    if (old) w.append(old);
+    w.append(n1, n2, err, btn('Save PIN', 'primary', save));
+    if (!force) w.append(btn('Cancel', 'ghost', () => done(false)));
+    else w.append(btn('Cancel', 'ghost', () => done(false)));
+    return w;
+  }, { dismiss: !force }).then((v) => !!v);
+}
+async function itemSheet(e) {
+  const act = await sheet((done) => {
+    const w = el('div');
+    w.append(el('h2', null, e.name), el('p', 'muted', `${human(e.size)} • added ${fmtDate(e.added)}`),
+      btn('Open', 'primary', () => done('open')), btn('Export / Share', '', () => done('share')),
+      btn('Delete', 'danger', () => done('delete')), btn('Cancel', 'ghost', () => done()));
+    return w;
+  });
+  if (act === 'open') openEntry(e);
+  else if (act === 'share') shareEntry(e);
+  else if (act === 'delete') deleteEntry(e);
+}
+async function menuSheet() {
+  const act = await sheet((done) => {
+    const w = el('div');
+    w.append(el('h2', null, 'Menu'),
+      btn('Change PIN', '', () => done('pin')), btn('Export backup', '', () => done('backup')),
+      btn('Restore backup', '', () => done('restore')), btn('Lock now', '', () => done('lock')),
+      btn('Close', 'ghost', () => done()));
+    return w;
+  });
+  if (act === 'pin') changePinSheet(false);
+  else if (act === 'backup') exportBackup();
+  else if (act === 'restore') pickRestore();
+  else if (act === 'lock') lockVault();
+}
+
+/* ---------- screens ---------- */
+let loginNotice = '', fails = 0, blockedUntil = 0;
+
+function renderLogin() {
+  closeAllSheets();
+  const app = $('#app'); app.replaceChildren();
+  const w = el('div', 'login');
+  const inp = pinInput('pin', '••••'), msg = el('div', 'err', loginNotice);
+  loginNotice = '';
+  async function go() {
+    const now = Date.now();
+    if (now < blockedUntil) { msg.textContent = `Too many attempts. Wait ${Math.ceil((blockedUntil - now) / 1000)}s.`; return; }
+    const pin = inp.value; inp.value = ''; if (!pin) return;
+    let ok;
+    try { ok = await withBusy('Unlocking…', () => unlock(pin)); }
+    catch (e) { msg.textContent = 'Storage error: ' + (e.message || e); return; }
+    if (!ok) {
+      fails++;
+      if (fails >= CFG.MAX_FAILS) { blockedUntil = Date.now() + CFG.COOLDOWN_SEC * 1000; fails = 0; msg.textContent = `Too many attempts. Locked for ${CFG.COOLDOWN_SEC}s.`; }
+      else msg.textContent = `Wrong PIN (${CFG.MAX_FAILS - fails} tries left before cool-down).`;
+      return;
+    }
+    fails = 0;
+    if (V.mustChange) {
+      const changed = await changePinSheet(true);
+      if (!changed) { lockVault('You must set a new PIN to continue.'); return; }
+    }
+    renderMain();
+  }
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  w.append(el('div', 'lockicon', '🔒'), el('h1', null, 'Secure Vault'), el('p', 'muted', 'Enter PIN to open'),
+    inp, msg, btn('Unlock', 'primary', go));
+  app.append(w);
+  setTimeout(() => inp.focus(), 300);
+}
+
+let picker = null, restorePicker = null;
+function renderMain() {
+  const app = $('#app'); app.replaceChildren();
+  const bar = el('div', 'bar');
+  const lockB = el('button', 'iconbtn', '🔒'); lockB.setAttribute('aria-label', 'Lock'); lockB.onclick = () => lockVault();
+  const menuB = el('button', 'iconbtn', '⋮'); menuB.setAttribute('aria-label', 'Menu'); menuB.onclick = menuSheet;
+  bar.append(el('div', 'title', 'Secure Vault'), lockB, menuB);
+  const list = el('div', 'list'); list.id = 'list';
+  const fab = el('button', 'fab', '＋'); fab.setAttribute('aria-label', 'Add files'); fab.onclick = () => picker.click();
+
+  picker = el('input'); picker.type = 'file'; picker.multiple = true; picker.hidden = true;
+  picker.onchange = async () => {
+    const files = [...picker.files]; picker.value = '';
+    if (!files.length) return;
+    try {
+      const n = await withBusy('Encrypting…', () => addFiles(files));
+      renderList();
+      toast(`${n} file(s) added. Delete the originals from your phone yourself.`);
+    } catch (e) { toast('Could not add: ' + (e.message || e)); }
+  };
+  restorePicker = el('input'); restorePicker.type = 'file'; restorePicker.hidden = true;
+  restorePicker.onchange = async () => {
+    const f = restorePicker.files[0]; restorePicker.value = ''; if (f) restoreBackup(f);
+  };
+  app.append(bar, list, fab, picker, restorePicker);
+  renderList();
+}
+
+function renderList() {
+  const list = $('#list'); if (!list) return;
+  list.replaceChildren();
+  const items = [...V.entries].sort((a, b) => b.added.localeCompare(a.added));
+  if (!items.length) {
+    const e = el('div', 'empty'); e.append(el('div', 'big', '📂'), el('p', null, 'Your vault is empty.'),
+      el('p', null, 'Tap ＋ to add files.'));
+    list.append(e); return;
+  }
+  for (const e of items) {
+    const row = el('div', 'row'), info = el('div', 'info');
+    info.append(el('div', 'fname', e.name), el('div', 'fmeta', `${human(e.size)} • ${fmtDate(e.added)}`));
+    const more = el('button', 'iconbtn', '⋮'); more.setAttribute('aria-label', 'More');
+    more.onclick = (ev) => { ev.stopPropagation(); itemSheet(e); };
+    row.onclick = () => openEntry(e);
+    row.append(el('div', 'ficon', iconFor(e)), info, more);
+    list.append(row);
+  }
+  const total = V.entries.reduce((s, e) => s + e.size, 0);
+  list.append(el('div', 'count', `${V.entries.length} file(s) • ${human(total)}`));
+}
+
+/* ---------- actions ---------- */
+async function openEntry(e) {
+  if (!(await askPin('open this file'))) return;
+  try {
+    await withBusy('Decrypting…', async () => {
+      const bytes = await decryptEntry(e);
+      if (isNative) {
+        const FO = plug('FileOpener');
+        if (!FO) throw new Error('file-opener plugin is not installed');
+        const uri = await writeTemp(e.name, bytes);
+        await FO.open({ filePath: uri, contentType: mimeOf(e.name, e.type), openWithDefault: false });
+      } else {
+        const url = URL.createObjectURL(new Blob([bytes], { type: mimeOf(e.name, e.type) }));
+        window.open(url, '_blank'); setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+    });
+    toast('Temporary copy is wiped when the vault locks.');
+  } catch (err) { toast('Could not open: ' + (err.message || err)); }
+}
+async function shareEntry(e) {
+  if (!(await askPin('export this file'))) return;
+  try {
+    await withBusy('Decrypting…', async () => {
+      const bytes = await decryptEntry(e);
+      if (isNative) {
+        const SH = plug('Share');
+        if (!SH) throw new Error('share plugin is not installed');
+        const uri = await writeTemp(e.name, bytes);
+        await SH.share({ title: e.name, url: uri, dialogTitle: 'Export file' });
+      } else browserDownload(e.name, bytes, e.type);
+    });
+  } catch (err) { if (!/cancel/i.test(String(err && err.message))) toast('Could not export: ' + (err.message || err)); }
+}
+async function deleteEntry(e) {
+  if (!(await confirmSheet('Delete file?', `“${e.name}” will be permanently removed from the vault.`, 'Delete', true))) return;
+  if (!(await askPin('delete'))) return;
+  try { await withBusy('Deleting…', () => removeEntry(e)); renderList(); toast('Deleted'); }
+  catch (err) { toast('Could not delete: ' + (err.message || err)); }
+}
+async function exportBackup() {
+  if (!(await askPin('export a backup'))) return;
+  try {
+    await withBusy('Preparing backup…', async () => {
+      const bytes = await store.read();
+      const name = `vault-backup-${new Date().toISOString().slice(0, 10)}.dat`;
+      if (isNative) {
+        const SH = plug('Share');
+        if (!SH) throw new Error('share plugin is not installed');
+        const uri = await writeTemp(name, bytes);
+        await SH.share({ title: name, url: uri, dialogTitle: 'Save backup' });
+      } else browserDownload(name, bytes);
+    });
+  } catch (err) { if (!/cancel/i.test(String(err && err.message))) toast('Backup failed: ' + (err.message || err)); }
+}
+function pickRestore() { if (restorePicker) restorePicker.click(); }
+async function restoreBackup(file) {
+  let bytes;
+  try { bytes = new Uint8Array(await file.arrayBuffer()); parseContainer(bytes); }
+  catch (e) { toast('That is not a valid vault backup.'); return; }
+  if (!(await confirmSheet('Restore backup?', 'This REPLACES everything currently in the vault. The backup’s own PIN will apply afterwards.', 'Restore', true))) return;
+  if (!(await askPin('restore a backup'))) return;
+  try {
+    await withBusy('Restoring…', () => store.write(bytes));
+    lockVault('Backup restored. Unlock with the PIN from that backup.');
+  } catch (e) { toast('Restore failed: ' + (e.message || e)); }
+}
+function lockVault(notice) {
+  lockCore(); cleanupTemp();
+  loginNotice = typeof notice === 'string' ? notice : '';
+  renderLogin();
+}
+
+/* ---------- start-up + auto-lock (browser only; skipped when the logic is unit-tested in Node) ---------- */
+if (typeof document !== 'undefined') {
+  let lastAct = Date.now(), bgAt = 0;
+  ['touchstart', 'keydown', 'click', 'scroll'].forEach((ev) =>
+    document.addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true, capture: true }));
+  setInterval(() => { if (V && Date.now() - lastAct > CFG.IDLE_LOCK_SEC * 1000) lockVault('Locked after inactivity.'); }, 10000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) bgAt = Date.now();
+    else if (V && bgAt && Date.now() - bgAt > CFG.BG_LOCK_SEC * 1000) lockVault('Locked while you were away.');
+  });
+  cleanupTemp();
+  renderLogin();
+}
+</script>
+</body>
+</html>

@@ -54,9 +54,9 @@ footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-
 #fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
 body.max footer{display:none!important}body.max #fsx{display:block}
 #panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(20,32,48,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
-#panel[hidden],#pinrow[hidden],#gorow[hidden],#goBtn[hidden]{display:none}
-#prow,#pinrow,#gorow{display:flex;gap:8px;align-items:center}
-#pin,#gopg{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit}#pin{letter-spacing:3px}
+#panel[hidden],#pinrow[hidden]{display:none}
+#prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit}#pin{letter-spacing:3px}
 #pinerr{color:#ff8f8f;font-size:12px}#del.on{border-color:#e5484d;color:#ff8f8f}
 #slide{flex:1;min-width:0;max-width:340px;height:44px;position:relative;margin:0 4px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.04);overflow:hidden}#slide.off{display:none}
 #fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(229,72,77,.28)}
@@ -82,7 +82,7 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 *{scrollbar-width:none;-ms-overflow-style:none}
 *::-webkit-scrollbar{display:none;width:0;height:0}
 #fup,#fdn,#fsearch{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right));z-index:5;width:50px;height:50px;min-width:0;padding:0;border-radius:50%;background:rgba(10,16,24,.7);align-items:center;justify-content:center}
-#fsearch{top:calc(50% - 136px)}#fup{top:calc(50% - 62px)}#fdn{top:calc(50% + 12px)}#fup:disabled,#fdn:disabled{opacity:.35}
+#fdn{bottom:calc(76px + env(safe-area-inset-bottom))}#fup{bottom:calc(140px + env(safe-area-inset-bottom))}#fsearch{bottom:calc(204px + env(safe-area-inset-bottom))}#fup:disabled,#fdn:disabled{opacity:.35}
 #fup svg,#fdn svg,#fsearch svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block}
 #theme .moon{display:none}
 body.dark #theme .sun{display:none}
@@ -122,11 +122,12 @@ body[data-v=view] #vbar{display:flex}
 #vname{min-width:0;overflow:hidden;text-overflow:ellipsis}#vpg{flex:none;font-weight:600;color:var(--accent)}
 body[data-v=view] #fup,body[data-v=view] #fdn{display:flex}
 body[data-v=view] #sp{top:calc(40px + env(safe-area-inset-top))}
-body.deleting #refresh,body.deleting #goBtn,body.deleting #srchBtn,body.deleting #theme{display:none}
-#goBtn[hidden],#refresh[hidden]{display:none}
+body.deleting #refresh,body.deleting #srchBtn,body.deleting #theme{display:none}
+#refresh[hidden]{display:none}
 @media (orientation:landscape) and (max-height:500px){
   footer{display:none!important}
   body[data-v=view] #fsearch{display:flex}
+  #fdn{bottom:calc(16px + env(safe-area-inset-bottom))}#fup{bottom:calc(80px + env(safe-area-inset-bottom))}#fsearch{bottom:calc(144px + env(safe-area-inset-bottom))}
   body[data-v=view] #vbar{display:none}
   body[data-v=view] #sp{top:calc(10px + env(safe-area-inset-top))}
 }
@@ -139,9 +140,17 @@ body[data-v=list] #fs:not([hidden]){display:flex}
 .topic mark{background:rgba(255,213,0,.5);color:#fff;border-radius:2px;padding:0 1px}
 .topic.pdf.hit{background:rgba(255,213,0,.1);border-color:rgba(255,213,0,.35)}
 .topic.pdf.hit.cur{background:rgba(255,159,26,.16);border-color:#ff9f1a}
-#foot,#vbar,#fup,#fdn,#fsearch{transition:opacity .25s}
-body.uifade #foot,body.uifade #vbar,body.uifade #fup,body.uifade #fdn,body.uifade #fsearch{opacity:0;transition:opacity 5s linear}
-body.uigone #foot,body.uigone #vbar,body.uigone #fup,body.uigone #fdn,body.uigone #fsearch{pointer-events:none}
+#foot{transition:opacity .25s}
+body.uifade #foot{opacity:0;transition:opacity 5s linear}
+body.uigone #foot{pointer-events:none}
+#fup,#fdn{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#pbub{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9;width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;background:rgba(10,16,24,.82);border:3px solid var(--accent);box-shadow:0 0 22px rgba(var(--a),.6);pointer-events:none}
+#pbub[hidden]{display:none}
+#vbar{justify-content:space-between;gap:2px;padding:0 2px}
+#vmid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
+#vbar button{width:32px;min-width:0;height:28px;padding:0;background:transparent;border:0;flex:none;color:var(--accent)}
+#vbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#vfile{flex:none;font-size:11px;color:var(--mute)}
 </style>
 </head>
 <body data-v="landing">
@@ -157,7 +166,7 @@ body.uigone #foot,body.uigone #vbar,body.uigone #fup,body.uigone #fdn,body.uigon
     <input id="tokin" type="password" autocomplete="off" placeholder="PIN">
     <button id="tsave">Save PIN</button><p id="lerr"></p>
   </div>
-  <div id="vbar"><span id="vname"></span><b id="vpg"></b></div>
+  <div id="vbar"><button id="vprev" aria-label="Previous PDF"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div id="vmid"><span id="vname"></span><b id="vpg"></b></div><small id="vfile"></small><button id="vnext" aria-label="Next PDF"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
   <div id="viewer" tabindex="-1"><div id="pages"></div></div>
   <div id="vmsg" class="msg" hidden></div>
   <div id="toast"><small></small><b></b></div>
@@ -188,7 +197,6 @@ body.uigone #foot,body.uigone #vbar,body.uigone #fup,body.uigone #fdn,body.uigon
   <footer id="foot">
     <button id="menu" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     <button id="refresh" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
-    <button id="goBtn" aria-label="Go to page" hidden><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></button>
     <button id="srchBtn" aria-label="Search in PDF" hidden><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
     <div class="mid">
       <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
@@ -205,12 +213,12 @@ body.uigone #foot,body.uigone #vbar,body.uigone #fup,body.uigone #fdn,body.uigon
         <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
       </div>
       <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
-      <div id="gorow" hidden><input id="gopg" type="number" inputmode="numeric" min="1" placeholder="Page"><button id="gook">Go</button></div>
       <small id="pinerr"></small>
     </div>
     <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
   </footer>
 </div>
+<div id="pbub" hidden></div>
 <button id="fsearch" aria-label="Search in PDF"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
 <button id="fup" aria-label="Page up"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <button id="fdn" aria-label="Page down"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
@@ -522,7 +530,7 @@ V.addEventListener("dblclick", e => { if (!doc || !matchMedia("(pointer:fine)").
 function stepPdf(d) {
   if (!curFile || curFile.local) return; const a = dirs[curFile.fid] || [], i = a.findIndex(x => x.path === curFile.path), j = i + d;
   if (i < 0 || j < 0 || j >= a.length) { toast("", d > 0 ? "Last PDF in this folder" : "First PDF in this folder"); return; }
-  toast("", a[j].name.replace(PDF_RE, "")); location.replace("#p=" + encodeURIComponent(a[j].path));
+  location.replace("#p=" + encodeURIComponent(a[j].path));
 }
 
 // ── BAR ─────────────────────────────────────────────────────────────────
@@ -531,11 +539,14 @@ function updateBar() {
   const v = document.body.dataset.v, inView = v === "view"; let c = "", l = "";
   if (inView && curFile) { c = N ? (curPg + 1) + " / " + N : ""; l = curFile.name.replace(PDF_RE, ""); }
   $("vname").textContent = inView && curFile ? curFile.name.replace(PDF_RE, "") : ""; $("vpg").textContent = inView && curFile && N ? "(Page " + (curPg + 1) + "/" + N + ")" : "";
+  { const a = inView && curFile && !curFile.local ? (dirs[curFile.fid] || []) : [], k = curFile ? a.findIndex(x => x.path === curFile.path) : -1;
+    $("vprev").style.visibility = k > 0 ? "visible" : "hidden"; $("vnext").style.visibility = k >= 0 && k < a.length - 1 ? "visible" : "hidden";
+    $("vfile").textContent = k >= 0 && a.length > 1 ? (k + 1) + "/" + a.length : ""; }
   $("info").classList.toggle("none", !sd);
   const canDel = !!(unlocked && inView && doc && curFile && !curFile.local);
   $("slide").classList.toggle("off", !canDel); document.body.classList.toggle("deleting", canDel);
   $("menu").disabled = !inView;
-  $("goBtn").hidden = !(inView && N > 1); $("srchBtn").hidden = !(v === "list" || (inView && N > 0)); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn);
+  $("srchBtn").hidden = !(v === "list" || (inView && N > 0)); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn);
   $("fup").disabled = !inView || curPg <= 0; $("fdn").disabled = !inView || curPg >= N - 1;
 }
 function fit() { const vv = window.visualViewport; $("app").style.height = Math.round(vv ? vv.height : innerHeight) + "px"; }
@@ -650,6 +661,7 @@ function closeSearch() {
   if (!sScan) setInfo("");
 }
 function searchReset() { closeSearch(); stx = []; sScan = null; sQuery = ""; SQ.value = ""; SQ.disabled = false; $("sgo").disabled = false; setInfo(""); }
+$("vprev").onclick = () => stepPdf(-1); $("vnext").onclick = () => stepPdf(1);
 $("trimBtn").onclick = () => {
   cropOn = !cropOn; ls("pdfTrim", cropOn ? "1" : "0"); closePanel(); applyCrop();
   toast("", cropOn ? (vwf() < 1 ? "Margins trimmed" : "No extra margins found") : "Margins trim off"); updateBar();
@@ -713,14 +725,33 @@ document.addEventListener("click", uiWake, true); document.addEventListener("key
 
 // ── BUTTONS ─────────────────────────────────────────────────────────────
 const panel = $("panel");
-function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("gorow").hidden = true; $("pin").value = ""; $("gopg").value = ""; $("pinerr").textContent = ""; }
+function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
 $("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
 panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
 const applyTheme = () => { const d = ls("pdfDark") === "1"; document.body.classList.toggle("dark", d); $("theme").setAttribute("aria-pressed", d); $("theme").setAttribute("aria-label", d ? "Dark pages. Tap for light pages" : "Light pages. Tap for dark pages"); };
 $("theme").onclick = () => { ls("pdfDark", ls("pdfDark") === "1" ? "0" : "1"); applyTheme(); };
 applyTheme();
-$("fup").onclick = () => go(-1); $("fdn").onclick = () => go(1);
+// press and hold the arrows: slow at first, then faster; a round bubble shows the page; on release the page is shown
+let hold = null, noClickUntil = 0;
+function holdStep() {
+  if (!hold) return; const t = Date.now() - hold.t0, step = t < 4000 ? 1 : t < 7000 ? 2 : 4;
+  hold.page = Math.max(0, Math.min(N - 1, hold.page + hold.dir * step)); $("pbub").textContent = hold.page + 1;
+  if (hold.page === 0 || hold.page === N - 1) return;
+  hold.timer = setTimeout(holdStep, Math.max(70, 480 - t * 0.14));
+}
+function holdStart(dir, e) {
+  if (!doc || !N) return; hold = {dir, page: curPg, t0: 0, timer: 0, on: false}; try { e.target.setPointerCapture(e.pointerId); } catch (x) {}
+  hold.timer = setTimeout(() => { if (!hold) return; hold.on = true; hold.t0 = Date.now(); $("pbub").textContent = hold.page + 1; $("pbub").hidden = false; holdStep(); }, 450);
+}
+function holdEnd() {
+  if (!hold) return; clearTimeout(hold.timer); const h = hold; hold = null; $("pbub").hidden = true;
+  if (h.on) { noClickUntil = Date.now() + 400; scrollToPage(h.page, false); }
+}
+[["fup", -1], ["fdn", 1]].forEach(([id, d]) => {
+  const b = $(id); b.addEventListener("pointerdown", e => holdStart(d, e)); b.addEventListener("pointerup", holdEnd); b.addEventListener("pointercancel", holdEnd);
+  b.addEventListener("contextmenu", e => e.preventDefault()); b.onclick = () => { if (Date.now() < noClickUntil) return; go(d); };
+});
 $("menu").onclick = () => { if (document.body.dataset.v !== "view") return; if (curFile && curFile.local) route(); else location.hash = ""; };
 $("refresh").onclick = async () => {
   closePanel(); const v = document.body.dataset.v;
@@ -729,12 +760,9 @@ $("refresh").onclick = async () => {
   if (v === "list") { renderList(); $("box").scrollTop = savedScroll; }
   updateBar(); toast("", "Refreshed");
 };
-$("goBtn").onclick = e => { e.stopPropagation(); panel.hidden = false; $("pinrow").hidden = true; $("gorow").hidden = false; $("gopg").placeholder = "1-" + N; $("gopg").focus(); };
-function doGo() { const n = parseInt($("gopg").value, 10); if (n >= 1 && n <= N) { closePanel(); scrollToPage(n - 1, false); } else $("pinerr").textContent = "Page 1-" + N; }
-$("gook").onclick = doGo; $("gopg").addEventListener("keydown", e => { if (e.key === "Enter") doGo(); });
 const syncLock = () => { $("del").classList.toggle("on", unlocked); updateBar(); };
 let pinFor = "";
-const askPin = what => { pinFor = what; $("gorow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
+const askPin = what => { pinFor = what; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
 $("del").onclick = () => { if (unlocked) { unlocked = false; closePanel(); syncLock(); return; } askPin("del"); };
 $("key").onclick = () => askPin("tok");
 function tryPin() {
