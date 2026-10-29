@@ -106,7 +106,12 @@ body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #sp.scrolling .sitem span{visibility:hidden}
 #sp.scrolling button.sitem{background:transparent;border-color:transparent}
 #sp.scrolling .sitem b{color:#fff;background:rgba(0,0,0,.6);padding:2px 8px;border-radius:7px}
-#trimBtn[hidden]{display:none}#trimBtn.on{border-color:rgba(var(--a),.9);color:var(--accent)}
+#trimBtn[hidden]{display:none}
+.topic{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.favlab{display:flex;align-items:center;gap:8px;margin:10px 4px 6px;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--accent)}
+.favlab::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--a),.7),transparent)}
+.favlab:first-child{margin-top:2px}
+#shareBtn[hidden]{display:none}#trimBtn.on{border-color:rgba(var(--a),.9);color:var(--accent)}
 #sp[hidden],body:not([data-v=view]) #sp{display:none}
 #sp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 .sr1,.sr2{display:flex;gap:6px;align-items:center}
@@ -250,6 +255,7 @@ body[data-src=sd]{--tape:#b44cff;--tape2:#dcb0ff;--tapetxt:#ffffff}
       <div id="srow" role="group" aria-label="Source"></div>
       <div id="fbox" hidden></div>
       <div id="prow">
+        <button id="shareBtn" aria-label="Share" hidden><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
         <button id="trimBtn" aria-label="Trim page margins" hidden><svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></button>
         <button id="upl" aria-label="Upload PDFs"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
@@ -429,12 +435,14 @@ function renderList() {
     wrap.appendChild(h); wrap.appendChild(kids); return wrap;
   };
   const folderAcc = (f, title) => accordion(f.n, title, dstr(f), cnt(f), !!last && f.n === last, k => (dirs[f.n] || []).forEach(x => k.appendChild(pdfRow(x))));
+  const entries = [];
   groups.forEach((list, top) => {
-    if (list.length === 1 && list[0].n === top) { g.appendChild(folderAcc(list[0], list[0].t)); return; }
+    if (list.length === 1 && list[0].n === top) { entries.push({top, el: folderAcc(list[0], list[0].t)}); return; }
     const t = parseFolder(top), sub = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
-    g.appendChild(accordion("g:" + top, t.t, sub, list.reduce((a, f) => a + cnt(f), 0), !!last && top === lastTop,
-      k => list.forEach(f => k.appendChild(folderAcc(f, f.n === top ? "PDFs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "))))));
+    entries.push({top, el: accordion("g:" + top, t.t, sub, list.reduce((a, f) => a + cnt(f), 0), !!last && top === lastTop,
+      k => list.forEach(f => k.appendChild(folderAcc(f, f.n === top ? "PDFs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / ")))))});
   });
+  addFavBlocks(g, entries);
   const note = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
   if (!parsed.length) note("No folders with PDFs found.");
   if (truncated) note("The repo is very large, so this list may be incomplete.");
@@ -656,7 +664,7 @@ function updateBar() {
   const canDel = !!(unlocked && inView && doc && curFile && !curFile.local);
   $("slide").classList.toggle("off", !canDel); document.body.classList.toggle("deleting", canDel);
   $("menu").disabled = !inView;
-  $("srchBtn").hidden = !(v === "list" || (inView && N > 0)); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn);
+  $("srchBtn").hidden = !(v === "list" || (inView && N > 0)); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn); $("shareBtn").hidden = !(inView && curFile);
   $("fup").disabled = !inView || curPg <= 0; $("fdn").disabled = !inView || curPg >= N - 1;
 }
 function fit() { const vv = window.visualViewport; $("app").style.height = Math.round(vv ? vv.height : innerHeight) + "px"; }
@@ -1064,6 +1072,81 @@ window.addEventListener("sdfolder", e => {
   if (queueOn) { if (d === "notsd" || d === "notphone") pickQueue.unshift(pickFor); nextPick(); }   // wrong card: ask again; cancelled: skip
 });
 $("sback").onclick = () => route();
+
+// ── FAVORITES (starred top-level folders, kept per source; saved in the app's own storage, with the browser as fallback) ──
+const FAV_KEY = "pdfFavs";
+let favData = null;
+function favLoad() {
+  if (favData) return favData;
+  let raw = ""; try { if (window.AndroidFav) raw = AndroidFav.get(FAV_KEY) || ""; } catch (e) {}
+  if (!raw) { try { raw = localStorage.getItem(FAV_KEY) || ""; } catch (e) {} if (raw) try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {} }
+  try { favData = JSON.parse(raw) || {}; } catch (e) { favData = {}; }
+  return favData;
+}
+const isFav = top => (favLoad()[getSrc()] || []).indexOf(top) >= 0;
+function toggleFav(top) {
+  const d = favLoad(), s = getSrc(), a = (d[s] || []).slice(), i = a.indexOf(top);
+  if (i >= 0) a.splice(i, 1); else a.push(top);
+  d[s] = a; const raw = JSON.stringify(d);
+  try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {}
+  try { localStorage.setItem(FAV_KEY, raw); } catch (e) {}
+}
+let holdTimer = 0, holdG = null, favNoClick = 0, hx = 0, hy = 0;
+document.addEventListener("click", e => { if (Date.now() < favNoClick) { e.stopPropagation(); e.preventDefault(); } }, true);   // the tap that ends a long press must not open the folder
+function holdEnd() {
+  clearTimeout(holdTimer); holdTimer = 0;
+  if (!holdG) return;
+  const g = holdG; holdG = null; favNoClick = Date.now() + 500;
+  const sc = g.scrollTop; renderList(); g.scrollTop = sc;
+}
+["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, holdEnd, true));
+document.addEventListener("pointermove", e => { if (holdTimer && Math.hypot(e.clientX - hx, e.clientY - hy) > 12) { clearTimeout(holdTimer); holdTimer = 0; } }, true);
+function addFavHold(el, top, g) {                           // long-press a folder to add it to / remove it from Favorites
+  const head = el.querySelector(":scope > .topic.hd") || (el.classList.contains("topic") ? el : null); if (!head) return;
+  el.addEventListener("pointerdown", e => {
+    if (!head.contains(e.target)) return;
+    hx = e.clientX; hy = e.clientY; clearTimeout(holdTimer); holdG = null;
+    holdTimer = setTimeout(() => {
+      holdTimer = 0; const on = !isFav(top); toggleFav(top); holdG = g;
+      try { navigator.vibrate && navigator.vibrate(35); } catch (err) {}
+      toast("", on ? "Added to Favorites" : "Removed from Favorites");
+    }, 550);
+  });
+  el.addEventListener("contextmenu", e => e.preventDefault());
+}
+function addFavBlocks(g, entries) {                         // favorites first, a divider, then the rest; search never moves anything between the blocks
+  entries.forEach(x => addFavHold(x.el, x.top, g));
+  const favs = entries.filter(x => isFav(x.top)), rest = entries.filter(x => !isFav(x.top));
+  const lab = t => { const d = document.createElement("div"); d.className = "favlab"; d.textContent = t; g.appendChild(d); };
+  if (favs.length) { lab("\u2605 Favorites"); favs.forEach(x => g.appendChild(x.el)); if (rest.length) lab("Other folders"); }
+  rest.forEach(x => g.appendChild(x.el));
+}
+// ── SHARE (WhatsApp etc.): Android's own share sheet ──
+async function sendBlob(blob, name, mime) {                 // cloud files: hand the bytes to the Java side piece by piece
+  if (AndroidShare.begin(name).indexOf("ERR") === 0) throw new Error("begin");
+  const S = 393216;
+  for (let o = 0; o < blob.size; o += S) {
+    const b64 = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = no; r.readAsDataURL(blob.slice(o, o + S)); });
+    if (AndroidShare.append(b64).indexOf("ERR") === 0) throw new Error("append");
+  }
+  AndroidShare.finish(mime);
+}
+window.addEventListener("shareerr", e => toast("", "Could not share: " + e.detail));
+$("shareBtn").onclick = sharePdf;
+
+async function sharePdf() {
+  closePanel();
+  const f = curFile; if (!f) return;
+  if (!window.AndroidShare) { toast("", "Sharing works only inside the Android app."); return; }
+  const name = f.name || "document.pdf";
+  try {
+    if (f.sd) { AndroidShare.shareDoc(f.src || getSrc(), f.path, "application/pdf", name); return; }
+    toast("", "Preparing...");
+    const r = f.local ? await fetch(f.local) : await api(f.path, true);
+    if (!r.ok) throw new Error(r.status);
+    await sendBlob(await r.blob(), name, "application/pdf");
+  } catch (e) { toast("", "Could not share this PDF"); }
+}
 
 // ── ROUTING: landing -> (none) = folders with PDFs under them, #p=<path> = reader ──
 let started = false;

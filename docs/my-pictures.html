@@ -105,6 +105,11 @@ body.max #fsx{display:block}
 #top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
 #top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
 #rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
+.topic{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.favlab{display:flex;align-items:center;gap:8px;margin:10px 4px 6px;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--accent)}
+.favlab::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--a),.7),transparent)}
+.favlab:first-child{margin-top:2px}
+#shareBtn[hidden]{display:none}
 #top .tl{display:flex;align-items:center;gap:6px;min-width:0}
 body[data-src=github]{--tape:#1ea7ff;--tape2:#8fd3ff;--tapetxt:#00263f}
 body[data-src=phone]{--tape:#22e07a;--tape2:#9af5c4;--tapetxt:#013a1c}
@@ -227,6 +232,7 @@ body{-webkit-touch-callout:none}
       <div id="srow" role="group" aria-label="Source"></div>
       <div id="fbox" hidden></div>
       <div id="prow">
+        <button id="shareBtn" aria-label="Share" hidden><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
         <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="upl" aria-label="Upload photos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
@@ -267,7 +273,8 @@ const OWNER = "nerdysrisha", REPO = "pictures";
 // cropped; 0.5 fills normal 4:3 / 16:9 photos. Set 0 to never fill (always show the whole photo).
 const FILL_MAX_CROP = 0.5;
 const DELETE_PIN = "6559";                                   // PIN that unlocks delete mode (change it here)
-const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1;   // preload: first 5 on open, then 2 ahead / 1 behind
+const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1, LOCAL_NEWEST_FIRST = true;   // LOCAL_NEWEST_FIRST: photos on the phone / SD card follow their date, like the gallery (false = oldest first)
+   // preload: first 5 on open, then 2 ahead / 1 behind
 
 // ── HELPERS ─────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -328,11 +335,25 @@ async function loadLocal() {                               // Phone storage / SD
     if (!/\.(webp|jpe?g|png|gif)$/i.test(path) || path.split("/").some(seg => seg.startsWith("."))) return;
     const i = path.lastIndexOf("/"); if (i < 0) return;
     const dir = path.slice(0, i); LSIZE[src + "|" + path] = +t[1] || 0;
-    (dirs[dir] = dirs[dir] || []).push({name: path.slice(i + 1), type: "file", sha: ""});
+    (dirs[dir] = dirs[dir] || []).push({name: path.slice(i + 1), type: "file", sha: "", mod: +t[2] || 0});
   });
   listCache = dirs; truncated = false;
   parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
   loaded = true; renderList(); return true;
+}
+// Fast path for Phone / SD card photos: the Java side copies the photo to a private file on a background thread and the page shows it straight from there
+// (no base64 through the bridge, no waiting on the screen thread). Older Java builds without cachePhoto fall back to readLocal below.
+const photoWait = new Map();
+const fastLocal = () => !!(window.AndroidShare && typeof AndroidShare.cachePhoto === "function");
+window.addEventListener("photoready", e => {
+  const t = String(e.detail).split("\t"), w = photoWait.get(t[0]); if (!w) return;
+  photoWait.delete(t[0]); if (t[1] && t[1] !== "ERR") w.ok(t[1]); else w.no(new Error("read"));
+});
+function localUrl(src, path) {
+  return new Promise((ok, no) => {
+    photoWait.set(path, {ok: fp => ok(window.Capacitor && Capacitor.convertFileSrc ? Capacitor.convertFileSrc("file://" + fp) : "file://" + fp), no});
+    AndroidShare.cachePhoto(src, path, path);
+  });
 }
 async function readLocal(src, path) {                      // pull one photo out of the phone / SD card piece by piece
   const size = LSIZE[src + "|" + path] || 0, n = size ? Math.ceil(size / CHUNK) : 100000, parts = [];
@@ -393,8 +414,9 @@ function renderList() {
     b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
     return b;
   };
+  const entries = [];
   groups.forEach((list, top) => {
-    if (list.length === 1 && list[0].n === top) { g.appendChild(row(list[0], list[0].t, dstr(list[0]))); return; }
+    if (list.length === 1 && list[0].n === top) { entries.push({top, el: row(list[0], list[0].t, dstr(list[0]))}); return; }
     const t = parseFolder(top), wrap = document.createElement("div");
     wrap.className = "grp" + (openGroups.has(top) ? " open" : "");
     const h = document.createElement("button");
@@ -406,8 +428,9 @@ function renderList() {
     h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
     const kids = document.createElement("div"); kids.className = "kids";
     list.forEach(f => kids.appendChild(row(f, f.n === top ? "Photos in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), "")));
-    wrap.appendChild(h); wrap.appendChild(kids); g.appendChild(wrap);
+    wrap.appendChild(h); wrap.appendChild(kids); entries.push({top, el: wrap});
   });
+  addFavBlocks(g, entries);
   const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
   if (!parsed.length) note2("No folders with photos found.");
   if (truncated) note2("The repo is very large, so this list may be incomplete.");
@@ -429,7 +452,7 @@ function updateBar() {
   $("cnt").textContent = inView ? (files.length ? (idx + 1) + " / " + files.length : "") : (v === "list" ? parsed.length + " folders" : "");
   $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Pictures";
   $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
-  $("slide").classList.toggle("off", !(unlocked && inView && files.length));
+  $("slide").classList.toggle("off", !(unlocked && inView && files.length)); $("shareBtn").hidden = !(inView && files.length);
   $("prevF").disabled = !inView;
   $("nextF").disabled = !inView;
 }
@@ -449,7 +472,10 @@ async function openFolder(i) {
       if (my !== ticket) return;
       listCache[parsed[i].n] = list;
     }
-    files = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name)).map(x => x.name).sort(nat);
+    const ents = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name));
+    if (isLocal(getSrc()) && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // phone / SD: by date, like the gallery
+    else ents.sort((a, b) => nat(a.name, b.name));
+    files = ents.map(x => x.name);
     if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No photos in this folder."); }
     track.innerHTML = ""; cache = new Array(files.length); imgs = [];
     files.forEach(() => {
@@ -469,9 +495,10 @@ async function openFolder(i) {
 function load(k) {
   if (k < 0 || k >= files.length || cache[k]) return;
   const my = ticket, im = imgs[k];
-  const p = (isLocal(getSrc()) ? readLocal(getSrc(), parsed[cur].n + "/" + files[k])
+  const loc = isLocal(getSrc()), path = loc ? parsed[cur].n + "/" + files[k] : "";
+  const p = (loc ? (fastLocal() ? localUrl(getSrc(), path) : readLocal(getSrc(), path))
     : api(parsed[cur].n + "/" + files[k], true).then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); }))
-    .then(b => { const u = URL.createObjectURL(b); if (my === ticket && im.isConnected) im.src = u; else URL.revokeObjectURL(u); return u; })
+    .then(b => { const u = typeof b === "string" ? b : URL.createObjectURL(b); if (my === ticket && im.isConnected) { im.src = u; if (im.decode) im.decode().catch(() => {}); } else if (typeof b !== "string") URL.revokeObjectURL(u); return u; })
     .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("PIN was rejected. Enter it again."); } });
   cache[k] = p;
 }
@@ -797,6 +824,80 @@ window.addEventListener("sdfolder", e => {
   const m = FOLDER_MSG[d] || FOLDER_MSG.error; $("serr").textContent = m; toast("", m);
   if (queueOn) { if (d === "notsd" || d === "notphone") pickQueue.unshift(pickFor); nextPick(); }   // wrong card: ask again; cancelled: skip
 });
+
+// ── FAVORITES (starred top-level folders, kept per source; saved in the app's own storage, with the browser as fallback) ──
+const FAV_KEY = "picFavs";
+let favData = null;
+function favLoad() {
+  if (favData) return favData;
+  let raw = ""; try { if (window.AndroidFav) raw = AndroidFav.get(FAV_KEY) || ""; } catch (e) {}
+  if (!raw) { try { raw = localStorage.getItem(FAV_KEY) || ""; } catch (e) {} if (raw) try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {} }
+  try { favData = JSON.parse(raw) || {}; } catch (e) { favData = {}; }
+  return favData;
+}
+const isFav = top => (favLoad()[getSrc()] || []).indexOf(top) >= 0;
+function toggleFav(top) {
+  const d = favLoad(), s = getSrc(), a = (d[s] || []).slice(), i = a.indexOf(top);
+  if (i >= 0) a.splice(i, 1); else a.push(top);
+  d[s] = a; const raw = JSON.stringify(d);
+  try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {}
+  try { localStorage.setItem(FAV_KEY, raw); } catch (e) {}
+}
+let holdTimer = 0, holdG = null, favNoClick = 0, hx = 0, hy = 0;
+document.addEventListener("click", e => { if (Date.now() < favNoClick) { e.stopPropagation(); e.preventDefault(); } }, true);   // the tap that ends a long press must not open the folder
+function holdEnd() {
+  clearTimeout(holdTimer); holdTimer = 0;
+  if (!holdG) return;
+  const g = holdG; holdG = null; favNoClick = Date.now() + 500;
+  const sc = g.scrollTop; renderList(); g.scrollTop = sc;
+}
+["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, holdEnd, true));
+document.addEventListener("pointermove", e => { if (holdTimer && Math.hypot(e.clientX - hx, e.clientY - hy) > 12) { clearTimeout(holdTimer); holdTimer = 0; } }, true);
+function addFavHold(el, top, g) {                           // long-press a folder to add it to / remove it from Favorites
+  const head = el.querySelector(":scope > .topic.hd") || (el.classList.contains("topic") ? el : null); if (!head) return;
+  el.addEventListener("pointerdown", e => {
+    if (!head.contains(e.target)) return;
+    hx = e.clientX; hy = e.clientY; clearTimeout(holdTimer); holdG = null;
+    holdTimer = setTimeout(() => {
+      holdTimer = 0; const on = !isFav(top); toggleFav(top); holdG = g;
+      try { navigator.vibrate && navigator.vibrate(35); } catch (err) {}
+      toast("", on ? "Added to Favorites" : "Removed from Favorites");
+    }, 550);
+  });
+  el.addEventListener("contextmenu", e => e.preventDefault());
+}
+function addFavBlocks(g, entries) {                         // favorites first, a divider, then the rest; search never moves anything between the blocks
+  entries.forEach(x => addFavHold(x.el, x.top, g));
+  const favs = entries.filter(x => isFav(x.top)), rest = entries.filter(x => !isFav(x.top));
+  const lab = t => { const d = document.createElement("div"); d.className = "favlab"; d.textContent = t; g.appendChild(d); };
+  if (favs.length) { lab("\u2605 Favorites"); favs.forEach(x => g.appendChild(x.el)); if (rest.length) lab("Other folders"); }
+  rest.forEach(x => g.appendChild(x.el));
+}
+// ── SHARE (WhatsApp etc.): Android's own share sheet ──
+async function sendBlob(blob, name, mime) {                 // cloud files: hand the bytes to the Java side piece by piece
+  if (AndroidShare.begin(name).indexOf("ERR") === 0) throw new Error("begin");
+  const S = 393216;
+  for (let o = 0; o < blob.size; o += S) {
+    const b64 = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = no; r.readAsDataURL(blob.slice(o, o + S)); });
+    if (AndroidShare.append(b64).indexOf("ERR") === 0) throw new Error("append");
+  }
+  AndroidShare.finish(mime);
+}
+window.addEventListener("shareerr", e => toast("", "Could not share: " + e.detail));
+$("shareBtn").onclick = sharePhoto;
+
+async function sharePhoto() {
+  closePanel();
+  if (!window.AndroidShare) { toast("", "Sharing works only inside the Android app."); return; }
+  const name = files[idx]; if (!name) return;
+  const mime = MIME[(name.split(".").pop() || "").toLowerCase()] || "image/jpeg";
+  try {
+    if (isLocal(getSrc())) { AndroidShare.shareDoc(getSrc(), parsed[cur].n + "/" + name, mime, name); return; }
+    const im = imgs[idx]; if (!im || !im.src) { toast("", "Photo is still loading"); return; }
+    toast("", "Preparing...");
+    await sendBlob(await (await fetch(im.src)).blob(), name, mime);
+  } catch (e) { toast("", "Could not share this photo"); }
+}
 
 // ── ROUTING (#f=<folder name>) ──────────────────────────────────────────
 async function route() {
