@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a1018">
+<meta name="theme-color" content="#1b1b1d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>My PDFs</title>
 <style>
-:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224}
+:root{--ink:#1b1b1d;--panel:#2a2a2d;--line:#3d3d41;--text:#f2f2f2;--mute:#a3a3a9;--accent:#f0483e;--a:240,72,62}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;-webkit-touch-callout:none}
 #app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
@@ -18,21 +18,15 @@ button:active{background:var(--line)}button:disabled{opacity:.3;cursor:default}
 button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
 #landing,#list,#viewer,#login{display:none;flex:1;min-height:0}
 body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px}
-#frame{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;margin-top:20px}
-#box{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:26px 6px 44px}
-#ribbon{position:absolute;top:-17px;left:50%;transform:translateX(-50%);z-index:3;height:34px;padding:0 30px;display:flex;align-items:center;justify-content:center;border-radius:17px;background:linear-gradient(180deg,#5aa0ee,#3a78c4);color:#fff;font-size:16px;font-weight:700;letter-spacing:.6px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 2px 10px rgba(var(--a),.35),inset 0 1px 0 rgba(255,255,255,.25);pointer-events:none}
-#ribbon::before,#ribbon::after{content:"";position:absolute;top:7px;width:26px;height:34px;background:#2a5a96;z-index:-1;border-radius:6px}
-#ribbon::before{left:-18px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,28% 50%)}
-#ribbon::after{right:-18px;clip-path:polygon(0 0,100% 0,72% 50%,100% 100%,0 100%)}
 body[data-v=view] #viewer{display:block;position:relative;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;outline:none}
 body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
-body[data-v=login] footer,body[data-v=login] #info,body[data-v=landing] footer,body[data-v=landing] #info{display:none}
+body[data-v=login] footer,body[data-v=login] #info,body[data-v=landing] footer,body[data-v=landing] #info,body[data-v=source] footer,body[data-v=source] #info{display:none}
 .topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
 .topic>span:first-child{flex:1;min-width:0}
 .topic b{display:block;font-weight:600;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
 .topic small{display:block;color:var(--mute);font-size:11px;line-height:1.3}.topic small:empty{display:none}
 .topic .r{flex:none;display:flex;align-items:center;gap:8px}
-.topic em.n{flex:none;font-style:normal;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;color:#9cc4f2;background:rgba(var(--a),.1);border:1px solid rgba(var(--a),.3);white-space:nowrap}
+.topic em.n{flex:none;font-style:normal;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;color:#ffb8b2;background:rgba(var(--a),.1);border:1px solid rgba(var(--a),.3);white-space:nowrap}
 .topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}.grp.open>.hd i{transform:rotate(90deg)}
 .kids{display:none;margin:-1px 0 6px 10px;padding-left:8px;border-left:2px solid var(--line)}.grp.open>.kids{display:block}
 .bm{display:inline-block;width:15px;height:15px;margin-left:8px;vertical-align:-2px;fill:#f5b942;stroke:#f5b942;stroke-width:1.5;stroke-linejoin:round}
@@ -40,20 +34,20 @@ body[data-v=login] footer,body[data-v=login] #info,body[data-v=landing] footer,b
 #pages{display:flex;flex-direction:column;align-items:center;width:max-content;min-width:100%;padding:8px 0 44px}
 .pg{position:relative;flex:none;margin:0 0 8px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.5);overflow:hidden}
 .pg canvas{display:block;width:100%;height:100%}
-.pg i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#9aa4b2;font-size:14px}
+.pg i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#a3a3a9;font-size:14px}
 #vmsg{position:absolute;left:0;right:0;top:32%;z-index:2;pointer-events:none}#vmsg[hidden],body:not([data-v=view]) #vmsg{display:none}
-#toast{position:absolute;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:8;background:#0a1018e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s}
+#toast{position:absolute;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:8;background:#141416e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s}
 #toast.on{opacity:1;transition:opacity .2s}#toast small{display:block;color:var(--mute);font-size:12px}#toast b{font-size:15px}
 footer{position:relative;display:flex;gap:6px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(var(--a),.3)}
 .mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
 footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
-#info{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 6px);max-width:80%;padding:4px 14px;border-radius:12px;background:rgba(10,16,24,.85);text-align:center;line-height:1.25;pointer-events:none;border:1px solid var(--line)}
+#info{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 6px);max-width:80%;padding:4px 14px;border-radius:12px;background:rgba(20,20,22,.85);text-align:center;line-height:1.25;pointer-events:none;border:1px solid var(--line)}
 #info.none,#panel:not([hidden]) ~ #info{display:none}
 #cnt{display:block;font-size:13px;font-weight:600}#lbl{display:block;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #info.warn #lbl{color:#ff9a9a}
-#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
+#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#141416cc}
 body.max footer{display:none!important}body.max #fsx{display:block}
-#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(20,32,48,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(36,36,39,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
 #panel[hidden],#pinrow[hidden]{display:none}
 #prow,#pinrow{display:flex;gap:8px;align-items:center}
 #pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit}#pin{letter-spacing:3px}
@@ -71,8 +65,8 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 #landing h1{margin:4px 0 0;font-size:36px;letter-spacing:.5px}
 #landing p{margin:0;color:var(--mute);font-size:14px}
 #landing{position:relative}
-#start{position:absolute;right:24px;bottom:calc(30px + env(safe-area-inset-bottom));min-width:0;width:88px;height:88px;padding:0;border-radius:50%;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#5aa0ee,#3a78c4);animation:glow 2s ease-in-out infinite}
-#start:active{transform:scale(.97);background:#3a78c4}
+#start{position:absolute;right:24px;bottom:calc(30px + env(safe-area-inset-bottom));min-width:0;width:88px;height:88px;padding:0;border-radius:50%;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#f0483e,#c62a22);animation:glow 2s ease-in-out infinite}
+#start:active{transform:scale(.97);background:#c62a22}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
 @media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
 .topic.pdf{background:transparent;border-color:transparent}
@@ -81,7 +75,7 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 .topic.pdf:active{background:rgba(245,185,66,.1)}
 *{scrollbar-width:none;-ms-overflow-style:none}
 *::-webkit-scrollbar{display:none;width:0;height:0}
-#fup,#fdn,#fsearch{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right));z-index:5;width:50px;height:50px;min-width:0;padding:0;border-radius:50%;background:rgba(10,16,24,.7);align-items:center;justify-content:center}
+#fup,#fdn,#fsearch{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right));z-index:5;width:50px;height:50px;min-width:0;padding:0;border-radius:50%;background:rgba(20,20,22,.7);align-items:center;justify-content:center}
 #fdn{bottom:calc(76px + env(safe-area-inset-bottom))}#fup{bottom:calc(140px + env(safe-area-inset-bottom))}#fsearch{bottom:calc(204px + env(safe-area-inset-bottom))}#fup:disabled,#fdn:disabled{opacity:.35}
 #fup svg,#fdn svg,#fsearch svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block}
 #theme .moon{display:none}
@@ -90,9 +84,9 @@ body.dark #theme .moon{display:block}
 body.dark .pg{background:#0e0e10}
 body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #srchBtn[hidden]{display:none}
-#sp{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(14,22,34,.74);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+#sp{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(28,28,30,.74);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
 #sp,#sp .sr1,#sp .sr2,#sp #sinfo,#sp .sitem small{transition:opacity .25s,background .25s,border-color .25s}
-#sp.scrolling{pointer-events:none;background:rgba(14,22,34,.1);-webkit-backdrop-filter:none;backdrop-filter:none;border-color:rgba(var(--a),1);box-shadow:0 0 0 1px rgba(var(--a),.55),0 0 14px rgba(var(--a),.55);transition-duration:.12s}
+#sp.scrolling{pointer-events:none;background:rgba(28,28,30,.1);-webkit-backdrop-filter:none;backdrop-filter:none;border-color:rgba(var(--a),1);box-shadow:0 0 0 1px rgba(var(--a),.55),0 0 14px rgba(var(--a),.55);transition-duration:.12s}
 #sp.scrolling .sr1,#sp.scrolling .sr2,#sp.scrolling #sinfo,#sp.scrolling .sitem small{opacity:.2}
 #sp.scrolling .sitem span{visibility:hidden}
 #sp.scrolling button.sitem{background:transparent;border-color:transparent}
@@ -101,7 +95,7 @@ body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #sp[hidden],body:not([data-v=view]) #sp{display:none}
 #sp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 .sr1,.sr2{display:flex;gap:6px;align-items:center}
-#sq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(10,16,24,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
+#sq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(20,20,22,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
 #sp button{width:42px;height:42px;min-width:0;padding:0;flex:none}
 #sp button[hidden]{display:none}
 #sinfo{font-size:12px;color:var(--mute);padding:0 4px}#sinfo:empty{display:none}#sinfo.bad{color:#ffb3b3}
@@ -109,7 +103,7 @@ body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
 #sp button.sitem{display:block;width:100%;height:auto;text-align:left;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid transparent;color:var(--text)}
 #sp button.sitem.on{border-color:rgba(var(--a),.8);background:rgba(var(--a),.18)}
 .sitem b{font-size:13px}.sitem small{margin-left:8px;font-size:11px;color:var(--mute)}
-.sitem span{display:block;margin-top:3px;font-size:12px;line-height:1.3;color:#c3cedc}
+.sitem span{display:block;margin-top:3px;font-size:12px;line-height:1.3;color:#d0d0d4}
 .sitem mark{background:rgba(255,213,0,.45);color:#fff;border-radius:2px;padding:0 1px}
 #sp.mini .sr1,#sp.mini #sinfo,#sp.mini #slist{display:none}
 #sp:not(.mini) .sr2{display:none}
@@ -131,9 +125,9 @@ body.deleting #refresh,body.deleting #srchBtn,body.deleting #theme{display:none}
   body[data-v=view] #vbar{display:none}
   body[data-v=view] #sp{top:calc(10px + env(safe-area-inset-top))}
 }
-#fs{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:none;align-items:center;gap:6px;padding:8px;background:rgba(14,22,34,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+#fs{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:none;align-items:center;gap:6px;padding:8px;background:rgba(28,28,30,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
 body[data-v=list] #fs:not([hidden]){display:flex}
-#fq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(10,16,24,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
+#fq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(20,20,22,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
 #fs button{width:42px;height:42px;min-width:0;padding:0;flex:none}
 #fs svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 #finfo{flex:none;font-size:12px;color:var(--mute);white-space:nowrap}
@@ -144,13 +138,36 @@ body[data-v=list] #fs:not([hidden]){display:flex}
 body.uifade #foot{opacity:0;transition:opacity 5s linear}
 body.uigone #foot{pointer-events:none}
 #fup,#fdn{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#pbub{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9;width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;background:rgba(10,16,24,.82);border:3px solid var(--accent);box-shadow:0 0 22px rgba(var(--a),.6);pointer-events:none}
+#pbub{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9;width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;background:rgba(20,20,22,.82);border:3px solid var(--accent);box-shadow:0 0 22px rgba(var(--a),.6);pointer-events:none}
 #pbub[hidden]{display:none}
 #vbar{justify-content:space-between;gap:2px;padding:0 2px}
 #vmid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
 #vbar button{width:32px;min-width:0;height:28px;padding:0;background:transparent;border:0;flex:none;color:var(--accent)}
 #vbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
 #vfile{flex:none;font-size:11px;color:var(--mute)}
+#source{display:none;flex:1;min-height:0}
+body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
+#source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
+.srcbtn{display:flex;align-items:center;gap:14px;height:auto;min-height:72px;padding:12px 16px;text-align:left;border-radius:16px}
+.srcbtn svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;color:var(--accent)}
+.srcbtn b{display:block;font-size:16px}.srcbtn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.35}
+#serr{color:#ff8f8f;min-height:1.2em}
+#sback{height:40px;background:transparent;border-color:transparent;color:var(--mute)}
+body.sd #key,body.sd #upl,body.sd #del{display:none}
+#frame{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+#box{flex:1;min-height:0;overflow-y:auto;padding:8px 6px 44px}
+#ribbon{position:relative;z-index:2;flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:46px;padding:0 10px;background:linear-gradient(180deg,#e0382f,#b8221b);color:#fff;border-bottom:1px solid rgba(0,0,0,.35);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#rtitle{font-size:17px;font-weight:700;letter-spacing:.6px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+#rleft{justify-self:start}
+#rright{justify-self:end;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+#ribbon button{width:34px;min-width:0;height:34px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.2);color:#fff}
+#ribbon button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+.tapes{position:relative;display:inline-block;padding:5px 7px;line-height:1}
+.tapes[hidden]{display:none}
+.tape{position:relative;display:inline-block;padding:4px 12px;font-size:10px;font-weight:800;letter-spacing:.9px;color:#3d1b00;background:#ff9933;transform:rotate(-8deg);clip-path:polygon(0 0,100% 0,96% 25%,100% 50%,96% 75%,100% 100%,0 100%,4% 75%,0 50%,4% 25%);white-space:nowrap}
+.tape:empty{display:none}
+.t2{position:absolute;left:0;right:0;top:50%;height:11px;margin-top:-5px;background:#ffc27a;transform:rotate(15deg);clip-path:polygon(0 0,100% 0,97% 30%,100% 50%,97% 70%,100% 100%,0 100%,3% 70%,0 50%,3% 30%)}
+#vleft{flex:none;padding:3px 5px}#vleft .tape{font-size:8.5px;padding:2px 8px}#vleft .t2{height:8px;margin-top:-4px}
 </style>
 </head>
 <body data-v="landing">
@@ -160,13 +177,20 @@ body.uigone #foot{pointer-events:none}
     <h1>My PDFs</h1><p>All your documents, one tap away</p>
     <button id="start">START</button>
   </div>
-  <div id="list"><div id="frame"><div id="ribbon">My PDFs</div><div id="box"></div></div></div>
+  <div id="list"><div id="frame"><div id="ribbon"><span class="tapes" id="rleft"><i class="t2"></i><span class="tape" id="rbadge"></span></span><b id="rtitle">My PDFs</b><span id="rright"><span id="rcount"></span><button id="rfr" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button></span></div><div id="box"></div></div></div>
+  <div id="source">
+    <h2>Where are your PDFs?</h2>
+    <button class="srcbtn" id="srcGh" type="button"><svg viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg><span><b>GitHub</b><small>Online. Needs internet and your PIN.</small></span></button>
+    <button class="srcbtn" id="srcSd" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. Pick your MyPDFs folder on the phone or SD card.</small></span></button>
+    <p id="serr"></p>
+    <button id="sback" type="button" hidden>Back</button>
+  </div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2><p>Saved only in this browser on this device.</p>
     <input id="tokin" type="password" autocomplete="off" placeholder="PIN">
     <button id="tsave">Save PIN</button><p id="lerr"></p>
   </div>
-  <div id="vbar"><button id="vprev" aria-label="Previous PDF"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div id="vmid"><span id="vname"></span><b id="vpg"></b></div><small id="vfile"></small><button id="vnext" aria-label="Next PDF"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+  <div id="vbar"><button id="vprev" aria-label="Previous PDF"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div id="vmid"><span class="tapes" id="vleft"><i class="t2"></i><span class="tape" id="vbadge"></span></span><span id="vname"></span><b id="vpg"></b></div><small id="vfile"></small><button id="vnext" aria-label="Next PDF"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
   <div id="viewer" tabindex="-1"><div id="pages"></div></div>
   <div id="vmsg" class="msg" hidden></div>
   <div id="toast"><small></small><b></b></div>
@@ -196,7 +220,6 @@ body.uigone #foot{pointer-events:none}
   </div>
   <footer id="foot">
     <button id="menu" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-    <button id="refresh" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
     <button id="srchBtn" aria-label="Search in PDF" hidden><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
     <div class="mid">
       <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
@@ -207,6 +230,7 @@ body.uigone #foot{pointer-events:none}
     <div id="panel" hidden>
       <div id="prow">
         <button id="trimBtn" aria-label="Trim page margins" hidden><svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></button>
+        <button id="src" aria-label="Change source"><svg viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/></svg></button>
         <button id="upl" aria-label="Upload PDFs"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="key" aria-label="Change PIN"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
@@ -237,6 +261,7 @@ const DELETE_PIN = "6559";            // unlocks delete mode and PIN change
 const NEWEST_FIRST = false;           // folder order (true = names starting yyyy mm dd, newest first)
 const PDF_RE = /\.pdf$/i, MAX_ZOOM = 4, MAXPX = 8e6, UP_MAX = 50 * 1048576;
 const CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let LIB = IN_APP ? "pdfjs/" : CDN;                          // app: copy bundled inside the APK (www/pdfjs), so SD card works offline
 // ── HELPERS ─────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -246,6 +271,7 @@ const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ""; v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { return ""; } };
 let mem = "";
 const getTok = () => ls(TOK_KEY) || mem;
+const getSrc = () => ls("pdfsrc") || (getTok() ? "github" : ""), setSrc = v => ls("pdfsrc", v);   // an existing GitHub setup keeps working
 const setTok = v => { mem = v; ls(TOK_KEY, v || null); };
 const posMap = () => { try { return JSON.parse(ls("pdfpos") || "{}"); } catch (e) { return {}; } };
 const getPos = p => +posMap()[p] || 0;
@@ -294,10 +320,53 @@ async function loadTree(quiet) {
   } catch (e) { if (my === ticket) { if (quiet) toast("", "Network error"); else $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; } return false; }
 }
 
+// SD card: the Java side scans the chosen folder (or its "pdfs" sub-folder) and returns "path<TAB>size" lines
+const CHUNK = 1048576;                                       // PDFs are read in 1 MB pieces (must match CHUNK in MainActivity.java)
+async function loadSd(quiet) {
+  const my = quiet ? ticket : ++ticket;
+  if (!window.AndroidSd) { $("serr").textContent = "The SD card works only inside the Android app."; closeDoc(); show("source"); return false; }
+  const st = AndroidSd.status();
+  if (st.indexOf("ok") !== 0) { $("serr").textContent = st === "lost" ? "Access to the folder was lost. Tap SD card and choose the folder again." : "Tap SD card and choose your MyPDFs folder."; $("sback").hidden = true; closeDoc(); show("source"); return false; }
+  if (!quiet) { $("box").innerHTML = '<div class="msg">Reading SD card...</div>'; show("list"); }
+  const res = await new Promise(ok => { const h = e => { window.removeEventListener("sdscan", h); ok(e.detail); }; window.addEventListener("sdscan", h); AndroidSd.scan(); });
+  if (my !== ticket) return false;
+  if (res !== "ok") {
+    if (quiet) toast("Refresh failed", ""); else { $("box").textContent = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = "Could not read the SD card folder (" + res + "). Use the gear > source button to choose it again."; $("box").appendChild(m); }
+    return false;
+  }
+  const d = {}, bp = {};
+  AndroidSd.result().split("\n").forEach(line => {
+    if (!line) return; const t = line.split("\t"), path = t[0];
+    if (!PDF_RE.test(path) || path.split("/").some(s => s.startsWith("."))) return;
+    const i = path.lastIndexOf("/"), dir = i < 0 ? "" : path.slice(0, i), fid = dir || "/";
+    const f = {path, name: path.slice(i + 1), dir, fid, size: +t[1] || 0, sd: true};
+    (d[fid] = d[fid] || []).push(f); bp[path] = f;
+  });
+  Object.values(d).forEach(a => a.sort((p, q) => nat(p.name, q.name)));
+  dirs = d; byPath = bp; truncated = false; parsed = Object.keys(d).map(parseFolder); sortFolders();
+  loaded = true; if (!quiet) renderList(); return true;
+}
+async function readSd(f, my) {                               // pull one PDF out of the SD card piece by piece
+  const n = f.size ? Math.ceil(f.size / CHUNK) : 100000, parts = []; let got = 0;
+  for (let i = 0; i < n; i++) {
+    const b64 = AndroidSd.chunk(f.path, i);
+    if (b64.indexOf("ERR:") === 0) throw new Error(b64);
+    if (!b64) break;
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+    parts.push(u); got += u.length; if (my !== ticket) return null;
+    if (f.size) vnote("Loading " + Math.min(99, Math.round(got / f.size * 100)) + "%");
+    await new Promise(r => setTimeout(r, 0));                // let the screen breathe between pieces
+  }
+  if (!got) throw new Error("empty");
+  const buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; }); return buf;
+}
+
 // ── FOLDER LIST: tap a folder, its PDFs open right under it; tap a PDF to read ──
 const openGroups = new Set(); let autoOpened = false, savedScroll = 0;
 function renderList() {
   const g = $("box"); g.innerHTML = "";
+  $("rbadge").textContent = getSrc() === "sd" ? "SD CARD" : "GITHUB"; $("rcount").textContent = parsed.length + (parsed.length === 1 ? " folder" : " folders");
   const last = ls("lastFolder_pdfs"), lastPdf = ls("lastPdf_pdfs"), lastTop = last ? topOf(last) : "";
   if (!autoOpened) { autoOpened = true; if (last) { openGroups.add(last); openGroups.add("g:" + lastTop); } }
   const groups = new Map();
@@ -368,13 +437,13 @@ function applyCrop() {
 }
 function pdfjsReady() {
   return pdfReady || (pdfReady = new Promise((res, rej) => {
-    const s = document.createElement("script"); s.src = CDN + "pdf.min.js";
+    const s = document.createElement("script"); s.src = LIB + "pdf.min.js";
     s.onload = async () => {
-      try { const w = await (await fetch(CDN + "pdf.worker.min.js")).text(); pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], {type: "text/javascript"})); }
-      catch (e) { pdfjsLib.GlobalWorkerOptions.workerSrc = CDN + "pdf.worker.min.js"; }
+      try { const w = await (await fetch(LIB + "pdf.worker.min.js")).text(); pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], {type: "text/javascript"})); }
+      catch (e) { pdfjsLib.GlobalWorkerOptions.workerSrc = LIB + "pdf.worker.min.js"; }
       res();
     };
-    s.onerror = () => { pdfReady = null; rej(new Error("pdfjs")); };
+    s.onerror = () => { pdfReady = null; s.remove(); if (LIB !== CDN) { LIB = CDN; pdfjsReady().then(res, rej); return; } rej(new Error("pdfjs")); };
     document.head.appendChild(s);
   }));
 }
@@ -393,23 +462,27 @@ async function openPdf(f) {
   show("view"); vnote("Loading..."); V.scrollTop = 0; V.scrollLeft = 0;
   try {
     await pdfjsReady(); if (my !== ticket) return;
-    const r = f.local ? await fetch(f.local) : await api(f.path, true); if (my !== ticket) return;
-    if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
-    if (!r.ok) return vnote("Could not open this PDF (error " + r.status + "). Check the file exists and the PIN can read it.", true);
-    const total = f.size || +r.headers.get("content-length") || 0; let buf;
-    if (r.body && r.body.getReader) {
-      const rd = r.body.getReader(), parts = []; let got = 0;
-      for (;;) {
-        const {done, value} = await rd.read(); if (done) break;
-        if (my !== ticket) { rd.cancel(); return; }
-        parts.push(value); got += value.length; if (total) vnote("Loading " + Math.min(99, Math.round(got / total * 100)) + "%");
-      }
-      buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; });
-    } else buf = new Uint8Array(await r.arrayBuffer());
+    let buf;
+    if (f.sd) { buf = await readSd(f, my); if (!buf) return; }
+    else {
+      const r = f.local ? await fetch(f.local) : await api(f.path, true); if (my !== ticket) return;
+      if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
+      if (!r.ok) return vnote("Could not open this PDF (error " + r.status + "). Check the file exists and the PIN can read it.", true);
+      const total = f.size || +r.headers.get("content-length") || 0;
+      if (r.body && r.body.getReader) {
+        const rd = r.body.getReader(), parts = []; let got = 0;
+        for (;;) {
+          const {done, value} = await rd.read(); if (done) break;
+          if (my !== ticket) { rd.cancel(); return; }
+          parts.push(value); got += value.length; if (total) vnote("Loading " + Math.min(99, Math.round(got / total * 100)) + "%");
+        }
+        buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; });
+      } else buf = new Uint8Array(await r.arrayBuffer());
+    }
     if (my !== ticket) return;
     vnote("Opening...");
     let d;
-    try { d = await pdfjsLib.getDocument({data: buf, cMapUrl: CDN + "cmaps/", cMapPacked: true}).promise; }
+    try { d = await pdfjsLib.getDocument({data: buf, cMapUrl: LIB + "cmaps/", cMapPacked: true}).promise; }
     catch (e) { return vnote(e && e.name === "PasswordException" ? "This PDF is password protected and can't be opened here." : "This file could not be read as a PDF.", true); }
     if (my !== ticket) { d.destroy(); return; }
     const v1 = (await d.getPage(1)).getViewport({scale: 1}); if (my !== ticket) { d.destroy(); return; }
@@ -424,7 +497,7 @@ async function openPdf(f) {
     vnote(""); lastCW = V.clientWidth; layout();
     const p = Math.min(getPos(f.path), N - 1); curPg = p; if (p > 0) V.scrollTop = tops[p] - 6;
     refresh(); updateBar(); V.focus({preventScroll: true}); loadRatios(docGen); uiWake();
-  } catch (e) { if (my === ticket) vnote("Network error. Check your connection and try again.", true); }
+  } catch (e) { if (my === ticket) vnote(f.sd ? "Could not read this PDF from the SD card." : "Network error. Check your connection and try again.", true); }
 }
 async function loadRatios(gen) {                              // real size of every page (mixed-size PDFs)
   try {
@@ -542,6 +615,7 @@ function updateBar() {
   { const a = inView && curFile && !curFile.local ? (dirs[curFile.fid] || []) : [], k = curFile ? a.findIndex(x => x.path === curFile.path) : -1;
     $("vprev").style.visibility = k > 0 ? "visible" : "hidden"; $("vnext").style.visibility = k >= 0 && k < a.length - 1 ? "visible" : "hidden";
     $("vfile").textContent = k >= 0 && a.length > 1 ? (k + 1) + "/" + a.length : ""; }
+  { const showB = inView && curFile && !curFile.local; $("vleft").hidden = !showB; $("vbadge").textContent = showB ? (curFile.sd ? "SD" : "GITHUB") : ""; }
   $("info").classList.toggle("none", !sd);
   const canDel = !!(unlocked && inView && doc && curFile && !curFile.local);
   $("slide").classList.toggle("off", !canDel); document.body.classList.toggle("deleting", canDel);
@@ -753,10 +827,10 @@ function holdEnd() {
   b.addEventListener("contextmenu", e => e.preventDefault()); b.onclick = () => { if (Date.now() < noClickUntil) return; go(d); };
 });
 $("menu").onclick = () => { if (document.body.dataset.v !== "view") return; if (curFile && curFile.local) route(); else location.hash = ""; };
-$("refresh").onclick = async () => {
+$("rfr").onclick = async () => {
   closePanel(); const v = document.body.dataset.v;
   if (v === "list") savedScroll = $("box").scrollTop;
-  if (!(await loadTree(true))) return;
+  if (!(await (getSrc() === "sd" ? loadSd(true) : loadTree(true)))) return;
   if (v === "list") { renderList(); $("box").scrollTop = savedScroll; }
   updateBar(); toast("", "Refreshed");
 };
@@ -867,12 +941,36 @@ async function saveToken() {
 }
 $("tsave").onclick = saveToken; $("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
 
+// ── SOURCE CHOOSER (GitHub / SD card) ────────────────────────────────────
+function resetSource() { closeDoc(); ++ticket; loaded = false; dirs = {}; byPath = {}; parsed = []; openGroups.clear(); autoOpened = false; savedScroll = 0; unlocked = false; syncLock(); }
+function useSource(v) {
+  if (getSrc() !== v) { resetSource(); setSrc(v); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  $("serr").textContent = ""; loaded = false; route();
+}
+$("srcGh").onclick = () => useSource("github");
+$("srcSd").onclick = () => {
+  if (!window.AndroidSd) { $("serr").textContent = "The SD card works only inside the Android app."; return; }
+  if (AndroidSd.status().indexOf("ok") === 0) return useSource("sd");     // folder already chosen
+  $("serr").textContent = "In the picker: open the SD card, open your MyPDFs folder, then Use this folder.";
+  AndroidSd.pickFolder();
+};
+window.addEventListener("sdfolder", e => {
+  if (e.detail === "ok") { $("serr").textContent = ""; useSource("sd"); }
+  else $("serr").textContent = e.detail === "cancel" ? "No folder was chosen." : "Could not keep access to that folder. Try again.";
+});
+$("src").onclick = () => { closePanel(); closeDoc(); ++ticket; $("serr").textContent = ""; $("sback").hidden = !getSrc(); show("source"); };
+$("sback").onclick = () => route();
+
 // ── ROUTING: landing -> (none) = folders with PDFs under them, #p=<path> = reader ──
 let started = false;
 async function route() {
   if (!started) { ++ticket; closeDoc(); return show("landing"); }
-  if (!getTok()) { ++ticket; closeDoc(); return show("login"); }
-  if (!loaded && !(await loadTree())) return;
+  const src = getSrc();
+  if (!src) { ++ticket; closeDoc(); $("sback").hidden = true; return show("source"); }
+  document.body.classList.toggle("sd", src === "sd");
+  if (src === "github" && !getTok()) { ++ticket; closeDoc(); return show("login"); }
+  if (!loaded && !(await (src === "sd" ? loadSd() : loadTree()))) return;
   const h = location.hash; let m;
   if ((m = h.match(/^#p=(.+)$/))) { const f = byPath[decodeURIComponent(m[1])]; if (!f) { location.hash = ""; return; } return openPdf(f); }
   ++ticket; closeDoc();
@@ -892,7 +990,7 @@ window.addEventListener("incomingpdf", checkIncoming);
 window.addEventListener("hashchange", route);
 // START: web = go full screen (needs this tap); installed app is already full screen
 $("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); if (!checkIncoming()) route(); };
-if (getTok()) pdfjsReady().catch(() => {});
+if (getTok() || getSrc() === "sd") pdfjsReady().catch(() => {});
 if (!checkIncoming()) route();
 </script>
 </body>

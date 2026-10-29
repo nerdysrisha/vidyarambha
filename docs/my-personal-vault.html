@@ -82,6 +82,12 @@
   .sheet .field { display:block; width:100%; }
   .sheet h2 { word-break:break-all; }
 
+  .small { font-size:13px; }
+  .linkbtn { display:block; margin:10px auto 0; background:none; border:0; color:var(--accent); font-size:14px; padding:10px; }
+  .banner { margin:0 14px 8px; padding:9px 14px; border-radius:12px; font-size:13px; }
+  .banner.ok { color:var(--muted); padding-top:0; padding-bottom:0; }
+  .banner.warn { background:#fff1c9; color:#6b4a00; font-weight:600; }
+  @media (prefers-color-scheme: dark) { .banner.warn { background:#4a3a10; color:#ffe39a; } }
   #toast { position:fixed; left:50%; bottom:calc(100px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
     max-width:88%; background:#222; color:#fff; padding:12px 18px; border-radius:24px; font-size:14px; z-index:80;
     opacity:0; pointer-events:none; transition:opacity .2s; text-align:center; }
@@ -111,6 +117,10 @@ const CFG = {
   VAULT_FILE: 'vault.dat',
   DEFAULT_PIN: '0000',
   MIN_PIN: 4,
+  MAX_PIN: 32,
+  BACKUP_DIR: 'PersonalVault',      // public Documents/PersonalVault: survives "Clear data"
+  BACKUP_WARN_MB: 50,               // warn when the vault/backup file grows beyond this size
+  BACKUP_FILE: 'vault-backup.dat',
   PBKDF2_ITER: 600000,
   MAX_FAILS: 5,
   COOLDOWN_SEC: 30,
@@ -124,6 +134,7 @@ const G = globalThis;
 const CAP = G.Capacitor;
 const isNative = !!(CAP && typeof CAP.isNativePlatform === 'function' && CAP.isNativePlatform());
 const plug = (n) => (CAP && CAP.Plugins && CAP.Plugins[n]) || null;
+const SD = () => G.AndroidSd || null;   // native SD-card bridge (MainActivity.java), absent in a browser
 const enc = new TextEncoder(), dec = new TextDecoder();
 const rnd = (n) => G.crypto.getRandomValues(new Uint8Array(n));
 const hex = (u8) => Array.from(u8, (b) => b.toString(16).padStart(2, '0')).join('');
@@ -202,6 +213,44 @@ const store = {
   },
 };
 
+/* ---------- automatic backup copy (lives outside the app's private storage, so it survives "Clear data") ---------- */
+let backup = { ok: null, at: null, err: '', sd: null, size: 0, big: false };
+async function autoBackup(bytes) {
+  const next = { ok: null, at: null, err: '', sd: null, size: bytes.length, big: bytes.length > CFG.BACKUP_WARN_MB * 1024 * 1024 };
+  try {
+    if (isNative) {
+      const f = fs();
+      const args = { path: `${CFG.BACKUP_DIR}/${CFG.BACKUP_FILE}`, directory: 'DOCUMENTS', data: bytesToB64(bytes), recursive: true };
+      try { await f.writeFile(args); }
+      catch (e) { await f.requestPermissions(); await f.writeFile(args); }
+    } else await kv.set('autobackup', bytes);
+    next.ok = true; next.at = new Date();
+  } catch (e) { next.ok = false; next.err = String((e && e.message) || e); }
+  const sd = SD();
+  if (sd) {   // second copy on the SD card folder the user picked
+    try {
+      const st = String(sd.status() || 'none');
+      if (st.startsWith('ok|')) {
+        const r = String(sd.write(bytesToB64(bytes)));
+        next.sd = r === 'ok' ? { ok: true, at: new Date() } : { ok: false, err: r };
+      } else if (st === 'lost') next.sd = { ok: false, err: 'folder access lost' };
+    } catch (e) { next.sd = { ok: false, err: String((e && e.message) || e) }; }
+  }
+  backup = next;
+  refreshBanner();
+  maybeWarnBloat();
+}
+async function readAutoBackup() {
+  try {
+    let b = null;
+    if (isNative) {
+      const r = await fs().readFile({ path: `${CFG.BACKUP_DIR}/${CFG.BACKUP_FILE}`, directory: 'DOCUMENTS' });
+      b = b64ToBytes(r.data);
+    } else b = await kv.get('autobackup');
+    return b && validContainer(b) ? b : null;
+  } catch (e) { return null; }
+}
+
 /* ---------- crypto ---------- */
 const subtle = G.crypto && G.crypto.subtle;
 async function deriveWrapKey(pin, salt) {
@@ -252,8 +301,8 @@ async function createNew() {
 }
 
 async function unlock(pin) {
-  let bytes = await store.read();
-  if (!bytes) { await createNew(); bytes = await store.read(); }
+  const bytes = await store.read();
+  if (!bytes) throw new Error('No vault found');
   const h = parseContainer(bytes);
   let master;
   try { master = await unseal(await deriveWrapKey(pin, h.salt), h.wrapped); }
@@ -263,6 +312,7 @@ async function unlock(pin) {
   const blobs = {}; let p = h.dataStart;
   for (const e of entries) { blobs[e.id] = bytes.slice(p, p + e.len); p += e.len; }
   V = { master, key, mustChange: h.mustChange, salt: h.salt, wrapped: h.wrapped, entries, blobs };
+  await autoBackup(bytes);
   return true;
 }
 
@@ -274,8 +324,10 @@ async function verifyPin(pin) {
 
 async function persist() {
   const indexBlob = await seal(V.key, enc.encode(JSON.stringify(V.entries)));
-  await store.write(buildContainer({ mustChange: V.mustChange, salt: V.salt, wrapped: V.wrapped,
-    indexBlob, blobs: V.entries.map((e) => V.blobs[e.id]) }));
+  const bytes = buildContainer({ mustChange: V.mustChange, salt: V.salt, wrapped: V.wrapped,
+    indexBlob, blobs: V.entries.map((e) => V.blobs[e.id]) });
+  await store.write(bytes);
+  await autoBackup(bytes);
 }
 
 async function changePin(newPin) {
@@ -393,9 +445,28 @@ function sheet(build, { dismiss = true } = {}) {
     const f = sh.querySelector('input'); if (f) setTimeout(() => f.focus(), 280);
   });
 }
+function getPinMode() { try { return localStorage.getItem('pinMode') === 'text' ? 'text' : 'numeric'; } catch (e) { return 'numeric'; } }
+function setPinMode(m) { try { localStorage.setItem('pinMode', m); } catch (e) { /* ignore */ } }
+function pinToggle(inputs) {
+  const b = el('button', 'linkbtn');
+  const label = () => (getPinMode() === 'text' ? '123  Use number keyboard' : 'ABC  Use letters too');
+  b.textContent = label();
+  b.onclick = () => {
+    const m = getPinMode() === 'text' ? 'numeric' : 'text';
+    setPinMode(m); inputs.forEach((i) => { i.inputMode = m; }); b.textContent = label();
+    inputs[0].blur(); setTimeout(() => inputs[0].focus(), 60);
+  };
+  return b;
+}
+function pinHint(v) {
+  if (!v) return 'Numbers or letters, 4–32 characters. Letters and 8+ characters is much safer.';
+  if (v.length < CFG.MIN_PIN) return 'Too short (minimum 4).';
+  if (/^\d+$/.test(v)) return v.length >= 8 ? 'Numbers only, but long. Good.' : 'Numbers only is fine for quick use. Add letters or go 8+ characters for strong protection.';
+  return v.length >= 8 ? 'Strong.' : 'Good. 8+ characters is even better.';
+}
 function pinInput(cls, placeholder) {
   const i = el('input', cls);
-  i.type = 'password'; i.inputMode = 'numeric'; i.autocomplete = 'off'; i.maxLength = 12;
+  i.type = 'password'; i.inputMode = getPinMode(); i.autocomplete = 'off'; i.maxLength = CFG.MAX_PIN;
   i.placeholder = placeholder || '';
   return i;
 }
@@ -433,7 +504,7 @@ function changePinSheet(force) {
     const save = async () => {
       const a = n1.value, b = n2.value;
       if (old && !(await withBusy('Checking…', () => verifyPin(old.value)))) { err.textContent = 'Current PIN is wrong.'; return; }
-      if (!new RegExp('^\\d{' + CFG.MIN_PIN + ',12}$').test(a)) { err.textContent = `PIN must be ${CFG.MIN_PIN}–12 digits (6+ is better).`; return; }
+      if (a.length < CFG.MIN_PIN || a.length > CFG.MAX_PIN) { err.textContent = `PIN must be ${CFG.MIN_PIN}–${CFG.MAX_PIN} characters.`; return; }
       if (a === CFG.DEFAULT_PIN) { err.textContent = 'PIN cannot be ' + CFG.DEFAULT_PIN + '.'; return; }
       if (old && a === old.value) { err.textContent = 'New PIN must differ from the current one.'; return; }
       if (a !== b) { err.textContent = 'PINs do not match.'; return; }
@@ -442,8 +513,10 @@ function changePinSheet(force) {
     };
     w.append(el('h2', null, force ? 'Set a new PIN' : 'Change PIN'));
     if (force) w.append(el('p', 'muted', 'First login: replace the default PIN before continuing.'));
+    const hint = el('p', 'muted small', pinHint(''));
+    n1.addEventListener('input', () => { hint.textContent = pinHint(n1.value); });
     if (old) w.append(old);
-    w.append(n1, n2, err, btn('Save PIN', 'primary', save));
+    w.append(n1, n2, hint, pinToggle(old ? [old, n1, n2] : [n1, n2]), err, btn('Save PIN', 'primary', save));
     if (!force) w.append(btn('Cancel', 'ghost', () => done(false)));
     else w.append(btn('Cancel', 'ghost', () => done(false)));
     return w;
@@ -465,14 +538,16 @@ async function menuSheet() {
   const act = await sheet((done) => {
     const w = el('div');
     w.append(el('h2', null, 'Menu'),
-      btn('Change PIN', '', () => done('pin')), btn('Export backup', '', () => done('backup')),
-      btn('Restore backup', '', () => done('restore')), btn('Lock now', '', () => done('lock')),
+      btn('Change PIN', '', () => done('pin')), btn('Export backup (for another phone)', '', () => done('backup')),
+      btn('Import backup', '', () => done('restore')),
+      ...(SD() ? [btn('SD card backup', '', () => done('sd'))] : []), btn('Lock now', '', () => done('lock')),
       btn('Close', 'ghost', () => done()));
     return w;
   });
   if (act === 'pin') changePinSheet(false);
   else if (act === 'backup') exportBackup();
   else if (act === 'restore') pickRestore();
+  else if (act === 'sd') sdSheet();
   else if (act === 'lock') lockVault();
 }
 
@@ -507,12 +582,12 @@ function renderLogin() {
   }
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
   w.append(el('div', 'lockicon', '🔒'), el('h1', null, 'Secure Vault'), el('p', 'muted', 'Enter PIN to open'),
-    inp, msg, btn('Unlock', 'primary', go));
+    inp, msg, btn('Unlock', 'primary', go), pinToggle([inp]));
   app.append(w);
   setTimeout(() => inp.focus(), 300);
 }
 
-let picker = null, restorePicker = null;
+let picker = null;
 function renderMain() {
   const app = $('#app'); app.replaceChildren();
   const bar = el('div', 'bar');
@@ -520,6 +595,7 @@ function renderMain() {
   const menuB = el('button', 'iconbtn', '⋮'); menuB.setAttribute('aria-label', 'Menu'); menuB.onclick = menuSheet;
   bar.append(el('div', 'title', 'Secure Vault'), lockB, menuB);
   const list = el('div', 'list'); list.id = 'list';
+  const banner = el('div', 'banner'); banner.id = 'bkbanner';
   const fab = el('button', 'fab', '＋'); fab.setAttribute('aria-label', 'Add files'); fab.onclick = () => picker.click();
 
   picker = el('input'); picker.type = 'file'; picker.multiple = true; picker.hidden = true;
@@ -532,11 +608,9 @@ function renderMain() {
       toast(`${n} file(s) added. Delete the originals from your phone yourself.`);
     } catch (e) { toast('Could not add: ' + (e.message || e)); }
   };
-  restorePicker = el('input'); restorePicker.type = 'file'; restorePicker.hidden = true;
-  restorePicker.onchange = async () => {
-    const f = restorePicker.files[0]; restorePicker.value = ''; if (f) restoreBackup(f);
-  };
-  app.append(bar, list, fab, picker, restorePicker);
+  app.append(bar, banner, list, fab, picker);
+  refreshBanner();
+  maybeWarnBloat();
   renderList();
 }
 
@@ -560,6 +634,136 @@ function renderList() {
   }
   const total = V.entries.reduce((s, e) => s + e.size, 0);
   list.append(el('div', 'count', `${V.entries.length} file(s) • ${human(total)}`));
+}
+
+function refreshBanner() {
+  if (typeof document === 'undefined') return;
+  const b = $('#bkbanner'); if (!b) return;
+  b.className = 'banner'; b.onclick = null;
+  const sdOk = backup.sd && backup.sd.ok, sdBad = backup.sd && !backup.sd.ok;
+  if (sdBad) {
+    b.classList.add('warn'); b.style.display = 'block';
+    b.textContent = '⚠ SD card backup failed (card missing or folder access lost). Tap to fix.';
+    b.onclick = sdSheet;
+  } else if (backup.ok === false && !sdOk) {
+    b.classList.add('warn'); b.style.display = 'block';
+    b.textContent = '⚠ Auto-backup is not working. Tap here to save a backup now.';
+    b.onclick = exportBackup;
+  } else if (backup.big) {
+    b.classList.add('warn'); b.style.display = 'block';
+    b.textContent = `⚠ Vault is ${human(backup.size)}: backups are getting heavy. Tap for options.`;
+    b.onclick = bloatSheet;
+  } else if (backup.ok || sdOk) {
+    const where = [backup.ok ? 'phone' : null, sdOk ? 'SD card' : null].filter(Boolean).join(' + ');
+    const at = backup.at || (backup.sd && backup.sd.at);
+    b.classList.add('ok'); b.style.display = 'block';
+    b.textContent = `✓ Backup saved: ${where} (${at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})`;
+  } else b.style.display = 'none';
+}
+function pickOne(cb) {
+  const i = el('input'); i.type = 'file'; i.hidden = true; document.body.append(i);
+  i.onchange = () => { const f = i.files[0]; i.remove(); if (f) cb(f); };
+  i.click();
+}
+async function restoreBytes(bytes) {
+  try { await withBusy('Restoring…', async () => { await store.write(bytes); await autoBackup(bytes); }); }
+  catch (e) { toast('Restore failed: ' + (e.message || e)); return; }
+  loginNotice = 'Restored. Unlock with the PIN that backup had.';
+  renderLogin();
+}
+async function restoreFromFile(file) {
+  let bytes;
+  try { bytes = new Uint8Array(await file.arrayBuffer()); parseContainer(bytes); }
+  catch (e) { toast('That is not a valid vault backup.'); return; }
+  await restoreBytes(bytes);
+}
+async function renderSetup(notice) {
+  closeAllSheets();
+  const app = $('#app'); app.replaceChildren();
+  const bk = await readAutoBackup();
+  const w = el('div', 'login');
+  w.append(el('div', 'lockicon', '🔒'), el('h1', null, 'Secure Vault'));
+  if (notice) w.append(el('div', 'err', notice));
+  if (bk) {
+    w.append(el('p', 'muted', `A backup was found on this phone (${human(bk.length)}). Restore it to get your files and PIN back.`),
+      btn('Restore backup', 'primary', () => restoreBytes(bk)));
+  } else w.append(el('p', 'muted', 'No vault on this phone yet. Moving from another phone? Import its backup file.'));
+  w.append(btn('Import a backup file', bk ? '' : 'primary', () => pickOne(restoreFromFile)),
+    ...(SD() ? [btn('Restore from SD card', '', () => { sdRestorePending = true; SD().pickFolder(); })] : []),
+    btn('Create a new empty vault', 'ghost', async () => {
+      if (bk && !(await confirmSheet('Start fresh?', 'A backup exists on this phone. Your first unlock will REPLACE it with the empty vault.', 'Start fresh', true))) return;
+      try { await withBusy('Creating…', createNew); }
+      catch (e) { toast('Could not create: ' + (e.message || e)); return; }
+      loginNotice = 'New vault created. The starting PIN is 0000; you will set your own next.';
+      renderLogin();
+    }));
+  app.append(w);
+}
+async function boot() {
+  try { if (await store.read()) { renderLogin(); return; } }
+  catch (e) {
+    const damaged = /damaged/i.test(String(e && e.message));
+    await renderSetup(damaged ? 'The vault file on this phone is damaged. Restore a backup below.' : 'Storage error: ' + (e.message || e));
+    return;
+  }
+  await renderSetup();
+}
+
+/* ---------- backup size warning ---------- */
+let bloatWarned = false;
+async function bloatSheet() {
+  const act = await sheet((done) => {
+    const w = el('div');
+    w.append(el('h2', null, 'Your vault is getting big'),
+      el('p', 'muted', `The backup file is now ${human(backup.size)} (warning limit: ${CFG.BACKUP_WARN_MB} MB). Every change rewrites the whole file, so saving gets slower and uses more space on the phone and SD card. Copy it to a safe place (computer or cloud) and consider removing files you no longer need.`),
+      btn('Export a copy now', 'primary', () => done('export')), btn('Remind me later', 'ghost', () => done()));
+    return w;
+  });
+  if (act === 'export') exportBackup();
+}
+function maybeWarnBloat() {
+  if (typeof document === 'undefined' || bloatWarned || !backup.big || !$('#bkbanner')) return;
+  bloatWarned = true;   // once per unlock; the orange banner stays until the vault shrinks
+  bloatSheet();
+}
+
+/* ---------- SD card backup ---------- */
+let sdRestorePending = false;
+function sdInfo() {
+  const sd = SD(); if (!sd) return { status: 'na', name: '' };
+  const s = String(sd.status() || 'none');
+  return s.startsWith('ok|') ? { status: 'ok', name: s.slice(3) } : { status: s, name: '' };
+}
+async function sdSheet() {
+  const info = sdInfo();
+  const act = await sheet((done) => {
+    const w = el('div');
+    const text = info.status === 'ok' ? `A backup copy is saved after every change to the SD folder: ${info.name}`
+      : info.status === 'lost' ? 'The saved folder is no longer reachable (card removed or access lost). Choose it again.'
+      : 'Pick a folder on your SD card (use "Create new folder" in the picker, e.g. PersonalVault). A backup file is saved there after every change.';
+    w.append(el('h2', null, 'SD card backup'), el('p', 'muted', text),
+      btn(info.status === 'ok' ? 'Change folder' : 'Choose SD card folder', 'primary', () => done('pick')));
+    if (info.status === 'ok' || info.status === 'lost') w.append(btn('Stop SD card backup', 'danger', () => done('stop')));
+    w.append(btn('Close', 'ghost', () => done()));
+    return w;
+  });
+  if (act === 'pick') SD().pickFolder();
+  else if (act === 'stop') { SD().forget(); backup.sd = null; refreshBanner(); toast('SD card backup stopped'); }
+}
+async function onSdFolder(ev) {
+  const restoring = sdRestorePending; sdRestorePending = false;
+  if (!ev || ev.detail !== 'ok') return;
+  const sd = SD();
+  if (restoring) {   // from the setup screen: read the backup out of the chosen folder
+    const b64 = String(sd.read() || '');
+    if (!b64) { sd.forget(); toast('No vault-backup.dat found in that folder.'); return; }
+    let bytes;
+    try { bytes = b64ToBytes(b64); parseContainer(bytes); }
+    catch (e) { sd.forget(); toast('That file is not a valid vault backup.'); return; }
+    await restoreBytes(bytes);
+    return;
+  }
+  if (V) { toast('SD card folder saved.'); await autoBackup(await store.read()); }
 }
 
 /* ---------- actions ---------- */
@@ -616,7 +820,7 @@ async function exportBackup() {
     });
   } catch (err) { if (!/cancel/i.test(String(err && err.message))) toast('Backup failed: ' + (err.message || err)); }
 }
-function pickRestore() { if (restorePicker) restorePicker.click(); }
+function pickRestore() { pickOne(restoreBackup); }
 async function restoreBackup(file) {
   let bytes;
   try { bytes = new Uint8Array(await file.arrayBuffer()); parseContainer(bytes); }
@@ -624,12 +828,12 @@ async function restoreBackup(file) {
   if (!(await confirmSheet('Restore backup?', 'This REPLACES everything currently in the vault. The backup’s own PIN will apply afterwards.', 'Restore', true))) return;
   if (!(await askPin('restore a backup'))) return;
   try {
-    await withBusy('Restoring…', () => store.write(bytes));
+    await withBusy('Restoring…', async () => { await store.write(bytes); await autoBackup(bytes); });
     lockVault('Backup restored. Unlock with the PIN from that backup.');
   } catch (e) { toast('Restore failed: ' + (e.message || e)); }
 }
 function lockVault(notice) {
-  lockCore(); cleanupTemp();
+  lockCore(); cleanupTemp(); bloatWarned = false;
   loginNotice = typeof notice === 'string' ? notice : '';
   renderLogin();
 }
@@ -644,8 +848,9 @@ if (typeof document !== 'undefined') {
     if (document.hidden) bgAt = Date.now();
     else if (V && bgAt && Date.now() - bgAt > CFG.BG_LOCK_SEC * 1000) lockVault('Locked while you were away.');
   });
+  G.addEventListener('sdfolder', onSdFolder);
   cleanupTemp();
-  renderLogin();
+  boot();
 }
 </script>
 </body>

@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a1018">
-<title>My Songs</title>
+<title>Music Player</title>
 <style>
-:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0}
+:root{--ink:#0a1018;--ink-rgb:10,16,24;--panel:#142030;--panel-rgb:20,32,48;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--acc-rgb:79,147,224;--acc-hi:#bcdcff;--bar-end:#0f2a4a}
+/* one colour theme per source */
+body[data-src=github]{--ink:#07131d;--ink-rgb:7,19,29;--panel:#102536;--panel-rgb:16,37,54;--line:#1d4160;--mute:#8fb4cc;--accent:#4fb6f0;--acc-rgb:79,182,240;--acc-hi:#cdeeff;--bar-end:#0f3a5a}
+body[data-src=phone]{--ink:#07140f;--ink-rgb:7,20,15;--panel:#0f2519;--panel-rgb:15,37,25;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--acc-rgb:76,195,138;--acc-hi:#c9f3de;--bar-end:#0f3d2c}
+body[data-src=sd]{--ink:#0d0a1b;--ink-rgb:13,10,27;--panel:#191331;--panel-rgb:25,19,49;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--acc-rgb:167,139,250;--acc-hi:#e4dcff;--bar-end:#2e1f5c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
@@ -18,8 +22,22 @@ svg.ico{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stro
 svg.ico.f{fill:currentColor}
 
 /* banner */
-#top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#142030,#0f2a4a)}
-#top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px}
+#top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#142030,var(--bar-end))}
+#top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;text-align:center}
+#srcico{justify-self:start;display:flex;align-items:center;justify-content:flex-start;width:28px;height:28px;color:var(--accent)}
+#srcico svg{width:24px;height:24px;margin:0}
+#fbox{display:flex;flex-direction:column;gap:6px;min-width:250px}
+#fbox[hidden]{display:none}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.frow .fl{min-width:0;font-size:13px;font-weight:600}
+.frow small{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute);font-size:11.5px;font-weight:400}
+.frow button,#reinit{height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
+#reinit{width:100%}
+#srow{display:flex;gap:8px}
+#srow button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:0 10px}
+#srow button svg{width:20px;height:20px;margin:0;flex:none}
+#srow button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--acc-rgb),.18)}
+#gp{justify-self:end}
 #gp{position:relative;display:flex;align-items:center;gap:8px;min-height:37px;font-weight:600;font-size:13px;cursor:pointer;user-select:none}
 #gp input{position:absolute;opacity:0;width:0;height:0}
 .sw{position:relative;flex:none;width:41px;height:24px;border-radius:12px;background:var(--panel);border:1px solid var(--line);transition:background .2s,border-color .2s}
@@ -48,7 +66,7 @@ body[data-v=login] #login{display:flex;flex-direction:column;justify-content:cen
 #pall.sh-on .pi.l{stroke:#ff9933;opacity:1;filter:drop-shadow(0 0 4px rgba(255,153,51,.85))}
 #pall.ord-on .pi.r{stroke:var(--accent);opacity:1}
 #pall .pi.l{left:8px}#pall .pi.r{right:8px}
-#pthumb{position:absolute;top:1px;left:calc(50% - 12px);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bcdcff,#4f93e0 70%);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .25s ease}
+#pthumb{position:absolute;top:1px;left:calc(50% - 12px);width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc-hi),var(--accent) 70%);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.5);transition:transform .25s ease}
 #pall.drag #pthumb{transition:none}
 /* bottom ribbon: blank, or the playing song when it is scrolled out of view, or a slow glint when it is in view */
 #sfoot{position:relative;overflow:hidden;display:flex;align-items:center;min-height:40px;padding:5px 14px;background:var(--panel);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;transition:background .8s ease,border-color .8s ease}
@@ -74,12 +92,12 @@ body.ctl-gone #shead .shf.on{color:#ffb347;filter:drop-shadow(0 0 6px rgba(255,1
 .topic[data-dir]{touch-action:pan-y;transition:transform .18s ease,border-color .15s,background .15s,opacity .35s ease}
 #sbox .song{transition:opacity .35s ease}
 body.hasq #sbox .song:not(.now){opacity:.42}
-body.hasq #sbox .song.now{background:#213a5a;filter:brightness(1.18)}
-body.hasq #sbox .song.now b{color:#9dccff}
+body.hasq #sbox .song.now{background:rgba(var(--acc-rgb),.26);filter:brightness(1.18)}
+body.hasq #sbox .song.now b{color:var(--acc-hi)}
 body.hasq #box .topic[data-dir]:not(.pl){opacity:.42}
 body.hasq #box .topic[data-dir].pl{filter:brightness(1.18)}
 .topic.drag{transition:none}
-.topic.go{border-color:var(--accent);background:#1a2c44}
+.topic.go{border-color:var(--accent);background:rgba(var(--acc-rgb),.16)}
 .topic b{display:block;font-weight:600;font-size:14.5px}
 .topic small{color:var(--mute);font-size:12px}
 .shf{display:inline-flex;align-items:center;vertical-align:-3px;color:#5d6a7c;opacity:.55}
@@ -97,7 +115,7 @@ body.hasq #box .topic[data-dir].pl{filter:brightness(1.18)}
 .song{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 14px;margin-bottom:6px}
 .song b{flex:1;min-width:0;font-weight:500;font-size:15px;overflow-wrap:anywhere}
 .song .ic{min-width:26px;flex:none;text-align:right;color:var(--mute);font-size:14px;font-variant-numeric:tabular-nums}
-.song.now{border-color:var(--accent);background:#1a2c44}
+.song.now{border-color:var(--accent);background:rgba(var(--acc-rgb),.16)}
 .song.now b{color:var(--accent)}
 .song.now .ic{color:var(--accent)}
 .wave{display:none;align-items:flex-end;gap:3px;height:20px;flex:none}
@@ -136,12 +154,12 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #ctl{display:flex;align-items:center;justify-content:space-between}
 .mid{display:flex;align-items:center;gap:10px}
 #play{width:64px;border-radius:22px}
-#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(20,32,48,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(var(--panel-rgb),.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
 #panel[hidden],#pinrow[hidden]{display:none}
 #prow,#pinrow{display:flex;gap:8px;align-items:center}
 #pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
 #pinerr{color:#ff8f8f;font-size:12px}
-#toast{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:4;background:#0a1018e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s ease}
+#toast{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:4;background:rgba(var(--ink-rgb),.9);border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s ease}
 #toast.on{opacity:1;transition:opacity .2s}
 #toast b{font-size:15px}
 
@@ -162,7 +180,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 @keyframes lsout{to{opacity:0;transform:translateY(var(--o))}}
 @keyframes lsin{from{opacity:0;transform:translateY(var(--i))}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.lsout,.lsin{animation:none}}
-#gnr{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:5;max-width:86%;text-align:center;background:rgba(10,16,24,.82);border:1px solid var(--accent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:8px 20px;pointer-events:none;opacity:0;transition:opacity 2s ease}
+#gnr{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:5;max-width:86%;text-align:center;background:rgba(var(--ink-rgb),.82);border:1px solid var(--accent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:8px 20px;pointer-events:none;opacity:0;transition:opacity 2s ease}
 #gnr.on{opacity:1;transition:opacity .5s ease}
 #gnr small{display:block;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
 #gnr b{font-size:16px}
@@ -173,7 +191,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #lsrip i:nth-child(2){animation-delay:-2s}
 #lsrip i:nth-child(3){animation-delay:-4s}
 @keyframes rip{0%{opacity:.55;transform:scale(.2)}100%{opacity:0;transform:scale(1)}}
-.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#7db5f5;box-shadow:0 0 10px 3px rgba(79,147,224,.55);opacity:.7;animation:drift 32s ease-in-out infinite}
+.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 3px rgba(var(--acc-rgb),.55);opacity:.7;animation:drift 32s ease-in-out infinite}
 .dot:nth-child(1){left:10%;top:22%}
 .dot:nth-child(2){left:80%;top:16%;width:4px;height:4px;animation-duration:40s;animation-delay:-14s}
 .dot:nth-child(3){left:30%;top:60%;width:8px;height:8px;animation-duration:46s;animation-delay:-8s;opacity:.45}
@@ -213,7 +231,7 @@ footer{position:relative;padding:8px 12px calc(8px + env(safe-area-inset-bottom)
 #start-screen.btn-on #start-btn{pointer-events:auto;animation:startBtnIn .8s ease-out forwards,startGlow 1.8s ease-in-out infinite}
 @keyframes startBtnIn{to{opacity:1}}
 #start-btn:active{transform:scale(.95)}
-@keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(79,147,224,.75),0 0 18px 6px rgba(79,147,224,.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(120,175,240,1),0 0 34px 14px rgba(79,147,224,.7),inset 0 1px 0 rgba(255,255,255,.7)}}
+@keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(var(--acc-rgb),.75),0 0 18px 6px rgba(var(--acc-rgb),.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(120,175,240,1),0 0 34px 14px rgba(var(--acc-rgb),.7),inset 0 1px 0 rgba(255,255,255,.7)}}
 #start-screen.leaving{pointer-events:none;animation:startFade 2.5s ease forwards}
 #start-screen.leaving #start-btn{animation:startBtnOut 2.5s ease forwards}
 @keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
@@ -228,8 +246,8 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
 
 /* rows fade softly near the top / bottom edge of a list while there is more to scroll */
 #box::before,#box::after,#sbox::before,#sbox::after{content:"";display:block;position:sticky;height:30px;z-index:3;pointer-events:none;opacity:0;transition:opacity .25s ease}
-#box::before,#sbox::before{top:0;margin-bottom:-30px;background:linear-gradient(var(--ink),rgba(10,16,24,0))}
-#box::after,#sbox::after{bottom:0;margin-top:-30px;background:linear-gradient(rgba(10,16,24,0),var(--ink))}
+#box::before,#sbox::before{top:0;margin-bottom:-30px;background:linear-gradient(var(--ink),rgba(var(--ink-rgb),0))}
+#box::after,#sbox::after{bottom:0;margin-top:-30px;background:linear-gradient(rgba(var(--ink-rgb),0),var(--ink))}
 #box.eft::before,#sbox.eft::before,#box.efb::after,#sbox.efb::after{opacity:1}
 
 /* swipe-left hint */
@@ -238,7 +256,7 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
 .topic.go.dragl::after{color:var(--accent)}
 
 /* landscape song name: light sweep across the letters + reveal from left to right on a new song */
-#lsnow .t{filter:drop-shadow(0 0 10px rgba(79,147,224,.35))}
+#lsnow .t{filter:drop-shadow(0 0 10px rgba(var(--acc-rgb),.35))}
 #lsnow .t span{background:linear-gradient(100deg,var(--text) 0%,var(--text) 36%,#8fc6ff 44%,#fff 50%,#8fc6ff 56%,var(--text) 64%,var(--text) 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 8s ease-in-out infinite,shimglow 8s ease-in-out infinite}
 @keyframes shimglow{0%,42%{filter:none}72%{filter:drop-shadow(0 0 12px rgba(170,215,255,.95))}100%{filter:none}}
 @keyframes shim{0%,45%{background-position:100% 0}100%{background-position:0 0}}
@@ -251,16 +269,30 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
 #login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
 #login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}
 #lerr{color:#ff8f8f}
+
+/* source chooser (GitHub / Phone storage / SD card) */
+#source{display:none;flex:1;min-height:0}
+body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
+body[data-v=source] #top,body[data-v=source] footer{display:none}
+#source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
+.srcbtn{display:flex;align-items:center;gap:14px;height:auto;min-height:72px;padding:12px 16px;text-align:left;border-radius:16px}
+.srcbtn svg{width:30px;height:30px;margin:0;flex:none;color:var(--accent)}
+.srcbtn b{display:block;font-size:16px}
+.srcbtn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.35}
+#serr{color:#ff8f8f;min-height:1.2em}
+#sback{height:40px;background:transparent;border-color:transparent;color:var(--mute)}
+#key[hidden]{display:none}
 </style>
 </head>
 <body data-v="list">
 <div id="start-screen">
-  <div id="start-text"><h1>My Songs</h1><p>Swipe a folder right to play it</p></div>
+  <div id="start-text"><h1>Music Player</h1><p>Swipe a folder right to play it</p></div>
   <button id="start-btn" type="button">Start</button>
 </div>
 <div id="app">
   <header id="top">
-    <h1>My Songs</h1>
+    <span id="srcico" role="img" aria-label=""></span>
+    <h1>Music Player</h1>
     <label id="gp"><span>Global Play</span><input id="gps" type="checkbox" role="switch"><span class="sw"></span></label>
   </header>
   <div id="list"><div id="box"></div></div>
@@ -268,6 +300,14 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
     <div id="shead"><b id="sttl"></b><small id="scnt"></small><div id="pall" role="group" aria-label="Play all: slide left to shuffle, right to play in order"><svg class="pi l" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg><svg class="pi r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><i id="pthumb"></i></div></div>
     <div id="sbox"></div>
     <div id="sfoot"><i class="glint"></i></div>
+  </div>
+  <div id="source">
+    <h2>Where are your songs?</h2>
+    <button class="srcbtn" id="srcGh" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg><span><b>GitHub</b><small>Online. Needs internet and your PIN.</small></span></button>
+    <button class="srcbtn" id="srcPh" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg><span><b>Phone storage</b><small>Offline. One folder on the phone's own memory (a "music" sub-folder is used if present).</small></span></button>
+    <button class="srcbtn" id="srcSd" type="button"><svg class="ico" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. One folder on the SD card (a "music" sub-folder is used if present).</small></span></button>
+    <p id="serr"></p>
+    <button id="sback" type="button" hidden>Back</button>
   </div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
@@ -292,6 +332,8 @@ body.ctl-fade :is(#top,footer){opacity:0;pointer-events:none;transition:opacity 
       <button id="gear" aria-label="Settings"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     </div>
     <div id="panel" hidden>
+      <div id="srow" role="group" aria-label="Source"></div>
+      <div id="fbox" hidden></div>
       <div id="prow">
         <button id="refresh" aria-label="Refresh folders"><svg class="ico" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
@@ -315,7 +357,32 @@ const OWNER = "nerdysrisha", REPO = "mysongs";
 const ADMIN_PIN = "6559";                                  // PIN that lets you change the saved token (change it here)
 const AUDIO_RE = /\.(mp3|m4a|wav|ogg|flac)$/i;
 const MIME = {mp3: "audio/mpeg", m4a: "audio/mp4", wav: "audio/wav", ogg: "audio/ogg", flac: "audio/flac"};
-const TOK_KEY = "ghtok_songs", LAST_KEY = "lastFolder_songs";
+const TOK_KEY = "ghtok_songs", LAST_KEY = "lastFolder_songs", SRC_KEY = "source_songs";
+const CHUNK = 1048576;                                     // SD card songs are read in 1 MB pieces (must match CHUNK in MainActivity.java)
+let sdSize = {};                                           // SD card: song path -> size in bytes
+const ICO_CLOUD = '<svg class="ico" viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg>';
+const ICO_PHONE = '<svg class="ico" viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg>';
+const ICO_SD = '<svg class="ico" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg>';
+const SRC_ORDER = ["github", "phone", "sd"], SRC_NAME = {github: "Cloud", phone: "Phone storage", sd: "SD card"}, SRC_ICO = {github: ICO_CLOUD, phone: ICO_PHONE, sd: ICO_SD};
+const nextSrc = v => SRC_ORDER[(SRC_ORDER.indexOf(v) + 1) % SRC_ORDER.length];
+const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
+function applySd() {
+  const ok = sdOk();
+  [$("srcSd"), document.querySelector("#srow [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
+}
+const SRC_SHORT = {github: "Cloud", phone: "Phone", sd: "SD card"};
+function showSrcIco() {                                    // top-left icon only SHOWS the source in use; the gear menu changes it
+  const v = getSrc(), el = $("srcico");
+  document.body.dataset.src = v || "";
+  { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#0a1018"; }
+  el.innerHTML = SRC_ICO[v] || "";
+  el.setAttribute("aria-label", v ? SRC_NAME[v] : "");
+  applySd();
+  $("srow").querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+}
+
+const getSrc = () => { try { return localStorage.getItem(SRC_KEY) || ""; } catch (e) { return ""; } };
+const setSrc = v => { try { localStorage.setItem(SRC_KEY, v); } catch (e) {} };
 
 // ── HELPERS ─────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -459,7 +526,7 @@ function fitMarquees() {
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
-const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); requestAnimationFrame(() => ["sbox", "box"].forEach(id => edgeFade($(id)))); };
+const show = v => { document.body.dataset.v = v; showSrcIco(); closePanel(); updateBar(); requestAnimationFrame(() => ["sbox", "box"].forEach(id => edgeFade($(id)))); };
 function edgeFade(b) { b.classList.toggle("eft", b.scrollTop > 4); b.classList.toggle("efb", b.scrollTop + b.clientHeight < b.scrollHeight - 4); }
 ["sbox", "box"].forEach(id => {
   const b = $(id), f = () => edgeFade(b);
@@ -500,6 +567,45 @@ async function loadFolders() {
     parsed = Object.keys(dirs).sort(nat).map(n => ({n, t: nice(n), count: dirs[n].length}));
     loaded = true; renderList(); return true;
   } catch (e) { if (my === ticket) $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; return false; }
+}
+// Phone storage / SD card: the Java side scans the chosen folder (or its "music" sub-folder) and hands back "path<TAB>size" lines
+async function loadSd() {
+  const my = ++ticket, src = getSrc(), nm = SRC_NAME[src];
+  if (!window.AndroidSd) { $("serr").textContent = "Phone storage and SD card work only inside the Android app."; show("source"); return false; }
+  const st = AndroidSd.status(src);
+  if (st.indexOf("ok") !== 0) { $("serr").textContent = st === "lost" ? "Access to the " + nm + " folder was lost. Tap " + nm + " and choose the folder again." : "Tap " + nm + " and choose your songs folder."; show("source"); return false; }
+  $("box").innerHTML = '<div class="msg">Reading ' + nm + '...</div>'; show("list");
+  const res = await new Promise(ok => { const h = e => { window.removeEventListener("sdscan", h); ok(e.detail); }; window.addEventListener("sdscan", h); AndroidSd.scan(src); });
+  if (my !== ticket) return false;
+  if (res !== "ok") { $("box").textContent = ""; const d = document.createElement("div"); d.className = "msg"; d.textContent = "Could not read the " + nm + " folder (" + res + "). Tap the top-left icon to switch source and choose it again."; $("box").appendChild(d); return false; }
+  const dirs = {}; sdSize = {};
+  AndroidSd.result(src).split("\n").forEach(line => {
+    if (!line) return;
+    const t = line.split("\t"), path = t[0], i = path.lastIndexOf("/");
+    if (i < 0) return;                                     // ignore loose files in the root
+    const dir = path.slice(0, i);
+    (dirs[dir] = dirs[dir] || []).push({name: path.slice(i + 1), type: "file"});
+    sdSize[path] = +t[1] || 0;
+  });
+  listCache = dirs; truncated = false;
+  parsed = Object.keys(dirs).sort(nat).map(n => ({n, t: nice(n), count: dirs[n].length}));
+  loaded = true;
+  if (!parsed.length) { $("box").innerHTML = '<div class="msg">No songs found in the chosen folder. Check you picked the right one (gear menu > Choose folder).</div>'; return true; }
+  renderList(); return true;
+}
+async function readSd(path) {                              // pull one song out of the phone / SD card piece by piece
+  const parts = [], src = getSrc(), n = Math.max(1, Math.ceil((sdSize[path] || 0) / CHUNK));
+  for (let i = 0; i < n; i++) {
+    const b64 = AndroidSd.chunk(src, path, i);
+    if (b64.indexOf("ERR:") === 0) throw new Error(b64);
+    if (!b64) break;
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+    parts.push(u);
+    await new Promise(r => setTimeout(r, 0));              // let the screen breathe between pieces
+  }
+  if (!parts.length) throw new Error("empty");
+  return parts;
 }
 const filesOf = dir => (listCache[dir] || []).map(x => x.name).sort(nat);
 const cnt = n => n + (n === 1 ? " song" : " songs");
@@ -639,9 +745,11 @@ const curPath = () => Q ? Q.dir + "/" + Q.names[Q.pos] : "";
 function getUrl(path) {                                    // download a song once, keep it as a playable blob
   if (urlCache.has(path)) return urlCache.get(path);
   const ext = ((path.match(/\.([^.]+)$/) || [])[1] || "").toLowerCase();
-  const p = api(path, true)
-    .then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.arrayBuffer(); })
-    .then(buf => URL.createObjectURL(new Blob([buf], {type: MIME[ext] || "audio/mpeg"})))
+  const get = getSrc() !== "github"
+    ? readSd(path)
+    : api(path, true).then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.arrayBuffer(); }).then(b => [b]);
+  const p = get
+    .then(parts => URL.createObjectURL(new Blob(parts, {type: MIME[ext] || "audio/mpeg"})))
     .catch(e => { urlCache.delete(path); throw e; });
   urlCache.set(path, p); return p;
 }
@@ -756,7 +864,7 @@ function setNow() {
   $("bar").hidden = !Q; updateCounts();
   document.body.classList.toggle("hasq", !!Q);
   lsUpdate({prev: Q && Q.pos > 0 ? pretty(Q.names[Q.pos - 1]) : "", cur: curName(), next: nextName()});
-  if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "My Songs"});
+  if (Q && "mediaSession" in navigator) navigator.mediaSession.metadata = new MediaMetadata({title: pretty(Q.names[Q.pos]), artist: nice(Q.dir), album: "Music Player"});
   markNow(); syncPlay(); updateBar();
 }
 function updateBar() { $("prevS").disabled = $("nextS").disabled = $("play").disabled = $("rep").disabled = !Q; }
@@ -882,7 +990,7 @@ document.addEventListener("fullscreenchange", () => setIcon(!!document.fullscree
 setIcon(false);
 const panel = $("panel");
 function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
-$("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
+$("gear").onclick = e => { e.stopPropagation(); if (panel.hidden) { drawFolders(); panel.hidden = false; } else closePanel(); };
 panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
 $("refresh").onclick = () => {                             // re-read the folder list from GitHub
@@ -920,10 +1028,102 @@ async function saveToken() {
 $("tsave").onclick = saveToken;
 $("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
 
+(function () {                                             // gear menu: Cloud / Phone / SD card
+  const row = $("srow");
+  SRC_ORDER.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.src = v; b.innerHTML = SRC_ICO[v] + "<span>" + SRC_SHORT[v] + "</span>";
+    b.setAttribute("aria-label", SRC_NAME[v]);
+    b.onclick = () => { closePanel(); if (v !== getSrc()) goSrc(v); };
+    row.appendChild(b);
+  });
+})();
+
+// ── SOURCE CHOOSER (GitHub / Phone storage / SD card) ────────────────────────────────────
+function resetSource() { stopAll(); trimCache([]); loaded = false; listCache = {}; parsed = []; cur = -1; savedScroll = 0; ++ticket; }
+function useSource(v) {
+  if (getSrc() !== v) { resetSource(); setSrc(v); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  $("serr").textContent = ""; loaded = false; route();
+}
+$("srcGh").onclick = () => useSource("github");
+let pickFor = "";                                          // which source the folder picker was opened for
+function goLocal(src) {                                    // Phone storage or SD card
+  if (!window.AndroidSd) { const m = "Phone storage and SD card work only inside the Android app."; $("serr").textContent = m; toast(m); return; }
+  if (AndroidSd.status(src).indexOf("ok") === 0) return useSource(src);   // folder already chosen
+  pickFor = src;
+  $("serr").textContent = "In the picker: open " + (src === "sd" ? "the SD card" : "Internal storage") + ", make a folder (e.g. MySongs), open it, then Use this folder.";
+  AndroidSd.pickFolder(src);
+}
+const goSrc = v => v === "github" ? useSource("github") : goLocal(v);
+$("srcPh").onclick = () => goLocal("phone");
+$("srcSd").onclick = () => goLocal("sd");
+// ── FOLDERS: choose / change a folder for Phone or SD card at any time, or reset both ──
+const FOLDER_MSG = {cancel: "No folder was chosen.", error: "Could not keep access to that folder. Try again.",
+  notsd: "That folder is on the phone, not the SD card. Pick a folder on the SD card.",
+  notphone: "That folder is on the SD card, not the phone. Pick a folder in Internal storage."};
+let pickQueue = [], queueOn = false;
+function folderInfo(src) {                                 // text shown under the source name in the gear menu
+  if (src === "sd" && !sdOk()) return "no SD card inserted";
+  let st = "none"; try { st = AndroidSd.status(src); } catch (e) {}
+  if (st === "lost") return "access lost, choose again";
+  if (st.indexOf("ok") !== 0) return "not chosen";
+  const t = st.split("|"); return (t[1] || "Folder") + " \u00b7 " + ((t[2] || "").indexOf("primary:") === 0 ? "phone memory" : "SD card");
+}
+function drawFolders() {
+  const box = $("fbox"); box.hidden = !window.AndroidSd; if (box.hidden) return;
+  box.innerHTML = ""; applySd();
+  ["phone", "sd"].forEach(src => {
+    const r = document.createElement("div"); r.className = "frow";
+    const l = document.createElement("span"); l.className = "fl"; l.textContent = SRC_NAME[src];
+    const sm = document.createElement("small"); sm.textContent = folderInfo(src); l.appendChild(sm);
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "Choose folder"; if (src === "sd" && !sdOk()) b.disabled = true;
+    b.onclick = () => { closePanel(); pickFolderFor(src); };
+    r.append(l, b); box.appendChild(r);
+  });
+  const re = document.createElement("button"); re.id = "reinit"; re.type = "button"; re.textContent = "Reset folders (choose both again)";
+  re.onclick = () => { closePanel(); reinitFolders(); };
+  box.appendChild(re);
+}
+function pickFolderFor(src) {
+  if (!window.AndroidSd) return;
+  pickFor = src;
+  const m = "Pick a folder on " + (src === "sd" ? "the SD card" : "Internal storage") + " (create one, e.g. MySongs), then Use this folder.";
+  $("serr").textContent = m; toast(m);
+  AndroidSd.pickFolder(src);
+}
+function nextPick() {
+  const src = pickQueue.shift();
+  if (!src) { queueOn = false; resetSource(); route(); return; }             // all done: reload the current source
+  pickFolderFor(src);
+}
+function reinitFolders() {
+  if (!window.AndroidSd) { toast("Works only inside the Android app."); return; }
+  if (!confirm("Forget the Phone and SD card folders and choose both again?")) return;
+  stopAll(); AndroidSd.forget("phone"); AndroidSd.forget("sd");
+  pickQueue = sdOk() ? ["phone", "sd"] : ["phone"]; queueOn = true; nextPick();
+}
+window.addEventListener("sdfolder", e => {
+  const d = e.detail;
+  if (d === "ok") {
+    $("serr").textContent = "";
+    if (queueOn) nextPick();                                // re-init: on to the next folder
+    else if (getSrc() === pickFor || !getSrc()) { resetSource(); setSrc(pickFor); route(); }   // changed the folder in use: reload it
+    else { toast(SRC_NAME[pickFor] + " folder saved"); useSource(pickFor); }
+    return;
+  }
+  const m = FOLDER_MSG[d] || FOLDER_MSG.error; $("serr").textContent = m; toast(m);
+  if (queueOn) { if (d === "notsd" || d === "notphone") pickQueue.unshift(pickFor); nextPick(); }   // wrong card: ask again; cancelled: skip
+});
+$("sback").onclick = () => route();
+
 // ── ROUTING (#f=<folder name>) ──────────────────────────────────────────
 async function route() {
-  if (!getTok()) { ++ticket; return show("login"); }
-  if (!loaded && !(await loadFolders())) return;
+  const src = getSrc(); showSrcIco();
+  if (!src) { ++ticket; $("sback").hidden = true; return show("source"); }
+  $("key").hidden = src !== "github";
+  if (src === "github" && !getTok()) { ++ticket; return show("login"); }
+  if (!loaded && !(await (src === "github" ? loadFolders() : loadSd()))) return;
   const m = location.hash.match(/^#f=(.+)$/);
   if (!m) { ++ticket; cur = -1; renderList(); show("list"); fitMarquees(); $("box").scrollTop = savedScroll; return; }
   const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
