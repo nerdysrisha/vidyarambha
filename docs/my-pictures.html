@@ -9,7 +9,33 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Pictures</title>
 <style>
-:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0}
+:root{--ink:#0a1018;--panel:#142030;--panel-rgb:20,32,48;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224}
+/* one colour theme per source (same as My Songs / My PDFs); Cloud keeps the original look */
+body[data-src=phone]{--ink:#07140f;--panel:#0f2519;--panel-rgb:15,37,25;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--a:76,195,138;--acc-hi:#c9f3de;--bar-end:#0f3d2c}
+body[data-src=sd]{--ink:#0d0a1b;--panel:#191331;--panel-rgb:25,19,49;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--a:167,139,250;--acc-hi:#e4dcff;--bar-end:#2e1f5c}
+body[data-src=phone] #top,body[data-src=sd] #top{background:linear-gradient(135deg,var(--bar-end),var(--panel) 50%,var(--bar-end));border-bottom-color:rgba(var(--a),.6)}
+body[data-src=phone] #top h1,body[data-src=sd] #top h1{color:var(--acc-hi);text-shadow:0 0 12px rgba(var(--a),.55)}
+body[data-src=phone] #rtxt,body[data-src=sd] #rtxt{color:var(--mute)}
+body.sd #key,body.sd #upl,body.sd #del{display:none}
+#source{display:none;flex:1;min-height:0}
+body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
+#source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
+.srcbtn{display:flex;align-items:center;gap:14px;height:auto;min-height:72px;padding:12px 16px;text-align:left;border-radius:16px}
+.srcbtn svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;color:var(--accent)}
+.srcbtn b{display:block;font-size:16px}.srcbtn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.35}
+#serr{color:#ff8f8f;min-height:1.2em}
+#sback,#lback{height:40px;background:transparent;border-color:transparent;color:var(--mute)}
+#fbox{display:flex;flex-direction:column;gap:6px;min-width:250px}
+#fbox[hidden]{display:none}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.frow .fl{min-width:0;font-size:13px;font-weight:600}
+.frow small{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute);font-size:11.5px;font-weight:400}
+.frow button,#reinit{height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
+#reinit{width:100%}
+#srow{display:flex;gap:8px}
+#srow button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:0 10px}
+#srow button svg{width:20px;height:20px;margin:0;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#srow button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:0}
@@ -22,7 +48,7 @@ body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px
 #box{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:6px}
 body[data-v=view] #viewer{display:block;position:relative;overflow:hidden;touch-action:none}
 body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
-body[data-v=login] footer{display:none}
+body[data-v=login] footer,body[data-v=source] footer{display:none}
 .topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
 .topic>span:first-child{flex:1;min-width:0}
 .topic b{display:block;font-weight:600;font-size:14px;line-height:1.3}
@@ -59,7 +85,7 @@ footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-
 #lbl{display:block;font-size:11px;padding:0 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
 #fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
-#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(20,32,48,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(var(--panel-rgb),.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
 #panel[hidden],#pinrow[hidden]{display:none}
 #prow,#pinrow{display:flex;gap:8px;align-items:center}
 #pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
@@ -79,11 +105,19 @@ body.max #fsx{display:block}
 #top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
 #top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
 #rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
+#top .tl{display:flex;align-items:center;gap:6px;min-width:0}
+body[data-src=github]{--tape:#1ea7ff;--tape2:#8fd3ff;--tapetxt:#00263f}
+body[data-src=phone]{--tape:#22e07a;--tape2:#9af5c4;--tapetxt:#013a1c}
+body[data-src=sd]{--tape:#b44cff;--tape2:#dcb0ff;--tapetxt:#ffffff}
+.tapes{position:relative;display:inline-block;padding:5px 7px;line-height:1;filter:drop-shadow(0 0 5px var(--tape,#ff9933))}
+.tape{position:relative;display:inline-block;padding:4px 12px;font-size:10px;font-weight:800;letter-spacing:.9px;color:var(--tapetxt,#3d1b00);background:var(--tape,#ff9933);transform:rotate(-8deg);clip-path:polygon(0 0,100% 0,96% 25%,100% 50%,96% 75%,100% 100%,0 100%,4% 75%,0 50%,4% 25%);white-space:nowrap}
+.tape:empty{display:none}
+.t2{position:absolute;left:0;right:0;top:50%;height:11px;margin-top:-5px;background:var(--tape2,#ffc27a);transform:rotate(15deg);clip-path:polygon(0 0,100% 0,97% 30%,100% 50%,97% 70%,100% 100%,0 100%,3% 70%,0 50%,3% 30%)}
 #top .glint{position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,170,70,.24),transparent);transform:translateX(-120%) skewX(-18deg);animation:ribSweep 7s ease-in-out infinite}
 @keyframes ribGlow{0%,100%{box-shadow:0 4px 16px -6px rgba(255,153,51,.35)}50%{box-shadow:0 6px 28px -4px rgba(255,153,51,.75)}}
 @keyframes ribSweep{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}
-body[data-v=login] #top,body[data-v=view] #top{display:none}
-body[data-v=login] #app,body[data-v=view] #app,body.nobar #app{padding-top:env(safe-area-inset-top)}
+body[data-v=login] #top,body[data-v=source] #top,body[data-v=view] #top{display:none}
+body[data-v=login] #app,body[data-v=source] #app,body[data-v=view] #app,body.nobar #app{padding-top:env(safe-area-inset-top)}
 body[data-v=view] #toast{top:calc(14px + env(safe-area-inset-top))}
 body.nobar #top{display:none}
 body.max #top{display:none}
@@ -156,7 +190,7 @@ body{-webkit-touch-callout:none}
   <button id="start-btn" type="button">Start</button>
 </div>
 <div id="app">
-  <header id="top"><h1>Pictures</h1><small id="rtxt"></small><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><small id="rtxt"></small><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
@@ -164,6 +198,15 @@ body{-webkit-touch-callout:none}
     <input id="tokin" type="password" autocomplete="off" placeholder="Aak Sri. He has the PIN ...">
     <button id="tsave">Save PIN</button>
     <p id="lerr"></p>
+    <button id="lback" type="button">Change source</button>
+  </div>
+  <div id="source">
+    <h2>Where are your photos?</h2>
+    <button class="srcbtn" id="srcGh" type="button"><svg viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg><span><b>Cloud</b><small>Online. Needs internet and your PIN.</small></span></button>
+    <button class="srcbtn" id="srcPh" type="button"><svg viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg><span><b>Phone storage</b><small>Offline. One folder on the phone's own memory (a "pictures" sub-folder is used if present).</small></span></button>
+    <button class="srcbtn" id="srcSd" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. One folder on the SD card (a "pictures" sub-folder is used if present).</small></span></button>
+    <p id="serr"></p>
+    <button id="sback" type="button" hidden>Back</button>
   </div>
   <div id="viewer">
     <div id="track"></div>
@@ -181,6 +224,8 @@ body{-webkit-touch-callout:none}
     </div>
     <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <div id="panel" hidden>
+      <div id="srow" role="group" aria-label="Source"></div>
+      <div id="fbox" hidden></div>
       <div id="prow">
         <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="upl" aria-label="Upload photos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
@@ -232,13 +277,32 @@ const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
 let mem = "";
 const getTok = () => { try { return localStorage.getItem("ghtok") || mem; } catch (e) { return mem; } };
 const setTok = v => { mem = v; try { v ? localStorage.setItem("ghtok", v) : localStorage.removeItem("ghtok"); } catch (e) {} };
+const getSrc = () => { try { return localStorage.getItem("picsrc") || (getTok() ? "github" : ""); } catch (e) { return getTok() ? "github" : ""; } };   // an existing GitHub setup keeps working
+const setSrc = v => { try { localStorage.setItem("picsrc", v); } catch (e) {} };
+const SV = d => '<svg viewBox="0 0 24 24"><path d="' + d + '"/></svg>';
+const SRC_ICO = {github: SV("M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"), phone: SV("M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"), sd: SV("M7 3h7l4 4v14H7zM11 3v4M14 3v4")};
+const SRC_ORDER = ["github", "phone", "sd"], SRC_NAME = {github: "Cloud", phone: "Phone storage", sd: "SD card"}, SRC_SHORT = {github: "Cloud", phone: "Phone", sd: "SD card"};
+const isLocal = v => v === "phone" || v === "sd";
+const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
+function applySd() {
+  const ok = sdOk();
+  [$("srcSd"), document.querySelector("#srow [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
+}
+function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
+  const v = getSrc();
+  document.body.dataset.src = v || ""; document.body.classList.toggle("sd", isLocal(v));
+  $("rbadge").textContent = {github: "CLOUD", phone: "PHONE", sd: "SD CARD"}[v] || "";
+  { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = isLocal(v) ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
+  applySd();
+  const r = $("srow"); if (r) r.querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+}
 const getLast = () => { try { return localStorage.getItem("lastFolder") || ""; } catch (e) { return ""; } };
 const setLast = v => { try { localStorage.setItem("lastFolder", v); } catch (e) {} };
 const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
 const enc = p => p.split("/").map(encodeURIComponent).join("/");
 const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
 const api = (path, raw) => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(path), {headers: hdr(raw)});
-const show = v => { document.body.dataset.v = v; closePanel(); updateBar(); };
+const show = v => { document.body.dataset.v = v; showSrcIco(); closePanel(); updateBar(); };
 
 // Folders are fetched from the repo root and sorted newest first (names start with yyyy mm dd)
 let parsed = [], loaded = false, truncated = false;
@@ -247,7 +311,45 @@ const parseFolder = n => {
   const nice = x => x.replace(/\//g, " / ");
   return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
 };
+const CHUNK = 1048576;                                       // photos are read from the phone / SD card in 1 MB pieces (must match CHUNK in MainActivity.java)
+const LSIZE = {}, MIME = {webp: "image/webp", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif"};
+async function loadLocal() {                               // Phone storage / SD card: the Java side scans the chosen folder and returns "path<TAB>size" lines
+  const my = ++ticket, src = getSrc(), nm = SRC_NAME[src] || "storage";
+  if (!window.AndroidSd) { $("serr").textContent = "Phone storage and SD card work only inside the Android app."; $("sback").hidden = true; show("source"); return false; }
+  const st = AndroidSd.status(src);
+  if (st.indexOf("ok") !== 0) { $("serr").textContent = st === "lost" ? "Access to the " + nm + " folder was lost. Tap " + nm + " and choose the folder again." : "Tap " + nm + " and choose your photos folder."; $("sback").hidden = true; show("source"); return false; }
+  $("box").innerHTML = '<div class="msg">Reading ' + nm + '...</div>'; show("list");
+  const res = await new Promise(ok => { const h = e => { window.removeEventListener("sdscan", h); ok(e.detail); }; window.addEventListener("sdscan", h); AndroidSd.scan(src); });
+  if (my !== ticket) return false;
+  if (res !== "ok") { $("box").innerHTML = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = "Could not read the " + nm + " folder (" + res + "). Use the gear menu > Choose folder to pick it again."; $("box").appendChild(m); return false; }
+  const dirs = {};
+  AndroidSd.result(src).split("\n").forEach(line => {
+    if (!line) return; const t = line.split("\t"), path = t[0];
+    if (!/\.(webp|jpe?g|png|gif)$/i.test(path) || path.split("/").some(seg => seg.startsWith("."))) return;
+    const i = path.lastIndexOf("/"); if (i < 0) return;
+    const dir = path.slice(0, i); LSIZE[src + "|" + path] = +t[1] || 0;
+    (dirs[dir] = dirs[dir] || []).push({name: path.slice(i + 1), type: "file", sha: ""});
+  });
+  listCache = dirs; truncated = false;
+  parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+  loaded = true; renderList(); return true;
+}
+async function readLocal(src, path) {                      // pull one photo out of the phone / SD card piece by piece
+  const size = LSIZE[src + "|" + path] || 0, n = size ? Math.ceil(size / CHUNK) : 100000, parts = [];
+  for (let i = 0; i < n; i++) {
+    const b64 = AndroidSd.chunk(src, path, i);
+    if (b64.indexOf("ERR:") === 0) throw new Error(b64);
+    if (!b64) break;
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+    parts.push(u);
+    await new Promise(r => setTimeout(r, 0));              // let the screen breathe between pieces
+  }
+  if (!parts.length) throw new Error("empty");
+  return new Blob(parts, {type: MIME[(path.split(".").pop() || "").toLowerCase()] || "image/jpeg"});
+}
 async function loadFolders() {
+  if (isLocal(getSrc())) return loadLocal();
   const my = ++ticket;
   $("box").innerHTML = '<div class="msg">Loading folders...</div>'; show("list");
   try {
@@ -367,8 +469,8 @@ async function openFolder(i) {
 function load(k) {
   if (k < 0 || k >= files.length || cache[k]) return;
   const my = ticket, im = imgs[k];
-  const p = api(parsed[cur].n + "/" + files[k], true)
-    .then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); })
+  const p = (isLocal(getSrc()) ? readLocal(getSrc(), parsed[cur].n + "/" + files[k])
+    : api(parsed[cur].n + "/" + files[k], true).then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); }))
     .then(b => { const u = URL.createObjectURL(b); if (my === ticket && im.isConnected) im.src = u; else URL.revokeObjectURL(u); return u; })
     .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("PIN was rejected. Enter it again."); } });
   cache[k] = p;
@@ -493,7 +595,7 @@ $("menu").onclick = () => { location.hash = ""; };
 // settings panel (gear): refresh, full screen, delete mode
 const panel = $("panel");
 function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
-$("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
+$("gear").onclick = e => { e.stopPropagation(); if (panel.hidden) { drawFolders(); panel.hidden = false; } else closePanel(); };
 panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
 $("refresh").onclick = () => {                                   // re-read the folder list (and photo lists) from GitHub
@@ -607,9 +709,101 @@ async function saveToken() {
 $("tsave").onclick = saveToken;
 $("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
 
+// ── SOURCE CHOOSER (Cloud / Phone storage / SD card) ────────────────────
+function resetSource() { ++ticket; freeUrls(); cur = -1; loaded = false; listCache = {}; parsed = []; openGroups.clear(); autoOpened = false; savedScroll = 0; unlocked = false; syncLock(); }
+function useSource(v) {
+  if (getSrc() !== v) { resetSource(); setSrc(v); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  $("serr").textContent = ""; loaded = false; listCache = {}; route();
+}
+$("srcGh").onclick = () => useSource("github");
+let pickFor = "";                                          // which source the folder picker was opened for
+function goLocal(src) {                                    // Phone storage or SD card
+  if (!window.AndroidSd) { const m = "Phone storage and SD card work only inside the Android app."; $("serr").textContent = m; toast("", m); return; }
+  if (AndroidSd.status(src).indexOf("ok") === 0) return useSource(src);   // folder already chosen
+  pickFor = src;
+  $("serr").textContent = "In the picker: open " + (src === "sd" ? "the SD card" : "Internal storage") + ", open your photos folder, then Use this folder.";
+  AndroidSd.pickFolder(src);
+}
+const goSrc = v => v === "github" ? useSource("github") : goLocal(v);
+$("srcPh").onclick = () => goLocal("phone");
+$("srcSd").onclick = () => goLocal("sd");
+$("sback").onclick = () => route();
+$("lback").onclick = () => { ++ticket; $("serr").textContent = ""; $("sback").hidden = !getSrc(); show("source"); };
+(function () {                                             // gear menu: Cloud / Phone / SD card
+  const row = $("srow");
+  SRC_ORDER.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.src = v; b.innerHTML = SRC_ICO[v] + "<span>" + SRC_SHORT[v] + "</span>";
+    b.setAttribute("aria-label", SRC_NAME[v]);
+    b.onclick = () => { closePanel(); if (v !== getSrc()) goSrc(v); };
+    row.appendChild(b);
+  });
+})();
+// ── FOLDERS: choose / change a folder for Phone or SD card at any time, or reset both ──
+const FOLDER_MSG = {cancel: "No folder was chosen.", error: "Could not keep access to that folder. Try again.",
+  notsd: "That folder is on the phone, not the SD card. Pick a folder on the SD card.",
+  notphone: "That folder is on the SD card, not the phone. Pick a folder in Internal storage."};
+let pickQueue = [], queueOn = false;
+function folderInfo(src) {                                 // text shown under the source name in the gear menu
+  if (src === "sd" && !sdOk()) return "no SD card inserted";
+  let st = "none"; try { st = AndroidSd.status(src); } catch (e) {}
+  if (st === "lost") return "access lost, choose again";
+  if (st.indexOf("ok") !== 0) return "not chosen";
+  const t = st.split("|"); return (t[1] || "Folder") + " \u00b7 " + ((t[2] || "").indexOf("primary:") === 0 ? "phone memory" : "SD card");
+}
+function drawFolders() {
+  const box = $("fbox"); box.hidden = !window.AndroidSd; if (box.hidden) return;
+  box.innerHTML = ""; applySd();
+  ["phone", "sd"].forEach(src => {
+    const r = document.createElement("div"); r.className = "frow";
+    const l = document.createElement("span"); l.className = "fl"; l.textContent = SRC_NAME[src];
+    const sm = document.createElement("small"); sm.textContent = folderInfo(src); l.appendChild(sm);
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "Choose folder"; if (src === "sd" && !sdOk()) b.disabled = true;
+    b.onclick = () => { closePanel(); pickFolderFor(src); };
+    r.append(l, b); box.appendChild(r);
+  });
+  const re = document.createElement("button"); re.id = "reinit"; re.type = "button"; re.textContent = "Reset folders (choose both again)";
+  re.onclick = () => { closePanel(); reinitFolders(); };
+  box.appendChild(re);
+}
+function pickFolderFor(src) {
+  if (!window.AndroidSd) return;
+  pickFor = src;
+  const m = "Pick a folder on " + (src === "sd" ? "the SD card" : "Internal storage") + " (e.g. MyPictures), then Use this folder.";
+  $("serr").textContent = m; toast("", m);
+  AndroidSd.pickFolder(src);
+}
+function nextPick() {
+  const src = pickQueue.shift();
+  if (!src) { queueOn = false; resetSource(); route(); return; }             // all done: reload the current source
+  pickFolderFor(src);
+}
+function reinitFolders() {
+  if (!window.AndroidSd) { toast("", "Works only inside the Android app."); return; }
+  if (!confirm("Forget the Phone and SD card folders and choose both again?")) return;
+  AndroidSd.forget("phone"); AndroidSd.forget("sd");
+  pickQueue = sdOk() ? ["phone", "sd"] : ["phone"]; queueOn = true; nextPick();
+}
+window.addEventListener("sdfolder", e => {
+  const d = e.detail;
+  if (d === "ok") {
+    $("serr").textContent = "";
+    if (queueOn) nextPick();                                // re-init: on to the next folder
+    else if (getSrc() === pickFor || !getSrc()) { resetSource(); setSrc(pickFor); route(); }   // changed the folder in use: reload it
+    else { toast("", SRC_NAME[pickFor] + " folder saved"); useSource(pickFor); }
+    return;
+  }
+  const m = FOLDER_MSG[d] || FOLDER_MSG.error; $("serr").textContent = m; toast("", m);
+  if (queueOn) { if (d === "notsd" || d === "notphone") pickQueue.unshift(pickFor); nextPick(); }   // wrong card: ask again; cancelled: skip
+});
+
 // ── ROUTING (#f=<folder name>) ──────────────────────────────────────────
 async function route() {
-  if (!getTok()) { ++ticket; return show("login"); }
+  const src = getSrc();
+  if (!src) { ++ticket; $("sback").hidden = true; return show("source"); }
+  showSrcIco();
+  if (src === "github" && !getTok()) { ++ticket; return show("login"); }
   if (!loaded && !(await loadFolders())) return;
   const m = location.hash.match(/^#f=(.+)$/);
   if (!m) { ++ticket; freeUrls(); cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll; return; }

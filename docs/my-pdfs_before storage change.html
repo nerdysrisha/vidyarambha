@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1b1d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>My PDFs</title>
+<style>
+:root{--ink:#1b1b1d;--panel:#2a2a2d;--line:#3d3d41;--text:#f2f2f2;--mute:#a3a3a9;--accent:#f0483e;--a:240,72,62}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;-webkit-touch-callout:none}
+#app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
+button:active{background:var(--line)}button:disabled{opacity:.3;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
+#landing,#list,#viewer,#login{display:none;flex:1;min-height:0}
+body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px}
+body[data-v=view] #viewer{display:block;position:relative;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;outline:none}
+body[data-v=login] #login{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:24px}
+body[data-v=login] footer,body[data-v=login] #info,body[data-v=landing] footer,body[data-v=landing] #info,body[data-v=source] footer,body[data-v=source] #info{display:none}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
+.topic>span:first-child{flex:1;min-width:0}
+.topic b{display:block;font-weight:600;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.topic small{display:block;color:var(--mute);font-size:11px;line-height:1.3}.topic small:empty{display:none}
+.topic .r{flex:none;display:flex;align-items:center;gap:8px}
+.topic em.n{flex:none;font-style:normal;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;color:#ffb8b2;background:rgba(var(--a),.1);border:1px solid rgba(var(--a),.3);white-space:nowrap}
+.topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}.grp.open>.hd i{transform:rotate(90deg)}
+.kids{display:none;margin:-1px 0 6px 10px;padding-left:8px;border-left:2px solid var(--line)}.grp.open>.kids{display:block}
+.bm{display:inline-block;width:15px;height:15px;margin-left:8px;vertical-align:-2px;fill:#f5b942;stroke:#f5b942;stroke-width:1.5;stroke-linejoin:round}
+.msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}.msg.bad{color:#ff8f8f}
+#pages{display:flex;flex-direction:column;align-items:center;width:max-content;min-width:100%;padding:8px 0 44px}
+.pg{position:relative;flex:none;margin:0 0 8px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.5);overflow:hidden}
+.pg canvas{display:block;width:100%;height:100%}
+.pg i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#a3a3a9;font-size:14px}
+#vmsg{position:absolute;left:0;right:0;top:32%;z-index:2;pointer-events:none}#vmsg[hidden],body:not([data-v=view]) #vmsg{display:none}
+#toast{position:absolute;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:8;background:#141416e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s}
+#toast.on{opacity:1;transition:opacity .2s}#toast small{display:block;color:var(--mute);font-size:12px}#toast b{font-size:15px}
+footer{position:relative;display:flex;gap:6px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(var(--a),.3)}
+.mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
+footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#info{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(100% + 6px);max-width:80%;padding:4px 14px;border-radius:12px;background:rgba(20,20,22,.85);text-align:center;line-height:1.25;pointer-events:none;border:1px solid var(--line)}
+#info.none,#panel:not([hidden]) ~ #info{display:none}
+#cnt{display:block;font-size:13px;font-weight:600}#lbl{display:block;font-size:11px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#info.warn #lbl{color:#ff9a9a}
+#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#141416cc}
+body.max footer{display:none!important}body.max #fsx{display:block}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(36,36,39,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel[hidden],#pinrow[hidden]{display:none}
+#prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit}#pin{letter-spacing:3px}
+#pinerr{color:#ff8f8f;font-size:12px}#del.on{border-color:#e5484d;color:#ff8f8f}
+#slide{flex:1;min-width:0;max-width:340px;height:44px;position:relative;margin:0 4px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.04);overflow:hidden}#slide.off{display:none}
+#fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(229,72,77,.28)}
+#hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:11px;color:var(--mute);white-space:nowrap;pointer-events:none}
+#trash{position:absolute;left:2px;top:2px;min-width:38px;width:38px;height:38px;border-radius:50%;color:#ff8f8f;border-color:#e5484d66;touch-action:none;cursor:grab;transition:transform .2s}
+#trash.drag{transition:none;cursor:grabbing}#trash svg{width:20px;height:20px}
+body.app #max,body.app #fsx,body.app #upl{display:none!important}
+#login h2{margin:0}#login p{margin:0;color:var(--mute);line-height:1.5}
+#login input{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit}#lerr{color:#ff8f8f!important}
+body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px;background:radial-gradient(circle at 50% 38%,rgba(var(--a),.16),transparent 62%)}
+#landing .logo{width:78px;height:78px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(var(--a),.55))}
+#landing h1{margin:4px 0 0;font-size:36px;letter-spacing:.5px}
+#landing p{margin:0;color:var(--mute);font-size:14px}
+#landing{position:relative}
+#start{position:absolute;right:24px;bottom:calc(30px + env(safe-area-inset-bottom));min-width:0;width:88px;height:88px;padding:0;border-radius:50%;font-size:14px;font-weight:700;letter-spacing:1px;color:#fff;border:1px solid rgba(var(--a),.95);background:linear-gradient(180deg,#f0483e,#c62a22);animation:glow 2s ease-in-out infinite}
+#start:active{transform:scale(.97);background:#c62a22}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
+@media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
+.topic.pdf{background:transparent;border-color:transparent}
+.topic.pdf b{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:14.5px;color:#f3d9a4}
+.topic.pdf small{color:#b9a374}
+.topic.pdf:active{background:rgba(245,185,66,.1)}
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
+#fup,#fdn,#fsearch{display:none;position:fixed;right:calc(14px + env(safe-area-inset-right));z-index:5;width:50px;height:50px;min-width:0;padding:0;border-radius:50%;background:rgba(20,20,22,.7);align-items:center;justify-content:center}
+#fdn{bottom:calc(76px + env(safe-area-inset-bottom))}#fup{bottom:calc(140px + env(safe-area-inset-bottom))}#fsearch{bottom:calc(204px + env(safe-area-inset-bottom))}#fup:disabled,#fdn:disabled{opacity:.35}
+#fup svg,#fdn svg,#fsearch svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block}
+#theme .moon{display:none}
+body.dark #theme .sun{display:none}
+body.dark #theme .moon{display:block}
+body.dark .pg{background:#0e0e10}
+body.dark .pg canvas{filter:invert(1) hue-rotate(180deg)}
+#srchBtn[hidden]{display:none}
+#sp{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(28,28,30,.74);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+#sp,#sp .sr1,#sp .sr2,#sp #sinfo,#sp .sitem small{transition:opacity .25s,background .25s,border-color .25s}
+#sp.scrolling{pointer-events:none;background:rgba(28,28,30,.1);-webkit-backdrop-filter:none;backdrop-filter:none;border-color:rgba(var(--a),1);box-shadow:0 0 0 1px rgba(var(--a),.55),0 0 14px rgba(var(--a),.55);transition-duration:.12s}
+#sp.scrolling .sr1,#sp.scrolling .sr2,#sp.scrolling #sinfo,#sp.scrolling .sitem small{opacity:.2}
+#sp.scrolling .sitem span{visibility:hidden}
+#sp.scrolling button.sitem{background:transparent;border-color:transparent}
+#sp.scrolling .sitem b{color:#fff;background:rgba(0,0,0,.6);padding:2px 8px;border-radius:7px}
+#trimBtn[hidden]{display:none}#trimBtn.on{border-color:rgba(var(--a),.9);color:var(--accent)}
+#sp[hidden],body:not([data-v=view]) #sp{display:none}
+#sp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+.sr1,.sr2{display:flex;gap:6px;align-items:center}
+#sq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(20,20,22,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
+#sp button{width:42px;height:42px;min-width:0;padding:0;flex:none}
+#sp button[hidden]{display:none}
+#sinfo{font-size:12px;color:var(--mute);padding:0 4px}#sinfo:empty{display:none}#sinfo.bad{color:#ffb3b3}
+#slist{position:relative;max-height:42vh;overflow-y:auto;display:flex;flex-direction:column;gap:4px}#slist:empty{display:none}
+#sp button.sitem{display:block;width:100%;height:auto;text-align:left;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid transparent;color:var(--text)}
+#sp button.sitem.on{border-color:rgba(var(--a),.8);background:rgba(var(--a),.18)}
+.sitem b{font-size:13px}.sitem small{margin-left:8px;font-size:11px;color:var(--mute)}
+.sitem span{display:block;margin-top:3px;font-size:12px;line-height:1.3;color:#d0d0d4}
+.sitem mark{background:rgba(255,213,0,.45);color:#fff;border-radius:2px;padding:0 1px}
+#sp.mini .sr1,#sp.mini #sinfo,#sp.mini #slist{display:none}
+#sp:not(.mini) .sr2{display:none}
+#spos{flex:1;text-align:center;font-size:13px;font-weight:600}
+.hl{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.hl b{position:absolute;background:rgba(255,222,0,.4);border-radius:2px}
+.hl b.cur{background:rgba(255,140,0,.6);outline:1px solid rgba(255,140,0,.95)}
+#vbar{display:none;flex:none;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 12px;background:linear-gradient(90deg,rgba(var(--a),.3),rgba(var(--a),.12) 50%,rgba(var(--a),.3));border-bottom:1px solid rgba(var(--a),.55);font-size:13px;white-space:nowrap}
+body[data-v=view] #vbar{display:flex}
+#vname{min-width:0;overflow:hidden;text-overflow:ellipsis}#vpg{flex:none;font-weight:600;color:var(--accent)}
+body[data-v=view] #fup,body[data-v=view] #fdn{display:flex}
+body[data-v=view] #sp{top:calc(40px + env(safe-area-inset-top))}
+body.deleting #refresh,body.deleting #srchBtn,body.deleting #theme{display:none}
+#refresh[hidden]{display:none}
+@media (orientation:landscape) and (max-height:500px){
+  footer{display:none!important}
+  body[data-v=view] #fsearch{display:flex}
+  #fdn{bottom:calc(16px + env(safe-area-inset-bottom))}#fup{bottom:calc(80px + env(safe-area-inset-bottom))}#fsearch{bottom:calc(144px + env(safe-area-inset-bottom))}
+  body[data-v=view] #vbar{display:none}
+  body[data-v=view] #sp{top:calc(10px + env(safe-area-inset-top))}
+}
+#fs{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));max-width:560px;margin:0 auto;z-index:7;display:none;align-items:center;gap:6px;padding:8px;background:rgba(28,28,30,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(var(--a),.35);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+body[data-v=list] #fs:not([hidden]){display:flex}
+#fq{flex:1;min-width:0;height:42px;border-radius:12px;border:1px solid var(--line);background:rgba(20,20,22,.7);color:var(--text);padding:0 12px;font:inherit;font-size:16px}
+#fs button{width:42px;height:42px;min-width:0;padding:0;flex:none}
+#fs svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#finfo{flex:none;font-size:12px;color:var(--mute);white-space:nowrap}
+.topic mark{background:rgba(255,213,0,.5);color:#fff;border-radius:2px;padding:0 1px}
+.topic.pdf.hit{background:rgba(255,213,0,.1);border-color:rgba(255,213,0,.35)}
+.topic.pdf.hit.cur{background:rgba(255,159,26,.16);border-color:#ff9f1a}
+#foot{transition:opacity .25s}
+body.uifade #foot{opacity:0;transition:opacity 5s linear}
+body.uigone #foot{pointer-events:none}
+#fup,#fdn{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#pbub{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:9;width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#fff;background:rgba(20,20,22,.82);border:3px solid var(--accent);box-shadow:0 0 22px rgba(var(--a),.6);pointer-events:none}
+#pbub[hidden]{display:none}
+#vbar{justify-content:space-between;gap:2px;padding:0 2px}
+#vmid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
+#vbar button{width:32px;min-width:0;height:28px;padding:0;background:transparent;border:0;flex:none;color:var(--accent)}
+#vbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#vfile{flex:none;font-size:11px;color:var(--mute)}
+#source{display:none;flex:1;min-height:0}
+body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
+#source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
+.srcbtn{display:flex;align-items:center;gap:14px;height:auto;min-height:72px;padding:12px 16px;text-align:left;border-radius:16px}
+.srcbtn svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;color:var(--accent)}
+.srcbtn b{display:block;font-size:16px}.srcbtn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.35}
+#serr{color:#ff8f8f;min-height:1.2em}
+#sback{height:40px;background:transparent;border-color:transparent;color:var(--mute)}
+body.sd #key,body.sd #upl,body.sd #del{display:none}
+#frame{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+#box{flex:1;min-height:0;overflow-y:auto;padding:8px 6px 44px}
+#ribbon{position:relative;z-index:2;flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:46px;padding:0 10px;background:linear-gradient(180deg,#e0382f,#b8221b);color:#fff;border-bottom:1px solid rgba(0,0,0,.35);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+#rtitle{font-size:17px;font-weight:700;letter-spacing:.6px;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+#rleft{justify-self:start}
+#rright{justify-self:end;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+#ribbon button{width:34px;min-width:0;height:34px;padding:0;border:0;border-radius:50%;background:rgba(0,0,0,.2);color:#fff}
+#ribbon button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+.tapes{position:relative;display:inline-block;padding:5px 7px;line-height:1}
+.tapes[hidden]{display:none}
+.tape{position:relative;display:inline-block;padding:4px 12px;font-size:10px;font-weight:800;letter-spacing:.9px;color:#3d1b00;background:#ff9933;transform:rotate(-8deg);clip-path:polygon(0 0,100% 0,96% 25%,100% 50%,96% 75%,100% 100%,0 100%,4% 75%,0 50%,4% 25%);white-space:nowrap}
+.tape:empty{display:none}
+.t2{position:absolute;left:0;right:0;top:50%;height:11px;margin-top:-5px;background:#ffc27a;transform:rotate(15deg);clip-path:polygon(0 0,100% 0,97% 30%,100% 50%,97% 70%,100% 100%,0 100%,3% 70%,0 50%,3% 30%)}
+#vleft{flex:none;padding:3px 5px}#vleft .tape{font-size:8.5px;padding:2px 8px}#vleft .t2{height:8px;margin-top:-4px}
+</style>
+</head>
+<body data-v="landing">
+<div id="app">
+  <div id="landing">
+    <svg class="logo" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6M9 16h4"/></svg>
+    <h1>My PDFs</h1><p>All your documents, one tap away</p>
+    <button id="start">START</button>
+  </div>
+  <div id="list"><div id="frame"><div id="ribbon"><span class="tapes" id="rleft"><i class="t2"></i><span class="tape" id="rbadge"></span></span><b id="rtitle">My PDFs</b><span id="rright"><span id="rcount"></span><button id="rfr" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button></span></div><div id="box"></div></div></div>
+  <div id="source">
+    <h2>Where are your PDFs?</h2>
+    <button class="srcbtn" id="srcGh" type="button"><svg viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg><span><b>GitHub</b><small>Online. Needs internet and your PIN.</small></span></button>
+    <button class="srcbtn" id="srcSd" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. Pick your MyPDFs folder on the phone or SD card.</small></span></button>
+    <p id="serr"></p>
+    <button id="sback" type="button" hidden>Back</button>
+  </div>
+  <div id="login">
+    <h2>Enter 4 Digits PIN</h2><p>Saved only in this browser on this device.</p>
+    <input id="tokin" type="password" autocomplete="off" placeholder="PIN">
+    <button id="tsave">Save PIN</button><p id="lerr"></p>
+  </div>
+  <div id="vbar"><button id="vprev" aria-label="Previous PDF"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><div id="vmid"><span class="tapes" id="vleft"><i class="t2"></i><span class="tape" id="vbadge"></span></span><span id="vname"></span><b id="vpg"></b></div><small id="vfile"></small><button id="vnext" aria-label="Next PDF"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+  <div id="viewer" tabindex="-1"><div id="pages"></div></div>
+  <div id="vmsg" class="msg" hidden></div>
+  <div id="toast"><small></small><b></b></div>
+  <div id="fs" hidden>
+    <input id="fq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search file names">
+    <small id="finfo"></small>
+    <button id="fprev" aria-label="Previous file"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    <button id="fnext" aria-label="Next file"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+    <button id="fx" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div id="sp" hidden>
+    <div class="sr1">
+      <input id="sq" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search in this PDF">
+      <button id="sgo" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+      <button id="scol" aria-label="Shrink search panel" hidden><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+      <button id="sx" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="sinfo"></div>
+    <div id="slist"></div>
+    <div class="sr2">
+      <button id="sprev" aria-label="Previous match"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      <b id="spos"></b>
+      <button id="snext" aria-label="Next match"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+      <button id="sexp" aria-label="Show results"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <button id="sx2" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+  <footer id="foot">
+    <button id="menu" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <button id="srchBtn" aria-label="Search in PDF" hidden><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <div class="mid">
+      <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
+        <button id="trash" aria-label="Slide right to delete this PDF"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></div>
+    </div>
+    <button id="theme" aria-label="Switch page theme" aria-pressed="false"><svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div id="panel" hidden>
+      <div id="prow">
+        <button id="trimBtn" aria-label="Trim page margins" hidden><svg viewBox="0 0 24 24"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></button>
+        <button id="src" aria-label="Change source"><svg viewBox="0 0 24 24"><path d="M7 4L3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/></svg></button>
+        <button id="upl" aria-label="Upload PDFs"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
+        <button id="max" aria-label="Full screen"></button>
+        <button id="key" aria-label="Change PIN"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
+        <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
+      </div>
+      <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
+      <small id="pinerr"></small>
+    </div>
+    <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
+  </footer>
+</div>
+<div id="pbub" hidden></div>
+<button id="fsearch" aria-label="Search in PDF"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+<button id="fup" aria-label="Page up"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+<button id="fdn" aria-label="Page down"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button>
+<input id="ufile" type="file" accept="application/pdf,.pdf" multiple hidden>
+<button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
+
+<script>
+// Installed app (Capacitor / home screen)? Already full screen: no max / upload buttons.
+const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
+  || matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+if (IN_APP) document.body.classList.add("app");
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const OWNER = "nerdysrisha", REPO = "mypdfs", TOK_KEY = "ghtok_pdfs";
+const API = "https://api.github.com/repos/" + OWNER + "/" + REPO;
+const DELETE_PIN = "6559";            // unlocks delete mode and PIN change
+const NEWEST_FIRST = false;           // folder order (true = names starting yyyy mm dd, newest first)
+const PDF_RE = /\.pdf$/i, MAX_ZOOM = 4, MAXPX = 8e6, UP_MAX = 50 * 1048576;
+const CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let LIB = IN_APP ? "pdfjs/" : CDN;                          // app: copy bundled inside the APK (www/pdfjs), so SD card works offline
+// ── HELPERS ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
+const mb = n => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+const ls = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ""; v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) { return ""; } };
+let mem = "";
+const getTok = () => ls(TOK_KEY) || mem;
+const getSrc = () => ls("pdfsrc") || (getTok() ? "github" : ""), setSrc = v => ls("pdfsrc", v);   // an existing GitHub setup keeps working
+const setTok = v => { mem = v; ls(TOK_KEY, v || null); };
+const posMap = () => { try { return JSON.parse(ls("pdfpos") || "{}"); } catch (e) { return {}; } };
+const getPos = p => +posMap()[p] || 0;
+const setPos = (p, i) => { const m = posMap(); i > 0 ? m[p] = i : delete m[p]; ls("pdfpos", JSON.stringify(m)); };
+const hdr = raw => ({Authorization: "Bearer " + getTok(), Accept: raw ? "application/vnd.github.raw" : "application/vnd.github+json"});
+const api = (path, raw) => fetch(API + "/contents/" + enc(path), {headers: hdr(raw)});
+const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
+const show = v => { document.body.dataset.v = v; closePanel(); fit(); updateBar(); uiWake(); };
+let ticket = 0, toastT = 0;
+function toast(a, b) {
+  const t = $("toast"); t.firstChild.textContent = a; t.firstChild.style.display = a ? "block" : "none"; t.lastChild.textContent = b;
+  t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
+}
+const fail = t => { $("lerr").textContent = t; closeDoc(); show("login"); };
+
+// ── DATA: one call lists the whole repo; folders = directories that hold PDFs ──
+let parsed = [], dirs = {}, byPath = {}, loaded = false, truncated = false;
+const parseFolder = n => {
+  if (n === "/") return {n, y: 0, mo: 0, d: 0, t: "Main folder"};
+  const m = n.match(/^(\d{4}) (\d{2}) (\d{2}) (.*)$/), nice = x => x.replace(/\//g, " / ");
+  return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
+};
+const sortFolders = () => parsed.sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+const topOf = n => n === "/" ? "/" : n.split("/")[0];
+function build(data) {
+  const d = {}, bp = {};
+  (data.tree || []).forEach(x => {
+    if (x.type !== "blob" || !PDF_RE.test(x.path) || x.path.split("/").some(s => s.startsWith("."))) return;
+    const i = x.path.lastIndexOf("/"), dir = i < 0 ? "" : x.path.slice(0, i), fid = dir || "/";
+    const f = {path: x.path, name: x.path.slice(i + 1), dir, fid, size: x.size || 0, sha: x.sha};
+    (d[fid] = d[fid] || []).push(f); bp[f.path] = f;
+  });
+  Object.values(d).forEach(a => a.sort((p, q) => nat(p.name, q.name)));
+  dirs = d; byPath = bp; truncated = !!data.truncated; parsed = Object.keys(d).map(parseFolder); sortFolders();
+}
+async function loadTree(quiet) {
+  const my = quiet ? ticket : ++ticket;
+  if (!quiet) { $("box").innerHTML = '<div class="msg">Loading folders...</div>'; show("list"); }
+  try {
+    const r = await fetch(API + "/git/trees/HEAD?recursive=1", {headers: hdr(false)});
+    if (my !== ticket) return false;
+    if (r.status === 401) { setTok(""); fail("PIN was rejected. Enter it again."); return false; }
+    if (!r.ok) { if (quiet) toast("Refresh failed (" + r.status + ")", ""); else $("box").innerHTML = '<div class="msg">Could not load folders (error ' + r.status + '). Reload to retry.</div>'; return false; }
+    const data = await r.json(); if (my !== ticket) return false;
+    build(data); loaded = true; if (!quiet) renderList(); return true;
+  } catch (e) { if (my === ticket) { if (quiet) toast("", "Network error"); else $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; } return false; }
+}
+
+// SD card: the Java side scans the chosen folder (or its "pdfs" sub-folder) and returns "path<TAB>size" lines
+const CHUNK = 1048576;                                       // PDFs are read in 1 MB pieces (must match CHUNK in MainActivity.java)
+async function loadSd(quiet) {
+  const my = quiet ? ticket : ++ticket;
+  if (!window.AndroidSd) { $("serr").textContent = "The SD card works only inside the Android app."; closeDoc(); show("source"); return false; }
+  const st = AndroidSd.status();
+  if (st.indexOf("ok") !== 0) { $("serr").textContent = st === "lost" ? "Access to the folder was lost. Tap SD card and choose the folder again." : "Tap SD card and choose your MyPDFs folder."; $("sback").hidden = true; closeDoc(); show("source"); return false; }
+  if (!quiet) { $("box").innerHTML = '<div class="msg">Reading SD card...</div>'; show("list"); }
+  const res = await new Promise(ok => { const h = e => { window.removeEventListener("sdscan", h); ok(e.detail); }; window.addEventListener("sdscan", h); AndroidSd.scan(); });
+  if (my !== ticket) return false;
+  if (res !== "ok") {
+    if (quiet) toast("Refresh failed", ""); else { $("box").textContent = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = "Could not read the SD card folder (" + res + "). Use the gear > source button to choose it again."; $("box").appendChild(m); }
+    return false;
+  }
+  const d = {}, bp = {};
+  AndroidSd.result().split("\n").forEach(line => {
+    if (!line) return; const t = line.split("\t"), path = t[0];
+    if (!PDF_RE.test(path) || path.split("/").some(s => s.startsWith("."))) return;
+    const i = path.lastIndexOf("/"), dir = i < 0 ? "" : path.slice(0, i), fid = dir || "/";
+    const f = {path, name: path.slice(i + 1), dir, fid, size: +t[1] || 0, sd: true};
+    (d[fid] = d[fid] || []).push(f); bp[path] = f;
+  });
+  Object.values(d).forEach(a => a.sort((p, q) => nat(p.name, q.name)));
+  dirs = d; byPath = bp; truncated = false; parsed = Object.keys(d).map(parseFolder); sortFolders();
+  loaded = true; if (!quiet) renderList(); return true;
+}
+async function readSd(f, my) {                               // pull one PDF out of the SD card piece by piece
+  const n = f.size ? Math.ceil(f.size / CHUNK) : 100000, parts = []; let got = 0;
+  for (let i = 0; i < n; i++) {
+    const b64 = AndroidSd.chunk(f.path, i);
+    if (b64.indexOf("ERR:") === 0) throw new Error(b64);
+    if (!b64) break;
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k);
+    parts.push(u); got += u.length; if (my !== ticket) return null;
+    if (f.size) vnote("Loading " + Math.min(99, Math.round(got / f.size * 100)) + "%");
+    await new Promise(r => setTimeout(r, 0));                // let the screen breathe between pieces
+  }
+  if (!got) throw new Error("empty");
+  const buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; }); return buf;
+}
+
+// ── FOLDER LIST: tap a folder, its PDFs open right under it; tap a PDF to read ──
+const openGroups = new Set(); let autoOpened = false, savedScroll = 0;
+function renderList() {
+  const g = $("box"); g.innerHTML = "";
+  $("rbadge").textContent = getSrc() === "sd" ? "SD CARD" : "GITHUB"; $("rcount").textContent = parsed.length + (parsed.length === 1 ? " folder" : " folders");
+  const last = ls("lastFolder_pdfs"), lastPdf = ls("lastPdf_pdfs"), lastTop = last ? topOf(last) : "";
+  if (!autoOpened) { autoOpened = true; if (last) { openGroups.add(last); openGroups.add("g:" + lastTop); } }
+  const groups = new Map();
+  parsed.forEach(f => { const t = topOf(f.n); if (!groups.has(t)) groups.set(t, []); groups.get(t).push(f); });
+  const cnt = f => (dirs[f.n] || []).length, dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
+  const pdfRow = x => {
+    const b = document.createElement("button"); b.className = "topic pdf"; b.innerHTML = "<span><b></b><small></small></span>";
+    const tb = b.firstChild.firstChild, p = getPos(x.path);
+    const nm = x.name.replace(PDF_RE, ""), hi = fileQ ? normStr(nm).indexOf(fileQ) : -1;
+    if (hi >= 0) { b.classList.add("hit"); const mk = document.createElement("mark"); mk.textContent = nm.slice(hi, hi + fileQ.length); tb.append(nm.slice(0, hi), mk, nm.slice(hi + fileQ.length)); } else tb.textContent = nm;
+    tb.nextSibling.textContent = p ? "Last read: page " + (p + 1) : "";
+    if (x.path === lastPdf) tb.appendChild(bmIcon());
+    b.onclick = () => { savedScroll = g.scrollTop; location.hash = "p=" + encodeURIComponent(x.path); };
+    return b;
+  };
+  const accordion = (key, title, sub, count, isLast, fill) => {
+    const wrap = document.createElement("div"); wrap.className = "grp" + (openGroups.has(key) ? " open" : "");
+    const h = document.createElement("button"); h.className = "topic hd";
+    h.innerHTML = "<span><b></b><small></small></span><span class=\"r\"><em class=\"n\"></em><i>&#9656;</i></span>";
+    h.querySelector("em").textContent = count; h.firstChild.firstChild.textContent = title; h.firstChild.lastChild.textContent = sub;
+    if (isLast) h.firstChild.firstChild.appendChild(bmIcon());
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(key) : openGroups.delete(key); };
+    const kids = document.createElement("div"); kids.className = "kids"; fill(kids);
+    wrap.appendChild(h); wrap.appendChild(kids); return wrap;
+  };
+  const folderAcc = (f, title) => accordion(f.n, title, dstr(f), cnt(f), !!last && f.n === last, k => (dirs[f.n] || []).forEach(x => k.appendChild(pdfRow(x))));
+  groups.forEach((list, top) => {
+    if (list.length === 1 && list[0].n === top) { g.appendChild(folderAcc(list[0], list[0].t)); return; }
+    const t = parseFolder(top), sub = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
+    g.appendChild(accordion("g:" + top, t.t, sub, list.reduce((a, f) => a + cnt(f), 0), !!last && top === lastTop,
+      k => list.forEach(f => k.appendChild(folderAcc(f, f.n === top ? "PDFs in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "))))));
+  });
+  const note = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
+  if (!parsed.length) note("No folders with PDFs found.");
+  if (truncated) note("The repo is very large, so this list may be incomplete.");
+}
+
+// ── READER (pdf.js, continuous scroll, pages drawn only when near the screen) ──
+const V = $("viewer"), pagesEl = $("pages"), PADX = 8, GAP = 8, PADT = 8;
+let doc = null, N = 0, pg = [], ratio = [], tops = [], hs = [], W = 0, zoom = 1, curPg = 0, curFile = null, docGen = 0, lastCW = 0, navTgt = 0, navUntil = 0;
+let pdfReady = null, cropL = 0, cropR = 0, cropOn = ls("pdfTrim") !== "0";
+const vwf = () => cropOn ? Math.max(0.3, 1 - cropL - cropR) : 1, clf = () => cropOn ? cropL : 0;
+function cropStyle(e) { const v = vwf(); e.style.width = (100 / v) + "%"; e.style.marginLeft = (-clf() / v * 100) + "%"; }
+async function detectCrop(my) {                               // look at a few pages at low size, find where the ink really starts and ends
+  try {
+    const n = Math.min(N, 8); let l = 1, r = 0, got = 0;
+    for (let k = 0; k < n; k++) {
+      const i = n === 1 ? 0 : Math.floor(k * (N - 1) / (n - 1)), page = await doc.getPage(i + 1); if (my !== ticket) return;
+      const sc = 160 / page.getViewport({scale: 1}).width, vp = page.getViewport({scale: sc}), c = document.createElement("canvas");
+      c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
+      const cx = c.getContext("2d", {willReadFrequently: true}); cx.fillStyle = "#fff"; cx.fillRect(0, 0, c.width, c.height);
+      await page.render({canvasContext: cx, viewport: vp}).promise; if (my !== ticket) return;
+      const d = cx.getImageData(0, 0, c.width, c.height).data, w = c.width; let x0 = w, x1 = -1;
+      for (let o = 0, q = 0; o < d.length; o += 4, q++) { if (d[o] < 235 || d[o + 1] < 235 || d[o + 2] < 235) { const x = q % w; if (x < x0) x0 = x; if (x > x1) x1 = x; } }
+      if (x1 >= 0) { l = Math.min(l, x0 / w); r = Math.max(r, (x1 + 1) / w); got++; }
+      page.cleanup(); c.width = 0;
+    }
+    if (!got) return;
+    const a = Math.min(0.35, Math.max(0, l - 0.025)), b = Math.min(0.35, Math.max(0, 1 - r - 0.025));
+    if (a + b >= 0.04) { cropL = a; cropR = b; }
+  } catch (e) {}
+}
+function applyCrop() {
+  if (!doc) return;
+  pagesEl.querySelectorAll(".pg canvas,.hl").forEach(cropStyle);
+  pg.forEach(s => { s.gen++; if (s.task) try { s.task.cancel(); } catch (e) {} s.task = null; s.busy = false; s.done = false; });
+  relayout();
+}
+function pdfjsReady() {
+  return pdfReady || (pdfReady = new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = LIB + "pdf.min.js";
+    s.onload = async () => {
+      try { const w = await (await fetch(LIB + "pdf.worker.min.js")).text(); pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], {type: "text/javascript"})); }
+      catch (e) { pdfjsLib.GlobalWorkerOptions.workerSrc = LIB + "pdf.worker.min.js"; }
+      res();
+    };
+    s.onerror = () => { pdfReady = null; s.remove(); if (LIB !== CDN) { LIB = CDN; pdfjsReady().then(res, rej); return; } rej(new Error("pdfjs")); };
+    document.head.appendChild(s);
+  }));
+}
+function vnote(t, bad) { const m = $("vmsg"); m.textContent = t || ""; m.hidden = !t; m.classList.toggle("bad", !!bad); }
+const ph = i => { const e = document.createElement("i"); e.textContent = i + 1; return e; };
+function closeDoc() {
+  if (curFile && doc && !curFile.local) setPos(curFile.path, curPg);
+  docGen++; pg.forEach(s => { if (s.task) try { s.task.cancel(); } catch (e) {} });
+  if (doc) try { doc.destroy(); } catch (e) {}
+  doc = null; N = 0; pg = []; ratio = []; tops = []; hs = []; curPg = 0; zoom = 1; curFile = null; cropL = cropR = 0;
+  pagesEl.innerHTML = ""; pagesEl.style.transform = ""; vnote(""); searchReset();
+}
+async function openPdf(f) {
+  const my = ++ticket; closeDoc(); curFile = f;
+  if (!f.local) { ls("lastPdf_pdfs", f.path); ls("lastFolder_pdfs", f.fid); openGroups.add(f.fid); openGroups.add("g:" + topOf(f.fid)); }
+  show("view"); vnote("Loading..."); V.scrollTop = 0; V.scrollLeft = 0;
+  try {
+    await pdfjsReady(); if (my !== ticket) return;
+    let buf;
+    if (f.sd) { buf = await readSd(f, my); if (!buf) return; }
+    else {
+      const r = f.local ? await fetch(f.local) : await api(f.path, true); if (my !== ticket) return;
+      if (r.status === 401) { setTok(""); return fail("PIN was rejected. Enter it again."); }
+      if (!r.ok) return vnote("Could not open this PDF (error " + r.status + "). Check the file exists and the PIN can read it.", true);
+      const total = f.size || +r.headers.get("content-length") || 0;
+      if (r.body && r.body.getReader) {
+        const rd = r.body.getReader(), parts = []; let got = 0;
+        for (;;) {
+          const {done, value} = await rd.read(); if (done) break;
+          if (my !== ticket) { rd.cancel(); return; }
+          parts.push(value); got += value.length; if (total) vnote("Loading " + Math.min(99, Math.round(got / total * 100)) + "%");
+        }
+        buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; });
+      } else buf = new Uint8Array(await r.arrayBuffer());
+    }
+    if (my !== ticket) return;
+    vnote("Opening...");
+    let d;
+    try { d = await pdfjsLib.getDocument({data: buf, cMapUrl: LIB + "cmaps/", cMapPacked: true}).promise; }
+    catch (e) { return vnote(e && e.name === "PasswordException" ? "This PDF is password protected and can't be opened here." : "This file could not be read as a PDF.", true); }
+    if (my !== ticket) { d.destroy(); return; }
+    const v1 = (await d.getPage(1)).getViewport({scale: 1}); if (my !== ticket) { d.destroy(); return; }
+    doc = d; N = d.numPages;
+    for (let i = 0; i < N; i++) {
+      ratio[i] = v1.height / v1.width; const el = document.createElement("div"); el.className = "pg"; el.appendChild(ph(i)); pagesEl.appendChild(el);
+      pg.push({el, done: false, busy: false, err: false, gen: 0, dw: 0, task: null});
+    }
+    { const key = f.local ? "" : "crop_" + f.path + "_" + (f.size || 0), c = key ? ls(key) : "";
+      if (c) { const a = c.split(","); cropL = +a[0] || 0; cropR = +a[1] || 0; }
+      else { vnote("Fitting margins..."); await detectCrop(my); if (my !== ticket) return; if (key) ls(key, cropL + "," + cropR); } }
+    vnote(""); lastCW = V.clientWidth; layout();
+    const p = Math.min(getPos(f.path), N - 1); curPg = p; if (p > 0) V.scrollTop = tops[p] - 6;
+    refresh(); updateBar(); V.focus({preventScroll: true}); loadRatios(docGen); uiWake();
+  } catch (e) { if (my === ticket) vnote(f.sd ? "Could not read this PDF from the SD card." : "Network error. Check your connection and try again.", true); }
+}
+async function loadRatios(gen) {                              // real size of every page (mixed-size PDFs)
+  try {
+    for (let s = 1; s < N; s += 40) {
+      const idx = []; for (let i = s; i < Math.min(N, s + 40); i++) idx.push(i);
+      const rs = await Promise.all(idx.map(i => doc.getPage(i + 1).then(p => { const v = p.getViewport({scale: 1}); return v.height / v.width; })));
+      if (gen !== docGen) return; let ch = false;
+      rs.forEach((r, k) => { if (Math.abs(ratio[idx[k]] - r) > 0.001) { ratio[idx[k]] = r; ch = true; } });
+      if (ch) relayout();
+    }
+  } catch (e) {}
+}
+function layout() {
+  const cw = V.clientWidth; if (!cw || !N) return;
+  W = Math.max(100, Math.round((cw - 2 * PADX) * zoom)); let y = PADT;
+  for (let i = 0; i < N; i++) { const h = Math.max(20, Math.round(W / vwf() * ratio[i])), s = pg[i].el.style; hs[i] = h; tops[i] = y; y += h + GAP; s.width = W + "px"; s.height = h + "px"; }
+}
+function relayout() {
+  if (!doc) return; const i = curPg, fr = hs[i] ? (V.scrollTop - tops[i]) / hs[i] : 0;
+  layout(); V.scrollTop = tops[i] + fr * hs[i]; refresh();
+}
+function pageAt(y) { let lo = 0, hi = N - 1; while (lo < hi) { const m = (lo + hi + 1) >> 1; if (tops[m] <= y) lo = m; else hi = m - 1; } return lo; }
+function refresh() {
+  if (!doc || !W) return;
+  const vt = V.scrollTop, vb = vt + V.clientHeight, m = V.clientHeight * 0.5;
+  for (let i = 0; i < N; i++) {
+    const s = pg[i], near = tops[i] + hs[i] > vt - m && tops[i] < vb + m;
+    if (near) { if (!s.busy && !s.err && (!s.done || s.dw !== W)) renderPage(i); }
+    else if (s.done || s.busy) freePage(i);
+  }
+}
+let rq = 0; const sched = () => { if (!rq) rq = requestAnimationFrame(() => { rq = 0; refresh(); }); };
+function freePage(i) {
+  const s = pg[i]; s.gen++; if (s.task) try { s.task.cancel(); } catch (e) {}
+  const c = s.el.querySelector("canvas"); if (c) c.width = 0;
+  s.task = null; s.busy = false; s.done = false; s.err = false; s.el.textContent = ""; s.el.appendChild(ph(i)); if (pgM.size) addHl(i);
+}
+async function renderPage(i) {
+  const s = pg[i], my = docGen, g = ++s.gen; s.busy = true;
+  try {
+    const page = await doc.getPage(i + 1); if (my !== docGen || g !== s.gen) return;
+    const cw = Math.round(W / vwf()), v1 = page.getViewport({scale: 1});
+    let k = cw / v1.width * Math.min(window.devicePixelRatio || 1, 2.5);
+    const px = v1.width * k * v1.height * k; if (px > MAXPX) k *= Math.sqrt(MAXPX / px);
+    const vp = page.getViewport({scale: k}), c = document.createElement("canvas");
+    c.width = Math.max(1, Math.floor(vp.width)); c.height = Math.max(1, Math.floor(vp.height));
+    s.task = page.render({canvasContext: c.getContext("2d"), viewport: vp}); await s.task.promise;
+    if (my !== docGen || g !== s.gen) { c.width = 0; return; }
+    s.el.textContent = ""; cropStyle(c); s.el.appendChild(c); s.done = true; s.dw = W; page.cleanup(); if (pgM.size) addHl(i);
+  } catch (e) { if (g === s.gen && !(e && e.name === "RenderingCancelledException")) s.err = true; }
+  finally { if (my === docGen) { if (g === s.gen) { s.busy = false; s.task = null; } sched(); } }
+}
+function scrollToPage(i, smooth) { V.scrollTo({top: Math.max(0, tops[i] - 6), behavior: smooth ? "smooth" : "auto"}); }
+function go(d) {
+  if (!N) return; const base = Date.now() < navUntil ? navTgt : curPg;
+  navTgt = Math.max(0, Math.min(N - 1, base + d)); navUntil = Date.now() + 450; scrollToPage(navTgt, true);
+}
+let raf = 0, posT = 0;
+V.addEventListener("scroll", () => { if (raf || !doc) return; raf = requestAnimationFrame(() => { raf = 0; onScroll(); }); }, {passive: true});
+function onScroll() {
+  if (!doc) return;
+  const end = V.scrollTop > 0 && V.scrollTop + V.clientHeight >= V.scrollHeight - 2;
+  const i = end ? N - 1 : pageAt(V.scrollTop + V.clientHeight * 0.35);
+  if (i !== curPg) { curPg = i; updateBar(); clearTimeout(posT); posT = setTimeout(() => curFile && !curFile.local && setPos(curFile.path, curPg), 600); }
+  refresh();
+}
+function setZoom(z, cx, cy) {                                  // cx, cy: point (px inside the viewer) that stays put
+  z = Math.max(1, Math.min(MAX_ZOOM, z)); if (!doc || Math.abs(z - zoom) < 0.01) return;
+  const fx = (V.scrollLeft + cx) / (V.scrollWidth || 1), fy = (V.scrollTop + cy) / (V.scrollHeight || 1);
+  zoom = z; layout(); V.scrollLeft = fx * V.scrollWidth - cx; V.scrollTop = fy * V.scrollHeight - cy; refresh();
+}
+const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+let gs = null, lastTap = 0;
+const rel = (x, y) => { const r = V.getBoundingClientRect(); return [x - r.left, y - r.top]; };
+V.addEventListener("touchstart", e => {
+  if (!doc) return;
+  if (e.touches.length === 2) {
+    const [cx, cy] = rel((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+    gs = {m: "pinch", d: dist(e.touches), z: zoom, r: 1, cx, cy}; pagesEl.style.transformOrigin = (V.scrollLeft + cx) + "px " + (V.scrollTop + cy) + "px";
+  } else if (e.touches.length === 1) gs = {m: "tap", x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false, t: Date.now()};
+}, {passive: true});
+V.addEventListener("touchmove", e => {
+  if (!gs) return;
+  if (gs.m === "pinch") { if (e.touches.length === 2) { e.preventDefault(); gs.r = Math.max(1, Math.min(MAX_ZOOM, gs.z * dist(e.touches) / gs.d)) / gs.z; pagesEl.style.transform = "scale(" + gs.r + ")"; } return; }
+  const t = e.touches[0]; if (Math.abs(t.clientX - gs.x) > 8 || Math.abs(t.clientY - gs.y) > 8) gs.moved = true;
+}, {passive: false});
+V.addEventListener("touchend", e => {
+  if (!gs) return; const g = gs;
+  if (g.m === "pinch") { if (e.touches.length < 2) { gs = null; pagesEl.style.transform = ""; pagesEl.style.transformOrigin = ""; setZoom(g.z * g.r, g.cx, g.cy); } return; }
+  gs = null; if (e.touches.length) return;
+  if (g.moved) {                                           // horizontal swipe (only when not zoomed in)
+    const t = e.changedTouches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+    if (zoom <= 1.05 && Math.abs(dx) > 70 && Math.abs(dx) > 1.8 * Math.abs(dy) && Date.now() - g.t < 800) stepPdf(dx < 0 ? 1 : -1);
+    return;
+  }
+  const now = Date.now(), t = e.changedTouches[0];
+  if (now - lastTap < 300) { lastTap = 0; const [x, y] = rel(t.clientX, t.clientY); zoom > 1.05 ? setZoom(1, x, y) : setZoom(2.5, x, y); } else lastTap = now;
+});
+V.addEventListener("touchcancel", () => { gs = null; pagesEl.style.transform = ""; });
+V.addEventListener("wheel", e => { if (!e.ctrlKey || !doc) return; e.preventDefault(); const [x, y] = rel(e.clientX, e.clientY); setZoom(zoom * (e.deltaY < 0 ? 1.15 : 0.87), x, y); }, {passive: false});
+V.addEventListener("dblclick", e => { if (!doc || !matchMedia("(pointer:fine)").matches) return; const [x, y] = rel(e.clientX, e.clientY); zoom > 1.05 ? setZoom(1, x, y) : setZoom(2.5, x, y); });
+
+function stepPdf(d) {
+  if (!curFile || curFile.local) return; const a = dirs[curFile.fid] || [], i = a.findIndex(x => x.path === curFile.path), j = i + d;
+  if (i < 0 || j < 0 || j >= a.length) { toast("", d > 0 ? "Last PDF in this folder" : "First PDF in this folder"); return; }
+  location.replace("#p=" + encodeURIComponent(a[j].path));
+}
+
+// ── BAR ─────────────────────────────────────────────────────────────────
+let unlocked = false, delBusy = false, sd = null;
+function updateBar() {
+  const v = document.body.dataset.v, inView = v === "view"; let c = "", l = "";
+  if (inView && curFile) { c = N ? (curPg + 1) + " / " + N : ""; l = curFile.name.replace(PDF_RE, ""); }
+  $("vname").textContent = inView && curFile ? curFile.name.replace(PDF_RE, "") : ""; $("vpg").textContent = inView && curFile && N ? "(Page " + (curPg + 1) + "/" + N + ")" : "";
+  { const a = inView && curFile && !curFile.local ? (dirs[curFile.fid] || []) : [], k = curFile ? a.findIndex(x => x.path === curFile.path) : -1;
+    $("vprev").style.visibility = k > 0 ? "visible" : "hidden"; $("vnext").style.visibility = k >= 0 && k < a.length - 1 ? "visible" : "hidden";
+    $("vfile").textContent = k >= 0 && a.length > 1 ? (k + 1) + "/" + a.length : ""; }
+  { const showB = inView && curFile && !curFile.local; $("vleft").hidden = !showB; $("vbadge").textContent = showB ? (curFile.sd ? "SD" : "GITHUB") : ""; }
+  $("info").classList.toggle("none", !sd);
+  const canDel = !!(unlocked && inView && doc && curFile && !curFile.local);
+  $("slide").classList.toggle("off", !canDel); document.body.classList.toggle("deleting", canDel);
+  $("menu").disabled = !inView;
+  $("srchBtn").hidden = !(v === "list" || (inView && N > 0)); $("trimBtn").hidden = !(inView && N > 0); $("trimBtn").classList.toggle("on", cropOn);
+  $("fup").disabled = !inView || curPg <= 0; $("fdn").disabled = !inView || curPg >= N - 1;
+}
+function fit() { const vv = window.visualViewport; $("app").style.height = Math.round(vv ? vv.height : innerHeight) + "px"; }
+function realign() { fit(); if (doc && V.clientWidth && V.clientWidth !== lastCW) { lastCW = V.clientWidth; relayout(); } else refresh(); }
+window.addEventListener("resize", realign);
+window.addEventListener("orientationchange", () => { setTimeout(realign, 100); setTimeout(realign, 500); });
+if (window.visualViewport) visualViewport.addEventListener("resize", realign);
+
+// ── SEARCH (finds text inside the open PDF; yellow = match, orange = current) ──
+const SP = $("sp"), SQ = $("sq");
+let sTok = 0, stx = [], M = [], pgM = new Map(), curM = -1, sScan = null, sQuery = "";
+const nz = ch => { const d = ch.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); return ((d || ch).toLowerCase())[0] || ch; };
+function normStr(t) {                                         // lower case, no accents, 1 char in = 1 char out
+  const a = new Array(t.length);
+  for (let i = 0; i < t.length; i++) {
+    const c = t.charCodeAt(i), ch = t[i];
+    a[i] = c < 128 ? (c >= 65 && c <= 90 ? String.fromCharCode(c + 32) : (c <= 32 ? " " : ch)) : (/\s/.test(ch) ? " " : nz(ch));
+  }
+  return a.join("");
+}
+function setInfo(t, bad) { const e = $("sinfo"); e.textContent = t || ""; e.classList.toggle("bad", !!bad); }
+async function pageText(i) {
+  if (stx[i]) return stx[i];
+  const gen = docGen, page = await doc.getPage(i + 1), vp = page.getViewport({scale: 1}), tc = await page.getTextContent();
+  if (gen !== docGen) return null;
+  const items = [], offs = []; let raw = "", prev = null;
+  for (const it of tc.items) {
+    if (typeof it.str !== "string" || !it.str) continue;
+    const tr = pdfjsLib.Util.transform(vp.transform, it.transform), fh = Math.hypot(tr[2], tr[3]) || 10;
+    if (prev && (prev.eol || Math.abs(tr[5] - prev.tr[5]) > fh * 0.6 || tr[4] - (prev.tr[4] + prev.w) > fh * 0.15) && !/\s$/.test(raw) && !/^\s/.test(it.str)) raw += " ";
+    offs.push(raw.length); raw += it.str; items.push({tr, w: it.width, fh, s: it.str.length}); prev = {tr, w: it.width, eol: !!it.hasEOL};
+  }
+  page.cleanup();
+  return stx[i] = {raw, n: normStr(raw), items, offs, pw: vp.width, ph: vp.height};
+}
+function matchesIn(t, q) { const r = []; let k = 0; for (;;) { k = t.n.indexOf(q, k); if (k < 0 || r.length >= 500) break; r.push([k, k + q.length]); k += q.length; } return r; }
+function rectsOf(t, a, b) {                                   // yellow boxes as % of the page
+  const out = [];
+  for (let j = 0; j < t.items.length; j++) {
+    const it = t.items[j], st = t.offs[j], e = st + it.s;
+    if (e <= a) continue; if (st >= b) break;
+    const f0 = (Math.max(a, st) - st) / it.s, f1 = (Math.min(b, e) - st) / it.s;
+    out.push([(it.tr[4] + it.w * f0) / t.pw * 100, (it.tr[5] - it.fh * 0.92) / t.ph * 100, Math.max(it.w * (f1 - f0), 2) / t.pw * 100, it.fh * 1.15 / t.ph * 100]);
+  }
+  return out;
+}
+function addHl(i) {
+  const ks = pgM.get(i), el = pg[i] && pg[i].el; if (!ks || !el || !stx[i]) return;
+  const old = el.querySelector(".hl"); if (old) old.remove();
+  const L = document.createElement("div"); L.className = "hl"; cropStyle(L);
+  ks.forEach(k => rectsOf(stx[i], M[k].a, M[k].b).forEach(r => {
+    const b = document.createElement("b"); b.dataset.k = k; if (k === curM) b.className = "cur";
+    b.style.cssText = "left:" + r[0] + "%;top:" + r[1] + "%;width:" + r[2] + "%;height:" + r[3] + "%"; L.appendChild(b);
+  }));
+  el.appendChild(L);
+}
+const clearHl = () => document.querySelectorAll(".hl").forEach(e => e.remove());
+function buildList() {
+  const L = $("slist"); L.textContent = "";
+  pgM.forEach((ks, p) => {
+    const t = stx[p], m = M[ks[0]], b = document.createElement("button"); b.className = "sitem"; b.dataset.p = p;
+    const h = document.createElement("div"), pb = document.createElement("b"), sm = document.createElement("small");
+    pb.textContent = "Page " + (p + 1); sm.textContent = ks.length + (ks.length === 1 ? " match" : " matches"); h.append(pb, sm);
+    const sn = document.createElement("span"), mk = document.createElement("mark"), s0 = Math.max(0, m.a - 28), e0 = Math.min(t.raw.length, m.b + 42);
+    mk.textContent = t.raw.slice(m.a, m.b);
+    sn.append((s0 > 0 ? "\u2026" : "") + t.raw.slice(s0, m.a), mk, t.raw.slice(m.b, e0) + (e0 < t.raw.length ? "\u2026" : ""));
+    b.append(h, sn); b.onclick = () => gotoMatch(ks[0]); L.appendChild(b);
+  });
+}
+function gotoMatch(k) {
+  if (!M.length) return; k = (k + M.length) % M.length; curM = k; const m = M[k];
+  document.querySelectorAll(".hl b").forEach(b => b.classList.toggle("cur", +b.dataset.k === k));
+  const L = $("slist"); let act = null;
+  L.querySelectorAll(".sitem").forEach(e => { const on = +e.dataset.p === m.p; e.classList.toggle("on", on); if (on) act = e; });
+  if (act && !SP.classList.contains("mini")) L.scrollTop = act.offsetTop - L.clientHeight / 2 + act.offsetHeight / 2;
+  $("spos").textContent = (k + 1) + " / " + M.length + " \u00b7 p. " + (m.p + 1);
+  const r = rectsOf(stx[m.p], m.a, m.b)[0]; if (!r || !hs[m.p]) return;
+  const y = tops[m.p] + r[1] / 100 * hs[m.p], x = PADX + (r[0] / 100 - clf()) * W / vwf(), pb = SP.hidden ? 0 : SP.getBoundingClientRect().bottom - V.getBoundingClientRect().top;
+  const want = Math.min(Math.max(V.clientHeight * 0.35, pb + 50), V.clientHeight - 70);
+  V.scrollTo({top: Math.max(0, y - want), left: zoom > 1.05 ? Math.max(0, x - V.clientWidth / 2) : V.scrollLeft, behavior: "smooth"});
+}
+async function doSearch() {
+  const raw = SQ.value.trim(); if (!raw || !doc || SQ.disabled) return;
+  const q = normStr(raw.replace(/\s+/g, " ")), my = ++sTok, gen = docGen;
+  sQuery = raw; SQ.blur(); clearHl(); M = []; pgM = new Map(); curM = -1; $("slist").textContent = ""; $("scol").hidden = true; SP.classList.remove("mini");
+  setInfo("Searching... 0 / " + N); let blank = 0;
+  for (let i = 0; i < N; i++) {
+    let t = null; try { t = await pageText(i); } catch (e) {}
+    if (my !== sTok || gen !== docGen) return;
+    if (!t) continue; if (!t.raw.trim()) blank++;
+    matchesIn(t, q).forEach(([a, b]) => { if (M.length < 3000) { const k = M.push({p: i, a, b}) - 1; if (!pgM.has(i)) pgM.set(i, []); pgM.get(i).push(k); } });
+    if (i % 6 === 5) setInfo("Searching... " + (i + 1) + " / " + N);
+  }
+  if (!M.length) { blank === N ? noText() : setInfo("No matches for \u201c" + raw + "\u201d", true); return; }
+  setInfo(M.length + (M.length === 1 ? " match on " : " matches on ") + pgM.size + (pgM.size === 1 ? " page" : " pages") + (M.length >= 3000 ? " (first 3000 shown)" : ""));
+  buildList(); pgM.forEach((_, p) => addHl(p)); $("scol").hidden = false; gotoMatch(0);
+}
+function noText() { setInfo("No readable text found. This looks like a scanned PDF (pictures of pages), so search isn't possible.", true); SQ.disabled = true; $("sgo").disabled = true; sScan = true; }
+async function openSearch() {
+  if (document.body.dataset.v === "list") return openFileSearch();
+  if (!doc || document.body.dataset.v !== "view") return;
+  closePanel(); SP.hidden = false; SP.classList.remove("mini"); SQ.value = sQuery; SQ.focus(); SQ.select();
+  if (sScan !== null) return; const gen = docGen, my = ++sTok; setInfo("Checking text..."); let any = false;
+  try {
+    for (let k = 0; k < 6 && !any; k++) { const t = await pageText(Math.floor(k * (N - 1) / 5)); if (my !== sTok || gen !== docGen) return; if (t && t.raw.trim()) any = true; }
+  } catch (e) { any = true; }
+  if (!any) noText(); else { sScan = false; setInfo(""); }
+}
+function closeSearch() {
+  sTok++; clearTimeout(scT); SP.classList.remove("scrolling"); SP.hidden = true; SP.classList.remove("mini"); clearHl(); M = []; pgM = new Map(); curM = -1;
+  $("slist").textContent = ""; $("scol").hidden = true; $("spos").textContent = ""; SQ.blur();
+  if (!sScan) setInfo("");
+}
+function searchReset() { closeSearch(); stx = []; sScan = null; sQuery = ""; SQ.value = ""; SQ.disabled = false; $("sgo").disabled = false; setInfo(""); }
+$("vprev").onclick = () => stepPdf(-1); $("vnext").onclick = () => stepPdf(1);
+$("trimBtn").onclick = () => {
+  cropOn = !cropOn; ls("pdfTrim", cropOn ? "1" : "0"); closePanel(); applyCrop();
+  toast("", cropOn ? (vwf() < 1 ? "Margins trimmed" : "No extra margins found") : "Margins trim off"); updateBar();
+};
+let scT = 0;
+V.addEventListener("scroll", () => { if (SP.hidden) return; SP.classList.add("scrolling"); clearTimeout(scT); scT = setTimeout(() => SP.classList.remove("scrolling"), 500); }, {passive: true});
+$("srchBtn").onclick = openSearch; $("fsearch").onclick = openSearch;
+$("sgo").onclick = doSearch; SQ.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
+$("sx").onclick = closeSearch; $("sx2").onclick = closeSearch;
+$("scol").onclick = () => { SP.classList.add("mini"); };
+$("sexp").onclick = () => { SP.classList.remove("mini"); const a = document.querySelector(".sitem.on"); if (a) $("slist").scrollTop = a.offsetTop - $("slist").clientHeight / 2; };
+$("snext").onclick = () => gotoMatch(curM + 1); $("sprev").onclick = () => gotoMatch(curM - 1);
+window.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f" && ((document.body.dataset.v === "view" && doc) || document.body.dataset.v === "list")) { e.preventDefault(); openSearch(); }
+  else if (e.key === "Escape" && !FS.hidden && document.body.dataset.v === "list") { e.preventDefault(); e.stopImmediatePropagation(); closeFileSearch(); }
+  else if (e.key === "Escape" && !SP.hidden) { e.preventDefault(); e.stopImmediatePropagation(); closeSearch(); }
+}, true);
+
+// ── FILE NAME SEARCH (folder list): opens the folders and marks the file names ──
+const FS = $("fs"), FQ = $("fq"); let fileQ = "", fCur = -1, fT = 0, openBefore = null, scrollBefore = 0;
+const fileHits = () => [...$("box").querySelectorAll(".topic.hit")];
+function fileSearchRun() {
+  const raw = FQ.value.trim(); fileQ = raw ? normStr(raw.replace(/\s+/g, " ")) : "";
+  openGroups.clear();                                          // only the folders with a match stay open
+  if (fileQ) parsed.forEach(f => { if ((dirs[f.n] || []).some(x => normStr(x.name.replace(PDF_RE, "")).includes(fileQ))) { openGroups.add(f.n); openGroups.add("g:" + topOf(f.n)); } });
+  else if (openBefore) openBefore.forEach(k => openGroups.add(k));
+  renderList(); fCur = -1; const n = fileHits().length;
+  $("finfo").textContent = fileQ && !n ? "None found" : ""; if (n) fileGo(0);
+}
+function fileGo(k) {
+  const h = fileHits(); if (!h.length) return; fCur = (k + h.length) % h.length;
+  h.forEach((e, i) => e.classList.toggle("cur", i === fCur)); $("finfo").textContent = (fCur + 1) + "/" + h.length;
+  const box = $("box"); box.scrollTo({top: Math.max(0, box.scrollTop + h[fCur].getBoundingClientRect().top - box.getBoundingClientRect().top - 110), behavior: "smooth"});
+}
+function openFileSearch() {
+  closePanel(); if (FS.hidden || !openBefore) { openBefore = new Set(openGroups); scrollBefore = $("box").scrollTop; }
+  FS.hidden = false; FQ.focus(); FQ.select();
+}
+function closeFileSearch() {
+  FS.hidden = true; FQ.blur(); FQ.value = ""; fileQ = ""; fCur = -1; $("finfo").textContent = "";
+  if (openBefore) { openGroups.clear(); openBefore.forEach(k => openGroups.add(k)); openBefore = null; }   // put the folders back as they were
+  if (document.body.dataset.v === "list") { renderList(); $("box").scrollTop = scrollBefore; }
+}
+FQ.addEventListener("input", () => { clearTimeout(fT); fT = setTimeout(fileSearchRun, 250); });
+FQ.addEventListener("keydown", e => { if (e.key === "Enter") { clearTimeout(fT); if (fCur < 0) fileSearchRun(); else fileGo(fCur + 1); FQ.blur(); } });
+$("fnext").onclick = () => fileGo(fCur + 1); $("fprev").onclick = () => fileGo(fCur - 1); $("fx").onclick = closeFileSearch;
+
+// ── CONTROLS FADE (PDF view): fade after ~6.5 s, gone in 5 s more, a tap brings them back ──
+let uiT = 0, uiG = 0, tStart = null;
+function uiWake() { document.body.classList.remove("uifade", "uigone"); uiArm(); }
+function uiArm() {
+  clearTimeout(uiT); clearTimeout(uiG); if (document.body.dataset.v !== "view") return;
+  uiT = setTimeout(() => {
+    if (!panel.hidden || !SP.hidden) return uiArm();
+    document.body.classList.add("uifade"); uiG = setTimeout(() => document.body.classList.add("uigone"), 5000);
+  }, 6500);
+}
+document.addEventListener("touchstart", e => { tStart = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()}; }, {capture: true, passive: true});
+document.addEventListener("touchend", e => { const t = e.changedTouches[0]; if (tStart && Math.hypot(t.clientX - tStart.x, t.clientY - tStart.y) < 12 && Date.now() - tStart.t < 500) uiWake(); tStart = null; }, true);
+document.addEventListener("click", uiWake, true); document.addEventListener("keydown", uiWake, true);
+
+// ── BUTTONS ─────────────────────────────────────────────────────────────
+const panel = $("panel");
+function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
+$("gear").onclick = e => { e.stopPropagation(); panel.hidden ? (panel.hidden = false) : closePanel(); };
+panel.addEventListener("click", e => e.stopPropagation());
+document.addEventListener("click", closePanel);
+const applyTheme = () => { const d = ls("pdfDark") === "1"; document.body.classList.toggle("dark", d); $("theme").setAttribute("aria-pressed", d); $("theme").setAttribute("aria-label", d ? "Dark pages. Tap for light pages" : "Light pages. Tap for dark pages"); };
+$("theme").onclick = () => { ls("pdfDark", ls("pdfDark") === "1" ? "0" : "1"); applyTheme(); };
+applyTheme();
+// press and hold the arrows: slow at first, then faster; a round bubble shows the page; on release the page is shown
+let hold = null, noClickUntil = 0;
+function holdStep() {
+  if (!hold) return; const t = Date.now() - hold.t0, step = t < 4000 ? 1 : t < 7000 ? 2 : 4;
+  hold.page = Math.max(0, Math.min(N - 1, hold.page + hold.dir * step)); $("pbub").textContent = hold.page + 1;
+  if (hold.page === 0 || hold.page === N - 1) return;
+  hold.timer = setTimeout(holdStep, Math.max(70, 480 - t * 0.14));
+}
+function holdStart(dir, e) {
+  if (!doc || !N) return; hold = {dir, page: curPg, t0: 0, timer: 0, on: false}; try { e.target.setPointerCapture(e.pointerId); } catch (x) {}
+  hold.timer = setTimeout(() => { if (!hold) return; hold.on = true; hold.t0 = Date.now(); $("pbub").textContent = hold.page + 1; $("pbub").hidden = false; holdStep(); }, 450);
+}
+function holdEnd() {
+  if (!hold) return; clearTimeout(hold.timer); const h = hold; hold = null; $("pbub").hidden = true;
+  if (h.on) { noClickUntil = Date.now() + 400; scrollToPage(h.page, false); }
+}
+[["fup", -1], ["fdn", 1]].forEach(([id, d]) => {
+  const b = $(id); b.addEventListener("pointerdown", e => holdStart(d, e)); b.addEventListener("pointerup", holdEnd); b.addEventListener("pointercancel", holdEnd);
+  b.addEventListener("contextmenu", e => e.preventDefault()); b.onclick = () => { if (Date.now() < noClickUntil) return; go(d); };
+});
+$("menu").onclick = () => { if (document.body.dataset.v !== "view") return; if (curFile && curFile.local) route(); else location.hash = ""; };
+$("rfr").onclick = async () => {
+  closePanel(); const v = document.body.dataset.v;
+  if (v === "list") savedScroll = $("box").scrollTop;
+  if (!(await (getSrc() === "sd" ? loadSd(true) : loadTree(true)))) return;
+  if (v === "list") { renderList(); $("box").scrollTop = savedScroll; }
+  updateBar(); toast("", "Refreshed");
+};
+const syncLock = () => { $("del").classList.toggle("on", unlocked); updateBar(); };
+let pinFor = "";
+const askPin = what => { pinFor = what; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
+$("del").onclick = () => { if (unlocked) { unlocked = false; closePanel(); syncLock(); return; } askPin("del"); };
+$("key").onclick = () => askPin("tok");
+function tryPin() {
+  if ($("pin").value === DELETE_PIN) { closePanel(); if (pinFor === "tok") changeToken(); else { unlocked = true; syncLock(); toast("", "Delete unlocked"); } }
+  else { $("pinerr").textContent = "Wrong PIN"; $("pin").value = ""; }
+}
+$("pinok").onclick = tryPin; $("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
+
+// ── DELETE the open PDF (slide the trash handle all the way right) ──────
+async function delPdf(expect) {
+  if (!unlocked || !curFile || delBusy || curFile.path !== expect) return;
+  const f = byPath[curFile.path]; if (!f) return toast("", "Tap refresh, then try again");
+  delBusy = true; $("trash").disabled = true;
+  try {
+    const r = await fetch(API + "/contents/" + enc(f.path), {method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"}, body: JSON.stringify({message: "Delete " + f.name, sha: f.sha})});
+    if (!r.ok) return toast("Delete failed (" + r.status + ")", [401, 403, 404].includes(r.status) ? "PIN needs Contents: read & write" : "Tap refresh and try again");
+    delete byPath[f.path]; setPos(f.path, 0);
+    const a = (dirs[f.fid] || []).filter(x => x.path !== f.path);
+    if (a.length) dirs[f.fid] = a; else { delete dirs[f.fid]; parsed = parsed.filter(x => x.n !== f.fid); }
+    toast("", "Deleted"); location.hash = "";
+  } catch (e) { toast("", "Network error, not deleted"); }
+  finally { delBusy = false; $("trash").disabled = false; }
+}
+const hd = $("trash"), sl = $("slide"), maxX = () => sl.clientWidth - hd.offsetWidth - 4;
+function slideTo(x) { hd.style.transform = "translateX(" + x + "px)"; $("fill").style.width = x > 0 ? (x + hd.offsetWidth + 2) + "px" : "0"; }
+hd.addEventListener("pointerdown", e => {
+  if (delBusy || !unlocked || !doc) return;
+  sd = {x: e.clientX, dx: 0, path: curFile.path}; hd.setPointerCapture(e.pointerId); hd.classList.add("drag");
+  $("info").classList.add("warn"); $("lbl").textContent = "Delete: " + curFile.name;
+});
+hd.addEventListener("pointermove", e => { if (sd) { sd.dx = Math.max(0, Math.min(maxX(), e.clientX - sd.x)); slideTo(sd.dx); } });
+function endSlide(e) {
+  if (!sd) return; const d = sd; sd = null; hd.classList.remove("drag"); $("info").classList.remove("warn"); updateBar();
+  if (e.type === "pointerup" && d.dx >= maxX() * 0.9) { slideTo(maxX()); delPdf(d.path).finally(() => slideTo(0)); } else slideTo(0);
+}
+hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel", endSlide);
+
+// ── KEYS + FULL SCREEN (web only) ───────────────────────────────────────
+document.addEventListener("keydown", e => {
+  const v = document.body.dataset.v; if (e.target.tagName === "INPUT") return;
+  if (e.key === "Escape" && !document.body.classList.contains("max")) { if (v === "view") $("menu").click(); }
+  else if (v === "view") {
+    if (e.key === "ArrowRight") { e.preventDefault(); go(1); } else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+    else if (e.key === "+" || e.key === "=") setZoom(zoom * 1.25, V.clientWidth / 2, V.clientHeight / 2);
+    else if (e.key === "-") setZoom(zoom / 1.25, V.clientWidth / 2, V.clientHeight / 2);
+  }
+});
+const EXP = '<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>', COL = '<svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+const root = document.documentElement, canFS = !!root.requestFullscreen, setIcon = on => { $("max").innerHTML = on ? COL : EXP; };
+function setMax(on) {
+  if (canFS) { if (on) root.requestFullscreen().catch(() => {}); else if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+  else document.body.classList.toggle("max", on);
+  setIcon(on); setTimeout(realign, 60);
+}
+$("max").onclick = () => { closePanel(); setMax(canFS ? !document.fullscreenElement : !document.body.classList.contains("max")); };
+$("fsx").onclick = () => setMax(false);
+document.addEventListener("fullscreenchange", () => { setIcon(!!document.fullscreenElement); setTimeout(realign, 150); }); setIcon(false);
+
+// ── UPLOAD (web only): adds the chosen PDFs to the folder that is open ──
+const readB64 = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(",")[1]); r.onerror = () => rej(new Error("read")); r.readAsDataURL(b); });
+let upBusy = false;
+$("upl").onclick = () => {
+  closePanel(); const v = document.body.dataset.v;
+  if (v === "view") $("ufile").click(); else toast("Open a PDF first", "New PDFs are added to the same folder");
+};
+$("ufile").onchange = async () => {
+  const fl = Array.from($("ufile").files || []).filter(f => f.type === "application/pdf" || PDF_RE.test(f.name)); $("ufile").value = "";
+  const fid = document.body.dataset.v === "view" && curFile ? curFile.fid : ""; if (!fl.length || !fid || upBusy) return;
+  upBusy = true; const dir = fid === "/" ? "" : fid, taken = new Set((dirs[fid] || []).map(f => f.name.toLowerCase())); let ok = 0, bad = 0;
+  for (let i = 0; i < fl.length; i++) {
+    toast("Uploading " + (i + 1) + " of " + fl.length, fl[i].name);
+    if (fl[i].size > UP_MAX) { bad++; continue; }
+    const base = fl[i].name.replace(PDF_RE, "").replace(/[\\/:*?"<>|]+/g, "_").trim() || "file"; let b64;
+    try { b64 = await readB64(fl[i]); } catch (e) { bad++; continue; }
+    let sent = false;
+    for (let t = 0; t < 6 && !sent; t++) {
+      let name = base + ".pdf", k = 2; while (taken.has(name.toLowerCase())) name = base + " (" + (k++) + ").pdf"; taken.add(name.toLowerCase());
+      const path = dir ? dir + "/" + name : name;
+      try {
+        const r = await fetch(API + "/contents/" + enc(path), {method: "PUT", headers: {...hdr(false), "Content-Type": "application/json"}, body: JSON.stringify({message: "Add " + name, content: b64})});
+        if (r.ok) {
+          const j = await r.json(), nf = {path, name, dir, fid, size: fl[i].size, sha: j.content && j.content.sha};
+          (dirs[fid] = dirs[fid] || []).push(nf); dirs[fid].sort((p, q) => nat(p.name, q.name)); byPath[path] = nf; sent = true; ok++;
+        } else if (r.status !== 422) break;
+      } catch (e) { break; }
+    }
+    if (!sent) bad++;
+  }
+  upBusy = false; updateBar();
+  toast(bad ? "Uploaded " + ok + ", failed " + bad : "Uploaded " + ok + (ok === 1 ? " PDF" : " PDFs"), bad ? "Needs Contents: read & write, and files under 50 MB" : "");
+};
+
+// ── PIN ─────────────────────────────────────────────────────────────────
+function changeToken() { setTok(""); loaded = false; unlocked = false; syncLock(); $("lerr").textContent = ""; $("tokin").value = ""; route(); }
+async function saveToken() {
+  const v = $("tokin").value.trim(); if (!v) return; $("lerr").textContent = "Checking..."; setTok(v);
+  try {
+    const r = await fetch(API, {headers: hdr(false)});
+    if (r.ok) { $("lerr").textContent = ""; $("tokin").value = ""; return route(); }
+    setTok(""); $("lerr").textContent = r.status === 401 ? "GitHub rejected this PIN. Check it and try again." : "This PIN cannot read " + OWNER + "/" + REPO + " (error " + r.status + "). Check its repository access.";
+  } catch (e) { setTok(""); $("lerr").textContent = "Network error. Check your connection and try again."; }
+}
+$("tsave").onclick = saveToken; $("tokin").addEventListener("keydown", e => { if (e.key === "Enter") saveToken(); });
+
+// ── SOURCE CHOOSER (GitHub / SD card) ────────────────────────────────────
+function resetSource() { closeDoc(); ++ticket; loaded = false; dirs = {}; byPath = {}; parsed = []; openGroups.clear(); autoOpened = false; savedScroll = 0; unlocked = false; syncLock(); }
+function useSource(v) {
+  if (getSrc() !== v) { resetSource(); setSrc(v); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  $("serr").textContent = ""; loaded = false; route();
+}
+$("srcGh").onclick = () => useSource("github");
+$("srcSd").onclick = () => {
+  if (!window.AndroidSd) { $("serr").textContent = "The SD card works only inside the Android app."; return; }
+  if (AndroidSd.status().indexOf("ok") === 0) return useSource("sd");     // folder already chosen
+  $("serr").textContent = "In the picker: open the SD card, open your MyPDFs folder, then Use this folder.";
+  AndroidSd.pickFolder();
+};
+window.addEventListener("sdfolder", e => {
+  if (e.detail === "ok") { $("serr").textContent = ""; useSource("sd"); }
+  else $("serr").textContent = e.detail === "cancel" ? "No folder was chosen." : "Could not keep access to that folder. Try again.";
+});
+$("src").onclick = () => { closePanel(); closeDoc(); ++ticket; $("serr").textContent = ""; $("sback").hidden = !getSrc(); show("source"); };
+$("sback").onclick = () => route();
+
+// ── ROUTING: landing -> (none) = folders with PDFs under them, #p=<path> = reader ──
+let started = false;
+async function route() {
+  if (!started) { ++ticket; closeDoc(); return show("landing"); }
+  const src = getSrc();
+  if (!src) { ++ticket; closeDoc(); $("sback").hidden = true; return show("source"); }
+  document.body.classList.toggle("sd", src === "sd");
+  if (src === "github" && !getTok()) { ++ticket; closeDoc(); return show("login"); }
+  if (!loaded && !(await (src === "sd" ? loadSd() : loadTree()))) return;
+  const h = location.hash; let m;
+  if ((m = h.match(/^#p=(.+)$/))) { const f = byPath[decodeURIComponent(m[1])]; if (!f) { location.hash = ""; return; } return openPdf(f); }
+  ++ticket; closeDoc();
+  show("list"); renderList(); $("box").scrollTop = savedScroll;
+}
+// PDF handed over by Android ("Open with" / Share): MainActivity copies it to cache, page opens it
+function checkIncoming() {
+  try {
+    if (!(window.AndroidPdf && window.AndroidPdf.pending)) return false;
+    const j = window.AndroidPdf.pending(); if (!j) return false;
+    const o = JSON.parse(j); started = true;
+    openPdf({path: "local:" + o.name, name: o.name, fid: "\u0000local", size: o.size || 0, local: window.Capacitor.convertFileSrc("file://" + o.path)});
+    return true;
+  } catch (e) { return false; }
+}
+window.addEventListener("incomingpdf", checkIncoming);
+window.addEventListener("hashchange", route);
+// START: web = go full screen (needs this tap); installed app is already full screen
+$("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); if (!checkIncoming()) route(); };
+if (getTok() || getSrc() === "sd") pdfjsReady().catch(() => {});
+if (!checkIncoming()) route();
+</script>
+</body>
+</html>
