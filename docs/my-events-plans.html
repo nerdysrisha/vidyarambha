@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a1018">
 <title>My Plans</title>
 <style>
-:root{--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224;--bar:#10304f;--hi:#d3e6fb;--event:#5aa9ff;--reminder:#4cc38a;--birthday:#f58ac0}
+:root{--saf:244,179,90;--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224;--bar:#10304f;--hi:#d3e6fb;--event:#5aa9ff;--reminder:#4cc38a;--birthday:#f58ac0}
 body[data-theme=forest]{--ink:#07140f;--panel:#0f2519;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--a:76,195,138;--bar:#0f3d2c;--hi:#c9f3de}
 body[data-theme=violet]{--ink:#0d0a1b;--panel:#191331;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--a:167,139,250;--bar:#2e1f5c;--hi:#e4dcff}
 body[data-theme=ember]{--ink:#150d07;--panel:#271810;--line:#4a2e1c;--mute:#c4a48a;--accent:#f0933c;--a:240,147,60;--bar:#4a2a10;--hi:#ffe2c4}
@@ -22,79 +22,107 @@ body.light .dng{color:#c62828}
 body.light .pri,body.light #fab{color:#fff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
-#app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column}
+#app{position:fixed;inset:0;max-width:646px;margin:0 auto;display:flex;flex-direction:column}
 button,input,select,textarea{font:inherit;color:var(--text)}
-button{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-height:44px;min-width:44px;cursor:pointer}
+button{background:var(--panel);border:1px solid var(--line);border-radius:10.2px;min-height:37.4px;min-width:37.4px;cursor:pointer}
 button:active{background:var(--line)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent)}
-#top{padding:calc(env(safe-area-inset-top,0px) + 14px) 18px 14px;background:linear-gradient(135deg,var(--bar),var(--panel) 55%,var(--bar));border-bottom:1px solid rgba(var(--a),.55)}
-#top h1{margin:0;font-size:22px;color:var(--hi);text-shadow:0 0 12px rgba(var(--a),.5)}
-#top p{margin:3px 0 0;color:var(--mute);font-size:13px}
-#main{flex:1;min-height:0;overflow-y:auto;padding:12px 12px 110px}
+#top{padding:calc(env(safe-area-inset-top,0px) + 11.9px) 15.3px 11.9px;background:linear-gradient(135deg,var(--bar),var(--panel) 55%,var(--bar));border-bottom:1px solid rgba(var(--a),.55)}
+#top h1{margin:0;font-size:18.7px;color:var(--hi);text-shadow:0 0 10.2px rgba(var(--a),.5)}
+#top p{margin:2.5px 0 0;color:var(--mute);font-size:11px}
+#main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px;border:1.5px solid rgba(var(--saf),.8);border-radius:16px;animation:breathe 4.5s ease-in-out infinite}
+@keyframes breathe{0%,100%{box-shadow:inset 0 0 3px 2px rgba(var(--saf),.10)}50%{box-shadow:inset 0 0 9px 2px rgba(var(--saf),.34)}}
 nav{display:flex;border-top:1px solid var(--line);background:var(--panel);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;color:var(--mute);min-height:56px}
-nav button svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.8px;color:var(--mute);min-height:47.6px}
+nav button svg{width:19.6px;height:19.6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button.on{color:var(--accent)}
-#fab{position:fixed;right:max(18px,calc(50% - 362px));bottom:calc(env(safe-area-inset-bottom,0px) + 74px);width:56px;height:56px;border-radius:28px;font-size:30px;line-height:1;background:var(--accent);border:0;color:var(--ink);box-shadow:0 4px 18px rgba(var(--a),.45)}
+#fab{position:fixed;right:max(15.3px,calc(50% - 307.7px));bottom:calc(env(safe-area-inset-bottom,0px) + 62.9px);width:47.6px;height:47.6px;border-radius:23.8px;font-size:25.5px;line-height:1;background:var(--accent);border:0;color:var(--ink);box-shadow:0 3.4px 15.3px rgba(var(--a),.45)}
 body[data-v=set] #fab{display:none}
-.grp{margin-bottom:8px}
-.topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:6px 12px;margin:0 0 4px;border-radius:10px;min-height:42px}
-.hd b{font-size:14px}
+.grp{margin-bottom:6.8px}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:8.5px;width:100%;text-align:left;padding:5.1px 10.2px;margin:0 0 3.4px;border-radius:8.5px;min-height:35.7px}
+.hd b{font-size:11.9px}
 .hd i{font-style:normal;color:var(--mute);transition:transform .15s}
 .grp.open .hd i{transform:rotate(90deg)}
-.kids{display:none;margin-left:8px;padding-left:8px;border-left:2px solid var(--line)}
+.kids{display:none;margin-left:6.8px;padding-left:6.8px;border-left:2px solid var(--line)}
 .grp.open .kids{display:block}
-.r{display:flex;align-items:center;gap:8px;flex:none}
-em.n{font-style:normal;font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;color:var(--hi);background:rgba(var(--a),.14);border:1px solid rgba(var(--a),.35);white-space:nowrap}
-.row{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.r{display:flex;align-items:center;gap:6.8px;flex:none}
+em.n{font-style:normal;font-size:9.3px;font-weight:600;padding:2.5px 6.8px;border-radius:8.5px;color:var(--hi);background:rgba(var(--a),.14);border:1px solid rgba(var(--a),.35);white-space:nowrap}
+.row{display:flex;align-items:center;gap:10.2px;padding:8.5px 10.2px;margin-bottom:5.1px;background:var(--panel);border:1px solid var(--line);border-radius:10.2px;cursor:pointer}
 .row:active{background:var(--line)}
 .row .tx{flex:1;min-width:0}
-.row b{display:block;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.row b{display:block;font-size:12.8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{display:block;color:var(--mute);font-size:10.2px;margin-top:2px}
 .row.dn b{text-decoration:line-through;opacity:.5}
 .row.dn{opacity:.7}
-.dot{flex:none;width:10px;height:36px;border-radius:5px;background:var(--accent)}
-.dot.event{background:var(--event)}.dot.reminder{background:var(--reminder)}.dot.birthday{background:var(--birthday)}
-.chk{width:30px;height:30px;min-width:30px;min-height:30px;border-radius:15px;border:2px solid var(--mute);background:none;padding:0;color:var(--ink);font-size:16px;line-height:1}
+.dot{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12.5px;font-weight:700;border:2px solid var(--accent);color:var(--accent);background:rgba(var(--a),.1)}
+.dot.event{color:var(--event);border-color:var(--event);background:rgba(90,169,255,.12)}.dot.reminder{color:var(--reminder);border-color:var(--reminder);background:rgba(76,195,138,.12)}.dot.birthday{color:var(--birthday);border-color:var(--birthday);background:rgba(245,138,192,.12)}
+.chk{width:25.5px;height:25.5px;min-width:25.5px;min-height:25.5px;border-radius:12.8px;border:2px solid var(--mute);background:none;padding:0;color:var(--ink);font-size:13.6px;line-height:1}
 .chk.on{background:var(--accent);border-color:var(--accent)}
 .chk.on::after{content:"✓"}
-.msg{color:var(--mute);text-align:center;padding:60px 24px;line-height:1.6}
-#tools{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
-input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-height:44px}
-textarea{min-height:70px;resize:vertical}
-.chips{display:flex;gap:8px;overflow-x:auto}
-.chip{min-height:36px;padding:0 14px;border-radius:18px;font-size:13px;white-space:nowrap}
+.msg{color:var(--mute);text-align:center;padding:51px 20.4px;line-height:1.6}
+#tools{display:flex;flex-direction:column;gap:8.5px;margin-bottom:10.2px}
+input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10.2px;padding:9.3px 10.2px;min-height:37.4px}
+textarea{min-height:59.5px;resize:vertical}
+.chips{display:flex;gap:6.8px;overflow-x:auto}
+.chip{min-height:30.6px;padding:0 11.9px;border-radius:15.3px;font-size:11px;white-space:nowrap}
 .chip.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.16)}
-#dch{display:flex;gap:6px}
-.dy{width:40px;min-width:40px;height:40px;border-radius:20px;padding:0;font-size:14px}
+#dch{display:flex;gap:5.1px}
+.dy{width:34px;min-width:34px;height:34px;border-radius:17px;padding:0;font-size:11.9px}
 .dy.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.16)}
-#sheet{position:fixed;inset:0;display:none;background:rgba(0,0,0,.6);z-index:5}
+.two{display:flex;gap:7px}.two>.fld{flex:1;min-width:0}
+#sheet input,#sheet select{min-width:0}
+#sheet{display:none;flex:none;background:var(--panel);border:1.5px solid rgba(var(--saf),.8);border-radius:16px;margin:8px 10px 0;padding:9px 10px 8px}
 #sheet.show{display:block}
-#form{position:absolute;left:0;right:0;bottom:0;max-width:760px;margin:0 auto;max-height:92%;overflow-y:auto;background:var(--panel);border-top:1px solid rgba(var(--a),.6);border-radius:20px 20px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
-#form h2{margin:0 0 12px;font-size:18px}
-label{display:block;font-size:12.5px;color:var(--mute);margin:12px 0 5px}
-.two{display:flex;gap:10px}.two>div{flex:1}
-.types{display:flex;gap:8px}
-.types button{flex:1;font-size:14px}
-.types button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.16)}
-.acts{display:flex;gap:10px;margin-top:18px}
-.acts button{flex:1}
+body.fo #top,body.fo #fab{display:none}
+.frow{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.rb{flex:none;width:36px;height:36px;min-width:36px;min-height:36px;border-radius:18px;padding:0;display:flex;align-items:center;justify-content:center;border:0}
+.rb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.save{background:var(--accent);color:var(--ink);box-shadow:0 2px 9px rgba(var(--a),.4)}
+body.light .save{color:#fff}
+.cancel{background:rgba(255,120,120,.2);color:#ff9d9d}
+body.light .cancel{background:#fde3e3;color:#c62828}
+.types{display:flex;flex:1;gap:2px}
+.types button{flex:1;border:0;background:none;border-radius:0;min-height:36px;min-width:0;padding:0 2px;font-size:13px;color:var(--mute);display:flex;align-items:center;justify-content:center;gap:5px}
+.types button::before{content:"";width:10px;height:10px;border-radius:5px;border:2px solid var(--mute);flex:none}
+.types button.on{color:var(--accent);font-weight:600}
+.types button.on::before{border-color:var(--accent);background:var(--accent)}
+.fld{position:relative;margin-bottom:7px}
+.fld>span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:12px;pointer-events:none}
+.fld.l input{padding-left:38px;padding-right:6px;font-size:13px}
+#sheet input,#sheet select{min-height:36px;padding-top:6px;padding-bottom:6px}
+.foot{display:flex;justify-content:flex-end;margin-top:2px}
+.foot #del{padding:0 16px;min-height:32px;font-size:13px}
 .pri{background:var(--accent);color:var(--ink);border:0;font-weight:700}
 .pri:active{background:var(--hi)}
 .dng{color:#ff8f8f}
-.set h3{margin:20px 0 8px;font-size:14px;color:var(--hi)}
-.set p{margin:0 0 8px;color:var(--mute);font-size:13px;line-height:1.5}
-.sws{display:flex;gap:10px;flex-wrap:wrap}
-.sw{width:56px;height:56px;border-radius:16px;border:2px solid var(--line);font-size:11px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+.set h3{margin:17px 0 6.8px;font-size:11.9px;color:var(--hi)}
+.set p{margin:0 0 6.8px;color:var(--mute);font-size:11px;line-height:1.5}
+.sws{display:flex;gap:8.5px;flex-wrap:wrap}
+.sw{width:47.6px;height:47.6px;border-radius:13.6px;border:2px solid var(--line);font-size:9.3px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3.4px}
 .sw.on{border-color:var(--text)}
-.stack{display:flex;flex-direction:column;gap:8px}
-#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 140px);transform:translateX(-50%);background:var(--text);color:var(--ink);padding:9px 16px;border-radius:20px;font-size:13px;display:none;z-index:9}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.stack{display:flex;flex-direction:column;gap:6.8px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 119px);transform:translateX(-50%);background:var(--text);color:var(--ink);padding:7.6px 13.6px;border-radius:17px;font-size:11px;display:none;z-index:9}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}#main{animation:none;box-shadow:inset 0 0 6px 2px rgba(var(--saf),.22)}}
 </style>
 </head>
 <body data-theme="midnight" data-v="home">
 <div id="app">
   <header id="top"><h1 id="h1"></h1><p id="sub"></p></header>
+<div id="sheet">
+  <div class="frow">
+    <button id="cx" class="rb cancel" aria-label="Cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="types" id="types" role="radiogroup"><button data-t="event" role="radio">Event</button><button data-t="reminder" role="radio">Reminder</button><button data-t="birthday" role="radio">Birthday</button></div>
+    <button id="sv" class="rb save" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M5 3h11l4 4v14H5zM8 3v5h7V3M8 21v-7h8v7"/></svg></button>
+  </div>
+  <div class="fld"><input id="ti" maxlength="120" autocomplete="off" placeholder="Title"></div>
+  <div class="two">
+    <div class="fld l"><span id="dl">Date</span><input id="dt" type="date"></div>
+    <div class="fld l"><span>Time</span><input id="tm" type="time" required></div>
+  </div>
+  <div id="rrow" class="fld"><select id="rp"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="days">Pick days</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option></select></div>
+  <div id="drow" style="display:none"><div id="dch"><button class="dy" data-d="1" title="Monday">M</button><button class="dy" data-d="2" title="Tuesday">T</button><button class="dy" data-d="3" title="Wednesday">W</button><button class="dy" data-d="4" title="Thursday">T</button><button class="dy" data-d="5" title="Friday">F</button><button class="dy" data-d="6" title="Saturday">S</button><button class="dy" data-d="0" title="Sunday">S</button></div></div>
+  <div class="foot"><button id="del" class="dng">Delete</button></div>
+</div>
   <div id="main"></div>
   <nav>
     <button data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
@@ -105,22 +133,6 @@ label{display:block;font-size:12.5px;color:var(--mute);margin:12px 0 5px}
 </div>
 <button id="fab" aria-label="Add new">+</button>
 
-<div id="sheet"><div id="form">
-  <h2 id="fh">New item</h2>
-  <div class="types" id="types">
-    <button data-t="event">Event</button><button data-t="reminder">Reminder</button><button data-t="birthday">Birthday</button>
-  </div>
-  <label for="ti" id="tl">Title</label><input id="ti" maxlength="120" autocomplete="off">
-  <div class="two">
-    <div><label for="dt" id="dl">Date</label><input id="dt" type="date"></div>
-    <div><label for="tm">Time (optional)</label><input id="tm" type="time"></div>
-  </div>
-  <div id="rrow"><label for="rp">Repeat</label>
-    <select id="rp"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="days">Pick days</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option></select></div>
-  <div id="drow" style="display:none"><label>On these days</label><div id="dch"><button class="dy" data-d="1" title="Monday">M</button><button class="dy" data-d="2" title="Tuesday">T</button><button class="dy" data-d="3" title="Wednesday">W</button><button class="dy" data-d="4" title="Thursday">T</button><button class="dy" data-d="5" title="Friday">F</button><button class="dy" data-d="6" title="Saturday">S</button><button class="dy" data-d="0" title="Sunday">S</button></div></div>
-  <label for="nt">Note (optional)</label><textarea id="nt" maxlength="500"></textarea>
-  <div class="acts"><button id="cx">Cancel</button><button id="del" class="dng">Delete</button><button id="sv" class="pri">Save</button></div>
-</div></div>
 <div id="toast"></div>
 <input type="file" id="imp" accept=".json,application/json" hidden>
 
@@ -129,6 +141,7 @@ const $=s=>document.querySelector(s);
 const KEY='myplans.v1';
 let S={items:[],theme:'midnight',mode:'dark'};
 try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.items))S=Object.assign(S,r)}catch(e){}
+S.sms=Object.assign({on:false,a:'',b:''},S.sms||{});
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save')}sched()};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pad=n=>String(n).padStart(2,'0');
@@ -165,13 +178,13 @@ function row(e){
   if(it.type==='birthday'){const a=o.getFullYear()-parse(it.date).getFullYear();if(a>0)sub+=' · turns '+a}
   else if(it.repeat!=='none')sub+=' · repeats '+repTxt(it);
   const chk=it.type!=='birthday'&&it.repeat==='none'?`<button class="chk${it.done?' on':''}" data-chk="${it.id}" aria-label="Mark done"></button>`:'';
-  return `<div class="row${it.done?' dn':''}" data-id="${it.id}"><i class="dot ${it.type}"></i><span class="tx"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span><span class="r"><em class="n">${when(o)}</em>${chk}</span></div>`;
+  return `<div class="row${it.done?' dn':''}" data-id="${it.id}"><i class="dot ${it.type}">${{event:'E',reminder:'R',birthday:'B'}[it.type]||'E'}</i><span class="tx"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span><span class="r"><em class="n">${when(o)}</em>${chk}</span></div>`;
 }
 
 let view='home',ft='all',q='',closed=new Set(['Done']);
 function allList(){
   const s=q.trim().toLowerCase();
-  const L=ents().filter(e=>(ft==='all'||e.it.type===ft)&&(!s||(e.it.title+' '+(e.it.note||'')).toLowerCase().includes(s))).sort(byDate);
+  const L=ents().filter(e=>(ft==='all'||e.it.type===ft)&&(!s||e.it.title.toLowerCase().includes(s))).sort(byDate);
   return L.length?L.map(row).join(''):'<div class="msg">Nothing found.</div>';
 }
 function render(){
@@ -200,7 +213,8 @@ function render(){
     $('#h1').textContent='Settings';$('#sub').textContent='Look, reminders and backup';
     const th=[['midnight','#4f93e0'],['forest','#4cc38a'],['violet','#a78bfa'],['ember','#f0933c'],['rose','#f06c9b']];
     h=`<div class="set"><h3>Mode</h3><div class="chips">${[['dark','Dark'],['light','Light'],['auto','Auto (phone)']].map(x=>`<button class="chip${S.mode===x[0]?' on':''}" data-md="${x[0]}">${x[1]}</button>`).join('')}</div><h3>Colour theme</h3><div class="sws">${th.map(x=>`<button class="sw${S.theme===x[0]?' on':''}" data-th="${x[0]}" style="background:${x[1]}33">${x[0]}</button>`).join('')}</div>
-    <h3>Reminders</h3><p>Phone alerts only work in the installed app. Alerts go off at the saved date and time, with Snooze and Done buttons. Repeating alerts keep going by themselves. Use the test buttons to hear each tone.</p><div class="stack"><button id="ntf">Turn on phone alerts</button><button data-tt="event">Test event tone</button><button data-tt="reminder">Test reminder tone</button><button data-tt="birthday">Test birthday tone</button></div>
+    <h3>Reminders</h3><p>Phone alerts only work in the installed app. Alerts ring from the phone's own alarm at the saved date and time, with Snooze and Done buttons, even when the app is closed. Repeating alerts keep going by themselves. Use the test buttons to hear each tone.</p><div class="stack"><button id="ntf">Turn on phone alerts</button><button id="ans">Alert sound &amp; pop-up settings</button><button id="atr">Xiaomi: allow autostart</button><button data-tt="event">Test event tone</button><button data-tt="reminder">Test reminder tone</button><button data-tt="birthday">Test birthday tone</button></div>
+    <h3>SMS copy</h3><p>When an alert rings, the phone can also text it to these numbers (no internet needed). Use the country code, e.g. +351…</p><div class="stack"><button class="chip${S.sms.on?' on':''}" id="smon">SMS is ${S.sms.on?'ON':'OFF'} · tap to switch</button><input id="sm1" type="tel" placeholder="My number" value="${esc(S.sms.a)}"><input id="sm2" type="tel" placeholder="Wife's number" value="${esc(S.sms.b)}"><button id="smp">Allow SMS on this phone</button><button id="smt">Send a test SMS now</button></div>
     <h3>Backup</h3><p>Save a copy of your data, or load one back in.</p><div class="stack"><button id="exp">Save backup file</button><button id="imb">Load backup file</button></div>
     <h3>Danger zone</h3><div class="stack"><button id="wipe" class="dng">Delete everything</button></div></div>`;
   }
@@ -217,13 +231,19 @@ $('#main').addEventListener('click',e=>{
   const md=t.closest('[data-md]');if(md){S.mode=md.dataset.md;applyTheme();save();render();return}
   const tt=t.closest('[data-tt]');if(tt){testTone(tt.dataset.tt);return}
   const r=t.closest('.row');if(r){openForm(r.dataset.id);return}
+  if(t.id==='smon'){S.sms.on=!S.sms.on;persist();pushSms();render();if(S.sms.on&&window.AndroidEv&&!AndroidEv.hasSms())AndroidEv.requestSms();return}
+  if(t.id==='smp'){try{AndroidEv.requestSms()}catch(x){toast('Works in the installed app only')}return}
+  if(t.id==='smt'){try{const v=AndroidEv.sendTestSms();toast(v.startsWith('ok')?'Test SMS sent':v)}catch(x){toast('Works in the installed app only')}return}
   if(t.id==='ntf'){perm(true)}
+  if(t.id==='ans'){try{AndroidEv.openNotificationSettings()}catch(x){toast('Works in the installed app only')}}
+  if(t.id==='atr'){try{AndroidEv.openAutostart()}catch(x){toast('Works in the installed app only')}}
   if(t.id==='exp')exportData();
   if(t.id==='imb')$('#imp').click();
   if(t.id==='wipe'&&confirm('Delete all items? This cannot be undone.')){S.items=[];save();render();toast('All items deleted')}
 });
-$('#main').addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;$('#lst').innerHTML=allList()}});
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{view=b.dataset.v;render();$('#main').scrollTop=0});
+$('#main').addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;$('#lst').innerHTML=allList()}
+  if(e.target.id==='sm1'||e.target.id==='sm2'){S.sms[e.target.id==='sm1'?'a':'b']=e.target.value;persist();pushSms()}});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{closeForm();view=b.dataset.v;render();$('#main').scrollTop=0});
 const mq=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
 if(mq&&mq.addEventListener)mq.addEventListener('change',()=>{if(S.mode==='auto')applyTheme()});
 function applyTheme(){document.body.dataset.theme=S.theme;document.body.classList.toggle('light',S.mode==='light'||(S.mode==='auto'&&!!mq&&mq.matches));const cs=getComputedStyle(document.body),m=document.querySelector('meta[name=theme-color]');if(m)m.content=cs.getPropertyValue('--ink').trim();try{if(window.AndroidEv)AndroidEv.setBars(cs.getPropertyValue('--bar').trim(),cs.getPropertyValue('--panel').trim())}catch(e){}}
@@ -238,37 +258,35 @@ function setType(t){
   document.querySelectorAll('#types button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   $('#rrow').style.display=t==='birthday'?'none':'block';
   showDays();
-  $('#tl').textContent=t==='birthday'?'Name':'Title';
-  $('#dl').textContent=t==='birthday'?'Birth date':'Date';
+  $('#ti').placeholder=t==='birthday'?'Name':'Title';
+  $('#dl').textContent=t==='birthday'?'Born':'Date';
 }
 function openForm(id){
   editing=id||null;const it=id&&S.items.find(i=>i.id===id);
-  $('#fh').textContent=it?'Edit item':'New item';
   $('#del').style.display=it?'block':'none';
   $('#ti').value=it?it.title:'';$('#dt').value=it?it.date:iso(today());
-  $('#tm').value=it?it.time||'':'';$('#rp').value=it?it.repeat:'none';
-  $('#nt').value=it?it.note||'':'';
+  $('#tm').value=it?it.time||'09:00':'';$('#rp').value=it?it.repeat:'none';
   dsel=it&&it.days?it.days.slice():[];
   setType(it?it.type:'event');
-  $('#sheet').classList.add('show');
+  $('#sheet').classList.add('show');document.body.classList.add('fo');$('#main').scrollTop=0;
   try{history.pushState({f:1},'')}catch(e){}
 }
-const closeForm=()=>{const sh=$('#sheet');if(!sh.classList.contains('show'))return;sh.classList.remove('show');try{if(history.state&&history.state.f)history.back()}catch(e){}};
-window.addEventListener('popstate',()=>$('#sheet').classList.remove('show')); // phone Back button closes the form
+const closeForm=()=>{const sh=$('#sheet');if(!sh.classList.contains('show'))return;sh.classList.remove('show');document.body.classList.remove('fo');try{if(history.state&&history.state.f)history.back()}catch(e){}};
+window.addEventListener('popstate',()=>{$('#sheet').classList.remove('show');document.body.classList.remove('fo')}); // phone Back button closes the form
 $('#fab').onclick=()=>openForm();
 $('#cx').onclick=closeForm;
 $('#rp').onchange=showDays;
 $('#dch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=+b.dataset.d;dsel=dsel.includes(d)?dsel.filter(x=>x!==d):dsel.concat(d);paintDays()});
-$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeForm()});
 $('#types').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setType(b.dataset.t)});
 $('#del').onclick=()=>{if(confirm('Delete this item?')){S.items=S.items.filter(i=>i.id!==editing);save();closeForm();render();toast('Deleted')}};
 $('#sv').onclick=()=>{
   const title=$('#ti').value.trim();
   if(!title){toast('Please add a title');$('#ti').focus();return}
   if(!$('#dt').value){toast('Please pick a date');return}
+  if(!$('#tm').value){toast('Please set a time');$('#tm').focus();return}
   const rp=ftype==='birthday'?'yearly':$('#rp').value;
   if(rp==='days'&&!dsel.length){toast('Pick at least one day');return}
-  const o={type:ftype,title,date:$('#dt').value,time:$('#tm').value,repeat:rp,days:rp==='days'?dsel.slice():[],note:$('#nt').value.trim()};
+  const o={type:ftype,title,date:$('#dt').value,time:$('#tm').value,repeat:rp,days:rp==='days'?dsel.slice():[]};
   if(editing){const it=S.items.find(i=>i.id===editing);Object.assign(it,o)}
   else S.items.push(Object.assign({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),done:false},o));
   save();closeForm();render();toast('Saved');
@@ -283,7 +301,7 @@ async function perm(ask){
     if(ask){toast(s.display==='granted'?'Phone alerts are on':'Alerts are blocked in phone settings');if(s.display==='granted'){sched();sysCheck()}}
     return s.display==='granted'}catch(e){return false}
 }
-const TONE_V=1; // change to 2, 3... after replacing a tone file, so Android picks up the new sound
+const TONE_V=2; // change to 2, 3... after replacing a tone file, so Android picks up the new sound
 const TN={event:'Event',reminder:'Reminder',birthday:'Birthday'};
 async function channels(p){ // one alert channel per type; each plays its own tone from res/raw
   try{
@@ -293,10 +311,30 @@ async function channels(p){ // one alert channel per type; each plays its own to
   }catch(e){}
 }
 async function testTone(t){
+  if(NAT()&&AndroidEv.testAlarm){if(!(await perm(false))){toast('Turn on phone alerts first');return}AndroidEv.testAlarm(t);toast('Alert in a few seconds');return}
   const p=LN();if(!p){toast('Alerts work in the installed app only');return}
   if(!(await perm(false))){toast('Turn on phone alerts first');return}
   await channels(p);
   try{await p.schedule({notifications:[{id:9001,title:TN[t]+' tone test',body:'This is how it sounds',channelId:t+'_v'+TONE_V,schedule:{at:new Date(Date.now()+4000),allowWhileIdle:true}}]});toast('Alert in a few seconds')}catch(e){toast('Could not test')}
+}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function pushSms(){try{AndroidEv.setSms(!!S.sms.on,[S.sms.a,S.sms.b].map(x=>String(x).replace(/[^\d+]/g,'')).filter(Boolean).join(','))}catch(e){}}
+const NAT=()=>!!(window.AndroidEv&&AndroidEv.setAlarms); // true inside the installed app with the native alarm code
+function takeDone(){ // items marked Done from the alert buttons
+  try{const L=JSON.parse(AndroidEv.takeDone()||'[]');let ch=false;
+    L.forEach(id=>{const it=S.items.find(i=>i.id===id);if(it&&it.type!=='birthday'&&it.repeat==='none'&&!it.done){it.done=true;ch=true}});
+    if(ch){persist();render()}}catch(e){}
+}
+let capCleared=false;
+async function nativeSched(){
+  const used=new Set();
+  const L=S.items.filter(i=>!i.done).map(it=>{
+    let x=0;for(const ch of it.id)x=(x*31+ch.charCodeAt(0))|0;let id=Math.abs(x)%900000+1;while(used.has(id))id++;used.add(id);
+    const [h,m]=(it.time||'09:00').split(':').map(Number);
+    return{id,item:it.id,title:it.title,type:it.type,h,m,date:it.date,rule:it.type==='birthday'?'yearly':it.repeat,days:it.days||[]};
+  });
+  try{AndroidEv.setAlarms(JSON.stringify(L))}catch(e){toast('Could not set alarms')}
+  if(!capCleared){capCleared=true;const p=LN();if(p){try{const pe=await p.getPending();if(pe.notifications.length)await p.cancel(pe)}catch(e){}}} // old plugin alerts would ring twice
 }
 const SNZ=5000; // ids from 5000 up are snoozed alerts; 1..4999 are the normal alerts
 async function actionTypes(p){
@@ -323,13 +361,13 @@ function hookActions(){ // runs once: reacts to the buttons on the alert
     }catch(e){}
   });
 }
-function sysCheck(){ // Android can block exact alarms or put the app to sleep
+function sysCheck(){ // alarms are exact now; only battery saving can still get in the way
   try{if(!window.AndroidEv)return;
-    if(!AndroidEv.canExactAlarms()){toast('Please allow "Alarms & reminders" for this app');AndroidEv.openExactAlarmSettings();return}
     if(!AndroidEv.ignoringBattery()){toast('Set battery to Unrestricted so alerts come on time');setTimeout(()=>AndroidEv.openBatterySettings(),1800)}
   }catch(e){}
 }
 async function sched(){
+  if(NAT()){nativeSched();return}
   const p=LN();if(!p||!(await perm(false)))return;
   try{
     await channels(p);await actionTypes(p);hookActions();
@@ -341,7 +379,7 @@ async function sched(){
       if(it.done)continue;
       const r=it.type==='birthday'?'yearly':it.repeat,[h,m]=(it.time||'09:00').split(':').map(Number);
       const mk=o=>new Date(o.getFullYear(),o.getMonth(),o.getDate(),h,m); // alert time for an occurrence date
-      const body=(it.type==='birthday'?'Birthday today':'It is time')+(it.note?' · '+it.note:'');
+      const body=(it.type==='birthday'?'Birthday today':'It is time');
       const add=sch=>list.push({id:id++,title:it.title,body,channelId:it.type+'_v'+TONE_V,actionTypeId:'ALERT',extra:{item:it.id,ch:it.type+'_v'+TONE_V},schedule:sch});
       if(r==='none'||parse(it.date)>t0){ // one-off, or a repeat that has not started yet: next few dates
         let from=t0;
@@ -386,7 +424,8 @@ $('#imp').onchange=async e=>{
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200)}
 
 applyTheme();render();sched();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();sched()}});
+pushSms();takeDone();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){takeDone();render();sched()}});
 </script>
 </body>
 </html>

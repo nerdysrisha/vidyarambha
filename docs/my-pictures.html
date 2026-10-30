@@ -12,11 +12,13 @@
 :root{--ink:#0a1018;--panel:#142030;--panel-rgb:20,32,48;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224}
 /* one colour theme per source (same as My Songs / My PDFs); Cloud keeps the original look */
 body[data-src=phone]{--ink:#07140f;--panel:#0f2519;--panel-rgb:15,37,25;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--a:76,195,138;--acc-hi:#c9f3de;--bar-end:#0f3d2c}
+body[data-src=gdrive]{--ink:#140f05;--panel:#2a1f0a;--panel-rgb:42,31,10;--line:#4d3a12;--mute:#c9b27c;--accent:#f4b942;--a:244,185,66;--acc-hi:#ffe9b8;--bar-end:#4a3408}
 body[data-src=sd]{--ink:#0d0a1b;--panel:#191331;--panel-rgb:25,19,49;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--a:167,139,250;--acc-hi:#e4dcff;--bar-end:#2e1f5c}
-body[data-src=phone] #top,body[data-src=sd] #top{background:linear-gradient(135deg,var(--bar-end),var(--panel) 50%,var(--bar-end));border-bottom-color:rgba(var(--a),.6)}
-body[data-src=phone] #top h1,body[data-src=sd] #top h1{color:var(--acc-hi);text-shadow:0 0 12px rgba(var(--a),.55)}
-body[data-src=phone] #rtxt,body[data-src=sd] #rtxt{color:var(--mute)}
-body.sd #key,body.sd #upl,body.sd #del{display:none}
+body[data-src=phone] #top,body[data-src=sd] #top,body[data-src=gdrive] #top{background:linear-gradient(135deg,var(--bar-end),var(--panel) 50%,var(--bar-end));border-bottom-color:rgba(var(--a),.6)}
+body[data-src=phone] #top h1,body[data-src=sd] #top h1,body[data-src=gdrive] #top h1{color:var(--acc-hi);text-shadow:0 0 12px rgba(var(--a),.55)}
+body[data-src=phone] #rtxt,body[data-src=sd] #rtxt,body[data-src=gdrive] #rtxt{color:var(--mute)}
+body.sd #key,body.sd #upl{display:none}
+body[data-src=gdrive] #key{display:none}
 #source{display:none;flex:1;min-height:0}
 body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
 #source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
@@ -30,12 +32,38 @@ body[data-v=source] #source{display:flex;flex-direction:column;justify-content:c
 .frow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .frow .fl{min-width:0;font-size:13px;font-weight:600}
 .frow small{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute);font-size:11.5px;font-weight:400}
-.frow button,#reinit{height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
-#reinit{width:100%}
+.frow button,#reinit,#gdswitch{height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
+#reinit,#gdswitch{width:100%}
+#gdbox{display:flex;flex-direction:column;gap:4px}#gdbox[hidden]{display:none}
+#gdacc{display:block;color:var(--mute);font-size:11.5px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #srow{display:flex;gap:8px}
 #srow button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:0 10px}
 #srow button svg{width:20px;height:20px;margin:0;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #srow button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
+/* ── thumbnail grid (month groups) ── */
+#grid{display:none;flex:1;min-height:0}
+body[data-v=grid] #grid{display:flex;flex-direction:column;padding:10px 12px 6px}
+body[data-v=grid] footer #info{display:none}
+#gtop{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 4px 8px}
+#gtit{font-size:15px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#gcnt{color:var(--mute);font-size:12px;white-space:nowrap}
+#gbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:0 4px}
+.gm{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;margin:0;padding:0 12px;border-radius:0 0 10px 10px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:13px;font-weight:600;text-align:left}
+.gm em{font-style:normal;color:var(--mute);font-size:11.5px;font-weight:600;margin-left:auto;margin-right:10px}
+.gm i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gm.open i{transform:rotate(90deg)}
+.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 0 10px}
+.gg.off{display:none}
+.gw{padding:0 0 4px 8px;margin-left:6px;border-left:2px solid var(--line)}
+.gw.off{display:none}
+.gd{position:sticky;top:38px;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:34px;margin:0;padding:0 10px;border-radius:0 0 8px 8px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:12.5px;font-weight:600;text-align:left}
+.gd em{font-style:normal;color:var(--mute);font-size:11px;font-weight:600;margin-left:auto;margin-right:10px}
+.gd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gd.open i{transform:rotate(90deg)}
+@media (min-width:520px){.gg{grid-template-columns:repeat(4,1fr)}}
+.th{position:relative;aspect-ratio:1;height:auto;min-width:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--panel)}
+.th img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
+.th img.on{opacity:1}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:0}
@@ -114,6 +142,7 @@ body.max #fsx{display:block}
 body[data-src=github]{--tape:#1ea7ff;--tape2:#8fd3ff;--tapetxt:#00263f}
 body[data-src=phone]{--tape:#22e07a;--tape2:#9af5c4;--tapetxt:#013a1c}
 body[data-src=sd]{--tape:#b44cff;--tape2:#dcb0ff;--tapetxt:#ffffff}
+body[data-src=gdrive]{--tape:#ffc83d;--tape2:#ffe39a;--tapetxt:#3a2800}
 .tapes{position:relative;display:inline-block;padding:5px 7px;line-height:1;filter:drop-shadow(0 0 5px var(--tape,#ff9933))}
 .tape{position:relative;display:inline-block;padding:4px 12px;font-size:10px;font-weight:800;letter-spacing:.9px;color:var(--tapetxt,#3d1b00);background:var(--tape,#ff9933);transform:rotate(-8deg);clip-path:polygon(0 0,100% 0,96% 25%,100% 50%,96% 75%,100% 100%,0 100%,4% 75%,0 50%,4% 25%);white-space:nowrap}
 .tape:empty{display:none}
@@ -197,6 +226,7 @@ body{-webkit-touch-callout:none}
 <div id="app">
   <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><small id="rtxt"></small><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
+  <div id="grid"><div id="gtop"><b id="gtit"></b><small id="gcnt"></small></div><div id="gbox"></div></div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
     <p>Saved only in this browser on this device.</p>
@@ -210,6 +240,7 @@ body{-webkit-touch-callout:none}
     <button class="srcbtn" id="srcGh" type="button"><svg viewBox="0 0 24 24"><path d="M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"/></svg><span><b>Cloud</b><small>Online. Needs internet and your PIN.</small></span></button>
     <button class="srcbtn" id="srcPh" type="button"><svg viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg><span><b>Phone storage</b><small>Offline. One folder on the phone's own memory (a "pictures" sub-folder is used if present).</small></span></button>
     <button class="srcbtn" id="srcSd" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. One folder on the SD card (a "pictures" sub-folder is used if present).</small></span></button>
+    <button class="srcbtn" id="srcGd" type="button"><svg viewBox="0 0 24 24"><path d="M9 3h6l7 12-3.5 6h-13L2 15zM9 3l7 12h6M16 15l-3.5 6"/></svg><span><b>Google Drive</b><small>Online. Original quality, no compression. Needs Google sign-in.</small></span></button>
     <p id="serr"></p>
     <button id="sback" type="button" hidden>Back</button>
   </div>
@@ -230,6 +261,7 @@ body{-webkit-touch-callout:none}
     <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
     <div id="panel" hidden>
       <div id="srow" role="group" aria-label="Source"></div>
+      <div id="gdbox" hidden><button id="gdswitch" type="button">Switch Google account</button><small id="gdacc"></small></div>
       <div id="fbox" hidden></div>
       <div id="prow">
         <button id="shareBtn" aria-label="Share" hidden><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
@@ -280,6 +312,7 @@ const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1, LOCAL_NEWEST_FIRST 
 const $ = id => document.getElementById(id);
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MENU_ICO = '<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>', GRID_ICO = '<svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>';
 const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
 let mem = "";
 const getTok = () => { try { return localStorage.getItem("ghtok") || mem; } catch (e) { return mem; } };
@@ -287,8 +320,8 @@ const setTok = v => { mem = v; try { v ? localStorage.setItem("ghtok", v) : loca
 const getSrc = () => { try { return localStorage.getItem("picsrc") || (getTok() ? "github" : ""); } catch (e) { return getTok() ? "github" : ""; } };   // an existing GitHub setup keeps working
 const setSrc = v => { try { localStorage.setItem("picsrc", v); } catch (e) {} };
 const SV = d => '<svg viewBox="0 0 24 24"><path d="' + d + '"/></svg>';
-const SRC_ICO = {github: SV("M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"), phone: SV("M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"), sd: SV("M7 3h7l4 4v14H7zM11 3v4M14 3v4")};
-const SRC_ORDER = ["github", "phone", "sd"], SRC_NAME = {github: "Cloud", phone: "Phone storage", sd: "SD card"}, SRC_SHORT = {github: "Cloud", phone: "Phone", sd: "SD card"};
+const SRC_ICO = {github: SV("M18 10a6 6 0 0 0-11.6-1.6A4.5 4.5 0 0 0 7 17h11a3.5 3.5 0 0 0 0-7z"), phone: SV("M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"), sd: SV("M7 3h7l4 4v14H7zM11 3v4M14 3v4"), gdrive: SV("M9 3h6l7 12-3.5 6h-13L2 15zM9 3l7 12h6M16 15l-3.5 6")};
+const SRC_ORDER = ["github", "phone", "sd", "gdrive"], SRC_NAME = {github: "Cloud", phone: "Phone storage", sd: "SD card", gdrive: "Google Drive"}, SRC_SHORT = {github: "Cloud", phone: "Phone", sd: "SD card", gdrive: "Drive"};
 const isLocal = v => v === "phone" || v === "sd";
 const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
 function applySd() {
@@ -298,8 +331,8 @@ function applySd() {
 function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
   const v = getSrc();
   document.body.dataset.src = v || ""; document.body.classList.toggle("sd", isLocal(v));
-  $("rbadge").textContent = {github: "CLOUD", phone: "PHONE", sd: "SD CARD"}[v] || "";
-  { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = isLocal(v) ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
+  $("rbadge").textContent = {github: "CLOUD", phone: "PHONE", sd: "SD CARD", gdrive: "DRIVE"}[v] || "";
+  { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = (isLocal(v) || v === "gdrive") ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
   applySd();
   const r = $("srow"); if (r) r.querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
 }
@@ -371,6 +404,7 @@ async function readLocal(src, path) {                      // pull one photo out
 }
 async function loadFolders() {
   if (isLocal(getSrc())) return loadLocal();
+  if (getSrc() === "gdrive") return loadDrive();
   const my = ++ticket;
   $("box").innerHTML = '<div class="msg">Loading folders...</div>'; show("list");
   try {
@@ -393,6 +427,141 @@ async function loadFolders() {
     loaded = true; renderList(); return true;
   } catch (e) { if (my === ticket) $("box").innerHTML = '<div class="msg">Network error. Reload to retry.</div>'; return false; }
 }
+
+// ── GOOGLE DRIVE (4th source: same folders / viewer / delete / upload, but original quality) ──
+// Sign-in is done by the Java side (AndroidGDrive.token). Scope drive.file = the app only sees what it uploaded itself.
+const GD_ROOT = "MyPictures";                              // top folder in your Drive; every album is a sub-folder of it
+const GD_API = "https://www.googleapis.com/drive/v3/files", GD_UP = "https://www.googleapis.com/upload/drive/v3/files", GD_DIR = "application/vnd.google-apps.folder";
+const GD_ALBUMS = ["Family", "General", "Work"];            // fixed albums, shown in this order (rename here if you like). Trips etc. go inside an album, e.g. Family/2026 12 25 Goa
+const gdAlbumOf = p => GD_ALBUMS.find(a => a.toLowerCase() === String(p).split("/")[0].toLowerCase()) || "";
+const gdRank = n => { const i = GD_ALBUMS.indexOf(n.split("/")[0]); return i < 0 ? 99 : i; };
+const gdSort = () => parsed.sort((a, b) => gdRank(a.n) - gdRank(b.n) || ((a.n.indexOf("/") < 0 ? 0 : 1) - (b.n.indexOf("/") < 0 ? 0 : 1)) || nat(b.n, a.n));   // albums in order; inside an album: its own photos first, then sub-folders newest first
+const GDI = {};                                            // "folder/photo.jpg" -> {id, thumb}
+let gdTok = "", gdExp = 0, gdPend = null, gdRootId = "", gdFolderIds = {};
+const extOf = f => !f ? "" : ((f.name.indexOf(".") > 0 ? f.name.split(".").pop().toLowerCase() : "") || ({"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"})[f.type] || "");
+const gdMsg = e => { const m = String((e && e.message) || e); return m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
+  : /^HTTP 40[13]/.test(m) ? "Google Drive refused access (" + m + "). Check that the Drive API is on and your Google account is a test user." : m.indexOf("HTTP") === 0 ? "Google Drive error (" + m + ")." : "Google sign-in failed: " + m; };
+function gdToken(force) {                                  // short-lived access token from the Java side (silent after the first consent)
+  if (!force && gdTok && Date.now() < gdExp) return Promise.resolve(gdTok);
+  if (!window.AndroidGDrive || typeof AndroidGDrive.token !== "function") return Promise.reject(new Error("noapp"));
+  if (gdPend) return gdPend;
+  gdPend = new Promise((ok, no) => {
+    const h = e => {
+      window.removeEventListener("gtoken", h); gdPend = null;
+      const t = String(e.detail).split("\t");
+      if (t[0] === "ok" && t[1]) { gdTok = t[1]; gdExp = Date.now() + 50 * 60 * 1000; ok(gdTok); } else no(new Error(t[1] || "signin"));
+    };
+    window.addEventListener("gtoken", h); AndroidGDrive.token();
+  });
+  return gdPend;
+}
+async function gdFetch(url, opt) {                         // fetch with the token; one automatic retry with a fresh token on 401
+  let r; const o = opt || {};
+  for (let t = 0; t < 2; t++) {
+    const tok = await gdToken(t > 0);
+    r = await fetch(url, {...o, headers: {...(o.headers || {}), Authorization: "Bearer " + tok}});
+    if (r.status !== 401) return r;
+    gdTok = "";
+  }
+  return r;
+}
+async function gdList(q, fields) {                         // all pages of a Drive search
+  const out = []; let page = "";
+  do {
+    const u = GD_API + "?q=" + encodeURIComponent(q) + "&fields=" + encodeURIComponent("nextPageToken,files(" + fields + ")") + "&pageSize=1000" + (page ? "&pageToken=" + encodeURIComponent(page) : "");
+    const r = await gdFetch(u); if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json(); out.push(...(j.files || [])); page = j.nextPageToken || "";
+  } while (page);
+  return out;
+}
+async function loadDrive() {
+  const my = ++ticket;
+  $("box").innerHTML = '<div class="msg">Loading from Google Drive...</div>'; show("list");
+  try {
+    const roots = await gdList("name='" + GD_ROOT + "' and mimeType='" + GD_DIR + "' and 'root' in parents and trashed=false", "id");
+    if (my !== ticket) return false;
+    gdRootId = roots.length ? roots[0].id : ""; gdFolderIds = {}; Object.keys(GDI).forEach(k => delete GDI[k]);
+    const dirs = {};
+    if (gdRootId) {
+      const fl = await gdList("mimeType='" + GD_DIR + "' and trashed=false", "id,name,parents");
+      if (my !== ticket) return false;
+      const byId = {}; fl.forEach(f => { byId[f.id] = f; });
+      const pathOf = f => { const seg = []; let c = f, n = 0; while (c && c.id !== gdRootId && n++ < 12) { seg.unshift(c.name); c = byId[(c.parents || [])[0]]; } return c && c.id === gdRootId ? seg.join("/") : null; };
+      const idPath = {};
+      fl.forEach(f => { if (f.id === gdRootId) return; const q = pathOf(f); if (q) { gdFolderIds[q] = f.id; idPath[f.id] = q; } });
+      const im = await gdList("mimeType contains 'image/' and trashed=false", "id,name,parents,thumbnailLink,modifiedTime");
+      if (my !== ticket) return false;
+      im.forEach(x => {
+        const dir = idPath[(x.parents || [])[0]];
+        if (!dir || !/\.(webp|jpe?g|png|gif)$/i.test(x.name) || dir.split("/").some(seg => seg.startsWith("."))) return;
+        (dirs[dir] = dirs[dir] || []).push({name: x.name, type: "file", sha: "", id: x.id, thumb: x.thumbnailLink || "", mod: Date.parse(x.modifiedTime) || 0});
+        GDI[dir + "/" + x.name] = {id: x.id, thumb: x.thumbnailLink || ""};
+      });
+    }
+    GD_ALBUMS.forEach(al => { if (!dirs[al]) dirs[al] = []; });          // the albums always show, even when still empty
+    listCache = dirs; truncated = false;
+    parsed = Object.keys(dirs).map(parseFolder); gdSort();
+    loaded = true; renderList(); return true;
+  } catch (e) {
+    if (my === ticket) { $("box").innerHTML = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = gdMsg(e) + " Gear menu > refresh to try again."; $("box").appendChild(m); }
+    return false;
+  }
+}
+async function gdBlob(path) {                              // the original photo, byte for byte
+  const it = GDI[path]; if (!it) throw new Error("gone");
+  const r = await gdFetch(GD_API + "/" + it.id + "?alt=media");
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.blob();
+}
+function gdThumb(path) {                                   // small picture made by Drive; falls back to the full photo if Drive has none yet
+  const it = GDI[path]; if (!it) return Promise.reject();
+  const viaFile = () => gdBlob(path).then(b => { const u = URL.createObjectURL(b); gUrls.push(u); return u; });
+  if (!it.thumb) return viaFile();
+  return new Promise((ok, no) => {
+    const u = it.thumb.replace(/=s\d+.*$/, "=s400"), t = new Image();
+    t.onload = () => ok(u); t.onerror = () => viaFile().then(ok, no); t.src = u;
+  });
+}
+async function gdMkdir(name, parentId) {
+  const r = await gdFetch(GD_API + "?fields=id", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, mimeType: GD_DIR, parents: [parentId]})});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return (await r.json()).id;
+}
+async function gdEnsure(path) {                            // Drive id of the folder (made, with its parents, when missing)
+  if (!gdRootId) gdRootId = await gdMkdir(GD_ROOT, "root");
+  let id = gdRootId, acc = "";
+  for (const seg of path.split("/")) {
+    acc = acc ? acc + "/" + seg : seg;
+    if (!gdFolderIds[acc]) gdFolderIds[acc] = await gdMkdir(seg, id);
+    id = gdFolderIds[acc];
+  }
+  return id;
+}
+async function gdUpload(file, name, parentId, ext) {       // the photo is sent exactly as it is: no resize, no conversion
+  const mime = /^image\//.test(file.type || "") ? file.type : (MIME[ext] || "image/jpeg"), b = "gdb" + Date.now().toString(36);
+  const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
+  const body = new Blob(["--" + b + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n--" + b + "\r\nContent-Type: " + mime + "\r\n\r\n", file, "\r\n--" + b + "--"]);
+  const r = await gdFetch(GD_UP + "?uploadType=multipart&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + b}, body});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+// Switch Google account: Google's own account list opens, the pick is remembered by the Java side, then Drive reloads for that account
+function drawGd() {
+  const on = getSrc() === "gdrive" && !!window.AndroidGDrive; $("gdbox").hidden = !on; if (!on) return;
+  let a = ""; try { a = (typeof AndroidGDrive.account === "function" && AndroidGDrive.account()) || ""; } catch (e) {}
+  $("gdacc").textContent = a ? "Signed in as " + a : "Using the account Google picked first";
+}
+$("gdswitch").onclick = () => {
+  closePanel();
+  if (!window.AndroidGDrive || typeof AndroidGDrive.switchAccount !== "function") return toast("", "Update the app to switch accounts");
+  AndroidGDrive.switchAccount();
+};
+window.addEventListener("gaccount", e => {
+  const t = String(e.detail).split("\t");
+  if (t[0] !== "ok") { if (t[0] === "ERR") toast("", "Could not open the account list"); return; }
+  gdTok = ""; gdExp = 0; toast("", "Using " + t[1]); useSource("gdrive");
+});
 
 // ── FOLDER LIST ─────────────────────────────────────────────────────────
 const openGroups = new Set();                              // which top-level folders are expanded
@@ -439,7 +608,7 @@ function renderList() {
 // ── VIEWER STATE ────────────────────────────────────────────────────────
 const track = $("track"), V = $("viewer");
 let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
-let unlocked = false, delBusy = false;
+let unlocked = false, delBusy = false, startAt = 0;
 let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
 let SW = 0, SH = 0, sc = 1, tx = 0, ty = 0, g = null, lastTap = 0, wheelLock = 0;
 
@@ -453,8 +622,9 @@ function updateBar() {
   $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Pictures";
   $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
   $("slide").classList.toggle("off", !(unlocked && inView && files.length)); $("shareBtn").hidden = !(inView && files.length);
-  $("prevF").disabled = !inView;
-  $("nextF").disabled = !inView;
+  const mb = $("menu"), g2 = canGrid(); if (mb.dataset.i !== (g2 ? "g" : "m")) { mb.dataset.i = g2 ? "g" : "m"; mb.innerHTML = g2 ? GRID_ICO : MENU_ICO; mb.setAttribute("aria-label", g2 ? "Thumbnails" : "Folders"); }
+  $("prevF").disabled = !(inView || v === "grid");
+  $("nextF").disabled = !(inView || v === "grid");
 }
 
 async function openFolder(i) {
@@ -473,7 +643,7 @@ async function openFolder(i) {
       listCache[parsed[i].n] = list;
     }
     const ents = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name));
-    if (isLocal(getSrc()) && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // phone / SD: by date, like the gallery
+    if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // phone / SD: by date, like the gallery
     else ents.sort((a, b) => nat(a.name, b.name));
     files = ents.map(x => x.name);
     if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No photos in this folder."); }
@@ -484,10 +654,10 @@ async function openFolder(i) {
       s.appendChild(im); track.appendChild(s); imgs.push(im);
     });
     fit();
-    const n = files.length, s0 = startEnd ? Math.max(0, n - FIRST) : 0;
-    place(startEnd ? n - 1 : 0, false);
+    const n = files.length, at = Math.min(Math.max(0, startAt), n - 1), s0 = startEnd ? Math.max(0, n - FIRST) : at;
+    place(startEnd ? n - 1 : at, false);
     for (let k = s0; k < s0 + FIRST; k++) load(k);
-    startEnd = false;
+    startEnd = false; startAt = 0;
     if (pending) { toast(pending.a, pending.b); pending = null; }
   } catch (e) { if (my === ticket) note("Network error. Check your connection and try again."); }
 }
@@ -497,6 +667,7 @@ function load(k) {
   const my = ticket, im = imgs[k];
   const loc = isLocal(getSrc()), path = loc ? parsed[cur].n + "/" + files[k] : "";
   const p = (loc ? (fastLocal() ? localUrl(getSrc(), path) : readLocal(getSrc(), path))
+    : getSrc() === "gdrive" ? gdBlob(parsed[cur].n + "/" + files[k])
     : api(parsed[cur].n + "/" + files[k], true).then(r => { if (r.status === 401) throw 401; if (!r.ok) throw r.status; return r.blob(); }))
     .then(b => { const u = typeof b === "string" ? b : URL.createObjectURL(b); if (my === ticket && im.isConnected) { im.src = u; if (im.decode) im.decode().catch(() => {}); } else if (typeof b !== "string") URL.revokeObjectURL(u); return u; })
     .catch(e => { const j = cache.indexOf(p); if (j >= 0) cache[j] = 0; if (e === 401 && my === ticket) { setTok(""); fail("PIN was rejected. Enter it again."); } });
@@ -525,7 +696,7 @@ function go(d) {
   const wrapped = d > 0 ? cur === L - 1 : cur === 0;
   startEnd = d < 0;
   pending = {a: wrapped ? (d > 0 ? "Back to the first folder" : "Back to the last folder") : (d > 0 ? "Next folder" : "Previous folder"), b: parsed[f].t};
-  location.replace("#f=" + encodeURIComponent(parsed[f].n));
+  location.replace("#f=" + encodeURIComponent(parsed[f].n) + "&v=1");
 }
 function prefetch(j) {                                    // fetch the neighbouring folder's photo list in advance
   j = (j + parsed.length) % parsed.length;
@@ -539,7 +710,7 @@ function toast(a, b) {
 }
 function step(d) {
   const j = (cur + d + parsed.length) % parsed.length;
-  if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n));
+  if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n) + (document.body.dataset.v === "view" ? "&v=1" : ""));
 }
 
 // ── ZOOM + SWIPE ────────────────────────────────────────────────────────
@@ -618,11 +789,16 @@ document.addEventListener("fullscreenchange", () => setTimeout(realign, 150));
 // ── BUTTONS + KEYS ──────────────────────────────────────────────────────
 $("aL").onclick = () => go(-1); $("aR").onclick = () => go(1);
 $("prevF").onclick = () => step(-1); $("nextF").onclick = () => step(1);
-$("menu").onclick = () => { location.hash = ""; };
+const canGrid = () => document.body.dataset.v === "view" && cur >= 0 && parsed[cur] && !!listCache[parsed[cur].n];
+$("menu").onclick = () => {                                // photo -> thumbnails -> folder list
+  if (!canGrid()) { location.hash = ""; return; }
+  if (viaGrid === parsed[cur].n) { viaGrid = ""; history.back(); }   // same folder as the grid we came from: just step back
+  else location.replace("#f=" + encodeURIComponent(parsed[cur].n));
+};
 // settings panel (gear): refresh, full screen, delete mode
 const panel = $("panel");
 function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
-$("gear").onclick = e => { e.stopPropagation(); if (panel.hidden) { drawFolders(); panel.hidden = false; } else closePanel(); };
+$("gear").onclick = e => { e.stopPropagation(); if (panel.hidden) { drawFolders(); drawGd(); panel.hidden = false; } else closePanel(); };
 panel.addEventListener("click", e => e.stopPropagation());
 document.addEventListener("click", closePanel);
 $("refresh").onclick = () => {                                   // re-read the folder list (and photo lists) from GitHub
@@ -649,7 +825,7 @@ function tryPin() {
 $("pinok").onclick = tryPin;
 $("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
 
-// permanently delete the photo on screen (needs the PIN to have Contents: read & write)
+// permanently delete the photo on screen (Cloud: needs the PIN to have Contents: read & write; Phone / SD card: needs the updated Android app)
 async function delPhoto(expect) {
   if (!unlocked || !files.length || delBusy || files[idx] !== expect) return;
   const name = files[idx], folder = parsed[cur].n, k = idx;
@@ -657,10 +833,21 @@ async function delPhoto(expect) {
   if (!ent) return toast("", "Tap refresh, then try again");
   delBusy = true; $("trash").disabled = true;
   try {
-    const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
-      method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"},
-      body: JSON.stringify({message: "Delete " + name, sha: ent.sha})});
-    if (!r.ok) return toast("Delete failed (" + r.status + ")", r.status === 401 || r.status === 403 || r.status === 404 ? "PIN needs Contents: read & write" : "Tap refresh and try again");
+    if (isLocal(getSrc())) {                                   // Phone storage / SD card: the Java side deletes the file
+      if (!window.AndroidSd || typeof AndroidSd.delete !== "function") return toast("", "Update the app to delete these photos");
+      const res = await new Promise(ok => { const h = e => { window.removeEventListener("photodeleted", h); ok(e.detail); }; window.addEventListener("photodeleted", h); AndroidSd.delete(getSrc(), folder + "/" + name); });
+      if (res !== "ok") return toast("Delete failed", "Could not delete this photo");
+    } else if (getSrc() === "gdrive") {                        // Google Drive: the photo goes to the Drive bin (30 days), not gone for ever
+      const it = GDI[folder + "/" + name]; if (!it) return toast("", "Tap refresh, then try again");
+      const r = await gdFetch(GD_API + "/" + it.id, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed: true})});
+      if (!r.ok) return toast("Delete failed (" + r.status + ")", "Tap refresh and try again");
+      delete GDI[folder + "/" + name];
+    } else {                                                   // Cloud (GitHub), unchanged
+      const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
+        method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"},
+        body: JSON.stringify({message: "Delete " + name, sha: ent.sha})});
+      if (!r.ok) return toast("Delete failed (" + r.status + ")", r.status === 401 || r.status === 403 || r.status === 404 ? "PIN needs Contents: read & write" : "Tap refresh and try again");
+    }
     listCache[folder] = listCache[folder].filter(x => x.name !== name);
     if (cur >= 0 && parsed[cur].n === folder && files[k] === name) removeSlide(k, folder);
   } catch (e) { toast("", "Network error, not deleted"); }
@@ -702,7 +889,7 @@ document.addEventListener("keydown", e => {
   else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
   else if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
   else if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
-  else if (e.key === "Escape" && !document.body.classList.contains("max")) location.hash = "";
+  else if (e.key === "Escape" && !document.body.classList.contains("max")) $("menu").click();
 });
 
 // full screen (iPhone Safari has no API: hide the bar instead)
@@ -744,6 +931,7 @@ function useSource(v) {
   $("serr").textContent = ""; loaded = false; listCache = {}; route();
 }
 $("srcGh").onclick = () => useSource("github");
+$("srcGd").onclick = () => useSource("gdrive");
 let pickFor = "";                                          // which source the folder picker was opened for
 function goLocal(src) {                                    // Phone storage or SD card
   if (!window.AndroidSd) { const m = "Phone storage and SD card work only inside the Android app."; $("serr").textContent = m; toast("", m); return; }
@@ -752,7 +940,7 @@ function goLocal(src) {                                    // Phone storage or S
   $("serr").textContent = "In the picker: open " + (src === "sd" ? "the SD card" : "Internal storage") + ", open your photos folder, then Use this folder.";
   AndroidSd.pickFolder(src);
 }
-const goSrc = v => v === "github" ? useSource("github") : goLocal(v);
+const goSrc = v => v === "github" || v === "gdrive" ? useSource(v) : goLocal(v);
 $("srcPh").onclick = () => goLocal("phone");
 $("srcSd").onclick = () => goLocal("sd");
 $("sback").onclick = () => route();
@@ -899,18 +1087,143 @@ async function sharePhoto() {
   } catch (e) { toast("", "Could not share this photo"); }
 }
 
-// ── ROUTING (#f=<folder name>) ──────────────────────────────────────────
+// ── THUMBNAIL GRID (month groups) ───────────────────────────────────────
+const GROUP_MIN = 30;                                    // folders with more photos than this are grouped by month; a month with more than this many photos also gets day folders inside it (phone / SD card / Google Drive: needs the photo date)
+let viaGrid = "";                                          // folder whose grid is the history entry right before the photo view
+let gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
+const thWait = new Map();
+window.addEventListener("thumbready", e => {
+  const t = String(e.detail).split("\t"), w = thWait.get(t[0]); if (!w) return;
+  thWait.delete(t[0]); if (t[1] && t[1] !== "ERR") w.ok(t[1]); else w.no();
+});
+const fastThumb = () => !!(window.AndroidShare && typeof AndroidShare.cacheThumb === "function");
+function thumbSrc(folder, name) {
+  const src = getSrc(), path = folder + "/" + name;
+  if (src === "gdrive") return gdThumb(path);
+  if (isLocal(src)) {
+    if (fastThumb()) return new Promise((ok, no) => {      // Java makes a small ~256 px copy once and keeps it in its cache
+      thWait.set(path, {ok: fp => ok(window.Capacitor && Capacitor.convertFileSrc ? Capacitor.convertFileSrc("file://" + fp) : "file://" + fp), no});
+      AndroidShare.cacheThumb(src, path, path);
+    });
+    return fastLocal() ? localUrl(src, path)               // older Java build: falls back to the full photo
+      : readLocal(src, path).then(b => { const u = URL.createObjectURL(b); gUrls.push(u); return u; });
+  }
+  return api(path, true).then(r => { if (!r.ok) throw r.status; return r.blob(); }).then(b => { const u = URL.createObjectURL(b); gUrls.push(u); return u; });
+}
+function pump() {                                          // load a few thumbnails at a time, newest request first (fast scrolling)
+  if (document.body.dataset.v !== "grid") return;
+  const my = gGen, lim = isLocal(getSrc()) ? 3 : 4;
+  while (gBusy < lim && gQ.length) {
+    const b = gQ.pop(); if (!b.isConnected) continue;
+    gBusy++;
+    thumbSrc(gFolder, b.dataset.n).then(u => { if (my !== gGen) return; const im = b.firstChild; im.onload = () => im.classList.add("on"); im.src = u; })
+      .catch(() => {}).then(() => { gBusy--; pump(); });
+  }
+}
+function sortedEnts(list) {                                // same order as the photo viewer
+  const ents = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name));
+  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+  else ents.sort((a, b) => nat(a.name, b.name));
+  return ents;
+}
+function setGroup(h, open) { h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
+function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function buildGrid(folder, ents) {
+  gGen++; gFolder = folder; gQ = []; gBusy = 0;
+  if (gObs) gObs.disconnect();
+  gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
+  const box = $("gbox"); box.innerHTML = "";
+  gObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { gObs.unobserve(en.target); gQ.push(en.target); pump(); } }), {root: box, rootMargin: "500px 0px"});
+  const byMonth = ents.length > GROUP_MIN && ents.some(x => x.mod);
+  const mkGrid = () => { const g = document.createElement("div"); g.className = "gg"; return g; };
+  const mkHead = (cls, label, n, grid, open) => {
+    const h = document.createElement("button"); h.type = "button"; h.className = cls + (open ? " open" : "");
+    h.innerHTML = "<span></span><em></em><i>&#9656;</i>"; h.firstChild.textContent = label; h.children[1].textContent = n;
+    h._g = grid; grid._h = h; grid.classList.toggle("off", !open); return h;
+  };
+  const addTh = (grid, x, k) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "th"; b.dataset.k = k; b.dataset.n = x.name;
+    const im = document.createElement("img"); im.alt = ""; im.draggable = false; b.appendChild(im);
+    grid.appendChild(b); gObs.observe(b);
+  };
+  const jump = (h, offset) => box.scrollTop += h._g.getBoundingClientRect().top - box.getBoundingClientRect().top - offset - h.offsetHeight;
+  if (!byMonth) {
+    const g = mkGrid(); box.appendChild(g); ents.forEach((x, k) => addTh(g, x, k));
+  } else {
+    const groups = [];                                     // one entry per month, newest first (same order as the viewer)
+    ents.forEach((x, k) => {
+      const d = new Date(x.mod || 0), kk = x.mod ? d.getFullYear() * 12 + d.getMonth() : -1;
+      let last = groups[groups.length - 1];
+      if (!last || last.kk !== kk) groups.push(last = {kk, label: kk < 0 ? "Unknown date" : FULL[d.getMonth()] + " " + d.getFullYear(), items: []});
+      last.items.push({x, k});
+    });
+    groups.forEach((g, gi) => {
+      const open = gi === 0;                               // newest month open, the rest folded
+      if (g.kk >= 0 && g.items.length > GROUP_MIN) {       // big month: day folders nested inside the month
+        const wrap = document.createElement("div"); wrap.className = "gw";
+        const mh = mkHead("gm", g.label, g.items.length, wrap, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        box.appendChild(mh); box.appendChild(wrap);
+        const days = [];
+        g.items.forEach(it => {
+          const d = new Date(it.x.mod), dk = d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();
+          let l = days[days.length - 1];
+          if (!l || l.dk !== dk) days.push(l = {dk, label: DAYS[d.getDay()] + " " + d.getDate() + " " + FULL[d.getMonth()].slice(0, 3), items: []});
+          l.items.push(it);
+        });
+        days.forEach((dd, di) => {
+          const gr = mkGrid(); gr._mh = mh;
+          const dh = mkHead("gd", dd.label, dd.items.length, gr, di === 0);   // newest day of the month open
+          dh.onclick = () => { if (dh.classList.contains("open")) return setGroup(dh, false); openDay(dh); jump(dh, 38); };
+          wrap.appendChild(dh); wrap.appendChild(gr);
+          dd.items.forEach(it => addTh(gr, it.x, it.k));
+        });
+      } else {                                             // small month (or unknown date): photos straight under the month, as before
+        const gr = mkGrid(), mh = mkHead("gm", g.label, g.items.length, gr, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        box.appendChild(mh); box.appendChild(gr);
+        g.items.forEach(it => addTh(gr, it.x, it.k));
+      }
+    });
+  }
+  box.onclick = e => {
+    const t = e.target.closest(".th"); if (!t) return;
+    gScroll = box.scrollTop; startAt = +t.dataset.k; viaGrid = gFolder; location.hash = "f=" + encodeURIComponent(gFolder) + "&v=1";
+  };
+}
+function showGrid(i) {
+  const wasView = document.body.dataset.v === "view", back = wasView ? idx : -1;
+  ++ticket; freeUrls(); resetZoom(); cur = i; setLast(parsed[i].n);
+  const f = parsed[i], ents = sortedEnts(listCache[f.n] || []);
+  if (!ents.length) return openFolder(i);                  // empty: the viewer shows "No photos"
+  const sig = getSrc() + "|" + f.n + "|" + ents.length;
+  show("grid");
+  $("gtit").textContent = f.t; $("gcnt").textContent = ents.length + (ents.length === 1 ? " photo" : " photos");
+  const box = $("gbox");
+  if (sig !== gSig) { gSig = sig; gScroll = 0; buildGrid(f.n, ents); }
+  if (back >= 0) {                                         // coming back from a photo: unfold its month and scroll to it
+    const t = box.querySelector('.th[data-k="' + back + '"]');
+    if (t) { const gp = t.parentNode; if (gp._mh) { if (gp._mh._g.classList.contains("off")) openGroup(gp._mh); if (gp.classList.contains("off")) openDay(gp._h); } else if (gp.classList.contains("off") && gp._h) openGroup(gp._h); t.scrollIntoView({block: "center"}); }
+  }
+  else box.scrollTop = gScroll;
+  pump();
+}
+
+// ── ROUTING (#f=<folder>  = thumbnails,  #f=<folder>&v=1  = photo view) ──
 async function route() {
   const src = getSrc();
   if (!src) { ++ticket; $("sback").hidden = true; return show("source"); }
   showSrcIco();
   if (src === "github" && !getTok()) { ++ticket; return show("login"); }
   if (!loaded && !(await loadFolders())) return;
-  const m = location.hash.match(/^#f=(.+)$/);
+  const m = location.hash.match(/^#f=([^&]+)(&v=1)?$/);
   if (!m) { ++ticket; freeUrls(); cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll; return; }
   const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
   if (i < 0) { location.hash = ""; return; }
-  openFolder(i);
+  if (m[2] || !listCache[parsed[i].n]) return openFolder(i);      // photo view (or list not known yet: old behaviour)
+  showGrid(i);
 }
 window.addEventListener("hashchange", route);
 route();
@@ -942,7 +1255,7 @@ const destFolder = () => upNew ? $("unew").value.trim().replace(/\\/g, "/").repl
 const upErr = t => { $("uerr").textContent = t || ""; };
 
 function upPreview() {
-  const f = destFolder(), ext = WEBP_OK ? "webp" : "jpg";
+  const f = destFolder(), ext = getSrc() === "gdrive" ? (extOf(upFiles[0]) || "jpg") : (WEBP_OK ? "webp" : "jpg");
   if (!f || !upFiles.length) { $("uprev").textContent = ""; return; }
   const nm = makeNamer($("uname").value, takenSet(f)); let a = nm(ext), b = a;
   for (let i = 1; i < upFiles.length; i++) b = nm(ext);
@@ -951,7 +1264,7 @@ function upPreview() {
 function upFolderChanged(focus) {
   $("ufold").hidden = upNew; $("unew").hidden = !upNew;
   $("unewb").innerHTML = upNew ? BACK : PLUS; $("unewb").setAttribute("aria-label", upNew ? "Choose an existing folder" : "New folder");
-  if (upNew && !$("unew").value) $("unew").value = today();
+  if (upNew && !$("unew").value) $("unew").value = (getSrc() === "gdrive" ? (gdAlbumOf($("ufold").value) || GD_ALBUMS[0]) + "/" : "") + today();
   $("uname").value = suggestName(upNew ? "" : $("ufold").value);
   upErr(); upPreview();
   if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
@@ -963,8 +1276,8 @@ function openUpload(files) {
   const last = getLast();
   upNew = !parsed.length;
   if (parsed.length) sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : parsed[0].n);
-  $("unew").value = "";
-  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected");
+  $("unew").value = ""; $("unew").placeholder = getSrc() === "gdrive" ? "Album/trip, e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa" : "Folder name (use / for a sub-folder)";
+  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected") + (getSrc() === "gdrive" ? " \u00b7 original quality" : "");
   $("uprog").hidden = true; $("ubar").firstChild.style.width = "0";
   $("ugo").disabled = false; $("ugo").textContent = "Upload"; $("ucancel").textContent = "Cancel";
   ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = false);
@@ -1005,6 +1318,7 @@ $("ugo").onclick = async () => {
   if (!folder) return upErr("Type a folder name.");
   if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
   if (!$("uname").value.trim()) return upErr("Type the first file name.");
+  if (getSrc() === "gdrive") return uploadDrive(folder);
   upErr(); upBusy = true; upStop = false;
   ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
   $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
@@ -1049,6 +1363,50 @@ $("ugo").onclick = async () => {
   upErr(msg || (bad && !upStop ? "Some photos could not be read or uploaded." : ""));
   $("ucancel").disabled = false; $("ucancel").textContent = "Close";
 };
+
+// Google Drive upload: same dialog, but the folder must sit inside an album (Family / General / Work) and every photo is sent in its original quality
+async function uploadDrive(folder) {
+  const first = folder.split("/")[0], alb = gdAlbumOf(first);
+  if (!alb) return upErr("Start with " + GD_ALBUMS.join(", ") + ", e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa");
+  folder = alb + folder.slice(first.length);
+  upErr(); upBusy = true; upStop = false;
+  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
+  $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
+  const total = upFiles.length;
+  let ok = 0, bad = 0, msg = "", pid = "", next = null;
+  try {
+    pid = await gdEnsure(folder);
+    const taken = takenSet(folder);                          // also skip names other phones already added to this Drive folder
+    (await gdList("'" + pid + "' in parents and trashed=false", "name")).forEach(x => taken.add(String(x.name).toLowerCase()));
+    next = makeNamer($("uname").value, taken);
+  } catch (e) { msg = gdMsg(e); bad = total; pid = ""; }
+  for (let i = 0; pid && i < total && !upStop; i++) {
+    $("ust").textContent = "Uploading " + (i + 1) + " of " + total + (bad ? " \u00b7 " + bad + " failed" : "");
+    $("ubar").firstChild.style.width = Math.round(i / total * 100) + "%";
+    const f = upFiles[i], ext = extOf(f);
+    if (!/^(webp|jpe?g|png|gif)$/i.test(ext)) { bad++; msg = "Only JPG, PNG, WebP and GIF photos can be uploaded."; continue; }
+    const name = next(ext);
+    try {
+      const j = await gdUpload(f, name, pid, ext), th = j.thumbnailLink || "";
+      if (!listCache[folder]) listCache[folder] = [];
+      if (!parsed.some(x => x.n === folder)) {              // brand-new folder: add it to the list
+        const keep = cur >= 0 && parsed[cur] ? parsed[cur].n : null;
+        parsed.push(parseFolder(folder)); gdSort();
+        if (keep) cur = parsed.findIndex(x => x.n === keep);
+      }
+      listCache[folder].push({name, type: "file", sha: "", id: j.id, thumb: th, mod: f.lastModified || Date.now()}); GDI[folder + "/" + name] = {id: j.id, thumb: th};
+      ok++;
+    } catch (e) { msg = gdMsg(e); bad += total - i; break; }
+  }
+  upBusy = false;
+  $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
+  if (document.body.dataset.v === "list") renderList();
+  updateBar();
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; toast("", "Uploaded " + ok + (ok === 1 ? " photo" : " photos") + " to " + folder.replace(/\//g, " / ")); return; }
+  $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
+  upErr(msg || (bad && !upStop ? "Some photos could not be uploaded." : ""));
+  $("ucancel").disabled = false; $("ucancel").textContent = "Close";
+}
 
 // ── START SCREEN ────────────────────────────────────────────────────────
 // Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).

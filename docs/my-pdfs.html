@@ -1091,23 +1091,23 @@ function toggleFav(top) {
   try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {}
   try { localStorage.setItem(FAV_KEY, raw); } catch (e) {}
 }
-let holdTimer = 0, holdG = null, favNoClick = 0, hx = 0, hy = 0;
+let favTimer = 0, favG = null, favNoClick = 0, favX = 0, favY = 0;
 document.addEventListener("click", e => { if (Date.now() < favNoClick) { e.stopPropagation(); e.preventDefault(); } }, true);   // the tap that ends a long press must not open the folder
-function holdEnd() {
-  clearTimeout(holdTimer); holdTimer = 0;
-  if (!holdG) return;
-  const g = holdG; holdG = null; favNoClick = Date.now() + 500;
+function favHoldEnd() {
+  clearTimeout(favTimer); favTimer = 0;
+  if (!favG) return;
+  const g = favG; favG = null; favNoClick = Date.now() + 500;
   const sc = g.scrollTop; renderList(); g.scrollTop = sc;
 }
-["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, holdEnd, true));
-document.addEventListener("pointermove", e => { if (holdTimer && Math.hypot(e.clientX - hx, e.clientY - hy) > 12) { clearTimeout(holdTimer); holdTimer = 0; } }, true);
+["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, favHoldEnd, true));
+document.addEventListener("pointermove", e => { if (favTimer && Math.hypot(e.clientX - favX, e.clientY - favY) > 12) { clearTimeout(favTimer); favTimer = 0; } }, true);
 function addFavHold(el, top, g) {                           // long-press a folder to add it to / remove it from Favorites
   const head = el.querySelector(":scope > .topic.hd") || (el.classList.contains("topic") ? el : null); if (!head) return;
   el.addEventListener("pointerdown", e => {
     if (!head.contains(e.target)) return;
-    hx = e.clientX; hy = e.clientY; clearTimeout(holdTimer); holdG = null;
-    holdTimer = setTimeout(() => {
-      holdTimer = 0; const on = !isFav(top); toggleFav(top); holdG = g;
+    favX = e.clientX; favY = e.clientY; clearTimeout(favTimer); favG = null;
+    favTimer = setTimeout(() => {
+      favTimer = 0; const on = !isFav(top); toggleFav(top); favG = g;
       try { navigator.vibrate && navigator.vibrate(35); } catch (err) {}
       toast("", on ? "Added to Favorites" : "Removed from Favorites");
     }, 550);
