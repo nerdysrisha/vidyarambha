@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MyStepsCounter</title>
+<style>
+:root{--bg:#0B1A14;--card:#14291F;--tx:#EAF7EF;--mu:#8FB3A0;--ac:#3DDC84;--ac2:#FF8A3D}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif;padding:14px;min-height:100vh}
+h1{font-size:20px;margin-bottom:10px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:0;border-radius:10px;background:var(--card);color:var(--mu);font-size:15px}
+.tabs button.on{background:var(--ac);color:#06210F;font-weight:700}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px}
+.ring{position:relative;width:220px;height:220px;margin:0 auto}
+.ring svg{transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.big{font-size:44px;font-weight:800}.mu{color:var(--mu);font-size:13px}
+.row{display:flex;gap:8px;margin-top:14px}.row div{flex:1;text-align:center}
+.row b{display:block;font-size:18px;color:var(--ac2)}
+.go{width:100%;padding:16px;border:0;border-radius:14px;font-size:18px;font-weight:700;background:var(--ac);color:#06210F}
+.go.stop{background:var(--ac2);color:#2B1200}
+.bars{display:flex;align-items:flex-end;gap:3px;height:140px;margin:10px 0 4px}
+.bars div{flex:1;background:var(--ac);border-radius:4px 4px 0 0;min-height:2px}
+.lab{display:flex;gap:3px;font-size:10px;color:var(--mu)}.lab span{flex:1;text-align:center;overflow:hidden}
+.li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1d3a2b}
+.hide{display:none}input{width:100%;padding:10px;margin:4px 0 10px;border-radius:8px;border:0;background:#0B1A14;color:var(--tx);font-size:16px}
+summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;padding:12px 0;list-style:none}summary b{color:var(--ac2);font-size:13px}details{border-bottom:1px solid #1d3a2b}.li span:last-child{font-size:14px;text-align:right}.alt{display:block;text-align:center;margin-top:8px;background:#1d3a2b;color:var(--tx)}
+</style></head><body>
+<h1>👟 MyStepsCounter</h1>
+<div class="tabs"><button class="on" data-t="today">Today</button><button data-t="week">Week</button><button data-t="month">Month</button><button data-t="hist">History</button><button data-t="set">⚙</button></div>
+
+<div id="today">
+ <div class="card"><div class="ring">
+  <svg width="220" height="220"><circle cx="110" cy="110" r="95" fill="none" stroke="#0B1A14" stroke-width="16"/>
+  <circle id="arc" cx="110" cy="110" r="95" fill="none" stroke="#3DDC84" stroke-width="16" stroke-linecap="round" stroke-dasharray="597" stroke-dashoffset="597"/></svg>
+  <div class="c"><div class="big" id="n">0</div><div class="mu" id="g">of 8000 steps</div></div></div>
+  <div class="row"><div><b id="km">0</b><span class="mu">km</span></div><div><b id="kc">0</b><span class="mu">kcal</span></div><div><b id="pc">0%</b><span class="mu">of goal</span></div></div></div>
+ <button class="go" id="btn">Start counting</button>
+ <p class="mu" id="msg" style="text-align:center;margin-top:10px"></p>
+</div>
+
+<div id="week" class="hide"><div class="card"><b>Last 7 days</b><div class="bars" id="wb"></div><div class="lab" id="wl"></div>
+ <div class="row"><div><b id="wt">0</b><span class="mu">total</span></div><div><b id="wa">0</b><span class="mu">daily avg</span></div><div><b id="wk">0</b><span class="mu">km</span></div></div></div></div>
+
+<div id="month" class="hide"><div class="card"><b id="mh">This month</b><div class="bars" id="mb"></div><div class="lab" id="ml"></div>
+ <div class="row"><div><b id="mt">0</b><span class="mu">total</span></div><div><b id="ma">0</b><span class="mu">daily avg</span></div><div><b id="mk">0</b><span class="mu">km</span></div></div></div>
+ <div class="card"><b>Last 4 weeks (Mon-Sun)</b><div id="wl4"></div></div></div>
+
+<div id="hist" class="hide"><div class="card" id="hl"></div></div>
+
+<div id="set" class="hide"><div class="card">
+ <label class="mu">Daily goal (steps)</label><input id="sg" type="number" inputmode="numeric">
+ <label class="mu">Height (cm), used for step length</label><input id="sh" type="number" inputmode="numeric">
+ <label class="mu">Weight (kg), used for calories</label><input id="sw" type="number" inputmode="numeric">
+ <button class="go" id="sv">Save</button></div>
+ <div class="card"><b>Backup</b><p class="mu" style="margin:6px 0 10px">Saved to Downloads as MyStepsCounter-backup.json (day by day: steps, kcal, km, goal). Also auto-saved every new day.</p>
+ <button class="go" id="bs">Save backup now</button>
+ <button class="go alt" id="bh">Share backup</button>
+ <label class="go alt">Load backup file<input id="ld" type="file" accept=".json,application/json" style="display:none"></label>
+ <p class="mu" id="bm" style="margin-top:8px"></p></div></div>
+
+<script>
+const A=window.AndroidSteps,$=id=>document.getElementById(id);
+let S={goal:8000,h:170,w:70};
+try{Object.assign(S,JSON.parse(localStorage.getItem('stepsCfg')||'{}'))}catch(e){}
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const km=s=>(s*S.h*0.415/100000).toFixed(2), kc=s=>Math.round(s*0.04*S.w/70), f=n=>Math.round(n).toLocaleString();
+function data(){try{return A?JSON.parse(A.getData()):{}}catch(e){return{}}}
+function bars(el,lel,list){const mx=Math.max(1,...list.map(x=>x[1]));
+ $(el).innerHTML=list.map(x=>`<div style="height:${x[1]/mx*100}%"></div>`).join('');
+ $(lel).innerHTML=list.map(x=>`<span>${x[0]}</span>`).join('')}
+const OM=new Set();
+function hist(D){if($('hist').classList.contains('hide'))return;
+ const ks=Object.keys(D).filter(k=>D[k]>0).sort().reverse(),g={};
+ ks.forEach(k=>(g[k.slice(0,7)]=g[k.slice(0,7)]||[]).push(k));
+ const ms=Object.keys(g);
+ $('hl').innerHTML=ms.length?ms.map(m=>{const t=g[m].reduce((a,k)=>a+D[k],0),d=new Date(m+'-01T00:00');
+  return `<details data-m="${m}" ${OM.has(m)?'open':''}><summary><span>${d.toLocaleString('default',{month:'long',year:'numeric'})}</span><b>${f(t)} · ${km(t)} km · ${kc(t)} kcal</b></summary>`+
+  g[m].map(k=>{const s=D[k];return `<div class="li"><span>${new Date(k+'T00:00').toLocaleDateString('default',{day:'numeric',weekday:'short'})}</span><span>${f(s)} steps · ${kc(s)} kcal · ${km(s)} km ${s>=S.goal?'✓':''}</span></div>`}).join('')+'</details>'}).join(''):'<p class="mu">No history yet. Start counting!</p>'}
+$('hl').addEventListener('toggle',e=>{const m=e.target.dataset&&e.target.dataset.m;if(m)e.target.open?OM.add(m):OM.delete(m)},true);
+function cfg(){try{A&&A.setCfg(Math.round(S.goal),Math.round(S.h),Math.round(S.w))}catch(e){}}
+function render(){
+ const D=data(),now=new Date(),t=D[ymd(now)]||0;
+ $('n').textContent=f(t);$('g').textContent='of '+f(S.goal)+' steps';
+ $('km').textContent=km(t);$('kc').textContent=kc(t);$('pc').textContent=Math.min(999,Math.round(t/S.goal*100))+'%';
+ $('arc').style.strokeDashoffset=597*(1-Math.min(1,t/S.goal));
+ const run=A&&A.isRunning();$('btn').textContent=run?'Stop counting':'Start counting';$('btn').className='go'+(run?' stop':'');
+ if(!A)$('msg').textContent='Counting works only in the installed app.';
+ else $('msg').textContent=run?'Counting in the background. Keep the phone with you.':'Tap Start, then put the phone in your pocket.';
+ const w=[];let wt=0;
+ for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const v=D[ymd(d)]||0;wt+=v;w.push(['SMTWTFS'[d.getDay()],v])}
+ bars('wb','wl',w);$('wt').textContent=f(wt);$('wa').textContent=f(wt/7);$('wk').textContent=km(wt);
+ const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate(),m=[];let mt=0;
+ for(let i=1;i<=dim;i++){const v=D[ymd(new Date(now.getFullYear(),now.getMonth(),i))]||0;mt+=v;m.push([i%5==0||i==1?i:'',v])}
+ bars('mb','ml',m);$('mh').textContent=now.toLocaleString('default',{month:'long',year:'numeric'});
+ $('mt').textContent=f(mt);$('ma').textContent=f(mt/Math.max(1,now.getDate()));$('mk').textContent=km(mt);
+ const mon=new Date(now);mon.setDate(now.getDate()-((now.getDay()+6)%7));let h='';
+ for(let k=0;k<4;k++){let s=0;const a=new Date(mon);a.setDate(mon.getDate()-7*k);
+  for(let i=0;i<7;i++){const d=new Date(a);d.setDate(a.getDate()+i);s+=D[ymd(d)]||0}
+  h+=`<div class="li"><span>${a.toLocaleDateString('default',{day:'numeric',month:'short'})}${k?'':' (this week)'}</span><b>${f(s)} · ${km(s)} km</b></div>`}
+ $('wl4').innerHTML=h;hist(D)}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));
+ ['today','week','month','hist','set'].forEach(id=>$(id).classList.toggle('hide',id!=b.dataset.t));render()});
+$('btn').onclick=()=>{if(!A)return;
+ if(A.isRunning()){A.stop();render();return}
+ if(!A.hasSensor()){$('msg').textContent='This phone has no step sensor.';return}
+ if(!A.hasPerm()){A.requestPerm();let n=0;const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.start();render()}else if(++n>40)clearInterval(iv)},500);return}
+ A.start();render()};
+$('sg').value=S.goal;$('sh').value=S.h;$('sw').value=S.w;
+$('sv').onclick=()=>{S={goal:+$('sg').value||8000,h:+$('sh').value||170,w:+$('sw').value||70};
+ try{localStorage.setItem('stepsCfg',JSON.stringify(S))}catch(e){}$('sv').textContent='Saved ✓';setTimeout(()=>$('sv').textContent='Save',1200);cfg();render()};
+try{A&&A.setBars('#0B1A14','#0B1A14')}catch(e){}
+$('bs').onclick=()=>{if(!A){$('bm').textContent='Works only in the installed app.';return}const x=A.saveBackup();$('bm').textContent=x.startsWith('ok')?'Saved to Downloads ✓':x};
+$('bh').onclick=()=>{if(A)A.shareBackup()};
+$('ld').onchange=e=>{const fl=e.target.files[0];if(!fl||!A)return;const rd=new FileReader();
+ rd.onload=()=>{try{const j=JSON.parse(rd.result),m={};for(const k in j.days)m[k]=+j.days[k].steps||0;A.setData(JSON.stringify(m));$('bm').textContent='Loaded '+Object.keys(m).length+' days ✓'}catch(x){$('bm').textContent='Not a valid backup file'}render()};
+ rd.readAsText(fl);e.target.value=''};
+cfg();
+document.addEventListener('visibilitychange',render);setInterval(render,3000);render();
+</script></body></html>

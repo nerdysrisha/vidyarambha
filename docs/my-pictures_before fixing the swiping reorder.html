@@ -47,17 +47,42 @@ body[data-v=grid] footer #info{display:none}
 #gtop{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 4px 8px}
 #gtit{font-size:15px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #gcnt{color:var(--mute);font-size:12px;white-space:nowrap}
+#gright{display:flex;align-items:center;gap:10px;flex:none}
+#selbtn{min-width:0;height:30px;padding:0 14px;border-radius:15px;font-size:12px;font-weight:600;color:var(--mute)}
+#selbtn[hidden]{display:none}
+#selbtn.on{border-color:#e5484d;color:#ff8f8f;background:rgba(229,72,77,.18)}
 #gbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:0 4px}
 .gm{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;margin:0;padding:0 12px;border-radius:0 0 10px 10px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:13px;font-weight:600;text-align:left}
 .gm em{font-style:normal;color:var(--mute);font-size:11.5px;font-weight:600;margin-left:auto;margin-right:10px}
-.gm i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gm i{font-style:normal;color:var(--mute);transition:transform .45s}
 .gm.open i{transform:rotate(90deg)}
 .gg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 0 10px}
 .gg.off{display:none}
+@keyframes gopen{from{opacity:0}to{opacity:1}}
+.gg:not(.off),.gw:not(.off){animation:gopen .5s ease-out}
+.gd.open + .gg{max-height:var(--gh,60vh);overflow-y:auto;overscroll-behavior:contain;border-radius:0 0 8px 8px}
+#gbox::after{content:"";display:block;height:55vh}
+@media (prefers-reduced-motion:reduce){.gg:not(.off),.gw:not(.off){animation:none}}
+.gb{border:1px solid var(--line);border-radius:12px;margin:0 0 10px}
+.gb .gm{border-radius:11px 11px 0 0}
+.gb .gm:not(.open){border-radius:11px;border-bottom-width:0}
+.gw{padding:0 6px 6px}
+.gw.off{display:none}
+.gd{position:sticky;top:38px;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:34px;margin:0;padding:0 10px;border-radius:0 0 8px 8px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:12.5px;font-weight:600;text-align:left}
+.gd em{font-style:normal;color:var(--mute);font-size:11px;font-weight:600;margin-left:auto;margin-right:10px}
+.gd i{font-style:normal;color:var(--mute);transition:transform .45s}
+.gd.open i{transform:rotate(90deg)}
 @media (min-width:520px){.gg{grid-template-columns:repeat(4,1fr)}}
 .th{position:relative;aspect-ratio:1;height:auto;min-width:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--panel)}
 .th img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
 .th img.on{opacity:1}
+.th.sel{outline:2px solid #e5484d;outline-offset:-2px}
+.th.sel img.on{opacity:.6}
+.th.sel::after{content:"\2713";position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#e5484d;color:#fff;font-size:13px;font-weight:700;line-height:20px;text-align:center}
+.th.busy{pointer-events:none}
+.th.busy img.on{opacity:.25}
+.th.busy::after{content:"";top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;background:none;animation:gspin .7s linear infinite}
+@keyframes gspin{to{transform:rotate(360deg)}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
 #app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:0}
@@ -93,6 +118,9 @@ body[data-v=login] footer,body[data-v=source] footer{display:none}
 .slide img:not([src]){visibility:hidden}
 .msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
 .arrow{display:none;position:absolute;top:50%;margin-top:-22px;z-index:3;border-radius:50%;background:#0a1018cc;font-size:26px;line-height:1;place-items:center}
+#rib{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;max-width:88%;padding:4px 14px;border-radius:0 0 10px 10px;background:rgba(120,120,120,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;font-size:12px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+#rib[hidden]{display:none}
+@media (orientation:landscape){#rib{display:none}}
 #toast{position:absolute;top:76px;left:50%;transform:translateX(-50%);z-index:8;background:#0a1018e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s ease}
 #toast.on{opacity:1;transition:opacity .2s}
 #toast small{display:block;color:var(--mute);font-size:12px}
@@ -110,6 +138,11 @@ body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
 #panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(var(--panel-rgb),.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
 #panel[hidden],#pinrow[hidden]{display:none}
 #prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pinrow{flex-direction:column;gap:6px}
+#pin{width:100%;box-sizing:border-box;height:34px;text-align:center;caret-color:transparent}
+#kp{display:grid;grid-template-columns:repeat(3,40px);gap:6px}
+#kp button{min-width:0;width:40px;height:34px;padding:0;font-size:15px;border-radius:10px}
+#kp #pinok{color:var(--accent);border-color:var(--accent);font-size:13px;font-weight:700}
 #pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
 #pinerr{color:#ff8f8f;font-size:12px;min-height:0}
 #del.on{border-color:#e5484d;color:#ff8f8f}
@@ -119,6 +152,9 @@ body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
 #hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:11px;letter-spacing:.3px;color:var(--mute);white-space:nowrap;pointer-events:none}
 #trash{position:absolute;left:2px;top:2px;min-width:38px;width:38px;height:38px;border-radius:50%;color:#ff8f8f;border-color:#e5484d66;touch-action:none;cursor:grab;transition:transform .2s ease}
 #trash.drag{transition:none;cursor:grabbing}
+#slide.busy #fill{transition:width .25s ease}
+#slide.busy #trash{opacity:.45}
+#slide.busy #hint{color:#ffd0d0}
 #trash svg{width:20px;height:20px}
 #info.warn{color:#ff9a9a}
 body.max footer{display:none!important}
@@ -126,6 +162,10 @@ body.max #fsx{display:block}
 /* ── saffron top ribbon ── */
 #top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
 #top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
+#top .tr{display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+#top #refresh{min-width:34px;width:34px;height:34px;padding:0;display:grid;place-items:center;border-radius:50%;background:rgba(255,153,51,.14);border:1px solid rgba(255,153,51,.5);color:#ffd9a0}
+#top #refresh svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s}
+#top #refresh:active svg{transform:rotate(180deg)}
 #rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
 .topic{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .favlab{display:flex;align-items:center;gap:8px;margin:10px 4px 6px;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--accent)}
@@ -218,9 +258,9 @@ body{-webkit-touch-callout:none}
   <button id="start-btn" type="button">Start</button>
 </div>
 <div id="app">
-  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><small id="rtxt"></small><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><span class="tr"><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
-  <div id="grid"><div id="gtop"><b id="gtit"></b><small id="gcnt"></small></div><div id="gbox"></div></div>
+  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="gbox"></div></div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
     <p>Saved only in this browser on this device.</p>
@@ -242,6 +282,7 @@ body{-webkit-touch-callout:none}
     <div id="track"></div>
     <button class="arrow" id="aL" aria-label="Previous photo">&#8249;</button>
     <button class="arrow" id="aR" aria-label="Next photo">&#8250;</button>
+    <div id="rib" hidden></div>
     <div id="toast"><small></small><b></b></div>
   </div>
   <footer id="foot">
@@ -259,13 +300,12 @@ body{-webkit-touch-callout:none}
       <div id="fbox" hidden></div>
       <div id="prow">
         <button id="shareBtn" aria-label="Share" hidden><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
-        <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="upl" aria-label="Upload photos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="key" aria-label="Change token"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
         <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
       </div>
-      <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
+      <div id="pinrow" hidden><input id="pin" type="password" inputmode="none" readonly autocomplete="off" maxlength="8" placeholder="PIN"><div id="kp"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" data-k="bs" aria-label="Delete digit">&#9003;</button><button type="button" data-k="0">0</button><button id="pinok" type="button">OK</button></div></div>
       <small id="pinerr"></small>
     </div>
     <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
@@ -345,6 +385,22 @@ const parseFolder = n => {
   const nice = x => x.replace(/\//g, " / ");
   return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
 };
+// Swipe / next-folder order: parent folders stay newest-first (Oct, then Sep ...), but the day folders inside each parent run oldest-first (01, 02, 03 ...)
+function navOrder() {
+  const o = [], topOf = f => f.n.split("/")[0]; let i = 0;
+  while (i < parsed.length) {
+    const t = topOf(parsed[i]); let j = i; while (j < parsed.length && topOf(parsed[j]) === t) j++;
+    const run = []; for (let k = i; k < j; k++) run.push(k);
+    run.sort((a, b) => nat(parsed[a].n, parsed[b].n)); o.push(...run); i = j;
+  }
+  return o;
+}
+const navNext = (c, d) => { const o = navOrder(), p = o.indexOf(c); return o[(p + d + o.length) % o.length]; };
+// Phone / SD / Drive photo order (viewer AND thumbnails use it): months newest-first, days oldest-first (1, 2 ... 31), inside a day newest-first
+function sortByDate(ents) {
+  const mk = x => { if (!x.mod) return -1; const d = new Date(x.mod); return d.getFullYear() * 12 + d.getMonth(); };
+  return ents.sort((a, b) => (mk(b) - mk(a)) || (mk(a) < 0 ? 0 : new Date(a.mod).getDate() - new Date(b.mod).getDate()) || (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+}
 const CHUNK = 1048576;                                       // photos are read from the phone / SD card in 1 MB pieces (must match CHUNK in MainActivity.java)
 const LSIZE = {}, MIME = {webp: "image/webp", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif"};
 async function loadLocal() {                               // Phone storage / SD card: the Java side scans the chosen folder and returns "path<TAB>size" lines
@@ -601,8 +657,11 @@ function renderList() {
 
 // ── VIEWER STATE ────────────────────────────────────────────────────────
 const track = $("track"), V = $("viewer");
+let modOf = {};
 let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
 let unlocked = false, delBusy = false, startAt = 0;
+let selMode = false;                                       // thumbnails: Select toggle (off by default; taps open photos until it is turned on)
+let gSel = new Set(), gDel = false;                        // thumbnails ticked for multi-delete / a multi-delete is running
 let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
 let SW = 0, SH = 0, sc = 1, tx = 0, ty = 0, g = null, lastTap = 0, wheelLock = 0;
 
@@ -614,8 +673,16 @@ function updateBar() {
   const v = document.body.dataset.v, inView = v === "view";
   $("cnt").textContent = inView ? (files.length ? (idx + 1) + " / " + files.length : "") : (v === "list" ? parsed.length + " folders" : "");
   $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Pictures";
+  const rb = $("rib"); rb.hidden = !(inView && cur >= 0);
+  const md = !rb.hidden && (isLocal(getSrc()) || getSrc() === "gdrive") ? modOf[files[idx]] : 0;
+  if (md) { const d = new Date(md); rb.textContent = FULL[d.getMonth()] + " " + d.getFullYear() + " / " + String(d.getDate()).padStart(2, "0") + "-" + DAYS[d.getDay()]; }
+  else if (!rb.hidden) { const f = parsed[cur], top = f.n.split("/")[0], kid = f.n.length > top.length ? f.n.slice(top.length + 1).replace(/\//g, " / ") : ""; rb.textContent = kid ? parseFolder(top).t + " / " + kid : f.t; }
   $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
-  $("slide").classList.toggle("off", !(unlocked && inView && files.length)); $("shareBtn").hidden = !(inView && files.length);
+  if (v !== "grid" && selMode) { selMode = false; clearSel(); }        // leaving thumbnails turns Select off
+  if (!unlocked && selMode) { selMode = false; clearSel(); }
+  const sb = $("selbtn"); sb.hidden = !(unlocked && v === "grid"); sb.classList.toggle("on", selMode); sb.setAttribute("aria-pressed", selMode); sb.disabled = delBusy;
+  $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); $("shareBtn").hidden = !(inView && files.length);
+  if (!gDel) $("hint").textContent = v === "grid" ? (gSel.size ? gSel.size + " selected \u00b7 slide to delete" : "tap photos to select") : "slide to delete";
   const mb = $("menu"), g2 = canGrid(); if (mb.dataset.i !== (g2 ? "g" : "m")) { mb.dataset.i = g2 ? "g" : "m"; mb.innerHTML = g2 ? GRID_ICO : MENU_ICO; mb.setAttribute("aria-label", g2 ? "Thumbnails" : "Folders"); }
   $("prevF").disabled = !(inView || v === "grid");
   $("nextF").disabled = !(inView || v === "grid");
@@ -637,9 +704,9 @@ async function openFolder(i) {
       listCache[parsed[i].n] = list;
     }
     const ents = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name));
-    if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // phone / SD: by date, like the gallery
+    if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) sortByDate(ents);   // phone / SD: by date, like the gallery
     else ents.sort((a, b) => nat(a.name, b.name));
-    files = ents.map(x => x.name);
+    files = ents.map(x => x.name); modOf = {}; ents.forEach(x => { modOf[x.name] = x.mod || 0; });
     if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No photos in this folder."); }
     track.innerHTML = ""; cache = new Array(files.length); imgs = [];
     files.forEach(() => {
@@ -677,8 +744,8 @@ function place(i, anim) {
   track.style.transition = anim ? "transform .28s ease" : "none";
   track.style.transform = "translateX(" + (-i * SW) + "px)";
   updateBar(); loadNear(i);
-  if (i >= files.length - 2) prefetch(cur + 1);
-  if (i <= 1) prefetch(cur - 1);
+  if (i >= files.length - 2) prefetch(navNext(cur, 1));
+  if (i <= 1) prefetch(navNext(cur, -1));
 }
 function go(d) {
   const n = files.length; if (!n) return;
@@ -686,8 +753,8 @@ function go(d) {
   if (j >= 0 && j < n) { resetZoom(); return place(j, true); }
   const L = parsed.length;
   if (L < 2) { resetZoom(); return place(d > 0 ? 0 : n - 1, true); }
-  const f = (cur + (d > 0 ? 1 : -1) + L) % L;             // past the last / first photo: next / previous folder (loops)
-  const wrapped = d > 0 ? cur === L - 1 : cur === 0;
+  const o = navOrder(), f = navNext(cur, d > 0 ? 1 : -1);   // past the last / first photo: next / previous folder in date order (loops)
+  const wrapped = d > 0 ? o.indexOf(cur) === L - 1 : o.indexOf(cur) === 0;
   startEnd = d < 0;
   pending = {a: wrapped ? (d > 0 ? "Back to the first folder" : "Back to the last folder") : (d > 0 ? "Next folder" : "Previous folder"), b: parsed[f].t};
   location.replace("#f=" + encodeURIComponent(parsed[f].n) + "&v=1");
@@ -703,7 +770,7 @@ function toast(a, b) {
   t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
 }
 function step(d) {
-  const j = (cur + d + parsed.length) % parsed.length;
+  const j = navNext(cur, d);
   if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n) + (document.body.dataset.v === "view" ? "&v=1" : ""));
 }
 
@@ -800,10 +867,11 @@ $("refresh").onclick = () => {                                   // re-read the 
   if (document.body.dataset.v === "list") savedScroll = $("box").scrollTop;
   loaded = false; listCache = {}; route();
 };
-const syncLock = () => { $("del").classList.toggle("on", unlocked); updateBar(); };
+const syncLock = () => { $("del").classList.toggle("on", unlocked); if (!unlocked) clearSel(); updateBar(); };
 let pinFor = "";                                                  // what the PIN is being asked for: "del" or "tok"
 const askPin = what => { pinFor = what; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
 $("del").onclick = () => {
+  if (delBusy) return;
   if (unlocked) { unlocked = false; closePanel(); syncLock(); return; }
   askPin("del");
 };
@@ -818,6 +886,15 @@ function tryPin() {
 }
 $("pinok").onclick = tryPin;
 $("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
+$("kp").addEventListener("click", e => {                       // on-screen keypad (no phone keyboard)
+  const b = e.target.closest("button[data-k]"); if (!b) return; const p = $("pin"), k = b.dataset.k;
+  if (k === "bs") p.value = p.value.slice(0, -1); else if (p.value.length < 8) p.value += k;
+});
+$("pin").addEventListener("keydown", e => {                      // desktop keyboard still works
+  if (/^[0-9]$/.test(e.key) && $("pin").value.length < 8) $("pin").value += e.key;
+  else if (e.key === "Backspace") $("pin").value = $("pin").value.slice(0, -1);
+});
+
 
 // permanently delete the photo on screen (Cloud: needs the PIN to have Contents: read & write; Phone / SD card: needs the updated Android app)
 async function delPhoto(expect) {
@@ -858,13 +935,99 @@ function removeSlide(k, folder) {
   fit(); place(Math.min(k, files.length - 1), false); toast("", "Deleted");
 }
 
+// ── MULTI-DELETE (thumbnails: tick photos, slide to delete them all, one after the other) ──
+$("selbtn").onclick = e => {                               // Select toggle: off = taps open photos; on = taps tick photos + slide bar shows
+  e.stopPropagation();
+  if (delBusy || !unlocked) return;
+  selMode = !selMode; if (!selMode) clearSel(); updateBar();
+};
+function toggleSel(t) {
+  const n = t.dataset.n;
+  if (gSel.has(n)) { gSel.delete(n); t.classList.remove("sel"); } else { gSel.add(n); t.classList.add("sel"); }
+  updateBar();
+}
+function clearSel() { gSel.clear(); $("gbox").querySelectorAll(".th.sel").forEach(x => x.classList.remove("sel")); }
+async function delOne(folder, name) {                      // one photo; the same three routes as delPhoto
+  const ent = (listCache[folder] || []).find(x => x.name === name);
+  if (!ent) return {ok: false};
+  try {
+    if (isLocal(getSrc())) {
+      if (!window.AndroidSd || typeof AndroidSd.delete !== "function") return {ok: false, stop: true, msg: "Update the app to delete these photos"};
+      const res = await new Promise(ok => { const h = e => { window.removeEventListener("photodeleted", h); ok(e.detail); }; window.addEventListener("photodeleted", h); AndroidSd.delete(getSrc(), folder + "/" + name); });
+      if (res !== "ok") return {ok: false};
+    } else if (getSrc() === "gdrive") {
+      const it = GDI[folder + "/" + name]; if (!it) return {ok: false};
+      const r = await gdFetch(GD_API + "/" + it.id, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed: true})});
+      if (!r.ok) return {ok: false, stop: r.status === 401 || r.status === 403, msg: "Google Drive refused (" + r.status + ")"};
+      delete GDI[folder + "/" + name];
+    } else {
+      const go = () => fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
+        method: "DELETE", headers: {...hdr(false), "Content-Type": "application/json"}, body: JSON.stringify({message: "Delete " + name, sha: ent.sha})});
+      let r = await go();
+      if (r.status === 409 || r.status === 422) { await new Promise(w => setTimeout(w, 700)); r = await go(); }   // GitHub was still busy with the last commit
+      if (!r.ok) return {ok: false, stop: r.status === 401 || r.status === 403 || r.status === 404, msg: r.status === 401 || r.status === 403 || r.status === 404 ? "PIN needs Contents: read & write" : "GitHub error (" + r.status + ")"};
+    }
+    listCache[folder] = listCache[folder].filter(x => x.name !== name);
+    return {ok: true};
+  } catch (e) { return {ok: false, stop: true, msg: "Network error, stopped"}; }
+}
+function tidyGrid(folder) {                                // after deleting: fix indexes, counts, empty day / month folders
+  const box = $("gbox"), ents = sortedEnts(listCache[folder] || []), at = {};
+  ents.forEach((x, k) => at[x.name] = k);
+  box.querySelectorAll(".th").forEach(t => { t.dataset.k = at[t.dataset.n]; });
+  box.querySelectorAll(".gg").forEach(gr => { if (!gr.querySelector(".th")) { const h = gr._h; gr.remove(); if (h && h.classList.contains("gd")) h.remove(); } });
+  box.querySelectorAll(".gb").forEach(bx => {
+    const w = bx.querySelector(".gw");
+    if (!w || !w.querySelector(".gg")) return bx.remove();
+    bx.querySelector(".gm em").textContent = bx.querySelectorAll(".th").length;
+    bx.querySelectorAll(".gd").forEach(d => { d.children[1].textContent = d._g.querySelectorAll(".th").length; });
+    if (!w.querySelector(".gd.open")) { const f = w.querySelector(".gd"); if (f) setGroup(f, true); }
+  });
+  if (!box.querySelector(".gm.open")) { const f = box.querySelector(".gm"); if (f) setGroup(f, true); }
+  gSig = getSrc() + "|" + folder + "|" + ents.length;
+  $("gcnt").textContent = ents.length + (ents.length === 1 ? " photo" : " photos");
+}
+async function delSelected() {
+  if (!unlocked || delBusy || !gSel.size || document.body.dataset.v !== "grid") return;
+  const folder = gFolder, names = [...gSel], total = names.length, box = $("gbox");
+  let done = 0, bad = 0, stopMsg = "";
+  delBusy = true; gDel = true; $("trash").disabled = true; sl.classList.add("busy");
+  const bar = n => { $("fill").style.width = Math.round(sl.clientWidth * n / total) + "px"; };
+  bar(0);
+  for (let i = 0; i < total; i++) {
+    const name = names[i], th = box.querySelector('.th[data-n="' + CSS.escape(name) + '"]');
+    $("hint").textContent = "Deleting ... " + (i + 1) + " / " + total + " selected";
+    if (th) th.classList.add("busy");
+    const r = await delOne(folder, name);
+    if (r.ok) { done++; gSel.delete(name); if (th) { gObs && gObs.unobserve(th); th.remove(); } }
+    else { bad++; if (th) th.classList.remove("busy"); if (r.stop) { stopMsg = r.msg || ""; break; } }
+    bar(i + 1);
+  }
+  if (gFolder === folder) tidyGrid(folder);
+  if (!(listCache[folder] || []).length) { loaded = false; listCache = {}; location.hash = ""; }   // empty folder disappears from git
+  await new Promise(w => setTimeout(w, 350));
+  $("fill").style.width = "0"; sl.classList.remove("busy");
+  gDel = false; delBusy = false; $("trash").disabled = false; updateBar();
+  if (stopMsg) toast("Delete stopped (" + done + " of " + total + " deleted)", stopMsg);
+  else if (bad) toast("Deleted " + done + " of " + total, bad + " could not be deleted");
+  else toast("", "Deleted " + done + (done === 1 ? " photo" : " photos"));
+}
+
 // slide-to-delete: drag the trash handle all the way to the right (releasing early springs back)
 const hd = $("trash"), sl = $("slide");
 let sd = null;
 const maxX = () => sl.clientWidth - hd.offsetWidth - 4;
 function slideTo(x) { hd.style.transform = "translateX(" + x + "px)"; $("fill").style.width = x > 0 ? (x + hd.offsetWidth + 2) + "px" : "0"; }
 hd.addEventListener("pointerdown", e => {
-  if (delBusy || !unlocked || !files.length) return;
+  if (delBusy || !unlocked) return;
+  if (document.body.dataset.v === "grid") {                 // thumbnails: slide deletes every ticked photo
+    if (!selMode) return;
+    if (!gSel.size) return toast("", "Tap photos to select first");
+    sd = {x: e.clientX, dx: 0, grid: true};
+    hd.setPointerCapture(e.pointerId); hd.classList.add("drag"); $("hint").textContent = "Slide to the end to delete " + gSel.size;
+    return;
+  }
+  if (!files.length) return;
   sd = {x: e.clientX, dx: 0, name: files[idx]};
   hd.setPointerCapture(e.pointerId); hd.classList.add("drag");
   $("info").classList.add("warn"); $("lbl").textContent = "Delete: " + sd.name;
@@ -873,7 +1036,7 @@ hd.addEventListener("pointermove", e => { if (sd) { sd.dx = Math.max(0, Math.min
 function endSlide(e) {
   if (!sd) return;
   const d = sd; sd = null; hd.classList.remove("drag"); $("info").classList.remove("warn"); updateBar();
-  if (e.type === "pointerup" && d.dx >= maxX() * 0.9) { slideTo(maxX()); delPhoto(d.name).finally(() => slideTo(0)); }
+  if (e.type === "pointerup" && d.dx >= maxX() * 0.9) { if (d.grid) { slideTo(0); delSelected(); } else { slideTo(maxX()); delPhoto(d.name).finally(() => slideTo(0)); } }
   else slideTo(0);
 }
 hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel", endSlide);
@@ -1082,8 +1245,7 @@ async function sharePhoto() {
 }
 
 // ── THUMBNAIL GRID (month groups) ───────────────────────────────────────
-const DAY_MIN = 60, DAYN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];   // a month with more photos than DAY_MIN is shown as its days (each day folds like a month)
-const GROUP_MIN = 30;                                    // folders with more photos than this are grouped by month (phone / SD card / Google Drive: needs the photo date)
+const GROUP_MIN = 30;                                    // folders with more photos than this are grouped by month; a month with more than this many photos also gets day folders inside it (phone / SD card / Google Drive: needs the photo date)
 let viaGrid = "";                                          // folder whose grid is the history entry right before the photo view
 let gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
 const thWait = new Map();
@@ -1117,52 +1279,74 @@ function pump() {                                          // load a few thumbna
 }
 function sortedEnts(list) {                                // same order as the photo viewer
   const ents = list.filter(x => x.type === "file" && /\.(webp|jpe?g|png|gif)$/i.test(x.name));
-  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) sortByDate(ents);
   else ents.sort((a, b) => nat(a.name, b.name));
   return ents;
 }
 function setGroup(h, open) { h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
 function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function buildGrid(folder, ents) {
   gGen++; gFolder = folder; gQ = []; gBusy = 0;
   if (gObs) gObs.disconnect();
   gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
-  const box = $("gbox"); box.innerHTML = "";
+  const box = $("gbox"); box.innerHTML = ""; gSel.clear();
   gObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { gObs.unobserve(en.target); gQ.push(en.target); pump(); } }), {root: box, rootMargin: "500px 0px"});
   const byMonth = ents.length > GROUP_MIN && ents.some(x => x.mod);
-  const monthN = {};                                       // photos per month, to spot the big months
-  if (byMonth) ents.forEach(x => { if (x.mod) { const d = new Date(x.mod), m = d.getFullYear() * 12 + d.getMonth(); monthN[m] = (monthN[m] || 0) + 1; } });
-  let grid = null, key = null, cnt = 0, cntEl = null, firstGroup = true;
-  const newGrid = label => {
-    if (cntEl) cntEl.textContent = cnt;
-    cnt = 0; grid = document.createElement("div"); grid.className = "gg";
-    if (label !== null) {
-      const h = document.createElement("button"); h.type = "button";
-      h.innerHTML = "<span></span><em></em><i>&#9656;</i>"; h.firstChild.textContent = label; cntEl = h.children[1];
-      h._g = grid; h.className = "gm" + (firstGroup ? " open" : ""); grid.classList.toggle("off", !firstGroup); firstGroup = false;   // newest month open, the rest folded
-      const mine = grid;
-      h.onclick = () => {
-        if (h.classList.contains("open")) return setGroup(h, false);
-        openGroup(h);                                      // accordion: opening a month folds the others
-        box.scrollTop += mine.getBoundingClientRect().top - box.getBoundingClientRect().top - h.offsetHeight;
-      };
-      box.appendChild(h);
-    }
-    box.appendChild(grid);
+  const mkGrid = () => { const g = document.createElement("div"); g.className = "gg"; return g; };
+  const mkHead = (cls, label, n, grid, open) => {
+    const h = document.createElement("button"); h.type = "button"; h.className = cls + (open ? " open" : "");
+    h.innerHTML = "<span></span><em></em><i>&#9656;</i>"; h.firstChild.textContent = label; h.children[1].textContent = n;
+    h._g = grid; grid._h = h; grid.classList.toggle("off", !open); return h;
   };
-  ents.forEach((x, k) => {
-    if (byMonth) {
-      const d = new Date(x.mod || 0), mk = d.getFullYear() * 12 + d.getMonth();
-      const kk = !x.mod ? "?" : monthN[mk] > DAY_MIN ? "d" + d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() : "m" + mk;   // big month: one group per day
-      if (kk !== key) { key = kk; newGrid(kk === "?" ? "Unknown date" : kk[0] === "d" ? DAYN[d.getDay()] + " " + d.getDate() + " " + FULL[d.getMonth()].slice(0, 3) + " " + d.getFullYear() : FULL[d.getMonth()] + " " + d.getFullYear()); }
-    } else if (!grid) newGrid(null);
+  const addTh = (grid, x, k) => {
     const b = document.createElement("button"); b.type = "button"; b.className = "th"; b.dataset.k = k; b.dataset.n = x.name;
     const im = document.createElement("img"); im.alt = ""; im.draggable = false; b.appendChild(im);
-    grid.appendChild(b); gObs.observe(b); cnt++;
-  });
-  if (cntEl) cntEl.textContent = cnt;
+    grid.appendChild(b); gObs.observe(b);
+  };
+  const setGh = () => box.style.setProperty("--gh", Math.max(150, box.clientHeight - 38 - 34 - 46) + "px");   // open day = scroll box down to the screen bottom, leaving the next date / month header peeking
+  setGh(); if (!window._ghOn) { window._ghOn = 1; addEventListener("resize", () => { const b = $("gbox"); b.style.setProperty("--gh", Math.max(150, b.clientHeight - 38 - 34 - 46) + "px"); }); }
+  const jump = (h, offset) => { setGh(); box.scrollTo({top: box.scrollTop + h._g.getBoundingClientRect().top - box.getBoundingClientRect().top - offset - h.offsetHeight, behavior: "smooth"}); };
+  if (!byMonth) {
+    const g = mkGrid(); box.appendChild(g); ents.forEach((x, k) => addTh(g, x, k));
+  } else {
+    const groups = [];                                     // one entry per month, newest first (same order as the viewer)
+    ents.forEach((x, k) => {
+      const d = new Date(x.mod || 0), kk = x.mod ? d.getFullYear() * 12 + d.getMonth() : -1;
+      let last = groups[groups.length - 1];
+      if (!last || last.kk !== kk) groups.push(last = {kk, label: kk < 0 ? "No date" : FULL[d.getMonth()] + " " + d.getFullYear(), items: []});
+      last.items.push({x, k});
+    });
+    groups.forEach((g, gi) => {
+      const open = gi === 0;                               // newest month open, the rest folded
+      const bx = document.createElement("div"); bx.className = "gb"; box.appendChild(bx);   // one bordered box per month
+      if (g.kk >= 0) {                                     // every dated month: day folders (1, 2 ... 31) inside it
+        const wrap = document.createElement("div"); wrap.className = "gw";
+        const mh = mkHead("gm", g.label, g.items.length, wrap, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        bx.appendChild(mh); bx.appendChild(wrap);
+        const byDay = {};
+        g.items.forEach(it => { const d = new Date(it.x.mod); (byDay[d.getDate()] = byDay[d.getDate()] || {d, items: []}).items.push(it); });
+        Object.keys(byDay).map(Number).sort((u, v) => v - u).forEach((n, di) => {
+          const dd = byDay[n], gr = mkGrid(); gr._mh = mh;
+          const dh = mkHead("gd", n + " \u00b7 " + DAYS[dd.d.getDay()], dd.items.length, gr, di === 0);   // newest day open
+          dh.onclick = () => { if (dh.classList.contains("open")) return setGroup(dh, false); openDay(dh); jump(dh, 38); };
+          wrap.appendChild(dh); wrap.appendChild(gr);
+          dd.items.forEach(it => addTh(gr, it.x, it.k));
+        });
+      } else {                                             // photos with no date: one "No date" folder
+        const gr = mkGrid(), mh = mkHead("gm", "No date", g.items.length, gr, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        const wrap = document.createElement("div"); wrap.className = "gw"; wrap.appendChild(gr); mh._g = wrap; gr._mh = mh; wrap.classList.toggle("off", !open); gr.classList.remove("off");
+        bx.appendChild(mh); bx.appendChild(wrap);
+        g.items.forEach(it => addTh(gr, it.x, it.k));
+      }
+    });
+  }
   box.onclick = e => {
     const t = e.target.closest(".th"); if (!t) return;
+    if (unlocked && selMode) { if (!delBusy) toggleSel(t); return; }   // Select is on: tapping ticks / unticks the photo (otherwise the photo opens)
     gScroll = box.scrollTop; startAt = +t.dataset.k; viaGrid = gFolder; location.hash = "f=" + encodeURIComponent(gFolder) + "&v=1";
   };
 }
@@ -1178,7 +1362,7 @@ function showGrid(i) {
   if (sig !== gSig) { gSig = sig; gScroll = 0; buildGrid(f.n, ents); }
   if (back >= 0) {                                         // coming back from a photo: unfold its month and scroll to it
     const t = box.querySelector('.th[data-k="' + back + '"]');
-    if (t) { const gp = t.parentNode; if (gp.classList.contains("off")) openGroup(gp.previousSibling); t.scrollIntoView({block: "center"}); }
+    if (t) { const gp = t.parentNode; if (gp._mh) { if (gp._mh._g.classList.contains("off")) openGroup(gp._mh); if (gp.classList.contains("off")) openDay(gp._h); } else if (gp.classList.contains("off") && gp._h) openGroup(gp._h); t.scrollIntoView({block: "center"}); }
   }
   else box.scrollTop = gScroll;
   pump();
