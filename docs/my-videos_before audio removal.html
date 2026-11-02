@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a1604">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Videos</title>
+<style>
+:root{--ink:#0a1018;--panel:#142030;--panel-rgb:20,32,48;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224}
+/* one colour theme per source (same as My Songs / My PDFs); Cloud keeps the original look */
+body[data-src=phone]{--ink:#07140f;--panel:#0f2519;--panel-rgb:15,37,25;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--a:76,195,138;--acc-hi:#c9f3de;--bar-end:#0f3d2c}
+body[data-src=gdrive]{--ink:#140f05;--panel:#2a1f0a;--panel-rgb:42,31,10;--line:#4d3a12;--mute:#c9b27c;--accent:#f4b942;--a:244,185,66;--acc-hi:#ffe9b8;--bar-end:#4a3408}
+body[data-src=sd]{--ink:#0d0a1b;--panel:#191331;--panel-rgb:25,19,49;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--a:167,139,250;--acc-hi:#e4dcff;--bar-end:#2e1f5c}
+body[data-src=phone] #top,body[data-src=sd] #top,body[data-src=gdrive] #top{background:linear-gradient(135deg,var(--bar-end),var(--panel) 50%,var(--bar-end));border-bottom-color:rgba(var(--a),.6)}
+body[data-src=phone] #top h1,body[data-src=sd] #top h1,body[data-src=gdrive] #top h1{color:var(--acc-hi);text-shadow:0 0 12px rgba(var(--a),.55)}
+body[data-src=phone] #rtxt,body[data-src=sd] #rtxt,body[data-src=gdrive] #rtxt{color:var(--mute)}
+body.sd #upl{display:none}
+#source{display:none;flex:1;min-height:0}
+body[data-v=source] #source{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:24px}
+#source h2{margin:0}#source p{margin:0;color:var(--mute);line-height:1.5}
+.srcbtn{display:flex;align-items:center;gap:14px;height:auto;min-height:72px;padding:12px 16px;text-align:left;border-radius:16px}
+.srcbtn svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;color:var(--accent)}
+.srcbtn b{display:block;font-size:16px}.srcbtn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px;line-height:1.35}
+#serr{color:#ff8f8f;min-height:1.2em}
+#sback,#lback{height:40px;background:transparent;border-color:transparent;color:var(--mute)}
+#fbox{display:flex;flex-direction:column;gap:6px;min-width:250px}
+#fbox[hidden]{display:none}
+.frow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.frow .fl{min-width:0;font-size:13px;font-weight:600}
+.frow small{display:block;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute);font-size:11.5px;font-weight:400}
+.frow button,#reinit,#gdswitch{height:36px;padding:0 12px;font-size:12px;white-space:nowrap}
+#reinit,#gdswitch{width:100%}
+#gdbox{display:flex;flex-direction:column;gap:4px}#gdbox[hidden]{display:none}
+#gdacc{display:block;color:var(--mute);font-size:11.5px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#srow{display:flex;gap:8px}
+#srow button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:0 10px}
+#srow button svg{width:20px;height:20px;margin:0;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#srow button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
+/* ── thumbnail grid (month groups) ── */
+#grid{display:none;flex:1;min-height:0}
+body[data-v=grid] #grid{display:flex;flex-direction:column;padding:10px 12px 6px}
+body[data-v=grid] footer #info{display:none}
+#gtop{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 4px 8px}
+#gtit{font-size:15px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#gcnt{color:var(--mute);font-size:12px;white-space:nowrap}
+#gright{display:flex;align-items:center;gap:10px;flex:none}
+#selbtn{min-width:0;height:30px;padding:0 14px;border-radius:15px;font-size:12px;font-weight:600;color:var(--mute)}
+#selbtn[hidden]{display:none}
+#selbtn.on{border-color:#e5484d;color:#ff8f8f;background:rgba(229,72,77,.18)}
+#gbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:0 4px}
+.gm{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;margin:0;padding:0 12px;border-radius:0 0 10px 10px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:13px;font-weight:600;text-align:left}
+.gm em{font-style:normal;color:var(--mute);font-size:11.5px;font-weight:600;margin-left:auto;margin-right:10px}
+.gm i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gm.open i{transform:rotate(90deg)}
+.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 0 10px}
+.gg.off{display:none}
+.gb{border:1px solid var(--line);border-radius:12px;margin:0 0 10px}
+.gb .gm{border-radius:11px 11px 0 0}
+.gb .gm:not(.open){border-radius:11px;border-bottom-width:0}
+.gw{padding:0 6px 6px}
+.gw.off{display:none}
+.gd{position:sticky;top:38px;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:34px;margin:0;padding:0 10px;border-radius:0 0 8px 8px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:12.5px;font-weight:600;text-align:left}
+.gd em{font-style:normal;color:var(--mute);font-size:11px;font-weight:600;margin-left:auto;margin-right:10px}
+.gd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gd.open i{transform:rotate(90deg)}
+@media (min-width:520px){.gg{grid-template-columns:repeat(4,1fr)}}
+.th{position:relative;aspect-ratio:1;height:auto;min-width:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--panel)}
+.th img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
+.th img.on{opacity:1}
+.th.sel{outline:2px solid #e5484d;outline-offset:-2px}
+.th.sel img.on{opacity:.6}
+.th.sel::after{content:"\2713";position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#e5484d;color:#fff;font-size:13px;font-weight:700;line-height:20px;text-align:center}
+.th.busy{pointer-events:none}
+.th.busy img.on{opacity:.25}
+.th.busy::after{content:"";top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;background:none;animation:gspin .7s linear infinite}
+@keyframes gspin{to{transform:rotate(360deg)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-top:0}
+button{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer}
+button:active{background:var(--line)}
+button:disabled{opacity:.3;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent)}
+#list,#viewer{display:none;flex:1;min-height:0}
+body[data-v=list] #list{display:flex;flex-direction:column;padding:10px 12px 6px}
+#box{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:6px}
+body[data-v=view] #viewer{display:block;position:relative;overflow:hidden;touch-action:none}
+body[data-v=login] footer,body[data-v=source] footer{display:none}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;height:auto;min-height:40px;margin:0 0 4px;padding:5px 12px;text-align:left;border-radius:10px}
+.topic>span:first-child{flex:1;min-width:0}
+.topic b{display:block;font-weight:600;font-size:14px;line-height:1.3}
+.topic small{display:block;color:var(--mute);font-size:11px;line-height:1.3}
+.topic small:empty{display:none}
+.topic .r{flex:none;display:flex;align-items:center;gap:8px}
+.topic em.n{flex:none;font-style:normal;font-size:11px;font-weight:600;line-height:1;padding:3px 8px;border-radius:10px;color:#e2b877;background:rgba(255,153,51,.1);border:1px solid rgba(255,153,51,.3);font-variant-numeric:tabular-nums}
+.topic.hd{display:flex}
+.topic.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.grp.open>.hd i{transform:rotate(90deg)}
+.kids{display:none;margin:-1px 0 6px 10px;padding-left:8px;border-left:2px solid var(--line)}
+.grp.open>.kids{display:block}
+.kids .topic:last-child{margin-bottom:0}
+.bm{display:inline-block;width:15px;height:15px;margin-left:8px;vertical-align:-2px;fill:#f5b942;stroke:#f5b942;stroke-width:1.5;stroke-linejoin:round}
+.link{display:block;margin:14px auto 0;background:none;border:0;color:var(--mute);height:auto;padding:8px;font-size:14px}
+#track{display:flex;position:absolute;left:0;top:0}
+#track>.msg{flex:0 0 100%}
+.slide{flex:none;position:relative}
+.slide video{background:#000;position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain;border-radius:6px;transform-origin:center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.slide video:not([src]){visibility:hidden}
+.msg{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
+.arrow{display:none;position:absolute;top:50%;margin-top:-22px;z-index:3;border-radius:50%;background:#0a1018cc;font-size:26px;line-height:1;place-items:center}
+#toast{position:absolute;top:76px;left:50%;transform:translateX(-50%);z-index:8;background:#0a1018e6;border:1px solid var(--line);border-radius:12px;padding:8px 16px;text-align:center;max-width:86%;pointer-events:none;opacity:0;transition:opacity .9s ease}
+#toast.on{opacity:1;transition:opacity .2s}
+#toast small{display:block;color:var(--mute);font-size:12px}
+#toast b{font-size:15px}
+#aL{left:10px}#aR{right:10px}
+@media (pointer:fine){body[data-v=view] .arrow{display:grid}}
+footer{position:relative;display:flex;gap:6px;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,153,51,.28)}
+.mid{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px}
+footer svg,#fsx svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#info{position:absolute;left:0;right:0;bottom:calc(100% + 4px);text-align:center;line-height:1.25;pointer-events:none;color:rgba(232,238,246,.6);text-shadow:0 1px 3px rgba(0,0,0,.85)}
+#cnt{display:block;font-size:13px;font-weight:600}
+#lbl{display:block;font-size:11px;padding:0 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
+#fsx{display:none;position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));right:12px;z-index:5;border-radius:50%;background:#0a1018cc}
+#panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(var(--panel-rgb),.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
+#panel[hidden],#pinrow[hidden]{display:none}
+#prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
+#pinerr{color:#ff8f8f;font-size:12px;min-height:0}
+#del.on{border-color:#e5484d;color:#ff8f8f}
+#slide{flex:1;min-width:0;max-width:340px;height:44px;position:relative;margin:0 4px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.04);overflow:hidden}
+#slide.off{display:none}
+#fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(229,72,77,.28)}
+#hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-left:40px;font-size:11px;letter-spacing:.3px;color:var(--mute);white-space:nowrap;pointer-events:none}
+#trash{position:absolute;left:2px;top:2px;min-width:38px;width:38px;height:38px;border-radius:50%;color:#ff8f8f;border-color:#e5484d66;touch-action:none;cursor:grab;transition:transform .2s ease}
+#trash.drag{transition:none;cursor:grabbing}
+#slide.busy #fill{transition:width .25s ease}
+#slide.busy #trash{opacity:.45}
+#slide.busy #hint{color:#ffd0d0}
+#trash svg{width:20px;height:20px}
+#info.warn{color:#ff9a9a}
+body.max footer{display:none!important}
+body.max #fsx{display:block}
+/* ── saffron top ribbon ── */
+#top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
+#top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
+#rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
+.topic{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.favlab{display:flex;align-items:center;gap:8px;margin:10px 4px 6px;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--accent)}
+.favlab::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--a),.7),transparent)}
+.favlab:first-child{margin-top:2px}
+#top .tl{display:flex;align-items:center;gap:6px;min-width:0}
+body[data-src=phone]{--tape:#22e07a;--tape2:#9af5c4;--tapetxt:#013a1c}
+body[data-src=sd]{--tape:#b44cff;--tape2:#dcb0ff;--tapetxt:#ffffff}
+body[data-src=gdrive]{--tape:#ffc83d;--tape2:#ffe39a;--tapetxt:#3a2800}
+.tapes{position:relative;display:inline-block;padding:5px 7px;line-height:1;filter:drop-shadow(0 0 5px var(--tape,#ff9933))}
+.tape{position:relative;display:inline-block;padding:4px 12px;font-size:10px;font-weight:800;letter-spacing:.9px;color:var(--tapetxt,#3d1b00);background:var(--tape,#ff9933);transform:rotate(-8deg);clip-path:polygon(0 0,100% 0,96% 25%,100% 50%,96% 75%,100% 100%,0 100%,4% 75%,0 50%,4% 25%);white-space:nowrap}
+.tape:empty{display:none}
+.t2{position:absolute;left:0;right:0;top:50%;height:11px;margin-top:-5px;background:var(--tape2,#ffc27a);transform:rotate(15deg);clip-path:polygon(0 0,100% 0,97% 30%,100% 50%,97% 70%,100% 100%,0 100%,3% 70%,0 50%,3% 30%)}
+#top .glint{position:absolute;top:0;bottom:0;left:0;width:34%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,170,70,.24),transparent);transform:translateX(-120%) skewX(-18deg);animation:ribSweep 7s ease-in-out infinite}
+@keyframes ribGlow{0%,100%{box-shadow:0 4px 16px -6px rgba(255,153,51,.35)}50%{box-shadow:0 6px 28px -4px rgba(255,153,51,.75)}}
+@keyframes ribSweep{0%{transform:translateX(-120%) skewX(-18deg)}60%,100%{transform:translateX(320%) skewX(-18deg)}}
+body[data-v=login] #top,body[data-v=source] #top,body[data-v=view] #top{display:none}
+body[data-v=login] #app,body[data-v=source] #app,body[data-v=view] #app,body.nobar #app{padding-top:env(safe-area-inset-top)}
+body[data-v=view] #toast{top:calc(14px + env(safe-area-inset-top))}
+body.nobar #top{display:none}
+body.max #top{display:none}
+body.max #app{padding-top:0}
+
+/* ── start screen: title + glowing saffron Start button; tap = full screen, then it fades away ── */
+#start-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 24px calc(32px + env(safe-area-inset-bottom,0px)) 0;background:radial-gradient(circle at 50% 38%,#4a2606 0%,#0a1018 70%);--start-img:none}
+#start-screen::before{content:"";position:absolute;inset:0;background:var(--start-img) center/cover no-repeat;opacity:0}
+#start-screen.ready::before{animation:startReveal 5s ease-in-out forwards}
+@keyframes startReveal{to{opacity:1}}
+#start-text{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);padding:0 20px;text-align:center;pointer-events:none}
+#start-text h1{margin:0 0 10px;font-size:clamp(30px,min(9vw,14vh),56px);letter-spacing:.5px;color:#ffd9a0;text-shadow:0 0 24px rgba(255,153,51,.6),0 2px 12px rgba(0,0,0,.6);opacity:0;transform:translateY(28px)}
+#start-text p{margin:0;color:#e2b877;font-size:15px;opacity:0;transform:translateY(28px)}
+#start-screen.ready #start-text h1{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) .6s forwards}
+#start-screen.ready #start-text p{animation:textRise 2.6s cubic-bezier(.2,.7,.3,1) 1.6s forwards}
+@keyframes textRise{to{opacity:1;transform:none}}
+#start-btn{position:relative;z-index:1;appearance:none;cursor:pointer;width:76px;height:76px;min-width:0;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.9);color:#3a1c02;font:700 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:radial-gradient(circle at 35% 30%,#ffe9c9 0%,#ff9933 60%,#e07a14 100%);opacity:0;pointer-events:none}
+#start-screen.btn-on #start-btn{pointer-events:auto;animation:startBtnIn .8s ease-out forwards,startGlow 1.8s ease-in-out infinite}
+@keyframes startBtnIn{to{opacity:1}}
+#start-btn:active{transform:scale(.95)}
+@keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(255,153,51,.75),0 0 18px 6px rgba(255,153,51,.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(255,190,110,1),0 0 34px 14px rgba(255,153,51,.7),inset 0 1px 0 rgba(255,255,255,.7)}}
+#start-screen.leaving{pointer-events:none;animation:startFade 2.5s ease forwards}
+#start-screen.leaving #start-btn{animation:startBtnOut 2.5s ease forwards}
+@keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
+@keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){#top,#top .glint{animation:none}#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
+
+/* ── upload dialog ── */
+#ud{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,12,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#ud[hidden]{display:none}
+#ubox{width:min(420px,100%);max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:16px;background:var(--panel);border:1px solid rgba(255,153,51,.45);border-radius:16px;box-shadow:0 0 28px -6px rgba(255,153,51,.4)}
+#ubox h3{margin:0;font-size:17px;color:#ffd9a0}
+#ubox label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mute)}
+#ubox label[hidden]{display:none}
+#ubox input[type=text],#ubox select{height:42px;border-radius:10px;border:1px solid var(--line);background:var(--ink);color:var(--text);padding:0 12px;font:inherit;font-size:14px;min-width:0}
+#ubox input:disabled,#ubox select:disabled,#unewb:disabled{opacity:.5}
+#ufrow{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute)}
+#unewb{min-width:34px;width:34px;height:34px;border-radius:10px;color:#ffb25c;border-color:rgba(255,153,51,.4)}
+#unewb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;margin:auto}
+#usum{margin:0;font-size:13px;color:#e2b877}
+#uprev{color:var(--mute);font-size:12px;min-height:15px;word-break:break-all}
+#uprog{display:flex;flex-direction:column;gap:6px}
+#uprog[hidden]{display:none}
+#ubar{height:6px;border-radius:3px;background:var(--ink);overflow:hidden}
+#ubar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9933,#ffd9a0);transition:width .2s}
+#ust{font-size:12px;color:var(--mute)}
+#uerr{margin:0;color:#ff8f8f;font-size:13px;line-height:1.4}
+#uerr:empty{display:none}
+.urow{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+.urow button{min-width:88px;padding:0 16px}
+#ugo{background:linear-gradient(135deg,#ffb25c,#ff9933);color:#3a1c02;font-weight:700;border-color:transparent}
+#ugo:disabled{opacity:.4}
+
+/* ── mobile app (Capacitor or installed to home screen): already full screen, so no max / min buttons ── */
+body.app #max,body.app #fsx{display:none!important}
+body{-webkit-touch-callout:none}
+@media (orientation:landscape) and (pointer:coarse), (orientation:landscape) and (max-height:500px){
+  body[data-v=view] footer{display:none}
+  body[data-v=view] #app{max-width:none;margin:0;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+  body[data-v=view] .slide video{inset:0;width:100%;height:100%;border-radius:0}
+}
+.th::before{content:"";position:absolute;right:7px;bottom:7px;z-index:2;border-left:12px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;filter:drop-shadow(0 0 2px #000)}
+/* custom player */
+body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=view] .slide{background:#000}
+.slide video{opacity:0;transition:opacity .6s ease}
+.slide.rdy video{opacity:1}
+.vcover{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;padding:28px;background:#05080c;color:#ffd9a0;text-align:center;font-size:18px;line-height:1.45;word-break:break-word;opacity:1;transition:opacity .6s ease;pointer-events:none}
+.slide.rdy .vcover{opacity:0}
+.vcover{flex-direction:column;gap:8px;overflow:hidden}
+.cvm{font-size:15px;letter-spacing:.5em;margin-right:-.5em;text-transform:uppercase;color:#c9b27c;opacity:0}
+.cvd{font-size:78px;font-weight:200;line-height:1;color:#ffd9a0;opacity:0}
+.cvn{font-size:16px;color:#e8eef6;opacity:0;max-width:86%}
+.dust{position:absolute;top:-10px;left:var(--x);width:var(--sz);height:var(--sz);border-radius:50%;background:#ffd9a0;opacity:0}
+.slide.go .cvm{animation:cvM 1.3s .1s ease-out forwards}
+.slide.go .cvd{animation:cvIn 1.3s .5s ease-out forwards}
+.slide.go .cvn{animation:cvIn 1.2s 1s ease-out forwards}
+.slide.go .dust{animation:dustFall var(--dur) var(--del) ease-in forwards}
+@keyframes cvIn{0%{opacity:0;transform:translateY(-16px);filter:blur(8px)}100%{opacity:1;transform:none;filter:blur(0)}}
+@keyframes cvM{0%{opacity:0;letter-spacing:1em;filter:blur(6px)}100%{opacity:1;letter-spacing:.5em;filter:blur(0)}}
+@keyframes dustFall{0%{opacity:0;transform:translateY(0)}25%{opacity:.75}100%{opacity:0;transform:translateY(var(--h))}}
+.vtop{display:none}
+.vbar,.vtop{opacity:0;pointer-events:none;transition:opacity .25s}
+.slide.cui .vbar,.slide.cui .vtop{opacity:1;pointer-events:auto}
+.vbig{position:absolute;left:50%;top:50%;z-index:4;width:64px;height:64px;min-width:0;margin:-32px 0 0 -32px;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.9);background:rgba(10,16,24,.62);display:grid;place-items:center}
+.vbig::before{content:"";margin-left:6px;border-left:22px solid #ffd9a0;border-top:13px solid transparent;border-bottom:13px solid transparent}
+.slide.pl .vbig::before{width:20px;height:24px;margin:0;border:0;background:linear-gradient(90deg,#ffd9a0 0 35%,transparent 35% 65%,#ffd9a0 65%)}
+.vbar{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:14px;background:none;text-shadow:0 0 3px #000,0 0 6px #000;color:#e8eef6;font-size:12px}
+.vbar b{min-width:36px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.sk{position:relative;flex:1;height:30px;touch-action:none;cursor:pointer}
+.sk::before{content:"";position:absolute;left:0;right:0;top:50%;height:5px;margin-top:-2.5px;border-radius:3px;background:rgba(255,255,255,.18)}
+.sk i,.sk u{position:absolute;top:50%;text-decoration:none}
+.sk i{left:0;width:0;height:5px;margin-top:-2.5px;border-radius:3px}
+.sk .bf{background:rgba(255,255,255,.32)}
+.sk .pg{background:linear-gradient(90deg,#ffb25c,#ff9933)}
+.sk .kn{left:0;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#ffd9a0;box-shadow:0 0 9px rgba(255,153,51,.85)}
+.vspd{position:absolute;right:14px;bottom:72px;z-index:5;display:flex;flex-direction:column-reverse;align-items:center;gap:8px}
+.vsm{display:flex;flex-direction:column-reverse;gap:8px}
+.vsm[hidden]{display:none}
+.vsb,.vsm button{width:44px;height:44px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.85);background:rgba(10,16,24,.74);color:#ffd9a0;font:700 12px/1 inherit;display:grid;place-items:center}
+.vsb.on,.vsm button.on{background:linear-gradient(135deg,#ffb25c,#ff9933);color:#3a1c02;border-color:transparent}
+.vtop{position:absolute;left:10px;right:10px;top:10px;z-index:4;display:flex;align-items:center;gap:10px;padding:6px 8px 6px 14px;border-radius:14px;background:none;text-shadow:0 0 3px #000,0 0 6px #000;color:#e8eef6;font-size:13px}
+.vnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vpen{width:38px;height:38px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.85);background:rgba(10,16,24,.74);display:grid;place-items:center}
+.vpen svg{width:18px;height:18px;fill:none;stroke:#ffd9a0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#rn{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,12,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#rn[hidden]{display:none}
+#rbox{width:min(440px,100%);display:flex;flex-direction:column;gap:10px;padding:16px;background:var(--panel);border:1px solid rgba(255,153,51,.45);border-radius:16px;box-shadow:0 0 28px -6px rgba(255,153,51,.4)}
+#rbox h3{margin:0;font-size:17px;color:#ffd9a0}
+#rnow{color:var(--mute);font-size:12px;word-break:break-all}
+#rrow{display:flex;align-items:center;gap:8px}
+#rname{flex:1;min-width:0;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--ink);color:var(--text);padding:0 12px;font:inherit;font-size:14px}
+#rext{color:var(--mute);font-size:14px}
+#rerr{margin:0;color:#ffb25c;font-size:12px;min-height:15px}
+#rgo{background:linear-gradient(135deg,#ffb25c,#ff9933);color:#3a1c02;font-weight:700;border-color:transparent}
+#rgo:disabled,#rcancel:disabled{opacity:.4}
+/* cut (landscape, Phone / SD card only) */
+.vpen.vgear{display:none}
+.vpen.vgear.on{background:linear-gradient(135deg,#ffb25c,#ff9933)}
+.vpen.vgear.on svg{stroke:#3a1c02}
+.vcg{position:absolute;left:14px;bottom:72px;z-index:5;display:none;align-items:center;gap:10px}
+.vsc,.vcre,.vtr{width:48px;height:48px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.9);background:rgba(10,16,24,.74);display:grid;place-items:center}
+.vsc svg,.vcre svg{width:22px;height:22px;fill:none;stroke:#ffd9a0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vsc.s1{border-color:#7ee787;background:rgba(126,231,135,.2)}
+.vsc.s2{border-color:#ff8a80;background:rgba(255,138,128,.2)}
+.vcp{display:flex;gap:10px}
+.vcp[hidden]{display:none}
+.vcl{font-size:12px;color:#e8eef6;background:rgba(10,16,24,.74);padding:5px 10px;border-radius:12px;font-variant-numeric:tabular-nums}
+.vcl:empty{display:none}
+.sk s{position:absolute;top:50%;display:none;text-decoration:none}
+.sk .mr{height:9px;margin-top:-4.5px;border-radius:3px;background:rgba(255,153,51,.4)}
+.sk .mk{width:2px;height:20px;margin:-10px 0 0 -1px;border-radius:1px}
+.sk .mk::before{content:"";position:absolute;left:-5px;top:-7px;width:12px;height:12px;border-radius:50%;background:inherit;box-shadow:0 0 4px rgba(0,0,0,.7)}   /* small pin head */
+.sk .ms{background:#7ee787}
+.sk .me{background:#ff8a80}
+@media (orientation:landscape){.vpen.vgear{display:grid}.slide.cm .vcg{display:flex}}
+/* right-hand stack: play/pause, rename, cut gear, scissors, speed (the pop-outs open to the left) */
+.vtop{right:72px}
+.vrs{position:absolute;right:12px;top:10px;bottom:70px;z-index:5;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:8px;opacity:0;pointer-events:none;transition:opacity .25s}
+.slide.cui .vrs{opacity:1}
+.slide.cui .vrs button{pointer-events:auto}
+.vbig{position:static;width:42px;height:42px;margin:0}
+.vbig::before{margin-left:4px;border-left-width:15px;border-top-width:9px;border-bottom-width:9px}
+.slide.pl .vbig::before{width:14px;height:17px;margin:0;border:0;background:linear-gradient(90deg,#ffd9a0 0 35%,transparent 35% 65%,#ffd9a0 65%)}
+.vpen,.vsb,.vsm button,.vsc,.vcre,.vtr{width:42px;height:42px}
+.vspd{position:static;display:flex;flex-direction:row-reverse;align-items:center;gap:8px}
+.vsm{flex-direction:row-reverse;gap:8px}
+.vcg{position:static;display:none;flex-direction:row-reverse;align-items:center;gap:8px}
+.vcp{flex-direction:row-reverse;gap:8px}
+/* scissors button: start scissors -> end scissors (turned to face down) -> tick */
+.vsc svg{display:none}
+.vsc.s0 .i0,.vsc.s1 .i1,.vsc.s2 .i2{display:block}
+.vsc.s0{border-color:#7ee787;background:rgba(126,231,135,.18)}
+.vsc.s0 .i0{stroke:#7ee787}
+.vsc.s1{border-color:#ff8a80;background:rgba(255,138,128,.2)}
+.vsc.s1 .i1{stroke:#ff8a80;transform:rotate(90deg)}
+.vsc.s2{background:linear-gradient(135deg,#6bb6ff,#3b8be8);border-color:transparent}
+.vsc.s2 .i2{stroke:#04203d}
+.vtr svg{width:20px;height:20px;fill:none;stroke:#ff8a80;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vtr{border-color:#ff8a80}
+.vsk{display:flex;gap:10px}
+.vjk{width:42px;height:42px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.85);background:rgba(10,16,24,.74);display:grid;place-items:center;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.vjk svg{width:26px;height:26px;fill:none;stroke:#ffd9a0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vsb,.vsm button{width:42px;height:42px;font-size:10px}      /* same circle as the others, only the text inside is smaller so 1.75x fits */
+.vrs{gap:12px}
+.vspd{gap:10px}
+.vsm,.vcg{gap:10px;padding:5px 8px;border-radius:999px;background:rgba(148,158,170,.92);border:1.5px solid rgba(255,255,255,.45);box-shadow:0 2px 8px rgba(0,0,0,.35)}      /* the pills that open to the left: rounded, light bluish grey */
+/* cut pill, left to right: trim (red), time frame, tick, reset (the group runs right to left, so the order numbers count from the right) */
+.vcp{display:contents}
+.vcp[hidden]{display:none}
+.vcre{order:1}.vsc{order:2}.vcl{order:3}.vtr{order:4}
+.vsm[hidden]{display:none}
+/* crop: the cut rail opens to the left of the crop icon, in the same row, like the speed rail; the crop icon stays at the far right */
+.vcw{display:none;position:static;flex-direction:row-reverse;align-items:center;gap:10px}
+@media (orientation:landscape){.vcw{display:flex}}
+.vcl{white-space:nowrap}
+/* landscape: controls flush to the right edge */
+@media (orientation:landscape){.vrs{right:4px}.vtop{right:60px}}
+</style>
+</head>
+<body data-v="list">
+<div id="start-screen">
+  <div id="start-text"><h1>Videos</h1><p>Tap a folder to open its videos</p></div>
+  <button id="start-btn" type="button">Start</button>
+</div>
+<div id="app">
+  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><small id="rtxt"></small><i class="glint"></i></header>
+  <div id="list"><div id="box"></div></div>
+  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="gbox"></div></div>
+  <div id="source">
+    <h2>Where are your videos?</h2>
+    <button class="srcbtn" id="srcPh" type="button"><svg viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg><span><b>Phone storage</b><small>Offline. One folder on the phone's own memory (a "videos" sub-folder is used if present).</small></span></button>
+    <button class="srcbtn" id="srcSd" type="button"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM11 3v4M14 3v4"/></svg><span><b>SD card</b><small>Offline. One folder on the SD card (a "videos" sub-folder is used if present).</small></span></button>
+    <button class="srcbtn" id="srcGd" type="button"><svg viewBox="0 0 24 24"><path d="M9 3h6l7 12-3.5 6h-13L2 15zM9 3l7 12h6M16 15l-3.5 6"/></svg><span><b>Google Drive</b><small>Online. Original quality, no compression. Needs Google sign-in.</small></span></button>
+    <p id="serr"></p>
+    <button id="sback" type="button" hidden>Back</button>
+  </div>
+  <div id="viewer">
+    <div id="track"></div>
+    <button class="arrow" id="aL" aria-label="Previous video">&#8249;</button>
+    <button class="arrow" id="aR" aria-label="Next video">&#8250;</button>
+    <div id="toast"><small></small><b></b></div>
+  </div>
+  <footer id="foot">
+    <button id="menu" aria-label="Folders"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="mid">
+    <button id="prevF" aria-label="Previous folder"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div id="slide" class="off"><div id="fill"></div><span id="hint">slide to delete</span>
+      <button id="trash" aria-label="Slide right to delete this video"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></div>
+    <button id="nextF" aria-label="Next folder"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <button id="gear" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <div id="panel" hidden>
+      <div id="srow" role="group" aria-label="Source"></div>
+      <div id="gdbox" hidden><button id="gdswitch" type="button">Switch Google account</button><small id="gdacc"></small></div>
+      <div id="fbox" hidden></div>
+      <div id="prow">
+        <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
+        <button id="upl" aria-label="Upload videos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
+        <button id="max" aria-label="Full screen"></button>
+        <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
+      </div>
+      <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
+      <small id="pinerr"></small>
+    </div>
+    <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
+  </footer>
+</div>
+<input id="ufile" type="file" accept="video/*" multiple hidden>
+<div id="ud" hidden><div id="ubox" role="dialog" aria-label="Upload videos">
+  <h3>Upload videos</h3>
+  <p id="usum"></p>
+  <div id="ufrow"><span>Folder</span><button id="unewb" type="button" aria-label="New folder"></button></div>
+  <select id="ufold"></select>
+  <input id="unew" type="text" placeholder="Folder name (use / for a sub-folder)" autocomplete="off" autocapitalize="off" hidden>
+  <small id="uprev"></small>
+  <div id="uprog" hidden><div id="ubar"><i></i></div><small id="ust"></small></div>
+  <p id="uerr"></p>
+  <div class="urow"><button id="ucancel" type="button">Cancel</button><button id="ugo" type="button">Upload</button></div>
+</div></div>
+<div id="rn" hidden><div id="rbox" role="dialog" aria-label="Rename video">
+  <h3 id="rtitle">Rename video</h3>
+  <small id="rnow"></small>
+  <div id="rrow"><input id="rname" type="text" autocomplete="off" autocapitalize="sentences" maxlength="150"><span id="rext"></span></div>
+  <p id="rerr"></p>
+  <div class="urow"><button id="rcancel" type="button">Cancel</button><button id="rgo" type="button">Save</button></div>
+</div></div>
+<button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
+
+<script>
+// Running as an app (Android Capacitor, or installed to the home screen)? Already full screen: no max / min buttons.
+const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
+  || matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+if (IN_APP) document.body.classList.add("app");
+// ── CONFIG ──────────────────────────────────────────────────────────────
+// Landscape phone + landscape video: fill the whole screen (crops edges). Max share of the video allowed to be
+// cropped; 0.5 fills normal 4:3 / 16:9 videos. Set 0 to never fill (always show the whole video).
+const FILL_MAX_CROP = 0.5;
+const DELETE_PIN = "6559";                                   // PIN that unlocks delete mode (change it here)
+const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1, LOCAL_NEWEST_FIRST = true;   // LOCAL_NEWEST_FIRST: videos on the phone / SD card follow their date, like the gallery (false = oldest first)
+   // preload: first 5 on open, then 2 ahead / 1 behind
+
+// ── HELPERS ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MENU_ICO = '<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>', GRID_ICO = '<svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>';
+const nat = (a, b) => a.localeCompare(b, undefined, {numeric: true});
+const getSrc = () => { try { return localStorage.getItem("picsrc") || ""; } catch (e) { return ""; } };
+const setSrc = v => { try { localStorage.setItem("picsrc", v); } catch (e) {} };
+const SV = d => '<svg viewBox="0 0 24 24"><path d="' + d + '"/></svg>';
+const SRC_ICO = {phone: SV("M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"), sd: SV("M7 3h7l4 4v14H7zM11 3v4M14 3v4"), gdrive: SV("M9 3h6l7 12-3.5 6h-13L2 15zM9 3l7 12h6M16 15l-3.5 6")};
+const SRC_ORDER = ["phone", "sd", "gdrive"], SRC_NAME = {phone: "Phone storage", sd: "SD card", gdrive: "Google Drive"}, SRC_SHORT = {phone: "Phone", sd: "SD card", gdrive: "Drive"};
+const isLocal = v => v === "phone" || v === "sd";
+const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
+function applySd() {
+  const ok = sdOk();
+  [$("srcSd"), document.querySelector("#srow [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
+}
+function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
+  const v = getSrc();
+  document.body.dataset.src = v || ""; document.body.classList.toggle("sd", isLocal(v));
+  $("rbadge").textContent = {phone: "PHONE", sd: "SD CARD", gdrive: "DRIVE"}[v] || "";
+  { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = (isLocal(v) || v === "gdrive") ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
+  applySd();
+  const r = $("srow"); if (r) r.querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+}
+const getLast = () => { try { return localStorage.getItem("lastFolder") || ""; } catch (e) { return ""; } };
+const setLast = v => { try { localStorage.setItem("lastFolder", v); } catch (e) {} };
+const bmIcon = () => { const s = document.createElement("span"); s.innerHTML = '<svg class="bm" viewBox="0 0 24 24" aria-label="Last visited"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'; return s.firstChild; };
+const enc = p => p.split("/").map(encodeURIComponent).join("/");
+const show = v => { document.body.dataset.v = v; showSrcIco(); closePanel(); updateBar(); };
+
+// Folders are fetched from the repo root and sorted newest first (names start with yyyy mm dd)
+let parsed = [], loaded = false;
+const parseFolder = n => {
+  const m = n.match(/^(\d{4}) (\d{2}) (\d{2}) (.*)$/);
+  const nice = x => x.replace(/\//g, " / ");
+  return m ? {n, y: +m[1], mo: +m[2], d: +m[3], t: nice(m[4])} : {n, y: 0, mo: 0, d: 0, t: nice(n)};
+};
+const LSIZE = {}, MIME = {mp4: "video/mp4", m4v: "video/x-m4v", webm: "video/webm", "3gp": "video/3gpp", mov: "video/quicktime", mkv: "video/x-matroska"};
+const VID_RE = /\.(mp4|m4v|webm|3gp|mov|mkv)$/i;
+async function loadLocal() {                               // Phone storage / SD card: the Java side scans the chosen folder and returns "path<TAB>size" lines
+  const my = ++ticket, src = getSrc(), nm = SRC_NAME[src] || "storage";
+  if (!window.AndroidSd) { $("serr").textContent = "Phone storage and SD card work only inside the Android app."; $("sback").hidden = true; show("source"); return false; }
+  const st = AndroidSd.status(src);
+  if (st.indexOf("ok") !== 0) { $("serr").textContent = st === "lost" ? "Access to the " + nm + " folder was lost. Tap " + nm + " and choose the folder again." : "Tap " + nm + " and choose your videos folder."; $("sback").hidden = true; show("source"); return false; }
+  $("box").innerHTML = '<div class="msg">Reading ' + nm + '...</div>'; show("list");
+  const res = await new Promise(ok => { const h = e => { window.removeEventListener("sdscan", h); ok(e.detail); }; window.addEventListener("sdscan", h); AndroidSd.scan(src); });
+  if (my !== ticket) return false;
+  if (res !== "ok") { $("box").innerHTML = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = "Could not read the " + nm + " folder (" + res + "). Use the gear menu > Choose folder to pick it again."; $("box").appendChild(m); return false; }
+  const dirs = {};
+  AndroidSd.result(src).split("\n").forEach(line => {
+    if (!line) return; const t = line.split("\t"), path = t[0];
+    if (!/\.(mp4|m4v|webm|3gp|mov|mkv)$/i.test(path) || path.split("/").some(seg => seg.startsWith("."))) return;
+    const i = path.lastIndexOf("/"); if (i < 0) return;
+    const dir = path.slice(0, i); LSIZE[src + "|" + path] = +t[1] || 0;
+    (dirs[dir] = dirs[dir] || []).push({name: path.slice(i + 1), type: "file", sha: "", mod: +t[2] || 0});
+  });
+  listCache = dirs;
+  parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
+  loaded = true; renderList(); return true;
+}
+async function loadFolders() { return isLocal(getSrc()) ? loadLocal() : loadDrive(); }
+
+// ── GOOGLE DRIVE (4th source: same folders / viewer / delete / upload, but original quality) ──
+// Sign-in is done by the Java side (AndroidGDrive.token). Scope drive.file = the app only sees what it uploaded itself.
+const GD_ROOT = "MyVideos";                              // top folder in your Drive; every album is a sub-folder of it
+const GD_API = "https://www.googleapis.com/drive/v3/files", GD_UP = "https://www.googleapis.com/upload/drive/v3/files", GD_DIR = "application/vnd.google-apps.folder";
+const GD_ALBUMS = ["Family", "General", "Work"];            // fixed albums, shown in this order (rename here if you like). Trips etc. go inside an album, e.g. Family/2026 12 25 Goa
+const gdAlbumOf = p => GD_ALBUMS.find(a => a.toLowerCase() === String(p).split("/")[0].toLowerCase()) || "";
+const gdRank = n => { const i = GD_ALBUMS.indexOf(n.split("/")[0]); return i < 0 ? 99 : i; };
+const gdSort = () => parsed.sort((a, b) => gdRank(a.n) - gdRank(b.n) || ((a.n.indexOf("/") < 0 ? 0 : 1) - (b.n.indexOf("/") < 0 ? 0 : 1)) || nat(b.n, a.n));   // albums in order; inside an album: its own videos first, then sub-folders newest first
+const GDI = {};                                            // "folder/video.jpg" -> {id, thumb}
+let gdTok = "", gdExp = 0, gdPend = null, gdRootId = "", gdFolderIds = {};
+const extOf = f => !f ? "" : ((f.name.indexOf(".") > 0 ? f.name.split(".").pop().toLowerCase() : "") || ({"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"})[f.type] || "");
+const gdMsg = e => { const m = String((e && e.message) || e); return m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
+  : /^HTTP 40[13]/.test(m) ? "Google Drive refused access (" + m + "). Check that the Drive API is on and your Google account is a test user." : m.indexOf("HTTP") === 0 ? "Google Drive error (" + m + ")." : "Google sign-in failed: " + m; };
+function gdToken(force) {                                  // short-lived access token from the Java side (silent after the first consent)
+  if (!force && gdTok && Date.now() < gdExp) return Promise.resolve(gdTok);
+  if (!window.AndroidGDrive || typeof AndroidGDrive.token !== "function") return Promise.reject(new Error("noapp"));
+  if (gdPend) return gdPend;
+  gdPend = new Promise((ok, no) => {
+    const h = e => {
+      window.removeEventListener("gtoken", h); gdPend = null;
+      const t = String(e.detail).split("\t");
+      if (t[0] === "ok" && t[1]) { gdTok = t[1]; gdExp = Date.now() + 50 * 60 * 1000; ok(gdTok); } else no(new Error(t[1] || "signin"));
+    };
+    window.addEventListener("gtoken", h); AndroidGDrive.token();
+  });
+  return gdPend;
+}
+async function gdFetch(url, opt) {                         // fetch with the token; one automatic retry with a fresh token on 401
+  let r; const o = opt || {};
+  for (let t = 0; t < 2; t++) {
+    const tok = await gdToken(t > 0);
+    r = await fetch(url, {...o, headers: {...(o.headers || {}), Authorization: "Bearer " + tok}});
+    if (r.status !== 401) return r;
+    gdTok = "";
+  }
+  return r;
+}
+async function gdList(q, fields) {                         // all pages of a Drive search
+  const out = []; let page = "";
+  do {
+    const u = GD_API + "?q=" + encodeURIComponent(q) + "&fields=" + encodeURIComponent("nextPageToken,files(" + fields + ")") + "&pageSize=1000" + (page ? "&pageToken=" + encodeURIComponent(page) : "");
+    const r = await gdFetch(u); if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json(); out.push(...(j.files || [])); page = j.nextPageToken || "";
+  } while (page);
+  return out;
+}
+async function loadDrive() {
+  const my = ++ticket;
+  $("box").innerHTML = '<div class="msg">Loading from Google Drive...</div>'; show("list");
+  try {
+    const roots = await gdList("name='" + GD_ROOT + "' and mimeType='" + GD_DIR + "' and 'root' in parents and trashed=false", "id");
+    if (my !== ticket) return false;
+    gdRootId = roots.length ? roots[0].id : ""; gdFolderIds = {}; Object.keys(GDI).forEach(k => delete GDI[k]);
+    const dirs = {};
+    if (gdRootId) {
+      const fl = await gdList("mimeType='" + GD_DIR + "' and trashed=false", "id,name,parents");
+      if (my !== ticket) return false;
+      const byId = {}; fl.forEach(f => { byId[f.id] = f; });
+      const pathOf = f => { const seg = []; let c = f, n = 0; while (c && c.id !== gdRootId && n++ < 12) { seg.unshift(c.name); c = byId[(c.parents || [])[0]]; } return c && c.id === gdRootId ? seg.join("/") : null; };
+      const idPath = {};
+      fl.forEach(f => { if (f.id === gdRootId) return; const q = pathOf(f); if (q) { gdFolderIds[q] = f.id; idPath[f.id] = q; } });
+      const im = await gdList("mimeType contains 'video/' and trashed=false", "id,name,parents,thumbnailLink,modifiedTime");
+      if (my !== ticket) return false;
+      im.forEach(x => {
+        const dir = idPath[(x.parents || [])[0]];
+        if (!dir || !/\.(mp4|m4v|webm|3gp|mov|mkv)$/i.test(x.name) || dir.split("/").some(seg => seg.startsWith("."))) return;
+        (dirs[dir] = dirs[dir] || []).push({name: x.name, type: "file", sha: "", id: x.id, thumb: x.thumbnailLink || "", mod: Date.parse(x.modifiedTime) || 0});
+        GDI[dir + "/" + x.name] = {id: x.id, thumb: x.thumbnailLink || ""};
+      });
+    }
+    GD_ALBUMS.forEach(al => { if (!dirs[al]) dirs[al] = []; });          // the albums always show, even when still empty
+    listCache = dirs;
+    parsed = Object.keys(dirs).map(parseFolder); gdSort();
+    loaded = true; renderList(); return true;
+  } catch (e) {
+    if (my === ticket) { $("box").innerHTML = ""; const m = document.createElement("div"); m.className = "msg"; m.textContent = gdMsg(e) + " Gear menu > refresh to try again."; $("box").appendChild(m); }
+    return false;
+  }
+}
+function gdThumb(path) {                                   // small picture made by Drive (a video's first frame); none yet = grey tile
+  const it = GDI[path]; if (!it || !it.thumb) return Promise.reject();
+  return new Promise((ok, no) => { const u = it.thumb.replace(/=s\d+.*$/, "=s400"), t = new Image(); t.onload = () => ok(u); t.onerror = () => no(); t.src = u; });
+}
+async function gdMkdir(name, parentId) {
+  const r = await gdFetch(GD_API + "?fields=id", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name, mimeType: GD_DIR, parents: [parentId]})});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return (await r.json()).id;
+}
+async function gdEnsure(path) {                            // Drive id of the folder (made, with its parents, when missing)
+  if (!gdRootId) gdRootId = await gdMkdir(GD_ROOT, "root");
+  let id = gdRootId, acc = "";
+  for (const seg of path.split("/")) {
+    acc = acc ? acc + "/" + seg : seg;
+    if (!gdFolderIds[acc]) gdFolderIds[acc] = await gdMkdir(seg, id);
+    id = gdFolderIds[acc];
+  }
+  return id;
+}
+async function gdUpload(file, name, parentId, ext) {       // the video is sent exactly as it is: no resize, no conversion
+  const mime = /^image\//.test(file.type || "") ? file.type : (MIME[ext] || "image/jpeg"), b = "gdb" + Date.now().toString(36);
+  const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
+  const body = new Blob(["--" + b + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n--" + b + "\r\nContent-Type: " + mime + "\r\n\r\n", file, "\r\n--" + b + "--"]);
+  const r = await gdFetch(GD_UP + "?uploadType=multipart&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + b}, body});
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+
+// Switch Google account: Google's own account list opens, the pick is remembered by the Java side, then Drive reloads for that account
+function drawGd() {
+  const on = getSrc() === "gdrive" && !!window.AndroidGDrive; $("gdbox").hidden = !on; if (!on) return;
+  let a = ""; try { a = (typeof AndroidGDrive.account === "function" && AndroidGDrive.account()) || ""; } catch (e) {}
+  $("gdacc").textContent = a ? "Signed in as " + a : "Using the account Google picked first";
+}
+$("gdswitch").onclick = () => {
+  closePanel();
+  if (!window.AndroidGDrive || typeof AndroidGDrive.switchAccount !== "function") return toast("", "Update the app to switch accounts");
+  AndroidGDrive.switchAccount();
+};
+window.addEventListener("gaccount", e => {
+  const t = String(e.detail).split("\t");
+  if (t[0] !== "ok") { if (t[0] === "ERR") toast("", "Could not open the account list"); return; }
+  gdTok = ""; gdExp = 0; toast("", "Using " + t[1]); useSource("gdrive");
+});
+
+// ── FOLDER LIST ─────────────────────────────────────────────────────────
+const openGroups = new Set();                              // which top-level folders are expanded
+let autoOpened = false;                                  // open the last-visited group once, on first list render
+function renderList() {
+  const g = $("box"); g.innerHTML = "";
+  const last = getLast(), lastTop = last.split("/")[0];
+  if (!autoOpened) { autoOpened = true; if (last) openGroups.add(lastTop); }
+  const groups = new Map();                                // top-level folder -> its entries (itself and/or sub-folders)
+  parsed.forEach(f => { const top = f.n.split("/")[0]; if (!groups.has(top)) groups.set(top, []); groups.get(top).push(f); });
+  const cnt = f => (listCache[f.n] || []).filter(x => x.type === "file" && /\.(mp4|m4v|webm|3gp|mov|mkv)$/i.test(x.name)).length;
+  const dstr = f => f.y ? f.d + " " + MON[f.mo - 1] + " " + f.y : "";
+  const row = (f, title, sub) => {
+    const b = document.createElement("button");
+    b.className = "topic"; b.innerHTML = "<span><b></b><small></small></span><em class=\"n\"></em>";
+    const tb = b.firstChild.firstChild;
+    tb.textContent = title; tb.nextSibling.textContent = sub; b.lastChild.textContent = cnt(f);
+    if (last && f.n === last) tb.appendChild(bmIcon());
+    b.onclick = () => { savedScroll = g.scrollTop; location.hash = "f=" + encodeURIComponent(f.n); };
+    return b;
+  };
+  const entries = [];
+  groups.forEach((list, top) => {
+    if (list.length === 1 && list[0].n === top) { entries.push({top, el: row(list[0], list[0].t, dstr(list[0]))}); return; }
+    const t = parseFolder(top), wrap = document.createElement("div");
+    wrap.className = "grp" + (openGroups.has(top) ? " open" : "");
+    const h = document.createElement("button");
+    h.className = "topic hd"; h.innerHTML = "<span><b></b><small></small></span><span class=\"r\"><em class=\"n\"></em><i>&#9656;</i></span>";
+    const tot = list.reduce((a, f) => a + cnt(f), 0); h.querySelector("em").textContent = tot;
+    h.firstChild.firstChild.textContent = t.t;
+    if (last && top === lastTop) h.firstChild.firstChild.appendChild(bmIcon());
+    h.firstChild.lastChild.textContent = (dstr(t) ? dstr(t) + " \u00b7 " : "") + list.length + (list.length === 1 ? " folder" : " folders");
+    h.onclick = () => { wrap.classList.toggle("open"); wrap.classList.contains("open") ? openGroups.add(top) : openGroups.delete(top); };
+    const kids = document.createElement("div"); kids.className = "kids";
+    list.forEach(f => kids.appendChild(row(f, f.n === top ? "Videos in this folder" : f.n.slice(top.length + 1).replace(/\//g, " / "), "")));
+    wrap.appendChild(h); wrap.appendChild(kids); entries.push({top, el: wrap});
+  });
+  addFavBlocks(g, entries);
+  const note2 = t => { const d = document.createElement("div"); d.className = "msg"; d.textContent = t; g.appendChild(d); };
+  if (!parsed.length) note2("No folders with videos found.");
+}
+
+// ── VIEWER STATE ────────────────────────────────────────────────────────
+const track = $("track"), V = $("viewer");
+let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
+let unlocked = false, delBusy = false, startAt = 0;
+let selMode = false;                                       // thumbnails: Select toggle (off by default; taps open videos until it is turned on)
+let gSel = new Set(), gDel = false;                        // thumbnails ticked for multi-delete / a multi-delete is running
+let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
+let SW = 0, SH = 0, sc = 1, tx = 0, ty = 0, g = null, lastTap = 0, wheelLock = 0;
+
+const note = t => { track.innerHTML = ""; const d = document.createElement("div"); d.className = "msg"; d.textContent = t; track.appendChild(d); };
+function freeUrls() { stopAll(); cache = []; imgs = []; files = []; }
+function stopAll() { imgs.forEach(v => { try { v.pause(); v.removeAttribute("src"); v.load(); } catch (e) {} }); }
+
+function updateBar() {
+  const v = document.body.dataset.v, inView = v === "view";
+  $("cnt").textContent = inView ? (files.length ? (idx + 1) + " / " + files.length : "") : (v === "list" ? parsed.length + " folders" : "");
+  $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Videos";
+  $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
+  if (v !== "grid" && selMode) { selMode = false; clearSel(); }        // leaving thumbnails turns Select off
+  if (!unlocked && selMode) { selMode = false; clearSel(); }
+  const sb = $("selbtn"); sb.hidden = !(unlocked && v === "grid"); sb.classList.toggle("on", selMode); sb.setAttribute("aria-pressed", selMode); sb.disabled = delBusy;
+  $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); 
+  if (!gDel) $("hint").textContent = v === "grid" ? (gSel.size ? gSel.size + " selected \u00b7 slide to delete" : "tap videos to select") : "slide to delete";
+  const mb = $("menu"), g2 = canGrid(); if (mb.dataset.i !== (g2 ? "g" : "m")) { mb.dataset.i = g2 ? "g" : "m"; mb.innerHTML = g2 ? GRID_ICO : MENU_ICO; mb.setAttribute("aria-label", g2 ? "Thumbnails" : "Folders"); }
+  $("prevF").disabled = !(inView || v === "grid");
+  $("nextF").disabled = !(inView || v === "grid");
+}
+
+let cutOn = false;                                         // cut mode (scissors) stays on while you swipe between videos
+const MIN_COVER = 2500;                                    // the file name stays up at least this long (ms) before the video fades in
+const SPEEDS = [1.25, 1.5, 1.75, 2];
+const fmtT = t => { t = Math.max(0, Math.floor(t || 0)); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(sec).padStart(2, "0"); };
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function setCover(sl, name) {                              // cover while the video loads: month, big day number, file name (without the date prefix and extension)
+  let d = null; const m = name.match(/^(\d{4}) (\d{2}) (\d{2}) \d{4}/);
+  if (m) d = new Date(+m[1], +m[2] - 1, +m[3]);
+  else { const f = parsed[cur] && parsed[cur].n, ent = f && (listCache[f] || []).find(x => x.name === name); if (ent && ent.mod) d = new Date(ent.mod); }
+  if (d && isNaN(d)) d = null;
+  const noExt = name.replace(/\.[^.]+$/, ""), base = noExt.replace(/^\d{4} \d{2} \d{2} \d{4}\s*/, "") || noExt;
+  sl.querySelector(".cvm").textContent = d ? MONTHS[d.getMonth()] : "";
+  sl.querySelector(".cvd").textContent = d ? d.getDate() : "";
+  sl.querySelector(".cvn").textContent = base;
+}
+function dustHtml() {                                      // a few specks that drift down and fade while the cover settles
+  let h = "";
+  for (let i = 0; i < 24; i++) h += '<i class="dust" style="--x:' + (Math.random() * 100).toFixed(1) + '%;--sz:' + (1.5 + Math.random() * 2.5).toFixed(1) + 'px;--dur:' + (1.4 + Math.random() * 1.2).toFixed(2) + 's;--del:' + (Math.random() * 1.2).toFixed(2) + 's;--h:' + Math.round(140 + Math.random() * 260) + 'px"></i>';
+  return h;
+}
+function makeSlide(name) {                                 // our own player: file-name cover, right-hand control stack, progress bar
+  const s = document.createElement("div"); s.className = "slide";
+  const cutOk = isLocal(getSrc()) && !!window.AndroidSd && typeof AndroidSd.cutVideo === "function";   // cutting: Phone / SD card only
+  const SCIS = '<svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.6 8.2L20 19M8.6 15.8L20 5"/></svg>';
+  const CROP = '<svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>';
+  const SC1 = SCIS.replace("<svg ", '<svg class="i0" '), SC2 = SCIS.replace("<svg ", '<svg class="i1" '), CHK = '<svg class="i2" viewBox="0 0 24 24"><rect x="3" y="2.5" width="18" height="11" rx="2"/><path d="M8 2.5v11M16 2.5v11M12 16.5v5M9.5 19l2.5 2.5 2.5-2.5"/></svg>';   // two different scissors (start / end) and the extract-and-save clip icon
+  const JB = '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><text x="12" y="15.5" text-anchor="middle" font-size="9" font-weight="700" fill="#ffd9a0" stroke="none">5</text></svg>', JF = '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/><text x="12" y="15.5" text-anchor="middle" font-size="9" font-weight="700" fill="#ffd9a0" stroke="none">5</text></svg>';
+  s.innerHTML = '<video playsinline preload="metadata" disablepictureinpicture></video><div class="vcover"><div class="cvm"></div><div class="cvd"></div><div class="cvn"></div>' + dustHtml() + '</div><div class="vtop"><span class="vnm"></span></div>'
+    + '<div class="vrs"><div class="vsk"><button class="vjk vjb" type="button" aria-label="Back 5 seconds (hold to rewind)">' + JB + '</button><button class="vjk vjf" type="button" aria-label="Forward 5 seconds (hold to fast forward)">' + JF + '</button></div><button class="vbig" type="button" aria-label="Play or pause"></button>'
+    + '<button class="vpen" type="button" aria-label="Rename this video"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg></button>'
+    + (cutOk ? '<div class="vcw"><button class="vpen vgear" type="button" aria-label="Select video section (cut mode)">' + CROP + '</button>'
+      + '<div class="vcg"><button class="vsc s0" type="button" aria-label="Set start point">' + SC1 + SC2 + CHK + '</button>'
+      + '<div class="vcp" hidden><button class="vcre" type="button" aria-label="Reset the end point"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="vtr" type="button" aria-label="Trim out this part and join the rest"><svg viewBox="0 0 24 24"><path d="M4 5v14M20 5v14M9 9l6 6M15 9l-6 6"/></svg></button></div><span class="vcl"></span></div></div>' : '')
+    + '<div class="vspd"><button class="vsb" type="button" aria-label="Playback speed">1x</button><div class="vsm" hidden>' + SPEEDS.map(r => '<button type="button" data-r="' + r + '">' + r + 'x</button>').join("") + '</div></div></div>'
+    + '<div class="vbar"><b class="vt">0:00</b><div class="sk"><i class="bf"></i><i class="pg"></i><u class="kn"></u>' + (cutOk ? '<s class="mr"></s><s class="mk ms"></s><s class="mk me"></s>' : '') + '</div><b class="vd">0:00</b></div>';
+  const q = c => s.querySelector(c), v = q("video"), sk = q(".sk"), menu = q(".vsm"), sb = q(".vsb");
+  v._s = s; setCover(s, name); q(".vnm").textContent = name;
+  q(".vpen").onclick = () => { s._ui(); openRename(imgs.indexOf(v)); };
+  const paint = f => { q(".pg").style.width = f * 100 + "%"; q(".kn").style.left = f * 100 + "%"; };
+  const hideUi = () => { s.classList.remove("cui"); menu.hidden = true; };
+  s._ui = () => {                                          // show the controls; they hide again after 3 s (playing or paused)
+    s.classList.add("cui"); clearTimeout(s._ht);
+    if (!hold && !s._drag && menu.hidden && !s.classList.contains("cm")) s._ht = setTimeout(hideUi, 3000);   // in cut mode the controls and the progress bar stay up
+  };
+  const reveal = () => {                                   // first picture is ready: fade the name away, fade the video in, start
+    if (s.classList.contains("rdy") || !v._ld) return;
+    const tok = v._tok;
+    setTimeout(() => { if (v._tok !== tok || !v.getAttribute("src") || s.classList.contains("rdy")) return; s.classList.add("rdy"); s._ui(); v.play().catch(() => {}); }, Math.max(0, MIN_COVER - (Date.now() - v._t0)));
+  };
+  const dur = () => { q(".vd").textContent = fmtT(v.duration); };
+  v.addEventListener("loadedmetadata", dur); v.addEventListener("durationchange", dur);
+  v.addEventListener("timeupdate", () => { if (s._drag || !v.duration) return; paint(v.currentTime / v.duration); q(".vt").textContent = fmtT(v.currentTime); });
+  v.addEventListener("progress", () => { try { const b = v.buffered, t = v.currentTime; let e = 0; for (let i = 0; i < b.length; i++) if (b.start(i) <= t + 0.5 && b.end(i) > e) e = b.end(i); q(".bf").style.width = (v.duration ? e / v.duration * 100 : 0) + "%"; } catch (er) {} });
+  v.addEventListener("play", () => { s.classList.add("pl"); s._ui(); });
+  v.addEventListener("pause", () => { s.classList.remove("pl"); if (s.classList.contains("rdy")) s._ui(); });
+  v.addEventListener("ended", () => { s.classList.remove("pl"); s._ui(); });
+  v.addEventListener("ratechange", () => { const r = v.playbackRate; sb.textContent = r + "x"; sb.classList.toggle("on", r !== 1); menu.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.r === r)); });
+  v.addEventListener("loadeddata", () => { v._ld = true; reveal(); });
+  v.addEventListener("error", () => { if (v.getAttribute("src")) { s.classList.add("rdy"); toast("", "This video cannot be played on this phone"); } });
+  q(".vbig").onclick = () => { v.paused ? v.play().catch(() => {}) : v.pause(); s._ui(); };
+  [[".vjb", -1], [".vjf", 1]].forEach(([c, dir]) => {      // tap = 5 s back / forward; hold = scan in that direction (about 5x) until released
+    const b = q(c); let tm = 0, held = false, on = false;
+    const stop = doJump => { if (!on) return; on = false; clearTimeout(tm); if (held) { held = false; endHold(); } else if (doJump && v.duration) { v.currentTime = Math.max(0, Math.min(v.duration, v.currentTime + dir * 5)); toast("", dir > 0 ? "+5 s" : "\u22125 s"); s._ui(); } };
+    b.addEventListener("pointerdown", e => { on = true; held = false; try { b.setPointerCapture(e.pointerId); } catch (er) {} s._ui(); tm = setTimeout(() => { held = true; startHold(dir, v); }, 350); });
+    b.addEventListener("pointerup", () => stop(true));
+    b.addEventListener("pointercancel", () => stop(false));
+    b.addEventListener("contextmenu", e => e.preventDefault());
+  });
+  s.addEventListener("click", e => {                       // tap the picture: play / pause (the controls show for a moment)
+    if (Date.now() < noClickUntil || e.target.closest(".vbar,.vrs") || !s.classList.contains("rdy")) return;
+    if (v.paused && !s.classList.contains("cui")) { s._ui(); return; }   // paused and controls hidden: the tap only brings the controls back
+    if (v.paused) v.play().catch(() => {}); else v.pause();
+    s._ui();
+  });
+  sb.onclick = () => { menu.hidden = !menu.hidden; s._ui(); };           // speed: tap the circle, pick 1.25 / 1.5 / 1.75 / 2x (pick the lit one again = normal); only this video
+  menu.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; const r = +b.dataset.r; v.playbackRate = v.playbackRate === r ? 1 : r; menu.hidden = true; s._ui(); });
+  const at = x => { const r = sk.getBoundingClientRect(); return Math.min(1, Math.max(0, (x - r.left) / r.width)); };
+  const drag = f => { paint(f); q(".vt").textContent = fmtT(f * v.duration); };
+  sk.addEventListener("pointerdown", e => { if (!v.duration) return; s._drag = true; clearTimeout(s._ht); try { sk.setPointerCapture(e.pointerId); } catch (er) {} drag(at(e.clientX)); e.stopPropagation(); });
+  sk.addEventListener("pointermove", e => { if (s._drag) drag(at(e.clientX)); });
+  sk.addEventListener("pointerup", e => { if (!s._drag) return; s._drag = false; v.currentTime = at(e.clientX) * v.duration; s._ui(); });
+  sk.addEventListener("pointercancel", () => { s._drag = false; });
+  if (cutOk) {                                             // crop icon = cut mode; scissors: 1st tap = start, 2nd tap = end, then the tick confirms (the arrow takes the end back)
+    const sc = q(".vsc"), pop = q(".vcp"), lb = q(".vcl"), tg = q(".vgear");
+    const mark = (el, t, d) => { el.style.display = t == null || !d ? "none" : "block"; if (t != null && d) el.style.left = t / d * 100 + "%"; };
+    s._cutPaint = () => {
+      const d = v.duration || 0, a = s._cs, b = s._ce, r = q(".mr"), st = b != null ? 2 : a != null ? 1 : 0;
+      mark(q(".ms"), a, d); mark(q(".me"), b, d);
+      r.style.display = a != null && b != null && d ? "block" : "none"; if (a != null && b != null && d) { r.style.left = a / d * 100 + "%"; r.style.width = (b - a) / d * 100 + "%"; }
+      sc.className = "vsc s" + st; sc.setAttribute("aria-label", ["Set start point", "Set end point", "Confirm cut"][st]);
+      pop.hidden = b == null;
+      lb.textContent = st === 0 ? "Tap to set start" : st === 1 ? "Start " + fmtT(a) + " \u00b7 tap to set end" : fmtT(a) + " to " + fmtT(b) + " marked";
+    };
+    tg.onclick = () => { cutOn = !cutOn; s.classList.toggle("cm", cutOn); tg.classList.toggle("on", cutOn); if (!cutOn) { s._cs = s._ce = null; } s._cutPaint(); s._ui(); };
+    sc.onclick = () => {
+      const t = v.currentTime;
+      if (s._ce != null) return openCut(imgs.indexOf(v), s._cs, s._ce);                // step 4: confirm
+      if (s._cs == null || t < s._cs) { s._cs = t; toast("", "Start " + fmtT(t)); }     // step 2: start (going back before it moves the start)
+      else if (t - s._cs < 0.5) return toast("", "Go a little further, then set the end");
+      else { s._ce = t; v.pause(); toast("", "End " + fmtT(t)); }                      // step 3: end, the video pauses
+      s._cutPaint();
+    };
+    q(".vcre").onclick = () => { s._ce = null; s._cutPaint(); v.play().catch(() => {}); };   // end point removed, the video plays on
+    q(".vtr").onclick = () => { if (s._cs != null && s._ce != null) openCut(imgs.indexOf(v), s._cs, s._ce, "trim"); };   // trim: remove start..end, join the two remaining parts
+    v.addEventListener("loadedmetadata", () => s._cutPaint());
+  }
+  track.appendChild(s); imgs.push(v);
+}
+function resetSlide(v) {                                   // leaving a video: stop it, free it, back to the name cover
+  const s = v._s; s.classList.remove("go"); v._ld = false; v._tok = 0;
+  if (s) {
+    clearTimeout(s._ht); s._drag = false; s.classList.remove("rdy", "cui", "pl", "cm"); s.querySelector(".vsm").hidden = true; s._cs = s._ce = null; if (s._cutPaint) s._cutPaint();
+    s.querySelector(".pg").style.width = "0"; s.querySelector(".kn").style.left = "0"; s.querySelector(".bf").style.width = "0"; s.querySelector(".vt").textContent = "0:00";
+  }
+  try { v.pause(); v.removeAttribute("src"); v.load(); } catch (e) {}
+}
+let vidTok = 0;
+function openFolder(i) {
+  ++ticket; cur = i; setLast(parsed[i].n); freeUrls();
+  track.style.transition = "none"; track.style.transform = "";
+  note("Loading videos..."); show("view"); fit();
+  const ents = (listCache[parsed[i].n] || []).filter(x => x.type === "file" && VID_RE.test(x.name));
+  if (ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // by date, like the grid
+  else ents.sort((a, b) => nat(a.name, b.name));
+  files = ents.map(x => x.name);
+  if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No videos in this folder."); }
+  track.innerHTML = ""; cache = []; imgs = [];
+  files.forEach(name => makeSlide(name));                    // one player per slide; only the one on screen gets a source
+  fit();
+  const n = files.length, at = Math.min(Math.max(0, startAt), n - 1);
+  place(startEnd ? n - 1 : at, false);
+  startEnd = false; startAt = 0;
+  if (pending) { toast(pending.a, pending.b); pending = null; }
+}
+async function loadVideo(k) {                              // point the player at the in-app stream: phone / SD card file, or Drive with the access token
+  const v = imgs[k], my = ++vidTok, path = parsed[cur].n + "/" + files[k], src = getSrc();
+  try {
+    if (!window.AndroidVideo) throw new Error("Update the app to play videos");
+    const base = AndroidVideo.base(); let u;
+    if (isLocal(src)) u = base + "/l?s=" + src + "&p=" + encodeURIComponent(path);
+    else { const it = GDI[path]; if (!it) throw new Error("Tap refresh, then try again"); u = base + "/g?id=" + it.id + "&t=" + encodeURIComponent(await gdToken()); }
+    if (my !== vidTok || idx !== k || !v.isConnected) return;
+    v._s.classList.remove("go"); void v._s.offsetWidth; v._s.classList.add("go");     // starts the cover animation
+    v._ld = false; v._t0 = Date.now(); v._tok = my; v.preload = "auto"; v.src = u; v.load();
+  } catch (e) { toast("", gdMsg(e)); }
+}
+function place(i, anim) {
+  idx = i; resetZoom();
+  track.style.transition = anim ? "transform .28s ease" : "none";
+  track.style.transform = "translateX(" + (-i * SW) + "px)";
+  imgs.forEach((v, k) => { if (k !== i && v.getAttribute("src")) resetSlide(v); });
+  if (imgs[i] && imgs[i]._s) { imgs[i]._s.classList.toggle("cm", cutOn); const tg = imgs[i]._s.querySelector(".vgear"); if (tg) tg.classList.toggle("on", cutOn); if (imgs[i]._s._cutPaint) imgs[i]._s._cutPaint(); }
+  updateBar();
+  if (imgs[i] && !imgs[i].getAttribute("src")) loadVideo(i);
+}
+function go(d) {
+  const n = files.length; if (!n) return;
+  const j = idx + d;
+  if (j >= 0 && j < n) return place(j, true);
+  const L = parsed.length;
+  if (L < 2) return place(d > 0 ? 0 : n - 1, true);
+  const f = (cur + (d > 0 ? 1 : -1) + L) % L;             // past the last / first video: next / previous folder (loops)
+  const wrapped = d > 0 ? cur === L - 1 : cur === 0;
+  startEnd = d < 0;
+  pending = {a: wrapped ? (d > 0 ? "Back to the first folder" : "Back to the last folder") : (d > 0 ? "Next folder" : "Previous folder"), b: parsed[f].t};
+  location.replace("#f=" + encodeURIComponent(parsed[f].n) + "&v=1");
+}
+function toast(a, b) {
+  const t = $("toast"); t.firstChild.textContent = a; t.firstChild.style.display = a ? "block" : "none"; t.lastChild.textContent = b;
+  t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
+}
+function step(d) {
+  const j = (cur + d + parsed.length) % parsed.length;
+  if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n) + (document.body.dataset.v === "view" ? "&v=1" : ""));
+}
+
+// ── SWIPE (touches that start on the player's own buttons / bar are left to them) ──
+function paint() {}
+// ── PINCH ZOOM / HOLD TO SCAN / DOUBLE-TAP ±5 s ──
+// pinch = zoom the picture (drag to move it while zoomed); the 5 s back / forward buttons are in the control stack (tap = 5 s, hold = scan)
+let zm = {s: 1, x: 0, y: 0}, pin = null, hold = null, noClickUntil = 0;
+function applyZoom() { const v = imgs[idx]; if (v) v.style.transform = zm.s === 1 ? "" : "translate(" + zm.x + "px," + zm.y + "px) scale(" + zm.s + ")"; }
+function resetZoom() { zm = {s: 1, x: 0, y: 0}; pin = null; imgs.forEach(v => { v.style.transform = ""; }); }
+function clampZoom() { const mx = (zm.s - 1) * SW / 2, my = (zm.s - 1) * SH / 2; zm.x = Math.max(-mx, Math.min(mx, zm.x)); zm.y = Math.max(-my, Math.min(my, zm.y)); }
+const onCtl = e => !!(e.target.closest && e.target.closest(".vbar,.vrs"));
+const vidReady = () => { const v = imgs[idx]; return v && v._s && v._s.classList.contains("rdy") && v.duration ? v : null; };
+const pdist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+function startHold(dir, v) {                               // the video pauses and jumps on in small steps (about 5x speed), both ways
+  if (!v || !v.duration) return;
+  hold = {v, was: !v.paused};
+  v.pause(); v._s._ui(); toast("", dir > 0 ? "Fast forward" : "Rewind");
+  hold.t = setInterval(() => {
+    const n = v.currentTime + dir * 0.5;
+    v.currentTime = Math.max(0, Math.min(v.duration, n));
+    if (n <= 0 || n >= v.duration) endHold();
+  }, 100);
+}
+function endHold() {
+  if (!hold) return;
+  clearInterval(hold.t); const h = hold; hold = null; noClickUntil = Date.now() + 500;
+  if (h.was && h.v.currentTime < h.v.duration - 0.1) h.v.play().catch(() => {});
+}
+V.addEventListener("touchstart", e => {
+  if (!files.length || onCtl(e)) { g = null; return; }
+  if (e.touches.length === 2) {                            // two fingers: pinch
+    if (g) clearTimeout(g.ht); endHold(); g = null;
+    if (!vidReady()) { pin = null; return; }
+    const t = e.touches;
+    pin = {d: pdist(t), s: zm.s, mx: (t[0].clientX + t[1].clientX) / 2, my: (t[0].clientY + t[1].clientY) / 2, x: zm.x, y: zm.y};
+    return;
+  }
+  if (e.touches.length !== 1) { g = null; return; }
+  const t = e.touches[0];
+  g = {x: t.clientX, y: t.clientY, lx: t.clientX, ly: t.clientY, moved: "", held: false, ht: 0};
+}, {passive: true});
+V.addEventListener("touchmove", e => {
+  if (pin && e.touches.length === 2) {
+    e.preventDefault();
+    const t = e.touches, mx = (t[0].clientX + t[1].clientX) / 2, my = (t[0].clientY + t[1].clientY) / 2, r = V.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, s = Math.max(1, Math.min(5, pin.s * pdist(t) / pin.d));
+    zm.s = s; zm.x = mx - cx - (s / pin.s) * (pin.mx - cx - pin.x); zm.y = my - cy - (s / pin.s) * (pin.my - cy - pin.y);
+    clampZoom(); applyZoom(); return;
+  }
+  if (!g) return;
+  if (g.held) { e.preventDefault(); return; }
+  const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+  if (!g.moved && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) { clearTimeout(g.ht); g.moved = zm.s > 1 ? "p" : Math.abs(dx) > Math.abs(dy) ? "h" : "v"; }
+  if (g.moved === "p") { e.preventDefault(); zm.x += t.clientX - g.lx; zm.y += t.clientY - g.ly; g.lx = t.clientX; g.ly = t.clientY; clampZoom(); applyZoom(); return; }
+  if (g.moved === "h") { e.preventDefault(); track.style.transition = "none"; track.style.transform = "translateX(" + (-idx * SW + dx) + "px)"; }
+}, {passive: false});
+V.addEventListener("touchend", e => {
+  if (pin) { if (e.touches.length < 2) { pin = null; if (zm.s < 1.05) resetZoom(); } g = null; return; }
+  if (!g) return;
+  clearTimeout(g.ht);
+  if (g.held) { endHold(); g = null; return; }
+  const t = e.changedTouches[0], dx = t.clientX - g.x, m = g.moved; g = null;
+  if (m === "h") Math.abs(dx) > 60 ? go(dx < 0 ? 1 : -1) : place(idx, true);
+});
+V.addEventListener("touchcancel", () => { if (g) clearTimeout(g.ht); endHold(); pin = null; if (g && g.moved === "h") place(idx, true); g = null; });
+V.addEventListener("wheel", e => { e.preventDefault(); if (Date.now() < wheelLock) return; wheelLock = Date.now() + 400; go((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) > 0 ? 1 : -1); }, {passive: false});
+function fit() {                                          // size app, viewer and slides in pixels (robust in landscape)
+  const vv = window.visualViewport, H0 = Math.round(vv ? vv.height : innerHeight);
+  $("app").style.height = H0 + "px";
+  if (document.body.dataset.v !== "view") return;
+  const foot = $("foot"), fb = getComputedStyle(foot).display === "none" ? 0 : foot.offsetHeight;
+  SW = V.clientWidth;
+  const H = Math.max(50, H0 - Math.round(V.getBoundingClientRect().top) - fb);
+  const sl = track.querySelectorAll(".slide");
+  track.style.width = (sl.length ? sl.length * SW : SW) + "px"; track.style.height = H + "px";
+  sl.forEach(x => { x.style.width = SW + "px"; x.style.height = H + "px"; });
+  SH = H; imgs.forEach(applyFill);
+}
+function applyFill(im) {
+  const w = im.naturalWidth, h = im.naturalHeight; if (!w || !h || !SH) return;
+  const rs = SW / SH, rp = w / h, crop = 1 - Math.min(rs / rp, rp / rs);
+  im.style.objectFit = (SW > SH && w > h && crop <= FILL_MAX_CROP) ? "cover" : "contain";
+}
+function realign() { fit(); if (files.length) { resetZoom(); place(idx, false); } }
+window.addEventListener("resize", realign);
+window.addEventListener("orientationchange", () => { setTimeout(realign, 100); setTimeout(realign, 500); });
+if (window.visualViewport) visualViewport.addEventListener("resize", realign);
+document.addEventListener("fullscreenchange", () => setTimeout(realign, 150));
+
+// ── BUTTONS + KEYS ──────────────────────────────────────────────────────
+$("aL").onclick = () => go(-1); $("aR").onclick = () => go(1);
+$("prevF").onclick = () => step(-1); $("nextF").onclick = () => step(1);
+const canGrid = () => document.body.dataset.v === "view" && cur >= 0 && parsed[cur] && !!listCache[parsed[cur].n];
+$("menu").onclick = () => {                                // video -> thumbnails -> folder list
+  if (!canGrid()) { location.hash = ""; return; }
+  if (viaGrid === parsed[cur].n) { viaGrid = ""; history.back(); }   // same folder as the grid we came from: just step back
+  else location.replace("#f=" + encodeURIComponent(parsed[cur].n));
+};
+// settings panel (gear): refresh, full screen, delete mode
+const panel = $("panel");
+function closePanel() { panel.hidden = true; $("pinrow").hidden = true; $("pin").value = ""; $("pinerr").textContent = ""; }
+$("gear").onclick = e => { e.stopPropagation(); if (panel.hidden) { drawFolders(); drawGd(); panel.hidden = false; } else closePanel(); };
+panel.addEventListener("click", e => e.stopPropagation());
+document.addEventListener("click", closePanel);
+$("refresh").onclick = () => {                                   // re-read the folder list (and video lists)
+  closePanel();
+  if (document.body.dataset.v === "list") savedScroll = $("box").scrollTop;
+  loaded = false; listCache = {}; route();
+};
+const syncLock = () => { $("del").classList.toggle("on", unlocked); if (!unlocked) clearSel(); updateBar(); };
+let pinFor = "";                                                  // what the PIN is being asked for: "del" or "tok"
+const askPin = what => { pinFor = what; $("pin").value = ""; $("pinerr").textContent = ""; $("pinrow").hidden = false; $("pin").focus(); };
+$("del").onclick = () => {
+  if (delBusy) return;
+  if (unlocked) { unlocked = false; closePanel(); syncLock(); return; }
+  askPin("del");
+};
+function tryPin() {
+  if ($("pin").value === DELETE_PIN) {
+    closePanel();
+    { unlocked = true; syncLock(); toast("", "Delete unlocked"); }
+  }
+  else { $("pinerr").textContent = "Wrong PIN"; $("pin").value = ""; }
+}
+$("pinok").onclick = tryPin;
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
+
+// permanently delete the video on screen (Cloud: needs the PIN to have Contents: read & write; Phone / SD card: needs the updated Android app)
+async function delVideo(expect) {
+  if (!unlocked || !files.length || delBusy || files[idx] !== expect) return;
+  const name = files[idx], folder = parsed[cur].n, k = idx;
+  const ent = (listCache[folder] || []).find(x => x.name === name);
+  if (!ent) return toast("", "Tap refresh, then try again");
+  delBusy = true; $("trash").disabled = true;
+  try {
+    if (isLocal(getSrc())) {                                   // Phone storage / SD card: the Java side deletes the file
+      if (!window.AndroidSd || typeof AndroidSd.delete !== "function") return toast("", "Update the app to delete these videos");
+      const res = await new Promise(ok => { const h = e => { window.removeEventListener("videodeleted", h); ok(e.detail); }; window.addEventListener("videodeleted", h); AndroidSd.delete(getSrc(), folder + "/" + name); });
+      if (res !== "ok") return toast("Delete failed", "Could not delete this video");
+    } else if (getSrc() === "gdrive") {                        // Google Drive: the video goes to the Drive bin (30 days), not gone for ever
+      const it = GDI[folder + "/" + name]; if (!it) return toast("", "Tap refresh, then try again");
+      const r = await gdFetch(GD_API + "/" + it.id, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed: true})});
+      if (!r.ok) return toast("Delete failed (" + r.status + ")", "Tap refresh and try again");
+      delete GDI[folder + "/" + name];
+    }
+    listCache[folder] = listCache[folder].filter(x => x.name !== name);
+    if (cur >= 0 && parsed[cur].n === folder && files[k] === name) removeSlide(k, folder);
+  } catch (e) { toast("", "Network error, not deleted"); }
+  finally { delBusy = false; $("trash").disabled = false; }
+}
+function removeSlide(k, folder) {
+  resetZoom();
+  const c = cache[k]; c && c.then && c.then(u => u && URL.revokeObjectURL(u));
+  files.splice(k, 1); cache.splice(k, 1); imgs.splice(k, 1); track.removeChild(track.children[k]);
+  if (!files.length) {
+    if (!listCache[folder].length) { loaded = false; listCache = {}; location.hash = ""; return; }   // empty folder disappears from git
+    note("No videos in this folder."); updateBar(); return;
+  }
+  fit(); place(Math.min(k, files.length - 1), false); toast("", "Deleted");
+}
+
+// ── MULTI-DELETE (thumbnails: tick videos, slide to delete them all, one after the other) ──
+$("selbtn").onclick = e => {                               // Select toggle: off = taps open videos; on = taps tick videos + slide bar shows
+  e.stopPropagation();
+  if (delBusy || !unlocked) return;
+  selMode = !selMode; if (!selMode) clearSel(); updateBar();
+};
+function toggleSel(t) {
+  const n = t.dataset.n;
+  if (gSel.has(n)) { gSel.delete(n); t.classList.remove("sel"); } else { gSel.add(n); t.classList.add("sel"); }
+  updateBar();
+}
+function clearSel() { gSel.clear(); $("gbox").querySelectorAll(".th.sel").forEach(x => x.classList.remove("sel")); }
+async function delOne(folder, name) {                      // one video; the same three routes as delVideo
+  const ent = (listCache[folder] || []).find(x => x.name === name);
+  if (!ent) return {ok: false};
+  try {
+    if (isLocal(getSrc())) {
+      if (!window.AndroidSd || typeof AndroidSd.delete !== "function") return {ok: false, stop: true, msg: "Update the app to delete these videos"};
+      const res = await new Promise(ok => { const h = e => { window.removeEventListener("videodeleted", h); ok(e.detail); }; window.addEventListener("videodeleted", h); AndroidSd.delete(getSrc(), folder + "/" + name); });
+      if (res !== "ok") return {ok: false};
+    } else if (getSrc() === "gdrive") {
+      const it = GDI[folder + "/" + name]; if (!it) return {ok: false};
+      const r = await gdFetch(GD_API + "/" + it.id, {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({trashed: true})});
+      if (!r.ok) return {ok: false, stop: r.status === 401 || r.status === 403, msg: "Google Drive refused (" + r.status + ")"};
+      delete GDI[folder + "/" + name];
+    }
+    listCache[folder] = listCache[folder].filter(x => x.name !== name);
+    return {ok: true};
+  } catch (e) { return {ok: false, stop: true, msg: "Network error, stopped"}; }
+}
+function tidyGrid(folder) {                                // after deleting: fix indexes, counts, empty day / month folders
+  const box = $("gbox"), ents = sortedEnts(listCache[folder] || []), at = {};
+  ents.forEach((x, k) => at[x.name] = k);
+  box.querySelectorAll(".th").forEach(t => { t.dataset.k = at[t.dataset.n]; });
+  box.querySelectorAll(".gg").forEach(gr => { if (!gr.querySelector(".th")) { const h = gr._h; gr.remove(); if (h && h.classList.contains("gd")) h.remove(); } });
+  box.querySelectorAll(".gb").forEach(bx => {
+    const w = bx.querySelector(".gw");
+    if (!w || !w.querySelector(".gg")) return bx.remove();
+    bx.querySelector(".gm em").textContent = bx.querySelectorAll(".th").length;
+    bx.querySelectorAll(".gd").forEach(d => { d.children[1].textContent = d._g.querySelectorAll(".th").length; });
+    if (!w.querySelector(".gd.open")) { const f = w.querySelector(".gd"); if (f) setGroup(f, true); }
+  });
+  if (!box.querySelector(".gm.open")) { const f = box.querySelector(".gm"); if (f) setGroup(f, true); }
+  gSig = getSrc() + "|" + folder + "|" + ents.length;
+  $("gcnt").textContent = ents.length + (ents.length === 1 ? " video" : " videos");
+}
+async function delSelected() {
+  if (!unlocked || delBusy || !gSel.size || document.body.dataset.v !== "grid") return;
+  const folder = gFolder, names = [...gSel], total = names.length, box = $("gbox");
+  let done = 0, bad = 0, stopMsg = "";
+  delBusy = true; gDel = true; $("trash").disabled = true; sl.classList.add("busy");
+  const bar = n => { $("fill").style.width = Math.round(sl.clientWidth * n / total) + "px"; };
+  bar(0);
+  for (let i = 0; i < total; i++) {
+    const name = names[i], th = box.querySelector('.th[data-n="' + CSS.escape(name) + '"]');
+    $("hint").textContent = "Deleting ... " + (i + 1) + " / " + total + " selected";
+    if (th) th.classList.add("busy");
+    const r = await delOne(folder, name);
+    if (r.ok) { done++; gSel.delete(name); if (th) { gObs && gObs.unobserve(th); th.remove(); } }
+    else { bad++; if (th) th.classList.remove("busy"); if (r.stop) { stopMsg = r.msg || ""; break; } }
+    bar(i + 1);
+  }
+  if (gFolder === folder) tidyGrid(folder);
+  if (!(listCache[folder] || []).length) { loaded = false; listCache = {}; location.hash = ""; }   // empty folder disappears from git
+  await new Promise(w => setTimeout(w, 350));
+  $("fill").style.width = "0"; sl.classList.remove("busy");
+  gDel = false; delBusy = false; $("trash").disabled = false; updateBar();
+  if (stopMsg) toast("Delete stopped (" + done + " of " + total + " deleted)", stopMsg);
+  else if (bad) toast("Deleted " + done + " of " + total, bad + " could not be deleted");
+  else toast("", "Deleted " + done + (done === 1 ? " video" : " videos"));
+}
+
+// slide-to-delete: drag the trash handle all the way to the right (releasing early springs back)
+const hd = $("trash"), sl = $("slide");
+let sd = null;
+const maxX = () => sl.clientWidth - hd.offsetWidth - 4;
+function slideTo(x) { hd.style.transform = "translateX(" + x + "px)"; $("fill").style.width = x > 0 ? (x + hd.offsetWidth + 2) + "px" : "0"; }
+hd.addEventListener("pointerdown", e => {
+  if (delBusy || !unlocked) return;
+  if (document.body.dataset.v === "grid") {                 // thumbnails: slide deletes every ticked video
+    if (!selMode) return;
+    if (!gSel.size) return toast("", "Tap videos to select first");
+    sd = {x: e.clientX, dx: 0, grid: true};
+    hd.setPointerCapture(e.pointerId); hd.classList.add("drag"); $("hint").textContent = "Slide to the end to delete " + gSel.size;
+    return;
+  }
+  if (!files.length) return;
+  sd = {x: e.clientX, dx: 0, name: files[idx]};
+  hd.setPointerCapture(e.pointerId); hd.classList.add("drag");
+  $("info").classList.add("warn"); $("lbl").textContent = "Delete: " + sd.name;
+});
+hd.addEventListener("pointermove", e => { if (sd) { sd.dx = Math.max(0, Math.min(maxX(), e.clientX - sd.x)); slideTo(sd.dx); } });
+function endSlide(e) {
+  if (!sd) return;
+  const d = sd; sd = null; hd.classList.remove("drag"); $("info").classList.remove("warn"); updateBar();
+  if (e.type === "pointerup" && d.dx >= maxX() * 0.9) { if (d.grid) { slideTo(0); delSelected(); } else { slideTo(maxX()); delVideo(d.name).finally(() => slideTo(0)); } }
+  else slideTo(0);
+}
+hd.addEventListener("pointerup", endSlide); hd.addEventListener("pointercancel", endSlide);
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || !$("ud").hidden || document.body.dataset.v !== "view") return;
+  if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+  else if (e.key === "ArrowDown") { e.preventDefault(); step(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); step(-1); }
+  else if (e.key === "Escape" && !document.body.classList.contains("max")) $("menu").click();
+});
+
+// full screen (iPhone Safari has no API: hide the bar instead)
+const EXP = '<svg viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>';
+const COL = '<svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg>';
+const root = document.documentElement, canFS = !!root.requestFullscreen;
+const setIcon = on => { $("max").innerHTML = on ? COL : EXP; };
+function setMax(on) {
+  if (canFS) { if (on) root.requestFullscreen().catch(() => {}); else if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+  else document.body.classList.toggle("max", on);
+  setIcon(on); setTimeout(realign, 60);
+}
+$("max").onclick = () => { closePanel(); setMax(canFS ? !document.fullscreenElement : !document.body.classList.contains("max")); };
+$("fsx").onclick = () => setMax(false);
+document.addEventListener("fullscreenchange", () => setIcon(!!document.fullscreenElement));
+setIcon(false);
+
+// ── PIN ───────────────────────────────────────────────────────────────
+
+// ── SOURCE CHOOSER (Cloud / Phone storage / SD card) ────────────────────
+function resetSource() { ++ticket; freeUrls(); cur = -1; loaded = false; listCache = {}; parsed = []; openGroups.clear(); autoOpened = false; savedScroll = 0; unlocked = false; syncLock(); }
+function useSource(v) {
+  if (getSrc() !== v) { resetSource(); setSrc(v); }
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  $("serr").textContent = ""; loaded = false; listCache = {}; route();
+}
+$("srcGd").onclick = () => useSource("gdrive");
+let pickFor = "";                                          // which source the folder picker was opened for
+function goLocal(src) {                                    // Phone storage or SD card
+  if (!window.AndroidSd) { const m = "Phone storage and SD card work only inside the Android app."; $("serr").textContent = m; toast("", m); return; }
+  if (AndroidSd.status(src).indexOf("ok") === 0) return useSource(src);   // folder already chosen
+  pickFor = src;
+  $("serr").textContent = "In the picker: open " + (src === "sd" ? "the SD card" : "Internal storage") + ", open your videos folder, then Use this folder.";
+  AndroidSd.pickFolder(src);
+}
+const goSrc = v => v === "gdrive" ? useSource(v) : goLocal(v);
+$("srcPh").onclick = () => goLocal("phone");
+$("srcSd").onclick = () => goLocal("sd");
+$("sback").onclick = () => route();
+(function () {                                             // gear menu: Cloud / Phone / SD card
+  const row = $("srow");
+  SRC_ORDER.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.src = v; b.innerHTML = SRC_ICO[v] + "<span>" + SRC_SHORT[v] + "</span>";
+    b.setAttribute("aria-label", SRC_NAME[v]);
+    b.onclick = () => { closePanel(); if (v !== getSrc()) goSrc(v); };
+    row.appendChild(b);
+  });
+})();
+// ── FOLDERS: choose / change a folder for Phone or SD card at any time, or reset both ──
+const FOLDER_MSG = {cancel: "No folder was chosen.", error: "Could not keep access to that folder. Try again.",
+  notsd: "That folder is on the phone, not the SD card. Pick a folder on the SD card.",
+  notphone: "That folder is on the SD card, not the phone. Pick a folder in Internal storage."};
+let pickQueue = [], queueOn = false;
+function folderInfo(src) {                                 // text shown under the source name in the gear menu
+  if (src === "sd" && !sdOk()) return "no SD card inserted";
+  let st = "none"; try { st = AndroidSd.status(src); } catch (e) {}
+  if (st === "lost") return "access lost, choose again";
+  if (st.indexOf("ok") !== 0) return "not chosen";
+  const t = st.split("|"); return (t[1] || "Folder") + " \u00b7 " + ((t[2] || "").indexOf("primary:") === 0 ? "phone memory" : "SD card");
+}
+function drawFolders() {
+  const box = $("fbox"); box.hidden = !window.AndroidSd; if (box.hidden) return;
+  box.innerHTML = ""; applySd();
+  ["phone", "sd"].forEach(src => {
+    const r = document.createElement("div"); r.className = "frow";
+    const l = document.createElement("span"); l.className = "fl"; l.textContent = SRC_NAME[src];
+    const sm = document.createElement("small"); sm.textContent = folderInfo(src); l.appendChild(sm);
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "Choose folder"; if (src === "sd" && !sdOk()) b.disabled = true;
+    b.onclick = () => { closePanel(); pickFolderFor(src); };
+    r.append(l, b); box.appendChild(r);
+  });
+  const re = document.createElement("button"); re.id = "reinit"; re.type = "button"; re.textContent = "Reset folders (choose both again)";
+  re.onclick = () => { closePanel(); reinitFolders(); };
+  box.appendChild(re);
+}
+function pickFolderFor(src) {
+  if (!window.AndroidSd) return;
+  pickFor = src;
+  const m = "Pick a folder on " + (src === "sd" ? "the SD card" : "Internal storage") + " (e.g. MyVideos), then Use this folder.";
+  $("serr").textContent = m; toast("", m);
+  AndroidSd.pickFolder(src);
+}
+function nextPick() {
+  const src = pickQueue.shift();
+  if (!src) { queueOn = false; resetSource(); route(); return; }             // all done: reload the current source
+  pickFolderFor(src);
+}
+function reinitFolders() {
+  if (!window.AndroidSd) { toast("", "Works only inside the Android app."); return; }
+  if (!confirm("Forget the Phone and SD card folders and choose both again?")) return;
+  AndroidSd.forget("phone"); AndroidSd.forget("sd");
+  pickQueue = sdOk() ? ["phone", "sd"] : ["phone"]; queueOn = true; nextPick();
+}
+window.addEventListener("sdfolder", e => {
+  const d = e.detail;
+  if (d === "ok") {
+    $("serr").textContent = "";
+    if (queueOn) nextPick();                                // re-init: on to the next folder
+    else if (getSrc() === pickFor || !getSrc()) { resetSource(); setSrc(pickFor); route(); }   // changed the folder in use: reload it
+    else { toast("", SRC_NAME[pickFor] + " folder saved"); useSource(pickFor); }
+    return;
+  }
+  const m = FOLDER_MSG[d] || FOLDER_MSG.error; $("serr").textContent = m; toast("", m);
+  if (queueOn) { if (d === "notsd" || d === "notphone") pickQueue.unshift(pickFor); nextPick(); }   // wrong card: ask again; cancelled: skip
+});
+
+// ── FAVORITES (starred top-level folders, kept per source; saved in the app's own storage, with the browser as fallback) ──
+const FAV_KEY = "picFavs";
+let favData = null;
+function favLoad() {
+  if (favData) return favData;
+  let raw = ""; try { if (window.AndroidFav) raw = AndroidFav.get(FAV_KEY) || ""; } catch (e) {}
+  if (!raw) { try { raw = localStorage.getItem(FAV_KEY) || ""; } catch (e) {} if (raw) try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {} }
+  try { favData = JSON.parse(raw) || {}; } catch (e) { favData = {}; }
+  return favData;
+}
+const isFav = top => (favLoad()[getSrc()] || []).indexOf(top) >= 0;
+function toggleFav(top) {
+  const d = favLoad(), s = getSrc(), a = (d[s] || []).slice(), i = a.indexOf(top);
+  if (i >= 0) a.splice(i, 1); else a.push(top);
+  d[s] = a; const raw = JSON.stringify(d);
+  try { if (window.AndroidFav) AndroidFav.set(FAV_KEY, raw); } catch (e) {}
+  try { localStorage.setItem(FAV_KEY, raw); } catch (e) {}
+}
+let holdTimer = 0, holdG = null, favNoClick = 0, hx = 0, hy = 0;
+document.addEventListener("click", e => { if (Date.now() < favNoClick) { e.stopPropagation(); e.preventDefault(); } }, true);   // the tap that ends a long press must not open the folder
+function holdEnd() {
+  clearTimeout(holdTimer); holdTimer = 0;
+  if (!holdG) return;
+  const g = holdG; holdG = null; favNoClick = Date.now() + 500;
+  const sc = g.scrollTop; renderList(); g.scrollTop = sc;
+}
+["pointerup", "pointercancel"].forEach(t => document.addEventListener(t, holdEnd, true));
+document.addEventListener("pointermove", e => { if (holdTimer && Math.hypot(e.clientX - hx, e.clientY - hy) > 12) { clearTimeout(holdTimer); holdTimer = 0; } }, true);
+function addFavHold(el, top, g) {                           // long-press a folder to add it to / remove it from Favorites
+  const head = el.querySelector(":scope > .topic.hd") || (el.classList.contains("topic") ? el : null); if (!head) return;
+  el.addEventListener("pointerdown", e => {
+    if (!head.contains(e.target)) return;
+    hx = e.clientX; hy = e.clientY; clearTimeout(holdTimer); holdG = null;
+    holdTimer = setTimeout(() => {
+      holdTimer = 0; const on = !isFav(top); toggleFav(top); holdG = g;
+      try { navigator.vibrate && navigator.vibrate(35); } catch (err) {}
+      toast("", on ? "Added to Favorites" : "Removed from Favorites");
+    }, 550);
+  });
+  el.addEventListener("contextmenu", e => e.preventDefault());
+}
+function addFavBlocks(g, entries) {                         // favorites first, a divider, then the rest; search never moves anything between the blocks
+  entries.forEach(x => addFavHold(x.el, x.top, g));
+  const favs = entries.filter(x => isFav(x.top)), rest = entries.filter(x => !isFav(x.top));
+  const lab = t => { const d = document.createElement("div"); d.className = "favlab"; d.textContent = t; g.appendChild(d); };
+  if (favs.length) { lab("\u2605 Favorites"); favs.forEach(x => g.appendChild(x.el)); if (rest.length) lab("Other folders"); }
+  rest.forEach(x => g.appendChild(x.el));
+}
+// ── THUMBNAIL GRID (month groups) ───────────────────────────────────────
+const GROUP_MIN = 30;                                    // folders with more videos than this are grouped by month; a month with more than this many videos also gets day folders inside it (phone / SD card / Google Drive: needs the video date)
+let viaGrid = "";                                          // folder whose grid is the history entry right before the video view
+let gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
+const thWait = new Map();
+window.addEventListener("thumbready", e => {
+  const t = String(e.detail).split("\t"), w = thWait.get(t[0]); if (!w) return;
+  thWait.delete(t[0]); if (t[1] && t[1] !== "ERR") w.ok(t[1]); else w.no();
+});
+const fastThumb = () => !!(window.AndroidThumb && typeof AndroidThumb.cacheThumb === "function");
+function thumbSrc(folder, name) {
+  const src = getSrc(), path = folder + "/" + name;
+  if (src === "gdrive") return gdThumb(path);
+  if (!fastThumb()) return Promise.reject();
+  return new Promise((ok, no) => {                         // Java grabs a frame from the video once and keeps a small copy in its cache
+    thWait.set(path, {ok: fp => ok(window.Capacitor && Capacitor.convertFileSrc ? Capacitor.convertFileSrc("file://" + fp) : "file://" + fp), no});
+    AndroidThumb.cacheThumb(src, path, path);
+  });
+}
+function pump() {                                          // load a few thumbnails at a time, newest request first (fast scrolling)
+  if (document.body.dataset.v !== "grid") return;
+  const my = gGen, lim = isLocal(getSrc()) ? 3 : 4;
+  while (gBusy < lim && gQ.length) {
+    const b = gQ.pop(); if (!b.isConnected) continue;
+    gBusy++;
+    thumbSrc(gFolder, b.dataset.n).then(u => { if (my !== gGen) return; const im = b.firstChild; im.onload = () => im.classList.add("on"); im.src = u; })
+      .catch(() => {}).then(() => { gBusy--; pump(); });
+  }
+}
+function sortedEnts(list) {                                // same order as the video viewer
+  const ents = list.filter(x => x.type === "file" && /\.(mp4|m4v|webm|3gp|mov|mkv)$/i.test(x.name));
+  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+  else ents.sort((a, b) => nat(a.name, b.name));
+  return ents;
+}
+function setGroup(h, open) { h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
+function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function buildGrid(folder, ents) {
+  gGen++; gFolder = folder; gQ = []; gBusy = 0;
+  if (gObs) gObs.disconnect();
+  gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
+  const box = $("gbox"); box.innerHTML = ""; gSel.clear();
+  gObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { gObs.unobserve(en.target); gQ.push(en.target); pump(); } }), {root: box, rootMargin: "500px 0px"});
+  const byMonth = ents.length > GROUP_MIN && ents.some(x => x.mod);
+  const mkGrid = () => { const g = document.createElement("div"); g.className = "gg"; return g; };
+  const mkHead = (cls, label, n, grid, open) => {
+    const h = document.createElement("button"); h.type = "button"; h.className = cls + (open ? " open" : "");
+    h.innerHTML = "<span></span><em></em><i>&#9656;</i>"; h.firstChild.textContent = label; h.children[1].textContent = n;
+    h._g = grid; grid._h = h; grid.classList.toggle("off", !open); return h;
+  };
+  const addTh = (grid, x, k) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "th"; b.dataset.k = k; b.dataset.n = x.name;
+    const im = document.createElement("img"); im.alt = ""; im.draggable = false; b.appendChild(im);
+    grid.appendChild(b); gObs.observe(b);
+  };
+  const jump = (h, offset) => box.scrollTop += h._g.getBoundingClientRect().top - box.getBoundingClientRect().top - offset - h.offsetHeight;
+  if (!byMonth) {
+    const g = mkGrid(); box.appendChild(g); ents.forEach((x, k) => addTh(g, x, k));
+  } else {
+    const groups = [];                                     // one entry per month, newest first (same order as the viewer)
+    ents.forEach((x, k) => {
+      const d = new Date(x.mod || 0), kk = x.mod ? d.getFullYear() * 12 + d.getMonth() : -1;
+      let last = groups[groups.length - 1];
+      if (!last || last.kk !== kk) groups.push(last = {kk, label: kk < 0 ? "No date" : FULL[d.getMonth()] + " " + d.getFullYear(), items: []});
+      last.items.push({x, k});
+    });
+    groups.forEach((g, gi) => {
+      const open = gi === 0;                               // newest month open, the rest folded
+      const bx = document.createElement("div"); bx.className = "gb"; box.appendChild(bx);   // one bordered box per month
+      if (g.kk >= 0) {                                     // every dated month: day folders (1, 2 ... 31) inside it
+        const wrap = document.createElement("div"); wrap.className = "gw";
+        const mh = mkHead("gm", g.label, g.items.length, wrap, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        bx.appendChild(mh); bx.appendChild(wrap);
+        const byDay = {};
+        g.items.forEach(it => { const d = new Date(it.x.mod); (byDay[d.getDate()] = byDay[d.getDate()] || {d, items: []}).items.push(it); });
+        Object.keys(byDay).map(Number).sort((u, v) => LOCAL_NEWEST_FIRST ? v - u : u - v).forEach((n, di) => {   // newest day first, like the months
+          const dd = byDay[n], gr = mkGrid(); gr._mh = mh;
+          const dh = mkHead("gd", n + " \u00b7 " + DAYS[dd.d.getDay()], dd.items.length, gr, di === 0);   // the first (newest) day open
+          dh.onclick = () => { if (dh.classList.contains("open")) return setGroup(dh, false); openDay(dh); jump(dh, 38); };
+          wrap.appendChild(dh); wrap.appendChild(gr);
+          dd.items.forEach(it => addTh(gr, it.x, it.k));
+        });
+      } else {                                             // videos with no date: one "No date" folder
+        const gr = mkGrid(), mh = mkHead("gm", "No date", g.items.length, gr, open);
+        mh.onclick = () => { if (mh.classList.contains("open")) return setGroup(mh, false); openGroup(mh); jump(mh, 0); };
+        const wrap = document.createElement("div"); wrap.className = "gw"; wrap.appendChild(gr); mh._g = wrap; gr._mh = mh; wrap.classList.toggle("off", !open); gr.classList.remove("off");
+        bx.appendChild(mh); bx.appendChild(wrap);
+        g.items.forEach(it => addTh(gr, it.x, it.k));
+      }
+    });
+  }
+  box.onclick = e => {
+    const t = e.target.closest(".th"); if (!t) return;
+    if (unlocked && selMode) { if (!delBusy) toggleSel(t); return; }   // Select is on: tapping ticks / unticks the video (otherwise the video opens)
+    gScroll = box.scrollTop; startAt = +t.dataset.k; viaGrid = gFolder; location.hash = "f=" + encodeURIComponent(gFolder) + "&v=1";
+  };
+}
+function showGrid(i) {
+  const wasView = document.body.dataset.v === "view", back = wasView ? idx : -1;
+  ++ticket; freeUrls(); resetZoom(); cur = i; setLast(parsed[i].n);
+  const f = parsed[i], ents = sortedEnts(listCache[f.n] || []);
+  if (!ents.length) return openFolder(i);                  // empty: the viewer shows "No videos"
+  const sig = getSrc() + "|" + f.n + "|" + ents.length;
+  show("grid");
+  $("gtit").textContent = f.t; $("gcnt").textContent = ents.length + (ents.length === 1 ? " video" : " videos");
+  const box = $("gbox");
+  if (sig !== gSig) { gSig = sig; gScroll = 0; buildGrid(f.n, ents); }
+  if (back >= 0) {                                         // coming back from a video: unfold its month and scroll to it
+    const t = box.querySelector('.th[data-k="' + back + '"]');
+    if (t) { const gp = t.parentNode; if (gp._mh) { if (gp._mh._g.classList.contains("off")) openGroup(gp._mh); if (gp.classList.contains("off")) openDay(gp._h); } else if (gp.classList.contains("off") && gp._h) openGroup(gp._h); t.scrollIntoView({block: "center"}); }
+  }
+  else box.scrollTop = gScroll;
+  pump();
+}
+
+// ── ROUTING (#f=<folder>  = thumbnails,  #f=<folder>&v=1  = video view) ──
+async function route() {
+  const src = getSrc();
+  if (!src) { ++ticket; $("sback").hidden = true; return show("source"); }
+  showSrcIco();
+  if (!loaded && !(await loadFolders())) return;
+  const m = location.hash.match(/^#f=([^&]+)(&v=1)?$/);
+  if (!m) { ++ticket; freeUrls(); cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll; return; }
+  const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
+  if (i < 0) { location.hash = ""; return; }
+  if (m[2] || !listCache[parsed[i].n]) return openFolder(i);      // video view (or list not known yet: old behaviour)
+  showGrid(i);
+}
+window.addEventListener("hashchange", route);
+route();
+
+// ── UPLOAD (gear panel) ─────────────────────────────────────────────────
+// Pick videos from the gallery -> choose / create a folder inside an album -> sent to Google Drive exactly as they are (in 8 MB pieces, retried on a bad connection)
+const PLUS = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"/></svg>', BACK = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+let upFiles = [], upBusy = false, upStop = false, upNew = false;
+const fmtSize = n => n >= 1073741824 ? (n / 1073741824).toFixed(1) + " GB" : Math.max(1, Math.round(n / 1048576)) + " MB";
+const folderNames = f => (listCache[f] || []).filter(x => x.type === "file").map(x => x.name);
+const takenSet = folder => new Set(folderNames(folder).map(n => n.toLowerCase()));
+const uniqName = (name, taken) => { let n = name, k = 1; const i = name.lastIndexOf("."), b = i > 0 ? name.slice(0, i) : name, e = i > 0 ? name.slice(i) : ""; while (taken.has(n.toLowerCase())) n = b + " (" + (++k) + ")" + e; taken.add(n.toLowerCase()); return n; };
+const today = () => { const d = new Date(); return d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0") + " "; };
+const destFolder = () => upNew ? $("unew").value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") : $("ufold").value;
+const upErr = t => { $("uerr").textContent = t || ""; };
+const upLock = on => { ["ufold", "unew", "unewb"].forEach(i => $(i).disabled = on); };
+function upFolderChanged(focus) {
+  $("ufold").hidden = upNew; $("unew").hidden = !upNew;
+  $("unewb").innerHTML = upNew ? BACK : PLUS; $("unewb").setAttribute("aria-label", upNew ? "Choose an existing folder" : "New folder");
+  if (upNew && !$("unew").value) $("unew").value = (gdAlbumOf($("ufold").value) || GD_ALBUMS[0]) + "/" + today();
+  $("uprev").textContent = upFiles.length ? "Saved with " + (upFiles.length > 1 ? "their own file names" : "its own file name") : "";
+  upErr();
+  if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
+}
+function openUpload(files) {
+  upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest first
+  const sel = $("ufold"); sel.innerHTML = "";
+  parsed.forEach(f => { const o = document.createElement("option"); o.value = f.n; o.textContent = f.n.replace(/\//g, " / "); sel.appendChild(o); });
+  const last = getLast();
+  upNew = !parsed.length;
+  if (parsed.length) sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : parsed[0].n);
+  $("unew").value = ""; $("unew").placeholder = "Album/trip, e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa";
+  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " video selected" : " videos selected") + " \u00b7 " + fmtSize(upFiles.reduce((a, f) => a + f.size, 0)) + " \u00b7 original quality";
+  $("uprog").hidden = true; $("ubar").firstChild.style.width = "0";
+  $("ugo").disabled = false; $("ugo").textContent = "Upload"; $("ucancel").textContent = "Cancel";
+  upLock(false); upFolderChanged();
+  $("ud").hidden = false;
+}
+const closeUpload = () => { if (upBusy) return; $("ud").hidden = true; upFiles = []; };
+$("upl").onclick = () => { closePanel(); $("ufile").click(); };
+$("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^video\//.test(f.type) || VID_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
+$("ufold").onchange = () => upFolderChanged();
+$("unewb").onclick = () => { upNew = !upNew; upFolderChanged(true); };
+$("unew").oninput = () => upErr();
+$("ucancel").onclick = () => { if (upBusy) { upStop = true; $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) closeUpload(); });
+$("ugo").onclick = () => {
+  if (upBusy) return;
+  const folder = destFolder();
+  if (!folder) return upErr("Type a folder name.");
+  if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
+  uploadDrive(folder);
+};
+async function gdUploadBig(file, name, parentId, onProg) {   // resumable: 8 MB at a time (a multiple of 256 KB), each piece retried up to 3 times
+  const ext = extOf(file), mime = /^video\//.test(file.type || "") ? file.type : (MIME[ext] || "video/mp4");
+  const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
+  const r0 = await gdFetch(GD_UP + "?uploadType=resumable&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": mime, "X-Upload-Content-Length": String(file.size)}, body: JSON.stringify(meta)});
+  if (!r0.ok) throw new Error("HTTP " + r0.status);
+  const loc = r0.headers.get("Location"); if (!loc) return gdUpload(file, name, parentId, ext);   // browser could not read the address: one-shot upload instead
+  const CH = 8 * 1048576; let pos = 0;
+  while (pos < file.size) {
+    const end = Math.min(pos + CH, file.size); let r, tries = 0;
+    for (;;) {
+      try { r = await fetch(loc, {method: "PUT", headers: {"Content-Range": "bytes " + pos + "-" + (end - 1) + "/" + file.size}, body: file.slice(pos, end)}); break; }
+      catch (e) { if (pos === 0 && tries === 0 && e && e.name === "TypeError") return gdUpload(file, name, parentId, ext); if (++tries > 3) throw e; await new Promise(w => setTimeout(w, 1500 * tries)); }
+    }
+    if (r.status === 200 || r.status === 201) return r.json();
+    if (r.status !== 308) throw new Error("HTTP " + r.status);
+    pos = end; onProg(Math.round(pos / file.size * 100));
+  }
+  throw new Error("Drive did not confirm the upload");
+}
+async function uploadDrive(folder) {
+  const first = folder.split("/")[0], alb = gdAlbumOf(first);
+  if (!alb) return upErr("Start with " + GD_ALBUMS.join(", ") + ", e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa");
+  folder = alb + folder.slice(first.length);
+  upErr(); upBusy = true; upStop = false; upLock(true);
+  $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
+  const total = upFiles.length;
+  let ok = 0, bad = 0, msg = "", pid = "", taken = null;
+  try {
+    pid = await gdEnsure(folder);
+    taken = takenSet(folder);                              // also skip names already in this Drive folder
+    (await gdList("'" + pid + "' in parents and trashed=false", "name")).forEach(x => taken.add(String(x.name).toLowerCase()));
+  } catch (e) { msg = gdMsg(e); bad = total; pid = ""; }
+  for (let i = 0; pid && i < total && !upStop; i++) {
+    const f = upFiles[i], label = "Uploading " + (i + 1) + " of " + total + (bad ? " \u00b7 " + bad + " failed" : "");
+    $("ust").textContent = label; $("ubar").firstChild.style.width = Math.round(i / total * 100) + "%";
+    if (!VID_RE.test(f.name)) { bad++; msg = "Only MP4, M4V, WebM, 3GP, MOV and MKV videos can be uploaded."; continue; }
+    const name = uniqName(f.name, taken);
+    try {
+      const j = await gdUploadBig(f, name, pid, p => { $("ust").textContent = label + " \u00b7 " + p + "%"; $("ubar").firstChild.style.width = Math.round((i + p / 100) / total * 100) + "%"; }), th = j.thumbnailLink || "";
+      if (!listCache[folder]) listCache[folder] = [];
+      if (!parsed.some(x => x.n === folder)) {              // brand-new folder: add it to the list
+        const keep = cur >= 0 && parsed[cur] ? parsed[cur].n : null;
+        parsed.push(parseFolder(folder)); gdSort();
+        if (keep) cur = parsed.findIndex(x => x.n === keep);
+      }
+      listCache[folder].push({name, type: "file", sha: "", id: j.id, thumb: th, mod: f.lastModified || Date.now()}); GDI[folder + "/" + name] = {id: j.id, thumb: th};
+      ok++;
+    } catch (e) { msg = gdMsg(e); bad += total - i; break; }
+  }
+  upBusy = false;
+  $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
+  if (document.body.dataset.v === "list") renderList();
+  updateBar();
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; toast("", "Uploaded " + ok + (ok === 1 ? " video" : " videos") + " to " + folder.replace(/\//g, " / ")); return; }
+  $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
+  upErr(msg || (bad && !upStop ? "Some videos could not be uploaded." : ""));
+  $("ucancel").disabled = false; $("ucancel").textContent = "Close";
+}
+
+// ── RENAME THE VIDEO YOU ARE WATCHING (pencil at the top of the player) ──
+let renK = -1, rnMode = "rename", cutSel = null;
+const pad2 = n => String(n).padStart(2, "0");
+const stampOf = ms => { const d = new Date(ms); return d.getFullYear() + " " + pad2(d.getMonth() + 1) + " " + pad2(d.getDate()) + " " + pad2(d.getHours()) + pad2(d.getMinutes()); };
+const STAMP_RE = /^\d{4} \d{2} \d{2} \d{4}( |$)/;
+const extPart = n => { const d = n.lastIndexOf("."); return d > 0 ? n.slice(d) : ""; };
+function openRename(k) {
+  const name = files[k]; if (!name) return;
+  const folder = parsed[cur].n, src = getSrc(), ext = extPart(name), base = name.slice(0, name.length - ext.length);
+  renK = k; rnMode = "rename"; $("rtitle").textContent = "Rename video";
+  let pre = base;                                          // already starts with a date + time: edit it; otherwise start from the recording time
+  if (!STAMP_RE.test(base)) {
+    let st = "";
+    if (isLocal(src) && window.AndroidSd && typeof AndroidSd.recorded === "function") { try { st = AndroidSd.recorded(src, folder + "/" + name) || ""; } catch (e) {} }
+    if (!st) { const ent = (listCache[folder] || []).find(x => x.name === name); if (ent && ent.mod) st = stampOf(ent.mod); }   // no recording time inside the file: its saved date
+    if (st) pre = st + " ";
+  }
+  $("rnow").textContent = "Now: " + name; $("rext").textContent = ext; $("rname").value = pre; $("rerr").textContent = "";
+  $("rgo").disabled = false; $("rcancel").disabled = false; $("rn").hidden = false;
+  setTimeout(() => { const i = $("rname"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 150);
+}
+const closeRename = () => { if ($("rgo").disabled && /^(Renaming|Cutting|Trimming)\.\.\.$/.test($("rerr").textContent)) return; $("rn").hidden = true; renK = -1; cutSel = null; };
+async function doRename() {
+  const k = renK, old = files[k]; if (k < 0 || !old) return;
+  const folder = parsed[cur].n, src = getSrc(), ext = extPart(old), err = t => { $("rerr").textContent = t; };
+  const base = $("rname").value.trim().replace(/\s+/g, " ");
+  if (!base) return err("Type a name.");
+  if (/[\\\/:*?"<>|]/.test(base) || base.startsWith(".")) return err('A name cannot have \\ / : * ? " < > | or start with a dot.');
+  const name = base + ext;
+  if (name === old) return closeRename();
+  if (files.some((f, i) => i !== k && f.toLowerCase() === name.toLowerCase())) return err("A video with this name already exists here.");
+  $("rgo").disabled = true; $("rcancel").disabled = true; err("Renaming...");
+  try {
+    if (isLocal(src)) {
+      if (!window.AndroidSd || typeof AndroidSd.renameFile !== "function") throw new Error("Update the app to rename videos");
+      const res = await new Promise(ok => { const h = e => { window.removeEventListener("videorenamed", h); ok(String(e.detail).split("\t")); }; window.addEventListener("videorenamed", h); AndroidSd.renameFile(src, folder + "/" + old, name); });
+      if (res[0] !== "ok") throw new Error(res[1] || "failed");
+    } else {
+      const it = GDI[folder + "/" + old]; if (!it) throw new Error("Tap refresh, then try again");
+      const r = await gdFetch(GD_API + "/" + it.id + "?fields=id", {method: "PATCH", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name})});
+      if (!r.ok) throw new Error("Google Drive refused (" + r.status + ")");
+      GDI[folder + "/" + name] = it; delete GDI[folder + "/" + old];
+    }
+  } catch (e) { $("rgo").disabled = false; $("rcancel").disabled = false; return err("Could not rename: " + (e.message || e)); }
+  const ent = (listCache[folder] || []).find(x => x.name === old); if (ent) ent.name = name;
+  files[k] = name; gSig = "";                              // the thumbnail grid is built again next time
+  const sl = track.children[k]; if (sl) { setCover(sl, name); sl.querySelector(".vnm").textContent = name; }
+  $("rgo").disabled = false; $("rcancel").disabled = false; closeRename(); toast("", "Renamed");
+}
+function openCut(k, a, b, mode) {                               // Cut icon tapped: ask for the name of the new clip, starting from the video's own date
+  const name = files[k]; if (!name || a == null || b == null) return;
+  const folder = parsed[cur].n, src = getSrc(), ext = /\.webm$/i.test(name) ? ".webm" : ".mp4", base = name.slice(0, name.length - extPart(name).length);
+  cutSel = {k, a, b, ext, trim: mode === "trim"}; renK = -1; rnMode = "cut"; $("rtitle").textContent = mode === "trim" ? "Save without this part" : "Save the cut";
+  let st = (base.match(/^\d{4} \d{2} \d{2} \d{4}/) || [""])[0];
+  if (!st && window.AndroidSd && typeof AndroidSd.recorded === "function") { try { st = AndroidSd.recorded(src, folder + "/" + name) || ""; } catch (e) {} }
+  if (!st) { const ent = (listCache[folder] || []).find(x => x.name === name); if (ent && ent.mod) st = stampOf(ent.mod); }
+  $("rnow").textContent = (mode === "trim" ? "Remove " : "Part ") + fmtT(a) + " \u2013 " + fmtT(b) + " (" + fmtT(b - a) + ") of " + name + (mode === "trim" ? ", the rest is joined together. The original stays as it is." : ". The original stays as it is.");
+  $("rext").textContent = ext; $("rname").value = st ? st + " " : ""; $("rerr").textContent = "";
+  $("rgo").disabled = false; $("rcancel").disabled = false; $("rn").hidden = false;
+  setTimeout(() => { const i = $("rname"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 150);
+}
+async function doCut() {
+  const c = cutSel; if (!c) return;
+  const folder = parsed[cur].n, src = getSrc(), old = files[c.k], err = t => { $("rerr").textContent = t; };
+  const base = $("rname").value.trim().replace(/\s+/g, " ");
+  if (!base) return err("Type a name.");
+  if (/[\\\/:*?"<>|]/.test(base) || base.startsWith(".")) return err('A name cannot have \\ / : * ? " < > | or start with a dot.');
+  const name = base + c.ext;
+  if (files.some(f => f.toLowerCase() === name.toLowerCase())) return err("A video with this name already exists here.");
+  $("rgo").disabled = true; $("rcancel").disabled = true; err(c.trim ? "Trimming..." : "Cutting...");
+  try {
+    const res = await new Promise(ok => { const h = e => { window.removeEventListener("videocut", h); ok(String(e.detail).split("\t")); }; window.addEventListener("videocut", h); if (c.trim) { if (typeof AndroidSd.trimVideo !== "function") { ok(["fail", "Update the app to trim videos"]); return; } AndroidSd.trimVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); } else AndroidSd.cutVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); });
+    if (res[0] !== "ok") throw new Error(res[1] || "failed");
+    (listCache[folder] = listCache[folder] || []).push({name: res[1] || name, type: "file", sha: "", mod: Date.now()}); gSig = "";
+    const sl = track.children[c.k]; if (sl) { sl._cs = sl._ce = null; if (sl._cutPaint) sl._cutPaint(); }
+    $("rgo").disabled = false; $("rcancel").disabled = false; err(""); closeRename(); toast("", "Saved " + (res[1] || name));
+  } catch (e) { $("rgo").disabled = false; $("rcancel").disabled = false; err("Could not cut: " + (e.message || e)); }
+}
+$("rcancel").onclick = closeRename;
+$("rgo").onclick = () => rnMode === "cut" ? doCut() : doRename();
+$("rname").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("rgo").onclick(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("rn").hidden) closeRename(); });
+
+// ── START SCREEN ────────────────────────────────────────────────────────
+// Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
+// (iPhone Safari has no full-screen API: there only the top ribbon is hidden. In an app it is already full screen.)
+(function () {
+  const scr = $("start-screen"), btn = $("start-btn");
+  const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(scr).getPropertyValue("--start-img"));
+  const ready = () => scr.classList.add("ready");
+  if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else ready();
+  setTimeout(() => scr.classList.add("btn-on"), 1000);
+  let done = false;
+  const finish = () => { if (!done) { done = true; scr.remove(); realign(); } };
+  btn.addEventListener("click", () => {
+    if (!IN_APP) { if (canFS) setMax(true); else document.body.classList.add("nobar"); }
+    setTimeout(realign, 150);
+    scr.classList.add("leaving");
+    scr.addEventListener("animationend", e => { if (e.target === scr) finish(); });
+    setTimeout(finish, 3200);
+  });
+})();
+</script>
+</body>
+</html>

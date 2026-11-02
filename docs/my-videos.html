@@ -49,14 +49,28 @@ body[data-v=grid] footer #info{display:none}
 #gright{display:flex;align-items:center;gap:10px;flex:none}
 #selbtn{min-width:0;height:30px;padding:0 14px;border-radius:15px;font-size:12px;font-weight:600;color:var(--mute)}
 #selbtn[hidden]{display:none}
+#syncbtn{min-width:0;height:30px;padding:0 12px;border-radius:15px;font-size:12px;font-weight:600;color:var(--accent);margin-right:6px}
+#syncbtn[hidden]{display:none}
 #selbtn.on{border-color:#e5484d;color:#ff8f8f;background:rgba(229,72,77,.18)}
 #gbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:0 4px}
 .gm{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;margin:0;padding:0 12px;border-radius:0 0 10px 10px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:13px;font-weight:600;text-align:left}
 .gm em{font-style:normal;color:var(--mute);font-size:11.5px;font-weight:600;margin-left:auto;margin-right:10px}
-.gm i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gm i{font-style:normal;color:var(--mute);transition:transform .45s}
 .gm.open i{transform:rotate(90deg)}
 .gg{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:4px 0 10px}
 .gg.off{display:none}
+@keyframes gopen{from{opacity:0}to{opacity:1}}
+.gg:not(.off),.gw:not(.off){animation:gopen .5s ease-out}
+@media (prefers-reduced-motion:reduce){.gg:not(.off),.gw:not(.off){animation:none}}
+.gd.open + .gg{max-height:var(--gh,60vh);overflow-y:auto;overscroll-behavior:contain;border-radius:0 0 8px 8px}
+#gbox::after{content:"";display:block;height:55vh}
+#rib{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:4;max-width:88%;padding:4px 14px;border-radius:0 0 10px 10px;background:rgba(120,120,120,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);color:#fff;font-size:12px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+#rib[hidden]{display:none}
+@media (orientation:landscape){#rib{display:none}}
+#exifov{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(0,0,0,.6)}
+#exifov[hidden]{display:none}
+#exifov>div{display:flex;flex-direction:column;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 26px;text-align:center}
+#exifov small{color:var(--mute)}
 .gb{border:1px solid var(--line);border-radius:12px;margin:0 0 10px}
 .gb .gm{border-radius:11px 11px 0 0}
 .gb .gm:not(.open){border-radius:11px;border-bottom-width:0}
@@ -64,12 +78,27 @@ body[data-v=grid] footer #info{display:none}
 .gw.off{display:none}
 .gd{position:sticky;top:38px;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:34px;margin:0;padding:0 10px;border-radius:0 0 8px 8px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:12.5px;font-weight:600;text-align:left}
 .gd em{font-style:normal;color:var(--mute);font-size:11px;font-weight:600;margin-left:auto;margin-right:10px}
-.gd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.gd i{font-style:normal;color:var(--mute);transition:transform .45s}
+.gd b.cl{display:none;place-items:center;flex:none;width:28px;height:28px;margin-right:8px;border-radius:50%;border:1px solid var(--line);color:var(--accent)}
+.gd.open b.cl{display:grid}
+.gd b.cl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gd b.cl:active{background:var(--line)}
+.gd b.pk{flex:none;margin-right:8px;font-size:11.5px;font-weight:700;letter-spacing:.2px;color:var(--accent);white-space:nowrap}
+.gd b.pk[hidden]{display:none}
 .gd.open i{transform:rotate(90deg)}
 @media (min-width:520px){.gg{grid-template-columns:repeat(4,1fr)}}
 .th{position:relative;aspect-ratio:1;height:auto;min-width:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--panel)}
 .th img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s}
 .th img.on{opacity:1}
+#upbar{display:flex;align-items:center;gap:6px;padding:6px 4px;font-size:12.5px;font-weight:600}
+#upbar[hidden]{display:none}
+#upn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--accent)}
+#upbar button{min-width:0;height:34px;padding:0 12px;font-size:12.5px;border-radius:10px}
+#upgo{border-color:var(--accent);color:var(--accent);font-weight:700}
+.gd b.cl.on{background:var(--accent);color:#000;border-color:var(--accent)}
+.th.usel{outline:2px solid var(--accent);outline-offset:-2px}
+.th.usel img.on{opacity:.6}
+.th.usel::after{content:"\2713";position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:700;line-height:20px;text-align:center}
 .th.sel{outline:2px solid #e5484d;outline-offset:-2px}
 .th.sel img.on{opacity:.6}
 .th.sel::after{content:"\2713";position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:#e5484d;color:#fff;font-size:13px;font-weight:700;line-height:20px;text-align:center}
@@ -128,6 +157,11 @@ body:not([data-v=view]) #info,#panel:not([hidden]) ~ #info{display:none}
 #panel{position:absolute;right:12px;bottom:calc(100% + 8px);z-index:6;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(var(--panel-rgb),.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:16px}
 #panel[hidden],#pinrow[hidden]{display:none}
 #prow,#pinrow{display:flex;gap:8px;align-items:center}
+#pinrow{flex-direction:column;gap:6px}
+#pin{width:100%;box-sizing:border-box;height:34px;text-align:center;caret-color:transparent}
+#kp{display:grid;grid-template-columns:repeat(3,40px);gap:6px}
+#kp button{min-width:0;width:40px;height:34px;padding:0;font-size:15px;border-radius:10px}
+#kp #pinok{color:var(--accent);border-color:var(--accent);font-size:13px;font-weight:700}
 #pin{width:110px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 12px;font:inherit;letter-spacing:3px}
 #pinerr{color:#ff8f8f;font-size:12px;min-height:0}
 #del.on{border-color:#e5484d;color:#ff8f8f}
@@ -147,6 +181,10 @@ body.max #fsx{display:block}
 /* ── saffron top ribbon ── */
 #top{position:relative;z-index:5;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(11px + env(safe-area-inset-top)) 16px 11px;background:linear-gradient(135deg,#2a1604,#4a2808 50%,#2a1604);border-bottom:1px solid rgba(255,153,51,.6);animation:ribGlow 4.5s ease-in-out infinite}
 #top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.3px;color:#ffd9a0;text-shadow:0 0 12px rgba(255,153,51,.55)}
+#top .tr{display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+#top #refresh{min-width:34px;width:34px;height:34px;padding:0;display:grid;place-items:center;border-radius:50%;background:rgba(255,153,51,.14);border:1px solid rgba(255,153,51,.5);color:#ffd9a0}
+#top #refresh svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s}
+#top #refresh:active svg{transform:rotate(180deg)}
 #rtxt{color:#e2b877;font-size:12px;white-space:nowrap}
 .topic{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .favlab{display:flex;align-items:center;gap:8px;margin:10px 4px 6px;font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--accent)}
@@ -285,7 +323,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 .vpen.vgear.on{background:linear-gradient(135deg,#ffb25c,#ff9933)}
 .vpen.vgear.on svg{stroke:#3a1c02}
 .vcg{position:absolute;left:14px;bottom:72px;z-index:5;display:none;align-items:center;gap:10px}
-.vsc,.vcre,.vtr{width:48px;height:48px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.9);background:rgba(10,16,24,.74);display:grid;place-items:center}
+.vsc,.vcre,.vtr,.vmu{width:48px;height:48px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.9);background:rgba(10,16,24,.74);display:grid;place-items:center}
 .vsc svg,.vcre svg{width:22px;height:22px;fill:none;stroke:#ffd9a0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vsc.s1{border-color:#7ee787;background:rgba(126,231,135,.2)}
 .vsc.s2{border-color:#ff8a80;background:rgba(255,138,128,.2)}
@@ -308,7 +346,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 .vbig{position:static;width:42px;height:42px;margin:0}
 .vbig::before{margin-left:4px;border-left-width:15px;border-top-width:9px;border-bottom-width:9px}
 .slide.pl .vbig::before{width:14px;height:17px;margin:0;border:0;background:linear-gradient(90deg,#ffd9a0 0 35%,transparent 35% 65%,#ffd9a0 65%)}
-.vpen,.vsb,.vsm button,.vsc,.vcre,.vtr{width:42px;height:42px}
+.vpen,.vsb,.vsm button,.vsc,.vcre,.vtr,.vmu{width:42px;height:42px}
 .vspd{position:static;display:flex;flex-direction:row-reverse;align-items:center;gap:8px}
 .vsm{flex-direction:row-reverse;gap:8px}
 .vcg{position:static;display:none;flex-direction:row-reverse;align-items:center;gap:8px}
@@ -324,6 +362,8 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 .vsc.s2 .i2{stroke:#04203d}
 .vtr svg{width:20px;height:20px;fill:none;stroke:#ff8a80;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .vtr{border-color:#ff8a80}
+.vmu svg{width:20px;height:20px;fill:none;stroke:#9ecbff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vmu{border-color:#9ecbff}
 .vsk{display:flex;gap:10px}
 .vjk{width:42px;height:42px;min-width:0;padding:0;border-radius:50%;border:2px solid rgba(255,178,92,.85);background:rgba(10,16,24,.74);display:grid;place-items:center;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .vjk svg{width:26px;height:26px;fill:none;stroke:#ffd9a0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -334,7 +374,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 /* cut pill, left to right: trim (red), time frame, tick, reset (the group runs right to left, so the order numbers count from the right) */
 .vcp{display:contents}
 .vcp[hidden]{display:none}
-.vcre{order:1}.vsc{order:2}.vcl{order:3}.vtr{order:4}
+.vcre{order:1}.vsc{order:2}.vcl{order:3}.vtr{order:4}.vmu{order:5}
 .vsm[hidden]{display:none}
 /* crop: the cut rail opens to the left of the crop icon, in the same row, like the speed rail; the crop icon stays at the far right */
 .vcw{display:none;position:static;flex-direction:row-reverse;align-items:center;gap:10px}
@@ -350,9 +390,9 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
   <button id="start-btn" type="button">Start</button>
 </div>
 <div id="app">
-  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><small id="rtxt"></small><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><span class="tr"><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
-  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="gbox"></div></div>
+  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="syncbtn" type="button" hidden>★ Sync</button><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="upbar" hidden><span id="upn"></span><button id="upall" type="button">All</button><button id="upx" type="button">Cancel</button><button id="upgo" type="button">Upload</button></div><div id="gbox"></div></div>
   <div id="source">
     <h2>Where are your videos?</h2>
     <button class="srcbtn" id="srcPh" type="button"><svg viewBox="0 0 24 24"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM10.5 19h3"/></svg><span><b>Phone storage</b><small>Offline. One folder on the phone's own memory (a "videos" sub-folder is used if present).</small></span></button>
@@ -365,6 +405,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
     <div id="track"></div>
     <button class="arrow" id="aL" aria-label="Previous video">&#8249;</button>
     <button class="arrow" id="aR" aria-label="Next video">&#8250;</button>
+    <div id="rib" hidden></div>
     <div id="toast"><small></small><b></b></div>
   </div>
   <footer id="foot">
@@ -381,12 +422,11 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
       <div id="gdbox" hidden><button id="gdswitch" type="button">Switch Google account</button><small id="gdacc"></small></div>
       <div id="fbox" hidden></div>
       <div id="prow">
-        <button id="refresh" aria-label="Refresh folders"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button>
         <button id="upl" aria-label="Upload videos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="del" aria-label="Delete mode"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button>
       </div>
-      <div id="pinrow" hidden><input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="PIN"><button id="pinok">OK</button></div>
+      <div id="pinrow" hidden><input id="pin" type="password" inputmode="none" readonly autocomplete="off" maxlength="8" placeholder="PIN"><div id="kp"><button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" data-k="bs" aria-label="Delete digit">&#9003;</button><button type="button" data-k="0">0</button><button id="pinok" type="button">OK</button></div></div>
       <small id="pinerr"></small>
     </div>
     <div id="info"><b id="cnt"></b><small id="lbl"></small></div>
@@ -398,6 +438,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
   <p id="usum"></p>
   <div id="ufrow"><span>Folder</span><button id="unewb" type="button" aria-label="New folder"></button></div>
   <select id="ufold"></select>
+  <select id="ualb" aria-label="Album" hidden></select>
   <input id="unew" type="text" placeholder="Folder name (use / for a sub-folder)" autocomplete="off" autocapitalize="off" hidden>
   <small id="uprev"></small>
   <div id="uprog" hidden><div id="ubar"><i></i></div><small id="ust"></small></div>
@@ -487,6 +528,60 @@ async function loadLocal() {                               // Phone storage / SD
   parsed = Object.keys(dirs).map(parseFolder).sort((a, b) => NEWEST_FIRST ? nat(b.n, a.n) : nat(a.n, b.n));
   loaded = true; renderList(); return true;
 }
+// Folder order for the next / previous folder buttons: parents stay newest-first, the folders inside a parent run oldest-first
+function navOrder() {
+  const o = [], topOf = f => f.n.split("/")[0]; let i = 0;
+  while (i < parsed.length) {
+    const t = topOf(parsed[i]); let j = i; while (j < parsed.length && topOf(parsed[j]) === t) j++;
+    const run = []; for (let k = i; k < j; k++) run.push(k);
+    run.sort((a, b) => nat(parsed[a].n, parsed[b].n)); o.push(...run); i = j;
+  }
+  return o;
+}
+const navNext = (c, d) => { const o = navOrder(), p = o.indexOf(c); return o[(p + d + o.length) % o.length]; };
+// Phone / SD / Drive video order (viewer AND thumbnails use it): months newest-first, days newest-first (31, 30 ... 1), inside a day newest-first
+function sortByDate(ents) {
+  const mk = x => { if (!x.mod) return -1; const d = new Date(x.mod); return d.getFullYear() * 12 + d.getMonth(); };
+  return ents.sort((a, b) => (mk(b) - mk(a)) || (mk(a) < 0 ? 0 : new Date(b.mod).getDate() - new Date(a.mod).getDate()) || (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+}
+// ── VIDEO DATE (phone / SD card only) ──
+// Month / day folders use the date the video was recorded (read by the Java side: AndroidSd.videoDate), so copied videos keep their real date.
+// Read once per video, remembered in the browser storage. Older Java builds without videoDate simply keep using the file date.
+const VD_KEY = "videoDatesV1"; let VDATE = {}, exifGen = 0, exifSkip = false;
+try { VDATE = JSON.parse(localStorage.getItem(VD_KEY) || "{}") || {}; } catch (e) { VDATE = {}; }
+const vdKey = (src, path) => src + "|" + path + "|" + (LSIZE[src + "|" + path] || 0);
+function vdSave() { try { localStorage.setItem(VD_KEY, JSON.stringify(VDATE)); } catch (e) {} }
+const vdOk = () => !!(window.AndroidSd && typeof AndroidSd.videoDate === "function");
+function vdOne(src, path) {                                // ms since epoch, 0 = no date in the file, null = could not read (try again next time)
+  try { const d = +AndroidSd.videoDate(src, path); if (!(d >= 0)) return null; return d > 0 && new Date(d).getFullYear() >= 1990 ? d : 0; } catch (e) { return null; }
+}
+function exifOverlay() {
+  let o = document.getElementById("exifov");
+  if (!o) {
+    o = document.createElement("div"); o.id = "exifov";
+    o.innerHTML = '<div><b>Reading video dates...</b><span id="exifn"></span><small>Done once, then remembered.</small><button id="exifskip" type="button">Skip</button></div>';
+    document.body.appendChild(o); document.getElementById("exifskip").onclick = () => { exifSkip = true; };
+  }
+  o.hidden = false; document.getElementById("exifn").textContent = "";
+  return {set: (n, t) => { document.getElementById("exifn").textContent = n + " / " + t; }, close: () => { o.hidden = true; }};
+}
+async function exifFolder(folder) {                        // true = go on and open the folder; false = the user went elsewhere meanwhile
+  if (!vdOk()) return true;
+  const src = getSrc(), list = listCache[folder] || [];
+  const todo = list.filter(e => VID_RE.test(e.name) && VDATE[vdKey(src, folder + "/" + e.name)] === undefined);
+  if (todo.length) {
+    const my = ++ticket; exifSkip = false; const ov = exifOverlay(); let n = 0;
+    for (const e of todo) {
+      if (exifSkip || my !== ticket) break;
+      const d = vdOne(src, folder + "/" + e.name); if (d !== null) VDATE[vdKey(src, folder + "/" + e.name)] = d;
+      if (++n % 4 === 0) { ov.set(n, todo.length); await new Promise(r => setTimeout(r, 0)); }
+    }
+    vdSave(); ov.close(); exifGen++;
+    if (my !== ticket) return false;
+  }
+  list.forEach(e => { if (e.fmod === undefined) e.fmod = e.mod; const d = VDATE[vdKey(src, folder + "/" + e.name)]; e.mod = d || e.fmod; });
+  return true;
+}
 async function loadFolders() { return isLocal(getSrc()) ? loadLocal() : loadDrive(); }
 
 // ── GOOGLE DRIVE (4th source: same folders / viewer / delete / upload, but original quality) ──
@@ -500,7 +595,7 @@ const gdSort = () => parsed.sort((a, b) => gdRank(a.n) - gdRank(b.n) || ((a.n.in
 const GDI = {};                                            // "folder/video.jpg" -> {id, thumb}
 let gdTok = "", gdExp = 0, gdPend = null, gdRootId = "", gdFolderIds = {};
 const extOf = f => !f ? "" : ((f.name.indexOf(".") > 0 ? f.name.split(".").pop().toLowerCase() : "") || ({"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"})[f.type] || "");
-const gdMsg = e => { const m = String((e && e.message) || e); return m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
+const gdMsg = e => { const m = String((e && e.message) || e); return m.indexOf("phone:") === 0 ? m.slice(6) : m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
   : /^HTTP 40[13]/.test(m) ? "Google Drive refused access (" + m + "). Check that the Drive API is on and your Google account is a test user." : m.indexOf("HTTP") === 0 ? "Google Drive error (" + m + ")." : "Google sign-in failed: " + m; };
 function gdToken(force) {                                  // short-lived access token from the Java side (silent after the first consent)
   if (!force && gdTok && Date.now() < gdExp) return Promise.resolve(gdTok);
@@ -591,7 +686,7 @@ async function gdUpload(file, name, parentId, ext) {       // the video is sent 
   const mime = /^image\//.test(file.type || "") ? file.type : (MIME[ext] || "image/jpeg"), b = "gdb" + Date.now().toString(36);
   const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
   const body = new Blob(["--" + b + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(meta) + "\r\n--" + b + "\r\nContent-Type: " + mime + "\r\n\r\n", file, "\r\n--" + b + "--"]);
-  const r = await gdFetch(GD_UP + "?uploadType=multipart&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + b}, body});
+  const r = await gdFetch(GD_UP + "?uploadType=multipart&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "multipart/related; boundary=" + b}, body, signal: upAbort && upAbort.signal});
   if (!r.ok) throw new Error("HTTP " + r.status);
   return r.json();
 }
@@ -656,8 +751,10 @@ function renderList() {
 
 // ── VIEWER STATE ────────────────────────────────────────────────────────
 const track = $("track"), V = $("viewer");
+let modOf = {};
 let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
 let unlocked = false, delBusy = false, startAt = 0;
+let upSelDay = null; const upSel = new Set();                // cloud on a date: choosing which videos of that date to upload
 let selMode = false;                                       // thumbnails: Select toggle (off by default; taps open videos until it is turned on)
 let gSel = new Set(), gDel = false;                        // thumbnails ticked for multi-delete / a multi-delete is running
 let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
@@ -671,9 +768,15 @@ function updateBar() {
   const v = document.body.dataset.v, inView = v === "view";
   $("cnt").textContent = inView ? (files.length ? (idx + 1) + " / " + files.length : "") : (v === "list" ? parsed.length + " folders" : "");
   $("lbl").textContent = inView && cur >= 0 ? parsed[cur].t : "Videos";
+  const rb = $("rib"); rb.hidden = !(inView && cur >= 0);
+  const md = !rb.hidden && (isLocal(getSrc()) || getSrc() === "gdrive") ? modOf[files[idx]] : 0;
+  if (md) { const d = new Date(md); rb.textContent = FULL[d.getMonth()] + " " + d.getFullYear() + " / " + String(d.getDate()).padStart(2, "0") + "-" + DAYS[d.getDay()]; }
+  else if (!rb.hidden) { const f = parsed[cur], top = f.n.split("/")[0], kid = f.n.length > top.length ? f.n.slice(top.length + 1).replace(/\//g, " / ") : ""; rb.textContent = kid ? parseFolder(top).t + " / " + kid : f.t; }
   $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
+  if (v !== "grid" && upSelDay) upSelCancel();
   if (v !== "grid" && selMode) { selMode = false; clearSel(); }        // leaving thumbnails turns Select off
   if (!unlocked && selMode) { selMode = false; clearSel(); }
+  $("syncbtn").hidden = !(v === "grid" && isLocal(getSrc()) && !!window.AndroidGDrive);
   const sb = $("selbtn"); sb.hidden = !(unlocked && v === "grid"); sb.classList.toggle("on", selMode); sb.setAttribute("aria-pressed", selMode); sb.disabled = delBusy;
   $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); 
   if (!gDel) $("hint").textContent = v === "grid" ? (gSel.size ? gSel.size + " selected \u00b7 slide to delete" : "tap videos to select") : "slide to delete";
@@ -714,7 +817,7 @@ function makeSlide(name) {                                 // our own player: fi
     + '<button class="vpen" type="button" aria-label="Rename this video"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg></button>'
     + (cutOk ? '<div class="vcw"><button class="vpen vgear" type="button" aria-label="Select video section (cut mode)">' + CROP + '</button>'
       + '<div class="vcg"><button class="vsc s0" type="button" aria-label="Set start point">' + SC1 + SC2 + CHK + '</button>'
-      + '<div class="vcp" hidden><button class="vcre" type="button" aria-label="Reset the end point"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="vtr" type="button" aria-label="Trim out this part and join the rest"><svg viewBox="0 0 24 24"><path d="M4 5v14M20 5v14M9 9l6 6M15 9l-6 6"/></svg></button></div><span class="vcl"></span></div></div>' : '')
+      + '<div class="vcp" hidden><button class="vcre" type="button" aria-label="Reset the end point"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button><button class="vtr" type="button" aria-label="Trim out this part and join the rest"><svg viewBox="0 0 24 24"><path d="M4 5v14M20 5v14M9 9l6 6M15 9l-6 6"/></svg></button></div><span class="vcl"></span><button class="vmu" type="button" aria-label="Save a copy without sound"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zM16 9l5 6M21 9l-5 6"/></svg></button></div></div>' : '')
     + '<div class="vspd"><button class="vsb" type="button" aria-label="Playback speed">1x</button><div class="vsm" hidden>' + SPEEDS.map(r => '<button type="button" data-r="' + r + '">' + r + 'x</button>').join("") + '</div></div></div>'
     + '<div class="vbar"><b class="vt">0:00</b><div class="sk"><i class="bf"></i><i class="pg"></i><u class="kn"></u>' + (cutOk ? '<s class="mr"></s><s class="mk ms"></s><s class="mk me"></s>' : '') + '</div><b class="vd">0:00</b></div>';
   const q = c => s.querySelector(c), v = q("video"), sk = q(".sk"), menu = q(".vsm"), sb = q(".vsb");
@@ -785,6 +888,7 @@ function makeSlide(name) {                                 // our own player: fi
       s._cutPaint();
     };
     q(".vcre").onclick = () => { s._ce = null; s._cutPaint(); v.play().catch(() => {}); };   // end point removed, the video plays on
+    q(".vmu").onclick = () => openCut(imgs.indexOf(v), null, null, "mute");   // sound removed: a new copy with the picture only
     q(".vtr").onclick = () => { if (s._cs != null && s._ce != null) openCut(imgs.indexOf(v), s._cs, s._ce, "trim"); };   // trim: remove start..end, join the two remaining parts
     v.addEventListener("loadedmetadata", () => s._cutPaint());
   }
@@ -804,9 +908,9 @@ function openFolder(i) {
   track.style.transition = "none"; track.style.transform = "";
   note("Loading videos..."); show("view"); fit();
   const ents = (listCache[parsed[i].n] || []).filter(x => x.type === "file" && VID_RE.test(x.name));
-  if (ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));   // by date, like the grid
+  if (ents.some(x => x.mod)) sortByDate(ents);   // by date, like the grid
   else ents.sort((a, b) => nat(a.name, b.name));
-  files = ents.map(x => x.name);
+  files = ents.map(x => x.name); modOf = {}; ents.forEach(x => { modOf[x.name] = x.mod || 0; });
   if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No videos in this folder."); }
   track.innerHTML = ""; cache = []; imgs = [];
   files.forEach(name => makeSlide(name));                    // one player per slide; only the one on screen gets a source
@@ -853,8 +957,23 @@ function toast(a, b) {
   const t = $("toast"); t.firstChild.textContent = a; t.firstChild.style.display = a ? "block" : "none"; t.lastChild.textContent = b;
   t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
 }
+function dayStep(d) {                                      // folders with date folders: ‹ › go to the previous / next date folder (loops through the months)
+  const v = document.body.dataset.v;
+  if (v === "grid" && gUnits.length) {
+    const n = gUnits.length, i = gUnits.findIndex(u => u.isOpen());
+    gUnits[i < 0 ? (d > 0 ? 0 : n - 1) : (i + d + n) % n].go(); return true;
+  }
+  if (v === "view" && (isLocal(getSrc()) || getSrc() === "gdrive") && files.length > GROUP_MIN && files.some(f => modOf[f])) {
+    const key = f => { const m = modOf[f]; if (!m) return -1; const t = new Date(m); return t.getFullYear() * 10000 + t.getMonth() * 100 + t.getDate(); };
+    const starts = []; files.forEach((f, i) => { if (!i || key(f) !== key(files[i - 1])) starts.push(i); });
+    let c = 0; starts.forEach((p, i) => { if (p <= idx) c = i; });
+    place(starts[(c + d + starts.length) % starts.length], false); return true;
+  }
+  return false;
+}
 function step(d) {
-  const j = (cur + d + parsed.length) % parsed.length;
+  if (dayStep(d)) return;
+  const j = navNext(cur, d);
   if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n) + (document.body.dataset.v === "view" ? "&v=1" : ""));
 }
 
@@ -950,7 +1069,7 @@ $("aL").onclick = () => go(-1); $("aR").onclick = () => go(1);
 $("prevF").onclick = () => step(-1); $("nextF").onclick = () => step(1);
 const canGrid = () => document.body.dataset.v === "view" && cur >= 0 && parsed[cur] && !!listCache[parsed[cur].n];
 $("menu").onclick = () => {                                // video -> thumbnails -> folder list
-  if (!canGrid()) { location.hash = ""; return; }
+  if (!canGrid() || !files.length) { location.hash = ""; return; }   // empty folder has no thumbnails: go straight to the folder list
   if (viaGrid === parsed[cur].n) { viaGrid = ""; history.back(); }   // same folder as the grid we came from: just step back
   else location.replace("#f=" + encodeURIComponent(parsed[cur].n));
 };
@@ -982,6 +1101,14 @@ function tryPin() {
 }
 $("pinok").onclick = tryPin;
 $("pin").addEventListener("keydown", e => { if (e.key === "Enter") tryPin(); });
+$("kp").addEventListener("click", e => {                       // on-screen keypad (no phone keyboard)
+  const b = e.target.closest("button[data-k]"); if (!b) return; const p = $("pin"), k = b.dataset.k;
+  if (k === "bs") p.value = p.value.slice(0, -1); else if (p.value.length < 8) p.value += k;
+});
+$("pin").addEventListener("keydown", e => {                      // desktop keyboard still works
+  if (/^[0-9]$/.test(e.key) && $("pin").value.length < 8) $("pin").value += e.key;
+  else if (e.key === "Backspace") $("pin").value = $("pin").value.slice(0, -1);
+});
 
 // permanently delete the video on screen (Cloud: needs the PIN to have Contents: read & write; Phone / SD card: needs the updated Android app)
 async function delVideo(expect) {
@@ -1021,7 +1148,7 @@ function removeSlide(k, folder) {
 $("selbtn").onclick = e => {                               // Select toggle: off = taps open videos; on = taps tick videos + slide bar shows
   e.stopPropagation();
   if (delBusy || !unlocked) return;
-  selMode = !selMode; if (!selMode) clearSel(); updateBar();
+  upSelCancel(); selMode = !selMode; if (!selMode) clearSel(); updateBar();
 };
 function toggleSel(t) {
   const n = t.dataset.n;
@@ -1281,7 +1408,7 @@ function addFavBlocks(g, entries) {                         // favorites first, 
 // ── THUMBNAIL GRID (month groups) ───────────────────────────────────────
 const GROUP_MIN = 30;                                    // folders with more videos than this are grouped by month; a month with more than this many videos also gets day folders inside it (phone / SD card / Google Drive: needs the video date)
 let viaGrid = "";                                          // folder whose grid is the history entry right before the video view
-let gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
+let gUnits = [], gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
 const thWait = new Map();
 window.addEventListener("thumbready", e => {
   const t = String(e.detail).split("\t"), w = thWait.get(t[0]); if (!w) return;
@@ -1309,18 +1436,19 @@ function pump() {                                          // load a few thumbna
 }
 function sortedEnts(list) {                                // same order as the video viewer
   const ents = list.filter(x => x.type === "file" && /\.(mp4|m4v|webm|3gp|mov|mkv)$/i.test(x.name));
-  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) ents.sort((a, b) => (LOCAL_NEWEST_FIRST ? b.mod - a.mod : a.mod - b.mod) || nat(a.name, b.name));
+  if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) sortByDate(ents);
   else ents.sort((a, b) => nat(a.name, b.name));
   return ents;
 }
-function setGroup(h, open) { h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
+function setGroup(h, open) { if (!open && upSelDay && upSelDay.dh === h) upSelCancel(); h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
 function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
 function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function buildGrid(folder, ents) {
-  gGen++; gFolder = folder; gQ = []; gBusy = 0;
+  gGen++; gFolder = folder; gQ = []; gBusy = 0; gUnits = []; gBadges = [];
   if (gObs) gObs.disconnect();
   gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
+  upSelCancel();
   const box = $("gbox"); box.innerHTML = ""; gSel.clear();
   gObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { gObs.unobserve(en.target); gQ.push(en.target); pump(); } }), {root: box, rootMargin: "500px 0px"});
   const byMonth = ents.length > GROUP_MIN && ents.some(x => x.mod);
@@ -1335,7 +1463,9 @@ function buildGrid(folder, ents) {
     const im = document.createElement("img"); im.alt = ""; im.draggable = false; b.appendChild(im);
     grid.appendChild(b); gObs.observe(b);
   };
-  const jump = (h, offset) => box.scrollTop += h._g.getBoundingClientRect().top - box.getBoundingClientRect().top - offset - h.offsetHeight;
+  const setGh = () => box.style.setProperty("--gh", Math.max(150, box.clientHeight - 38 - 34 - 46) + "px");   // open day = scroll box down to the screen bottom, leaving the next date / month header peeking
+  setGh(); if (!window._ghOn) { window._ghOn = 1; addEventListener("resize", () => { const b = $("gbox"); b.style.setProperty("--gh", Math.max(150, b.clientHeight - 38 - 34 - 46) + "px"); }); }
+  const jump = (h, offset) => { setGh(); box.scrollTo({top: box.scrollTop + h._g.getBoundingClientRect().top - box.getBoundingClientRect().top - offset - h.offsetHeight, behavior: "smooth"}); };
   if (!byMonth) {
     const g = mkGrid(); box.appendChild(g); ents.forEach((x, k) => addTh(g, x, k));
   } else {
@@ -1360,8 +1490,15 @@ function buildGrid(folder, ents) {
           const dd = byDay[n], gr = mkGrid(); gr._mh = mh;
           const dh = mkHead("gd", n + " \u00b7 " + DAYS[dd.d.getDay()], dd.items.length, gr, di === 0);   // the first (newest) day open
           dh.onclick = () => { if (dh.classList.contains("open")) return setGroup(dh, false); openDay(dh); jump(dh, 38); };
+          if (isLocal(getSrc())) {                         // cloud button: upload this date folder to Google Drive (does not fold / unfold the row)
+            const cl = document.createElement("b"); cl.className = "cl"; cl.setAttribute("role", "button"); cl.setAttribute("aria-label", "Upload this day to Google Drive"); cl.innerHTML = CLOUD_ICO;
+            cl.onclick = e => { e.stopPropagation(); e.preventDefault(); upSelToggle(folder, dd, dh, cl); };
+            const pk = document.createElement("b"); pk.className = "pk"; pk.hidden = true; dh.insertBefore(pk, dh.lastChild); gBadges.push({key: pkKey(getSrc(), folder, dd.d), el: pk, dd});
+            dh.insertBefore(cl, dh.lastChild);
+          }
           wrap.appendChild(dh); wrap.appendChild(gr);
           dd.items.forEach(it => addTh(gr, it.x, it.k));
+          gUnits.push({k: dd.items[0].k, isOpen: () => mh.classList.contains("open") && dh.classList.contains("open"), go: () => { if (!mh.classList.contains("open")) openGroup(mh); openDay(dh); jump(dh, 38); }});
         });
       } else {                                             // videos with no date: one "No date" folder
         const gr = mkGrid(), mh = mkHead("gm", "No date", g.items.length, gr, open);
@@ -1369,11 +1506,14 @@ function buildGrid(folder, ents) {
         const wrap = document.createElement("div"); wrap.className = "gw"; wrap.appendChild(gr); mh._g = wrap; gr._mh = mh; wrap.classList.toggle("off", !open); gr.classList.remove("off");
         bx.appendChild(mh); bx.appendChild(wrap);
         g.items.forEach(it => addTh(gr, it.x, it.k));
+        gUnits.push({k: g.items[0].k, isOpen: () => mh.classList.contains("open"), go: () => { openGroup(mh); jump(mh, 0); }});
       }
     });
   }
+  picksPaint();
   box.onclick = e => {
     const t = e.target.closest(".th"); if (!t) return;
+    if (upSelDay) { upSelTap(t); return; }                       // choosing videos to upload: tap ticks / unticks, nothing plays
     if (unlocked && selMode) { if (!delBusy) toggleSel(t); return; }   // Select is on: tapping ticks / unticks the video (otherwise the video opens)
     gScroll = box.scrollTop; startAt = +t.dataset.k; viaGrid = gFolder; location.hash = "f=" + encodeURIComponent(gFolder) + "&v=1";
   };
@@ -1383,7 +1523,7 @@ function showGrid(i) {
   ++ticket; freeUrls(); resetZoom(); cur = i; setLast(parsed[i].n);
   const f = parsed[i], ents = sortedEnts(listCache[f.n] || []);
   if (!ents.length) return openFolder(i);                  // empty: the viewer shows "No videos"
-  const sig = getSrc() + "|" + f.n + "|" + ents.length;
+  const sig = getSrc() + "|" + f.n + "|" + ents.length + "|" + exifGen;
   show("grid");
   $("gtit").textContent = f.t; $("gcnt").textContent = ents.length + (ents.length === 1 ? " video" : " videos");
   const box = $("gbox");
@@ -1406,6 +1546,7 @@ async function route() {
   if (!m) { ++ticket; freeUrls(); cur = -1; show("list"); renderList(); $("box").scrollTop = savedScroll; return; }
   const i = parsed.findIndex(f => f.n === decodeURIComponent(m[1]));
   if (i < 0) { location.hash = ""; return; }
+  if (isLocal(src) && !(await exifFolder(parsed[i].n))) return;   // phone / SD: read the video dates first (only the first time)
   if (m[2] || !listCache[parsed[i].n]) return openFolder(i);      // video view (or list not known yet: old behaviour)
   showGrid(i);
 }
@@ -1415,7 +1556,7 @@ route();
 // ── UPLOAD (gear panel) ─────────────────────────────────────────────────
 // Pick videos from the gallery -> choose / create a folder inside an album -> sent to Google Drive exactly as they are (in 8 MB pieces, retried on a bad connection)
 const PLUS = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"/></svg>', BACK = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-let upFiles = [], upBusy = false, upStop = false, upNew = false;
+let upFiles = [], upBusy = false, upStop = false, upNew = false, upAbort = null;
 const fmtSize = n => n >= 1073741824 ? (n / 1073741824).toFixed(1) + " GB" : Math.max(1, Math.round(n / 1048576)) + " MB";
 const folderNames = f => (listCache[f] || []).filter(x => x.type === "file").map(x => x.name);
 const takenSet = folder => new Set(folderNames(folder).map(n => n.toLowerCase()));
@@ -1423,7 +1564,7 @@ const uniqName = (name, taken) => { let n = name, k = 1; const i = name.lastInde
 const today = () => { const d = new Date(); return d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0") + " "; };
 const destFolder = () => upNew ? $("unew").value.trim().replace(/\\/g, "/").replace(/\/+/g, "/").replace(/^\/|\/$/g, "") : $("ufold").value;
 const upErr = t => { $("uerr").textContent = t || ""; };
-const upLock = on => { ["ufold", "unew", "unewb"].forEach(i => $(i).disabled = on); };
+const upLock = on => { ["ufold", "ualb", "unew", "unewb"].forEach(i => $(i).disabled = on); };
 function upFolderChanged(focus) {
   $("ufold").hidden = upNew; $("unew").hidden = !upNew;
   $("unewb").innerHTML = upNew ? BACK : PLUS; $("unewb").setAttribute("aria-label", upNew ? "Choose an existing folder" : "New folder");
@@ -1433,6 +1574,7 @@ function upFolderChanged(focus) {
   if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
 }
 function openUpload(files) {
+  $("unewb").hidden = false; $("ualb").hidden = true;
   upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest first
   const sel = $("ufold"); sel.innerHTML = "";
   parsed.forEach(f => { const o = document.createElement("option"); o.value = f.n; o.textContent = f.n.replace(/\//g, " / "); sel.appendChild(o); });
@@ -1451,8 +1593,8 @@ $("upl").onclick = () => { closePanel(); $("ufile").click(); };
 $("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^video\//.test(f.type) || VID_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
 $("ufold").onchange = () => upFolderChanged();
 $("unewb").onclick = () => { upNew = !upNew; upFolderChanged(true); };
-$("unew").oninput = () => upErr();
-$("ucancel").onclick = () => { if (upBusy) { upStop = true; $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
+$("unew").oninput = () => { upErr(); const a = gdAlbumOf($("unew").value); if (a && !$("ualb").hidden) $("ualb").value = a; };
+$("ucancel").onclick = () => { if (upBusy) { upStop = true; if (upAbort) upAbort.abort(); $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) closeUpload(); });
 $("ugo").onclick = () => {
   if (upBusy) return;
@@ -1461,18 +1603,103 @@ $("ugo").onclick = () => {
   if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
   uploadDrive(folder);
 };
+function upSelRender() {
+  const d = upSelDay; if (!d) { $("upbar").hidden = true; return; }
+  const src = getSrc(); let bytes = 0; d.dd.items.forEach(it => { if (upSel.has(it.k)) bytes += LSIZE[src + "|" + d.folder + "/" + it.x.name] || 0; });
+  $("upbar").hidden = false;
+  $("upn").textContent = upSel.size ? upSel.size + " of " + d.dd.items.length + " \u00b7 " + fmtSize(bytes) : "Tap videos to upload";
+  $("upall").textContent = upSel.size === d.dd.items.length ? "None" : "All";
+}
+function upSelCancel() {
+  if (!upSelDay) return;
+  upSelDay.cl.classList.remove("on"); upSelDay = null; upSel.clear();
+  $("gbox").querySelectorAll(".th.usel").forEach(x => x.classList.remove("usel"));
+  upSelRender();
+}
+function upSelToggle(folder, dd, dh, cl) {                   // tap the cloud: start choosing for this date; tap it again to cancel
+  if (upBusy) return toast("", "An upload is already running");
+  if (upSelDay && upSelDay.dh === dh) return upSelCancel();
+  upSelCancel(); if (selMode) { selMode = false; clearSel(); updateBar(); }
+  upSelDay = {folder, dd, dh, cl}; cl.classList.add("on"); upSelRender();
+}
+function upSelTap(t) {
+  const d = upSelDay, k = +t.dataset.k; if (!d || !d.dd.items.some(it => it.k === k)) return;   // only the videos of the chosen date
+  if (upSel.has(k)) { upSel.delete(k); t.classList.remove("usel"); } else { upSel.add(k); t.classList.add("usel"); }
+  upSelRender();
+}
+$("upall").onclick = () => {
+  const d = upSelDay; if (!d) return; const all = upSel.size !== d.dd.items.length;
+  upSel.clear(); d.dd.items.forEach(it => { if (all) upSel.add(it.k); });
+  d.dh._g.querySelectorAll(".th").forEach(x => x.classList.toggle("usel", all)); upSelRender();
+};
+$("upx").onclick = upSelCancel;
+$("upgo").onclick = () => {
+  const d = upSelDay; if (!d) return;
+  if (!upSel.size) return toast("", "Tap the videos to upload first");
+  dayUpload(d.folder, {d: d.dd.d, items: d.dd.items.filter(it => upSel.has(it.k))});
+};
+const PK_KEY = "picksSavedV1"; let PICKS = {}, gBadges = [];     // "picks saved": which photos / videos of a date were sent to Drive (remembered on this phone)
+try { PICKS = JSON.parse(localStorage.getItem(PK_KEY) || "{}") || {}; } catch (e) { PICKS = {}; }
+const pkKey = (src, folder, d) => src + "|" + folder + "|" + d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0");
+function picksAdd(k, name) { (PICKS[k] = PICKS[k] || {})[name] = 1; try { localStorage.setItem(PK_KEY, JSON.stringify(PICKS)); } catch (e) {} }
+function picksPaint() {                                    // compact badge on a date row: star + tick + how many picks went up
+  gBadges.forEach(b => { const set = PICKS[b.key] || {}, n = b.dd.items.filter(it => set[it.x.name]).length; b.el.hidden = !n; b.el.textContent = "\u2605\u2713 " + n; });
+}
+async function picksSync() {                              // mark what is already on Drive: same file name + same size as a video in the open folder
+  const folder = gFolder, src = getSrc(), b = $("syncbtn");
+  if (!folder || !isLocal(src) || b.disabled) return;
+  b.disabled = true; b.textContent = "Syncing\u2026";
+  try {
+    const files = await gdList("trashed=false and mimeType contains 'video/'", "name,size");
+    const have = new Set(files.map(x => String(x.name).toLowerCase() + "|" + (+x.size || 0)));
+    let n = 0;
+    (listCache[folder] || []).forEach(e => {
+      if (e.type !== "file" || !e.mod) return;
+      if (!have.has(e.name.toLowerCase() + "|" + (LSIZE[src + "|" + folder + "/" + e.name] || 0))) return;
+      const k = pkKey(src, folder, new Date(e.mod));
+      if (!(PICKS[k] && PICKS[k][e.name])) { picksAdd(k, e.name); n++; }
+    });
+    picksPaint(); toast("", n ? "Marked " + n + (n === 1 ? " video" : " videos") + " already on Drive" : "Nothing new to mark");
+  } catch (e) { toast("", gdMsg(e)); }
+  b.disabled = false; b.textContent = "\u2605 Sync";
+}
+$("syncbtn").onclick = picksSync;
+const CLOUD_ICO = '<svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.7-7.9A6 6 0 0 1 17.9 9.2 4.5 4.5 0 0 1 17.5 18"/><path d="M12 21v-8M9 15.5l3-3 3 3"/></svg>';
+function dayUpload(folder, dd) {                           // phone / SD date folder -> Google Drive, e.g. Family/2026 10 31 (the name can be edited before Upload)
+  if (upBusy) return toast("", "An upload is already running");
+  if (!window.AndroidVideo || !window.AndroidGDrive) return toast("", "Upload works only inside the Android app");
+  const src = getSrc(), base = AndroidVideo.base();
+  const files = dd.items.map(it => {
+    const path = folder + "/" + it.x.name, ext = it.x.name.split(".").pop().toLowerCase();
+    return {name: it.x.name, size: LSIZE[src + "|" + path] || 0, lastModified: it.x.mod || 0, type: MIME[ext] || "video/mp4", lazy: true, pk: pkKey(src, folder, dd.d),
+      slice: (a, b) => fetch(base + "/l?s=" + src + "&p=" + encodeURIComponent(path), {headers: {Range: "bytes=" + a + "-" + (b - 1)}}).then(r => { if (r.status !== 206 && r.status !== 200) throw new Error("HTTP " + r.status); return r.blob(); }).catch(e => { const er = new Error("phone:Could not read the video from the phone (" + ((e && e.message) || e) + "). Update the app and try again."); er.phone = 1; throw er; })};   // read from the phone piece by piece, never the whole video in memory
+  });
+  openUpload(files);
+  const d = dd.d, dest = GD_ALBUMS[0] + "/" + d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0");
+  let alb = GD_ALBUMS[0]; try { const l = localStorage.getItem("upAlbum"); if (GD_ALBUMS.includes(l)) alb = l; } catch (e) {}   // the album you used last time
+  const sel = $("ualb"); sel.innerHTML = ""; GD_ALBUMS.forEach(a => { const o = document.createElement("option"); o.value = o.textContent = a; sel.appendChild(o); });
+  sel.value = alb; sel.hidden = false;
+  upNew = true; $("unewb").hidden = true; $("unew").value = alb + dest.slice(GD_ALBUMS[0].length); upFolderChanged();
+}
+$("ualb").onchange = () => {                               // changing the album rewrites the first part of the folder name
+  const a = $("ualb").value, rest = $("unew").value.split("/").slice(1).join("/");
+  $("unew").value = a + (rest ? "/" + rest : "/"); upErr();
+  try { localStorage.setItem("upAlbum", a); } catch (e) {}
+};
 async function gdUploadBig(file, name, parentId, onProg) {   // resumable: 8 MB at a time (a multiple of 256 KB), each piece retried up to 3 times
   const ext = extOf(file), mime = /^video\//.test(file.type || "") ? file.type : (MIME[ext] || "video/mp4");
   const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
-  const r0 = await gdFetch(GD_UP + "?uploadType=resumable&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": mime, "X-Upload-Content-Length": String(file.size)}, body: JSON.stringify(meta)});
+  const r0 = await gdFetch(GD_UP + "?uploadType=resumable&fields=id,thumbnailLink", {method: "POST", headers: {"Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": mime, "X-Upload-Content-Length": String(file.size)}, body: JSON.stringify(meta), signal: upAbort && upAbort.signal});
   if (!r0.ok) throw new Error("HTTP " + r0.status);
-  const loc = r0.headers.get("Location"); if (!loc) return gdUpload(file, name, parentId, ext);   // browser could not read the address: one-shot upload instead
+  const loc = r0.headers.get("Location"); if (!loc) { if (file.lazy) throw new Error("Drive did not give an upload address"); return gdUpload(file, name, parentId, ext); }   // browser could not read the address: one-shot upload instead
   const CH = 8 * 1048576; let pos = 0;
+  const stopUp = () => { try { fetch(loc, {method: "DELETE"}).catch(() => {}); } catch (x) {} const e = new Error("stopped"); e.name = "AbortError"; return e; };   // Stop: cancel the upload on Drive too, so nothing is left half-sent
   while (pos < file.size) {
+    if (upStop) throw stopUp();
     const end = Math.min(pos + CH, file.size); let r, tries = 0;
     for (;;) {
-      try { r = await fetch(loc, {method: "PUT", headers: {"Content-Range": "bytes " + pos + "-" + (end - 1) + "/" + file.size}, body: file.slice(pos, end)}); break; }
-      catch (e) { if (pos === 0 && tries === 0 && e && e.name === "TypeError") return gdUpload(file, name, parentId, ext); if (++tries > 3) throw e; await new Promise(w => setTimeout(w, 1500 * tries)); }
+      try { r = await fetch(loc, {method: "PUT", headers: {"Content-Range": "bytes " + pos + "-" + (end - 1) + "/" + file.size}, body: await file.slice(pos, end), signal: upAbort && upAbort.signal}); break; }
+      catch (e) { if (e && e.phone) throw e; if (upStop || (e && e.name === "AbortError")) throw stopUp(); if (pos === 0 && tries === 0 && e && e.name === "TypeError" && !file.lazy) return gdUpload(file, name, parentId, ext); if (++tries > 3) throw e; await new Promise(w => setTimeout(w, 1500 * tries)); }
     }
     if (r.status === 200 || r.status === 201) return r.json();
     if (r.status !== 308) throw new Error("HTTP " + r.status);
@@ -1484,13 +1711,13 @@ async function uploadDrive(folder) {
   const first = folder.split("/")[0], alb = gdAlbumOf(first);
   if (!alb) return upErr("Start with " + GD_ALBUMS.join(", ") + ", e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa");
   folder = alb + folder.slice(first.length);
-  upErr(); upBusy = true; upStop = false; upLock(true);
+  upErr(); upBusy = true; upStop = false; upAbort = new AbortController(); upLock(true);
   $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
   const total = upFiles.length;
   let ok = 0, bad = 0, msg = "", pid = "", taken = null;
   try {
     pid = await gdEnsure(folder);
-    taken = takenSet(folder);                              // also skip names already in this Drive folder
+    taken = getSrc() === "gdrive" ? takenSet(folder) : new Set();   // also skip names already in this Drive folder
     (await gdList("'" + pid + "' in parents and trashed=false", "name")).forEach(x => taken.add(String(x.name).toLowerCase()));
   } catch (e) { msg = gdMsg(e); bad = total; pid = ""; }
   for (let i = 0; pid && i < total && !upStop; i++) {
@@ -1500,6 +1727,7 @@ async function uploadDrive(folder) {
     const name = uniqName(f.name, taken);
     try {
       const j = await gdUploadBig(f, name, pid, p => { $("ust").textContent = label + " \u00b7 " + p + "%"; $("ubar").firstChild.style.width = Math.round((i + p / 100) / total * 100) + "%"; }), th = j.thumbnailLink || "";
+      if (getSrc() === "gdrive") {                         // only when browsing Drive: add the new video to the lists
       if (!listCache[folder]) listCache[folder] = [];
       if (!parsed.some(x => x.n === folder)) {              // brand-new folder: add it to the list
         const keep = cur >= 0 && parsed[cur] ? parsed[cur].n : null;
@@ -1507,14 +1735,16 @@ async function uploadDrive(folder) {
         if (keep) cur = parsed.findIndex(x => x.n === keep);
       }
       listCache[folder].push({name, type: "file", sha: "", id: j.id, thumb: th, mod: f.lastModified || Date.now()}); GDI[folder + "/" + name] = {id: j.id, thumb: th};
+      }
+      if (f.pk) picksAdd(f.pk, f.name);
       ok++;
-    } catch (e) { msg = gdMsg(e); bad += total - i; break; }
+    } catch (e) { if (upStop) break; msg = gdMsg(e); bad += total - i; break; }
   }
-  upBusy = false;
+  upBusy = false; upAbort = null; upLock(false); picksPaint();   // stopped or finished: release the folder buttons
   $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
   if (document.body.dataset.v === "list") renderList();
   updateBar();
-  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; toast("", "Uploaded " + ok + (ok === 1 ? " video" : " videos") + " to " + folder.replace(/\//g, " / ")); return; }
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; upSelCancel(); toast("", "Uploaded " + ok + (ok === 1 ? " video" : " videos") + " to " + folder.replace(/\//g, " / ")); return; }
   $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
   upErr(msg || (bad && !upStop ? "Some videos could not be uploaded." : ""));
   $("ucancel").disabled = false; $("ucancel").textContent = "Close";
@@ -1541,7 +1771,7 @@ function openRename(k) {
   $("rgo").disabled = false; $("rcancel").disabled = false; $("rn").hidden = false;
   setTimeout(() => { const i = $("rname"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 150);
 }
-const closeRename = () => { if ($("rgo").disabled && /^(Renaming|Cutting|Trimming)\.\.\.$/.test($("rerr").textContent)) return; $("rn").hidden = true; renK = -1; cutSel = null; };
+const closeRename = () => { if ($("rgo").disabled && /^(Renaming|Cutting|Trimming|Removing sound)\.\.\.$/.test($("rerr").textContent)) return; $("rn").hidden = true; renK = -1; cutSel = null; };
 async function doRename() {
   const k = renK, old = files[k]; if (k < 0 || !old) return;
   const folder = parsed[cur].n, src = getSrc(), ext = extPart(old), err = t => { $("rerr").textContent = t; };
@@ -1570,13 +1800,13 @@ async function doRename() {
   $("rgo").disabled = false; $("rcancel").disabled = false; closeRename(); toast("", "Renamed");
 }
 function openCut(k, a, b, mode) {                               // Cut icon tapped: ask for the name of the new clip, starting from the video's own date
-  const name = files[k]; if (!name || a == null || b == null) return;
+  const name = files[k]; if (!name || (mode !== "mute" && (a == null || b == null))) return;
   const folder = parsed[cur].n, src = getSrc(), ext = /\.webm$/i.test(name) ? ".webm" : ".mp4", base = name.slice(0, name.length - extPart(name).length);
-  cutSel = {k, a, b, ext, trim: mode === "trim"}; renK = -1; rnMode = "cut"; $("rtitle").textContent = mode === "trim" ? "Save without this part" : "Save the cut";
+  cutSel = {k, a, b, ext, trim: mode === "trim", mute: mode === "mute"}; renK = -1; rnMode = "cut"; $("rtitle").textContent = mode === "mute" ? "Save without sound" : mode === "trim" ? "Save without this part" : "Save the cut";
   let st = (base.match(/^\d{4} \d{2} \d{2} \d{4}/) || [""])[0];
   if (!st && window.AndroidSd && typeof AndroidSd.recorded === "function") { try { st = AndroidSd.recorded(src, folder + "/" + name) || ""; } catch (e) {} }
   if (!st) { const ent = (listCache[folder] || []).find(x => x.name === name); if (ent && ent.mod) st = stampOf(ent.mod); }
-  $("rnow").textContent = (mode === "trim" ? "Remove " : "Part ") + fmtT(a) + " \u2013 " + fmtT(b) + " (" + fmtT(b - a) + ") of " + name + (mode === "trim" ? ", the rest is joined together. The original stays as it is." : ". The original stays as it is.");
+  $("rnow").textContent = mode === "mute" ? "A copy of " + name + " with the picture only, no sound. The original stays as it is." : (mode === "trim" ? "Remove " : "Part ") + fmtT(a) + " \u2013 " + fmtT(b) + " (" + fmtT(b - a) + ") of " + name + (mode === "trim" ? ", the rest is joined together. The original stays as it is." : ". The original stays as it is.");
   $("rext").textContent = ext; $("rname").value = st ? st + " " : ""; $("rerr").textContent = "";
   $("rgo").disabled = false; $("rcancel").disabled = false; $("rn").hidden = false;
   setTimeout(() => { const i = $("rname"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 150);
@@ -1589,14 +1819,14 @@ async function doCut() {
   if (/[\\\/:*?"<>|]/.test(base) || base.startsWith(".")) return err('A name cannot have \\ / : * ? " < > | or start with a dot.');
   const name = base + c.ext;
   if (files.some(f => f.toLowerCase() === name.toLowerCase())) return err("A video with this name already exists here.");
-  $("rgo").disabled = true; $("rcancel").disabled = true; err(c.trim ? "Trimming..." : "Cutting...");
+  $("rgo").disabled = true; $("rcancel").disabled = true; err(c.mute ? "Removing sound..." : c.trim ? "Trimming..." : "Cutting...");
   try {
-    const res = await new Promise(ok => { const h = e => { window.removeEventListener("videocut", h); ok(String(e.detail).split("\t")); }; window.addEventListener("videocut", h); if (c.trim) { if (typeof AndroidSd.trimVideo !== "function") { ok(["fail", "Update the app to trim videos"]); return; } AndroidSd.trimVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); } else AndroidSd.cutVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); });
+    const res = await new Promise(ok => { const h = e => { window.removeEventListener("videocut", h); ok(String(e.detail).split("\t")); }; window.addEventListener("videocut", h); if (c.mute) { if (typeof AndroidSd.muteVideo !== "function") { ok(["fail", "Update the app to remove sound"]); return; } AndroidSd.muteVideo(src, folder + "/" + old, name); } else if (c.trim) { if (typeof AndroidSd.trimVideo !== "function") { ok(["fail", "Update the app to trim videos"]); return; } AndroidSd.trimVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); } else AndroidSd.cutVideo(src, folder + "/" + old, Math.round(c.a * 1000), Math.round(c.b * 1000), name); });
     if (res[0] !== "ok") throw new Error(res[1] || "failed");
     (listCache[folder] = listCache[folder] || []).push({name: res[1] || name, type: "file", sha: "", mod: Date.now()}); gSig = "";
     const sl = track.children[c.k]; if (sl) { sl._cs = sl._ce = null; if (sl._cutPaint) sl._cutPaint(); }
     $("rgo").disabled = false; $("rcancel").disabled = false; err(""); closeRename(); toast("", "Saved " + (res[1] || name));
-  } catch (e) { $("rgo").disabled = false; $("rcancel").disabled = false; err("Could not cut: " + (e.message || e)); }
+  } catch (e) { $("rgo").disabled = false; $("rcancel").disabled = false; err((c.mute ? "Could not save: " : "Could not cut: ") + (e.message || e)); }
 }
 $("rcancel").onclick = closeRename;
 $("rgo").onclick = () => rnMode === "cut" ? doCut() : doRename();

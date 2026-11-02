@@ -1,0 +1,107 @@
+<!-- Topic page: image gallery for a repo folder. Needs no changes to the base page. -->
+<style>
+#dg-root { max-width: 1100px; margin: 0 auto; }
+#dg-stage { position: relative; display: flex; align-items: center; justify-content: center;
+  min-height: 220px; background: #fff; border: 1px solid #e3dccb; border-radius: 8px; padding: 10px; }
+#dg-stage img.dg-img { max-width: 100%; max-height: calc(100vh - 260px); min-height: 120px;
+  object-fit: contain; display: block; border-radius: 4px; }
+.dg-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+  border-radius: 50%; border: 1px solid #cfc6b0; background: #faf8f4ee; color: #4a3f28;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+.dg-nav:hover { background: #fff; border-color: #a1521f; color: #a1521f; }
+.dg-nav:focus-visible { outline: 2px solid #a1521f; outline-offset: 2px; }
+.dg-nav svg { width: 20px; height: 20px; }
+#dg-prev { left: 12px; } #dg-next { right: 12px; }
+#dg-bar { display: flex; justify-content: space-between; gap: 16px; margin-top: 10px;
+  font-size: 14px; color: #6b5f45; }
+#dg-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#dg-name a { color: inherit; }
+#dg-count { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+#dg-msg { color: #8a7a5a; padding: 10px 0; }
+#dg-msg.err { color: #b5432f; }
+</style>
+
+<div id="dg-root">
+  <div id="dg-msg">Loading diagrams…</div>
+  <div id="dg-stage" hidden>
+    <button class="dg-nav" id="dg-prev" aria-label="Previous image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <img class="dg-img" id="dg-img" alt="">
+    <button class="dg-nav" id="dg-next" aria-label="Next image">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div id="dg-bar" hidden><span id="dg-name"></span><span id="dg-count"></span></div>
+</div>
+
+<script type="text/plain" id="dg-code">
+(function () {
+  // ── CONFIG ─────────────────────────────────────────────
+  // Folder of images, relative to the site root (the folder that holds index.html).
+  var DIR = "subjects/tech/confidential-computing/diagrams/";
+  // Where the site root sits inside the repo (Pages serving from /docs => "docs/").
+  var REPO_PREFIX = "docs/";
+  // Leave blank to auto-detect from  https://<owner>.github.io/<repo>/
+  var OWNER = "", REPO = "";
+  // ───────────────────────────────────────────────────────
+  var EXT = /\.(png|jpe?g|gif|webp|svg)$/i;
+  var $ = function (id) { return document.getElementById(id); };
+  var msg = $("dg-msg"), stage = $("dg-stage"), bar = $("dg-bar"), img = $("dg-img");
+  var files = [], i = 0;
+
+  function fail(t) { msg.textContent = t; msg.className = "err"; msg.hidden = false; stage.hidden = bar.hidden = true; }
+
+  var host = location.hostname;
+  if (!OWNER && /\.github\.io$/.test(host)) {
+    OWNER = host.split(".")[0];
+    var seg = location.pathname.split("/")[1];
+    REPO = REPO || (seg && seg.indexOf(".") < 0 ? seg : host);
+  }
+  if (!OWNER || !REPO) { fail("Set OWNER and REPO at the top of diagrams.html (could not detect them from this URL)."); return; }
+
+  var apiPath = (REPO_PREFIX + DIR).replace(/\/+$/, "").split("/").map(encodeURIComponent).join("/");
+  var api = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + apiPath;
+
+  fetch(api)
+    .then(function (r) {
+      if (r.status === 404) throw new Error("Folder not found in repo: " + REPO_PREFIX + DIR);
+      if (r.status === 403) throw new Error("GitHub API rate limit hit (60/hour per visitor). Try again later.");
+      if (!r.ok) throw new Error("GitHub API error " + r.status);
+      return r.json();
+    })
+    .then(function (list) {
+      files = list.filter(function (f) { return f.type === "file" && EXT.test(f.name); })
+                  .map(function (f) { return f.name; })
+                  .sort(function (a, b) { return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }); });
+      if (!files.length) { fail("No images found in " + DIR); return; }
+      msg.hidden = true; stage.hidden = bar.hidden = false;
+      show(0);
+    })
+    .catch(function (e) { fail(e.message); });
+
+  function url(n) { return DIR + encodeURIComponent(files[n]); }
+
+  function show(n) {
+    i = (n + files.length) % files.length;           // loops both ways
+    img.alt = files[i];
+    img.src = url(i);
+    $("dg-name").innerHTML = "";
+    var a = document.createElement("a");
+    a.href = url(i); a.target = "_blank"; a.rel = "noopener"; a.textContent = files[i]; a.title = "Open full size";
+    $("dg-name").appendChild(a);
+    $("dg-count").textContent = (i + 1) + " / " + files.length;
+    if (files.length > 1) { new Image().src = url((i + 1) % files.length); }   // preload next
+  }
+
+  img.onerror = function () { $("dg-name").textContent = files[i] + " — not published yet? (GitHub Pages can take a minute after a push)"; };
+  $("dg-prev").onclick = function () { show(i - 1); };
+  $("dg-next").onclick = function () { show(i + 1); };
+})();
+</script>
+
+<!-- The base page injects topics with innerHTML, which won't run <script> tags.
+     This 1px image's onload does run, and starts the code above. -->
+<img alt="" width="1" height="1" style="position:absolute;opacity:0;pointer-events:none"
+  src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+  onload="this.remove();(0,eval)(document.getElementById('dg-code').textContent)">

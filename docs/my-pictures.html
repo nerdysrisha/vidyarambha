@@ -50,6 +50,8 @@ body[data-v=grid] footer #info{display:none}
 #gright{display:flex;align-items:center;gap:10px;flex:none}
 #selbtn{min-width:0;height:30px;padding:0 14px;border-radius:15px;font-size:12px;font-weight:600;color:var(--mute)}
 #selbtn[hidden]{display:none}
+#syncbtn{min-width:0;height:30px;padding:0 12px;border-radius:15px;font-size:12px;font-weight:600;color:var(--accent);margin-right:6px}
+#syncbtn[hidden]{display:none}
 #selbtn.on{border-color:#e5484d;color:#ff8f8f;background:rgba(229,72,77,.18)}
 #gbox{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:0 4px}
 .gm{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;width:100%;height:38px;margin:0;padding:0 12px;border-radius:0 0 10px 10px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:13px;font-weight:600;text-align:left}
@@ -71,6 +73,21 @@ body[data-v=grid] footer #info{display:none}
 .gd{position:sticky;top:38px;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:34px;margin:0;padding:0 10px;border-radius:0 0 8px 8px;border-width:0 0 1px;background:rgba(var(--panel-rgb),.96);font-size:12.5px;font-weight:600;text-align:left}
 .gd em{font-style:normal;color:var(--mute);font-size:11px;font-weight:600;margin-left:auto;margin-right:10px}
 .gd i{font-style:normal;color:var(--mute);transition:transform .45s}
+.gd b.cl{display:none;place-items:center;flex:none;width:28px;height:28px;margin-right:8px;border-radius:50%;border:1px solid var(--line);color:var(--accent)}
+.gd.open b.cl{display:grid}
+.gd b.cl svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gd b.cl:active{background:var(--line)}
+.gd b.pk{flex:none;margin-right:8px;font-size:11.5px;font-weight:700;letter-spacing:.2px;color:var(--accent);white-space:nowrap}
+.gd b.pk[hidden]{display:none}
+.gd b.cl.on{background:var(--accent);color:#000;border-color:var(--accent)}
+#upbar{display:flex;align-items:center;gap:6px;padding:6px 4px;font-size:12.5px;font-weight:600}
+#upbar[hidden]{display:none}
+#upn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--accent)}
+#upbar button{min-width:0;height:34px;padding:0 12px;font-size:12.5px;border-radius:10px}
+#upgo{border-color:var(--accent);color:var(--accent);font-weight:700}
+.th.usel{outline:2px solid var(--accent);outline-offset:-2px}
+.th.usel img.on{opacity:.6}
+.th.usel::after{content:"\2713";position:absolute;top:5px;left:5px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:700;line-height:20px;text-align:center}
 .gd.open i{transform:rotate(90deg)}
 @media (min-width:520px){.gg{grid-template-columns:repeat(4,1fr)}}
 .th{position:relative;aspect-ratio:1;height:auto;min-width:0;padding:0;border:0;border-radius:6px;overflow:hidden;background:var(--panel)}
@@ -264,7 +281,7 @@ body{-webkit-touch-callout:none}
 <div id="app">
   <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><span class="tr"><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
-  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="gbox"></div></div>
+  <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="syncbtn" type="button" hidden>★ Sync</button><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="upbar" hidden><span id="upn"></span><button id="upall" type="button">All</button><button id="upx" type="button">Cancel</button><button id="upgo" type="button">Upload</button></div><div id="gbox"></div></div>
   <div id="login">
     <h2>Enter 4 Digits PIN</h2>
     <p>Saved only in this browser on this device.</p>
@@ -321,6 +338,7 @@ body{-webkit-touch-callout:none}
   <p id="usum"></p>
   <div id="ufrow"><span>Folder</span><button id="unewb" type="button" aria-label="New folder"></button></div>
   <select id="ufold"></select>
+  <select id="ualb" aria-label="Album" hidden></select>
   <input id="unew" type="text" placeholder="Folder name (use / for a sub-folder)" autocomplete="off" autocapitalize="off" hidden>
   <label>First file name<input id="uname" type="text" autocomplete="off" autocapitalize="off"></label>
   <small id="uprev"></small>
@@ -561,7 +579,7 @@ const gdSort = () => parsed.sort((a, b) => gdRank(a.n) - gdRank(b.n) || ((a.n.in
 const GDI = {};                                            // "folder/photo.jpg" -> {id, thumb}
 let gdTok = "", gdExp = 0, gdPend = null, gdRootId = "", gdFolderIds = {};
 const extOf = f => !f ? "" : ((f.name.indexOf(".") > 0 ? f.name.split(".").pop().toLowerCase() : "") || ({"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"})[f.type] || "");
-const gdMsg = e => { const m = String((e && e.message) || e); return m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
+const gdMsg = e => { const m = String((e && e.message) || e); return m.indexOf("phone:") === 0 ? m.slice(6) : m === "noapp" ? "Google Drive works only in the updated Android app." : (e && e.name === "TypeError") ? "Network error."
   : /^HTTP 40[13]/.test(m) ? "Google Drive refused access (" + m + "). Check that the Drive API is on and your Google account is a test user." : m.indexOf("HTTP") === 0 ? "Google Drive error (" + m + ")." : "Google sign-in failed: " + m; };
 function gdToken(force) {                                  // short-lived access token from the Java side (silent after the first consent)
   if (!force && gdTok && Date.now() < gdExp) return Promise.resolve(gdTok);
@@ -659,6 +677,96 @@ async function gdEnsure(path) {                            // Drive id of the fo
   }
   return id;
 }
+const PK_KEY = "picksSavedV1"; let PICKS = {}, gBadges = [];     // "picks saved": which photos / videos of a date were sent to Drive (remembered on this phone)
+try { PICKS = JSON.parse(localStorage.getItem(PK_KEY) || "{}") || {}; } catch (e) { PICKS = {}; }
+const pkKey = (src, folder, d) => src + "|" + folder + "|" + d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0");
+function picksAdd(k, name) { (PICKS[k] = PICKS[k] || {})[name] = 1; try { localStorage.setItem(PK_KEY, JSON.stringify(PICKS)); } catch (e) {} }
+function picksPaint() {                                    // compact badge on a date row: star + tick + how many picks went up
+  gBadges.forEach(b => { const set = PICKS[b.key] || {}, n = b.dd.items.filter(it => set[it.x.name]).length; b.el.hidden = !n; b.el.textContent = "\u2605\u2713 " + n; });
+}
+async function picksSync() {                              // mark what is already on Drive: same file name + same size as a photo in the open folder
+  const folder = gFolder, src = getSrc(), b = $("syncbtn");
+  if (!folder || !isLocal(src) || b.disabled) return;
+  b.disabled = true; b.textContent = "Syncing\u2026";
+  try {
+    const files = await gdList("trashed=false and mimeType contains 'image/'", "name,size");
+    const have = new Set(files.map(x => String(x.name).toLowerCase() + "|" + (+x.size || 0)));
+    let n = 0;
+    (listCache[folder] || []).forEach(e => {
+      if (e.type !== "file" || !e.mod) return;
+      if (!have.has(e.name.toLowerCase() + "|" + (LSIZE[src + "|" + folder + "/" + e.name] || 0))) return;
+      const k = pkKey(src, folder, new Date(e.mod));
+      if (!(PICKS[k] && PICKS[k][e.name])) { picksAdd(k, e.name); n++; }
+    });
+    picksPaint(); toast("", n ? "Marked " + n + (n === 1 ? " photo" : " photos") + " already on Drive" : "Nothing new to mark");
+  } catch (e) { toast("", gdMsg(e)); }
+  b.disabled = false; b.textContent = "\u2605 Sync";
+}
+$("syncbtn").onclick = picksSync;
+const CLOUD_ICO = '<svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.7-7.9A6 6 0 0 1 17.9 9.2 4.5 4.5 0 0 1 17.5 18"/><path d="M12 21v-8M9 15.5l3-3 3 3"/></svg>';
+const fmtSize = b => b >= 1073741824 ? (b / 1073741824).toFixed(1) + " GB" : b >= 1048576 ? Math.round(b / 1048576) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+const uniqName = (n, taken) => {                           // keep the original name; add " (2)", " (3)" ... only when it is already in the Drive folder
+  const dot = n.lastIndexOf("."), b = dot > 0 ? n.slice(0, dot) : n, e = dot > 0 ? n.slice(dot) : ""; let m = n, i = 1;
+  while (taken.has(m.toLowerCase())) m = b + " (" + (++i) + ")" + e;
+  taken.add(m.toLowerCase()); return m;
+};
+function upSelRender() {
+  const d = upSelDay; if (!d) { $("upbar").hidden = true; return; }
+  const src = getSrc(); let bytes = 0; d.dd.items.forEach(it => { if (upSel.has(it.k)) bytes += LSIZE[src + "|" + d.folder + "/" + it.x.name] || 0; });
+  $("upbar").hidden = false;
+  $("upn").textContent = upSel.size ? upSel.size + " of " + d.dd.items.length + " \u00b7 " + fmtSize(bytes) : "Tap photos to upload";
+  $("upall").textContent = upSel.size === d.dd.items.length ? "None" : "All";
+}
+function upSelCancel() {
+  if (!upSelDay) return;
+  upSelDay.cl.classList.remove("on"); upSelDay = null; upSel.clear();
+  $("gbox").querySelectorAll(".th.usel").forEach(x => x.classList.remove("usel"));
+  upSelRender();
+}
+function upSelToggle(folder, dd, dh, cl) {                   // tap the cloud: start choosing for this date; tap it again to cancel
+  if (upBusy) return toast("", "An upload is already running");
+  if (upSelDay && upSelDay.dh === dh) return upSelCancel();
+  upSelCancel(); if (selMode) { selMode = false; clearSel(); updateBar(); }
+  upSelDay = {folder, dd, dh, cl}; cl.classList.add("on"); upSelRender();
+}
+function upSelTap(t) {
+  const d = upSelDay, k = +t.dataset.k; if (!d || !d.dd.items.some(it => it.k === k)) return;   // only the photos of the chosen date
+  if (upSel.has(k)) { upSel.delete(k); t.classList.remove("usel"); } else { upSel.add(k); t.classList.add("usel"); }
+  upSelRender();
+}
+$("upall").onclick = () => {
+  const d = upSelDay; if (!d) return; const all = upSel.size !== d.dd.items.length;
+  upSel.clear(); d.dd.items.forEach(it => { if (all) upSel.add(it.k); });
+  d.dh._g.querySelectorAll(".th").forEach(x => x.classList.toggle("usel", all)); upSelRender();
+};
+$("upx").onclick = upSelCancel;
+$("upgo").onclick = () => {
+  const d = upSelDay; if (!d) return;
+  if (!upSel.size) return toast("", "Tap the photos to upload first");
+  dayUpload(d.folder, {d: d.dd.d, items: d.dd.items.filter(it => upSel.has(it.k))});
+};
+function dayUpload(folder, dd) {                           // phone / SD date folder -> Google Drive, e.g. Family/2026 10 31 (album and name can be changed before Upload)
+  if (upBusy) return toast("", "An upload is already running");
+  if (!window.AndroidSd || typeof AndroidSd.chunk !== "function" || !window.AndroidGDrive) return toast("", "Upload works only inside the Android app");
+  const src = getSrc();
+  const files = dd.items.map(it => {
+    const path = folder + "/" + it.x.name, ext = (it.x.name.split(".").pop() || "").toLowerCase();
+    return {name: it.x.name, size: LSIZE[src + "|" + path] || 0, lastModified: it.x.mod || 0, type: MIME[ext] || "image/jpeg", lazy: true, src, path, pk: pkKey(src, folder, dd.d)};   // read from the phone only when its turn comes
+  });
+  openUpload(files); upToDrive = true;
+  const d = dd.d, day = d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0");
+  let alb = GD_ALBUMS[0]; try { const l = localStorage.getItem("upAlbum"); if (GD_ALBUMS.includes(l)) alb = l; } catch (e) {}   // the album you used last time
+  const sel = $("ualb"); sel.innerHTML = ""; GD_ALBUMS.forEach(a => { const o = document.createElement("option"); o.value = o.textContent = a; sel.appendChild(o); });
+  sel.value = alb; sel.hidden = false;
+  $("usum").textContent = files.length + (files.length === 1 ? " photo" : " photos") + " selected \u00b7 original quality";
+  $("uname").parentElement.hidden = true; $("uprev").hidden = true;   // original file names are kept
+  upNew = true; $("unewb").hidden = true; $("unew").value = alb + "/" + day; upFolderChanged();
+}
+$("ualb").onchange = () => {                               // changing the album rewrites the first part of the folder name
+  const a = $("ualb").value, rest = $("unew").value.split("/").slice(1).join("/");
+  $("unew").value = a + (rest ? "/" + rest : "/"); upErr();
+  try { localStorage.setItem("upAlbum", a); } catch (e) {}
+};
 async function gdUpload(file, name, parentId, ext) {       // the photo is sent exactly as it is: no resize, no conversion
   const mime = /^image\//.test(file.type || "") ? file.type : (MIME[ext] || "image/jpeg"), b = "gdb" + Date.now().toString(36);
   const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
@@ -732,6 +840,7 @@ const track = $("track"), V = $("viewer");
 let modOf = {};
 let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
 let unlocked = false, delBusy = false, startAt = 0;
+let upSelDay = null, upToDrive = false; const upSel = new Set();   // cloud on a date: choosing which photos of that date to upload to Drive
 let selMode = false;                                       // thumbnails: Select toggle (off by default; taps open photos until it is turned on)
 let gSel = new Set(), gDel = false;                        // thumbnails ticked for multi-delete / a multi-delete is running
 let savedScroll = 0, listCache = {}, startEnd = false, pending = null, toastT = 0;
@@ -750,8 +859,10 @@ function updateBar() {
   if (md) { const d = new Date(md); rb.textContent = FULL[d.getMonth()] + " " + d.getFullYear() + " / " + String(d.getDate()).padStart(2, "0") + "-" + DAYS[d.getDay()]; }
   else if (!rb.hidden) { const f = parsed[cur], top = f.n.split("/")[0], kid = f.n.length > top.length ? f.n.slice(top.length + 1).replace(/\//g, " / ") : ""; rb.textContent = kid ? parseFolder(top).t + " / " + kid : f.t; }
   $("rtxt").textContent = v === "list" && parsed.length ? parsed.length + " folders" : "";
+  if (v !== "grid" && upSelDay) upSelCancel();
   if (v !== "grid" && selMode) { selMode = false; clearSel(); }        // leaving thumbnails turns Select off
   if (!unlocked && selMode) { selMode = false; clearSel(); }
+  $("syncbtn").hidden = !(v === "grid" && isLocal(getSrc()) && !!window.AndroidGDrive);
   const sb = $("selbtn"); sb.hidden = !(unlocked && v === "grid"); sb.classList.toggle("on", selMode); sb.setAttribute("aria-pressed", selMode); sb.disabled = delBusy;
   $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); $("shareBtn").hidden = !(inView && files.length);
   if (!gDel) $("hint").textContent = v === "grid" ? (gSel.size ? gSel.size + " selected \u00b7 slide to delete" : "tap photos to select") : "slide to delete";
@@ -841,7 +952,22 @@ function toast(a, b) {
   const t = $("toast"); t.firstChild.textContent = a; t.firstChild.style.display = a ? "block" : "none"; t.lastChild.textContent = b;
   t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2000);
 }
+function dayStep(d) {                                      // folders with date folders: ‹ › go to the previous / next date folder (loops through the months)
+  const v = document.body.dataset.v;
+  if (v === "grid" && gUnits.length) {
+    const n = gUnits.length, i = gUnits.findIndex(u => u.isOpen());
+    gUnits[i < 0 ? (d > 0 ? 0 : n - 1) : (i + d + n) % n].go(); return true;
+  }
+  if (v === "view" && (isLocal(getSrc()) || getSrc() === "gdrive") && files.length > GROUP_MIN && files.some(f => modOf[f])) {
+    const key = f => { const m = modOf[f]; if (!m) return -1; const t = new Date(m); return t.getFullYear() * 10000 + t.getMonth() * 100 + t.getDate(); };
+    const starts = []; files.forEach((f, i) => { if (!i || key(f) !== key(files[i - 1])) starts.push(i); });
+    let c = 0; starts.forEach((p, i) => { if (p <= idx) c = i; });
+    resetZoom(); place(starts[(c + d + starts.length) % starts.length], false); return true;
+  }
+  return false;
+}
 function step(d) {
+  if (dayStep(d)) return;
   const j = navNext(cur, d);
   if (j !== cur) location.replace("#f=" + encodeURIComponent(parsed[j].n) + (document.body.dataset.v === "view" ? "&v=1" : ""));
 }
@@ -924,7 +1050,7 @@ $("aL").onclick = () => go(-1); $("aR").onclick = () => go(1);
 $("prevF").onclick = () => step(-1); $("nextF").onclick = () => step(1);
 const canGrid = () => document.body.dataset.v === "view" && cur >= 0 && parsed[cur] && !!listCache[parsed[cur].n];
 $("menu").onclick = () => {                                // photo -> thumbnails -> folder list
-  if (!canGrid()) { location.hash = ""; return; }
+  if (!canGrid() || !files.length) { location.hash = ""; return; }   // empty folder has no thumbnails: go straight to the folder list
   if (viaGrid === parsed[cur].n) { viaGrid = ""; history.back(); }   // same folder as the grid we came from: just step back
   else location.replace("#f=" + encodeURIComponent(parsed[cur].n));
 };
@@ -1011,7 +1137,7 @@ function removeSlide(k, folder) {
 $("selbtn").onclick = e => {                               // Select toggle: off = taps open photos; on = taps tick photos + slide bar shows
   e.stopPropagation();
   if (delBusy || !unlocked) return;
-  selMode = !selMode; if (!selMode) clearSel(); updateBar();
+  upSelCancel(); selMode = !selMode; if (!selMode) clearSel(); updateBar();
 };
 function toggleSel(t) {
   const n = t.dataset.n;
@@ -1319,7 +1445,7 @@ async function sharePhoto() {
 // ── THUMBNAIL GRID (month groups) ───────────────────────────────────────
 const GROUP_MIN = 30;                                    // folders with more photos than this are grouped by month; a month with more than this many photos also gets day folders inside it (phone / SD card / Google Drive: needs the photo date)
 let viaGrid = "";                                          // folder whose grid is the history entry right before the photo view
-let gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
+let gUnits = [], gSig = "", gFolder = "", gUrls = [], gObs = null, gQ = [], gBusy = 0, gGen = 0, gScroll = 0;
 const thWait = new Map();
 window.addEventListener("thumbready", e => {
   const t = String(e.detail).split("\t"), w = thWait.get(t[0]); if (!w) return;
@@ -1355,14 +1481,15 @@ function sortedEnts(list) {                                // same order as the 
   else ents.sort((a, b) => nat(a.name, b.name));
   return ents;
 }
-function setGroup(h, open) { h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
+function setGroup(h, open) { if (!open && upSelDay && upSelDay.dh === h) upSelCancel(); h.classList.toggle("open", open); h._g.classList.toggle("off", !open); }
 function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
 function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function buildGrid(folder, ents) {
-  gGen++; gFolder = folder; gQ = []; gBusy = 0;
+  gGen++; gFolder = folder; gQ = []; gBusy = 0; gUnits = []; gBadges = [];
   if (gObs) gObs.disconnect();
   gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
+  upSelCancel();
   const box = $("gbox"); box.innerHTML = ""; gSel.clear();
   gObs = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { gObs.unobserve(en.target); gQ.push(en.target); pump(); } }), {root: box, rootMargin: "500px 0px"});
   const byMonth = ents.length > GROUP_MIN && ents.some(x => x.mod);
@@ -1404,8 +1531,15 @@ function buildGrid(folder, ents) {
           const dd = byDay[n], gr = mkGrid(); gr._mh = mh;
           const dh = mkHead("gd", n + " \u00b7 " + DAYS[dd.d.getDay()], dd.items.length, gr, di === 0);   // newest day open
           dh.onclick = () => { if (dh.classList.contains("open")) return setGroup(dh, false); openDay(dh); jump(dh, 38); };
+          if (isLocal(getSrc())) {                         // cloud button: choose photos of this date and upload them to Google Drive (does not fold / unfold the row)
+            const cl = document.createElement("b"); cl.className = "cl"; cl.setAttribute("role", "button"); cl.setAttribute("aria-label", "Upload this day to Google Drive"); cl.innerHTML = CLOUD_ICO;
+            cl.onclick = e => { e.stopPropagation(); e.preventDefault(); upSelToggle(folder, dd, dh, cl); };
+            const pk = document.createElement("b"); pk.className = "pk"; pk.hidden = true; dh.insertBefore(pk, dh.lastChild); gBadges.push({key: pkKey(getSrc(), folder, dd.d), el: pk, dd});
+            dh.insertBefore(cl, dh.lastChild);
+          }
           wrap.appendChild(dh); wrap.appendChild(gr);
           dd.items.forEach(it => addTh(gr, it.x, it.k));
+          gUnits.push({k: dd.items[0].k, isOpen: () => mh.classList.contains("open") && dh.classList.contains("open"), go: () => { if (!mh.classList.contains("open")) openGroup(mh); openDay(dh); jump(dh, 38); }});
         });
       } else {                                             // photos with no date: one "No date" folder
         const gr = mkGrid(), mh = mkHead("gm", "No date", g.items.length, gr, open);
@@ -1413,11 +1547,14 @@ function buildGrid(folder, ents) {
         const wrap = document.createElement("div"); wrap.className = "gw"; wrap.appendChild(gr); mh._g = wrap; gr._mh = mh; wrap.classList.toggle("off", !open); gr.classList.remove("off");
         bx.appendChild(mh); bx.appendChild(wrap);
         g.items.forEach(it => addTh(gr, it.x, it.k));
+        gUnits.push({k: g.items[0].k, isOpen: () => mh.classList.contains("open"), go: () => { openGroup(mh); jump(mh, 0); }});
       }
     });
   }
+  picksPaint();
   box.onclick = e => {
     const t = e.target.closest(".th"); if (!t) return;
+    if (upSelDay) { upSelTap(t); return; }                       // choosing photos to upload: tap ticks / unticks, nothing opens
     if (unlocked && selMode) { if (!delBusy) toggleSel(t); return; }   // Select is on: tapping ticks / unticks the photo (otherwise the photo opens)
     gScroll = box.scrollTop; startAt = +t.dataset.k; viaGrid = gFolder; location.hash = "f=" + encodeURIComponent(gFolder) + "&v=1";
   };
@@ -1485,7 +1622,7 @@ const destFolder = () => upNew ? $("unew").value.trim().replace(/\\/g, "/").repl
 const upErr = t => { $("uerr").textContent = t || ""; };
 
 function upPreview() {
-  const f = destFolder(), ext = getSrc() === "gdrive" ? (extOf(upFiles[0]) || "jpg") : (WEBP_OK ? "webp" : "jpg");
+  const f = destFolder(), ext = toDrive() ? (extOf(upFiles[0]) || "jpg") : (WEBP_OK ? "webp" : "jpg");
   if (!f || !upFiles.length) { $("uprev").textContent = ""; return; }
   const nm = makeNamer($("uname").value, takenSet(f)); let a = nm(ext), b = a;
   for (let i = 1; i < upFiles.length; i++) b = nm(ext);
@@ -1494,23 +1631,25 @@ function upPreview() {
 function upFolderChanged(focus) {
   $("ufold").hidden = upNew; $("unew").hidden = !upNew;
   $("unewb").innerHTML = upNew ? BACK : PLUS; $("unewb").setAttribute("aria-label", upNew ? "Choose an existing folder" : "New folder");
-  if (upNew && !$("unew").value) $("unew").value = (getSrc() === "gdrive" ? (gdAlbumOf($("ufold").value) || GD_ALBUMS[0]) + "/" : "") + today();
+  if (upNew && !$("unew").value) $("unew").value = (toDrive() ? (gdAlbumOf($("ufold").value) || GD_ALBUMS[0]) + "/" : "") + today();
   $("uname").value = suggestName(upNew ? "" : $("ufold").value);
   upErr(); upPreview();
   if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
 }
+const toDrive = () => getSrc() === "gdrive" || upToDrive;
 function openUpload(files) {
+  upToDrive = false; $("unewb").hidden = false; $("ualb").hidden = true; $("uname").parentElement.hidden = false; $("uprev").hidden = false;
   upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest photo first, so numbers follow the date taken
   const sel = $("ufold"); sel.innerHTML = "";
   parsed.forEach(f => { const o = document.createElement("option"); o.value = f.n; o.textContent = f.n.replace(/\//g, " / "); sel.appendChild(o); });
   const last = getLast();
   upNew = !parsed.length;
   if (parsed.length) sel.value = cur >= 0 && parsed[cur] ? parsed[cur].n : (parsed.some(f => f.n === last) ? last : parsed[0].n);
-  $("unew").value = ""; $("unew").placeholder = getSrc() === "gdrive" ? "Album/trip, e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa" : "Folder name (use / for a sub-folder)";
-  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected") + (getSrc() === "gdrive" ? " \u00b7 original quality" : "");
+  $("unew").value = ""; $("unew").placeholder = toDrive() ? "Album/trip, e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa" : "Folder name (use / for a sub-folder)";
+  $("usum").textContent = upFiles.length + (upFiles.length === 1 ? " photo selected" : " photos selected") + (toDrive() ? " \u00b7 original quality" : "");
   $("uprog").hidden = true; $("ubar").firstChild.style.width = "0";
   $("ugo").disabled = false; $("ugo").textContent = "Upload"; $("ucancel").textContent = "Cancel";
-  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = false);
+  ["ufold", "ualb", "unew", "uname", "unewb"].forEach(i => $(i).disabled = false);
   upFolderChanged();
   $("ud").hidden = false;
 }
@@ -1520,7 +1659,7 @@ $("upl").onclick = () => { closePanel(); $("ufile").click(); };
 $("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^image\//.test(f.type) || IMG_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
 $("ufold").onchange = () => upFolderChanged();
 $("unewb").onclick = () => { upNew = !upNew; upFolderChanged(true); };
-$("unew").oninput = () => { upErr(); upPreview(); };
+$("unew").oninput = () => { upErr(); upPreview(); const a = gdAlbumOf($("unew").value); if (a && !$("ualb").hidden) $("ualb").value = a; };
 $("uname").oninput = upPreview;
 $("ucancel").onclick = () => { if (upBusy) { upStop = true; $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) closeUpload(); });
@@ -1548,9 +1687,9 @@ $("ugo").onclick = async () => {
   if (!folder) return upErr("Type a folder name.");
   if (folder.split("/").some(seg => !seg.trim() || seg.startsWith("."))) return upErr("Folder names cannot be empty or start with a dot.");
   if (!$("uname").value.trim()) return upErr("Type the first file name.");
-  if (getSrc() === "gdrive") return uploadDrive(folder);
+  if (toDrive()) return uploadDrive(folder);
   upErr(); upBusy = true; upStop = false;
-  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
+  ["ufold", "ualb", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
   $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
   const total = upFiles.length, next = makeNamer($("uname").value, takenSet(folder));
   let ok = 0, bad = 0, msg = "";
@@ -1600,13 +1739,13 @@ async function uploadDrive(folder) {
   if (!alb) return upErr("Start with " + GD_ALBUMS.join(", ") + ", e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa");
   folder = alb + folder.slice(first.length);
   upErr(); upBusy = true; upStop = false;
-  ["ufold", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
+  ["ufold", "ualb", "unew", "uname", "unewb"].forEach(i => $(i).disabled = true);
   $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
   const total = upFiles.length;
-  let ok = 0, bad = 0, msg = "", pid = "", next = null;
+  let ok = 0, bad = 0, msg = "", pid = "", next = null, taken = null;
   try {
     pid = await gdEnsure(folder);
-    const taken = takenSet(folder);                          // also skip names other phones already added to this Drive folder
+    taken = getSrc() === "gdrive" ? takenSet(folder) : new Set();                          // also skip names other phones already added to this Drive folder
     (await gdList("'" + pid + "' in parents and trashed=false", "name")).forEach(x => taken.add(String(x.name).toLowerCase()));
     next = makeNamer($("uname").value, taken);
   } catch (e) { msg = gdMsg(e); bad = total; pid = ""; }
@@ -1615,9 +1754,12 @@ async function uploadDrive(folder) {
     $("ubar").firstChild.style.width = Math.round(i / total * 100) + "%";
     const f = upFiles[i], ext = extOf(f);
     if (!/^(webp|jpe?g|png|gif)$/i.test(ext)) { bad++; msg = "Only JPG, PNG, WebP and GIF photos can be uploaded."; continue; }
-    const name = next(ext);
+    const name = f.lazy ? uniqName(f.name, taken) : next(ext);       // from the phone: keep the original file name (a number is added only if the name is taken)
     try {
-      const j = await gdUpload(f, name, pid, ext), th = j.thumbnailLink || "";
+      let srcFile = f;
+      if (f.lazy) { try { srcFile = new File([await readLocal(f.src, f.path)], f.name, {type: f.type, lastModified: f.lastModified}); } catch (e) { throw new Error("phone:Could not read the photo from the phone."); } }
+      const j = await gdUpload(srcFile, name, pid, ext), th = j.thumbnailLink || "";
+      if (getSrc() === "gdrive") {                          // only when browsing Drive: add the new photo to the lists
       if (!listCache[folder]) listCache[folder] = [];
       if (!parsed.some(x => x.n === folder)) {              // brand-new folder: add it to the list
         const keep = cur >= 0 && parsed[cur] ? parsed[cur].n : null;
@@ -1625,14 +1767,17 @@ async function uploadDrive(folder) {
         if (keep) cur = parsed.findIndex(x => x.n === keep);
       }
       listCache[folder].push({name, type: "file", sha: "", id: j.id, thumb: th, mod: f.lastModified || Date.now()}); GDI[folder + "/" + name] = {id: j.id, thumb: th};
+      }
+      if (f.pk) picksAdd(f.pk, f.name);
       ok++;
     } catch (e) { msg = gdMsg(e); bad += total - i; break; }
   }
   upBusy = false;
+  picksPaint();
   $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
   if (document.body.dataset.v === "list") renderList();
   updateBar();
-  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; toast("", "Uploaded " + ok + (ok === 1 ? " photo" : " photos") + " to " + folder.replace(/\//g, " / ")); return; }
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; upSelCancel(); toast("", "Uploaded " + ok + (ok === 1 ? " photo" : " photos") + " to " + folder.replace(/\//g, " / ")); return; }
   $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
   upErr(msg || (bad && !upStop ? "Some photos could not be uploaded." : ""));
   $("ucancel").disabled = false; $("ucancel").textContent = "Close";
