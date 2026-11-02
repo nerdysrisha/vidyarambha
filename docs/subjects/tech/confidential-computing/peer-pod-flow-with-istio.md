@@ -1,23 +1,8 @@
-# Confidential Peer Pod Flow (Admin Setup, Pod Creation, Data Path)
+# Confidential Peer Pod Flow (Admin Setup, Pod Creation, Data Path, Components, Diagram Notes)
 
-Setup: OpenShift on IBM Cloud (Calico), one worker node, OSC with kata-remote + cloud-api-adaptor, Istio mesh, peer pod VM (TDX CVM), external Trustee VSI, all in one VPC.
+Setup: OpenShift (ROKS) on IBM Cloud with Calico, worker node(s), OSC with kata-remote + cloud-api-adaptor, Istio mesh (Sail operator), peer pod VM (TDX CVM), external Trustee VSI, all in one VPC (network ACL + security groups).
 
----
-
-## Quick glossary (layman)
-
-| Name | What it is |
-|---|---|
-| **Pod netns** | The isolated network "room" of the pod. Holds the interfaces. |
-| **eth0 (worker, in pod netns)** | The pod's virtual network card with the pod IP. |
-| **kata-remote shim** | Small program on the worker that CRI-O calls to run the pod with the `kata-remote` runtime. |
-| **osc-caa-ds (cloud-api-adaptor)** | Talks to the IBM VPC API to create the VM, and builds the VXLAN tunnel. |
-| **agent-protocol-forwarder** | Runs in the VM, receives commands from cloud-api-adaptor and passes them to the Kata agent. |
-| **Kata agent** | The VM's "manager". Starts and supervises the containers inside the VM. |
-| **istio-init / istio-proxy** | Init container that sets traffic redirect rules / the Envoy sidecar. |
-| **CDH** | Confidential Data Hub. Local API your app calls for secrets. |
-| **Attestation Agent (AA)** | Collects TDX proof (evidence) from the chip. |
-| **KBS / AS / RVPS** | On the Trustee: Key Broker Service (releases secrets) / Attestation Service (checks proof) / reference values (what "good" looks like). |
+**Key idea:** the peer pod is logically "the pod", but physically it is a separate VSI outside the cluster. The worker only holds an empty pod shell.
 
 ---
 
@@ -25,25 +10,25 @@ Setup: OpenShift on IBM Cloud (Calico), one worker node, OSC with kata-remote + 
 
 1. **Install the OSC operator** (OpenShift sandboxed containers).
    - Creates `osc-caa-ds` (cloud-api-adaptor) on the worker.
-   - Configures the peer pod settings (VPC, subnet, security group, VM image, instance profile for TDX, API key secret).
+   - Configures peer pod settings (VPC, subnet, security group, VM image, TDX instance profile, API key secret).
 2. **Create the KataConfig** (kata-remote).
    - Installs the **kata-remote shim** on the worker.
    - Creates the **RuntimeClass** `kata-remote`.
 3. **Install Istio** (Sail operator + Istio CR).
-   - `istiod` runs on a worker (control plane).
+   - `istiod` runs on a worker (control plane), not inside the VM.
    - The injection webhook (MutatingWebhookConfiguration) is active.
-   - `istio-cni` is set up if used (confirm with IBM how it behaves with peer pods).
+   - `istio-cni` is optional and unverified for the VM (confirm with IBM).
 4. **Label the app namespace** with `istio-injection=enabled`.
 5. **Set up the Trustee VSI** (outside the cluster, same VPC).
-   - KBS, Attestation Service and RVPS are running.
+   - KBS, Attestation Service (AS) and RVPS are running.
    - **RVPS** holds the expected reference values (measured VM image, init data hash).
-   - **KBS** holds the secrets (for example DB credentials) and the policy for who can get them.
-6. **Prepare the peer pod VM image** (with Kata agent, Attestation Agent, CDH, agent-protocol-forwarder). Its measurements are registered in RVPS.
+   - **KBS** holds the secrets (for example DB credentials) and the release policy.
+6. **Prepare the peer pod VM image** (Kata agent, Attestation Agent, CDH, agent-protocol-forwarder). Register its measurements in RVPS. Add the sidecar images to RVPS reference values too.
 7. **Network rules:**
-   - VPC security groups and ACL allow UDP 4789 between worker and peer pod VM.
+   - Security groups and ACL allow UDP 4789 between worker and peer pod VM.
    - They allow HTTPS from the peer pod VM to the Trustee.
-   - They allow istiod port 15012 from the VM, over the tunnel path.
-8. **Monitoring/security agents** (Sysdig, cloudlogs, Illumio if present) run on the worker. They see node and pod netns traffic, not inside the VM.
+   - They allow istiod port 15012 from the VM (over the tunnel path).
+8. **Monitoring/security agents** (Sysdig workload-protection agent, cloudlogs agent, agent-clustershield, Illumio if present) run on the worker. They see node and pod netns traffic, not inside the VM.
 
 ---
 
@@ -51,42 +36,42 @@ Setup: OpenShift on IBM Cloud (Calico), one worker node, OSC with kata-remote + 
 
 Assumed YAML contents:
 - `runtimeClassName: kata-remote`
-- The **init data** annotation (carries KBS address/cert for AA and CDH config, and the Kata agent policy).
+- The **init data** annotation (KBS address/cert for AA and CDH config, plus the Kata agent policy).
 - Your app container image, in a namespace labelled `istio-injection=enabled`.
 
 Steps:
 
 1. **You apply the YAML.** The Kubernetes API server receives it.
-2. **Istio injection webhook** (served by `istiod`) sees the namespace label and adds `istio-init` and `istio-proxy` to the pod spec.
+2. **Istio injection webhook** (served by `istiod` on :15017) sees the namespace label and adds `istio-init` and `istio-proxy` to the pod spec.
 3. **Scheduler** places the pod on the worker node.
 4. **kubelet** asks **CRI-O** to create the pod. Because of `kata-remote`, CRI-O calls the **kata-remote shim**.
 5. **Calico** creates the **pod netns** on the worker, with `eth0`, the pod IP and the veth link to the node.
 6. **kata-remote shim** asks **cloud-api-adaptor (osc-caa-ds)** to create the pod VM.
-7. **cloud-api-adaptor** calls the **IBM VPC API**. A TDX confidential VM (VSI) is created in the VPC, with the **init data** passed to it. Its own NIC (the VM's `eth0`) gets a VPC IP.
+7. **cloud-api-adaptor** calls the **IBM VPC API**. A TDX confidential VM (VSI) is created in the VPC, with the **init data** passed to it. The VM gets its own NIC (VM `eth0`, VPC IP).
 8. **cloud-api-adaptor builds the tunnel:**
-   - `vxlan1` in the worker pod netns, `vxlan0` in the VM's pod netns, using the same pod IP.
+   - `vxlan1` in the worker pod netns, `vxlan0` in the VM's pod netns, same pod IP.
    - A Linux traffic-control (`tc`) rule copies packets from worker `eth0` into `vxlan1`.
 9. **cloud-api-adaptor** talks to the **agent-protocol-forwarder** in the VM, which passes commands to the **Kata agent**.
-10. **Kata agent** sets up the pod netns inside the VM and checks the agent policy from init data.
+10. **Kata agent** sets up the pod netns inside the VM and enforces the agent policy from init data.
 11. **Kata agent** pulls the images inside the VM and starts the containers:
-    - `istio-init` runs first and sets iptables redirect rules to send traffic to istio-proxy.
-    - `istio-proxy` starts and connects to `istiod` on 15012 to get config and its certificate.
+    - `istio-init` runs first and sets iptables rules to redirect traffic to istio-proxy.
+    - `istio-proxy` starts and connects to `istiod` on :15012 for config and its certificate.
     - Your **app container** starts.
-12. Pod shows as Running. From now on the tunnel already exists, so requests just flow through it.
+12. Pod shows Running. The tunnel already exists, so requests just flow through it.
 
 ---
 
 ## Part 3: Live request (data path)
 
-**A. Entry at the worker**
-1. Client sends the request to the **worker node `eth0`** (VPC subnet, private IP, NodePort).
+**A. Entry at the worker (client never hits the VM directly)**
+1. Client sends the request to the **worker node `eth0`** (VPC subnet, private IP, NodePort). If a VPC Load Balancer is used, it forwards to the worker first.
 2. **VPC security group and ACL** check it.
-3. **Calico** on the node translates the NodePort to the **ingress gateway pod** and applies network policy.
+3. **Calico** translates the NodePort to the **ingress gateway pod** and applies network policy. (Sysdig / Illumio can see this hop.)
 
 **B. Ingress gateway to the app's pod shell**
 4. **Ingress gateway (Envoy)** receives it and routes to your app's Kubernetes **Service** (a virtual address).
 5. **Calico** translates the Service to a real pod IP.
-6. **Calico** carries the packet to the app pod's veth and into **pod netns `eth0`** on the worker. The worker pod is just an empty shell, so this is the end of the road there.
+6. **Calico** carries the packet to the app pod's veth and into **pod netns `eth0`** on the worker. The worker pod is an empty shell, so this is the end of the road there.
 
 **C. Tunnel to the VM**
 7. The **`tc` redirect rule** copies the packet from `eth0` into **`vxlan1`**.
@@ -95,29 +80,317 @@ Steps:
 10. **`vxlan0`** in the VM unwraps it into the **pod netns inside the VM**.
 
 **D. Inside the confidential VM**
-11. `vxlan0` --> pod netns --> **iptables rules (set by istio-init)** --> **istio-proxy**.
+11. `vxlan0` --> pod netns --> **iptables rules (from istio-init)** --> **istio-proxy**.
 12. **istio-proxy** ends mTLS and checks the AuthorizationPolicy.
 13. **istio-proxy** passes plain data to your **app** on localhost, inside the TEE.
 
-**E. Getting the secret**
+**E. Getting the secret (separate path, starts inside the VM)**
 14. **App** needs DB credentials and asks the **CDH** (local API).
 15. **CDH** asks the **Attestation Agent**, which collects **TDX evidence from the chip**.
 16. Evidence goes out via the **VM's own `eth0` (VPC NIC)**. It does NOT use `vxlan0`, the tunnel or the worker.
 17. **VPC controls** check it: VM security group, ACL, Trustee security group.
 18. Arrives at the **Trustee VSI `eth0`** --> **KBS**.
-19. **KBS** passes the evidence to the **Attestation Service**, which compares with **RVPS** reference values and policy.
+19. **KBS** hands the evidence to the **Attestation Service**, which compares it with **RVPS** reference values and policy.
 20. If valid, **KBS** releases the secret, which returns the same way: Trustee `eth0` --> VPC controls --> VM `eth0` --> **Attestation Agent** --> **CDH** --> **app**.
 
 **F. Reply**
 21. **App** uses the credentials, processes the data and replies.
 22. Reply path: **istio-proxy** --> `vxlan0` --> tunnel --> `vxlan1` --> worker pod netns `eth0` --> Calico --> ingress gateway --> worker `eth0` --> client.
 
+**Not in the data path:**
+- **kata-remote shim, cloud-api-adaptor, agent-protocol-forwarder, Kata agent:** only create, start and manage the VM.
+- **istiod:** only gives config and certificates to istio-proxy (:15012).
+
 ---
 
-## Not in the data path
+## Part 4: Components explained (simple)
 
-- **kata-remote shim, cloud-api-adaptor, agent-protocol-forwarder, Kata agent:** only create, start and manage the VM. Request packets never pass through them.
-- **istiod:** only gives config and certificates to istio-proxy (port 15012).
+### On the worker node
+
+**Node `eth0`**
+- The worker's real network card, on the VPC subnet.
+- Entry point for client traffic.
+- Also the exit point for the VXLAN tunnel packets.
+- Protected by VPC security groups and ACL.
+
+**Calico (calico-node)**
+- The cluster's network layer (CNI).
+- Creates the pod netns, `eth0`, pod IP and veth for each pod.
+- Translates NodePort and Service addresses to real pod IPs.
+- Applies network policy.
+
+**Pod netns (pod network namespace)**
+- An isolated network "room" for one pod.
+- Holds the interfaces (`eth0`, `vxlan1` on the worker).
+- On the worker it is only a shell, no app runs there.
+- Same idea exists inside the VM, with `vxlan0`.
+
+**Pod `eth0` (worker side)**
+- The pod's virtual network card, inside the pod netns.
+- Holds the pod IP.
+- Connected to the node through a veth pair.
+- The `tc` rule picks packets up from here.
+
+**veth**
+- A virtual cable with two ends.
+- One end on the node, the other is the pod's `eth0`.
+- Created by Calico.
+- Just carries packets, does no logic.
+
+**Ingress gateway pod (Envoy)**
+- Optional front door for mesh traffic.
+- Runs in the `istio-ingress` namespace.
+- Routes the call to your app's Service.
+- Can start mTLS toward the sidecar.
+
+**Kubernetes Service**
+- A stable name and virtual IP in front of your app pods.
+- Carries no packets itself.
+- Calico (or kube-proxy) translates it to a real pod IP.
+- "bank-app" was only a placeholder name.
+
+**CRI-O**
+- The container runtime on the worker.
+- Called by kubelet to create pods.
+- For `kata-remote` pods, hands over to the kata-remote shim.
+- Normal pods use the regular runtime (runc).
+
+**kata-remote shim (= kata-remote runtime)**
+- Small program on the worker, one per peer pod.
+- Implements the `kata-remote` RuntimeClass.
+- Talks to cloud-api-adaptor (ttrpc over a Unix socket).
+- Only manages the VM, no request packets pass through it.
+
+**osc-caa-ds (CAA, cloud-api-adaptor)**
+- DaemonSet from the OSC operator.
+- Calls the IBM VPC API to create/delete the peer pod VSI.
+- Builds the VXLAN tunnel and the `tc` redirect.
+- Sends commands to the VM through agent-protocol-forwarder.
+
+**`vxlan1` (worker side)**
+- Tunnel end inside the worker pod netns.
+- Wraps packets in UDP 4789 and sends them to the VM.
+- Name is just a label, no special meaning.
+- Created once at pod creation.
+
+**`tc` redirect rule**
+- Linux traffic-control rule (not iptables, not a firewall).
+- Sits between worker `eth0` and `vxlan1` in the pod netns.
+- Copies incoming packets into the tunnel.
+- Made by cloud-api-adaptor.
+
+**Sysdig / cloudlogs / Illumio (node-level agents)**
+- Hook the host kernel and pod netns.
+- See L3/L4 flows on the worker, even after VXLAN decap on the node side.
+- Do not see syscalls or files inside the VM.
+- Illumio deployment model is unconfirmed.
+
+### In the peer pod VM (TDX CVM)
+
+**Peer pod VSI (TDX CVM)**
+- A separate VM in the VPC, outside the cluster.
+- Logically "the pod", physically its own VSI.
+- Guest memory is encrypted by the TDX chip.
+- Created by cloud-api-adaptor via the VPC API.
+
+**`vxlan0` (VM side)**
+- Tunnel end inside the VM's pod netns.
+- Unwraps the UDP 4789 packet.
+- Holds the same pod IP as the worker shell.
+- Not the same as the VM's own `eth0`.
+
+**VM `eth0` (VPC NIC)**
+- The VM's real network card on the VPC.
+- Used for the secret path to the Trustee.
+- Also carries the outer tunnel packets.
+- Protected by the VM's security group and ACL.
+
+**agent-protocol-forwarder**
+- Runs in the VM.
+- Receives commands from cloud-api-adaptor over TCP.
+- Passes them to the Kata agent.
+- Control path only.
+
+**Kata agent**
+- The VM's "manager".
+- Sets up the pod netns, pulls images, starts and supervises containers.
+- Enforces the agent policy from init data.
+- Not in the data path, it never sees your payload.
+
+**istio-init (init container)**
+- Runs once before the app.
+- Sets iptables rules to redirect traffic to istio-proxy.
+- Needs NET_ADMIN.
+- Exits after setup.
+
+**istio-proxy (Envoy sidecar)**
+- Data plane of the mesh, inside the VM.
+- Ends mTLS, checks AuthorizationPolicy.
+- Passes plain data to the app on localhost.
+- Keeps one xDS stream to istiod on :15012.
+
+**App container**
+- Your confidential workload.
+- Receives plaintext on localhost, inside the TEE.
+- Does not hold secrets, asks CDH when needed.
+- Replies back through istio-proxy.
+
+**Confidential Data Hub (CDH)**
+- Local secret API in the VM.
+- The app (or workload) calls it.
+- Uses the Attestation Agent for evidence.
+- Returns the secret to the app.
+
+**Attestation Agent (AA)**
+- Collects TDX evidence from the chip.
+- Sends it to the KBS over HTTPS.
+- Uses the VM's own NIC.
+- Does not use the tunnel or the worker.
+
+**TDX chip / TEE boundary**
+- Hardware that encrypts guest memory.
+- Produces signed evidence about the VM.
+- Host and cluster admin cannot read VM memory.
+- Basis of trust for the secret release.
+
+**Init data**
+- Config bundle passed to the VM through a pod annotation.
+- Holds KBS address/cert, AA/CDH config and the Kata agent policy.
+- Its hash is part of the TDX measurement.
+- Should match the value registered in RVPS.
+
+### Control plane and Trustee
+
+**istiod**
+- Mesh control plane in `istio-system`, on a worker.
+- Serves xDS config on :15012, acts as Mesh CA, runs the injection webhook (:15017).
+- Gives istio-proxy its certificate.
+- Not inside the VM or TEE.
+
+**Injection webhook**
+- Triggered by the `istio-injection=enabled` namespace label.
+- Adds istio-init and istio-proxy to the pod spec.
+- Runs before the pod is scheduled.
+- Served by istiod.
+
+**Sail operator / OSC operator**
+- Sail operator: installs and manages Istio from the Istio CR.
+- OSC operator: installs Kata, kata-remote and cloud-api-adaptor.
+- Both are installed through OLM.
+- Admin-time only, not in the request path.
+
+**istio-cni**
+- Optional DaemonSet that sets up traffic redirect on the node.
+- Replaces the need for NET_ADMIN in istio-init.
+- Whether it works for the redirect inside the VM is unverified.
+- Confirm with IBM.
+
+**VPC controls (SG / ACL)**
+- Security groups and network ACL in the VPC.
+- Checked at the worker, the VM and the Trustee.
+- Control what can reach what (4789, HTTPS, 15012).
+- Misconfiguration here breaks the tunnel or the secret path.
+
+**Trustee platform (external VSI)**
+- User-provided VSI in the same VPC.
+- Holds KBS, AS and RVPS.
+- Releases secrets only to verified VMs.
+- Public access: corporate laptops only.
+
+**KBS (Key Broker Service)**
+- Receives attestation evidence.
+- Holds the secrets and release policy.
+- Releases the secret only if the AS says valid.
+- Returns the secret along the same path.
+
+**AS (Attestation Service)**
+- Verifies the TEE evidence.
+- Compares with RVPS reference values and checks policy.
+- Gives the verdict to the KBS.
+- Lives on the Trustee.
+
+**RVPS (reference values)**
+- Stores the "known good" measurements.
+- Includes the guest OS image, sidecar images and init data hash.
+- AS compares evidence against it.
+- Must be updated when the VM image or sidecars change.
+
+---
+
+## Part 5: Notes from the diagram
+
+### Legend
+- Red solid arrow: client request path (1 to 7).
+- Green solid arrow: attestation / secret path (A to D).
+- Purple dashed arrow: mesh config (xDS + certs).
+- Red dashed arrow: VXLAN 4789 tunnel (carries client path).
+- Dashed outline: new, not deployed, or unverified.
+- Colour boxes: red = OpenShift cluster boundary; blue = worker node / calico / ibm-observe; green = peer pod VSI, OSC namespace, Trustee; purple = service mesh (control + data plane); orange = VPC controls, LB, Sysdig, Illumio; teal = Attestation Agent.
+- Peer pod VSI = logically the pod, physically a separate VSI outside the cluster, created by osc-caa-ds via the VPC API.
+
+### Client request path: it hits the WORKER node first, never the VM directly
+- Client calls the app address from the corporate network.
+- VPC Load Balancer forwards to a worker node (NodePort / LB target).
+- Worker eth0, then Calico: DNAT to the service, policy (Sysdig / Illumio can see this hop).
+- Optional ingress gateway pod, then the pod netns on the worker (veth + VXLAN endpoint).
+- VXLAN 4789 tunnel carries the packets out of the cluster into the peer pod VSI.
+- istio-proxy (data plane) terminates mTLS and enforces AuthorizationPolicy.
+- App container receives plaintext on localhost, inside the TEE.
+
+### Secret path (separate, starts inside the VM)
+- App asks the Confidential Data Hub for a secret (local API).
+- CDH asks the Attestation Agent, which collects TDX evidence.
+- Agent sends evidence to KBS over HTTPS from the VM's own VPC NIC (SG + ACL apply).
+- KBS checks with AS (RVPS values) and returns the secret if valid.
+
+### Where the mesh sits, and what to verify
+- **Control plane:** istiod in namespace `istio-system`, on a worker node (Sail operator + Istio CR).
+- **Data plane:** istio-proxy + istio-init inside each peer pod VM (a separate VSI, outside the cluster).
+- **Cluster-scoped objects:** Istio, IstioCNI and KataConfig CRs, RuntimeClass, MutatingWebhookConfig.
+- Client traffic reaches the worker node first, then the VM over VXLAN (confirm with IBM).
+
+**Verify with IBM / Red Hat before relying on this:**
+- Sidecar injection into kata-remote pods; istio-init vs istio-cni inside the VM.
+- istio-proxy reaches istiod on :15012 over the tunnel; VM SG blocks direct inbound.
+- Sidecar images are in the measured image and RVPS reference values.
+- Attestation egress leaves via the VM's own VPC NIC; SG and ACL allow it.
+- Illumio deployment model (not found in ibm-observe); Sysdig sees node flows only.
+- The mesh adds mTLS, AuthZ and telemetry; it does not replace runtime threat detection.
+
+### What the Istio mesh captures and enforces on this peer pod (and what it does not)
+
+**1. Captured by istio-proxy (telemetry)**
+- *Input (inbound to the app):* caller identity (SPIFFE ID / service account); method, host, path, response code, bytes in.
+- *Output (outbound from the app):* destination service, response code, latency; bytes out, TCP connections, retries.
+- *Signals:* request rate, error rate, p50/p95/p99 latency, access logs, traces (if enabled), sent to your backend.
+
+**2. Security enforced**
+- mTLS (PeerAuthentication STRICT): payload is unreadable on the node, the VXLAN tunnel and the VPC path.
+- Workload identity: a cert per service account, issued by the istiod CA.
+- AuthorizationPolicy: ALLOW / DENY / AUDIT by caller identity, namespace, method, path and port.
+- RequestAuthentication: validates end-user JWTs.
+- Egress control: only registered destinations (ServiceEntry).
+
+**3. Traffic control (throttling, resilience)**
+- Rate limiting: local or global through Envoy config (EnvoyFilter or an external rate-limit service).
+- Connection caps: DestinationRule connectionPool (max connections, pending requests).
+- Circuit breaking: outlierDetection ejects failing endpoints.
+- Timeouts, retries, fault injection (VirtualService).
+- Canary / traffic split, header-based routing.
+
+**4. Attacks: helps vs does NOT cover**
+- *Helps with:* spoofed or unauthorised callers (no valid cert); sniffing between node, VPC and VM; lateral movement (default-deny policies); request floods (rate and connection limits); calls to unapproved external destinations.
+- *Does NOT cover:* syscalls, files, malware in the container (Sysdig); container escape, kernel exploits, SQLi / XSS (WAF); non-meshed traffic; a malicious admin changing istiod policy.
+
+**Feedback to the control plane:** istio-proxy keeps one xDS gRPC stream to istiod :15012 (config and certs in; ACK/NACK, cert requests and status out). Request metrics do not go there.
+
+**Trust note:** istiod is under cluster-admin control, so mesh policy and identity are not attested. Treat the mesh as visibility and defense in depth, not the confidentiality boundary.
+
+### Other labels in the diagram
+- Worker node agents (Sysdig, cloudlogs): see L3/L4 flows after VXLAN decap on the node, but no syscalls or files in the VM.
+- RHEL guest OS image: measured; add the sidecar to RVPS.
+- TDX chip / TEE boundary: guest memory is encrypted.
+- Node stack in the diagram: RHCOS 9.6, cri-o 1.32, OpenShift 4.19, Calico CNI.
 
 ---
 
