@@ -7,9 +7,9 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .cc-page, .cc-page *, .cc-page *::before, .cc-page *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
+  .cc-page {
     --bg: #f8f9fc;
     --panel: #ffffff;
     --border: #dde1ea;
@@ -19,12 +19,12 @@
     --sans: 'IBM Plex Sans', sans-serif;
   }
 
-  body {
+  .cc-page {
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
-    min-height: 100vh;
-    padding: 40px 20px 80px;
+    padding: 24px 20px 40px;
+    border-radius: 8px;
   }
 
   .page-header { text-align: center; margin-bottom: 36px; }
@@ -203,6 +203,7 @@
 </style>
 </head>
 <body>
+<div class="cc-page">
 
 <div class="page-header">
   <h1>Confidential Computing — nested layer view</h1>
@@ -332,5 +333,6 @@
   <strong>Read it as:</strong> L5 (your workload) runs inside L4 (container) · inside L3 (TEE / cVM) · inside L2 (hypervisor, untrusted) · inside L1 (firmware) · inside L0 (hardware). L6 lives <strong>outside</strong> the entire stack — it is the independent party that verifies the TEE and releases secrets. If the CSP controls L6, the model collapses.
 </div>
 
+</div><!-- end cc-page -->
 </body>
 </html>
