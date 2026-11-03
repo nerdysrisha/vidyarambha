@@ -579,3 +579,227 @@ Steps:
 - **Spot a hacked container behaving badly:** Sysdig.
 - **Fix rate, retries, canary:** Istio.
 - **Prove the VM is genuine before releasing secrets:** TDX + attestation (Trustee).
+
+
+
+
+<br>
+
+# ═══════════════════════════════════════════════════════════
+# ADDITIONS: CDH, AA and Trustee (KBS, AS, RVPS, client-tool)
+# ═══════════════════════════════════════════════════════════
+
+---
+
+## Part 9: The attestation and secret components
+
+### Big picture (matches the small diagram)
+- **Guest side (inside the confidential VM):** CDH and AA, which talk to each other locally.
+- **Trustee side (external VSI):** KBS (front door), AS (checks the proof), RVPS (known-good values).
+- **client-tool (admin side):** used by the owner to configure the KBS (upload secrets, set policies, set reference values).
+- **Two arrows go from the guest to the KBS:**
+  - **AA --> KBS: "attests guest"** (sends the TDX proof).
+  - **CDH --> KBS: "requests resource"** (asks for the secret).
+- **Inside Trustee:** KBS --> AS ("validates evidence"), and RVPS --> AS ("provides reference values").
+- **Who plays which role:** AA + CDH = the **attester** (the one proving itself), AS = the **verifier** (the one checking), KBS = the **relying party** (the one releasing secrets).
+- **Project split:** AA and CDH come from the *guest-components* project, KBS/AS/RVPS from the *Trustee* project.
+
+---
+
+### Confidential Data Hub (CDH), inside the VM
+**What it does**
+- The **local "secrets desk"** for your app and for the Kata agent.
+- Your app asks it for a secret, it fetches the secret from the KBS and hands it back.
+- Also handles: unsealing sealed secrets, decrypting encrypted container images, mounting encrypted storage (secure mount).
+
+**Where it runs**
+- Inside the peer pod VM (TEE), as a guest component started with the VM image.
+
+**Ports / endpoints (typical, verify in your image)**
+- **Local only, never exposed outside the VM.**
+- Local API for the app: HTTP on `127.0.0.1:8006` (for example `/cdh/resource/<repo>/<type>/<tag>`) via the API server, or a ttrpc Unix socket used by the Kata agent.
+- **Outbound:** to the KBS, default **TCP 8080** (HTTP, or HTTPS if you put TLS in front), on the VM's own VPC NIC.
+
+**How it gets its settings**
+- From the **init data** (cdh config, with the KBS address and certificate) or from VM kernel parameters.
+
+**Sensitive data: how it is stored**
+- Secret is received **encrypted** (to a one-time key that only this TEE holds).
+- CDH decrypts it **in memory inside the TEE**. TDX memory is hardware-encrypted, so the host cannot read it.
+- It is not written to disk unless the app does that itself.
+
+---
+
+### Attestation Agent (AA), inside the VM
+**What it does**
+- Collects **TDX evidence** (the "quote") from the chip.
+- Does the attestation conversation with the KBS and gets an attestation token.
+- Can also record **runtime measurements** (extend the measurement log, for example for init data).
+
+**Where it runs**
+- Inside the peer pod VM, next to CDH. CDH uses it.
+
+**Ports / endpoints (typical)**
+- **Local only:** ttrpc Unix socket, or REST on `127.0.0.1:8006` (for example `/aa/token`, `/aa/evidence`).
+- **Outbound to KBS:** `/kbs/v0/auth` and `/kbs/v0/attest` on **TCP 8080**.
+- Talks to the TDX hardware through the **guest TDX device** (`/dev/tdx_guest`), not the network.
+
+**Sensitive data: how it is stored**
+- Holds a **temporary key pair** created for each session (in memory only).
+- Evidence is not secret by itself, but it is signed by hardware, so it cannot be faked.
+
+---
+
+### Key Broker Service (KBS), on the Trustee
+**What it does**
+- The **front door** of the Trustee. Guests only ever talk to the KBS.
+- Runs the **attestation conversation** with the guest.
+- **Holds the secrets** and releases one only if the proof is valid and the resource policy allows it.
+- Admins use it (via client-tool) to upload secrets and set policies.
+
+**Where it runs**
+- On the Trustee VSI, same VPC. Deployed with Docker Compose, Kubernetes (KBS operator) or as a service.
+
+**Ports / endpoints**
+- **TCP 8080** (default, HTTP; use TLS/HTTPS in production).
+- **Guest endpoints:**
+  - `POST /kbs/v0/auth` (start, the KBS sends back a challenge).
+  - `POST /kbs/v0/attest` (guest sends evidence).
+  - `GET /kbs/v0/resource/<repo>/<type>/<tag>` (get the secret).
+- **Admin endpoints:** for secrets and policies, protected by an **admin key pair**.
+- **To AS and RVPS:** gRPC if they are separate processes (typically **50004** for AS, **50003** for RVPS, verify), or built in.
+
+**Sensitive data: how it is stored**
+- **Secrets** (DB credentials etc.) live in the KBS **resource repository**:
+  - Default: files on the Trustee disk (local file system, folder per repo/type/tag).
+  - Optional: external backends (vault / KMS style plugins).
+- At rest, they are only as safe as **that VSI's disk and access controls**, so encrypt the disk, restrict access and back up carefully.
+- In transit: secret is **encrypted to the guest's one-time key**, so even if the network is sniffed it cannot be read.
+- Also keeps the **admin public key** and the **policies**.
+
+---
+
+### Attestation Service (AS), on the Trustee
+**What it does**
+- The **verifier**: **this is where the attestation report is actually checked.**
+- Checks the evidence is genuine and compares it with the reference values.
+- Returns a signed **attestation token** (claims such as "TDX, measurements OK") to the KBS.
+
+**Where it runs**
+- On the Trustee VSI, either built into the KBS process or as a separate service.
+
+**Ports / endpoints**
+- Separate mode: gRPC, typically **50004** (verify).
+- Built-in mode: no separate port, called inside the KBS.
+- **Outbound:** may need to fetch Intel certificate/collateral data (PCS/PCCS) to verify TDX quotes, so the Trustee needs that access or a local PCCS cache.
+
+**Sensitive data: how it is stored**
+- Holds the **attestation policy** (rules) and its **token-signing key**.
+- Does not store your application secrets.
+
+**How the check works**
+1. **Signature check:** is the quote signed by a genuine Intel TDX chip (certificate chain and collateral)?
+2. **Freshness:** does it contain the **challenge** from the KBS (stops replay)?
+3. **Binding:** does it contain the hash of the guest's one-time public key (so the secret goes only to this TEE)?
+4. **Measurements:** do the values (VM image, firmware, kernel, init data) match RVPS?
+5. **Policy:** do the claims pass the attestation policy?
+6. If yes, it issues a signed token. If not, it says no.
+
+---
+
+### Reference Value Provider Service (RVPS), on the Trustee
+**What it does**
+- Keeps the **"known good" values** (expected measurements) that the AS compares evidence against.
+- Receives new values from the owner (for example after building a new VM image), then provides them to the AS.
+
+**Where it runs**
+- On the Trustee VSI, inside or beside the AS.
+
+**Ports / endpoints**
+- Separate mode: gRPC, typically **50003** (verify).
+- Reference values are registered via the **client-tool through the KBS** (admin path).
+
+**Sensitive data: how it is stored**
+- Not secret, but **integrity is critical**: if someone changes these values, a bad VM could pass.
+- Stored locally on the Trustee (file-based store by default).
+- Protect it with admin keys and access control.
+
+---
+
+### client-tool (kbs-client), admin side
+**What it does**
+- Command-line tool for the **owner/admin** to configure the Trustee.
+- Uploads **secrets** to the KBS.
+- Sets the **attestation policy** and **resource policy** (who may get which secret).
+- Registers **reference values** (RVPS).
+- Can also act as a test guest (get a token / resource) to check the setup.
+
+**Where it runs**
+- On an admin machine (laptop or jump host), **not** in the VM and not in the cluster.
+
+**Ports / endpoints**
+- Calls the KBS admin endpoints on **TCP 8080** (HTTPS in production).
+
+**Sensitive data: how it is stored**
+- Uses an **admin private key** to authenticate. Keep it off shared machines.
+- Secrets pass through it when uploading, so treat the machine as sensitive.
+
+---
+
+### Who stores what (quick view)
+
+| Item | Stored where | How | Who can read it |
+|---|---|---|---|
+| App secrets (DB creds) | KBS resource repository, Trustee VSI | Files on disk (default), optional external store | Trustee admins, KBS |
+| Admin private key | Admin machine | Key file | Admin only |
+| Admin public key | KBS | Config | KBS |
+| Attestation policy | AS (set via KBS) | Policy file (Rego) | Trustee admins |
+| Resource policy | KBS | Policy file (Rego) | Trustee admins |
+| Reference values | RVPS, Trustee | Local file store | Trustee admins |
+| One-time session key | Guest (AA/CDH) | Memory only (TDX encrypted) | Inside the TEE only |
+| Secret after delivery | Guest memory (CDH, then app) | Plain in TEE memory | Inside the TEE only |
+| TDX evidence | Created on demand by AA | Not stored, sent to KBS | KBS and AS |
+
+---
+
+### Where and how the attestation report is checked (step by step)
+1. **App --> CDH:** "I need the DB secret."
+2. **CDH --> AA:** "Prove who we are."
+3. **AA --> KBS:** sends the start request (`/auth`) with the TEE type and a **one-time public key**.
+4. **KBS --> AA:** returns a **challenge** (a random nonce).
+5. **AA --> TDX chip:** asks for a **quote** that includes the nonce and the hash of the one-time public key.
+6. **AA --> KBS:** sends the evidence (`/attest`).
+7. **KBS --> AS:** "validate this evidence."
+8. **AS** checks signature, freshness, key binding, measurements (from **RVPS**) and the attestation policy.
+9. **AS --> KBS:** signed token with the verified claims (or a rejection).
+10. **CDH --> KBS:** asks for the resource (`/resource/...`).
+11. **KBS** checks the **resource policy** against the token claims. If allowed, it **encrypts the secret to the one-time public key** and sends it.
+12. **CDH** decrypts inside the TEE and hands it to the **app**.
+
+**Key point:** the check happens **on the Trustee (AS)**, not in the VM, not on the worker, and not by the app.
+
+---
+
+### Ports summary (typical defaults, verify for your install)
+
+| From | To | Port | Purpose |
+|---|---|---|---|
+| App | CDH (local) | 127.0.0.1:8006 or Unix socket | Ask for secret |
+| CDH | AA (local) | Unix socket (ttrpc) | Get evidence/token |
+| AA / CDH | KBS | TCP 8080 | Attest, get resource |
+| KBS | AS (if separate) | gRPC, 50004 | Validate evidence |
+| KBS / AS | RVPS (if separate) | gRPC, 50003 | Reference values |
+| client-tool | KBS | TCP 8080 | Admin config |
+| AS | Intel PCS / PCCS | HTTPS 443 (or local PCCS) | TDX collateral |
+
+**VPC rules needed:** VM security group outbound to Trustee 8080, Trustee security group inbound 8080 from the peer pod VM subnet, admin access to 8080 only from allowed machines.
+
+---
+
+### Things to confirm with IBM / Red Hat
+- Exact port numbers and whether AS/RVPS are built into the KBS or separate in your Trustee build.
+- Whether the KBS is behind **HTTPS** in your setup (HTTP is common in demos, not for production).
+- How the Trustee gets TDX collateral (Intel PCS vs a local PCCS) from inside your VPC.
+- Whether the **init data hash** and the sidecar images are registered in RVPS.
+- How the Trustee VSI disk is encrypted and who has admin access.
+- Whether your CDH/AA version uses the REST port or only the Unix sockets.
