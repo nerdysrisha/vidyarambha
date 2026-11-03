@@ -317,6 +317,150 @@ Steps:
 
 ---
 
+
+<br>
+
+# ═══════════════════════════════════════════════════════════
+# INSERT (Part 4): Istio components only
+# ═══════════════════════════════════════════════════════════
+
+---
+
+### Istio / service mesh components
+
+**Quick map**
+- **Install-time:** Sail operator, Istio CR, IstioCNI CR.
+- **Control plane (on a worker, namespace `istio-system`):** istiod (xDS, Mesh CA, injection webhook).
+- **Entry:** ingress gateway (Envoy) and its Service.
+- **Data plane (inside the peer pod VM):** istio-init and istio-proxy.
+- **Rules you write:** PeerAuthentication, AuthorizationPolicy, RequestAuthentication, Gateway, VirtualService, DestinationRule, ServiceEntry.
+
+---
+
+**Sail operator (OSSM 3)**
+- Operator installed through OLM (OperatorHub) in `openshift-operators`.
+- Watches the **Istio CR** and creates/updates istiod from it.
+- Handles upgrades of the Istio version.
+- Admin-time only, never in the request path.
+
+**Istio CR (cluster-scoped)**
+- The "order form" that tells the Sail operator how to set up istiod.
+- Holds the version, mesh settings and defaults.
+- Operator then creates the istiod Deployment in `istio-system`.
+- Cluster-scoped (no namespace).
+
+**IstioCNI CR / istio-cni-node**
+- IstioCNI CR tells the operator to deploy the **istio-cni agent** (DaemonSet, one per node, namespace `istio-cni`).
+- Purpose: set up traffic redirect **without** needing NET_ADMIN in the pod's init container.
+- Works on the **worker node**, hooking pod creation.
+- **Unverified for peer pods:** the pod's real network is inside the VM, so confirm with IBM whether istio-cni or istio-init does the redirect there.
+
+**istiod (control plane, Deployment in `istio-system`)**
+- The "brain" of the mesh. Runs on a **worker node**, not in the VM or TEE.
+- Three jobs in one: pushes config (xDS), issues certificates (Mesh CA), serves the injection webhook.
+- **Ports:** `15012` (xDS + certificate requests, mTLS), `15017` (webhook), `15014` (monitoring).
+- Each istio-proxy keeps **one long-lived gRPC stream** to it.
+- Under cluster-admin control, so it is **not attested** by Trustee.
+
+**Mesh CA (inside istiod)**
+- Issues a **certificate per workload** (identity = SPIFFE ID of the service account).
+- istio-proxy asks for it on startup, using the pod's service account token.
+- Certificates are short-lived and renewed automatically.
+- Used for mTLS between proxies; private key stays inside the proxy.
+
+**Injection webhook (MutatingWebhookConfiguration)**
+- Cluster-scoped object that points Kubernetes to istiod's webhook.
+- Triggered when a pod is created in a namespace labelled `istio-injection=enabled`.
+- **Adds** the `istio-init` and `istio-proxy` containers to the pod spec **before** the pod is scheduled.
+- Works for `kata-remote` pods too, because it only edits the pod spec. The Kata agent then starts those containers in the VM.
+
+**Namespace label `istio-injection=enabled`**
+- The switch that turns injection on for a namespace.
+- Can be turned off per pod with an annotation.
+- Without it, no sidecar is added and the app is outside the mesh.
+- Set by the admin, not by the app.
+
+**Ingress gateway (Envoy Deployment, namespace `istio-ingress`)**
+- The mesh's front door: an Envoy proxy running as a normal pod on the **worker**.
+- Receives client traffic, applies Gateway/VirtualService rules, routes to your app's Service.
+- Can start **mTLS** toward the app's sidecar.
+- Optional, since you can also send traffic straight to the app.
+
+**Ingress gateway Service (LoadBalancer / NodePort)**
+- A Kubernetes Service in front of the gateway pod.
+- On IBM Cloud it can create a **VPC Load Balancer**; without one, a **NodePort** on the worker.
+- This is what the client actually calls first.
+- Calico translates it to the gateway pod IP.
+
+**istio-init (init container, inside the VM)**
+- Runs once before the app, then exits.
+- Writes **iptables rules** in the pod's network namespace:
+  - Inbound traffic goes to port `15006` (istio-proxy).
+  - Outbound traffic goes to port `15001` (istio-proxy).
+- Needs `NET_ADMIN` (unless istio-cni does this job).
+- This is why packets arriving at `vxlan0` end up at istio-proxy and not the app.
+
+**istio-proxy (Envoy sidecar, inside the VM)**
+- The **data plane**: all app traffic in and out passes through it.
+- Ends **mTLS**, checks AuthorizationPolicy, then passes plain data to the app on localhost.
+- Runs `pilot-agent` which talks to istiod and manages certificates.
+- **Ports:** `15006` (inbound), `15001` (outbound), `15021` (health), `15090` (metrics), `15020` (merged metrics/agent).
+- Sends telemetry (metrics, logs, traces) to your backend, not to istiod.
+
+**PeerAuthentication**
+- Sets the **mTLS mode** for a namespace or workload.
+- `STRICT` = only mTLS accepted, plain traffic rejected.
+- `PERMISSIVE` = accepts both (used during migration).
+- Applied by istiod to the proxies as config.
+
+**AuthorizationPolicy**
+- Allow/deny rules checked by istio-proxy for each request.
+- Can match caller identity, namespace, method, path, port.
+- Actions: ALLOW, DENY, AUDIT.
+- Default-deny is possible by creating an empty ALLOW policy.
+
+**RequestAuthentication**
+- Tells the proxy how to validate **end-user JWT tokens** (issuer, keys).
+- Only checks tokens that are present; pair with AuthorizationPolicy to require them.
+- Works at the proxy of the called app.
+- Separate from workload identity (that is mTLS).
+
+**Gateway / VirtualService**
+- **Gateway:** which ports and hosts the ingress gateway listens on (and TLS settings).
+- **VirtualService:** how requests are routed (paths, headers, canary splits, timeouts, retries, fault injection).
+- Both are read by istiod and pushed to the right proxies.
+- Drive the ingress-gateway-to-app routing.
+
+**DestinationRule**
+- Rules for traffic **to** a service: load balancing, connection pool limits, circuit breaking (outlier detection), TLS mode.
+- Defines subsets (for example v1 and v2) used by VirtualService.
+- Applied on the calling proxy.
+- Used for rate and connection caps.
+
+**ServiceEntry (egress control)**
+- Registers **external destinations** (for example the DB host) in the mesh.
+- With outbound policy set to "registry only", calls to anything not registered are blocked.
+- Lets you apply policy and telemetry to external calls.
+- Note: the secret path to the Trustee (VM `eth0`, HTTPS) is not mesh traffic unless you route it through the sidecar.
+
+---
+
+### How the Istio pieces hand over (peer pod view)
+1. **Admin:** Sail operator --> Istio CR --> istiod (and IstioCNI CR --> istio-cni-node).
+2. **Pod creation:** injection webhook (istiod) adds istio-init + istio-proxy --> Kata agent starts them in the VM.
+3. **Startup:** istio-init sets iptables --> istio-proxy connects to istiod `:15012` over the tunnel path --> gets config and certificate.
+4. **Request:** client --> ingress gateway Service --> ingress gateway (Envoy) --> tunnel --> VM `vxlan0` --> iptables --> istio-proxy (`15006`) --> app.
+5. **Outbound from the app:** app --> iptables --> istio-proxy (`15001`) --> destination.
+
+### Things to confirm with IBM / Red Hat
+- istio-init vs istio-cni for the redirect inside the VM.
+- istio-proxy reaching istiod `:15012` from the VM (security groups and tunnel path).
+- Sidecar images are part of the measured image and registered in RVPS.
+- Port numbers above are Istio defaults; check your OSSM 3 version.
+
+
+
+
 ## Part 5: Notes from the diagram
 
 ### Legend

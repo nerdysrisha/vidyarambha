@@ -48,10 +48,10 @@ details.dd{border-bottom:0;margin:0 0 4px 4px}
 .sp textarea{height:56px;min-height:56px;max-height:140px;resize:none;line-height:1.3}
 .sp ::placeholder{color:#7e7b93}
 .sp input:focus,.sp textarea:focus{outline:0;border-color:#a58ff2}
-#sb{position:absolute;top:8px;right:8px;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #4a3a80;background:#312650;color:#b9a7ff;display:flex;align-items:center;justify-content:center}
+#sb,#ts{position:absolute;top:8px;right:8px;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #4a3a80;background:#312650;color:#b9a7ff;display:flex;align-items:center;justify-content:center}
 #sb:active{background:#3d3066}
-#sb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-#sb svg.fly{animation:fly .9s ease-in-out}
+#sb svg,#ts svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sb svg.fly,#ts svg.fly{animation:fly .9s ease-in-out}
 @keyframes fly{
  0%{transform:translate(0,0) scale(1);opacity:1}
  42%{transform:translate(62px,-44px) scale(.6) rotate(-8deg);opacity:0}
@@ -66,10 +66,23 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
 
 #tt{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ac);color:#06182E;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
 #tt.show{opacity:1}
+#th.hide,#ut.hide{display:none}
+.stb{color:var(--mu)}.stb[data-s="1"]{color:var(--ac2)}
+.who{cursor:pointer;text-decoration:underline;text-decoration-color:var(--ln);text-underline-offset:3px}
+#th{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;padding:12px 14px}
+.thh{display:flex;gap:12px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--ln)}
+#tb{border:0;background:var(--card);color:var(--tx);border-radius:10px;width:40px;height:36px;font-size:18px}
+#tl{flex:1;overflow-y:auto;padding:10px 0}
+.bu{max-width:84%;width:fit-content;padding:8px 11px;border-radius:14px;margin:0 0 6px;font-size:15px;line-height:1.35;white-space:pre-wrap;word-break:break-word;background:var(--card)}
+.bu.out{margin-left:auto;background:#312650}
+.bu small{display:block;color:var(--mu);font-size:11px;margin-top:2px}
+#th .sp{margin:8px 0 0}#th .sp textarea{width:calc(100% - 48px);height:44px;min-height:44px}
+#ut{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ln);color:var(--tx);padding:8px 8px 8px 16px;border-radius:20px;z-index:20;display:flex;gap:14px;align-items:center;white-space:nowrap}
+#ub{border:0;background:var(--ac);color:#06182E;font-weight:700;border-radius:14px;padding:6px 12px}
 </style></head><body>
 <div id="top">
  <div class="hd"><h1>💬 MySMSHandler</h1><button id="tr" title="Delete mode">🗑</button></div>
- <div class="tabs"><button class="on" data-t="msgs">Messages<span class="bdg hide" id="bdg">0</span></button><button data-t="send">Send</button><button data-t="set">⚙</button></div>
+ <div class="tabs"><button class="on" data-t="msgs">Messages<span class="bdg hide" id="bdg">0</span></button><button data-t="star">★</button><button data-t="send">Send</button><button data-t="set">⚙</button></div>
  <div id="qw"><input id="q" type="search" placeholder="Search messages or numbers…"></div>
  <p id="dh" class="hide">Delete mode ON · swipe a message to the right to delete it</p>
 </div>
@@ -83,6 +96,11 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
  <div class="card" id="ml" style="padding-top:2px;padding-bottom:2px"></div>
 </div>
 
+<div id="star" class="hide">
+ <p class="mu" id="cnt3" style="margin-bottom:6px"></p>
+ <div class="card" id="fl" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
 <div id="send" class="hide">
  <div class="sp">
   <input id="to" type="tel" inputmode="tel" placeholder="To (number)">
@@ -94,6 +112,9 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
 </div>
 
 <div id="set" class="hide">
+ <div class="card"><b>Auto-clean codes</b>
+  <p class="mu" style="margin:6px 0 10px">Delete received OTP / login-code messages older than N days (0 = off). Starred messages are kept.</p>
+  <input id="ac" type="number" inputmode="numeric" placeholder="Days (0 = off)" style="margin:0"></div>
  <div class="card"><b>Phone inbox</b>
   <p class="mu" style="margin:6px 0 10px">New messages are copied automatically. Use this to re-scan everything (duplicates and messages you deleted here are skipped).</p>
   <button class="go alt" id="im">Import all from phone</button></div>
@@ -103,13 +124,24 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
   <label class="go alt">Load backup file<input id="ld" type="file" accept=".json,application/json" style="display:none"></label>
   <p class="mu" id="bm" style="margin-top:8px"></p></div>
 </div>
+<div id="ut" class="hide"><span>Message deleted</span><button id="ub">UNDO</button></div>
+<div id="th" class="hide">
+ <div class="thh"><button id="tb">←</button><div><b id="tn"></b><div class="mu" id="ta"></div></div></div>
+ <div id="tl"></div>
+ <div class="sp"><textarea id="tx" placeholder="Reply"></textarea><button id="ts" title="Send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
+</div>
 <div id="tt"></div>
 
 <script>
 const A=window.AndroidSms,$=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let Q='',st={},lastVer=-1,tab='msgs',delMode=false;
-const newIds=new Set();
+const newIds=new Set(),NM={},MSG={};let last=null,thA='';
+const nm=a=>NM[a]||a;
+function names(list){                    // contact names for numbers (needs contacts permission)
+ if(!A||!A.hasContacts())return;
+ const need=[...new Set(list)].filter(a=>!(a in NM)&&/\d{5}/.test(a));if(!need.length)return;
+ try{const r=JSON.parse(A.names(JSON.stringify(need)));need.forEach(a=>NM[a]=r[a]||'')}catch(e){}}
 const J=(fn,...a)=>{try{return A?JSON.parse(A[fn](...a)):[]}catch(e){return[]}};
 const mLabel=m=>new Date(m+'-01T00:00').toLocaleString('default',{month:'long',year:'numeric'});
 const dLabel=d=>new Date(d+'T00:00').toLocaleDateString('default',{weekday:'short',day:'numeric',month:'short'});
@@ -161,13 +193,13 @@ function clearUnread(){                // you looked at them: badge + app-icon d
 
 /* ---------- lists ---------- */
 function msgHtml(x,ty){
- const c=cred(x.b);
- return `<div class="sw"><div class="bg">🗑</div><div class="m ${ty==2?'out':''}${newIds.has(x.i)?' new':''}" data-id="${x.i}"><div class="mh"><b>${ty==2?'→ ':''}${esc(x.a)}</b><span>${c?`<button class="cp" data-c="${esc(c)}" title="Copy username and password">📋</button>`:''}${esc(tLabel(x.t))}</span></div><div class="mb">${msgBody(x.b)}</div></div></div>`}
+ const c=cred(x.b);MSG[x.i]=x;
+ return `<div class="sw"><div class="bg">🗑</div><div class="m ${x.y==2?'out':''}${newIds.has(x.i)?' new':''}" data-id="${x.i}"><div class="mh"><b class="who" data-a="${esc(x.a)}">${x.y==2?'→ ':''}${esc(nm(x.a))}</b><span>${c?`<button class="cp" data-c="${esc(c)}" title="Copy username and password">📋</button>`:''}<button class="cp stb" data-id="${x.i}" data-s="${x.s?1:0}" title="Star">${x.s?'★':'☆'}</button>${esc(tLabel(x.t))}</span></div><div class="mb">${msgBody(x.b)}</div></div></div>`}
 
 /* st holds fold state. keys: "r|2026-11" (month), "r|2026-11|2026-11-02" (day); r = received, s = sent.
    default: everything folded, except while searching (then everything is open) */
 function body(m,ty,p){
- const L=J('list',m,Q,ty),days={};
+ const L=J('list',m,Q,ty),days={};names(L.map(x=>x.a));
  L.forEach(x=>(days[x.d]=days[x.d]||[]).push(x));
  return Object.keys(days).sort().reverse().map(d=>{
   const k=p+'|'+m+'|'+d,open=(k in st)?st[k]:!!Q;
@@ -176,29 +208,32 @@ function body(m,ty,p){
 
 function draw(){
  if(tab=='set')return;
- const ty=tab=='send'?2:1,p=ty==2?'s':'r',el=$(ty==2?'sl':'ml'),cn=$(ty==2?'cnt2':'cnt');
+ const ty=tab=='send'?2:tab=='star'?3:1,p={1:'r',2:'s',3:'f'}[ty],el=$({1:'ml',2:'sl',3:'fl'}[ty]),cn=$({1:'cnt',2:'cnt2',3:'cnt3'}[ty]);
  if(!A){el.innerHTML='<p class="mu" style="padding:12px 0">Works only in the installed app.</p>';return}
  const ok=A.hasPerm();$('perm').classList.toggle('hide',ok);
  if(!ok){el.innerHTML=ty==2?'<p class="mu" style="padding:12px 0">Allow SMS access in the Messages tab first.</p>':'';cn.textContent='';return}
  const ms=J('months',Q,ty),tot=ms.reduce((a,x)=>a+x.n,0);
- cn.textContent=Q?tot+' matches':tot+(ty==2?' sent':' received');
+ cn.textContent=Q?tot+' matches':tot+(ty==2?' sent':ty==3?' starred':' received');
  el.innerHTML=ms.length?ms.map(x=>{
   const k=p+'|'+x.m,open=(k in st)?st[k]:!!Q;
   return `<details class="mo" data-k="${k}" ${open?'open':''}><summary><span>${esc(mLabel(x.m))}</span><b>${x.n}</b></summary>${open?body(x.m,ty,p):''}</details>`}).join('')
-  :`<p class="mu" style="padding:12px 0">${Q?'No match.':(ty==2?'No sent messages yet.':'No messages yet.')}</p>`}
+  :`<p class="mu" style="padding:12px 0">${Q?'No match.':(ty==2?'No sent messages yet.':ty==3?'Nothing starred yet. Tap ☆ on a message.':'No messages yet.')}</p>`}
 
 const tg=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
  const o=e.target.open,month=k.split('|').length==2;
  if(!month){st[k]=o;return}                       // day: just remember the state (content is already in the page)
  const cur=(k in st)?st[k]:!!Q;if(cur!==o){st[k]=o;draw()}};   // month: remember + load its messages
-const ck=e=>{const b=e.target.closest('.cp,.otp');if(!b)return;e.preventDefault();
+const ck=e=>{
+ const s=e.target.closest('.stb');if(s){A.star(+s.dataset.id,s.dataset.s!=='1');draw();return}
+ const w=e.target.closest('.who');if(w&&!delMode){openTh(w.dataset.a);return}
+ const b=e.target.closest('.cp,.otp');if(!b)return;e.preventDefault();
  copy(b.dataset.c,b.classList.contains('otp')?'Code copied ✓':'Username & password copied ✓')};
 
 /* ---------- swipe right to delete (only in delete mode) ---------- */
 let sw=null;
 function swDown(e){
  if(!delMode||!A||(e.pointerType==='mouse'&&e.button>0))return;
- if(e.target.closest('.cp,.otp'))return;
+ if(e.target.closest('.cp,.otp,.stb,.who'))return;
  const m=e.target.closest('.m');if(!m)return;
  sw={m,bg:m.parentNode.firstChild,x:e.clientX,y:e.clientY,drag:false,w:m.offsetWidth,pid:e.pointerId}}
 function swMove(e){
@@ -215,14 +250,14 @@ function swUp(e){
  const s=sw;sw=null;if(!s.drag)return;
  const d=Math.max(0,e.clientX-s.x);
  s.m.style.transition='transform .18s';
- if(d>=s.w*.5){s.m.style.transform='translateX(110%)';A.del(+s.m.dataset.id);setTimeout(draw,200)}
+ if(d>=s.w*.5){s.m.style.transform='translateX(110%)';const dx=MSG[+s.m.dataset.id];A.del(+s.m.dataset.id);if(dx){last=dx;showUndo()}setTimeout(draw,200)}
  else{s.m.style.transform='';s.bg.style.opacity=0}}
 function swCancel(){
  if(!sw)return;const s=sw;sw=null;
  s.m.style.transition='transform .18s';s.m.style.transform='';s.bg.style.opacity=0}
 
 $('ml').addEventListener('pointerdown',clearUnread);
-['ml','sl'].forEach(id=>{const el=$(id);
+['ml','sl','fl'].forEach(id=>{const el=$(id);
  el.addEventListener('toggle',tg,true);
  el.addEventListener('click',ck);
  el.addEventListener('pointerdown',swDown);
@@ -242,7 +277,7 @@ let qt;$('q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{Q=e.target.value.t
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
  tab=b.dataset.t;
  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));
- ['msgs','send','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
+ ['msgs','star','send','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
  $('qw').classList.toggle('hide',tab=='set');
  $('q').placeholder=tab=='send'?'Search sent messages…':'Search messages or numbers…';
  if(tab!='msgs')newIds.clear();
@@ -258,8 +293,7 @@ $('sb').onclick=()=>{
  const r=A.send($('to').value,$('bd').value);
  if(r!=='ok'){toast(r.replace(/^ERR:\s*/,''));return}
  $('bd').value='';$('bd').style.height='';
- const ic=$('sb').firstElementChild;ic.classList.remove('fly');void ic.getBoundingClientRect();ic.classList.add('fly');   // paper plane flies off and comes back
- $('sb').disabled=true;setTimeout(()=>{$('sb').disabled=false;ic.classList.remove('fly')},950);
+ fly($('sb'));   // paper plane flies off and comes back
  const d=new Date(),z=n=>String(n).padStart(2,'0'),mk=d.getFullYear()+'-'+z(d.getMonth()+1);
  st['s|'+mk]=true;st['s|'+mk+'|'+mk+'-'+z(d.getDate())]=true;   // open today's folder so the new message is visible
  draw()};
@@ -272,11 +306,33 @@ $('ld').onchange=e=>{const fl=e.target.files[0];if(!fl||!A)return;const rd=new F
   catch(x){$('bm').textContent='Not a valid backup file'}};
  rd.readAsText(fl);e.target.value=''};
 
+function fly(b){const ic=b.firstElementChild;ic.classList.remove('fly');void ic.getBoundingClientRect();ic.classList.add('fly');b.disabled=true;setTimeout(()=>{b.disabled=false;ic.classList.remove('fly')},950)}
+
+/* undo after a swipe-delete */
+let ut;function showUndo(){$('ut').classList.remove('hide');clearTimeout(ut);ut=setTimeout(()=>$('ut').classList.add('hide'),5000)}
+$('ub').onclick=()=>{if(last){A.undo(last.a,last.b,last.t,last.y);last=null}$('ut').classList.add('hide');draw()};
+
+/* per-person chat + reply */
+function openTh(a){thA=a;names([a]);$('tn').textContent=nm(a);$('ta').textContent=nm(a)===a?'':a;drawTh();$('th').classList.remove('hide');$('tl').scrollTop=1e9}
+function drawTh(){let ld='';const t=$('tl'),atEnd=t.scrollHeight-t.scrollTop-t.clientHeight<80;
+ t.innerHTML=J('thread',thA).reverse().map(x=>{const d=new Date(x.t),k=d.toDateString();let s='';
+  if(k!==ld){ld=k;s=`<div class="mu" style="text-align:center;margin:8px 0">${esc(d.toLocaleDateString('default',{weekday:'short',day:'numeric',month:'short'}))}</div>`}
+  return s+`<div class="bu ${x.y==2?'out':''}">${msgBody(x.b)}<small>${esc(tLabel(x.t))}</small></div>`}).join('');
+ if(atEnd)t.scrollTop=t.scrollHeight}
+$('tb').onclick=()=>$('th').classList.add('hide');
+$('tl').addEventListener('click',ck);
+$('ts').onclick=()=>{const r=A.send(thA,$('tx').value);if(r!=='ok'){toast(r.replace(/^ERR:\s*/,''));return}$('tx').value='';fly($('ts'));drawTh();$('tl').scrollTop=1e9};
+
+/* auto-clean setting */
+const AC=()=>{try{return +localStorage.getItem('ac')||0}catch(e){return 0}};
+$('ac').value=AC()||'';$('ac').onchange=e=>{try{localStorage.setItem('ac',String(Math.max(0,+e.target.value||0)))}catch(x){}toast('Saved ✓')};
+
 try{A&&A.setBars('#0E1420','#0E1420')}catch(e){}
-if(A&&A.hasPerm()){A.importPhone(false);A.askNotif()}
+if(A&&A.hasPerm()){A.importPhone(false);A.askNotif();setTimeout(()=>A.askContacts(),1500);
+ const n=AC();if(n>0){const k=A.clean(n);if(k)toast(k+' old codes cleaned')}}
 setInterval(()=>{if(!A)return;$('st').textContent=A.status();
  if(!sw||!sw.drag)checkUnread();
- const v=A.ver();if(v!==lastVer){lastVer=v;if(!sw||!sw.drag)draw()}},2000);
+ const v=A.ver();if(v!==lastVer){lastVer=v;if(!sw||!sw.drag)draw();if(!$('th').classList.contains('hide'))drawTh()}},2000);
 document.addEventListener('visibilitychange',()=>{if(A&&!document.hidden)checkUnread()});
 draw();
 </script></body></html>

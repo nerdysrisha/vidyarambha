@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MySMSHandler</title>
+<style>
+:root{--bg:#0E1420;--card:#172033;--tx:#E8EEF9;--mu:#8DA0BF;--ac:#4DA3FF;--ac2:#FFB347;--ln:#243452;--rd:#E53935}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif;padding:14px;min-height:100vh}
+#top{position:sticky;top:0;z-index:10;background:var(--bg);margin:-14px -14px 12px;padding:12px 14px 10px;border-bottom:1px solid var(--ln);box-shadow:0 8px 12px -8px rgba(0,0,0,.8)}
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+h1{font-size:20px}
+#tr{border:0;border-radius:10px;width:40px;height:34px;background:var(--card);font-size:17px}
+#tr.on{background:var(--rd)}
+#dh{color:#FF8A8A;font-size:12px;margin-top:7px}
+.tabs{display:flex;gap:6px}
+.tabs button{position:relative;flex:1;padding:10px;border:0;border-radius:10px;background:var(--card);color:var(--mu);font-size:15px}
+.tabs button.on{background:var(--ac);color:#06182E;font-weight:700}
+.bdg{position:absolute;top:-8px;right:8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--rd);color:#fff;font:700 12px/20px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--bg)}
+#qw{margin-top:8px}
+#qw input{margin:0}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px}
+.mu{color:var(--mu);font-size:13px}
+.hide{display:none}
+input,textarea{width:100%;padding:10px;margin:4px 0 10px;border-radius:8px;border:0;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
+textarea{min-height:90px;resize:vertical}
+.go{display:block;width:100%;padding:14px;border:0;border-radius:14px;font-size:17px;font-weight:700;background:var(--ac);color:#06182E;text-align:center;margin-top:8px}
+.alt{background:var(--ln);color:var(--tx)}
+details{border-bottom:1px solid var(--ln)}
+summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary>span:first-child::before{content:'▸ ';color:var(--mu)}
+details[open]>summary>span:first-child::before{content:'▾ '}
+summary b{background:var(--bg);color:var(--ac2);font-size:12px;border-radius:10px;padding:3px 9px}
+.mo>summary{padding:14px 0;font-weight:700}
+details.dd{border-bottom:0;margin:0 0 4px 4px}
+.ds{padding:9px 0;color:var(--ac);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+
+/* message + swipe-to-delete */
+.sw{position:relative;overflow:hidden;border-radius:10px;margin-bottom:7px}
+.sw .bg{position:absolute;inset:0;background:var(--rd);opacity:0;display:flex;align-items:center;padding-left:16px;font-size:20px}
+.m{position:relative;background:var(--bg);border-left:3px solid var(--ac);border-radius:10px;padding:9px 11px}
+.m.out{border-left-color:var(--ac2)}
+.m.new .mh b::before{content:'● ';color:#FF5A5F}
+/* slim send panel (purple template) */
+.sp{position:relative;background:#15112a;border:1px solid #2a2145;border-radius:16px;padding:8px;margin-bottom:10px}
+.sp input,.sp textarea{display:block;width:100%;margin:0;padding:9px 12px;border-radius:12px;border:1px solid #2a2145;background:#191231;color:#d5d8e4;font:15px system-ui,sans-serif}
+.sp input{width:calc(100% - 48px);height:38px;margin-bottom:6px}
+.sp textarea{height:56px;min-height:56px;max-height:140px;resize:none;line-height:1.3}
+.sp ::placeholder{color:#7e7b93}
+.sp input:focus,.sp textarea:focus{outline:0;border-color:#a58ff2}
+#sb{position:absolute;top:8px;right:8px;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #4a3a80;background:#312650;color:#b9a7ff;display:flex;align-items:center;justify-content:center}
+#sb:active{background:#3d3066}
+#sb svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sb svg.fly{animation:fly .9s ease-in-out}
+@keyframes fly{
+ 0%{transform:translate(0,0) scale(1);opacity:1}
+ 42%{transform:translate(62px,-44px) scale(.6) rotate(-8deg);opacity:0}
+ 43%{transform:translate(-56px,40px) scale(.6);opacity:0}
+ 100%{transform:translate(0,0) scale(1);opacity:1}}
+body.dm .m{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;margin-bottom:3px}
+.mh span{color:var(--mu);white-space:nowrap;display:flex;align-items:center}
+.mb{font-size:15px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
+.cp{border:0;background:var(--ln);border-radius:8px;padding:3px 8px;margin-right:8px;font-size:14px}
+mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;padding:1px 9px;border-radius:8px;margin:3px 0}
+
+#tt{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ac);color:#06182E;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#tt.show{opacity:1}
+</style></head><body>
+<div id="top">
+ <div class="hd"><h1>💬 MySMSHandler</h1><button id="tr" title="Delete mode">🗑</button></div>
+ <div class="tabs"><button class="on" data-t="msgs">Messages<span class="bdg hide" id="bdg">0</span></button><button data-t="send">Send</button><button data-t="set">⚙</button></div>
+ <div id="qw"><input id="q" type="search" placeholder="Search messages or numbers…"></div>
+ <p id="dh" class="hide">Delete mode ON · swipe a message to the right to delete it</p>
+</div>
+<p class="mu" id="st" style="margin:-4px 0 10px"></p>
+
+<div id="msgs">
+ <div class="card hide" id="perm"><b>Allow SMS access</b>
+  <p class="mu" style="margin:6px 0">Needed to read, store and send messages. On Android 13+, if the Allow button does nothing: Settings → Apps → MySMSHandler → ⋮ → <i>Allow restricted settings</i>, then try again.</p>
+  <button class="go" id="pb">Allow SMS access</button></div>
+ <p class="mu" id="cnt" style="margin-bottom:6px"></p>
+ <div class="card" id="ml" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
+<div id="send" class="hide">
+ <div class="sp">
+  <input id="to" type="tel" inputmode="tel" placeholder="To (number)">
+  <textarea id="bd" placeholder="Message"></textarea>
+  <button id="sb" title="Send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
+ </div>
+ <p class="mu" id="cnt2" style="margin-bottom:6px"></p>
+ <div class="card" id="sl" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
+<div id="set" class="hide">
+ <div class="card"><b>Phone inbox</b>
+  <p class="mu" style="margin:6px 0 10px">New messages are copied automatically. Use this to re-scan everything (duplicates and messages you deleted here are skipped).</p>
+  <button class="go alt" id="im">Import all from phone</button></div>
+ <div class="card"><b>Backup</b>
+  <p class="mu" style="margin:6px 0 10px">Saved to Downloads as MySMSHandler-backup.json. Also auto-saved once a day when an SMS arrives.</p>
+  <button class="go" id="bs">Save backup now</button>
+  <label class="go alt">Load backup file<input id="ld" type="file" accept=".json,application/json" style="display:none"></label>
+  <p class="mu" id="bm" style="margin-top:8px"></p></div>
+</div>
+<div id="tt"></div>
+
+<script>
+const A=window.AndroidSms,$=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let Q='',st={},lastVer=-1,tab='msgs',delMode=false;
+const newIds=new Set();
+const J=(fn,...a)=>{try{return A?JSON.parse(A[fn](...a)):[]}catch(e){return[]}};
+const mLabel=m=>new Date(m+'-01T00:00').toLocaleString('default',{month:'long',year:'numeric'});
+const dLabel=d=>new Date(d+'T00:00').toLocaleDateString('default',{weekday:'short',day:'numeric',month:'short'});
+const tLabel=t=>new Date(t).toLocaleTimeString('default',{hour:'2-digit',minute:'2-digit'});
+
+/* ---------- toast + copy ---------- */
+let tto;function toast(s){const t=$('tt');t.textContent=s;t.classList.add('show');clearTimeout(tto);tto=setTimeout(()=>t.classList.remove('show'),1600)}
+function copy(txt,msg){
+ const ok=()=>toast(msg),fb=()=>{try{const a=document.createElement('textarea');a.value=txt;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();ok()}catch(e){toast('Copy failed')}};
+ try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}}
+
+/* ---------- Wi-Fi style "Username: x Password: y" -> "x y" ---------- */
+const CRED=/(?:user\s?name|user\s?id|login)\s*[:=]?\s*(\S+)[\s,;]+(?:password|passwd|pwd|pass)\s*[:=]?\s*(\S+)/i;
+function cred(b){const m=CRED.exec(b);if(!m)return null;const c=s=>s.replace(/[.,;]+$/,'');return c(m[1])+' '+c(m[2])}
+
+/* ---------- OTP / code spotting ---------- */
+const KW=/otp|one[- ]?time|verification|verify|code|c[oó]digo|\bpin\b|passcode|security|authenticat|token|2fa|confirm/i;
+const CAND=/\b(?:[A-Z]{1,3}-)?(?:\d{3}[ -]\d{3}|\d{4,8})\b/g;
+function otp(b){
+ if(!KW.test(b))return null;
+ const c=[];let m;CAND.lastIndex=0;
+ while((m=CAND.exec(b))){
+  const i=m.index,s=m[0],pv=b[i-1]||'',nx=b[i+s.length]||'';
+  if(/[.,]\d/.test(nx+(b[i+s.length+1]||'')))continue;          // 1250.00 (amount)
+  if((pv==='.'||pv===',')&&/\d/.test(b[i-2]||''))continue;      // 0.1234
+  if(/[€$£]/.test(pv)||nx==='%')continue;                       // money / percent
+  c.push({i,s})}
+ if(!c.length)return null;
+ return c.find(x=>KW.test(b.slice(Math.max(0,x.i-40),x.i)))      // keyword just before the code
+  ||c.find(x=>KW.test(b.slice(x.i+x.s.length,x.i+x.s.length+40))) // keyword just after ("123456 is your code")
+  ||c.find(x=>/^\d{6}$/.test(x.s))||c[0]}
+function msgBody(b){const o=otp(b);if(!o)return esc(b);
+ const v=o.s.replace(/^[A-Z]{1,3}-/,'').replace(/[ -]/g,'');
+ return esc(b.slice(0,o.i))+`<mark class="otp" data-c="${esc(v)}">${esc(o.s)}</mark>`+esc(b.slice(o.i+o.s.length))}
+
+/* ---------- unread badge (like FB): counts SMS that arrived live; clears when you look at the Messages tab ---------- */
+function setBadge(n){const b=$('bdg');b.textContent=n>99?'99+':n;b.classList.toggle('hide',!n)}
+function checkUnread(){
+ if(!A)return;
+ const n=A.unread();setBadge(n);
+ if(n>0&&tab=='msgs'&&!document.hidden&&A.hasPerm()){
+  let fresh=false;      // open the folders holding the new messages and mark them with a red dot; the badge stays until you touch the list
+  J('unreadInfo').forEach(x=>{if(!newIds.has(x.i)){fresh=true;newIds.add(x.i);st['r|'+x.m]=true;st['r|'+x.m+'|'+x.d]=true}});
+  if(fresh)draw()}}
+function clearUnread(){                // you looked at them: badge + app-icon dot go away
+ if(!A)return;
+ if(A.unread()>0){A.markRead();lastVer=A.ver()}
+ setBadge(0)}
+
+/* ---------- lists ---------- */
+function msgHtml(x,ty){
+ const c=cred(x.b);
+ return `<div class="sw"><div class="bg">🗑</div><div class="m ${ty==2?'out':''}${newIds.has(x.i)?' new':''}" data-id="${x.i}"><div class="mh"><b>${ty==2?'→ ':''}${esc(x.a)}</b><span>${c?`<button class="cp" data-c="${esc(c)}" title="Copy username and password">📋</button>`:''}${esc(tLabel(x.t))}</span></div><div class="mb">${msgBody(x.b)}</div></div></div>`}
+
+/* st holds fold state. keys: "r|2026-11" (month), "r|2026-11|2026-11-02" (day); r = received, s = sent.
+   default: everything folded, except while searching (then everything is open) */
+function body(m,ty,p){
+ const L=J('list',m,Q,ty),days={};
+ L.forEach(x=>(days[x.d]=days[x.d]||[]).push(x));
+ return Object.keys(days).sort().reverse().map(d=>{
+  const k=p+'|'+m+'|'+d,open=(k in st)?st[k]:!!Q;
+  return `<details class="dd" data-k="${k}" ${open?'open':''}><summary class="ds"><span>${esc(dLabel(d))}</span><b>${days[d].length}</b></summary>`+
+   days[d].map(x=>msgHtml(x,ty)).join('')+'</details>'}).join('')}
+
+function draw(){
+ if(tab=='set')return;
+ const ty=tab=='send'?2:1,p=ty==2?'s':'r',el=$(ty==2?'sl':'ml'),cn=$(ty==2?'cnt2':'cnt');
+ if(!A){el.innerHTML='<p class="mu" style="padding:12px 0">Works only in the installed app.</p>';return}
+ const ok=A.hasPerm();$('perm').classList.toggle('hide',ok);
+ if(!ok){el.innerHTML=ty==2?'<p class="mu" style="padding:12px 0">Allow SMS access in the Messages tab first.</p>':'';cn.textContent='';return}
+ const ms=J('months',Q,ty),tot=ms.reduce((a,x)=>a+x.n,0);
+ cn.textContent=Q?tot+' matches':tot+(ty==2?' sent':' received');
+ el.innerHTML=ms.length?ms.map(x=>{
+  const k=p+'|'+x.m,open=(k in st)?st[k]:!!Q;
+  return `<details class="mo" data-k="${k}" ${open?'open':''}><summary><span>${esc(mLabel(x.m))}</span><b>${x.n}</b></summary>${open?body(x.m,ty,p):''}</details>`}).join('')
+  :`<p class="mu" style="padding:12px 0">${Q?'No match.':(ty==2?'No sent messages yet.':'No messages yet.')}</p>`}
+
+const tg=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
+ const o=e.target.open,month=k.split('|').length==2;
+ if(!month){st[k]=o;return}                       // day: just remember the state (content is already in the page)
+ const cur=(k in st)?st[k]:!!Q;if(cur!==o){st[k]=o;draw()}};   // month: remember + load its messages
+const ck=e=>{const b=e.target.closest('.cp,.otp');if(!b)return;e.preventDefault();
+ copy(b.dataset.c,b.classList.contains('otp')?'Code copied ✓':'Username & password copied ✓')};
+
+/* ---------- swipe right to delete (only in delete mode) ---------- */
+let sw=null;
+function swDown(e){
+ if(!delMode||!A||(e.pointerType==='mouse'&&e.button>0))return;
+ if(e.target.closest('.cp,.otp'))return;
+ const m=e.target.closest('.m');if(!m)return;
+ sw={m,bg:m.parentNode.firstChild,x:e.clientX,y:e.clientY,drag:false,w:m.offsetWidth,pid:e.pointerId}}
+function swMove(e){
+ if(!sw||e.pointerId!==sw.pid)return;
+ const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
+ if(!sw.drag){
+  if(dx>12&&dx>Math.abs(dy)*1.5){sw.drag=true;sw.m.style.transition='none';try{sw.m.setPointerCapture(e.pointerId)}catch(_){}}
+  else return}
+ const d=Math.max(0,dx);
+ sw.m.style.transform='translateX('+d+'px)';
+ sw.bg.style.opacity=Math.min(1,.3+.7*d/(sw.w*.5))}          // red gets stronger as you drag; full red = release to delete
+function swUp(e){
+ if(!sw||e.pointerId!==sw.pid)return;
+ const s=sw;sw=null;if(!s.drag)return;
+ const d=Math.max(0,e.clientX-s.x);
+ s.m.style.transition='transform .18s';
+ if(d>=s.w*.5){s.m.style.transform='translateX(110%)';A.del(+s.m.dataset.id);setTimeout(draw,200)}
+ else{s.m.style.transform='';s.bg.style.opacity=0}}
+function swCancel(){
+ if(!sw)return;const s=sw;sw=null;
+ s.m.style.transition='transform .18s';s.m.style.transform='';s.bg.style.opacity=0}
+
+$('ml').addEventListener('pointerdown',clearUnread);
+['ml','sl'].forEach(id=>{const el=$(id);
+ el.addEventListener('toggle',tg,true);
+ el.addEventListener('click',ck);
+ el.addEventListener('pointerdown',swDown);
+ el.addEventListener('pointermove',swMove);
+ el.addEventListener('pointerup',swUp);
+ el.addEventListener('pointercancel',swCancel)});
+
+function dmUi(){
+ document.body.classList.toggle('dm',delMode);
+ $('tr').classList.toggle('on',delMode);
+ $('tr').classList.toggle('hide',tab=='set');
+ $('dh').classList.toggle('hide',!delMode||tab=='set')}
+$('tr').onclick=()=>{delMode=!delMode;dmUi()};
+
+let qt;$('q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{Q=e.target.value.trim();st={};draw()},250)};
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ tab=b.dataset.t;
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));
+ ['msgs','send','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
+ $('qw').classList.toggle('hide',tab=='set');
+ $('q').placeholder=tab=='send'?'Search sent messages…':'Search messages or numbers…';
+ if(tab!='msgs')newIds.clear();
+ dmUi();if(tab=='msgs'){checkUnread();clearUnread()}draw();window.scrollTo(0,0)});
+
+$('pb').onclick=()=>{if(!A)return;A.requestPerm();let n=0;
+ const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.importPhone(true);draw()}else if(++n>60)clearInterval(iv)},500)};
+
+$('bd').oninput=e=>{const t=e.target;t.style.height='auto';t.style.height=Math.min(140,t.scrollHeight)+'px'};
+$('sb').onclick=()=>{
+ if(!A){toast('Works only in the installed app');return}
+ if($('sb').disabled)return;
+ const r=A.send($('to').value,$('bd').value);
+ if(r!=='ok'){toast(r.replace(/^ERR:\s*/,''));return}
+ $('bd').value='';$('bd').style.height='';
+ const ic=$('sb').firstElementChild;ic.classList.remove('fly');void ic.getBoundingClientRect();ic.classList.add('fly');   // paper plane flies off and comes back
+ $('sb').disabled=true;setTimeout(()=>{$('sb').disabled=false;ic.classList.remove('fly')},950);
+ const d=new Date(),z=n=>String(n).padStart(2,'0'),mk=d.getFullYear()+'-'+z(d.getMonth()+1);
+ st['s|'+mk]=true;st['s|'+mk+'|'+mk+'-'+z(d.getDate())]=true;   // open today's folder so the new message is visible
+ draw()};
+
+$('im').onclick=()=>{if(A){A.importPhone(true)}};
+$('bs').onclick=()=>{if(!A){$('bm').textContent='Works only in the installed app.';return}
+ const x=A.saveBackup();$('bm').textContent=x.startsWith('ok')?'Saved to Downloads ✓':x};
+$('ld').onchange=e=>{const fl=e.target.files[0];if(!fl||!A)return;const rd=new FileReader();
+ rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!Array.isArray(j.sms))throw 0;A.restore(JSON.stringify(j.sms));$('bm').textContent='Restoring '+j.sms.length+' messages…'}
+  catch(x){$('bm').textContent='Not a valid backup file'}};
+ rd.readAsText(fl);e.target.value=''};
+
+try{A&&A.setBars('#0E1420','#0E1420')}catch(e){}
+if(A&&A.hasPerm()){A.importPhone(false);A.askNotif()}
+setInterval(()=>{if(!A)return;$('st').textContent=A.status();
+ if(!sw||!sw.drag)checkUnread();
+ const v=A.ver();if(v!==lastVer){lastVer=v;if(!sw||!sw.drag)draw()}},2000);
+document.addEventListener('visibilitychange',()=>{if(A&&!document.hidden)checkUnread()});
+draw();
+</script></body></html>
