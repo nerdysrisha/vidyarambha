@@ -37,6 +37,7 @@ summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;paddin
   <div class="row"><div><b id="km">0</b><span class="mu">km</span></div><div><b id="kc">0</b><span class="mu">kcal</span></div><div><b id="pc">0%</b><span class="mu">of goal</span></div></div></div>
  <button class="go" id="btn">Start counting</button>
  <p class="mu" id="msg" style="text-align:center;margin-top:10px"></p>
+ <div class="card" style="margin-top:12px"><b>Today by hour</b><div id="hr" style="margin-top:6px"></div></div>
 </div>
 
 <div id="week" class="hide"><div class="card"><b>Last 7 days</b><div class="bars" id="wb"></div><div class="lab" id="wl"></div>
@@ -52,6 +53,7 @@ summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;paddin
  <label class="mu">Daily goal (steps)</label><input id="sg" type="number" inputmode="numeric">
  <label class="mu">Height (cm), used for step length</label><input id="sh" type="number" inputmode="numeric">
  <label class="mu">Weight (kg), used for calories</label><input id="sw" type="number" inputmode="numeric">
+ <label class="mu">Milestone sound every N steps (0 = off)</label><input id="sm" type="number" inputmode="numeric">
  <button class="go" id="sv">Save</button></div>
  <div class="card"><b>Backup</b><p class="mu" style="margin:6px 0 10px">Saved to Downloads as MyStepsCounter-backup.json (day by day: steps, kcal, km, goal). Also auto-saved every new day.</p>
  <button class="go" id="bs">Save backup now</button>
@@ -61,10 +63,11 @@ summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;paddin
 
 <script>
 const A=window.AndroidSteps,$=id=>document.getElementById(id);
-let S={goal:8000,h:170,w:70};
+let S={goal:8000,h:170,w:70,ms:100};
 try{Object.assign(S,JSON.parse(localStorage.getItem('stepsCfg')||'{}'))}catch(e){}
 const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const km=s=>(s*S.h*0.415/100000).toFixed(2), kc=s=>Math.round(s*0.04*S.w/70), f=n=>Math.round(n).toLocaleString();
+function hours(){try{return A?JSON.parse(A.getHours()):{}}catch(e){return{}}}
 function data(){try{return A?JSON.parse(A.getData()):{}}catch(e){return{}}}
 function bars(el,lel,list){const mx=Math.max(1,...list.map(x=>x[1]));
  $(el).innerHTML=list.map(x=>`<div style="height:${x[1]/mx*100}%"></div>`).join('');
@@ -78,12 +81,14 @@ function hist(D){if($('hist').classList.contains('hide'))return;
   return `<details data-m="${m}" ${OM.has(m)?'open':''}><summary><span>${d.toLocaleString('default',{month:'long',year:'numeric'})}</span><b>${f(t)} · ${km(t)} km · ${kc(t)} kcal</b></summary>`+
   g[m].map(k=>{const s=D[k];return `<div class="li"><span>${new Date(k+'T00:00').toLocaleDateString('default',{day:'numeric',weekday:'short'})}</span><span>${f(s)} steps · ${kc(s)} kcal · ${km(s)} km ${s>=S.goal?'✓':''}</span></div>`}).join('')+'</details>'}).join(''):'<p class="mu">No history yet. Start counting!</p>'}
 $('hl').addEventListener('toggle',e=>{const m=e.target.dataset&&e.target.dataset.m;if(m)e.target.open?OM.add(m):OM.delete(m)},true);
-function cfg(){try{A&&A.setCfg(Math.round(S.goal),Math.round(S.h),Math.round(S.w))}catch(e){}}
+function cfg(){try{A&&A.setCfg(Math.round(S.goal),Math.round(S.h),Math.round(S.w));A&&A.setMs(Math.round(S.ms))}catch(e){}}
 function render(){
  const D=data(),now=new Date(),t=D[ymd(now)]||0;
  $('n').textContent=f(t);$('g').textContent='of '+f(S.goal)+' steps';
  $('km').textContent=km(t);$('kc').textContent=kc(t);$('pc').textContent=Math.min(999,Math.round(t/S.goal*100))+'%';
  $('arc').style.strokeDashoffset=597*(1-Math.min(1,t/S.goal));
+ const H=hours()[ymd(now)]||{},pad=n=>String(n).padStart(2,'0');
+ $('hr').innerHTML=Object.keys(H).filter(h=>H[h]>0).sort().map(h=>`<div class="li"><span>${pad(+h)}00-${pad((+h+1)%24)}00</span><span>${f(H[h])} steps</span></div>`).join('')||'<p class="mu">No steps yet today.</p>';
  const run=A&&A.isRunning();$('btn').textContent=run?'Stop counting':'Start counting';$('btn').className='go'+(run?' stop':'');
  if(!A)$('msg').textContent='Counting works only in the installed app.';
  else $('msg').textContent=run?'Counting in the background. Keep the phone with you.':'Tap Start, then put the phone in your pocket.';
@@ -107,8 +112,8 @@ $('btn').onclick=()=>{if(!A)return;
  if(!A.hasSensor()){$('msg').textContent='This phone has no step sensor.';return}
  if(!A.hasPerm()){A.requestPerm();let n=0;const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.start();render()}else if(++n>40)clearInterval(iv)},500);return}
  A.start();render()};
-$('sg').value=S.goal;$('sh').value=S.h;$('sw').value=S.w;
-$('sv').onclick=()=>{S={goal:+$('sg').value||8000,h:+$('sh').value||170,w:+$('sw').value||70};
+$('sg').value=S.goal;$('sh').value=S.h;$('sw').value=S.w;$('sm').value=S.ms;
+$('sv').onclick=()=>{S={goal:+$('sg').value||8000,h:+$('sh').value||170,w:+$('sw').value||70,ms:$('sm').value===''?100:Math.max(0,+$('sm').value)};
  try{localStorage.setItem('stepsCfg',JSON.stringify(S))}catch(e){}$('sv').textContent='Saved ✓';setTimeout(()=>$('sv').textContent='Save',1200);cfg();render()};
 try{A&&A.setBars('#0B1A14','#0B1A14')}catch(e){}
 $('bs').onclick=()=>{if(!A){$('bm').textContent='Works only in the installed app.';return}const x=A.saveBackup();$('bm').textContent=x.startsWith('ok')?'Saved to Downloads ✓':x};

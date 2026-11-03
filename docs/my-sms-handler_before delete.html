@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MySMSHandler</title>
+<style>
+:root{--bg:#0E1420;--card:#172033;--tx:#E8EEF9;--mu:#8DA0BF;--ac:#4DA3FF;--ac2:#FFB347;--ln:#243452}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif;padding:14px;min-height:100vh}
+#top{position:sticky;top:0;z-index:10;background:var(--bg);margin:-14px -14px 12px;padding:12px 14px 10px;border-bottom:1px solid var(--ln);box-shadow:0 8px 12px -8px rgba(0,0,0,.8)}
+h1{font-size:20px;margin-bottom:8px}
+.tabs{display:flex;gap:6px}
+.tabs button{flex:1;padding:10px;border:0;border-radius:10px;background:var(--card);color:var(--mu);font-size:15px}
+.tabs button.on{background:var(--ac);color:#06182E;font-weight:700}
+#qw{margin-top:8px}
+#qw input{margin:0}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px}
+.mu{color:var(--mu);font-size:13px}
+.hide{display:none}
+input,textarea{width:100%;padding:10px;margin:4px 0 10px;border-radius:8px;border:0;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
+textarea{min-height:90px;resize:vertical}
+.go{display:block;width:100%;padding:14px;border:0;border-radius:14px;font-size:17px;font-weight:700;background:var(--ac);color:#06182E;text-align:center;margin-top:8px}
+.alt{background:var(--ln);color:var(--tx)}
+details{border-bottom:1px solid var(--ln)}
+summary{cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary>span:first-child::before{content:'▸ ';color:var(--mu)}
+details[open]>summary>span:first-child::before{content:'▾ '}
+summary b{background:var(--bg);color:var(--ac2);font-size:12px;border-radius:10px;padding:3px 9px}
+.mo>summary{padding:14px 0;font-weight:700}
+details.dd{border-bottom:0;margin:0 0 4px 4px}
+.ds{padding:9px 0;color:var(--ac);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.m{background:var(--bg);border-left:3px solid var(--ac);border-radius:10px;padding:9px 11px;margin-bottom:7px}
+.m.out{border-left-color:var(--ac2)}
+.mh{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:3px}
+.mh span{color:var(--mu);white-space:nowrap}
+.mb{font-size:15px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
+</style></head><body>
+<div id="top">
+ <h1>💬 MySMSHandler</h1>
+ <div class="tabs"><button class="on" data-t="msgs">Messages</button><button data-t="send">Send</button><button data-t="set">⚙</button></div>
+ <div id="qw"><input id="q" type="search" placeholder="Search messages or numbers…"></div>
+</div>
+<p class="mu" id="st" style="margin:-4px 0 10px"></p>
+
+<div id="msgs">
+ <div class="card hide" id="perm"><b>Allow SMS access</b>
+  <p class="mu" style="margin:6px 0">Needed to read, store and send messages. On Android 13+, if the Allow button does nothing: Settings → Apps → MySMSHandler → ⋮ → <i>Allow restricted settings</i>, then try again.</p>
+  <button class="go" id="pb">Allow SMS access</button></div>
+ <p class="mu" id="cnt" style="margin-bottom:6px"></p>
+ <div class="card" id="ml" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
+<div id="send" class="hide">
+ <div class="card">
+  <label class="mu">To (number)</label><input id="to" type="tel" inputmode="tel" placeholder="+351…">
+  <label class="mu">Message</label><textarea id="bd"></textarea>
+  <button class="go" id="sb">Send SMS</button>
+  <p class="mu" id="sm" style="margin-top:8px"></p></div>
+ <p class="mu" id="cnt2" style="margin-bottom:6px"></p>
+ <div class="card" id="sl" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
+<div id="set" class="hide">
+ <div class="card"><b>Phone inbox</b>
+  <p class="mu" style="margin:6px 0 10px">New messages are copied automatically. Use this to re-scan everything (duplicates are skipped).</p>
+  <button class="go alt" id="im">Import all from phone</button></div>
+ <div class="card"><b>Backup</b>
+  <p class="mu" style="margin:6px 0 10px">Saved to Downloads as MySMSHandler-backup.json. Also auto-saved once a day when an SMS arrives.</p>
+  <button class="go" id="bs">Save backup now</button>
+  <label class="go alt">Load backup file<input id="ld" type="file" accept=".json,application/json" style="display:none"></label>
+  <p class="mu" id="bm" style="margin-top:8px"></p></div>
+</div>
+
+<script>
+const A=window.AndroidSms,$=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let Q='',st={},lastVer=-1,tab='msgs';
+const J=(fn,...a)=>{try{return A?JSON.parse(A[fn](...a)):[]}catch(e){return[]}};
+const mLabel=m=>new Date(m+'-01T00:00').toLocaleString('default',{month:'long',year:'numeric'});
+const dLabel=d=>new Date(d+'T00:00').toLocaleDateString('default',{weekday:'short',day:'numeric',month:'short'});
+const tLabel=t=>new Date(t).toLocaleTimeString('default',{hour:'2-digit',minute:'2-digit'});
+
+/* st holds fold state. keys: "r|2026-11" (month), "r|2026-11|2026-11-02" (day); r = received, s = sent.
+   default: everything folded, except while searching (then everything is open) */
+function body(m,ty,p){
+ const L=J('list',m,Q,ty),days={};
+ L.forEach(x=>(days[x.d]=days[x.d]||[]).push(x));
+ return Object.keys(days).sort().reverse().map(d=>{
+  const k=p+'|'+m+'|'+d,open=(k in st)?st[k]:!!Q;
+  return `<details class="dd" data-k="${k}" ${open?'open':''}><summary class="ds"><span>${esc(dLabel(d))}</span><b>${days[d].length}</b></summary>`+
+   days[d].map(x=>`<div class="m ${ty==2?'out':''}"><div class="mh"><b>${ty==2?'→ ':''}${esc(x.a)}</b><span>${esc(tLabel(x.t))}</span></div><div class="mb">${esc(x.b)}</div></div>`).join('')+'</details>'}).join('')}
+
+function draw(){
+ if(tab=='set')return;
+ const ty=tab=='send'?2:1,p=ty==2?'s':'r',el=$(ty==2?'sl':'ml'),cn=$(ty==2?'cnt2':'cnt');
+ if(!A){el.innerHTML='<p class="mu" style="padding:12px 0">Works only in the installed app.</p>';return}
+ const ok=A.hasPerm();$('perm').classList.toggle('hide',ok);
+ if(!ok){el.innerHTML=ty==2?'<p class="mu" style="padding:12px 0">Allow SMS access in the Messages tab first.</p>':'';cn.textContent='';return}
+ const ms=J('months',Q,ty),tot=ms.reduce((a,x)=>a+x.n,0);
+ cn.textContent=Q?tot+' matches':tot+(ty==2?' sent':' received');
+ el.innerHTML=ms.length?ms.map(x=>{
+  const k=p+'|'+x.m,open=(k in st)?st[k]:!!Q;
+  return `<details class="mo" data-k="${k}" ${open?'open':''}><summary><span>${esc(mLabel(x.m))}</span><b>${x.n}</b></summary>${open?body(x.m,ty,p):''}</details>`}).join('')
+  :`<p class="mu" style="padding:12px 0">${Q?'No match.':(ty==2?'No sent messages yet.':'No messages yet.')}</p>`}
+
+const tg=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
+ const o=e.target.open,month=k.split('|').length==2;
+ if(!month){st[k]=o;return}                       // day: just remember the state (content is already in the page)
+ const cur=(k in st)?st[k]:!!Q;if(cur!==o){st[k]=o;draw()}};   // month: remember + load its messages
+$('ml').addEventListener('toggle',tg,true);$('sl').addEventListener('toggle',tg,true);
+
+let qt;$('q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{Q=e.target.value.trim();st={};draw()},250)};
+
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
+ tab=b.dataset.t;
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));
+ ['msgs','send','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
+ $('qw').classList.toggle('hide',tab=='set');
+ $('q').placeholder=tab=='send'?'Search sent messages…':'Search messages or numbers…';
+ draw();window.scrollTo(0,0)});
+
+$('pb').onclick=()=>{if(!A)return;A.requestPerm();let n=0;
+ const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.importPhone(true);draw()}else if(++n>60)clearInterval(iv)},500)};
+
+$('sb').onclick=()=>{if(!A){$('sm').textContent='Works only in the installed app.';return}
+ const r=A.send($('to').value,$('bd').value);
+ if(r==='ok'){$('sm').textContent='Sent ✓';$('bd').value='';
+  const d=new Date(),z=n=>String(n).padStart(2,'0'),mk=d.getFullYear()+'-'+z(d.getMonth()+1);
+  st['s|'+mk]=true;st['s|'+mk+'|'+mk+'-'+z(d.getDate())]=true;   // open today's folder so the new message is visible
+  draw()}
+ else $('sm').textContent=r};
+
+$('im').onclick=()=>{if(A){A.importPhone(true)}};
+$('bs').onclick=()=>{if(!A){$('bm').textContent='Works only in the installed app.';return}
+ const x=A.saveBackup();$('bm').textContent=x.startsWith('ok')?'Saved to Downloads ✓':x};
+$('ld').onchange=e=>{const fl=e.target.files[0];if(!fl||!A)return;const rd=new FileReader();
+ rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!Array.isArray(j.sms))throw 0;A.restore(JSON.stringify(j.sms));$('bm').textContent='Restoring '+j.sms.length+' messages…'}
+  catch(x){$('bm').textContent='Not a valid backup file'}};
+ rd.readAsText(fl);e.target.value=''};
+
+try{A&&A.setBars('#0E1420','#0E1420')}catch(e){}
+if(A&&A.hasPerm())A.importPhone(false);
+setInterval(()=>{if(!A)return;$('st').textContent=A.status();
+ const v=A.ver();if(v!==lastVer){lastVer=v;draw()}},2000);
+draw();
+</script></body></html>

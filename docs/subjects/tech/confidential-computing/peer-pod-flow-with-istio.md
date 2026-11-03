@@ -400,3 +400,182 @@ Steps:
 - How `istio-cni` (if used) behaves with peer pods.
 - Whether CDH or the Attestation Agent talks to the KBS in your version (order of components stays the same).
 - Exactly what is in your init data and how its hash is registered in RVPS.
+
+
+
+<br>
+
+# ═══════════════════════════════════════════════════════════
+# ADDITIONS: Illumio, Sysdig, and how they differ from Istio
+# ═══════════════════════════════════════════════════════════
+
+---
+
+## Part 6: Illumio (microsegmentation / "who can talk to whom")
+
+### What it does
+- Controls **which workloads are allowed to talk to which**, using labels (role, app, environment, location) instead of IP addresses.
+- Works as an **allow-list firewall** (default deny, then allow only what you permit).
+- Shows a **traffic map**: which workload talked to which, on what port, allowed or blocked.
+- Limits lateral movement: if one pod or server is hacked, it can't freely reach the others.
+- Works at **L3/L4 only** (IP, port, protocol). It does not read the content of requests.
+
+### Main pieces (architecture level)
+- **PCE (Policy Compute Engine) = the "master/brain".**
+  - Central server (Illumio SaaS or self-hosted).
+  - Stores the labels, the rules, and the traffic data.
+  - Works out which rules each workload needs, then sends them down.
+  - Admins use its UI / API to write policy.
+- **VEN (Virtual Enforcement Node) = the agent on normal servers/VMs.**
+  - Small agent on the host.
+  - Talks to the PCE, does not make policy decisions itself.
+- **C-VEN (Containerized VEN) = the agent for Kubernetes/OpenShift.**
+  - Runs as a **pod (DaemonSet)**, one on every node.
+  - Gives visibility and enforcement for the node and the pods on it.
+- **Kubelink = the Kubernetes connector.**
+  - A Deployment, one per cluster.
+  - Listens to the Kubernetes API server for pods, services, namespaces and labels.
+  - Reports them to the PCE so the PCE knows what exists in the cluster.
+  - Newer versions have **CLAS (Cluster Local Actor Store)**: Kubelink sits between C-VENs and PCE, handing policy down to C-VENs and passing flow data up.
+
+### Where it is installed
+- **PCE:** outside the cluster (SaaS or own servers).
+- **Kubelink:** inside the cluster, as a Deployment.
+- **C-VEN:** inside the cluster, on **every worker node**, as a privileged DaemonSet.
+- **Not inside the peer pod VM** unless someone installs a VEN there (not in your diagram, confirm).
+
+### How it is configured
+- Install with **Helm chart** (or YAML on OpenShift).
+- **Pairing profile** in the PCE gives an activation code/key so C-VENs and Kubelink can join the PCE.
+- A Kubernetes **secret** holds the pairing key and PCE address.
+- **Labels** are assigned to namespaces / workloads using container workload profiles or annotations.
+- **Rules** are written in the PCE (for example "app=bank-app may talk to app=db on port 5432").
+- On OpenShift, extra prep is needed (unique machine ID, labels, pairing profile, SCC permissions).
+
+### How it enforces and what it taps
+- C-VEN programs the **Linux firewall on the node (iptables / ipsets)** based on PCE rules.
+- It watches **connection flows** on the node and pod networking (source, destination, port, allowed/blocked).
+- It does **not** read payloads, files or processes.
+
+### How data flows to the master (PCE)
+- **C-VEN --> PCE** (directly, or via Kubelink in CLAS mode):
+  - Heartbeats and status.
+  - **Flow summaries** (who talked to whom).
+  - Workload info and firewall state.
+- **PCE --> C-VEN:** the computed rules (push when policy changes).
+- **Kubelink --> PCE:** cluster inventory (pods, services, labels, namespaces).
+- All over **HTTPS/TLS** to the PCE (typically ports 8443 and 8444, verify for your PCE version and firewall rules).
+- If the PCE is unreachable, C-VENs keep enforcing the last known rules (degraded mode).
+
+### In your peer pod setup (what to confirm with IBM / Illumio)
+- C-VEN sits on the **worker**, so it can see and control traffic reaching the worker and the pod netns.
+- Once traffic is wrapped in **VXLAN (UDP 4789)** it may look like plain "worker to VM" traffic.
+- It cannot see or control what happens **inside the VM** (pod-to-pod, VM-to-Trustee) unless a VEN is also installed there.
+- In your diagram Illumio is "not found in ibm-observe", so the deployment model is still unconfirmed.
+
+---
+
+## Part 7: Sysdig (runtime threat detection / "what is happening inside")
+
+### What it does
+- Watches **what workloads actually do**: processes started, files opened, network connections, system calls.
+- **Detects threats at runtime** using rules (based on open-source **Falco**), for example "shell started inside a container", "sensitive file read", "crypto-miner behaviour".
+- **Vulnerability scanning** of images and hosts.
+- **Compliance and misconfiguration checks** (CIS benchmarks, Kubernetes posture, KSPM).
+- **Alerts and forensics** (can record activity around an event) and basic response actions.
+- On IBM Cloud this is sold as **IBM Cloud Workload Protection**, built on Sysdig.
+
+### Main pieces (architecture level)
+- **Sysdig backend (the "master")** = SaaS (in IBM Cloud, a regional instance).
+  - Stores events, runs the UI, holds the policies and rules.
+  - Sends policies/rules down to agents.
+- **Agent / Host Shield (workload-protection-agent, DaemonSet)**
+  - One per node.
+  - Hooks the **host kernel** with a kernel module or **eBPF probe** to see system calls.
+  - Runs the detection rules locally.
+- **Cluster Shield (agent-clustershield, cluster-level Deployment)**
+  - Talks to the **Kubernetes API**.
+  - Does admission control, Kubernetes audit events, cluster posture (KSPM) and cluster scanning.
+- **Node Analyzer (older/alternative components)**
+  - Host scanner, image analyzer, benchmark runner.
+- **cloudlogs-agent** in your diagram is a separate IBM logging agent (collects logs), not Sysdig security.
+
+### Where it is installed
+- **Agent/Host Shield:** every worker node (DaemonSet, privileged, host access).
+- **Cluster Shield:** inside the cluster, one deployment.
+- **Backend:** outside, managed SaaS.
+- **Not inside the peer pod VM** (diagram note: agents see node and pod netns flows, no syscalls or files in the VM).
+
+### How it is configured
+- Installed with **Helm / operator**, in its own namespace (here `ibm-observe`).
+- Needs an **access key** and the **collector endpoint** of the Sysdig instance, plus a **cluster name**.
+- Choose the probe type (kernel module or eBPF) and which features to switch on (runtime, scanning, KSPM, admission).
+- **Policies and Falco rules are set in the Sysdig UI**, then synced down to agents.
+
+### How data flows to the master
+- **Agent --> collector:** events, metrics and security findings over **TLS, outbound** (port 6443 to the collector, 443 to the API endpoints).
+- **Cluster Shield --> backend:** posture data, audit events, scan results.
+- **Backend --> agent:** policy and rule updates.
+- Everything is **outbound from the cluster**; no inbound ports are needed to the nodes.
+
+### In your peer pod setup (what to confirm with IBM)
+- A normal container's syscalls pass through the **host kernel**, which the agent hooks.
+- With kata-remote, your app runs **inside the VM's own kernel**, so the worker agent **cannot see syscalls, files or processes of your app**.
+- It still sees **node-level flows** and the empty pod shell, plus the worker's own processes.
+- To see inside the VM you would need an agent **in the VM image**, which also has to be measured and added to RVPS.
+
+---
+
+## Part 8: Fundamental differences: Illumio vs Sysdig vs Istio
+
+### One-line summary
+- **Illumio:** "**Who may connect** to whom?" (network firewall rules by label)
+- **Sysdig:** "**What is the workload doing**, and is it malicious?" (runtime behaviour)
+- **Istio:** "**How do apps talk**, securely and reliably?" (identity, mTLS, request-level rules)
+
+### Side-by-side
+
+| | **Illumio** | **Sysdig** | **Istio** |
+|---|---|---|---|
+| Main job | Microsegmentation | Runtime threat detection, vuln + compliance | Service mesh: mTLS, authz, traffic control |
+| Layer | L3/L4 (IP, port) | Kernel / process / file / syscall | L7 (HTTP/gRPC) + L4 |
+| Where it runs | Agent on node (iptables) | Agent on node (kernel/eBPF) | Sidecar next to each app, here **inside the VM** |
+| Master | PCE | Sysdig backend | istiod |
+| Sees inside the VM? | No (without VEN in VM) | No (without agent in VM) | **Yes** (istio-proxy runs in the VM) |
+| Encrypts traffic? | No | No | **Yes** (mTLS) |
+| Identity used | Labels / workload | Container / process | Certificate per service account (SPIFFE) |
+
+### What each one DOES NOT do
+
+**Illumio does not:**
+- Read request content (no URL, header, method or payload checks).
+- Detect malware, suspicious processes or file changes.
+- Encrypt traffic (it only allows or blocks).
+- Do retries, timeouts, rate limiting or canary routing.
+- Prove the workload is trustworthy (no attestation).
+
+**Sysdig does not:**
+- Block or allow network connections between workloads by policy (it detects and alerts, with limited response actions).
+- Encrypt traffic or give workloads identity.
+- Understand HTTP routes or apply request-level authorisation.
+- See inside the confidential VM from the worker node.
+- Protect against a malicious cluster admin (it is run by the same cluster owner).
+
+**Istio does not:**
+- Detect malicious syscalls, files or malware in the container (that is Sysdig's job).
+- Cover **non-meshed** traffic (anything not going through istio-proxy).
+- Stop container escape, kernel exploits, SQLi / XSS (needs WAF and runtime tools).
+- Provide host-level firewalling like Illumio (it works at the proxy, not on the whole host).
+- Protect against a malicious admin who changes istiod policy (istiod is under cluster-admin control and is not attested).
+
+### What none of the three do
+- None of them is the **confidentiality boundary**. That comes from the **TDX chip + attestation (Trustee: KBS, AS, RVPS)**.
+- None of them proves to the app or the Trustee that the VM is genuine and unmodified.
+- Treat them as **visibility and defence in depth** around the confidential VM, not as protection from the cluster admin or cloud operator.
+
+### Who covers what (quick view)
+- **Stop unwanted connections between workloads:** Illumio (network), Istio (identity + request level).
+- **Hide traffic from sniffing between node, VPC and VM:** Istio mTLS.
+- **Spot a hacked container behaving badly:** Sysdig.
+- **Fix rate, retries, canary:** Istio.
+- **Prove the VM is genuine before releasing secrets:** TDX + attestation (Trustee).
