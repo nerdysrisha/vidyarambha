@@ -84,6 +84,14 @@ body[data-v=landing] #landing{display:flex;flex-direction:column;align-items:cen
 #start:active{transform:scale(.97);background:#c62a22}
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(var(--a),.5),0 0 18px rgba(var(--a),.3)}50%{box-shadow:0 0 20px rgba(var(--a),.95),0 0 46px rgba(var(--a),.6)}}
 @media (prefers-reduced-motion:reduce){#start{animation:none;box-shadow:0 0 20px rgba(var(--a),.7)}}
+/* source tiles on the landing screen: same look as the gear-menu source buttons, with a thin accent border */
+#stiles{position:absolute;left:0;right:0;margin:0 auto;width:calc(100% - 48px);max-width:420px;bottom:calc(30px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+#stiles button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:auto;min-height:84px;padding:10px 6px;font-size:12px;border:1px solid rgba(var(--a),.55);border-radius:12px}
+#stiles button svg{width:26px;height:26px;margin:0;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#stiles button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
+#stiles button:disabled{opacity:.3}
+#stiles button small{display:block;max-width:100%;color:var(--mute);font-size:10.5px;line-height:1.25;text-align:center;min-height:1.25em}
+@media (orientation:landscape) and (max-height:520px){#landing .logo{display:none}#stiles button{min-height:70px}}
 .topic.pdf{background:transparent;border-color:transparent}
 .topic.pdf b{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:14.5px;color:#f3d9a4}
 .topic.pdf small{color:#b9a374}
@@ -197,8 +205,8 @@ body[data-src=sd]{--tape:#b44cff;--tape2:#dcb0ff;--tapetxt:#ffffff}
 <div id="app">
   <div id="landing">
     <svg class="logo" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 13h6M9 16h4"/></svg>
-    <h1>My PDFs</h1><p>All your documents, one tap away</p>
-    <button id="start">START</button>
+    <h1>My PDFs</h1><p>Choose where your PDFs are</p>
+    <div id="stiles" role="group" aria-label="PDF source"></div>
   </div>
   <div id="list"><div id="frame"><div id="ribbon"><span class="tapes" id="rleft"><i class="t2"></i><span class="tape" id="rbadge"></span></span><b id="rtitle">My PDFs</b><span id="rright"><span id="rcount"></span><button id="rfr" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5"/></svg></button></span></div><div id="box"></div></div></div>
   <div id="source">
@@ -305,13 +313,14 @@ const isLocal = v => v === "phone" || v === "sd";
 const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
 function applySd() {
   const ok = sdOk();
-  [$("srcSd"), document.querySelector("#srow [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
+  [$("srcSd"), document.querySelector("#srow [data-src=sd]"), document.querySelector("#stiles [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
 }
 function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
   const v = getSrc();
   document.body.dataset.src = v || "";
   { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#1b1b1d"; }
   applySd();
+  document.querySelectorAll("#stiles button").forEach(b => b.classList.toggle("on", b.dataset.src === v));
   const r = $("srow"); if (r) r.querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
 }
 const setTok = v => { mem = v; ls(TOK_KEY, v || null); };
@@ -1175,7 +1184,30 @@ function checkIncoming() {
 window.addEventListener("incomingpdf", checkIncoming);
 window.addEventListener("hashchange", route);
 // START: web = go full screen (needs this tap); installed app is already full screen
-$("start").onclick = () => { started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true); if (!checkIncoming()) route(); };
+(function () {                                             // landing tiles: one per source, same icons / names as the gear menu
+  const box = $("stiles");
+  SRC_ORDER.forEach(v => {
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.src = v; b.innerHTML = SRC_ICO[v] + "<span>" + SRC_NAME[v] + "</span><small></small>";
+    b.setAttribute("aria-label", SRC_NAME[v]);
+    b.onclick = () => {
+      started = true; if (!IN_APP && canFS && !document.fullscreenElement) setMax(true);   // web = go full screen (needs this tap)
+      if (checkIncoming()) return;
+      if (v !== getSrc()) goSrc(v); else route();                                          // same source as last time: just open it
+    };
+    box.appendChild(b);
+  });
+  showSrcIco();                                            // marks the last-used tile and greys out SD card when none is inserted
+  const fmtGB = n => { const g = n / 1073741824; return (g >= 10 ? Math.round(g) : g.toFixed(1)) + " GB"; };
+  const setLine = (v, txt) => { const s = box.querySelector('button[data-src="' + v + '"] small'); if (s) s.textContent = txt; };
+  setLine("github", "GitHub");
+  if (window.AndroidSd && typeof AndroidSd.space === "function") {
+    ["phone", "sd"].forEach(v => {
+      if (v === "sd" && !sdOk()) return setLine(v, "No card");
+      try { const r = AndroidSd.space(v).split("\t"); setLine(v, r.length === 2 ? fmtGB(+r[0]) + " free of " + fmtGB(+r[1]) : ""); } catch (e) {}
+    });
+  }
+})();
 if (getTok() || isLocal(getSrc())) pdfjsReady().catch(() => {});
 if (!checkIncoming()) route();
 </script>

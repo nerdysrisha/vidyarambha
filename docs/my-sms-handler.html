@@ -11,10 +11,15 @@ body{background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif;padding
 h1{font-size:20px}
 #tr{border:0;border-radius:10px;width:40px;height:34px;background:var(--card);font-size:17px}
 #tr.on{background:var(--rd)}
+#fd{border:0;border-radius:10px;width:40px;height:34px;background:var(--card);color:var(--tx);font-size:20px;font-weight:700;line-height:1}
+.hb{display:flex;gap:8px}
 #dh{color:#FF8A8A;font-size:12px;margin-top:7px}
 .tabs{display:flex;gap:6px}
-.tabs button{position:relative;flex:1;padding:10px;border:0;border-radius:10px;background:var(--card);color:var(--mu);font-size:15px}
-.tabs button.on{background:var(--ac);color:#06182E;font-weight:700}
+.tabs button{position:relative;flex:1;height:44px;padding:0;border:1px solid var(--ln);border-radius:12px;background:var(--card);color:var(--mu);display:flex;align-items:center;justify-content:center}
+.tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabs button.on{color:var(--tx)}
+.tabs button.on::before{content:'';position:absolute;left:8px;right:8px;top:0;height:2.2px;border-radius:0 0 2.2px 2.2px;background:#F5A31A;box-shadow:0 0 9px #F5A31A;animation:br 2.2s ease-in-out infinite}
+@keyframes br{0%,100%{opacity:.3}50%{opacity:1}}
 .bdg{position:absolute;top:-8px;right:8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--rd);color:#fff;font:700 12px/20px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--bg)}
 #qw{margin-top:8px}
 #qw input{margin:0}
@@ -38,8 +43,9 @@ details.dd{border-bottom:0;margin:0 0 4px 4px}
 /* message + swipe-to-delete */
 .sw{position:relative;overflow:hidden;border-radius:10px;margin-bottom:7px}
 .sw .bg{position:absolute;inset:0;background:var(--rd);opacity:0;display:flex;align-items:center;padding-left:16px;font-size:20px}
-.m{position:relative;background:var(--bg);border-left:3px solid var(--ac);border-radius:10px;padding:9px 11px}
-.m.out{border-left-color:var(--ac2)}
+.m{position:relative;background:var(--bg);border-radius:10px;padding:9px 11px}
+.m::before{content:'';position:absolute;left:0;top:9px;width:3px;height:14px;border-radius:0 3px 3px 0;background:var(--ac);box-shadow:0 0 6px var(--ac)}
+.m.out::before{background:var(--ac2);box-shadow:0 0 6px var(--ac2)}
 .m.new .mh b::before{content:'● ';color:#FF5A5F}
 /* slim send panel (purple template) */
 .sp{position:relative;background:#15112a;border:1px solid #2a2145;border-radius:16px;padding:8px;margin-bottom:10px}
@@ -62,6 +68,8 @@ body.dm .m{touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .mh span{color:var(--mu);white-space:nowrap;display:flex;align-items:center}
 .mb{font-size:15px;line-height:1.35;white-space:pre-wrap;word-break:break-word}
 .cp{border:0;background:var(--ln);border-radius:8px;padding:3px 8px;margin-right:8px;font-size:14px}
+.cpa{color:var(--mu);display:flex;align-items:center}
+.cpa svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
 mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;padding:1px 9px;border-radius:8px;margin:3px 0}
 
 #tt{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ac);color:#06182E;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
@@ -77,12 +85,35 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
 .bu.out{margin-left:auto;background:#312650}
 .bu small{display:block;color:var(--mu);font-size:11px;margin-top:2px}
 #th .sp{margin:8px 0 0}#th .sp textarea{width:calc(100% - 48px);height:44px;min-height:44px}
+.kp{border:1.5px solid var(--ac);box-shadow:0 0 12px rgba(77,163,255,.18)}
+.kp input,.kp textarea{border-color:#2c4a78}
+.kp input:focus,.kp textarea:focus{border-color:var(--ac)}
+.kp input{width:100%;height:38px;margin:0 0 6px}
+#send .kp input{width:calc(100% - 48px);height:38px;margin:0 0 6px}
+.kr{display:flex;gap:8px;align-items:center}
+.kr input{flex:1;min-width:0;width:auto;margin:0}
+#lks{flex:none;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #4a3a80;background:#312650;color:#b9a7ff;display:flex;align-items:center;justify-content:center}
+#lks:active{background:#3d3066}
+#lks svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sw.lw{border-radius:14px;margin-bottom:8px}
+.sw.pop{animation:pop .9s ease-out .35s both}
+@keyframes pop{from{opacity:0;transform:translateY(-10px) scale(.97)}to{opacity:1;transform:none}}
+.lk{position:relative;display:flex;align-items:center;gap:6px;background:#15112a;border:1px solid #2a2145;border-radius:14px;padding:9px 9px 9px 12px}
+
+.lk.ed{border-color:var(--ac);box-shadow:0 0 8px rgba(77,163,255,.35)}
+.lk{cursor:pointer}
+body.dm .lk{touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.lx{flex:1;min-width:0}
+.lx b{display:block;font-size:15px;color:#d5d8e4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lx span{display:block;font-size:12px;color:#7e7b93;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb{flex:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:11px;border:1px solid #4a3a80;background:#312650;color:#b9a7ff;font-size:16px;text-decoration:none;padding:0}
+.lb.dl{background:transparent;border-color:#2a2145;color:#7e7b93}
 #ut{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ln);color:var(--tx);padding:8px 8px 8px 16px;border-radius:20px;z-index:20;display:flex;gap:14px;align-items:center;white-space:nowrap}
 #ub{border:0;background:var(--ac);color:#06182E;font-weight:700;border-radius:14px;padding:6px 12px}
 </style></head><body>
 <div id="top">
- <div class="hd"><h1>💬 MySMSHandler</h1><button id="tr" title="Delete mode">🗑</button></div>
- <div class="tabs"><button class="on" data-t="msgs">Messages<span class="bdg hide" id="bdg">0</span></button><button data-t="star">★</button><button data-t="send">Send</button><button data-t="set">⚙</button></div>
+ <div class="hd"><h1>💬 MySMSHandler</h1><div class="hb"><button id="fd" title="Fold all">−</button><button id="tr" title="Delete mode">🗑</button></div></div>
+ <div class="tabs"><button class="on" data-t="msgs" title="Messages" aria-label="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="bdg hide" id="bdg">0</span></button><button data-t="star" title="Starred" aria-label="Starred"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button><button data-t="send" title="Send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button><button data-t="links" title="Links" aria-label="Links"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button><button data-t="set" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
  <div id="qw"><input id="q" type="search" placeholder="Search messages or numbers…"></div>
  <p id="dh" class="hide">Delete mode ON · swipe a message to the right to delete it</p>
 </div>
@@ -102,13 +133,21 @@ mark.otp{display:inline-block;background:var(--ac2);color:#2B1700;font:800 1.5em
 </div>
 
 <div id="send" class="hide">
- <div class="sp">
+ <div class="sp kp">
   <input id="to" type="tel" inputmode="tel" placeholder="To (number)">
   <textarea id="bd" placeholder="Message"></textarea>
   <button id="sb" title="Send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button>
  </div>
  <p class="mu" id="cnt2" style="margin-bottom:6px"></p>
  <div class="card" id="sl" style="padding-top:2px;padding-bottom:2px"></div>
+</div>
+
+<div id="links" class="hide">
+ <div class="sp kp">
+  <input id="lt" type="text" placeholder="Title" autocomplete="off">
+  <div class="kr"><input id="lu" type="url" inputmode="url" placeholder="Link" autocomplete="off" autocapitalize="off"><button id="lks" title="Save" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg></button></div>
+ </div>
+ <div id="ll"></div>
 </div>
 
 <div id="set" class="hide">
@@ -194,7 +233,7 @@ function clearUnread(){                // you looked at them: badge + app-icon d
 /* ---------- lists ---------- */
 function msgHtml(x,ty){
  const c=cred(x.b);MSG[x.i]=x;
- return `<div class="sw"><div class="bg">🗑</div><div class="m ${x.y==2?'out':''}${newIds.has(x.i)?' new':''}" data-id="${x.i}"><div class="mh"><b class="who" data-a="${esc(x.a)}">${x.y==2?'→ ':''}${esc(nm(x.a))}</b><span>${c?`<button class="cp" data-c="${esc(c)}" title="Copy username and password">📋</button>`:''}<button class="cp stb" data-id="${x.i}" data-s="${x.s?1:0}" title="Star">${x.s?'★':'☆'}</button>${esc(tLabel(x.t))}</span></div><div class="mb">${msgBody(x.b)}</div></div></div>`}
+ return `<div class="sw"><div class="bg">🗑</div><div class="m ${x.y==2?'out':''}${newIds.has(x.i)?' new':''}" data-id="${x.i}"><div class="mh"><b class="who" data-a="${esc(x.a)}">${x.y==2?'→ ':''}${esc(nm(x.a))}</b><span>${c?`<button class="cp" data-c="${esc(c)}" title="Copy username and password">📋</button>`:''}<button class="cp cpa" data-id="${x.i}" title="Copy message"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button><button class="cp stb" data-id="${x.i}" data-s="${x.s?1:0}" title="Star">${x.s?'★':'☆'}</button>${esc(tLabel(x.t))}</span></div><div class="mb">${msgBody(x.b)}</div></div></div>`}
 
 /* st holds fold state. keys: "r|2026-11" (month), "r|2026-11|2026-11-02" (day); r = received, s = sent.
    default: everything folded, except while searching (then everything is open) */
@@ -207,7 +246,7 @@ function body(m,ty,p){
    days[d].map(x=>msgHtml(x,ty)).join('')+'</details>'}).join('')}
 
 function draw(){
- if(tab=='set')return;
+ if(tab=='set'||tab=='links')return;
  const ty=tab=='send'?2:tab=='star'?3:1,p={1:'r',2:'s',3:'f'}[ty],el=$({1:'ml',2:'sl',3:'fl'}[ty]),cn=$({1:'cnt',2:'cnt2',3:'cnt3'}[ty]);
  if(!A){el.innerHTML='<p class="mu" style="padding:12px 0">Works only in the installed app.</p>';return}
  const ok=A.hasPerm();$('perm').classList.toggle('hide',ok);
@@ -226,15 +265,17 @@ const tg=e=>{const k=e.target.dataset&&e.target.dataset.k;if(!k)return;
 const ck=e=>{
  const s=e.target.closest('.stb');if(s){A.star(+s.dataset.id,s.dataset.s!=='1');draw();return}
  const w=e.target.closest('.who');if(w&&!delMode){openTh(w.dataset.a);return}
+ const ca=e.target.closest('.cpa');if(ca){const m=MSG[+ca.dataset.id];if(m)copy(m.b,'Message copied ✓');return}
  const b=e.target.closest('.cp,.otp');if(!b)return;e.preventDefault();
  copy(b.dataset.c,b.classList.contains('otp')?'Code copied ✓':'Username & password copied ✓')};
 
 /* ---------- swipe right to delete (only in delete mode) ---------- */
 let sw=null;
 function swDown(e){
- if(!delMode||!A||(e.pointerType==='mouse'&&e.button>0))return;
- if(e.target.closest('.cp,.otp,.stb,.who'))return;
- const m=e.target.closest('.m');if(!m)return;
+ if(!delMode||(e.pointerType==='mouse'&&e.button>0))return;
+ if(e.target.closest('.cp,.otp,.stb,.who,.lb'))return;
+ const m=e.target.closest('.m,.lk');if(!m)return;
+ if(!A&&!m.classList.contains('lk'))return;
  sw={m,bg:m.parentNode.firstChild,x:e.clientX,y:e.clientY,drag:false,w:m.offsetWidth,pid:e.pointerId}}
 function swMove(e){
  if(!sw||e.pointerId!==sw.pid)return;
@@ -250,16 +291,18 @@ function swUp(e){
  const s=sw;sw=null;if(!s.drag)return;
  const d=Math.max(0,e.clientX-s.x);
  s.m.style.transition='transform .18s';
- if(d>=s.w*.5){s.m.style.transform='translateX(110%)';const dx=MSG[+s.m.dataset.id];A.del(+s.m.dataset.id);if(dx){last=dx;showUndo()}setTimeout(draw,200)}
+ if(d>=s.w*.5){s.m.style.transform='translateX(110%)';
+  if(s.m.classList.contains('lk')){const i=+s.m.dataset.li,a=LK(),x=a[i];if(x){a.splice(i,1);saveLK(a);if(x.id===editId)editId=null;lastLk={x,i};last=null;showUndo('Link deleted')}setTimeout(drawLinks,200)}
+  else{const dx=MSG[+s.m.dataset.id];A.del(+s.m.dataset.id);lastLk=null;if(dx){last=dx;showUndo('Message deleted')}setTimeout(draw,200)}}
  else{s.m.style.transform='';s.bg.style.opacity=0}}
 function swCancel(){
  if(!sw)return;const s=sw;sw=null;
  s.m.style.transition='transform .18s';s.m.style.transform='';s.bg.style.opacity=0}
 
 $('ml').addEventListener('pointerdown',clearUnread);
-['ml','sl','fl'].forEach(id=>{const el=$(id);
- el.addEventListener('toggle',tg,true);
- el.addEventListener('click',ck);
+['ml','sl','fl','ll'].forEach(id=>{const el=$(id);
+ if(id!='ll'){el.addEventListener('toggle',tg,true);
+ el.addEventListener('click',ck)}
  el.addEventListener('pointerdown',swDown);
  el.addEventListener('pointermove',swMove);
  el.addEventListener('pointerup',swUp);
@@ -268,20 +311,60 @@ $('ml').addEventListener('pointerdown',clearUnread);
 function dmUi(){
  document.body.classList.toggle('dm',delMode);
  $('tr').classList.toggle('on',delMode);
- $('tr').classList.toggle('hide',tab=='set');
- $('dh').classList.toggle('hide',!delMode||tab=='set')}
+ const nb=tab=='set';
+ $('tr').classList.toggle('hide',nb);$('fd').classList.toggle('hide',nb);
+ $('dh').textContent='Delete mode ON · swipe a '+(tab=='links'?'link':'message')+' to the right to delete it';
+ $('dh').classList.toggle('hide',!delMode||nb)}
 $('tr').onclick=()=>{delMode=!delMode;dmUi()};
+
+/* fold all: close every month (and the dates inside), leaving only the month rows */
+$('fd').onclick=()=>{
+ if(!A||tab=='links')return;
+ const ty=tab=='send'?2:tab=='star'?3:1,p={1:'r',2:'s',3:'f'}[ty];
+ Object.keys(st).forEach(k=>{if(k.startsWith(p+'|'))st[k]=false});
+ J('months',Q,ty).forEach(x=>st[p+'|'+x.m]=false);
+ draw();window.scrollTo(0,0)};
+
+/* ---------- saved links ---------- */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+let editId=null;
+const LK=()=>{try{const a=JSON.parse(localStorage.getItem('lk')||'[]');let ch=false;
+ a.forEach(x=>{if(!x.id){x.id=uid();ch=true}});if(ch)localStorage.setItem('lk',JSON.stringify(a));return a}catch(e){return[]}};
+const saveLK=a=>{try{localStorage.setItem('lk',JSON.stringify(a));return true}catch(e){toast('Could not save');return false}};
+const hasScheme=u=>/^[a-z][a-z0-9+.-]*:/i.test(u);
+const href=u=>hasScheme(u)?u:'https://'+u;
+function drawLinks(popId){
+ const a=LK();
+ $('ll').innerHTML=a.length?a.map((x,i)=>`<div class="sw lw${popId&&x.id===popId?' pop':''}"><div class="bg">🗑</div><div class="lk${x.id===editId?' ed':''}" data-li="${i}" data-id="${esc(x.id)}"><div class="lx"><b>${esc(x.t)}</b><span>${esc(x.u)}</span></div><a class="lb" href="${esc(href(x.u))}" target="_blank" rel="noopener" title="Open">↗</a><button class="lb lcp" data-i="${i}" title="Copy">📋</button></div></div>`).join('')
+  :'<p class="mu" style="padding:8px 2px">No saved links yet.</p>'}
+$('lks').onclick=()=>{
+ const t=$('lt').value.trim(),u=$('lu').value.trim();
+ if(!t||!u){toast('Enter title and link');return}
+ if(hasScheme(u)&&!/^(https?|mailto|tel):/i.test(u)){toast('Unsupported link type');return}
+ const a=LK();let pid=null;
+ if(editId){const i=a.findIndex(x=>x.id===editId);if(i>-1){a[i].t=t;a[i].u=u;pid=editId}}
+ if(!pid){pid=uid();a.unshift({id:pid,t,u})}
+ if(!saveLK(a))return;
+ editId=null;$('lt').value='';$('lu').value='';drawLinks(pid);toast('Saved ✓')};
+$('ll').addEventListener('click',e=>{
+ const c=e.target.closest('.lcp');
+ if(c){const x=LK()[+c.dataset.i];if(x)copy(x.u,'Link copied ✓');return}
+ if(e.target.closest('.lb')||delMode)return;
+ const k=e.target.closest('.lk');if(!k)return;
+ const x=LK().find(y=>y.id===k.dataset.id);if(!x)return;
+ editId=x.id;$('lt').value=x.t;$('lu').value=x.u;drawLinks();
+ window.scrollTo(0,0);$('lt').focus()});
 
 let qt;$('q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{Q=e.target.value.trim();st={};draw()},250)};
 
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
  tab=b.dataset.t;
  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));
- ['msgs','star','send','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
- $('qw').classList.toggle('hide',tab=='set');
+ ['msgs','star','send','links','set'].forEach(id=>$(id).classList.toggle('hide',id!=tab));
+ $('qw').classList.toggle('hide',tab=='set'||tab=='links');
  $('q').placeholder=tab=='send'?'Search sent messages…':'Search messages or numbers…';
  if(tab!='msgs')newIds.clear();
- dmUi();if(tab=='msgs'){checkUnread();clearUnread()}draw();window.scrollTo(0,0)});
+ dmUi();if(tab=='msgs'){checkUnread();clearUnread()}if(tab=='links')drawLinks();draw();window.scrollTo(0,0)});
 
 $('pb').onclick=()=>{if(!A)return;A.requestPerm();let n=0;
  const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.importPhone(true);draw()}else if(++n>60)clearInterval(iv)},500)};
@@ -309,8 +392,11 @@ $('ld').onchange=e=>{const fl=e.target.files[0];if(!fl||!A)return;const rd=new F
 function fly(b){const ic=b.firstElementChild;ic.classList.remove('fly');void ic.getBoundingClientRect();ic.classList.add('fly');b.disabled=true;setTimeout(()=>{b.disabled=false;ic.classList.remove('fly')},950)}
 
 /* undo after a swipe-delete */
-let ut;function showUndo(){$('ut').classList.remove('hide');clearTimeout(ut);ut=setTimeout(()=>$('ut').classList.add('hide'),5000)}
-$('ub').onclick=()=>{if(last){A.undo(last.a,last.b,last.t,last.y);last=null}$('ut').classList.add('hide');draw()};
+let ut,lastLk=null;function showUndo(t){$('ut').firstElementChild.textContent=t||'Message deleted';$('ut').classList.remove('hide');clearTimeout(ut);ut=setTimeout(()=>$('ut').classList.add('hide'),5000)}
+$('ub').onclick=()=>{
+ if(lastLk){const a=LK();a.splice(Math.min(lastLk.i,a.length),0,lastLk.x);saveLK(a);lastLk=null;drawLinks()}
+ else if(last){A.undo(last.a,last.b,last.t,last.y);last=null;draw()}
+ $('ut').classList.add('hide')};
 
 /* per-person chat + reply */
 function openTh(a){thA=a;names([a]);$('tn').textContent=nm(a);$('ta').textContent=nm(a)===a?'':a;drawTh();$('th').classList.remove('hide');$('tl').scrollTop=1e9}

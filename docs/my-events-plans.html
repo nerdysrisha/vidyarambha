@@ -30,8 +30,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #top{padding:calc(env(safe-area-inset-top,0px) + 11.9px) 15.3px 11.9px;background:linear-gradient(135deg,var(--bar),var(--panel) 55%,var(--bar));border-bottom:1px solid rgba(var(--a),.55)}
 #top h1{margin:0;font-size:18.7px;color:var(--hi);text-shadow:0 0 10.2px rgba(var(--a),.5)}
 #top p{margin:2.5px 0 0;color:var(--mute);font-size:11px}
-#main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px;border:1.5px solid rgba(var(--saf),.8);border-radius:16px;animation:breathe 4.5s ease-in-out infinite}
-@keyframes breathe{0%,100%{box-shadow:inset 0 0 3px 2px rgba(var(--saf),.10)}50%{box-shadow:inset 0 0 9px 2px rgba(var(--saf),.34)}}
+#main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px}
 nav{display:flex;border-top:1px solid var(--line);background:var(--panel);padding-bottom:env(safe-area-inset-bottom,0px)}
 nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.8px;color:var(--mute);min-height:47.6px}
 nav button svg{width:19.6px;height:19.6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -43,7 +42,7 @@ body[data-v=set] #fab{display:none}
 .hd b{font-size:11.9px}
 .hd i{font-style:normal;color:var(--mute);transition:transform .15s}
 .grp.open .hd i{transform:rotate(90deg)}
-.kids{display:none;margin-left:6.8px;padding-left:6.8px;border-left:2px solid var(--line)}
+.kids{display:none;margin:0;padding:0}
 .grp.open .kids{display:block}
 .r{display:flex;align-items:center;gap:6.8px;flex:none}
 em.n{font-style:normal;font-size:9.3px;font-weight:600;padding:2.5px 6.8px;border-radius:8.5px;color:var(--hi);background:rgba(var(--a),.14);border:1px solid rgba(var(--a),.35);white-space:nowrap}
@@ -102,7 +101,23 @@ body.light .cancel{background:#fde3e3;color:#c62828}
 .sw.on{border-color:var(--text)}
 .stack{display:flex;flex-direction:column;gap:6.8px}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 119px);transform:translateX(-50%);background:var(--text);color:var(--ink);padding:7.6px 13.6px;border-radius:17px;font-size:11px;display:none;z-index:9}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}#main{animation:none;box-shadow:inset 0 0 6px 2px rgba(var(--saf),.22)}}
+:root{--red:#e5484d}body.light{--red:#d92d34}
+.tcard{display:flex;align-items:center;gap:11px;padding:8.5px 10.2px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;user-select:none;-webkit-user-select:none}
+.tstep{display:flex;flex-direction:column;align-items:center;flex:none}
+.tstep button{width:54px;min-height:30px;padding:0;font-size:12.5px;line-height:1;touch-action:manipulation}
+.tstep button[disabled]{opacity:.3}
+.tnum{min-width:54px;text-align:center;font-size:25px;font-weight:700;line-height:1.1;padding:2px 0;font-variant-numeric:tabular-nums}
+.tnum small{display:block;font-size:9.3px;font-weight:600;color:var(--mute);margin-top:-2px}
+.tcap{flex:1;min-width:0;color:var(--mute);font-size:11px;line-height:1.4}
+.tcap b{display:block;color:var(--text);font-size:12px}
+.tgo{flex:none;min-width:80px;height:40px;padding:0 13px;font-weight:700;background:var(--red);border:0;color:#fff;border-radius:10px}
+.tcard.run{border-color:var(--red)}
+.tcard.run .tnum{color:var(--red)}
+.tcard.run .tgo{background:none;border:1px solid var(--red);color:var(--red)}
+.tcard.done{border-color:var(--red);background:rgba(229,72,77,.14);animation:tp 1.2s ease-in-out infinite}
+.tcard.done .tnum{color:var(--red)}
+@keyframes tp{50%{box-shadow:0 0 0 3px rgba(229,72,77,.35)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body data-theme="midnight" data-v="home">
@@ -200,6 +215,7 @@ function render(){
     for(const k in G){if(!G[k].length)continue;
       h+=`<div class="grp${closed.has(k)?'':' open'}"><button class="topic hd" data-g="${k}"><b>${k}</b><span class="r"><em class="n">${G[k].length}</em><i>›</i></span></button><div class="kids">${G[k].sort(byDate).map(row).join('')}</div></div>`}
     if(!h)h='<div class="msg">Nothing here yet.<br>Tap + to add an event, reminder or birthday.</div>';
+    h=timerCard()+h;
   }else if(view==='bday'){
     $('#h1').textContent='Birthdays';
     const L=E.filter(e=>e.it.type==='birthday').sort(byDate);
@@ -230,6 +246,7 @@ $('#main').addEventListener('click',e=>{
   const th=t.closest('[data-th]');if(th){S.theme=th.dataset.th;applyTheme();save();render();return}
   const md=t.closest('[data-md]');if(md){S.mode=md.dataset.md;applyTheme();save();render();return}
   const tt=t.closest('[data-tt]');if(tt){testTone(tt.dataset.tt);return}
+  const tg=t.closest('[data-tgo]');if(tg){timerAct(tg.dataset.tgo);return}
   const r=t.closest('.row');if(r){openForm(r.dataset.id);return}
   if(t.id==='smon'){S.sms.on=!S.sms.on;persist();pushSms();render();if(S.sms.on&&window.AndroidEv&&!AndroidEv.hasSms())AndroidEv.requestSms();return}
   if(t.id==='smp'){try{AndroidEv.requestSms()}catch(x){toast('Works in the installed app only')}return}
@@ -334,8 +351,9 @@ async function nativeSched(){
     return{id,item:it.id,title:it.title,type:it.type,h,m,date:it.date,rule:it.type==='birthday'?'yearly':it.repeat,days:it.days||[]};
   });
   try{AndroidEv.setAlarms(JSON.stringify(L))}catch(e){toast('Could not set alarms')}
-  if(!capCleared){capCleared=true;const p=LN();if(p){try{const pe=await p.getPending();if(pe.notifications.length)await p.cancel(pe)}catch(e){}}} // old plugin alerts would ring twice
+  if(!capCleared){capCleared=true;const p=LN();if(p){try{const pe=await p.getPending(),k=pe.notifications.filter(n=>n.id!==TID);if(k.length)await p.cancel({notifications:k})}catch(e){}}} // old plugin alerts would ring twice
 }
+const TID=9100; // quick-timer alert: never cancelled by the schedulers
 const SNZ=5000; // ids from 5000 up are snoozed alerts; 1..4999 are the normal alerts
 async function actionTypes(p){
   try{await p.registerActionTypes({types:[{id:'ALERT',actions:[{id:'s10',title:'Snooze 10 min'},{id:'s60',title:'Snooze 1 hour'},{id:'done',title:'Done'}]}]})}catch(e){}
@@ -423,9 +441,65 @@ $('#imp').onchange=async e=>{
 
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200)}
 
+// ---- quick timer: counts down, then rings with the event tone
+let tmins=5,tdone=false;
+try{tmins=Math.min(240,Math.max(1,parseInt(localStorage.getItem('myplans.tmins'))||5))}catch(e){}
+const tget=()=>{try{return JSON.parse(localStorage.getItem('myplans.timer'))}catch(e){return null}};
+const tclear=()=>{try{localStorage.removeItem('myplans.timer')}catch(e){}};
+const hm=ms=>{const d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())};
+function timerCard(){
+  const t=tget(),run=!!t;
+  let cls='tcard',num,unit,cap,btn;
+  if(run){const r=Math.max(0,Math.ceil((t.end-Date.now())/1000));cls+=' run';num=Math.floor(r/60)+':'+pad(r%60);unit='left';
+    cap=`<b>Timer running</b>Rings at ${hm(t.end)}`;btn='<button class="tgo" data-tgo="cancel">Cancel</button>'}
+  else if(tdone){cls+=' done';num='0:00';unit='';cap=`<b>Time's up</b>Your timer has finished`;btn='<button class="tgo" data-tgo="ok">OK</button>'}
+  else{num=tmins;unit='min';cap='<b>Quick timer</b>Rings with the event tone';btn='<button class="tgo" data-tgo="start">Start</button>'}
+  const dis=run||tdone?' disabled':'';
+  return `<div class="${cls}" id="tcard"><div class="tstep"><button data-tstep="1" aria-label="More minutes"${dis}>▲</button><div class="tnum" id="tnum">${num}<small>${unit}</small></div><button data-tstep="-1" aria-label="Fewer minutes"${dis}>▼</button></div><div class="tcap">${cap}</div>${btn}</div>`;
+}
+const refreshT=()=>{const el=$('#tcard');if(el)el.outerHTML=timerCard()};
+function stepT(d){tmins=Math.min(240,Math.max(1,tmins+d));try{localStorage.setItem('myplans.tmins',tmins)}catch(e){}const n=$('#tnum');if(n)n.innerHTML=tmins+'<small>min</small>'}
+let holdT=null,holdI=null;
+const stopHold=()=>{clearTimeout(holdT);clearInterval(holdI);holdT=holdI=null};
+$('#main').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('[data-tstep]');if(!b||b.disabled)return;
+  const d=+b.dataset.tstep;stopHold();stepT(d);
+  holdT=setTimeout(()=>{holdI=setInterval(()=>stepT(d),110)},450);
+});
+['pointerup','pointercancel','blur'].forEach(ev=>window.addEventListener(ev,stopHold));
+$('#main').addEventListener('contextmenu',e=>{if(e.target.closest('[data-tstep]'))e.preventDefault()});
+function beep(){ // browser fallback only; the installed app rings through the phone alert
+  try{const A=new(window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(o=>{const s=A.createOscillator(),g=A.createGain();s.connect(g);g.connect(A.destination);s.frequency.value=880;g.gain.value=.2;s.start(A.currentTime+o);s.stop(A.currentTime+o+.2)})}catch(e){}
+}
+function tick(){
+  const t=tget();if(!t)return;
+  if(t.end<=Date.now()){tclear();tdone=true;toast('Timer done');if(!LN())beep()}
+  refreshT();
+}
+async function timerAct(a){
+  const p=LN();
+  if(a==='start'){
+    const m=tmins,end=Date.now()+m*60000;
+    try{localStorage.setItem('myplans.timer',JSON.stringify({end,mins:m}))}catch(e){toast('Could not start the timer');return}
+    tdone=false;refreshT();
+    if(p){
+      const ok=(await perm(false))||(await perm(true));
+      if(ok){try{await channels(p);await p.cancel({notifications:[{id:TID}]});
+        await p.schedule({notifications:[{id:TID,title:'Timer done',body:m+(m===1?' minute':' minutes')+' is up',channelId:'event_v'+TONE_V,schedule:{at:new Date(end),allowWhileIdle:true}}]})}
+        catch(e){toast('Timer is running, but the phone alert failed')}}
+      else toast('Turn on phone alerts so the timer can ring');
+    }
+  }else{
+    tclear();tdone=false;refreshT();
+    if(p&&a==='cancel'){try{await p.cancel({notifications:[{id:TID}]})}catch(e){}}
+  }
+}
+{const t=tget();if(t&&t.end<=Date.now()){tclear();tdone=true}}
+setInterval(tick,1000);
+
 applyTheme();render();sched();
 pushSms();takeDone();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){takeDone();render();sched()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();takeDone();render();sched()}});
 </script>
 </body>
 </html>

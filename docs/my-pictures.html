@@ -213,7 +213,7 @@ body.max #top{display:none}
 body.max #app{padding-top:0}
 
 /* ── start screen: title + glowing saffron Start button; tap = full screen, then it fades away ── */
-#start-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 24px calc(32px + env(safe-area-inset-bottom,0px)) 0;background:radial-gradient(circle at 50% 38%,#4a2606 0%,#0a1018 70%);--start-img:none}
+#start-screen{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 24px calc(32px + env(safe-area-inset-bottom,0px)) 24px;background:radial-gradient(circle at 50% 38%,#4a2606 0%,#0a1018 70%);--start-img:none}
 #start-screen::before{content:"";position:absolute;inset:0;background:var(--start-img) center/cover no-repeat;opacity:0}
 #start-screen.ready::before{animation:startReveal 5s ease-in-out forwards}
 @keyframes startReveal{to{opacity:1}}
@@ -226,13 +226,22 @@ body.max #app{padding-top:0}
 #start-btn{position:relative;z-index:1;appearance:none;cursor:pointer;width:76px;height:76px;min-width:0;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.9);color:#3a1c02;font:700 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:radial-gradient(circle at 35% 30%,#ffe9c9 0%,#ff9933 60%,#e07a14 100%);opacity:0;pointer-events:none}
 #start-screen.btn-on #start-btn{pointer-events:auto;animation:startBtnIn .8s ease-out forwards,startGlow 1.8s ease-in-out infinite}
 @keyframes startBtnIn{to{opacity:1}}
+/* source tiles on the landing screen: same look as the gear-menu source buttons, with a thin accent border */
+#stiles{position:relative;z-index:1;width:100%;max-width:420px;display:grid;grid-template-columns:1fr 1fr;gap:10px;opacity:0;pointer-events:none}
+#start-screen.btn-on #stiles{pointer-events:auto;animation:startBtnIn .8s ease-out forwards}
+#stiles button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:auto;min-height:76px;padding:10px;font-size:12px;border:1px solid rgba(var(--a),.55);border-radius:12px}
+#stiles button svg{width:26px;height:26px;margin:0;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#stiles button.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
+#stiles button:disabled{opacity:.3}
+#stiles button small{display:block;max-width:100%;color:var(--mute);font-size:10.5px;line-height:1.25;text-align:center;min-height:1.25em}
+@media (orientation:landscape){#stiles{grid-template-columns:repeat(4,1fr);max-width:640px}#stiles button{min-height:64px}}
 #start-btn:active{transform:scale(.95)}
 @keyframes startGlow{0%,100%{box-shadow:0 0 8px 2px rgba(255,153,51,.75),0 0 18px 6px rgba(255,153,51,.45),inset 0 1px 0 rgba(255,255,255,.7)}50%{box-shadow:0 0 16px 6px rgba(255,190,110,1),0 0 34px 14px rgba(255,153,51,.7),inset 0 1px 0 rgba(255,255,255,.7)}}
 #start-screen.leaving{pointer-events:none;animation:startFade 2.5s ease forwards}
 #start-screen.leaving #start-btn{animation:startBtnOut 2.5s ease forwards}
 @keyframes startFade{0%,15%{opacity:1}100%{opacity:0}}
 @keyframes startBtnOut{0%{transform:scale(1);opacity:1}100%{transform:scale(1.3);opacity:0}}
-@media (prefers-reduced-motion:reduce){#top,#top .glint{animation:none}#start-screen.btn-on #start-btn{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
+@media (prefers-reduced-motion:reduce){#top,#top .glint{animation:none}#start-screen.btn-on #start-btn,#start-screen.btn-on #stiles{opacity:1;animation:none}#start-screen.ready #start-text h1,#start-screen.ready #start-text p{animation-duration:.01s;animation-delay:0s}#start-screen.leaving{animation-duration:.3s}#start-screen.leaving #start-btn{animation:none}}
 
 /* ── upload dialog ── */
 #ud{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,12,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -275,8 +284,8 @@ body{-webkit-touch-callout:none}
 </head>
 <body data-v="list">
 <div id="start-screen">
-  <div id="start-text"><h1>Pictures</h1><p>Tap a folder to open its photos</p></div>
-  <button id="start-btn" type="button">Start</button>
+  <div id="start-text"><h1>Pictures</h1><p>Choose where your photos are</p></div>
+  <div id="stiles" role="group" aria-label="Photo source"></div>
 </div>
 <div id="app">
   <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><span class="tr"><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
@@ -382,7 +391,7 @@ const isLocal = v => v === "phone" || v === "sd";
 const sdOk = () => { try { return !window.AndroidSd || AndroidSd.sdPresent() !== false; } catch (e) { return true; } };   // no card inserted: grey the SD option out
 function applySd() {
   const ok = sdOk();
-  [$("srcSd"), document.querySelector("#srow [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
+  [$("srcSd"), document.querySelector("#srow [data-src=sd]"), document.querySelector("#stiles [data-src=sd]")].forEach(b => { if (b) { b.disabled = !ok; b.title = ok ? "" : "No SD card inserted"; } });
 }
 function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
   const v = getSrc();
@@ -390,6 +399,7 @@ function showSrcIco() {                                    // colour theme follo
   $("rbadge").textContent = {github: "CLOUD", phone: "PHONE", sd: "SD CARD", gdrive: "DRIVE"}[v] || "";
   { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = (isLocal(v) || v === "gdrive") ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
   applySd();
+  document.querySelectorAll("#stiles button").forEach(b => b.classList.toggle("on", b.dataset.src === v));
   const r = $("srow"); if (r) r.querySelectorAll("button").forEach(b => { const on = b.dataset.src === v; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
 }
 const getLast = () => { try { return localStorage.getItem("lastFolder") || ""; } catch (e) { return ""; } };
@@ -589,7 +599,7 @@ function gdToken(force) {                                  // short-lived access
     const h = e => {
       window.removeEventListener("gtoken", h); gdPend = null;
       const t = String(e.detail).split("\t");
-      if (t[0] === "ok" && t[1]) { gdTok = t[1]; gdExp = Date.now() + 50 * 60 * 1000; ok(gdTok); } else no(new Error(t[1] || "signin"));
+      if (t[0] === "ok" && t[1]) { gdTok = t[1]; gdExp = Date.now() + 50 * 60 * 1000; try { localStorage.setItem("gdok", "1"); } catch (e) {} ok(gdTok); } else no(new Error(t[1] || "signin"));
     };
     window.addEventListener("gtoken", h); AndroidGDrive.token();
   });
@@ -1787,20 +1797,51 @@ async function uploadDrive(folder) {
 // Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
 // (iPhone Safari has no full-screen API: there only the top ribbon is hidden. In an app it is already full screen.)
 (function () {
-  const scr = $("start-screen"), btn = $("start-btn");
+  const scr = $("start-screen"), box = $("stiles");
   const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(scr).getPropertyValue("--start-img"));
   const ready = () => scr.classList.add("ready");
   if (m) { const img = new Image(); img.onload = img.onerror = ready; img.src = m[1]; setTimeout(ready, 1500); } else ready();
   setTimeout(() => scr.classList.add("btn-on"), 1000);
   let done = false;
   const finish = () => { if (!done) { done = true; scr.remove(); realign(); } };
-  btn.addEventListener("click", () => {
+  const begin = () => {
     if (!IN_APP) { if (canFS) setMax(true); else document.body.classList.add("nobar"); }
     setTimeout(realign, 150);
     scr.classList.add("leaving");
     scr.addEventListener("animationend", e => { if (e.target === scr) finish(); });
     setTimeout(finish, 3200);
+  };
+  SRC_ORDER.forEach(v => {                                 // one tile per source, same icons / names as the gear menu
+    const b = document.createElement("button");
+    b.type = "button"; b.dataset.src = v; b.innerHTML = SRC_ICO[v] + "<span>" + SRC_NAME[v] + "</span><small></small>";
+    b.setAttribute("aria-label", SRC_NAME[v]);
+    b.onclick = () => {
+      if (scr.classList.contains("leaving")) return;
+      begin();
+      if (v !== getSrc() || document.body.dataset.v === "source") goSrc(v);   // same source as last time: it is already loading behind this screen
+    };
+    box.appendChild(b);
   });
+  showSrcIco();                                            // marks the last-used tile and greys out SD card when none is inserted
+  const fmtGB = b => { const g = b / 1073741824; return (g >= 10 ? Math.round(g) : g.toFixed(1)) + " GB"; };
+  const spaceTxt = (f, t) => fmtGB(f) + " free of " + fmtGB(t);
+  const setLine = (v, txt) => { const s = box.querySelector('button[data-src="' + v + '"] small'); if (s) s.textContent = txt; };
+  setLine("github", "GitHub");
+  if (window.AndroidSd && typeof AndroidSd.space === "function") {
+    ["phone", "sd"].forEach(v => {
+      if (v === "sd" && !sdOk()) return setLine(v, "No card");
+      try { const r = AndroidSd.space(v).split("\t"); setLine(v, r.length === 2 ? spaceTxt(+r[0], +r[1]) : ""); } catch (e) {}
+    });
+  }
+  try { setLine("gdrive", localStorage.getItem("gdSpace") || ""); } catch (e) {}      // last known figure shows at once
+  let seen = ""; try { seen = localStorage.getItem("gdok") || ""; } catch (e) {}
+  if (seen && window.AndroidGDrive) {                                                  // only if you have signed in to Drive before
+    gdFetch("https://www.googleapis.com/drive/v3/about?fields=storageQuota").then(r => r.ok ? r.json() : null).then(j => {
+      const q = j && j.storageQuota; if (!q || !q.limit) return;
+      const t = spaceTxt(q.limit - q.usage, +q.limit);
+      setLine("gdrive", t); try { localStorage.setItem("gdSpace", t); } catch (e) {}
+    }).catch(() => {});
+  }
 })();
 </script>
 </body>
