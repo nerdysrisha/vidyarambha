@@ -947,3 +947,76 @@ Steps:
 - Whether the **init data hash** and the sidecar images are registered in RVPS.
 - How the Trustee VSI disk is encrypted and who has admin access.
 - Whether your CDH/AA version uses the REST port or only the Unix sockets.
+
+
+
+---
+
+## Confidential Containers (Peer Pods) on IBM Cloud: Validated Sequence
+
+Validated against Trustee `main` (3579d8a), guest-components (d0b47fb) and cloud-api-adaptor. Pin your deployed versions, because the KBS protocol version must match exactly (0.4.0).
+
+### Phase 0: Setup (before any client traffic)
+
+1. `:Admin` loads reference values, attestation policy, resource policy and the secret (`default/kbsres1/key1`) into `:Trustee KBS` (`:RVPS` and `:AS` behind it). Admin calls carry a bearer JWT that `:Trustee KBS` verifies against its configured admin public keys.
+2. `:Trustee KBS` is configured over HTTPS and trusts the `:AS` token-signer cert chain (`trusted_certs_paths`). `:AS` can reach Intel PCS/PCCS for TDX collateral.
+3. `:kubelet` -> `:CRI-O` -> `:kata-remote shim` -> `:CAA` (osc-caa-ds) -> VPC API creates the TDX peer pod VSI (`:CVM`) with cloud-init data (mTLS certs).
+4. `:CAA` connects to `:agent-protocol-forwarder` in `:CVM` (port 15150, mTLS). This carries the kata-agent ttRPC and the initdata (`aa.toml`, `cdh.toml`, `policy.rego`).
+5. `:agent-protocol-forwarder` creates `:vxlan0` in `:CVM`, moves it into the pod netns and renames it to the pod interface name. On `:worker-node`, `:vxlan1` sits in the stub pod netns with tc redirect filters to the Calico veth.
+6. Istio injection adds `:Istio Proxy` + `istio-init`. Images are pulled inside `:CVM`. `:Istio Proxy` gets certs/xDS from `:istiod` (:15012). *[deployment-specific]*
+
+### Phase 1: Client path
+
+7. `:Client app` sends a request to `:VPC Load Balancer`.
+8. SG / Network ACL / subnet checks apply from `:VPC Load Balancer` to `:worker-node` (eth0), and again at each later VPC hop: `:worker-node` -> `:CVM` (UDP 4789), `:CVM` -> `:Trustee KBS` (KBS port), `:CVM` -> `:istiod` (15012).
+9. `:worker-node` NodePort (kube-proxy / Calico dataplane) forwards to `:Ingress Gateway` (Envoy), if used.
+10. `:Ingress Gateway` (Envoy) picks the backend and originates mTLS to the sidecar. Normally it goes straight to the pod IP; the `:k8s Service` + Calico DNAT path applies without the gateway. *[Istio-specific, deployment-dependent]*
+11. `:Calico` delivers the packet to `:Pod eth0` (veth) in the worker stub pod netns.
+12. tc redirect hands it to `:vxlan1`, which encapsulates it (VNI, UDP 4789).
+13. The outer packet leaves `:worker-node` eth0 for the `:CVM` primary NIC.
+14. `:vxlan0` in `:CVM` decapsulates and delivers to the pod netns interface.
+15. `istio-init` iptables rules redirect the traffic to `:Istio Proxy` (Envoy sidecar).
+16. `:Istio Proxy` terminates mTLS (PeerAuthentication) and enforces AuthorizationPolicy.
+17. `:Istio Proxy` forwards plaintext to `:Confidential Application` on localhost.
+
+### Phase 2: Secret retrieval
+
+18. `:Confidential Application` calls `GET http://127.0.0.1:8006/cdh/resource/default/kbsres1/key1` on `:api-server-rest`.
+19. `:api-server-rest` calls `:CDH` GetResource over ttRPC (`cdh.sock`).
+20. `:CDH` (`:KBS Client`, cc_kbc) has no token, so it calls `:AA` GetToken(kbs) over ttRPC (`attestation-agent.sock`).
+21. `:AA` (`:KBS Client`) sends `POST /kbs/v0/auth` to `:Trustee KBS` with `{version:"0.4.0", tee:"tdx", extra-params:{supported-hash-algorithms, optional attestation-policy-selector}}`.
+22. `:Trustee KBS` checks the version (must be exactly 0.4.0), resolves the policy selector, creates a session and generates a 32-byte random nonce (base64).
+23. `:Trustee KBS` returns the Challenge `{nonce, extra-params}` to `:AA` with `Set-Cookie: kbs-session-id`.
+24. `:AA` builds runtime-data `{nonce, tee-pubkey}` from its ephemeral TEE key. It computes `report_data = SHA-384(canonical JSON {tee-pubkey, nonce, additional-evidence})`, padded to 64 bytes.
+25. `:AA` asks the `:TDX attestation interface` for a quote: it writes report_data to `/sys/kernel/config/tsm/report/<x>/inblob` (or uses `/dev/tdx_guest`).
+26. The `:TDX attestation interface` produces the Quote (host-side quote generation), returned via `outblob`. *[IBM-specific, confirm with IBM]*
+27. `:AA` reads the CC event log. Evidence = `{quote, cc_eventlog}`.
+28. `:AA` (`:KBS Client`) sends `POST /kbs/v0/attest` with the cookie. The body is `{init-data (TOML, optional), runtime-data {nonce, tee-pubkey}, tee-evidence {primary_evidence, additional_evidence}}`.
+29. `:Trustee KBS` checks the session is valid and the nonce matches. It rebuilds the runtime data and forwards the evidence (and init-data) to `:AS`.
+30. `:AS` (TDX verifier) verifies the quote:
+    - fetches collateral from PCS/PCCS
+    - verifies the quote with DCAP
+    - checks that report_data matches the recomputed hash
+    - replays the CC event log against RTMR0-3
+    - verifies the initdata binding (MRCONFIGID or RTMR3 InitData event)
+31. `:AS` runs the attestation Rego policy. The policy calls `query_reference_value()`, so `:AS` queries `:RVPS` from inside policy evaluation.
+32. `:RVPS` returns the reference values (mr_td, rtmr_1, rtmr_2, xfam, tdvf events, etc.).
+33. `:AS` evaluates the policy against the claims and produces a trust vector.
+34. `:AS` signs the attestation token (EAR JWT, ES256, jwk + x5c in the header, TEE public key in the claims).
+35. `:AS` returns the attestation token to `:Trustee KBS`.
+36. `:Trustee KBS` stores the token in the session and returns `{"token": "<JWT>"}` plus the cookie to `:AA`.
+37. `:AA` returns `{token, tee_keypair}` to `:CDH` over ttRPC.
+38. `:CDH` (`:KBS Client`) sends `GET /kbs/v0/resource/default/kbsres1/key1` with `Authorization: Bearer <JWT>`. On a 401 it asks `:AA` for a new token.
+39. `:Trustee KBS` verifies the JWT signature and x5c chain, then evaluates the KBS resource policy (`data.policy.allow`) with the token claims and the resource path. A deny returns 403.
+40. `:Trustee KBS` authorizes access and the resource plugin reads the secret from the storage backend.
+41. `:Trustee KBS` extracts the TEE public key from the token, JWE-encrypts the secret to it and returns the encrypted payload to `:CDH`.
+42. `:CDH` (`:KBS Client`) decrypts the JWE with the `tee_keypair` private key.
+43. `:CDH` returns the plaintext secret to `:api-server-rest`, which returns it to `:Confidential Application` over loopback.
+
+### Notes
+
+- The default KBS resource policy allows any non-`sample` TEE to read any resource. Replace it before relying on step 39.
+- Initdata is integrity-protected but not confidential. Don't put secrets in it.
+- Steps 6, 10 and 26 are deployment-specific and were not validated against the repos.
+
+---
