@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1018">
+<title>My Plans</title>
+<style>
+:root{--saf:244,179,90;--ink:#0a1018;--panel:#142030;--line:#223349;--text:#e8eef6;--mute:#8b9bb0;--accent:#4f93e0;--a:79,147,224;--bar:#10304f;--hi:#d3e6fb;--event:#5aa9ff;--reminder:#4cc38a;--birthday:#f58ac0}
+body[data-theme=forest]{--ink:#07140f;--panel:#0f2519;--line:#1d4630;--mute:#8dbba3;--accent:#4cc38a;--a:76,195,138;--bar:#0f3d2c;--hi:#c9f3de}
+body[data-theme=violet]{--ink:#0d0a1b;--panel:#191331;--line:#32275a;--mute:#a79fc8;--accent:#a78bfa;--a:167,139,250;--bar:#2e1f5c;--hi:#e4dcff}
+body[data-theme=ember]{--ink:#150d07;--panel:#271810;--line:#4a2e1c;--mute:#c4a48a;--accent:#f0933c;--a:240,147,60;--bar:#4a2a10;--hi:#ffe2c4}
+body[data-theme=rose]{--ink:#170910;--panel:#2a1320;--line:#4a2339;--mute:#c79ab2;--accent:#f06c9b;--a:240,108,155;--bar:#4d1a33;--hi:#ffd6e6}
+/* light mode: same five themes, light surfaces */
+body.light{--ink:#eef3f9;--panel:#fff;--line:#d3dde9;--text:#16202c;--mute:#5a6b80;--accent:#2f74c6;--a:47,116,198;--bar:#d9e8f9;--hi:#0d3157;--event:#2f74c6;--reminder:#1f9d63;--birthday:#d6489a}
+body.light[data-theme=forest]{--ink:#eff7f2;--line:#cfe2d6;--mute:#547062;--accent:#1c9560;--a:28,149,96;--bar:#d5eddf;--hi:#0d3b2a}
+body.light[data-theme=violet]{--ink:#f3f0fb;--line:#dcd4f0;--mute:#6a6288;--accent:#7a57e0;--a:122,87,224;--bar:#e3dcf8;--hi:#2e1f5c}
+body.light[data-theme=ember]{--ink:#fbf3ec;--line:#eadacb;--mute:#7a6552;--accent:#d97312;--a:217,115,18;--bar:#fbe3cc;--hi:#5a2f0b}
+body.light[data-theme=rose]{--ink:#fbeff4;--line:#efd3df;--mute:#7d5a6b;--accent:#d6336c;--a:214,51,108;--bar:#fbdbe8;--hi:#5a1a37}
+body.light #top h1{text-shadow:none}
+body.light .dng{color:#c62828}
+body.light .pri,body.light #fab{color:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overscroll-behavior:none;background:var(--ink);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#app{position:fixed;inset:0;max-width:646px;margin:0 auto;display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:var(--text)}
+button{background:var(--panel);border:1px solid var(--line);border-radius:10.2px;min-height:37.4px;min-width:37.4px;cursor:pointer}
+button:active{background:var(--line)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent)}
+#top{padding:calc(env(safe-area-inset-top,0px) + 11.9px) 15.3px 11.9px;background:linear-gradient(135deg,var(--bar),var(--panel) 55%,var(--bar));border-bottom:1px solid rgba(var(--a),.55)}
+#top{position:relative}
+#nfold{display:none;position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 9px);width:34px;height:34px;min-width:34px;min-height:34px;border-radius:17px;padding:0;align-items:center;justify-content:center}
+#nfold svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round}
+#nfold:disabled{opacity:.3}
+#ndots{display:none;align-items:center;margin:5px 0 -4px -5px}
+.nd{width:22px;height:22px;min-width:22px;min-height:22px;padding:0;border:0;border-radius:11px;background:none;display:flex;align-items:center;justify-content:center}
+.nd::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mute);opacity:.5}
+.nd.on::before{background:rgb(var(--saf));opacity:1;animation:nbd 2.6s ease-in-out infinite,nbr 2.6s ease-in-out infinite}
+body[data-v=news]:not(.nokey) #nfold,body[data-v=news]:not(.nokey) #ndots{display:flex}
+body[data-v=news]:not(.nokey) #top{padding-right:56px}
+body.nopen[data-v=news] #top h1{color:rgb(var(--saf))}
+#top h1{margin:0;font-size:18.7px;color:var(--hi);text-shadow:0 0 10.2px rgba(var(--a),.5)}
+#top p{margin:2.5px 0 0;color:var(--mute);font-size:11px}
+#main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px}
+nav{display:flex;border-top:1px solid var(--line);background:var(--panel);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.8px;color:var(--mute);min-height:47.6px}
+nav button svg{width:19.6px;height:19.6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--accent)}
+#fab{position:fixed;right:max(15.3px,calc(50% - 307.7px));bottom:calc(env(safe-area-inset-bottom,0px) + 62.9px);width:47.6px;height:47.6px;border-radius:23.8px;font-size:25.5px;line-height:1;background:var(--accent);border:0;color:var(--ink);box-shadow:0 3.4px 15.3px rgba(var(--a),.45)}
+body[data-v=set] #fab,body[data-v=news] #fab{display:none}
+#npad{display:none;position:fixed;right:max(15.3px,calc(50% - 307.7px));bottom:calc(env(safe-area-inset-bottom,0px) + 62.9px);flex-direction:column;gap:10px;z-index:5}
+body[data-v=news]:not(.nokey) #npad{display:flex}
+#npad button{width:47.6px;height:47.6px;border-radius:23.8px;background:var(--accent);border:0;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;box-shadow:0 3.4px 10px rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:transform .15s}
+#npad button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+#npad button.lp{transform:scale(1.14)}
+.ns.in{opacity:0;animation:nin .45s ease-out forwards}
+@keyframes nin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.nh{cursor:pointer}
+.nh.act{position:sticky;top:0;z-index:2;border-color:rgba(var(--saf),.9);background:linear-gradient(rgba(var(--saf),.18),rgba(var(--saf),.18)),var(--panel);animation:nbr 2.6s ease-in-out infinite}
+.nh.act b{color:rgb(var(--saf))}
+.nh.act b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:rgb(var(--saf));margin-right:8px;animation:nbd 2.6s ease-in-out infinite}
+@keyframes nbr{0%,100%{box-shadow:0 0 5px 0 rgba(var(--saf),.25)}50%{box-shadow:0 0 0 3px rgba(var(--saf),.16),0 0 16px 3px rgba(var(--saf),.55)}}
+@keyframes nbd{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+body.light #npad button{color:#fff}
+.nh{margin-top:6px}
+.nr{scroll-margin:10px 0 10px;padding:9px 12px;margin:0 0 6px;background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 14px 4px;cursor:pointer;scroll-margin:10px}
+.nr b{display:block;font-size:12.8px;font-weight:600;line-height:1.35}
+.nr small{display:block;color:var(--mute);font-size:10.2px;margin-top:3px}
+.nr.sel{border-color:var(--accent);background:rgba(var(--a),.16)}
+.nmsg{color:var(--mute);font-size:11px;padding:2px 10px 10px;cursor:pointer}
+.nlbl{align-self:center;color:var(--mute);font-size:11px;margin-right:2px}
+.grp{margin-bottom:6.8px}
+.topic{display:flex;align-items:center;justify-content:space-between;gap:8.5px;width:100%;text-align:left;padding:5.1px 10.2px;margin:0 0 3.4px;border-radius:8.5px;min-height:35.7px}
+.hd b{font-size:11.9px}
+.hd i{font-style:normal;color:var(--mute);transition:transform .15s}
+.grp.open .hd i{transform:rotate(90deg)}
+.kids{display:none;margin:0;padding:0}
+.grp.open .kids{display:block}
+.r{display:flex;align-items:center;gap:6.8px;flex:none}
+em.n{font-style:normal;font-size:9.3px;font-weight:600;padding:2.5px 6.8px;border-radius:8.5px;color:var(--hi);background:rgba(var(--a),.14);border:1px solid rgba(var(--a),.35);white-space:nowrap}
+.row{display:flex;align-items:center;gap:10.2px;padding:8.5px 10.2px;margin-bottom:5.1px;background:var(--panel);border:1px solid var(--line);border-radius:10.2px;cursor:pointer}
+.row:active{background:var(--line)}
+.row .tx{flex:1;min-width:0}
+.row b{display:block;font-size:12.8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{display:block;color:var(--mute);font-size:10.2px;margin-top:2px}
+.row.dn b{text-decoration:line-through;opacity:.5}
+.row.dn{opacity:.7}
+.dot{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12.5px;font-weight:700;border:2px solid var(--accent);color:var(--accent);background:rgba(var(--a),.1)}
+.dot.event{color:var(--event);border-color:var(--event);background:rgba(90,169,255,.12)}.dot.reminder{color:var(--reminder);border-color:var(--reminder);background:rgba(76,195,138,.12)}.dot.birthday{color:var(--birthday);border-color:var(--birthday);background:rgba(245,138,192,.12)}
+.chk{width:25.5px;height:25.5px;min-width:25.5px;min-height:25.5px;border-radius:12.8px;border:2px solid var(--mute);background:none;padding:0;color:var(--ink);font-size:13.6px;line-height:1}
+.chk.on{background:var(--accent);border-color:var(--accent)}
+.chk.on::after{content:"✓"}
+.msg{color:var(--mute);text-align:center;padding:51px 20.4px;line-height:1.6}
+#tools{display:flex;flex-direction:column;gap:8.5px;margin-bottom:10.2px}
+input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:10.2px;padding:9.3px 10.2px;min-height:37.4px}
+textarea{min-height:59.5px;resize:vertical}
+.chips{display:flex;gap:6.8px;overflow-x:auto}
+.chip{min-height:30.6px;padding:0 11.9px;border-radius:15.3px;font-size:11px;white-space:nowrap}
+.chip.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.16)}
+#dch{display:flex;gap:5.1px}
+.dy{width:34px;min-width:34px;height:34px;border-radius:17px;padding:0;font-size:11.9px}
+.dy.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.16)}
+.two{display:flex;gap:7px}.two>.fld{flex:1;min-width:0}
+#sheet input,#sheet select{min-width:0}
+#sheet{display:none;flex:none;background:var(--panel);border:1.5px solid rgba(var(--saf),.8);border-radius:16px;margin:8px 10px 0;padding:9px 10px 8px}
+#sheet.show{display:block}
+body.fo #top,body.fo #fab{display:none}
+.frow{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.rb{flex:none;width:36px;height:36px;min-width:36px;min-height:36px;border-radius:18px;padding:0;display:flex;align-items:center;justify-content:center;border:0}
+.rb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.save{background:var(--accent);color:var(--ink);box-shadow:0 2px 9px rgba(var(--a),.4)}
+body.light .save{color:#fff}
+.cancel{background:rgba(255,120,120,.2);color:#ff9d9d}
+body.light .cancel{background:#fde3e3;color:#c62828}
+.types{display:flex;flex:1;gap:2px}
+.types button{flex:1;border:0;background:none;border-radius:0;min-height:36px;min-width:0;padding:0 2px;font-size:13px;color:var(--mute);display:flex;align-items:center;justify-content:center;gap:5px}
+.types button::before{content:"";width:10px;height:10px;border-radius:5px;border:2px solid var(--mute);flex:none}
+.types button.on{color:var(--accent);font-weight:600}
+.types button.on::before{border-color:var(--accent);background:var(--accent)}
+.fld{position:relative;margin-bottom:7px}
+.fld>span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--mute);font-size:12px;pointer-events:none}
+.fld.l input{padding-left:38px;padding-right:6px;font-size:13px}
+#sheet input,#sheet select{min-height:36px;padding-top:6px;padding-bottom:6px}
+.foot{display:flex;justify-content:flex-end;margin-top:2px}
+.foot #del{padding:0 16px;min-height:32px;font-size:13px}
+.pri{background:var(--accent);color:var(--ink);border:0;font-weight:700}
+.pri:active{background:var(--hi)}
+.dng{color:#ff8f8f}
+.set h3{margin:17px 0 6.8px;font-size:11.9px;color:var(--hi)}
+.set p{margin:0 0 6.8px;color:var(--mute);font-size:11px;line-height:1.5}
+.sws{display:flex;gap:8.5px;flex-wrap:wrap}
+.sw{width:47.6px;height:47.6px;border-radius:13.6px;border:2px solid var(--line);font-size:9.3px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3.4px}
+.sw.on{border-color:var(--text)}
+.stack{display:flex;flex-direction:column;gap:6.8px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 119px);transform:translateX(-50%);background:var(--text);color:var(--ink);padding:7.6px 13.6px;border-radius:17px;font-size:11px;display:none;z-index:9}
+:root{--red:#e5484d}body.light{--red:#d92d34}
+.tcard{display:flex;align-items:center;gap:11px;padding:8.5px 10.2px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;user-select:none;-webkit-user-select:none}
+.tstep{display:flex;flex-direction:column;align-items:center;flex:none}
+.tstep button{width:54px;min-height:30px;padding:0;font-size:12.5px;line-height:1;touch-action:manipulation}
+.tstep button[disabled]{opacity:.3}
+.tnum{min-width:54px;text-align:center;font-size:25px;font-weight:700;line-height:1.1;padding:2px 0;font-variant-numeric:tabular-nums}
+.tnum small{display:block;font-size:9.3px;font-weight:600;color:var(--mute);margin-top:-2px}
+.tcap{flex:1;min-width:0;color:var(--mute);font-size:11px;line-height:1.4}
+.tcap b{display:block;color:var(--text);font-size:12px}
+.tgo{flex:none;min-width:80px;height:40px;padding:0 13px;font-weight:700;background:var(--red);border:0;color:#fff;border-radius:10px}
+.tcard.run{border-color:var(--red)}
+.tcard.run .tnum{color:var(--red)}
+.tcard.run .tgo{background:none;border:1px solid var(--red);color:var(--red)}
+.tcard.done{border-color:var(--red);background:rgba(229,72,77,.14);animation:tp 1.2s ease-in-out infinite}
+.tcard.done .tnum{color:var(--red)}
+@keyframes tp{50%{box-shadow:0 0 0 3px rgba(229,72,77,.35)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-theme="midnight" data-v="home">
+<div id="app">
+  <header id="top"><h1 id="h1"></h1><p id="sub"></p><button id="nfold" aria-label="Fold all regions"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><div id="ndots"></div></header>
+<div id="sheet">
+  <div class="frow">
+    <button id="cx" class="rb cancel" aria-label="Cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="types" id="types" role="radiogroup"><button data-t="event" role="radio">Event</button><button data-t="reminder" role="radio">Reminder</button><button data-t="birthday" role="radio">Birthday</button></div>
+    <button id="sv" class="rb save" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M5 3h11l4 4v14H5zM8 3v5h7V3M8 21v-7h8v7"/></svg></button>
+  </div>
+  <div class="fld"><input id="ti" maxlength="120" autocomplete="off" placeholder="Title"></div>
+  <div class="two">
+    <div class="fld l"><span id="dl">Date</span><input id="dt" type="date"></div>
+    <div class="fld l"><span>Time</span><input id="tm" type="time" required></div>
+  </div>
+  <div id="rrow" class="fld"><select id="rp"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="days">Pick days</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option></select></div>
+  <div id="drow" style="display:none"><div id="dch"><button class="dy" data-d="1" title="Monday">M</button><button class="dy" data-d="2" title="Tuesday">T</button><button class="dy" data-d="3" title="Wednesday">W</button><button class="dy" data-d="4" title="Thursday">T</button><button class="dy" data-d="5" title="Friday">F</button><button class="dy" data-d="6" title="Saturday">S</button><button class="dy" data-d="0" title="Sunday">S</button></div></div>
+  <div class="foot"><button id="del" class="dng">Delete</button></div>
+</div>
+  <div id="main"></div>
+  <nav>
+    <button data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
+    <button data-v="bday"><svg viewBox="0 0 24 24"><path d="M4 12h16v8H4zM12 12V7M12 7c-1.5-1-1.5-3 0-4 1.5 1 1.5 3 0 4zM4 16c3 2 5-2 8 0s5-2 8 0"/></svg>Birthdays</button>
+    <button data-v="all"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>All</button>
+    <button data-v="news"><svg viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4"/></svg>News</button>
+    <button data-v="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Settings</button>
+  </nav>
+</div>
+<button id="fab" aria-label="Add new">+</button>
+<div id="npad"><button id="nup" aria-label="Previous headline (hold to open)"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button><button id="ndn" aria-label="Next headline (hold to open)"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button></div>
+
+<div id="toast"></div>
+<input type="file" id="imp" accept=".json,application/json" hidden>
+
+<script>
+const $=s=>document.querySelector(s);
+const KEY='myplans.v1';
+let S={items:[],theme:'midnight',mode:'dark'};
+try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.items))S=Object.assign(S,r)}catch(e){}
+S.sms=Object.assign({on:false,a:'',b:''},S.sms||{});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save')}sched()};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
+const today=()=>{const d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const dim=(y,m)=>new Date(y,m+1,0).getDate();
+const diff=(a,b)=>Math.round((a-b)/864e5);
+const fmt=d=>d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+
+// next date on or after "from" for an item
+const DN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+// which weekdays (0=Sun) a repeat covers; null for monthly / yearly
+const dset=(r,it)=>r==='daily'?[0,1,2,3,4,5,6]:r==='weekdays'?[1,2,3,4,5]:r==='days'?(it.days&&it.days.length?it.days:[1,2,3,4,5]):r==='weekly'?[parse(it.date).getDay()]:null;
+const repTxt=it=>it.repeat==='days'?(it.days||[]).slice().sort((a,b)=>(a+6)%7-(b+6)%7).map(d=>DN[d]).join(' '):({daily:'every day',weekdays:'Mon–Fri',weekly:'every week',monthly:'every month',yearly:'every year'}[it.repeat]||'');
+function nextOcc(it,from){
+  const d=parse(it.date),r=it.type==='birthday'?'yearly':it.repeat;
+  if(r==='none')return d;
+  const ds=dset(r,it);
+  if(ds){const s=d>from?d:from;for(let i=0;i<7;i++){const c=addD(s,i);if(ds.includes(c.getDay()))return c}}
+  if(d>=from)return d;
+  const mk=(y,m)=>new Date(y,m,Math.min(d.getDate(),dim(y,m)));
+  if(r==='monthly'){let c=mk(from.getFullYear(),from.getMonth());return c<from?mk(from.getFullYear(),from.getMonth()+1):c}
+  let c=mk(from.getFullYear(),d.getMonth());return c<from?mk(from.getFullYear()+1,d.getMonth()):c;
+}
+const ents=()=>{const t=today();return S.items.map(it=>({it,o:nextOcc(it,t)}))};
+const byDate=(a,b)=>a.o-b.o||(a.it.time||'').localeCompare(b.it.time||'');
+const when=o=>{const n=diff(o,today());return n===0?'Today':n===1?'Tomorrow':n===-1?'Yesterday':n>0?'in '+n+' days':-n+' days ago'};
+
+function row(e){
+  const it=e.it,o=e.o;let sub=fmt(o);
+  if(it.time)sub+=' · '+it.time;
+  if(it.type==='birthday'){const a=o.getFullYear()-parse(it.date).getFullYear();if(a>0)sub+=' · turns '+a}
+  else if(it.repeat!=='none')sub+=' · repeats '+repTxt(it);
+  const chk=it.type!=='birthday'&&it.repeat==='none'?`<button class="chk${it.done?' on':''}" data-chk="${it.id}" aria-label="Mark done"></button>`:'';
+  return `<div class="row${it.done?' dn':''}" data-id="${it.id}"><i class="dot ${it.type}">${{event:'E',reminder:'R',birthday:'B'}[it.type]||'E'}</i><span class="tx"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span><span class="r"><em class="n">${when(o)}</em>${chk}</span></div>`;
+}
+
+let view='home',ft='all',q='',closed=new Set(['Done']);
+function allList(){
+  const s=q.trim().toLowerCase();
+  const L=ents().filter(e=>(ft==='all'||e.it.type===ft)&&(!s||e.it.title.toLowerCase().includes(s))).sort(byDate);
+  return L.length?L.map(row).join(''):'<div class="msg">Nothing found.</div>';
+}
+function render(){
+  document.body.dataset.v=view;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  const m=$('#main'),E=ents(),t=today();let h='';
+  if(view==='home'){
+    const G={Overdue:[],Today:[],'Next 7 days':[],Later:[],Done:[]};
+    E.forEach(e=>{const n=diff(e.o,t);if(e.it.done)G.Done.push(e);else if(n<0)G.Overdue.push(e);else if(n===0)G.Today.push(e);else if(n<=7)G['Next 7 days'].push(e);else G.Later.push(e)});
+    $('#h1').textContent=t.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+    const n=G.Today.length,od=G.Overdue.length;
+    $('#sub').textContent=(n?n+(n>1?' things':' thing')+' today':'Nothing planned today')+(od?' · '+od+' overdue':'');
+    for(const k in G){if(!G[k].length)continue;
+      h+=`<div class="grp${closed.has(k)?'':' open'}"><button class="topic hd" data-g="${k}"><b>${k}</b><span class="r"><em class="n">${G[k].length}</em><i>›</i></span></button><div class="kids">${G[k].sort(byDate).map(row).join('')}</div></div>`}
+    if(!h)h='<div class="msg">Nothing here yet.<br>Tap + to add an event, reminder or birthday.</div>';
+    h=timerCard()+h;
+  }else if(view==='bday'){
+    $('#h1').textContent='Birthdays';
+    const L=E.filter(e=>e.it.type==='birthday').sort(byDate);
+    $('#sub').textContent=L.length?'Next: '+L[0].it.title+' · '+when(L[0].o).toLowerCase():'No birthdays yet';
+    h=L.length?L.map(row).join(''):'<div class="msg">No birthdays yet.<br>Tap + and pick Birthday.</div>';
+  }else if(view==='all'){
+    $('#h1').textContent='All items';$('#sub').textContent=S.items.length+' saved';
+    const c=[['all','All'],['event','Events'],['reminder','Reminders'],['birthday','Birthdays']];
+    h=`<div id="tools"><input id="q" type="search" placeholder="Search" value="${esc(q)}"><div class="chips">${c.map(x=>`<button class="chip${ft===x[0]?' on':''}" data-f="${x[0]}">${x[1]}</button>`).join('')}</div></div><div id="lst">${allList()}</div>`;
+  }else if(view==='news'){
+    h=newsHtml();nhead();
+  }else{
+    $('#h1').textContent='Settings';$('#sub').textContent='Look, reminders and backup';
+    const th=[['midnight','#4f93e0'],['forest','#4cc38a'],['violet','#a78bfa'],['ember','#f0933c'],['rose','#f06c9b']];
+    h=`<div class="set"><h3>Mode</h3><div class="chips">${[['dark','Dark'],['light','Light'],['auto','Auto (phone)']].map(x=>`<button class="chip${S.mode===x[0]?' on':''}" data-md="${x[0]}">${x[1]}</button>`).join('')}</div><h3>Colour theme</h3><div class="sws">${th.map(x=>`<button class="sw${S.theme===x[0]?' on':''}" data-th="${x[0]}" style="background:${x[1]}33">${x[0]}</button>`).join('')}</div>
+    <h3>Reminders</h3><p>Phone alerts only work in the installed app. Alerts ring from the phone's own alarm at the saved date and time, with Snooze and Done buttons, even when the app is closed. Repeating alerts keep going by themselves. Use the test buttons to hear each tone.</p><div class="stack"><button id="ntf">Turn on phone alerts</button><button id="ans">Alert sound &amp; pop-up settings</button><button id="atr">Xiaomi: allow autostart</button><button data-tt="event">Test event tone</button><button data-tt="reminder">Test reminder tone</button><button data-tt="birthday">Test birthday tone</button></div>
+    <h3>SMS copy</h3><p>When an alert rings, the phone can also text it to these numbers (no internet needed). Use the country code, e.g. +351…</p><div class="stack"><button class="chip${S.sms.on?' on':''}" id="smon">SMS is ${S.sms.on?'ON':'OFF'} · tap to switch</button><input id="sm1" type="tel" placeholder="My number" value="${esc(S.sms.a)}"><input id="sm2" type="tel" placeholder="Wife's number" value="${esc(S.sms.b)}"><button id="smp">Allow SMS on this phone</button><button id="smt">Send a test SMS now</button></div>
+    ${newsSetHtml()}<h3>Backup</h3><p>Save a copy of your data, or load one back in.</p><div class="stack"><button id="exp">Save backup file</button><button id="imb">Load backup file</button></div>
+    <h3>Danger zone</h3><div class="stack"><button id="wipe" class="dng">Delete everything</button></div></div>`;
+  }
+  m.innerHTML=h;
+  if(view==='news')newsAfter();
+}
+
+// click handling
+$('#main').addEventListener('click',e=>{
+  const t=e.target,c=t.closest('[data-chk]');
+  if(c){const it=S.items.find(i=>i.id===c.dataset.chk);if(it){it.done=!it.done;save();render()}return}
+  const g=t.closest('[data-g]');if(g){const k=g.dataset.g;closed.has(k)?closed.delete(k):closed.add(k);render();return}
+  const f=t.closest('[data-f]');if(f){ft=f.dataset.f;render();return}
+  const th=t.closest('[data-th]');if(th){S.theme=th.dataset.th;applyTheme();save();render();return}
+  const md=t.closest('[data-md]');if(md){S.mode=md.dataset.md;applyTheme();save();render();return}
+  const tt=t.closest('[data-tt]');if(tt){testTone(tt.dataset.tt);return}
+  const tg=t.closest('[data-tgo]');if(tg){timerAct(tg.dataset.tgo);return}
+  const nh=t.closest('[data-nh]');if(nh){const i=+nh.dataset.nh;if(i!==nsi)nopenSec(i,'first');return}
+  const np=t.closest('[data-np]');if(np){N.prov=np.dataset.np;nstore();render();return}
+  const rt=t.closest('[data-nretry]');if(rt){nretry();return}
+  const nr=t.closest('.nr');if(nr){const i=+nr.dataset.ni;if(i===nj)nopen();else{nj=i;nshow(false)}return}
+  if(t.id==='nksave'){const v=($('#nkin').value||'').trim();if(!v){toast('Paste a key first');return}N.keys[N.prov]=v;nstore();nst={};toast('Saved');render();return}
+  if(t.id==='nkall'){for(const p in PROV){N.keys[p]=($('#nk_'+p).value||'').trim()}nstore();nst={};toast('Saved');return}
+  const r=t.closest('.row');if(r){openForm(r.dataset.id);return}
+  if(t.id==='smon'){S.sms.on=!S.sms.on;persist();pushSms();render();if(S.sms.on&&window.AndroidEv&&!AndroidEv.hasSms())AndroidEv.requestSms();return}
+  if(t.id==='smp'){try{AndroidEv.requestSms()}catch(x){toast('Works in the installed app only')}return}
+  if(t.id==='smt'){try{const v=AndroidEv.sendTestSms();toast(v.startsWith('ok')?'Test SMS sent':v)}catch(x){toast('Works in the installed app only')}return}
+  if(t.id==='ntf'){perm(true)}
+  if(t.id==='ans'){try{AndroidEv.openNotificationSettings()}catch(x){toast('Works in the installed app only')}}
+  if(t.id==='atr'){try{AndroidEv.openAutostart()}catch(x){toast('Works in the installed app only')}}
+  if(t.id==='exp')exportData();
+  if(t.id==='imb')$('#imp').click();
+  if(t.id==='wipe'&&confirm('Delete all items? This cannot be undone.')){S.items=[];save();render();toast('All items deleted')}
+});
+$('#main').addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;$('#lst').innerHTML=allList()}
+  if(e.target.id==='sm1'||e.target.id==='sm2'){S.sms[e.target.id==='sm1'?'a':'b']=e.target.value;persist();pushSms()}});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{closeForm();view=b.dataset.v;if(view==='news'){nsi=-1;nj=0;nanim=true;setTimeout(()=>nanim=false,1800)}render();$('#main').scrollTop=0});
+const mq=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
+if(mq&&mq.addEventListener)mq.addEventListener('change',()=>{if(S.mode==='auto')applyTheme()});
+function applyTheme(){document.body.dataset.theme=S.theme;document.body.classList.toggle('light',S.mode==='light'||(S.mode==='auto'&&!!mq&&mq.matches));const cs=getComputedStyle(document.body),m=document.querySelector('meta[name=theme-color]');if(m)m.content=cs.getPropertyValue('--ink').trim();try{if(window.AndroidEv)AndroidEv.setBars(cs.getPropertyValue('--bar').trim(),cs.getPropertyValue('--panel').trim())}catch(e){}}
+
+// form
+let editing=null,ftype='event';
+let dsel=[];
+function paintDays(){document.querySelectorAll('#dch button').forEach(b=>b.classList.toggle('on',dsel.includes(+b.dataset.d)))}
+function showDays(){const on=ftype!=='birthday'&&$('#rp').value==='days';$('#drow').style.display=on?'block':'none';if(on){if(!dsel.length)dsel=[1,2,3,4,5];paintDays()}}
+function setType(t){
+  ftype=t;
+  document.querySelectorAll('#types button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('#rrow').style.display=t==='birthday'?'none':'block';
+  showDays();
+  $('#ti').placeholder=t==='birthday'?'Name':'Title';
+  $('#dl').textContent=t==='birthday'?'Born':'Date';
+}
+function openForm(id){
+  editing=id||null;const it=id&&S.items.find(i=>i.id===id);
+  $('#del').style.display=it?'block':'none';
+  $('#ti').value=it?it.title:'';$('#dt').value=it?it.date:iso(today());
+  $('#tm').value=it?it.time||'09:00':'';$('#rp').value=it?it.repeat:'none';
+  dsel=it&&it.days?it.days.slice():[];
+  setType(it?it.type:'event');
+  $('#sheet').classList.add('show');document.body.classList.add('fo');$('#main').scrollTop=0;
+  try{history.pushState({f:1},'')}catch(e){}
+}
+const closeForm=()=>{const sh=$('#sheet');if(!sh.classList.contains('show'))return;sh.classList.remove('show');document.body.classList.remove('fo');try{if(history.state&&history.state.f)history.back()}catch(e){}};
+window.addEventListener('popstate',()=>{$('#sheet').classList.remove('show');document.body.classList.remove('fo')}); // phone Back button closes the form
+$('#fab').onclick=()=>openForm();
+$('#cx').onclick=closeForm;
+$('#rp').onchange=showDays;
+$('#dch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=+b.dataset.d;dsel=dsel.includes(d)?dsel.filter(x=>x!==d):dsel.concat(d);paintDays()});
+$('#types').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setType(b.dataset.t)});
+$('#del').onclick=()=>{if(confirm('Delete this item?')){S.items=S.items.filter(i=>i.id!==editing);save();closeForm();render();toast('Deleted')}};
+$('#sv').onclick=()=>{
+  const title=$('#ti').value.trim();
+  if(!title){toast('Please add a title');$('#ti').focus();return}
+  if(!$('#dt').value){toast('Please pick a date');return}
+  if(!$('#tm').value){toast('Please set a time');$('#tm').focus();return}
+  const rp=ftype==='birthday'?'yearly':$('#rp').value;
+  if(rp==='days'&&!dsel.length){toast('Pick at least one day');return}
+  const o={type:ftype,title,date:$('#dt').value,time:$('#tm').value,repeat:rp,days:rp==='days'?dsel.slice():[]};
+  if(editing){const it=S.items.find(i=>i.id===editing);Object.assign(it,o)}
+  else S.items.push(Object.assign({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),done:false},o));
+  save();closeForm();render();toast('Saved');
+};
+
+// phone notifications (Capacitor Local Notifications plugin)
+const LN=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
+async function perm(ask){
+  const p=LN();if(!p){if(ask)toast('Alerts work in the installed app only');return false}
+  try{let s=await p.checkPermissions();
+    if(s.display!=='granted'&&(ask||s.display==='prompt'))s=await p.requestPermissions();
+    if(ask){toast(s.display==='granted'?'Phone alerts are on':'Alerts are blocked in phone settings');if(s.display==='granted'){sched();sysCheck()}}
+    return s.display==='granted'}catch(e){return false}
+}
+const TONE_V=2; // change to 2, 3... after replacing a tone file, so Android picks up the new sound
+const TN={event:'Event',reminder:'Reminder',birthday:'Birthday'};
+async function channels(p){ // one alert channel per type; each plays its own tone from res/raw
+  try{
+    for(const t in TN)await p.createChannel({id:t+'_v'+TONE_V,name:TN[t]+' alerts',description:'Alerts for '+TN[t].toLowerCase()+'s',importance:5,visibility:1,sound:t+'.mp3',vibration:true});
+    const L=await p.listChannels();
+    for(const c of L.channels)if(/^(event|reminder|birthday)_v\d+$/.test(c.id)&&!c.id.endsWith('_v'+TONE_V))await p.deleteChannel({id:c.id});
+  }catch(e){}
+}
+async function testTone(t){
+  if(NAT()&&AndroidEv.testAlarm){if(!(await perm(false))){toast('Turn on phone alerts first');return}AndroidEv.testAlarm(t);toast('Alert in a few seconds');return}
+  const p=LN();if(!p){toast('Alerts work in the installed app only');return}
+  if(!(await perm(false))){toast('Turn on phone alerts first');return}
+  await channels(p);
+  try{await p.schedule({notifications:[{id:9001,title:TN[t]+' tone test',body:'This is how it sounds',channelId:t+'_v'+TONE_V,schedule:{at:new Date(Date.now()+4000),allowWhileIdle:true}}]});toast('Alert in a few seconds')}catch(e){toast('Could not test')}
+}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function pushSms(){try{AndroidEv.setSms(!!S.sms.on,[S.sms.a,S.sms.b].map(x=>String(x).replace(/[^\d+]/g,'')).filter(Boolean).join(','))}catch(e){}}
+const NAT=()=>!!(window.AndroidEv&&AndroidEv.setAlarms); // true inside the installed app with the native alarm code
+function takeDone(){ // items marked Done from the alert buttons
+  try{const L=JSON.parse(AndroidEv.takeDone()||'[]');let ch=false;
+    L.forEach(id=>{const it=S.items.find(i=>i.id===id);if(it&&it.type!=='birthday'&&it.repeat==='none'&&!it.done){it.done=true;ch=true}});
+    if(ch){persist();render()}}catch(e){}
+}
+let capCleared=false;
+async function nativeSched(){
+  const used=new Set();
+  const L=S.items.filter(i=>!i.done).map(it=>{
+    let x=0;for(const ch of it.id)x=(x*31+ch.charCodeAt(0))|0;let id=Math.abs(x)%900000+1;while(used.has(id))id++;used.add(id);
+    const [h,m]=(it.time||'09:00').split(':').map(Number);
+    return{id,item:it.id,title:it.title,type:it.type,h,m,date:it.date,rule:it.type==='birthday'?'yearly':it.repeat,days:it.days||[]};
+  });
+  try{AndroidEv.setAlarms(JSON.stringify(L))}catch(e){toast('Could not set alarms')}
+  if(!capCleared){capCleared=true;const p=LN();if(p){try{const pe=await p.getPending(),k=pe.notifications.filter(n=>n.id!==TID);if(k.length)await p.cancel({notifications:k})}catch(e){}}} // old plugin alerts would ring twice
+}
+const TID=9100; // quick-timer alert: never cancelled by the schedulers
+const SNZ=5000; // ids from 5000 up are snoozed alerts; 1..4999 are the normal alerts
+async function actionTypes(p){
+  try{await p.registerActionTypes({types:[{id:'ALERT',actions:[{id:'s10',title:'Snooze 10 min'},{id:'s60',title:'Snooze 1 hour'},{id:'done',title:'Done'}]}]})}catch(e){}
+}
+let hooked=false;
+function hookActions(){ // runs once: reacts to the buttons on the alert
+  const p=LN();if(!p||!p.addListener||hooked)return;hooked=true;
+  p.addListener('localNotificationActionPerformed',async ev=>{
+    try{
+      const a=ev.actionId,n=ev.notification||{},x=n.extra||{};
+      if(a==='s10'||a==='s60'){
+        const mins=a==='s10'?10:60;
+        await p.schedule({notifications:[{id:SNZ+(Date.now()%2000000000),title:n.title||'Reminder',body:n.body||'',channelId:x.ch||'reminder_v'+TONE_V,actionTypeId:'ALERT',extra:x,schedule:{at:new Date(Date.now()+mins*60000),allowWhileIdle:true}}]});
+        toast('Snoozed for '+(mins===10?'10 minutes':'1 hour'));
+      }else if(a==='done'){
+        const it=S.items.find(i=>i.id===x.item);
+        if(it&&it.type!=='birthday'&&it.repeat==='none'){it.done=true;save();render()}
+        const pend=await p.getPending(); // drop any snooze still waiting for this item
+        const old=pend.notifications.filter(q=>q.id>=SNZ&&q.id!==9001&&q.extra&&q.extra.item===x.item);
+        if(old.length)await p.cancel({notifications:old});
+        toast('Done');
+      }
+    }catch(e){}
+  });
+}
+function sysCheck(){ // alarms are exact now; only battery saving can still get in the way
+  try{if(!window.AndroidEv)return;
+    if(!AndroidEv.ignoringBattery()){toast('Set battery to Unrestricted so alerts come on time');setTimeout(()=>AndroidEv.openBatterySettings(),1800)}
+  }catch(e){}
+}
+async function sched(){
+  if(NAT()){nativeSched();return}
+  const p=LN();if(!p||!(await perm(false)))return;
+  try{
+    await channels(p);await actionTypes(p);hookActions();
+    const pend=await p.getPending(),live=new Set(S.items.filter(i=>!i.done).map(i=>i.id));
+    const drop=pend.notifications.filter(q=>q.id<SNZ||(q.id!==9001&&q.extra&&q.extra.item&&!live.has(q.extra.item)));
+    if(drop.length)await p.cancel({notifications:drop});
+    const now=new Date(),t0=today(),list=[];let id=1;
+    for(const it of S.items){
+      if(it.done)continue;
+      const r=it.type==='birthday'?'yearly':it.repeat,[h,m]=(it.time||'09:00').split(':').map(Number);
+      const mk=o=>new Date(o.getFullYear(),o.getMonth(),o.getDate(),h,m); // alert time for an occurrence date
+      const body=(it.type==='birthday'?'Birthday today':'It is time');
+      const add=sch=>list.push({id:id++,title:it.title,body,channelId:it.type+'_v'+TONE_V,actionTypeId:'ALERT',extra:{item:it.id,ch:it.type+'_v'+TONE_V},schedule:sch});
+      if(r==='none'||parse(it.date)>t0){ // one-off, or a repeat that has not started yet: next few dates
+        let from=t0;
+        for(let k=0,made=0;k<8&&made<(r==='none'?1:3);k++){
+          const o=nextOcc(it,from),at=mk(o);
+          if(at>now){add({at,allowWhileIdle:true});made++}
+          if(r==='none')break;from=addD(o,1);
+        }
+      }else if(r==='yearly'){ // birthdays / yearly: next 3 dates, so each is a plain dated alert
+        let from=t0;
+        for(let k=0,made=0;k<6&&made<3;k++){
+          const o=nextOcc(it,from),at=mk(o);
+          if(at>now){add({at,allowWhileIdle:true});made++}
+          from=addD(o,1);
+        }
+      }else{ // started repeats: handed to Android once, it repeats them by itself
+        const ds=dset(r,it);
+        if(ds)ds.forEach(wd=>{let o=t0;while(o.getDay()!==wd)o=addD(o,1);const at=mk(o);add({on:{weekday:at.getDay()+1,hour:at.getHours(),minute:at.getMinutes()},allowWhileIdle:true})});
+        else{const at=mk(nextOcc(it,t0));add({on:{day:at.getDate(),hour:at.getHours(),minute:at.getMinutes()},allowWhileIdle:true})}
+      }
+    }
+    if(list.length)await p.schedule({notifications:list});
+  }catch(e){toast('Could not set alerts')}
+}
+
+// backup
+async function exportData(){
+  if(window.AndroidEv){const r=AndroidEv.saveText('my-plans-backup.json',JSON.stringify(S,null,1));toast(r.startsWith('ok')?'Saved in your Downloads folder':'Could not save the backup');return}
+  const f=new File([JSON.stringify(S,null,1)],'my-plans-backup.json',{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();toast('Backup saved');
+}
+$('#imp').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const r=JSON.parse(await f.text());
+    if(!r||!Array.isArray(r.items))throw 0;
+    if(!confirm('Replace your current items with '+r.items.length+' items from this backup?'))return;
+    S=Object.assign({theme:'midnight',mode:'dark'},r);applyTheme();save();render();toast('Backup loaded');
+  }catch(x){toast('That file is not a valid backup')}
+};
+
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200)}
+
+// ---- quick timer: counts down, then rings with the event tone
+let tmins=5,tdone=false;
+try{tmins=Math.min(240,Math.max(1,parseInt(localStorage.getItem('myplans.tmins'))||5))}catch(e){}
+const tget=()=>{try{return JSON.parse(localStorage.getItem('myplans.timer'))}catch(e){return null}};
+const tclear=()=>{try{localStorage.removeItem('myplans.timer')}catch(e){}};
+const hm=ms=>{const d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())};
+function timerCard(){
+  const t=tget(),run=!!t;
+  let cls='tcard',num,unit,cap,btn;
+  if(run){const r=Math.max(0,Math.ceil((t.end-Date.now())/1000));cls+=' run';num=Math.floor(r/60)+':'+pad(r%60);unit='left';
+    cap=`<b>Timer running</b>Rings at ${hm(t.end)}`;btn='<button class="tgo" data-tgo="cancel">Cancel</button>'}
+  else if(tdone){cls+=' done';num='0:00';unit='';cap=`<b>Time's up</b>Your timer has finished`;btn='<button class="tgo" data-tgo="ok">OK</button>'}
+  else{num=tmins;unit='min';cap='<b>Quick timer</b>Rings with the event tone';btn='<button class="tgo" data-tgo="start">Start</button>'}
+  const dis=run||tdone?' disabled':'';
+  return `<div class="${cls}" id="tcard"><div class="tstep"><button data-tstep="1" aria-label="More minutes"${dis}>▲</button><div class="tnum" id="tnum">${num}<small>${unit}</small></div><button data-tstep="-1" aria-label="Fewer minutes"${dis}>▼</button></div><div class="tcap">${cap}</div>${btn}</div>`;
+}
+const refreshT=()=>{const el=$('#tcard');if(el)el.outerHTML=timerCard()};
+function stepT(d){tmins=Math.min(240,Math.max(1,tmins+d));try{localStorage.setItem('myplans.tmins',tmins)}catch(e){}const n=$('#tnum');if(n)n.innerHTML=tmins+'<small>min</small>'}
+let holdT=null,holdI=null;
+const stopHold=()=>{clearTimeout(holdT);clearInterval(holdI);holdT=holdI=null};
+$('#main').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('[data-tstep]');if(!b||b.disabled)return;
+  const d=+b.dataset.tstep;stopHold();stepT(d);
+  holdT=setTimeout(()=>{holdI=setInterval(()=>stepT(d),110)},450);
+});
+['pointerup','pointercancel','blur'].forEach(ev=>window.addEventListener(ev,stopHold));
+$('#main').addEventListener('contextmenu',e=>{if(e.target.closest('[data-tstep]'))e.preventDefault()});
+function beep(){ // browser fallback only; the installed app rings through the phone alert
+  try{const A=new(window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(o=>{const s=A.createOscillator(),g=A.createGain();s.connect(g);g.connect(A.destination);s.frequency.value=880;g.gain.value=.2;s.start(A.currentTime+o);s.stop(A.currentTime+o+.2)})}catch(e){}
+}
+function tick(){
+  const t=tget();if(!t)return;
+  if(t.end<=Date.now()){tclear();tdone=true;toast('Timer done');if(!LN())beep()}
+  refreshT();
+}
+async function timerAct(a){
+  const p=LN();
+  if(a==='start'){
+    const m=tmins,end=Date.now()+m*60000;
+    try{localStorage.setItem('myplans.timer',JSON.stringify({end,mins:m}))}catch(e){toast('Could not start the timer');return}
+    tdone=false;refreshT();
+    if(p){
+      const ok=(await perm(false))||(await perm(true));
+      if(ok){try{await channels(p);await p.cancel({notifications:[{id:TID}]});
+        await p.schedule({notifications:[{id:TID,title:'Timer done',body:m+(m===1?' minute':' minutes')+' is up',channelId:'event_v'+TONE_V,schedule:{at:new Date(end),allowWhileIdle:true}}]})}
+        catch(e){toast('Timer is running, but the phone alert failed')}}
+      else toast('Turn on phone alerts so the timer can ring');
+    }
+  }else{
+    tclear();tdone=false;refreshT();
+    if(p&&a==='cancel'){try{await p.cancel({notifications:[{id:TID}]})}catch(e){}}
+  }
+}
+{const t=tget();if(t&&t.end<=Date.now()){tclear();tdone=true}}
+setInterval(tick,1000);
+
+
+// ---- News ----
+const NK='myplans.news',NCK='myplans.newscache2';
+const PROV={gnews:{name:'GNews',site:'gnews.io'},newsdata:{name:'NewsData',site:'newsdata.io'}};
+const NSEC=[{id:'global',name:'Global'},{id:'in',name:'India',cc:'in',q:'India'},{id:'us',name:'USA',cc:'us'},{id:'pt',name:'Portugal',cc:'pt'},{id:'tg',name:'Telangana',cc:'in',q:'Telangana OR Hyderabad OR Warangal OR KCR OR Revanth',search:1},{id:'ap',name:'Andhra Pradesh',cc:'in',q:'"Andhra Pradesh" OR Amaravati OR Visakhapatnam OR Vijayawada OR Tirupati',search:1}];
+let N={prov:'gnews',keys:{gnews:'',newsdata:''}},NC={},nsi=-1,nj=0,nbusy=false,nst={},nlast=0,nanim=false;
+try{const r=JSON.parse(localStorage.getItem(NK));if(r){if(PROV[r.prov])N.prov=r.prov;Object.assign(N.keys,r.keys||{})}}catch(e){}
+try{NC=JSON.parse(localStorage.getItem(NCK))||{}}catch(e){NC={}}
+const nstore=()=>{try{localStorage.setItem(NK,JSON.stringify(N))}catch(e){toast('Could not save')}};
+const cstore=()=>{try{localStorage.setItem(NCK,JSON.stringify(NC))}catch(e){}};
+const nago=t=>{if(!t)return'';const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'just now':m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
+
+async function nget(p,s){
+  const k=encodeURIComponent(N.keys[p]),cc=s.cc;let u,a;
+  const q=s.q?'&q='+encodeURIComponent(s.q):'';
+  if(p==='gnews'){
+    if(s.search)u='https://gnews.io/api/v4/search?max=10&apikey='+k+q+'&country='+cc+'&lang=en';
+    else u='https://gnews.io/api/v4/top-headlines?max=10&apikey='+k+q+(cc?'&country='+cc+(cc==='pt'?'':'&lang=en'):'&category=world&lang=en');
+  }else u='https://newsdata.io/api/1/latest?size=10&apikey='+k+q+(cc?'&country='+cc+(cc==='pt'?'':'&language=en'):'&category=world&language=en');
+  const r=await fetch(u),j=await r.json().catch(()=>({}));
+  if(p==='gnews'){
+    if(!Array.isArray(j.articles)){const e=j.errors;throw new Error(r.status===401||r.status===403?'invalid key':String(Array.isArray(e)?e[0]:(e&&Object.values(e)[0])||'HTTP '+r.status))}
+    a=j.articles.map(x=>({t:x.title,u:x.url,s:(x.source||{}).name||'',d:Date.parse(x.publishedAt)||0}));
+  }else{
+    if(j.status!=='success'||!Array.isArray(j.results))throw new Error(r.status===401?'invalid key':String((j.results&&j.results.message)||'HTTP '+r.status));
+    a=j.results.map(x=>({t:x.title,u:x.link,s:x.source_name||x.source_id||'',d:Date.parse(String(x.pubDate||'').replace(' ','T')+'Z')||0}));
+  }
+  const seen=new Set();a=a.filter(x=>x.t&&x.u&&!seen.has(x.t)&&seen.add(x.t));
+  if(!a.length)throw new Error('no headlines');
+  return a.slice(0,10);
+}
+
+const nfresh=s=>!!NC[s.id]&&Date.now()-NC[s.id].t<18e5;
+const nitems=()=>nsi<0?[]:((NC[NSEC[nsi].id]||{}).items||[]);
+const nhas=()=>!!(N.keys.gnews||N.keys.newsdata);
+function nsecHtml(si){
+  const s=NSEC[si],c=NC[s.id],items=(c&&c.items)||[],st=nst[s.id]||'',bad=st.startsWith('err');
+  if(nsi<0){ // all folded: just the region list
+    const tag=st==='load'?'loading…':bad?'failed':c?nago(c.t):'';
+    return `<div class="topic nh" data-nh="${si}"><b>${s.name}</b><span class="r"><em class="n">${esc(tag)}</em></span></div>`;
+  }
+  if(si!==nsi)return ''; // open: only this region, headlines start at the top
+  let h='';
+  if(bad)h+=`<div class="nmsg" data-nretry="1">Couldn't load (${esc(st.slice(4))}) · tap to retry</div>`;
+  else if(st==='load'&&!items.length)h+=`<div class="nmsg">Loading…</div>`;
+  else if(!items.length)h+=`<div class="nmsg">No headlines yet.</div>`;
+  items.forEach((it,i)=>{h+=`<div class="nr${i===nj?' sel':''}" data-ni="${i}"><b>${esc(it.t)}</b><small>${esc(it.s)}${it.s&&it.d?' · ':''}${nago(it.d)}</small></div>`});
+  return h;
+}
+// banner: region name, position, dots (one per region) and the fold-all icon
+function nhead(){
+  document.body.classList.toggle('nopen',nsi>=0&&nhas());
+  if(view!=='news')return;
+  const L=NSEC.length;
+  if(!nhas()){$('#h1').textContent='News';$('#sub').textContent='Add a free API key to start';return}
+  if(nsi<0){$('#h1').textContent='News';$('#sub').textContent=L+' regions · pick one or press an arrow'}
+  else{
+    const s=NSEC[nsi],c=NC[s.id],n=((c&&c.items)||[]).length,st=nst[s.id]||'';
+    $('#h1').textContent=s.name;
+    $('#sub').textContent=st==='load'?'Loading…':st.startsWith('err')?'Could not load':n?(nj+1)+' of '+n+' · '+nago(c.t)+' · '+(nsi+1)+'/'+L:'No headlines';
+  }
+  const d=$('#ndots');if(d)d.innerHTML=NSEC.map((s,i)=>`<button class="nd${i===nsi?' on':''}" data-nd="${i}" aria-label="${esc(s.name)}" title="${esc(s.name)}"></button>`).join('');
+  const f=$('#nfold');if(f)f.disabled=nsi<0;
+}
+function newsHtml(){
+  const k=N.keys[N.prov];
+  document.body.classList.toggle('nokey',!nhas());
+  const pc=Object.keys(PROV).map(p=>`<button class="chip${N.prov===p?' on':''}" data-np="${p}">${PROV[p].name}${N.keys[p]?' ✓':''}</button>`).join('');
+  if(!k)return `<div class="set"><h3>Add a ${PROV[N.prov].name} key</h3><p>Get a free key at ${PROV[N.prov].site}. Paste it once; it stays on this phone until you clear the app data.</p><div class="chips" style="margin-bottom:8px">${pc}</div><div class="stack"><input id="nkin" type="password" autocomplete="off" placeholder="Paste ${PROV[N.prov].name} API key"><button id="nksave" class="chip on" style="min-height:37.4px">Save key</button></div></div>`;
+  return `<div id="nlist">${NSEC.map((s,i)=>`<div class="ns${nanim?' in':''}" id="ns_${s.id}"${nanim?` style="animation-delay:${(i*.3).toFixed(2)}s"`:''}>${nsecHtml(i)}</div>`).join('')}</div>`;
+}
+function newsSetHtml(){
+  return `<h3>News API keys</h3><p>Saved only on this phone (not included in backups). Fill one or both; if the active one fails, the other is used.</p><div class="stack">${Object.keys(PROV).map(p=>`<input id="nk_${p}" type="password" autocomplete="off" placeholder="${PROV[p].name} key (${PROV[p].site})" value="${esc(N.keys[p]||'')}">`).join('')}<button id="nkall">Save keys</button></div>`;
+}
+function npaint(){
+  if(view!=='news'||!$('#nlist'))return;
+  NSEC.forEach((s,i)=>{const e=$('#ns_'+s.id);if(e)e.innerHTML=nsecHtml(i)});
+  nhead();
+}
+function nshow(scroll){
+  document.querySelectorAll('.nr.sel').forEach(x=>x.classList.remove('sel'));
+  nhead();
+  const el=document.querySelector('.nr[data-ni="'+nj+'"]');if(!el)return;
+  el.classList.add('sel');
+  if(scroll)el.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function nopen(){const it=nitems()[nj];if(it&&/^https?:/i.test(it.u))window.open(it.u,'_blank','noopener')}
+
+// one request at a time, at least 1.1s apart
+async function nfetch(s){
+  nbusy=true;nst[s.id]='load';npaint();
+  const w=1100-(Date.now()-nlast);if(w>0)await new Promise(r=>setTimeout(r,w));
+  const order=[N.prov,N.prov==='gnews'?'newsdata':'gnews'].filter(p=>N.keys[p]);
+  let ok=false,msg='';
+  for(const p of order){
+    try{const items=await nget(p,s);NC[s.id]={t:Date.now(),items};cstore();ok=true;if(p!==order[0])toast('Using '+PROV[p].name+' as backup');break}
+    catch(e){msg=(e&&e.message)||'error'}
+  }
+  nlast=Date.now();nst[s.id]=ok?'':'err '+msg;nbusy=false;
+}
+// enter a folder: fold the others, then fetch its 10 headlines only if not cached
+async function nopenSec(si,pos){
+  if(nbusy||!nhas())return;
+  nsi=si;nj=0;npaint();
+  const s=NSEC[si];
+  $('#main').scrollTop=0;
+  if(!nfresh(s))await nfetch(s);
+  const n=nitems().length;nj=pos==='last'?Math.max(0,n-1):0;
+  if(nsi!==si)return;
+  npaint();
+  if(pos==='last')nshow(true);
+}
+async function nretry(){
+  if(nbusy||nsi<0)return;
+  await nfetch(NSEC[nsi]);nj=0;npaint();
+}
+function nmove(d){
+  if(nbusy)return;
+  const n=nitems().length,L=NSEC.length;
+  if(nsi<0){nopenSec(d>0?0:L-1,d>0?'first':'last');return}
+  if(d>0){if(nj<n-1){nj++;nshow(true)}else nopenSec((nsi+1)%L,'first')}
+  else{if(nj>0){nj--;nshow(true)}else nopenSec((nsi-1+L)%L,'last')}
+}
+function nfoldAll(){
+  if(nsi<0)return;
+  nsi=-1;nj=0;nanim=true;setTimeout(()=>nanim=false,1800);
+  render();$('#main').scrollTop=0;
+}
+$('#top').addEventListener('click',e=>{
+  if(view!=='news')return;
+  const d=e.target.closest('[data-nd]');
+  if(d){const i=+d.dataset.nd;if(i!==nsi)nopenSec(i,'first');return}
+  if(e.target.closest('#nfold'))nfoldAll();
+});
+function newsAfter(){if(nhas())nshow(false)}
+// tap = step, long press (~0.55s) = open link
+[['nup',-1],['ndn',1]].forEach(([id,d])=>{
+  const b=$('#'+id);let t0=0,tm;
+  const end=()=>{clearTimeout(tm);b.classList.remove('lp')};
+  b.addEventListener('pointerdown',()=>{t0=Date.now();clearTimeout(tm);tm=setTimeout(()=>{b.classList.add('lp');try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}},550)});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,end));
+  b.addEventListener('click',()=>{const long=t0&&Date.now()-t0>=550;t0=0;if(long)nopen();else nmove(d)});
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+document.addEventListener('keydown',e=>{
+  if(view!=='news')return;
+  if(e.target&&e.target.id==='nkin'){if(e.key==='Enter')$('#nksave').click();return}
+  if(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(e.key==='ArrowDown'){e.preventDefault();nmove(1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();nmove(-1)}
+  else if(e.key==='Enter')nopen();
+});
+
+applyTheme();render();sched();
+pushSms();takeDone();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();takeDone();render();sched()}});
+</script>
+</body>
+</html>

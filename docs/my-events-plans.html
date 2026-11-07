@@ -28,6 +28,31 @@ button{background:var(--panel);border:1px solid var(--line);border-radius:10.2px
 button:active{background:var(--line)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent)}
 #top{padding:calc(env(safe-area-inset-top,0px) + 11.9px) 15.3px 11.9px;background:linear-gradient(135deg,var(--bar),var(--panel) 55%,var(--bar));border-bottom:1px solid rgba(var(--a),.55)}
+#top{position:relative}
+#nfold,#nadd{display:none;position:absolute;right:52px;top:calc(env(safe-area-inset-top,0px) + 9px);width:34px;height:34px;min-width:34px;min-height:34px;border-radius:17px;padding:0;align-items:center;justify-content:center}
+#nadd{right:12px}
+#nfold svg,#nadd svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round}
+#nfold:disabled{opacity:.3}
+body[data-v=news] #top{touch-action:pan-y}
+#rgp{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:none}
+#rgp.show{display:block}
+#rgc{max-width:646px;margin:calc(env(safe-area-inset-top,0px) + 10px) auto 0;max-height:calc(100% - 24px);overflow-y:auto;background:var(--panel);border:1.5px solid rgba(var(--saf),.8);border-radius:16px;padding:12px}
+#rgc h3{margin:0;font-size:14px;color:var(--hi)}
+.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rr{display:flex;align-items:center;gap:6px;padding:6px 4px;border-bottom:1px solid var(--line)}
+.rr .tx{flex:1;min-width:0}
+.rr b{display:block;font-size:12.5px}
+.rr small{display:block;color:var(--mute);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr button{width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border-radius:16px;font-size:12px}
+#rgc .stack{margin-top:10px}
+#rgc h3.sm{margin-top:14px;font-size:12px}
+#ndots{display:none;align-items:center;overflow-x:auto;scrollbar-width:none;margin:5px 0 -4px -5px}
+.nd{width:22px;height:22px;min-width:22px;min-height:22px;padding:0;border:0;border-radius:11px;background:none;display:flex;align-items:center;justify-content:center}
+.nd::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mute);opacity:.5}
+.nd.on::before{background:rgb(var(--saf));opacity:1;animation:nbd 2.6s ease-in-out infinite,nbr 2.6s ease-in-out infinite}
+body[data-v=news]:not(.nokey) #nfold,body[data-v=news]:not(.nokey) #nadd,body[data-v=news]:not(.nokey) #ndots{display:flex}
+body[data-v=news]:not(.nokey) #top{padding-right:96px}
+body.nopen[data-v=news] #top h1{color:rgb(var(--saf))}
 #top h1{margin:0;font-size:18.7px;color:var(--hi);text-shadow:0 0 10.2px rgba(var(--a),.5)}
 #top p{margin:2.5px 0 0;color:var(--mute);font-size:11px}
 #main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px}
@@ -36,7 +61,28 @@ nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-dir
 nav button svg{width:19.6px;height:19.6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button.on{color:var(--accent)}
 #fab{position:fixed;right:max(15.3px,calc(50% - 307.7px));bottom:calc(env(safe-area-inset-bottom,0px) + 62.9px);width:47.6px;height:47.6px;border-radius:23.8px;font-size:25.5px;line-height:1;background:var(--accent);border:0;color:var(--ink);box-shadow:0 3.4px 15.3px rgba(var(--a),.45)}
-body[data-v=set] #fab{display:none}
+body[data-v=set] #fab,body[data-v=news] #fab{display:none}
+#npad{display:none;position:fixed;right:max(15.3px,calc(50% - 307.7px));bottom:calc(env(safe-area-inset-bottom,0px) + 62.9px);flex-direction:column;gap:10px;z-index:5}
+body[data-v=news]:not(.nokey) #npad{display:flex}
+#npad button{width:47.6px;height:47.6px;border-radius:23.8px;background:var(--accent);border:0;color:var(--ink);padding:0;display:flex;align-items:center;justify-content:center;box-shadow:0 3.4px 10px rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;transition:transform .15s}
+#npad button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+#npad button.lp{transform:scale(1.14)}
+.ns.in{opacity:0;animation:nin .45s ease-out forwards}
+@keyframes nin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.nh{cursor:pointer}
+.nh.act{position:sticky;top:0;z-index:2;border-color:rgba(var(--saf),.9);background:linear-gradient(rgba(var(--saf),.18),rgba(var(--saf),.18)),var(--panel);animation:nbr 2.6s ease-in-out infinite}
+.nh.act b{color:rgb(var(--saf))}
+.nh.act b::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:rgb(var(--saf));margin-right:8px;animation:nbd 2.6s ease-in-out infinite}
+@keyframes nbr{0%,100%{box-shadow:0 0 5px 0 rgba(var(--saf),.25)}50%{box-shadow:0 0 0 3px rgba(var(--saf),.16),0 0 16px 3px rgba(var(--saf),.55)}}
+@keyframes nbd{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+body.light #npad button{color:#fff}
+.nh{margin-top:6px}
+.nr{scroll-margin:10px 0 10px;padding:9px 12px;margin:0 0 6px;background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 14px 4px;cursor:pointer;scroll-margin:10px}
+.nr b{display:block;font-size:12.8px;font-weight:600;line-height:1.35}
+.nr small{display:block;color:var(--mute);font-size:10.2px;margin-top:3px}
+.nr.sel{border-color:var(--accent);background:rgba(var(--a),.16)}
+.nmsg{color:var(--mute);font-size:11px;padding:2px 10px 10px;cursor:pointer}
+.nlbl{align-self:center;color:var(--mute);font-size:11px;margin-right:2px}
 .grp{margin-bottom:6.8px}
 .topic{display:flex;align-items:center;justify-content:space-between;gap:8.5px;width:100%;text-align:left;padding:5.1px 10.2px;margin:0 0 3.4px;border-radius:8.5px;min-height:35.7px}
 .hd b{font-size:11.9px}
@@ -100,17 +146,27 @@ body.light .cancel{background:#fde3e3;color:#c62828}
 .sw{width:47.6px;height:47.6px;border-radius:13.6px;border:2px solid var(--line);font-size:9.3px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3.4px}
 .sw.on{border-color:var(--text)}
 .stack{display:flex;flex-direction:column;gap:6.8px}
+#tup{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(0,0,0,.9);text-align:center;padding:24px}
+#tup.show{display:flex}
+#tup .big{font-size:46px;font-weight:800;color:rgb(var(--saf));animation:tupp 1s ease-in-out infinite}
+#tup .ic{font-size:64px;animation:tupp 1s ease-in-out infinite}
+@keyframes tupp{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.1);opacity:1}}
+#tup p{margin:0;color:#fff;font-size:15px}
+#tup button{min-width:170px;min-height:54px;border-radius:27px;border:0;margin-top:10px;background:rgb(var(--saf));color:#2a1a00;font-weight:800;font-size:17px}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 119px);transform:translateX(-50%);background:var(--text);color:var(--ink);padding:7.6px 13.6px;border-radius:17px;font-size:11px;display:none;z-index:9}
 :root{--red:#e5484d}body.light{--red:#d92d34}
-.tcard{display:flex;align-items:center;gap:11px;padding:8.5px 10.2px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;user-select:none;-webkit-user-select:none}
-.tstep{display:flex;flex-direction:column;align-items:center;flex:none}
-.tstep button{width:54px;min-height:30px;padding:0;font-size:12.5px;line-height:1;touch-action:manipulation}
+.tcard{display:flex;align-items:center;gap:10px;padding:8.5px 10.2px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;user-select:none;-webkit-user-select:none}
+.tstep{display:flex;flex-direction:column;align-items:center;gap:15px;flex:none;margin-left:auto}
+.tstep button{width:53px;height:35px;min-height:35px;padding:0;border:0;border-radius:0;background:none;color:var(--text);font-size:24px;line-height:1;touch-action:manipulation}
+.tstep button:active{color:var(--accent)}
 .tstep button[disabled]{opacity:.3}
-.tnum{min-width:54px;text-align:center;font-size:25px;font-weight:700;line-height:1.1;padding:2px 0;font-variant-numeric:tabular-nums}
-.tnum small{display:block;font-size:9.3px;font-weight:600;color:var(--mute);margin-top:-2px}
-.tcap{flex:1;min-width:0;color:var(--mute);font-size:11px;line-height:1.4}
+.tnum{flex:none;width:64px;height:64px;border-radius:50%;border:2.5px solid var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:23px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.tnum small{display:block;font-size:9.5px;font-weight:600;color:var(--mute);margin-top:2px}
+.tcard.run .tnum{font-size:17px}
+.tcap{flex:1;min-width:0;color:var(--mute);font-size:10.5px;line-height:1.35}
 .tcap b{display:block;color:var(--text);font-size:12px}
 .tgo{flex:none;min-width:80px;height:40px;padding:0 13px;font-weight:700;background:var(--red);border:0;color:#fff;border-radius:10px}
+.tcard.run,.tcard.run .tnum,.tcard.done .tnum{border-color:var(--red)}
 .tcard.run{border-color:var(--red)}
 .tcard.run .tnum{color:var(--red)}
 .tcard.run .tgo{background:none;border:1px solid var(--red);color:var(--red)}
@@ -122,7 +178,7 @@ body.light .cancel{background:#fde3e3;color:#c62828}
 </head>
 <body data-theme="midnight" data-v="home">
 <div id="app">
-  <header id="top"><h1 id="h1"></h1><p id="sub"></p></header>
+  <header id="top"><h1 id="h1"></h1><p id="sub"></p><button id="nfold" aria-label="Fold all regions"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="nadd" aria-label="Add or remove regions"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><div id="ndots"></div></header>
 <div id="sheet">
   <div class="frow">
     <button id="cx" class="rb cancel" aria-label="Cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -143,11 +199,15 @@ body.light .cancel{background:#fde3e3;color:#c62828}
     <button data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
     <button data-v="bday"><svg viewBox="0 0 24 24"><path d="M4 12h16v8H4zM12 12V7M12 7c-1.5-1-1.5-3 0-4 1.5 1 1.5 3 0 4zM4 16c3 2 5-2 8 0s5-2 8 0"/></svg>Birthdays</button>
     <button data-v="all"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>All</button>
+    <button data-v="news"><svg viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4"/></svg>News</button>
     <button data-v="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Settings</button>
   </nav>
 </div>
 <button id="fab" aria-label="Add new">+</button>
+<div id="npad"><button id="nup" aria-label="Previous headline (hold to open)"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button><button id="ndn" aria-label="Next headline (hold to open)"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button></div>
 
+<div id="rgp"><div id="rgc"></div></div>
+<div id="tup" role="alertdialog" aria-live="assertive"><div class="ic">⏰</div><div class="big">Time's up</div><p id="tupm"></p><button id="tupok">OK</button></div>
 <div id="toast"></div>
 <input type="file" id="imp" accept=".json,application/json" hidden>
 
@@ -225,16 +285,19 @@ function render(){
     $('#h1').textContent='All items';$('#sub').textContent=S.items.length+' saved';
     const c=[['all','All'],['event','Events'],['reminder','Reminders'],['birthday','Birthdays']];
     h=`<div id="tools"><input id="q" type="search" placeholder="Search" value="${esc(q)}"><div class="chips">${c.map(x=>`<button class="chip${ft===x[0]?' on':''}" data-f="${x[0]}">${x[1]}</button>`).join('')}</div></div><div id="lst">${allList()}</div>`;
+  }else if(view==='news'){
+    h=newsHtml();nhead();
   }else{
     $('#h1').textContent='Settings';$('#sub').textContent='Look, reminders and backup';
     const th=[['midnight','#4f93e0'],['forest','#4cc38a'],['violet','#a78bfa'],['ember','#f0933c'],['rose','#f06c9b']];
     h=`<div class="set"><h3>Mode</h3><div class="chips">${[['dark','Dark'],['light','Light'],['auto','Auto (phone)']].map(x=>`<button class="chip${S.mode===x[0]?' on':''}" data-md="${x[0]}">${x[1]}</button>`).join('')}</div><h3>Colour theme</h3><div class="sws">${th.map(x=>`<button class="sw${S.theme===x[0]?' on':''}" data-th="${x[0]}" style="background:${x[1]}33">${x[0]}</button>`).join('')}</div>
     <h3>Reminders</h3><p>Phone alerts only work in the installed app. Alerts ring from the phone's own alarm at the saved date and time, with Snooze and Done buttons, even when the app is closed. Repeating alerts keep going by themselves. Use the test buttons to hear each tone.</p><div class="stack"><button id="ntf">Turn on phone alerts</button><button id="ans">Alert sound &amp; pop-up settings</button><button id="atr">Xiaomi: allow autostart</button><button data-tt="event">Test event tone</button><button data-tt="reminder">Test reminder tone</button><button data-tt="birthday">Test birthday tone</button></div>
     <h3>SMS copy</h3><p>When an alert rings, the phone can also text it to these numbers (no internet needed). Use the country code, e.g. +351…</p><div class="stack"><button class="chip${S.sms.on?' on':''}" id="smon">SMS is ${S.sms.on?'ON':'OFF'} · tap to switch</button><input id="sm1" type="tel" placeholder="My number" value="${esc(S.sms.a)}"><input id="sm2" type="tel" placeholder="Wife's number" value="${esc(S.sms.b)}"><button id="smp">Allow SMS on this phone</button><button id="smt">Send a test SMS now</button></div>
-    <h3>Backup</h3><p>Save a copy of your data, or load one back in.</p><div class="stack"><button id="exp">Save backup file</button><button id="imb">Load backup file</button></div>
+    ${newsSetHtml()}<h3>Backup</h3><p>Save a copy of your data, or load one back in.</p><div class="stack"><button id="exp">Save backup file</button><button id="imb">Load backup file</button></div>
     <h3>Danger zone</h3><div class="stack"><button id="wipe" class="dng">Delete everything</button></div></div>`;
   }
   m.innerHTML=h;
+  if(view==='news')newsAfter();
 }
 
 // click handling
@@ -247,6 +310,12 @@ $('#main').addEventListener('click',e=>{
   const md=t.closest('[data-md]');if(md){S.mode=md.dataset.md;applyTheme();save();render();return}
   const tt=t.closest('[data-tt]');if(tt){testTone(tt.dataset.tt);return}
   const tg=t.closest('[data-tgo]');if(tg){timerAct(tg.dataset.tgo);return}
+  const nh=t.closest('[data-nh]');if(nh){const i=+nh.dataset.nh;if(i!==nsi)nopenSec(i,'first');return}
+  const np=t.closest('[data-np]');if(np){N.prov=np.dataset.np;nstore();render();return}
+  const rt=t.closest('[data-nretry]');if(rt){nretry();return}
+  const nr=t.closest('.nr');if(nr){const i=+nr.dataset.ni;if(i===nj)nopen();else{nj=i;nshow(false)}return}
+  if(t.id==='nksave'){const v=($('#nkin').value||'').trim();if(!v){toast('Paste a key first');return}N.keys[N.prov]=v;nstore();nst={};toast('Saved');render();return}
+  if(t.id==='nkall'){for(const p in PROV){N.keys[p]=($('#nk_'+p).value||'').trim()}nstore();nst={};toast('Saved');return}
   const r=t.closest('.row');if(r){openForm(r.dataset.id);return}
   if(t.id==='smon'){S.sms.on=!S.sms.on;persist();pushSms();render();if(S.sms.on&&window.AndroidEv&&!AndroidEv.hasSms())AndroidEv.requestSms();return}
   if(t.id==='smp'){try{AndroidEv.requestSms()}catch(x){toast('Works in the installed app only')}return}
@@ -260,7 +329,7 @@ $('#main').addEventListener('click',e=>{
 });
 $('#main').addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;$('#lst').innerHTML=allList()}
   if(e.target.id==='sm1'||e.target.id==='sm2'){S.sms[e.target.id==='sm1'?'a':'b']=e.target.value;persist();pushSms()}});
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{closeForm();view=b.dataset.v;render();$('#main').scrollTop=0});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{closeForm();view=b.dataset.v;if(view==='news'){nsi=-1;nj=0;nanim=true;setTimeout(()=>nanim=false,1800)}render();$('#main').scrollTop=0});
 const mq=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
 if(mq&&mq.addEventListener)mq.addEventListener('change',()=>{if(S.mode==='auto')applyTheme()});
 function applyTheme(){document.body.dataset.theme=S.theme;document.body.classList.toggle('light',S.mode==='light'||(S.mode==='auto'&&!!mq&&mq.matches));const cs=getComputedStyle(document.body),m=document.querySelector('meta[name=theme-color]');if(m)m.content=cs.getPropertyValue('--ink').trim();try{if(window.AndroidEv)AndroidEv.setBars(cs.getPropertyValue('--bar').trim(),cs.getPropertyValue('--panel').trim())}catch(e){}}
@@ -324,8 +393,9 @@ async function channels(p){ // one alert channel per type; each plays its own to
   try{
     for(const t in TN)await p.createChannel({id:t+'_v'+TONE_V,name:TN[t]+' alerts',description:'Alerts for '+TN[t].toLowerCase()+'s',importance:5,visibility:1,sound:t+'.mp3',vibration:true});
     const L=await p.listChannels();
-    for(const c of L.channels)if(/^(event|reminder|birthday)_v\d+$/.test(c.id)&&!c.id.endsWith('_v'+TONE_V))await p.deleteChannel({id:c.id});
+    for(const c of L.channels)if(/^(event|reminder|birthday|timesup)_v\d+$/.test(c.id)&&!c.id.endsWith('_v'+TONE_V))await p.deleteChannel({id:c.id});
   }catch(e){}
+  try{await p.createChannel({id:'timesup_v'+TONE_V,name:'Timer alerts',description:'Rings when the quick timer ends',importance:5,visibility:1,sound:'timesup.mp3',vibration:true})}catch(e){}
 }
 async function testTone(t){
   if(NAT()&&AndroidEv.testAlarm){if(!(await perm(false))){toast('Turn on phone alerts first');return}AndroidEv.testAlarm(t);toast('Alert in a few seconds');return}
@@ -455,7 +525,7 @@ function timerCard(){
   else if(tdone){cls+=' done';num='0:00';unit='';cap=`<b>Time's up</b>Your timer has finished`;btn='<button class="tgo" data-tgo="ok">OK</button>'}
   else{num=tmins;unit='min';cap='<b>Quick timer</b>Rings with the event tone';btn='<button class="tgo" data-tgo="start">Start</button>'}
   const dis=run||tdone?' disabled':'';
-  return `<div class="${cls}" id="tcard"><div class="tstep"><button data-tstep="1" aria-label="More minutes"${dis}>▲</button><div class="tnum" id="tnum">${num}<small>${unit}</small></div><button data-tstep="-1" aria-label="Fewer minutes"${dis}>▼</button></div><div class="tcap">${cap}</div>${btn}</div>`;
+  return `<div class="${cls}" id="tcard"><div class="tnum" id="tnum">${num}<small>${unit}</small></div><div class="tstep"><button data-tstep="1" aria-label="More minutes"${dis}>▲</button><button data-tstep="-1" aria-label="Fewer minutes"${dis}>▼</button></div>${btn}</div>`;
 }
 const refreshT=()=>{const el=$('#tcard');if(el)el.outerHTML=timerCard()};
 function stepT(d){tmins=Math.min(240,Math.max(1,tmins+d));try{localStorage.setItem('myplans.tmins',tmins)}catch(e){}const n=$('#tnum');if(n)n.innerHTML=tmins+'<small>min</small>'}
@@ -471,9 +541,22 @@ $('#main').addEventListener('contextmenu',e=>{if(e.target.closest('[data-tstep]'
 function beep(){ // browser fallback only; the installed app rings through the phone alert
   try{const A=new(window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(o=>{const s=A.createOscillator(),g=A.createGain();s.connect(g);g.connect(A.destination);s.frequency.value=880;g.gain.value=.2;s.start(A.currentTime+o);s.stop(A.currentTime+o+.2)})}catch(e){}
 }
+let tvi=null;
+const tvib=()=>{try{navigator.vibrate&&navigator.vibrate([700,250,700,250,700])}catch(e){}};
+function showTup(m){ // full-screen alert + repeating vibration until OK
+  $('#tupm').textContent=m?m+(m===1?' minute':' minutes')+' finished':'Your timer has finished';
+  $('#tup').classList.add('show');tvib();clearInterval(tvi);tvi=setInterval(tvib,3500);
+  if(!LN())beep();
+}
+async function hideTup(){
+  clearInterval(tvi);tvi=null;try{navigator.vibrate&&navigator.vibrate(0)}catch(e){}
+  $('#tup').classList.remove('show');
+  const p=LN();if(p){try{await p.cancel({notifications:[{id:TID}]})}catch(e){}try{await p.removeDeliveredNotifications({notifications:[{id:TID}]})}catch(e){}}
+}
+$('#tupok').addEventListener('click',()=>{hideTup();tdone=false;refreshT()});
 function tick(){
   const t=tget();if(!t)return;
-  if(t.end<=Date.now()){tclear();tdone=true;toast('Timer done');if(!LN())beep()}
+  if(t.end<=Date.now()){tclear();tdone=true;showTup(t.mins)}
   refreshT();
 }
 async function timerAct(a){
@@ -485,17 +568,244 @@ async function timerAct(a){
     if(p){
       const ok=(await perm(false))||(await perm(true));
       if(ok){try{await channels(p);await p.cancel({notifications:[{id:TID}]});
-        await p.schedule({notifications:[{id:TID,title:'Timer done',body:m+(m===1?' minute':' minutes')+' is up',channelId:'event_v'+TONE_V,schedule:{at:new Date(end),allowWhileIdle:true}}]})}
+        await p.schedule({notifications:[{id:TID,title:'⏰ Time\'s up',body:m+(m===1?' minute':' minutes')+' finished',channelId:'timesup_v'+TONE_V,schedule:{at:new Date(end),allowWhileIdle:true}}]})}
         catch(e){toast('Timer is running, but the phone alert failed')}}
       else toast('Turn on phone alerts so the timer can ring');
     }
   }else{
-    tclear();tdone=false;refreshT();
+    hideTup();tclear();tdone=false;refreshT();
     if(p&&a==='cancel'){try{await p.cancel({notifications:[{id:TID}]})}catch(e){}}
   }
 }
-{const t=tget();if(t&&t.end<=Date.now()){tclear();tdone=true}}
+{const t=tget();if(t&&t.end<=Date.now()){tclear();tdone=true;setTimeout(()=>showTup(t.mins),400)}}
 setInterval(tick,1000);
+
+
+// ---- News ----
+const NK='myplans.news',NCK='myplans.newscache2';
+const PROV={gnews:{name:'GNews',site:'gnews.io'},newsdata:{name:'NewsData',site:'newsdata.io'}};
+const RK='myplans.regions';
+const RDEF=[{id:'global',name:'Global'},{id:'in',name:'India',cc:'in',q:'India'},{id:'us',name:'USA',cc:'us'},{id:'pt',name:'Portugal',cc:'pt'},{id:'tg',name:'Telangana',cc:'in',q:'Telangana OR Hyderabad OR Warangal OR KCR OR Revanth',search:1},{id:'ap',name:'Andhra Pradesh',cc:'in',q:'"Andhra Pradesh" OR Amaravati OR Visakhapatnam OR Vijayawada OR Tirupati',search:1}];
+let NSEC=RDEF.map(x=>Object.assign({},x));
+try{const r=JSON.parse(localStorage.getItem(RK));if(Array.isArray(r)&&r.length&&r.every(x=>x&&x.id&&x.name))NSEC=r}catch(e){}
+const rstore=()=>{try{localStorage.setItem(RK,JSON.stringify(NSEC))}catch(e){toast('Could not save')}};
+let N={prov:'gnews',keys:{gnews:'',newsdata:''}},NC={},nsi=-1,nj=0,nbusy=false,nst={},nlast=0,nanim=false;
+try{const r=JSON.parse(localStorage.getItem(NK));if(r){if(PROV[r.prov])N.prov=r.prov;Object.assign(N.keys,r.keys||{})}}catch(e){}
+try{NC=JSON.parse(localStorage.getItem(NCK))||{}}catch(e){NC={}}
+const nstore=()=>{try{localStorage.setItem(NK,JSON.stringify(N))}catch(e){toast('Could not save')}};
+const cstore=()=>{try{localStorage.setItem(NCK,JSON.stringify(NC))}catch(e){}};
+const nago=t=>{if(!t)return'';const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'just now':m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
+
+async function nget(p,s){
+  const k=encodeURIComponent(N.keys[p]),cc=s.cc;let u,a;
+  const q=s.q?'&q='+encodeURIComponent(s.q):'';
+  const lg=cc==='pt'?'':'&lang=en',ln=cc==='pt'?'':'&language=en';
+  if(p==='gnews'){
+    if(s.search)u='https://gnews.io/api/v4/search?max=10&apikey='+k+q+(cc?'&country='+cc:'')+lg;
+    else u='https://gnews.io/api/v4/top-headlines?max=10&apikey='+k+q+(cc?'&country='+cc+lg:'&category=world&lang=en');
+  }else{
+    if(s.search)u='https://newsdata.io/api/1/latest?size=10&apikey='+k+q+(cc?'&country='+cc:'')+ln;
+    else u='https://newsdata.io/api/1/latest?size=10&apikey='+k+q+(cc?'&country='+cc+ln:'&category=world&language=en');
+  }
+  const r=await fetch(u),j=await r.json().catch(()=>({}));
+  if(p==='gnews'){
+    if(!Array.isArray(j.articles)){const e=j.errors;throw new Error(r.status===401||r.status===403?'invalid key':String(Array.isArray(e)?e[0]:(e&&Object.values(e)[0])||'HTTP '+r.status))}
+    a=j.articles.map(x=>({t:x.title,u:x.url,s:(x.source||{}).name||'',d:Date.parse(x.publishedAt)||0}));
+  }else{
+    if(j.status!=='success'||!Array.isArray(j.results))throw new Error(r.status===401?'invalid key':String((j.results&&j.results.message)||'HTTP '+r.status));
+    a=j.results.map(x=>({t:x.title,u:x.link,s:x.source_name||x.source_id||'',d:Date.parse(String(x.pubDate||'').replace(' ','T')+'Z')||0}));
+  }
+  const seen=new Set();a=a.filter(x=>x.t&&x.u&&!seen.has(x.t)&&seen.add(x.t));
+  if(!a.length)throw new Error('no headlines');
+  return a.slice(0,10);
+}
+
+const nfresh=s=>!!NC[s.id]&&Date.now()-NC[s.id].t<18e5;
+const nitems=()=>nsi<0?[]:((NC[NSEC[nsi].id]||{}).items||[]);
+const nhas=()=>!!(N.keys.gnews||N.keys.newsdata);
+function nsecHtml(si){
+  const s=NSEC[si],c=NC[s.id],items=(c&&c.items)||[],st=nst[s.id]||'',bad=st.startsWith('err');
+  if(nsi<0){ // all folded: just the region list
+    const tag=st==='load'?'loading…':bad?'failed':c?nago(c.t):'';
+    return `<div class="topic nh" data-nh="${si}"><b>${s.name}</b><span class="r"><em class="n">${esc(tag)}</em></span></div>`;
+  }
+  if(si!==nsi)return ''; // open: only this region, headlines start at the top
+  let h='';
+  if(bad)h+=`<div class="nmsg" data-nretry="1">Couldn't load (${esc(st.slice(4))}) · tap to retry</div>`;
+  else if(st==='load'&&!items.length)h+=`<div class="nmsg">Loading…</div>`;
+  else if(!items.length)h+=`<div class="nmsg">No headlines yet.</div>`;
+  items.forEach((it,i)=>{h+=`<div class="nr${i===nj?' sel':''}" data-ni="${i}"><b>${esc(it.t)}</b><small>${esc(it.s)}${it.s&&it.d?' · ':''}${nago(it.d)}</small></div>`});
+  return h;
+}
+// banner: region name, position, dots (one per region) and the fold-all icon
+function nhead(){
+  document.body.classList.toggle('nopen',nsi>=0&&nhas());
+  if(view!=='news')return;
+  const L=NSEC.length;
+  if(!nhas()){$('#h1').textContent='News';$('#sub').textContent='Add a free API key to start';return}
+  if(nsi<0){$('#h1').textContent='News';$('#sub').textContent=L+' regions · pick one or press an arrow'}
+  else{
+    const s=NSEC[nsi],c=NC[s.id],n=((c&&c.items)||[]).length,st=nst[s.id]||'';
+    $('#h1').textContent=s.name;
+    $('#sub').textContent=st==='load'?'Loading…':st.startsWith('err')?'Could not load':n?(nj+1)+' of '+n+' · '+nago(c.t)+' · '+(nsi+1)+'/'+L:'No headlines';
+  }
+  const d=$('#ndots');if(d)d.innerHTML=NSEC.map((s,i)=>`<button class="nd${i===nsi?' on':''}" data-nd="${i}" aria-label="${esc(s.name)}" title="${esc(s.name)}"></button>`).join('');
+  const f=$('#nfold');if(f)f.disabled=nsi<0;
+}
+function newsHtml(){
+  const k=N.keys[N.prov];
+  document.body.classList.toggle('nokey',!nhas());
+  const pc=Object.keys(PROV).map(p=>`<button class="chip${N.prov===p?' on':''}" data-np="${p}">${PROV[p].name}${N.keys[p]?' ✓':''}</button>`).join('');
+  if(!k)return `<div class="set"><h3>Add a ${PROV[N.prov].name} key</h3><p>Get a free key at ${PROV[N.prov].site}. Paste it once; it stays on this phone until you clear the app data.</p><div class="chips" style="margin-bottom:8px">${pc}</div><div class="stack"><input id="nkin" type="password" autocomplete="off" placeholder="Paste ${PROV[N.prov].name} API key"><button id="nksave" class="chip on" style="min-height:37.4px">Save key</button></div></div>`;
+  return `<div id="nlist">${NSEC.map((s,i)=>`<div class="ns${nanim?' in':''}" id="ns_${s.id}"${nanim?` style="animation-delay:${(i*.3).toFixed(2)}s"`:''}>${nsecHtml(i)}</div>`).join('')}</div>`;
+}
+function newsSetHtml(){
+  return `<h3>News API keys</h3><p>Saved only on this phone (not included in backups). Fill one or both; if the active one fails, the other is used.</p><div class="stack">${Object.keys(PROV).map(p=>`<input id="nk_${p}" type="password" autocomplete="off" placeholder="${PROV[p].name} key (${PROV[p].site})" value="${esc(N.keys[p]||'')}">`).join('')}<button id="nkall">Save keys</button></div>`;
+}
+function npaint(){
+  if(view!=='news'||!$('#nlist'))return;
+  NSEC.forEach((s,i)=>{const e=$('#ns_'+s.id);if(e)e.innerHTML=nsecHtml(i)});
+  nhead();
+}
+function nshow(scroll){
+  document.querySelectorAll('.nr.sel').forEach(x=>x.classList.remove('sel'));
+  nhead();
+  const el=document.querySelector('.nr[data-ni="'+nj+'"]');if(!el)return;
+  el.classList.add('sel');
+  if(scroll)el.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function nopen(){const it=nitems()[nj];if(it&&/^https?:/i.test(it.u))window.open(it.u,'_blank','noopener')}
+
+// one request at a time, at least 1.1s apart
+async function nfetch(s){
+  nbusy=true;nst[s.id]='load';npaint();
+  const w=1100-(Date.now()-nlast);if(w>0)await new Promise(r=>setTimeout(r,w));
+  const order=[N.prov,N.prov==='gnews'?'newsdata':'gnews'].filter(p=>N.keys[p]);
+  let ok=false,msg='';
+  for(const p of order){
+    try{const items=await nget(p,s);NC[s.id]={t:Date.now(),items};cstore();ok=true;if(p!==order[0])toast('Using '+PROV[p].name+' as backup');break}
+    catch(e){msg=(e&&e.message)||'error'}
+  }
+  nlast=Date.now();nst[s.id]=ok?'':'err '+msg;nbusy=false;
+}
+// enter a folder: fold the others, then fetch its 10 headlines only if not cached
+async function nopenSec(si,pos){
+  if(nbusy||!nhas())return;
+  nsi=si;nj=0;npaint();
+  const s=NSEC[si];
+  $('#main').scrollTop=0;
+  if(!nfresh(s))await nfetch(s);
+  const n=nitems().length;nj=pos==='last'?Math.max(0,n-1):0;
+  if(nsi!==si)return;
+  npaint();
+  if(pos==='last')nshow(true);
+}
+async function nretry(){
+  if(nbusy||nsi<0)return;
+  await nfetch(NSEC[nsi]);nj=0;npaint();
+}
+function nmove(d){
+  if(nbusy)return;
+  const n=nitems().length,L=NSEC.length;
+  if(nsi<0){nopenSec(d>0?0:L-1,d>0?'first':'last');return}
+  if(d>0){if(nj<n-1){nj++;nshow(true)}else nopenSec((nsi+1)%L,'first')}
+  else{if(nj>0){nj--;nshow(true)}else nopenSec((nsi-1+L)%L,'last')}
+}
+function nfoldAll(){
+  if(nsi<0)return;
+  nsi=-1;nj=0;nanim=true;setTimeout(()=>nanim=false,1800);
+  render();$('#main').scrollTop=0;
+}
+$('#top').addEventListener('click',e=>{
+  if(view!=='news')return;
+  const d=e.target.closest('[data-nd]');
+  if(d){const i=+d.dataset.nd;if(i!==nsi)nopenSec(i,'first');return}
+  if(e.target.closest('#nfold'))nfoldAll();
+  if(e.target.closest('#nadd'))rpOpen();
+});
+const RC=[['','Any country'],['in','India'],['us','USA'],['pt','Portugal'],['gb','UK'],['ca','Canada'],['au','Australia'],['sg','Singapore'],['ae','UAE']];
+function rpaint(){
+  const rows=NSEC.map((r,i)=>{const cn=(RC.find(x=>x[0]===(r.cc||''))||[0,r.cc])[1];const d=[cn,r.q].filter(Boolean).join(' · ')||'World headlines';
+    return `<div class="rr"><span class="tx"><b>${esc(r.name)}</b><small>${esc(d)}</small></span><button data-ru="${i}" aria-label="Move up">▲</button><button data-rdn="${i}" aria-label="Move down">▼</button><button class="dng" data-rd="${i}" aria-label="Delete">✕</button></div>`}).join('');
+  $('#rgc').innerHTML=`<div class="rh"><h3>Regions</h3><button id="rgclose" class="rb cancel" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>${rows}
+  <h3 class="sm">Add a region</h3><div class="stack"><input id="rgn" maxlength="30" autocomplete="off" placeholder="Name, e.g. Kerala"><input id="rgk" maxlength="95" autocomplete="off" placeholder="Keywords, e.g. Kerala OR Kochi (optional)"><select id="rgcc">${RC.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select><button id="rgadd" class="pri" style="min-height:37.4px">Add region</button><button id="rgdef">Reset to default regions</button></div>`;
+}
+function rrefresh(curId){ // keep the same open region after a change
+  rstore();
+  const i=NSEC.findIndex(x=>x.id===curId);nsi=i;if(i<0)nj=0;
+  render();rpaint();
+}
+const rcur=()=>nsi>=0&&NSEC[nsi]?NSEC[nsi].id:null;
+function rpOpen(){rpaint();$('#rgp').classList.add('show')}
+function rpClose(){$('#rgp').classList.remove('show')}
+$('#rgp').addEventListener('click',e=>{
+  const t=e.target;
+  if(t.id==='rgp'||t.closest('#rgclose')){rpClose();return}
+  const u=t.closest('[data-ru]'),dn=t.closest('[data-rdn]'),dl=t.closest('[data-rd]');
+  if(u||dn){const i=+(u||dn).dataset[u?'ru':'rdn'],j=u?i-1:i+1;if(j<0||j>=NSEC.length)return;const c=rcur();[NSEC[i],NSEC[j]]=[NSEC[j],NSEC[i]];rrefresh(c);return}
+  if(dl){const i=+dl.dataset.rd;if(NSEC.length<2){toast('Keep at least one region');return}
+    if(!confirm('Delete "'+NSEC[i].name+'"?'))return;
+    const c=rcur(),id=NSEC[i].id;NSEC.splice(i,1);delete NC[id];cstore();rrefresh(c===id?null:c);return}
+  if(t.id==='rgadd'){
+    const name=($('#rgn').value||'').trim(),q=($('#rgk').value||'').trim(),cc=$('#rgcc').value;
+    if(!name){toast('Give the region a name');$('#rgn').focus();return}
+    if(NSEC.some(x=>x.name.toLowerCase()===name.toLowerCase())){toast('Already there');return}
+    const r={id:'c'+Date.now().toString(36),name};if(cc)r.cc=cc;if(q){r.q=q;r.search=1}
+    NSEC.push(r);rstore();rpClose();nsi=-1;render();nopenSec(NSEC.length-1,'first');return}
+  if(t.id==='rgdef'&&confirm('Restore the default regions? Your added regions will be removed.')){
+    NSEC=RDEF.map(x=>Object.assign({},x));rstore();nsi=-1;nj=0;render();rpaint();toast('Defaults restored')}
+});
+// swipe the banner: left = next region, right = previous (wraps around)
+// while the finger moves, the open list dims and slides, and the banner names the target region
+{let sx=0,sy=0,on=false,hz=false;
+  const hd=$('#top');
+  const vis=dx=>{
+    const nl=$('#nlist'),h=$('#h1');
+    const k=dx===null?null:Math.min(Math.abs(dx)/160,1);
+    if(nl){nl.style.transition=k===null?'opacity .25s,transform .25s':'none';nl.style.opacity=k===null?'':String(1-.7*k);nl.style.transform=k===null?'':'translateX('+Math.round(dx*.3)+'px)'}
+    if(h){h.style.transition=k===null?'transform .25s':'none';h.style.transform=k===null?'':'translateX('+Math.round(dx*.25)+'px)'}
+  };
+  const arm=dx=>{ // name the destination once past the threshold
+    const L=NSEC.length;
+    if(Math.abs(dx)>50){const t=NSEC[(nsi+(dx<0?1:-1)+L)%L];$('#sub').textContent=dx<0?t.name+'  ›':'‹  '+t.name}
+    else nhead();
+  };
+  hd.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;hz=false;on=e.touches.length===1&&view==='news'&&nsi>=0&&nhas()},{passive:true});
+  hd.addEventListener('touchmove',e=>{
+    if(!on)return;
+    const t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(!hz&&Math.abs(dx)>12&&Math.abs(dx)>1.6*Math.abs(dy))hz=true;
+    if(hz){vis(dx);arm(dx)}
+  },{passive:true});
+  const done=e=>{
+    if(!on)return;on=false;
+    const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    const go=hz&&Math.abs(dx)>50&&Math.abs(dx)>1.6*Math.abs(dy);
+    if(go){const L=NSEC.length;nopenSec((nsi+(dx<0?1:-1)+L)%L,'first')}
+    vis(null);if(!go&&hz)nhead();hz=false;
+  };
+  hd.addEventListener('touchend',done,{passive:true});
+  hd.addEventListener('touchcancel',done,{passive:true});
+}
+function newsAfter(){if(nhas())nshow(false)}
+// tap = step, long press (~0.55s) = open link
+[['nup',-1],['ndn',1]].forEach(([id,d])=>{
+  const b=$('#'+id);let t0=0,tm;
+  const end=()=>{clearTimeout(tm);b.classList.remove('lp')};
+  b.addEventListener('pointerdown',()=>{t0=Date.now();clearTimeout(tm);tm=setTimeout(()=>{b.classList.add('lp');try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}},550)});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,end));
+  b.addEventListener('click',()=>{const long=t0&&Date.now()-t0>=550;t0=0;if(long)nopen();else nmove(d)});
+  b.addEventListener('contextmenu',e=>e.preventDefault());
+});
+document.addEventListener('keydown',e=>{
+  if(view!=='news')return;
+  if(e.target&&e.target.id==='nkin'){if(e.key==='Enter')$('#nksave').click();return}
+  if(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if((e.key==='ArrowRight'||e.key==='ArrowLeft')&&nsi>=0){const L=NSEC.length;nopenSec((nsi+(e.key==='ArrowRight'?1:-1)+L)%L,'first');return}
+  if(e.key==='ArrowDown'){e.preventDefault();nmove(1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();nmove(-1)}
+  else if(e.key==='Enter')nopen();
+});
 
 applyTheme();render();sched();
 pushSms();takeDone();

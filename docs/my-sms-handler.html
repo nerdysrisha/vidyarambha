@@ -137,15 +137,40 @@ mark.otp.cr2{font-size:1.25em;letter-spacing:.03em;max-width:100%;overflow-wrap:
 .ur small .cp{margin:0 0 0 6px;font-size:12px;color:var(--tx)}
 .uhd{border-bottom:1px solid var(--ln)}.uhd>summary{padding:10px 0;font-size:14px}.uhd .ur{margin:0 0 10px}
 /* up / down arrows: step through months and dates */
-#msgs,#star,#send{padding-bottom:96px}
-#nv{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;gap:10px}
+#msgs,#star,#send,#links{padding-bottom:96px}
+#nv,#vnv{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;gap:10px}
 #nv.hide{display:none}
-#nv button{width:50px;height:50px;padding:0;border-radius:50%;border:1px solid var(--ln);background:rgba(23,32,51,.85);color:var(--ac);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45);touch-action:manipulation}
-#nv button:active{background:var(--ln)}
-#nv svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#nv button,#vnv button{width:50px;height:50px;padding:0;border-radius:50%;border:1px solid var(--ln);background:rgba(23,32,51,.85);color:var(--ac);display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 2px 10px rgba(0,0,0,.45);touch-action:manipulation}
+#nv button:active,#vnv button:active{background:var(--ln)}
+#nv svg,#vnv svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
 @keyframes navflash{0%,45%{background:rgba(77,163,255,.22)}100%{background:rgba(77,163,255,0)}}
 @media (prefers-reduced-motion:reduce){summary.navflash{animation:none}}
+/* link folders */
+.lgd>.lgb{padding:2px 0 10px}
+.m.sel{background:#2a2145;box-shadow:inset 0 0 0 1.5px var(--ac2)}
+#ad{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:24px}
+#ad.hide{display:none}
+.adb{background:var(--card);border-radius:16px;padding:16px;width:100%;max-width:360px}
+.adb .kr{margin-top:12px}.adb .go{margin:0}
+.lk.sel,.uk.sel{border-color:var(--ac2);box-shadow:0 0 10px rgba(255,179,71,.35)}
+.lgc{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 6px}
+.lgc.hide{display:none}
+.lgc button{border:1px solid #2a2145;background:#191231;color:#b9a7ff;border-radius:12px;padding:4px 10px;font:600 12px system-ui,sans-serif}
+.lgc button.on{background:#312650;border-color:#4a3a80;color:var(--tx)}
+/* sync + read-only phone view */
+#vw{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;padding:12px 14px}
+#vw.hide{display:none}
+#vl{flex:1;overflow-y:auto;padding-bottom:96px}
+.vbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--card);border-left:5px solid var(--vc,#4DA3FF);box-shadow:0 0 14px -4px var(--vc,#4DA3FF)}
+#vb{flex:none;border:0;border-radius:12px;padding:11px 14px;background:var(--ln);color:var(--tx);font:700 14px system-ui,sans-serif;white-space:nowrap}
+#vb:active{background:var(--ac);color:#06182E}
+#vt{margin:10px 0 4px}
+.sdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.srow{margin-bottom:7px}
+.sk{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 6px}
+.sk label{display:flex;align-items:center;font-size:13px;color:var(--mu)}
+.sk input{width:auto;margin:0 6px 0 0}
 </style></head><body>
 <div id="top">
  <div class="hd"><h1>💬 MySMSHandler</h1><div class="hb"><button id="fd" title="Fold all">−</button><button id="tr" title="Delete mode">🗑</button></div></div>
@@ -180,7 +205,8 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
 
 <div id="links" class="hide">
  <div class="sp kp">
-  <input id="lt" type="text" placeholder="Title" autocomplete="off">
+  <div class="kr" style="margin-bottom:6px"><input id="lt" type="text" placeholder="Title" autocomplete="off"><input id="lg" type="text" maxlength="30" placeholder="Group" autocomplete="off" style="flex:none;width:38%"></div>
+  <div id="lgc" class="lgc hide"></div>
   <div class="kr"><input id="lie" type="text" maxlength="8" placeholder="🙂" title="Optional emoji icon" style="flex:none;width:46px;padding-left:0;padding-right:0;text-align:center"><input id="lu" type="url" inputmode="url" placeholder="Link" autocomplete="off" autocapitalize="off"><button id="lks" title="Save" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg></button></div>
  </div>
  <div id="ll"></div>
@@ -196,6 +222,18 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
  <div id="uh"></div>
 </div>
 <div id="set" class="hide">
+ <div class="card" id="sy">
+  <b>Sync · GitHub</b>
+  <input id="syn" type="text" placeholder="Name of this phone (e.g. Sri)" autocomplete="off" style="margin-top:8px">
+  <input id="syr" type="text" placeholder="owner/repo" autocomplete="off" autocapitalize="off">
+  <input id="syt" type="password" placeholder="GitHub token (this repo only)" autocomplete="off">
+  <p class="mu hide" id="syts" style="margin:6px 2px 10px">🔑 Token saved ✓ <button class="cp" id="sytc" style="margin:0 0 0 8px">Change</button></p>
+  <div class="sk"><label><input type="checkbox" data-k="m">Messages</label><label><input type="checkbox" data-k="s">Sent</label><label><input type="checkbox" data-k="l">Links</label><label><input type="checkbox" data-k="u">USSD</label><label><input type="checkbox" id="sya">Push when app opens</label></div>
+  <button class="go" id="syp">⬆ Push to GitHub</button>
+  <button class="go alt" id="syl">🔄 Show phones</button>
+  <p class="mu" id="sym" style="margin:8px 2px 0;min-height:18px"></p>
+  <div id="syo" style="margin-top:6px"></div>
+ </div>
  <div class="sbar">
   <button class="ab" id="im" title="Import from phone" aria-label="Import from phone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 7v6"/><path d="m9.5 10.5 2.5 2.5 2.5-2.5"/><path d="M11 18h2"/></svg><span>Import</span></button>
   <button class="ab" id="bs" title="Backup now" aria-label="Backup now"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span>Backup</span></button>
@@ -209,6 +247,12 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
   <b style="color:var(--tx)">Export</b> · the same backup, sent through the share sheet (WhatsApp, e-mail, Drive…).<br>
   <b style="color:var(--tx)">Load</b> · pick a backup file. Missing messages, links and codes are added; nothing on this phone is replaced.</p></div>
 </div>
+<div id="vw" class="hide">
+ <div class="vbar"><div><b id="vn"></b><div class="mu" id="vs"></div></div><button id="vb">✕ My phone</button></div>
+ <div class="lgc" id="vt"></div>
+ <div id="vl"></div>
+ <div id="vnv"><button id="vnu" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button><button id="vnd" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button></div>
+</div>
 <div id="ut" class="hide"><span>Message deleted</span><button id="ub">UNDO</button></div>
 <div id="th" class="hide">
  <div class="thh"><button id="tb">←</button><div><b id="tn"></b><div class="mu" id="ta"></div></div></div>
@@ -216,6 +260,7 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
  <div class="sp"><textarea id="tx" placeholder="Reply"></textarea><button id="ts" title="Send"><svg viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
 </div>
 <div id="nv"><button id="nvu" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button><button id="nvd" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></button></div>
+<div id="ad" class="hide"><div class="adb"><p id="adt"></p><div class="kr"><button class="go alt" id="adn">No</button><button class="go" id="ady">Yes, add</button></div></div></div>
 <div id="tt"></div>
 
 <script>
@@ -443,7 +488,7 @@ function navStep(dir){
   if(dir>0)nx=j+1<days.length?{m:cur.m,d:days[j+1]}:{m:ms[(i+1)%ms.length],d:null};
   else if(cur.d!=null)nx=j>0?{m:cur.m,d:days[j-1]}:{m:cur.m,d:null};
   else nx=lastOf(ms[(i-1+ms.length)%ms.length])}
- navStop={tab,m:nx.m,d:nx.d};
+ navStop={tab,m:nx.m,d:nx.d};msI=-1;el.querySelectorAll('.m.sel').forEach(x=>x.classList.remove('sel'));
  /* fold state: only the target month, and only the target date inside it, stay open */
  Object.keys(st).forEach(k=>{const a=k.split('|');if(a[0]==p&&a.length==3&&a[1]!==nx.m)st[k]=false});
  ms.forEach(m=>st[p+'|'+m]=m===nx.m);
@@ -459,8 +504,24 @@ function navStep(dir){
   const t=el.querySelector(`details[data-k="${nx.d!=null?mk+'|'+nx.d:mk}"]`),h=t&&t.querySelector(':scope > summary');if(!h)return;
   document.querySelectorAll('summary.navflash').forEach(x=>x.classList.remove('navflash'));void h.offsetWidth;h.classList.add('navflash');
   setTimeout(()=>h.classList.remove('navflash'),1900);
-  window.scrollTo({top:Math.max(0,h.getBoundingClientRect().top+window.scrollY-$('top').offsetHeight-8),behavior:'smooth'})},420)}
-$('nvu').onclick=()=>navStep(-1);$('nvd').onclick=()=>navStep(1);
+  window.scrollTo({top:Math.max(0,h.getBoundingClientRect().top+window.scrollY-$('top').offsetHeight-8),behavior:'smooth'});
+  if(dir<0&&nx.d!=null){const dd=el.querySelector(`details.dd[data-k="${mk}|${nx.d}"]`),L=dd&&dd.querySelectorAll('.m');if(L&&L.length){msI=L.length-1;msMark(L,msI)}}},420)}
+let msI=-1;
+const msMark=(L,i)=>{L.forEach(x=>x.classList.remove('sel'));if(i>=0&&L[i]){L[i].classList.add('sel');L[i].scrollIntoView({block:'center',behavior:'smooth'})}};
+function msStep(dir){            // on a date: next / previous message of that date. false = nothing left there, move on to the next stop
+ if(!navStop||navStop.tab!=tab||navStop.d==null)return false;
+ const ty=tyOf(),p={1:'r',2:'s',3:'f'}[ty],el=$({1:'ml',2:'sl',3:'fl'}[ty]),dd=el.querySelector(`details.dd[data-k="${p}|${navStop.m}|${navStop.d}"]`);
+ if(!dd||!dd.open)return false;
+ const L=dd.querySelectorAll('.m'),n=msI+dir;
+ if(dir>0?n>=L.length:msI<0)return false;
+ msI=n;msMark(L,n);
+ if(n<0){const h=dd.querySelector(':scope > summary');if(h){h.classList.remove('navflash');void h.offsetWidth;h.classList.add('navflash');h.scrollIntoView({block:'start',behavior:'smooth'})}}
+ return true}
+function mAct(){const el=$({1:'ml',2:'sl',3:'fl'}[tyOf()]),t=el.querySelector('.m.sel');
+ if(!t){toast('Pick a message with ▲ ▼ first');return}msgCopy(t)}
+function msgCopy(t){const mk=[...t.querySelectorAll('mark[data-c]')];
+ if(mk.length)copy(mk.map(m=>m.dataset.c).join(' '),'Code copied ✓');else copy(t.querySelector('.mb').textContent,'Message copied ✓')}
+[['nvu',-1],['nvd',1]].forEach(([id,d])=>holdBtn($(id),()=>{if(tab=='links')lkStep(d);else if(!msStep(d))navStep(d)},()=>{if(tab=='links')lkAct();else if(tab!='ussd'&&tab!='set')mAct()}));
 ['ml','sl','fl'].forEach(id=>$(id).addEventListener('click',e=>{   // tapping a month / date moves the starting point for the arrows
  const sm=e.target.closest('summary'),k=sm&&sm.parentNode.dataset&&sm.parentNode.dataset.k;if(!k)return;
  const a=k.split('|');navStop={tab,m:a[1],d:a[2]||null}}));
@@ -532,25 +593,77 @@ function lIcon(x){
  let h='';try{const u=new URL(href(x.u));h=u.protocol=='mailto:'?'mail':u.protocol=='tel:'?'tel':u.hostname}catch(e){}
  const b=BR.find(r=>r[0].test(h));
  return b?`<span class="lic" style="background:${b[2]}">${b[1]}</span>`:'<span class="lic">🔗</span>'}
+/* ---------- link folders (groups) ---------- */
+let LG={},lgSel=null,lgNavT=0,lkT=0;          // LG = which folder is open (only one at a time); lgSel = link picked by the arrows
+const gKey=g=>{const k=(g||'').trim().toLowerCase();return k==='other'?'':k};
+function lGroups(a){const m=new Map();
+ a.forEach((x,i)=>{const n=(x.g||'').trim(),k=gKey(n);if(!m.has(k))m.set(k,{k,n:k?n:'Other',items:[]});m.get(k).items.push({x,i})});
+ return[...m.values()].sort((p,q)=>(p.k===''?1:0)-(q.k===''?1:0)||p.n.localeCompare(q.n,undefined,{sensitivity:'base'}))}
+function lCard(x,i,popId){return`<div class="sw lw${popId&&x.id===popId?' pop':''}"><div class="bg">🗑</div><div class="lk${x.id===editId?' ed':''}${x.id===lgSel?' sel':''}" data-li="${i}" data-id="${esc(x.id)}">${lIcon(x)}<div class="lx"><b>${esc(x.t)}</b><span>${esc(x.u)}</span></div></div></div>`}
 function drawLinks(popId){
- const a=LK();
- $('ll').innerHTML=a.length?a.map((x,i)=>`<div class="sw lw${popId&&x.id===popId?' pop':''}"><div class="bg">🗑</div><div class="lk${x.id===editId?' ed':''}" data-li="${i}" data-id="${esc(x.id)}">${lIcon(x)}<div class="lx"><b>${esc(x.t)}</b><span>${esc(x.u)}</span></div></div></div>`).join('')
-  :'<p class="mu" style="padding:8px 2px">No saved links yet.</p>'}
+ const a=LK();if(lgSel&&!a.some(x=>x.id===lgSel))lgSel=null;
+ const gs=lGroups(a);
+ $('ll').innerHTML=gs.length?gs.map(g=>`<details class="mo lgd" data-g="${esc(g.k)}"${LG[g.k]?' open':''}><summary><span>${esc(g.n)}</span><b>${g.items.length}</b></summary><div class="lgb">${g.items.map(o=>lCard(o.x,o.i,popId)).join('')}</div></details>`).join('')
+  :'<p class="mu" style="padding:8px 2px">No saved links yet.</p>';
+ lgChips()}
+function lgChips(){const c=$('lgc'),v=gKey($('lg').value),gs=lGroups(LK()).filter(g=>g.k);
+ c.classList.toggle('hide',!gs.length);
+ c.innerHTML=gs.map(g=>`<button type="button" class="${g.k===v?'on':''}" data-n="${esc(g.n)}">${esc(g.n)}</button>`).join('')}
+$('lgc').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+ $('lg').value=gKey($('lg').value)===gKey(b.dataset.n)?'':b.dataset.n;lgChips()};
+$('lg').oninput=lgChips;
+const lgEls=()=>[...$('ll').querySelectorAll(':scope > details.lgd')];
+/* only one folder open at a time; tapping a folder by hand drops the arrows' selection if it is now hidden */
+$('ll').addEventListener('toggle',e=>{const d=e.target;if(!d.classList||!d.classList.contains('lgd'))return;
+ const k=d.dataset.g;
+ if(d.open){LG[k]=true;
+  if(Date.now()-lgNavT>700)lgEls().forEach(o=>{if(o!==d&&o.open){o.open=false;delete LG[o.dataset.g]}})}
+ else delete LG[k];
+ if(lgSel){const s=$('ll').querySelector('.lk.sel');
+  if(!s||!s.closest('details.lgd').open){lgSel=null;if(s)s.classList.remove('sel')}}},true);
+/* ▲ ▼ : go link by link; a folder opens when you reach its first link and closes when you leave it */
+function lkStep(dir){
+ const gs=lGroups(LK()),flat=[];gs.forEach(g=>g.items.forEach(o=>flat.push({k:g.k,id:o.x.id})));
+ if(!flat.length)return;
+ let n,i=lgSel?flat.findIndex(f=>f.id===lgSel):-1;
+ const ok=Object.keys(LG).find(k=>LG[k]);
+ if(i>=0)n=(i+dir+flat.length)%flat.length;
+ else if(ok!==undefined&&flat.some(f=>f.k===ok)){n=dir>0?flat.findIndex(f=>f.k===ok):flat.map(f=>f.k).lastIndexOf(ok)}
+ else n=dir>0?0:flat.length-1;
+ const t=flat[n],nd=lgEls().find(d=>d.dataset.g===t.k);if(!nd)return;
+ const changed=!nd.open;
+ lgSel=t.id;lgNavT=Date.now();
+ $('ll').querySelectorAll('.lk.sel').forEach(x=>x.classList.remove('sel'));
+ if(changed){LG={};LG[t.k]=true;lgEls().forEach(d=>{if(d!==nd&&d.open)navAnim(d,false)});navAnim(nd,true)}
+ const el=[...nd.querySelectorAll('.lk')].find(x=>x.dataset.id===t.id);if(el)el.classList.add('sel');
+ const isFirst=flat.findIndex(f=>f.k===t.k)===n;
+ clearTimeout(lkT);
+ lkT=setTimeout(()=>{
+  const h=nd.querySelector(':scope > summary'),s=$('ll').querySelector('.lk.sel'),top=$('top').offsetHeight+8;
+  if(isFirst&&h){
+   document.querySelectorAll('summary.navflash').forEach(x=>x.classList.remove('navflash'));void h.offsetWidth;h.classList.add('navflash');
+   setTimeout(()=>h.classList.remove('navflash'),1900);
+   window.scrollTo({top:Math.max(0,h.getBoundingClientRect().top+window.scrollY-top),behavior:'smooth'})}
+  else if(s){const r=s.getBoundingClientRect();
+   if(r.top<top||r.bottom>innerHeight-24)window.scrollTo({top:Math.max(0,window.scrollY+r.top-top-(innerHeight-top)*.3),behavior:'smooth'})}},420)}
+
 $('lks').onclick=()=>{
  const t=$('lt').value.trim(),u=$('lu').value.trim();
  if(!t||!u){toast('Enter title and link');return}
  if(hasScheme(u)&&!/^(https?|mailto|tel):/i.test(u)){toast('Unsupported link type');return}
  const ic=Array.from($('lie').value.trim()).slice(0,2).join(''),a=LK();let pid=null;
- if(editId){const i=a.findIndex(x=>x.id===editId);if(i>-1){a[i].t=t;a[i].u=u;if(ic)a[i].ic=ic;else delete a[i].ic;pid=editId}}
- if(!pid){pid=uid();a.unshift(ic?{id:pid,t,u,ic}:{id:pid,t,u})}
+ let g=$('lg').value.trim().replace(/\s+/g,' ');if(gKey(g)==='')g='';
+ {const ex=a.find(x=>x.g&&gKey(x.g)===gKey(g));if(ex)g=ex.g}   // same folder name, same spelling
+ if(editId){const i=a.findIndex(x=>x.id===editId);if(i>-1){a[i].t=t;a[i].u=u;if(ic)a[i].ic=ic;else delete a[i].ic;if(g)a[i].g=g;else delete a[i].g;pid=editId}}
+ if(!pid){pid=uid();const o={id:pid,t,u};if(ic)o.ic=ic;if(g)o.g=g;a.unshift(o)}
  if(!saveLK(a))return;
- editId=null;$('lt').value='';$('lu').value='';$('lie').value='';drawLinks(pid);fold('links',false);toast('Saved ✓',false,1100);
+ editId=null;$('lt').value='';$('lu').value='';$('lie').value='';$('lg').value='';LG={};LG[gKey(g)]=true;drawLinks(pid);fold('links',false);toast('Saved ✓',false,1100);
  setTimeout(()=>toast('← Swipe to open  ·  Swipe → to copy',true,2600),1250)};
 $('ll').addEventListener('click',e=>{
  if(Date.now()-swJust<400||delMode)return;
  const k=e.target.closest('.lk');if(!k)return;
  const x=LK().find(y=>y.id===k.dataset.id);if(!x)return;
- editId=x.id;$('lt').value=x.t;$('lu').value=x.u;$('lie').value=x.ic||'';drawLinks();
+ editId=x.id;$('lt').value=x.t;$('lu').value=x.u;$('lie').value=x.ic||'';$('lg').value=x.g||'';drawLinks();
  fold('links',true);window.scrollTo(0,0)});
 
 let qt;$('q').oninput=e=>{clearTimeout(qt);qt=setTimeout(()=>{Q=e.target.value.trim();st={};navStop=null;draw()},250)};
@@ -563,7 +676,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
  $('qw').classList.toggle('hide',tab=='set'||tab=='links'||tab=='ussd');
  $('q').placeholder=tab=='send'?'Search sent messages…':'Search messages or numbers…';
  if(tab!='msgs')newIds.clear();
- $('nv').classList.toggle('hide',tab=='set'||tab=='links'||tab=='ussd');
+ $('nv').classList.toggle('hide',tab=='set'||tab=='ussd');
  dmUi();if(tab=='msgs'){checkUnread();clearUnread()}if(tab=='links')drawLinks();if(tab=='ussd')drawUssd();draw();window.scrollTo(0,0)});
 
 $('pb').onclick=()=>{if(!A)return;A.requestPerm();let n=0;
@@ -640,5 +753,129 @@ function fold(id,open){const p=$(id).querySelector('.sp.kp'),pl=document.querySe
 const FOLDS=['send','links','ussd'];
 pushExtra();
 FOLDS.forEach(id=>{const b=document.querySelector('.tabs button[data-t="'+id+'"]'),sp=document.createElement('span');sp.className='pl';b.appendChild(sp);fold(id,false)});
+
+/* ---------- GitHub sync: each phone writes only its own file; other phones' files are shown read-only ---------- */
+const PAL=['#4DA3FF','#3DDC84','#B388FF','#FFB347','#FF6B9A','#2EC4B6'];
+const colFor=n=>{let h=0;for(const c of String(n||''))h=(h*31+c.charCodeAt(0))%997;return PAL[h%PAL.length]};
+const SY=()=>{try{return JSON.parse(localStorage.getItem('sy')||'{}')}catch(e){return{}}};
+const saveSY=o=>{try{localStorage.setItem('sy',JSON.stringify(o))}catch(e){}};
+const slug=s=>(s||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const myFile=()=>{const n=slug(SY().name);return n?n+'-phone.json':''};
+const symsg=s=>{$('sym').textContent=s};
+const GH=(path,o={})=>fetch('https://api.github.com/repos/'+(SY().repo||'').trim()+'/contents/'+path,Object.assign({},o,{headers:Object.assign({Authorization:'Bearer '+(SY().token||''),Accept:'application/vnd.github+json','Content-Type':'application/json'},o.headers||{})}));
+const ghErr=async r=>r.status==401?'Token rejected':r.status==403?'No permission (token needs Contents: read & write)':r.status==404?'Repo not found (check name / token access)':'GitHub error '+r.status;
+function syTok(){const h=!!SY().token;$('syt').classList.toggle('hide',h);$('syts').classList.toggle('hide',!h)}
+$('sytc').onclick=()=>{$('syts').classList.add('hide');$('syt').classList.remove('hide');$('syt').placeholder='Paste the new token';$('syt').focus()};
+$('syt').onblur=()=>setTimeout(syTok,150);
+function syLoadUi(){const s=SY();
+ if(!s.id){s.id='p_'+Math.random().toString(36).slice(2,8);saveSY(s)}
+ $('syn').value=s.name||'';$('syn').disabled=!!s.pushed;$('syr').value=s.repo||'nerdysrisha/databackup';$('syt').value='';syTok();
+ const k=s.k||{m:1,s:1,l:1,u:1};document.querySelectorAll('#sy .sk [data-k]').forEach(c=>c.checked=!!k[c.dataset.k]);$('sya').checked=!!s.auto;
+ if(s.pushed)symsg('Last pushed: '+new Date(s.pushed).toLocaleString('default',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}
+function syKeep(){const s=SY();s.name=$('syn').value.trim();s.repo=$('syr').value.trim();{const t=$('syt').value.trim();if(t)s.token=t}s.auto=$('sya').checked;
+ s.k={};document.querySelectorAll('#sy .sk [data-k]').forEach(c=>s.k[c.dataset.k]=c.checked?1:0);saveSY(s);return s}
+['syn','syr','syt'].forEach(id=>$(id).oninput=syKeep);$('sy').addEventListener('change',syKeep);
+const gather=ty=>{const o=[];J('months','',ty).forEach(m=>J('list',m.m,'',ty).forEach(x=>o.push(x)));return o};
+async function syPush(){
+ const s=syKeep();if(!s.name||!s.token||!s.repo){symsg('Fill in phone name, repo and token first');return}
+ symsg('Pushing…');
+ try{
+  const d={app:'sms-handler',version:1,source:{id:s.id,name:s.name,color:colFor(s.name)},savedAt:new Date().toISOString()};
+  if(s.k.m||s.k.s){const fav=new Set(gather(3).map(x=>x.i));
+   if(s.k.m)d.messages=gather(1).map(x=>({id:x.i,from:x.a,body:x.b,time:x.t,starred:fav.has(x.i)||undefined}));
+   if(s.k.s)d.sent=gather(2).map(x=>({id:x.i,to:x.a,body:x.b,time:x.t}))}
+  if(s.k.l)d.links=LK().map(x=>({id:x.id,title:x.t,url:x.u,icon:x.ic,group:x.g}));
+  if(s.k.u)d.ussd=UC().map(x=>({id:x.id,name:x.n,code:x.c}));
+  const file=myFile(),ls=await GH('sms-handler'),arr=ls.ok?await ls.json():[],ex=Array.isArray(arr)?arr.find(f=>f.name===file):null;
+  if(!ls.ok&&ls.status!=404){symsg(await ghErr(ls));return}
+  const b64=btoa(unescape(encodeURIComponent(JSON.stringify(d,null,1))));
+  const r=await GH('sms-handler/'+file,{method:'PUT',body:JSON.stringify(Object.assign({message:'sync '+s.name,content:b64},ex?{sha:ex.sha}:{}))});
+  if(!r.ok){symsg(await ghErr(r));return}
+  s.pushed=Date.now();saveSY(s);$('syn').disabled=true;syLoadUi();toast('Pushed ✓');syList()
+ }catch(e){symsg('No internet / blocked')}}
+async function syList(){
+ const s=syKeep();if(!s.token||!s.repo){symsg('Fill in repo and token first');return}
+ symsg('Loading phones…');
+ try{const r=await GH('sms-handler');
+  if(r.status==404){$('syo').innerHTML='<p class="mu">No phones yet. Push from this phone first.</p>';symsg('');return}
+  if(!r.ok){symsg(await ghErr(r));return}
+  const f=(await r.json()).filter(x=>/-phone\.json$/.test(x.name)&&x.name!==myFile());symsg('');
+  $('syo').innerHTML=f.length?f.map(x=>{const n=x.name.replace(/-phone\.json$/,'').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+   return `<div class="sw lw srow"><div class="lk" data-f="${esc(x.name)}"><span class="sdot" style="background:${colFor(n)};margin:0 2px 0 0"></span><div class="lx"><b>${esc(n)}</b><span>tap to view (read-only)</span></div></div></div>`}).join(''):'<p class="mu">No other phones yet.</p>'
+ }catch(e){symsg('No internet / blocked')}}
+$('syp').onclick=syPush;$('syl').onclick=syList;
+$('syo').onclick=async e=>{const k=e.target.closest('.lk');if(!k)return;const f=k.dataset.f;
+ if(f===myFile()){toast('This is your own phone');return}
+ symsg('Loading…');
+ try{const r=await GH('sms-handler/'+f,{headers:{Accept:'application/vnd.github.raw+json'}});
+  if(!r.ok){symsg(await ghErr(r));return}
+  symsg('');openView(JSON.parse(await r.text()))}catch(x){symsg('Could not read that file')}};
+
+/* ▲ ▼ buttons: tap = move, hold = act on the selected item */
+function openUrl(u){const l=document.createElement('a');l.href=href(u);l.target='_blank';l.rel='noopener';l.click()}
+function holdBtn(b,step,hold){let t=null,fired=false;const stop=()=>{clearTimeout(t);t=null};
+ b.addEventListener('pointerdown',()=>{fired=false;stop();t=setTimeout(()=>{fired=true;t=null;try{navigator.vibrate&&navigator.vibrate(30)}catch(_){}hold()},500)});
+ ['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,stop));
+ b.addEventListener('contextmenu',e=>e.preventDefault());
+ b.addEventListener('click',e=>{if(fired){fired=false;return}step()})}
+function lkAct(){const x=LK().find(y=>y.id===lgSel);if(!x){toast('Pick a link with ▲ ▼ first');return}
+ copy(x.u,'Copied & opening ✓');setTimeout(()=>openUrl(x.u),250)}
+/* read-only view of another phone: no delete, edit, reply or swipe */
+let VD=null,vtab='';
+function openView(d){VD=d;const so=d.source||{};
+ $('vw').style.setProperty('--vc',so.color||'#4DA3FF');vCur=null;
+ $('vn').innerHTML=`👁 Viewing ${esc(so.name||'Phone')}`;
+ $('vs').textContent='Read-only · synced '+(d.savedAt?new Date(d.savedAt).toLocaleString('default',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'');
+ const T=[['messages','Messages'],['sent','Sent'],['links','Links'],['ussd','USSD']].filter(t=>Array.isArray(d[t[0]]));
+ $('vt').innerHTML=T.map(t=>`<button type="button" data-t="${t[0]}">${t[1]} (${d[t[0]].length})</button>`).join('')||'<span class="mu">Nothing was pushed from this phone.</span>';
+ vtab=(T.find(t=>d[t[0]].length)||T[0]||[''])[0];vDraw();$('vw').classList.remove('hide');try{history.pushState({v:1},'')}catch(e){}}
+function vMsgs(arr,out){
+ const mo={};arr.forEach(x=>{const dt=new Date(x.time),z=n=>String(n).padStart(2,'0'),m=dt.getFullYear()+'-'+z(dt.getMonth()+1),dy=m+'-'+z(dt.getDate());((mo[m]=mo[m]||{})[dy]=mo[m][dy]||[]).push(x)});
+ return Object.keys(mo).sort().reverse().map(m=>{const ds=mo[m];
+  return `<details class="mo"><summary><span>${esc(mLabel(m))}</span><b>${Object.values(ds).reduce((a,l)=>a+l.length,0)}</b></summary>`+Object.keys(ds).sort().reverse().map(dy=>
+   `<details class="dd"><summary class="ds"><span>${esc(dLabel(dy))}</span><b>${ds[dy].length}</b></summary>`+ds[dy].sort((a,b)=>b.time-a.time).map(x=>
+   `<div class="sw"><div class="m ${out?'out':''}"><div class="mh"><b>${out?'→ ':''}${esc(out?x.to:x.from)}${x.starred?' ★':''}</b><span>${esc(tLabel(x.time))}</span></div><div class="mb">${msgBody(String(x.body||''))}</div></div></div>`).join('')+'</details>').join('')+'</details>'}).join('')}
+function vDraw(){
+ document.querySelectorAll('#vt button').forEach(b=>b.classList.toggle('on',b.dataset.t===vtab));
+ const a=(VD&&VD[vtab])||[];let h='';
+ if(vtab==='messages')h=vMsgs(a,false);
+ else if(vtab==='sent')h=vMsgs(a,true);
+ else if(vtab==='links')h=lGroups(a.map(x=>({id:x.id,t:x.title,u:x.url,ic:x.icon,g:x.group}))).map(g=>`<details class="mo lgd"><summary><span>${esc(g.n)}</span><b>${g.items.length}</b></summary><div class="lgb">`+g.items.map(o=>{const i=a.findIndex(y=>y.id===o.x.id);
+   return `<div class="sw lw"><div class="lk" data-i="${i}">${lIcon(o.x)}<div class="lx"><b>${esc(o.x.t)}</b><span>${esc(o.x.u)}</span></div></div></div>`}).join('')+'</div></details>').join('');
+ else if(vtab==='ussd')h=a.map(x=>`<div class="ux"><div class="uk" data-c="${esc(x.code)}"><div class="lx"><b>${esc(x.name)}</b><span>${esc(x.code)}</span></div></div></div>`).join('');
+ $('vl').innerHTML=h||'<p class="mu" style="padding:12px 0">Nothing here.</p>';vCur=null;$('vl').scrollTop=0}
+$('vt').onclick=e=>{const b=e.target.closest('button');if(b){vtab=b.dataset.t;vDraw()}};
+function closeView(pop){if($('vw').classList.contains('hide'))return;$('vw').classList.add('hide');VD=null;vCur=null;if(!pop&&history.state&&history.state.v){try{history.back()}catch(e){}}}
+$('vb').onclick=()=>closeView(false);
+window.addEventListener('popstate',()=>closeView(true));
+/* ▲ ▼ inside the other phone's data: months / days / folders / items, one after another; the target opens, the rest close */
+let vCur=null;
+function vAct(){const t=vCur;
+ if(!t||!$('vl').contains(t)||t.tagName==='SUMMARY'){toast('Pick an item with ▲ ▼ first');return}
+ if(t.classList.contains('lk')){const x=(VD.links||[])[+t.dataset.i];if(x){copy(x.url,'Copied & opening ✓');setTimeout(()=>openUrl(x.url),250)}}
+ else if(t.classList.contains('uk'))copy(t.dataset.c,'Code copied ✓');
+ else if(t.classList.contains('m'))msgCopy(t)}
+const vStops=()=>[...$('vl').querySelectorAll(':scope > details > summary, details.dd > summary, .lk, .uk, .m')];
+function vStep(dir){
+ const L=vStops();if(!L.length)return;
+ const i=vCur?L.indexOf(vCur):-1,t=L[i<0?(dir>0?0:L.length-1):(i+dir+L.length)%L.length];vCur=t;
+ const keep=new Set();for(let d=t.closest('details');d;d=d.parentElement&&d.parentElement.closest('details'))keep.add(d);
+ $('vl').querySelectorAll('details[open]').forEach(d=>{if(!keep.has(d))d.open=false});
+ keep.forEach(d=>d.open=true);
+ $('vl').querySelectorAll('.sel,.navflash').forEach(x=>x.classList.remove('sel','navflash'));void t.offsetWidth;
+ t.classList.add(t.tagName==='SUMMARY'?'navflash':'sel');
+ setTimeout(()=>t.scrollIntoView({block:'center',behavior:'smooth'}),60)}
+[['vnu',-1],['vnd',1]].forEach(([id,d])=>holdBtn($(id),()=>vStep(d),vAct));
+$('vl').addEventListener('click',e=>{const s=e.target.closest('summary,.lk,.uk');if(s)vCur=s});
+$('vl').addEventListener('click',ck);
+let adX=null;
+function askAdd(x){if(!x)return;if(LK().some(y=>y.u===x.url)){toast('Already in your links');return}
+ adX=x;$('adt').textContent='Add “'+x.title+'” to your links?'+(x.group?'  (group: '+x.group+')':'');$('ad').classList.remove('hide')}
+$('adn').onclick=()=>{$('ad').classList.add('hide');adX=null};
+$('ady').onclick=()=>{const x=adX;$('ad').classList.add('hide');adX=null;if(!x)return;
+ const a=LK(),o={id:uid(),t:x.title,u:x.url};if(x.icon)o.ic=x.icon;if(x.group)o.g=x.group;a.unshift(o);if(saveLK(a))toast('Added to your links ✓')};
+$('vl').addEventListener('click',e=>{const k=e.target.closest('.lk');if(k&&VD)askAdd((VD.links||[])[+k.dataset.i])});
+syLoadUi();
+setTimeout(()=>{const s=SY();if(s.auto&&s.token&&s.name&&A&&A.hasPerm())syPush()},4000);
 draw();
 </script></body></html>
