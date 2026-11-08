@@ -265,6 +265,35 @@ body.max #app{padding-top:0}
 #ugo{background:linear-gradient(135deg,#ffb25c,#ff9933);color:#3a1c02;font-weight:700;border-color:transparent}
 #ugo:disabled{opacity:.4}
 
+/* ── upload to Drive: full screen, console on top, Drive folders listed below ── */
+#ud.full{padding:0;align-items:stretch}
+#ud.full #ubox{width:100%;height:100%;max-height:none;border-radius:0;border:0;box-shadow:none;overflow:hidden;padding:calc(12px + env(safe-area-inset-top)) 14px calc(10px + env(safe-area-inset-bottom))}
+#ulist{display:flex;flex-direction:column;flex:1;min-height:0;gap:6px;border-top:1px solid var(--line);padding-top:8px}
+#ulist[hidden]{display:none}
+#ulh{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mute)}
+#uref{min-width:0;height:30px;padding:0 12px;font-size:12px;border-radius:8px}
+#ulbox{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;-webkit-overflow-scrolling:touch}
+#ubox:has(#umin:not([hidden])) #ulbox{opacity:.45;pointer-events:none}
+.ufo{display:flex;align-items:center;gap:10px;flex:none;width:100%;height:auto;min-height:44px;padding:8px 12px;text-align:left;font-size:14px;border-radius:10px;background:var(--ink)}
+.ufo svg{flex:none;width:18px;height:18px;fill:none;stroke:var(--accent,#ffb25c);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ufo span{flex:1;min-width:0;overflow-wrap:anywhere}
+.ufo em{flex:none;font-style:normal;font-size:11px;color:var(--accent,#ffb25c)}
+.ufo.on{border-color:var(--accent,#ff9933);background:rgba(var(--a,255,153,51),.16);box-shadow:inset 0 0 0 1px var(--accent,#ff9933)}
+.ulmsg{padding:16px 8px;color:var(--mute);font-size:13px;text-align:center;line-height:1.5}
+
+/* ── upload minimised: breathing indicator in the banner ── */
+#upind{display:flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:15px;background:rgba(var(--a,255,153,51),.14);border:1px solid rgba(var(--a,255,153,51),.55);color:var(--acc-hi,#ffd9a0);font-size:12px;font-weight:600;white-space:nowrap;animation:upBreath 2.2s ease-in-out infinite}
+#upind[hidden]{display:none}
+#upind b{display:block;width:16px;height:16px;overflow:hidden;flex:none;color:var(--accent,#ffb25c)}
+#upind svg{display:block;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;animation:upArrow 1.1s ease-in infinite}
+#upit{font-variant-numeric:tabular-nums}
+#upind.done{animation:none}#upind.done b{color:#4cc38a}#upind.done svg{animation:none}
+@keyframes upBreath{0%,100%{box-shadow:0 0 3px 0 rgba(var(--a,255,153,51),.2);opacity:.7}50%{box-shadow:0 0 14px 2px rgba(var(--a,255,153,51),.7);opacity:1}}
+@keyframes upArrow{0%{transform:translateY(9px);opacity:0}30%{opacity:1}100%{transform:translateY(-9px);opacity:0}}
+@media (prefers-reduced-motion:reduce){#upind,#upind svg{animation:none}}
+.th .upd{position:absolute;top:5px;right:5px;z-index:2;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:var(--accent,#4cc38a);display:grid;place-items:center;pointer-events:none}
+.th .upd svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
 /* ── mobile app (Capacitor or installed to home screen): already full screen, so no max / min buttons ── */
 body.app #max,body.app #fsx{display:none!important}
 body{-webkit-touch-callout:none}
@@ -399,7 +428,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
   <div id="stiles" role="group" aria-label="Video source"></div>
 </div>
 <div id="app">
-  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><span class="tr"><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><span class="tr"><button id="upind" type="button" hidden aria-label="Upload running - tap to open"><b><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg></b><span id="upit"></span></button><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
   <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="syncbtn" type="button" hidden>★ Sync</button><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="upbar" hidden><span id="upn"></span><button id="upall" type="button">All</button><button id="upx" type="button">Cancel</button><button id="upgo" type="button">Upload</button></div><div id="gbox"></div></div>
   <div id="source">
@@ -452,7 +481,8 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
   <small id="uprev"></small>
   <div id="uprog" hidden><div id="ubar"><i></i></div><small id="ust"></small></div>
   <p id="uerr"></p>
-  <div class="urow"><button id="ucancel" type="button">Cancel</button><button id="ugo" type="button">Upload</button></div>
+  <div class="urow"><button id="umin" type="button" hidden>Minimize</button><button id="ucancel" type="button">Cancel</button><button id="ugo" type="button">Upload</button></div>
+  <div id="ulist" hidden><div id="ulh"><span>Folders on Google Drive - tap one to send there</span><button id="uref" type="button">Refresh</button></div><div id="ulbox"></div></div>
 </div></div>
 <div id="rn" hidden><div id="rbox" role="dialog" aria-label="Rename video">
   <h3 id="rtitle">Rename video</h3>
@@ -548,7 +578,11 @@ function navOrder() {
   }
   return o;
 }
-const navNext = (c, d) => { const o = navOrder(), p = o.indexOf(c); return o[(p + d + o.length) % o.length]; };
+const navNext = (c, d) => {
+  let o = navOrder();
+  if (getSrc() === "gdrive") { const ne = o.filter(k => k === c || (listCache[parsed[k].n] || []).length); if (ne.length) o = ne; }   // Drive: skip the empty album folder itself
+  const p = o.indexOf(c); return o[(p + d + o.length) % o.length];
+};
 // Phone / SD / Drive video order (viewer AND thumbnails use it): months newest-first, days newest-first (31, 30 ... 1), inside a day newest-first
 function sortByDate(ents) {
   const mk = x => { if (!x.mod) return -1; const d = new Date(x.mod); return d.getFullYear() * 12 + d.getMonth(); };
@@ -969,15 +1003,17 @@ function toast(a, b) {
 }
 function dayStep(d) {                                      // folders with date folders: ‹ › go to the previous / next date folder (loops through the months)
   const v = document.body.dataset.v;
-  if (v === "grid" && gUnits.length) {
+  if (v === "grid" && gUnits.length > 1) {
     const n = gUnits.length, i = gUnits.findIndex(u => u.isOpen());
     gUnits[i < 0 ? (d > 0 ? 0 : n - 1) : (i + d + n) % n].go(); return true;
   }
   if (v === "view" && (isLocal(getSrc()) || getSrc() === "gdrive") && files.length > GROUP_MIN && files.some(f => modOf[f])) {
     const key = f => { const m = modOf[f]; if (!m) return -1; const t = new Date(m); return t.getFullYear() * 10000 + t.getMonth() * 100 + t.getDate(); };
     const starts = []; files.forEach((f, i) => { if (!i || key(f) !== key(files[i - 1])) starts.push(i); });
-    let c = 0; starts.forEach((p, i) => { if (p <= idx) c = i; });
-    place(starts[(c + d + starts.length) % starts.length], false); return true;
+    if (starts.length > 1) {                                   // a single day (e.g. one Drive folder): fall through to the next folder
+      let c = 0; starts.forEach((p, i) => { if (p <= idx) c = i; });
+      place(starts[(c + d + starts.length) % starts.length], false); return true;
+    }
   }
   return false;
 }
@@ -1455,7 +1491,7 @@ function openGroup(h) { $("gbox").querySelectorAll(".gm.open").forEach(x => { if
 function openDay(h) { h.parentNode.querySelectorAll(".gd.open").forEach(x => { if (x !== h) setGroup(x, false); }); setGroup(h, true); }
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 function buildGrid(folder, ents) {
-  gGen++; gFolder = folder; gQ = []; gBusy = 0; gUnits = []; gBadges = [];
+  gGen++; gFolder = folder; gQ = []; gBusy = 0; gUnits = []; gBadges = []; gThumbs = new Map();
   if (gObs) gObs.disconnect();
   gUrls.forEach(u => URL.revokeObjectURL(u)); gUrls = [];
   upSelCancel();
@@ -1471,6 +1507,7 @@ function buildGrid(folder, ents) {
   const addTh = (grid, x, k) => {
     const b = document.createElement("button"); b.type = "button"; b.className = "th"; b.dataset.k = k; b.dataset.n = x.name;
     const im = document.createElement("img"); im.alt = ""; im.draggable = false; b.appendChild(im);
+    if (isLocal(getSrc()) && x.mod) { const pk = pkKey(getSrc(), folder, new Date(x.mod)); gThumbs.set(pk + "|" + x.name, b); if (PICKS[pk] && PICKS[pk][x.name]) markUp(b); }   // already sent to Drive -> cloud-tick
     grid.appendChild(b); gObs.observe(b);
   };
   const setGh = () => box.style.setProperty("--gh", Math.max(150, box.clientHeight - 38 - 34 - 46) + "px");   // open day = scroll box down to the screen bottom, leaving the next date / month header peeking
@@ -1566,7 +1603,7 @@ route();
 // ── UPLOAD (gear panel) ─────────────────────────────────────────────────
 // Pick videos from the gallery -> choose / create a folder inside an album -> sent to Google Drive exactly as they are (in 8 MB pieces, retried on a bad connection)
 const PLUS = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM12 10v6M9 13h6"/></svg>', BACK = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-let upFiles = [], upBusy = false, upStop = false, upNew = false, upAbort = null;
+let upFiles = [], upBusy = false, upStop = false, upNew = false, upAbort = null, upMin = false, upDoneT = 0, upDay = "", upListTok = 0, upListData = [];
 const fmtSize = n => n >= 1073741824 ? (n / 1073741824).toFixed(1) + " GB" : Math.max(1, Math.round(n / 1048576)) + " MB";
 const folderNames = f => (listCache[f] || []).filter(x => x.type === "file").map(x => x.name);
 const takenSet = folder => new Set(folderNames(folder).map(n => n.toLowerCase()));
@@ -1584,6 +1621,7 @@ function upFolderChanged(focus) {
   if (upNew && focus === true) { const u = $("unew"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
 }
 function openUpload(files) {
+  $("ud").classList.remove("full"); $("ulist").hidden = true; upDay = ""; $("umin").hidden = true;
   $("unewb").hidden = false; $("ualb").hidden = true;
   upFiles = files.slice().sort((a, b) => (a.lastModified - b.lastModified) || nat(a.name, b.name));   // oldest first
   const sel = $("ufold"); sel.innerHTML = "";
@@ -1599,13 +1637,32 @@ function openUpload(files) {
   $("ud").hidden = false;
 }
 const closeUpload = () => { if (upBusy) return; $("ud").hidden = true; upFiles = []; };
-$("upl").onclick = () => { closePanel(); $("ufile").click(); };
+// minimise: the window hides, the upload keeps running, a breathing pill in the banner shows progress (tap it to open the window again)
+function upIndText() { const t = $("ust").textContent, m = /(\d+) of (\d+)/.exec(t), q = /(\d+)%/.exec(t); $("upit").textContent = m ? m[1] + "/" + m[2] + (q ? " \u00b7 " + q[1] + "%" : "") : "Uploading"; }
+new MutationObserver(upIndText).observe($("ust"), {childList: true, characterData: true, subtree: true});
+function upMinimize() {
+  if (!upBusy) return;
+  upMin = true; clearTimeout(upDoneT); $("ud").hidden = true;
+  $("upind").className = ""; $("upind").hidden = false; upIndText();
+}
+function upRestore() { upMin = false; clearTimeout(upDoneT); $("upind").hidden = true; $("ud").hidden = false; }
+function upEnded(ok, n) {                                  // a run has finished
+  $("umin").hidden = true;
+  if (!upMin) return;
+  upMin = false;
+  if (ok) { $("upit").textContent = "Uploaded " + n; $("upind").className = "done"; upDoneT = setTimeout(() => { $("upind").hidden = true; }, 4000); }
+  else { $("upind").hidden = true; $("ud").hidden = false; }   // stopped / errors: bring the window back so the result is seen
+}
+$("umin").onclick = upMinimize;
+$("upind").onclick = () => { if ($("upind").classList.contains("done")) { clearTimeout(upDoneT); $("upind").hidden = true; } else if (upBusy) upRestore(); };
+
+$("upl").onclick = () => { if (upBusy) { if (upMin) upRestore(); return; } closePanel(); $("ufile").click(); };
 $("ufile").onchange = () => { const fl = Array.from($("ufile").files || []).filter(f => /^video\//.test(f.type) || VID_RE.test(f.name)); $("ufile").value = ""; if (fl.length) openUpload(fl); };
 $("ufold").onchange = () => upFolderChanged();
 $("unewb").onclick = () => { upNew = !upNew; upFolderChanged(true); };
-$("unew").oninput = () => { upErr(); const a = gdAlbumOf($("unew").value); if (a && !$("ualb").hidden) $("ualb").value = a; };
+$("unew").oninput = () => { upErr(); upListMark(); const a = gdAlbumOf($("unew").value); if (a && !$("ualb").hidden) $("ualb").value = a; };
 $("ucancel").onclick = () => { if (upBusy) { upStop = true; if (upAbort) upAbort.abort(); $("ucancel").disabled = true; $("ucancel").textContent = "Stopping\u2026"; } else closeUpload(); };
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) closeUpload(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ud").hidden) { if (upBusy) upMinimize(); else closeUpload(); } });
 $("ugo").onclick = () => {
   if (upBusy) return;
   const folder = destFolder();
@@ -1627,7 +1684,7 @@ function upSelCancel() {
   upSelRender();
 }
 function upSelToggle(folder, dd, dh, cl) {                   // tap the cloud: start choosing for this date; tap it again to cancel
-  if (upBusy) return toast("", "An upload is already running");
+  if (upBusy) { if (upMin) upRestore(); return toast("", "An upload is already running"); }
   if (upSelDay && upSelDay.dh === dh) return upSelCancel();
   upSelCancel(); if (selMode) { selMode = false; clearSel(); updateBar(); }
   upSelDay = {folder, dd, dh, cl}; cl.classList.add("on"); upSelRender();
@@ -1648,10 +1705,12 @@ $("upgo").onclick = () => {
   if (!upSel.size) return toast("", "Tap the videos to upload first");
   dayUpload(d.folder, {d: d.dd.d, items: d.dd.items.filter(it => upSel.has(it.k))});
 };
-const PK_KEY = "picksSavedV1"; let PICKS = {}, gBadges = [];     // "picks saved": which photos / videos of a date were sent to Drive (remembered on this phone)
+const PK_KEY = "picksSavedV1"; let PICKS = {}, gBadges = [], gThumbs = new Map();     // "picks saved": which photos / videos of a date were sent to Drive (remembered on this phone)
 try { PICKS = JSON.parse(localStorage.getItem(PK_KEY) || "{}") || {}; } catch (e) { PICKS = {}; }
 const pkKey = (src, folder, d) => src + "|" + folder + "|" + d.getFullYear() + " " + String(d.getMonth() + 1).padStart(2, "0") + " " + String(d.getDate()).padStart(2, "0");
-function picksAdd(k, name) { (PICKS[k] = PICKS[k] || {})[name] = 1; try { localStorage.setItem(PK_KEY, JSON.stringify(PICKS)); } catch (e) {} }
+const UPD_ICO = '<svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.7-7.9A6 6 0 0 1 17.9 9.2 4.5 4.5 0 0 1 17.5 18H7z"/><path d="M9.3 13.4l2 2 3.6-3.8"/></svg>';
+function markUp(t) { if (t && !t.querySelector(".upd")) { const m = document.createElement("b"); m.className = "upd"; m.title = "Already on Google Drive"; m.innerHTML = UPD_ICO; t.appendChild(m); } }   // small cloud-tick, top right of a thumbnail
+function picksAdd(k, name) { (PICKS[k] = PICKS[k] || {})[name] = 1; try { localStorage.setItem(PK_KEY, JSON.stringify(PICKS)); } catch (e) {} markUp(gThumbs.get(k + "|" + name)); }   // also marks the open thumbnail live, video by video
 function picksPaint() {                                    // compact badge on a date row: star + tick + how many picks went up
   gBadges.forEach(b => { const set = PICKS[b.key] || {}, n = b.dd.items.filter(it => set[it.x.name]).length; b.el.hidden = !n; b.el.textContent = "\u2605\u2713 " + n; });
 }
@@ -1676,10 +1735,12 @@ async function picksSync() {                              // mark what is alread
 $("syncbtn").onclick = picksSync;
 const CLOUD_ICO = '<svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.7-7.9A6 6 0 0 1 17.9 9.2 4.5 4.5 0 0 1 17.5 18"/><path d="M12 21v-8M9 15.5l3-3 3 3"/></svg>';
 function dayUpload(folder, dd) {                           // phone / SD date folder -> Google Drive, e.g. Family/2026 10 31 (the name can be edited before Upload)
-  if (upBusy) return toast("", "An upload is already running");
+  if (upBusy) { if (upMin) upRestore(); return toast("", "An upload is already running"); }
   if (!window.AndroidVideo || !window.AndroidGDrive) return toast("", "Upload works only inside the Android app");
-  const src = getSrc(), base = AndroidVideo.base();
-  const files = dd.items.map(it => {
+  const src = getSrc(), base = AndroidVideo.base(), done = PICKS[pkKey(src, folder, dd.d)] || {};
+  const todo = dd.items.filter(it => !done[it.x.name]), skipped = dd.items.length - todo.length;   // videos with the cloud-tick are skipped
+  if (!todo.length) return toast("", dd.items.length === 1 ? "Already on Drive" : "All of these are already on Drive");
+  const files = todo.map(it => {
     const path = folder + "/" + it.x.name, ext = it.x.name.split(".").pop().toLowerCase();
     return {name: it.x.name, size: LSIZE[src + "|" + path] || 0, lastModified: it.x.mod || 0, type: MIME[ext] || "video/mp4", lazy: true, pk: pkKey(src, folder, dd.d),
       slice: (a, b) => fetch(base + "/l?s=" + src + "&p=" + encodeURIComponent(path), {headers: {Range: "bytes=" + a + "-" + (b - 1)}}).then(r => { if (r.status !== 206 && r.status !== 200) throw new Error("HTTP " + r.status); return r.blob(); }).catch(e => { const er = new Error("phone:Could not read the video from the phone (" + ((e && e.message) || e) + "). Update the app and try again."); er.phone = 1; throw er; })};   // read from the phone piece by piece, never the whole video in memory
@@ -1690,12 +1751,60 @@ function dayUpload(folder, dd) {                           // phone / SD date fo
   const sel = $("ualb"); sel.innerHTML = ""; GD_ALBUMS.forEach(a => { const o = document.createElement("option"); o.value = o.textContent = a; sel.appendChild(o); });
   sel.value = alb; sel.hidden = false;
   upNew = true; $("unewb").hidden = true; $("unew").value = alb + dest.slice(GD_ALBUMS[0].length); upFolderChanged();
+  if (skipped) $("usum").textContent += " \u00b7 " + skipped + " already on Drive, skipped";
+  upDay = dest.slice(GD_ALBUMS[0].length + 1); upDriveUI();
 }
 $("ualb").onchange = () => {                               // changing the album rewrites the first part of the folder name
   const a = $("ualb").value, rest = $("unew").value.split("/").slice(1).join("/");
-  $("unew").value = a + (rest ? "/" + rest : "/"); upErr();
+  $("unew").value = a + (rest ? "/" + rest : "/"); upErr(); upListMark();
   try { localStorage.setItem("upAlbum", a); } catch (e) {}
 };
+async function gdFolderList() {                           // every folder under MyVideos, as paths; also fills the folder-id cache so an upload reuses a folder instead of making a twin
+  const roots = await gdList("name='" + GD_ROOT + "' and mimeType='" + GD_DIR + "' and 'root' in parents and trashed=false", "id");
+  const rid = roots.length ? roots[0].id : "", ids = {}, paths = [];
+  if (rid) {
+    const fl = await gdList("mimeType='" + GD_DIR + "' and trashed=false", "id,name,parents"), byId = {}; fl.forEach(f => { byId[f.id] = f; });
+    const pathOf = f => { const seg = []; let c = f, n = 0; while (c && c.id !== rid && n++ < 12) { seg.unshift(c.name); c = byId[(c.parents || [])[0]]; } return c && c.id === rid ? seg.join("/") : null; };
+    fl.forEach(f => { if (f.id === rid) return; const q = pathOf(f); if (q) { ids[q] = f.id; if (q.indexOf("/") > 0 && !q.split("/").some(g => g.startsWith("."))) paths.push(q); } });
+  }
+  gdRootId = rid; gdFolderIds = ids;
+  const ai = q => { const i = GD_ALBUMS.findIndex(a => a.toLowerCase() === q.split("/")[0].toLowerCase()); return i < 0 ? 99 : i; };
+  return paths.sort((a, b) => (ai(a) - ai(b)) || nat(b, a));   // album order, then newest name first
+}
+const FOLDER_ICO = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+function upListMark() { const v = destFolder().toLowerCase(); $("ulbox").querySelectorAll(".ufo").forEach(x => x.classList.toggle("on", x.dataset.p.toLowerCase() === v)); }
+function upListPaint() {
+  const box = $("ulbox"); box.innerHTML = "";
+  if (!upListData.length) { box.innerHTML = '<div class="ulmsg">No folders on Drive yet.<br>Type a new folder name above.</div>'; return; }
+  upListData.forEach(p => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "ufo"; b.dataset.p = p;
+    b.innerHTML = FOLDER_ICO + "<span></span>" + (upDay && p.indexOf(upDay) >= 0 ? "<em>same date</em>" : "");
+    b.children[1].textContent = p.replace(/\//g, " / "); box.appendChild(b);
+  });
+  upListMark();
+}
+async function upListLoad() {
+  const tok = ++upListTok, box = $("ulbox");
+  $("ugo").disabled = true; $("uref").disabled = true;
+  box.innerHTML = '<div class="ulmsg">Checking Drive\u2026</div>';
+  try {
+    const paths = await gdFolderList();
+    if (tok !== upListTok) return;
+    upListData = paths; upListPaint(); $("ugo").disabled = false;            // Upload only unlocks once Drive has been checked
+  } catch (e) {
+    if (tok !== upListTok) return;
+    box.innerHTML = ""; const m = document.createElement("div"); m.className = "ulmsg"; m.textContent = "Could not check Drive. " + gdMsg(e) + " Tap Refresh to try again."; box.appendChild(m);
+  }
+  if (tok === upListTok) $("uref").disabled = false;
+}
+function upDriveUI() { $("ud").classList.add("full"); $("ulist").hidden = false; upListLoad(); }
+$("ulbox").onclick = e => {                                // tap a folder: it becomes the destination; tap another to change it
+  const b = e.target.closest(".ufo"); if (!b || upBusy) return;
+  $("unew").value = b.dataset.p; upErr();
+  const a = gdAlbumOf(b.dataset.p); if (a && !$("ualb").hidden) $("ualb").value = a;
+  upListMark();
+};
+$("uref").onclick = () => { if (!upBusy) upListLoad(); };
 async function gdUploadBig(file, name, parentId, onProg) {   // resumable: 8 MB at a time (a multiple of 256 KB), each piece retried up to 3 times
   const ext = extOf(file), mime = /^video\//.test(file.type || "") ? file.type : (MIME[ext] || "video/mp4");
   const meta = {name, parents: [parentId]}; if (file.lastModified) meta.modifiedTime = new Date(file.lastModified).toISOString();
@@ -1722,7 +1831,7 @@ async function uploadDrive(folder) {
   if (!alb) return upErr("Start with " + GD_ALBUMS.join(", ") + ", e.g. " + GD_ALBUMS[0] + "/2026 12 25 Goa");
   folder = alb + folder.slice(first.length);
   upErr(); upBusy = true; upStop = false; upAbort = new AbortController(); upLock(true);
-  $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false;
+  $("ugo").disabled = true; $("ucancel").textContent = "Stop"; $("uprog").hidden = false; $("umin").hidden = false;
   const total = upFiles.length;
   let ok = 0, bad = 0, msg = "", pid = "", taken = null;
   try {
@@ -1754,10 +1863,10 @@ async function uploadDrive(folder) {
   $("ubar").firstChild.style.width = Math.round(ok / total * 100) + "%";
   if (document.body.dataset.v === "list") renderList();
   updateBar();
-  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; upSelCancel(); toast("", "Uploaded " + ok + (ok === 1 ? " video" : " videos") + " to " + folder.replace(/\//g, " / ")); return; }
+  if (ok && !bad && !upStop) { $("ud").hidden = true; upFiles = []; upSelCancel(); toast("", "Uploaded " + ok + (ok === 1 ? " video" : " videos") + " to " + folder.replace(/\//g, " / ")); upEnded(true, ok + (ok === 1 ? " video" : " videos")); return; }
   $("ust").textContent = "Uploaded " + ok + " of " + total + (upStop ? " (stopped)" : "") + (bad && !upStop ? " \u00b7 " + bad + " not uploaded" : "");
   upErr(msg || (bad && !upStop ? "Some videos could not be uploaded." : ""));
-  $("ucancel").disabled = false; $("ucancel").textContent = "Close";
+  $("ucancel").disabled = false; $("ucancel").textContent = "Close"; upEnded(false);
 }
 
 // ── RENAME THE VIDEO YOU ARE WATCHING (pencil at the top of the player) ──

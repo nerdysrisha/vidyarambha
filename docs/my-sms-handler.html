@@ -18,7 +18,12 @@ h1{font-size:20px}
 .tabs button{position:relative;flex:1;height:44px;padding:0;border:1px solid var(--ln);border-radius:12px;background:var(--card);color:var(--mu);display:flex;align-items:center;justify-content:center}
 .tabs button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .tabs button.on{color:var(--tx)}
-.tabs button.on::before{content:'';position:absolute;left:8px;right:8px;top:0;height:2.2px;border-radius:0 0 2.2px 2.2px;background:#F5A31A;box-shadow:0 0 9px #F5A31A;animation:br 2.2s ease-in-out infinite}
+.tabs{position:relative}
+.tg{position:absolute;left:0;top:0;height:2.2px;border-radius:0 0 2.2px 2.2px;background:#F5A31A;box-shadow:0 0 9px #F5A31A;animation:br 2.2s ease-in-out infinite;transition:transform .32s cubic-bezier(.3,.9,.3,1),width .32s cubic-bezier(.3,.9,.3,1);pointer-events:none;z-index:2}
+@keyframes swInL{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+@keyframes swInR{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+.swl{animation:swInL .3s cubic-bezier(.2,.8,.3,1)}
+.swr{animation:swInR .3s cubic-bezier(.2,.8,.3,1)}
 @keyframes br{0%,100%{opacity:.3}50%{opacity:1}}
 .bdg{position:absolute;top:-8px;right:8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--rd);color:#fff;font:700 12px/20px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--bg)}
 #qw{margin-top:8px}
@@ -678,6 +683,33 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
  if(tab!='msgs')newIds.clear();
  $('nv').classList.toggle('hide',tab=='set'||tab=='ussd');
  dmUi();if(tab=='msgs'){checkUnread();clearUnread()}if(tab=='links')drawLinks();if(tab=='ussd')drawUssd();draw();window.scrollTo(0,0)});
+
+/* ---------- glowing tab line glides to the active tab ---------- */
+const tabGlow=document.createElement('i');tabGlow.className='tg';document.querySelector('.tabs').appendChild(tabGlow);
+function tgPlace(){const b=document.querySelector('.tabs button.on');if(!b)return;tabGlow.style.width=(b.offsetWidth-16)+'px';tabGlow.style.transform='translateX('+(b.offsetLeft+8)+'px)'}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',tgPlace));
+window.addEventListener('resize',tgPlace);
+tabGlow.style.transition='none';tgPlace();requestAnimationFrame(()=>requestAnimationFrame(()=>{tabGlow.style.transition=''}));
+function slideIn(dir){const el=$(tab);if(!el)return;el.classList.remove('swl','swr');void el.offsetWidth;el.classList.add(dir<0?'swl':'swr');setTimeout(()=>el.classList.remove('swl','swr'),340)}
+
+/* ---------- swipe left/right anywhere to switch to the next/previous top tab ---------- */
+(()=>{let t0=null;
+ document.addEventListener('touchstart',e=>{
+  t0=null;if(e.touches.length!==1)return;
+  const el=e.target;
+  if(el.closest('input,textarea,select,.tabs,.otp,.cp,.stb,.who,.lb'))return;
+  if(el.closest('.lk'))return;                       // links already use left/right swipe
+  if(delMode&&el.closest('.m'))return;               // delete mode uses swipe-right on messages
+  const vw=$('vw');if(vw&&!vw.classList.contains('hide'))return;
+  for(let n=el;n&&n!==document.body;n=n.parentElement){if(n.scrollWidth>n.clientWidth+4&&/(auto|scroll)/.test(getComputedStyle(n).overflowX))return}
+  t0={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}},{passive:true});
+ document.addEventListener('touchend',e=>{
+  if(!t0)return;const c=e.changedTouches[0],dx=c.clientX-t0.x,dy=c.clientY-t0.y,dt=Date.now()-t0.t;t0=null;
+  if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||dt>700)return;
+  const bs=[...document.querySelectorAll('.tabs button')],i=bs.findIndex(b=>b.classList.contains('on')),n=(i+(dx<0?1:-1)+bs.length)%bs.length;
+  if(i<0||n===i)return;
+  bs[n].click();slideIn(dx);bs[n].scrollIntoView&&bs[n].scrollIntoView({block:'nearest',inline:'center'})},{passive:true});
+ document.addEventListener('touchcancel',()=>{t0=null},{passive:true})})();
 
 $('pb').onclick=()=>{if(!A)return;A.requestPerm();let n=0;
  const iv=setInterval(()=>{if(A.hasPerm()){clearInterval(iv);A.importPhone(true);draw()}else if(++n>60)clearInterval(iv)},500)};

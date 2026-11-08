@@ -56,7 +56,13 @@ body.nopen[data-v=news] #top h1{color:rgb(var(--saf))}
 #top h1{margin:0;font-size:18.7px;color:var(--hi);text-shadow:0 0 10.2px rgba(var(--a),.5)}
 #top p{margin:2.5px 0 0;color:var(--mute);font-size:11px}
 #main{flex:1;min-height:0;overflow-y:auto;margin:8px 10px 10px;padding:10px 10px 88px}
-nav{display:flex;border-top:1px solid var(--line);background:var(--panel);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav{position:relative;display:flex;border-top:1px solid var(--line);background:var(--panel);padding-bottom:env(safe-area-inset-bottom,0px)}
+.ng{position:absolute;left:0;top:0;height:2.4px;border-radius:0 0 2.4px 2.4px;background:rgb(var(--saf));box-shadow:0 0 9px rgb(var(--saf));animation:ngbr 2.2s ease-in-out infinite;transition:transform .32s cubic-bezier(.3,.9,.3,1),width .32s cubic-bezier(.3,.9,.3,1);pointer-events:none;z-index:2}
+@keyframes ngbr{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes pgInL{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+@keyframes pgInR{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+#main.pgl{animation:pgInL .3s cubic-bezier(.2,.8,.3,1)}
+#main.pgr{animation:pgInR .3s cubic-bezier(.2,.8,.3,1)}
 nav button{flex:1;border:0;border-radius:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.8px;color:var(--mute);min-height:47.6px}
 nav button svg{width:19.6px;height:19.6px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button.on{color:var(--accent)}
@@ -78,8 +84,8 @@ body[data-v=news]:not(.nokey) #npad{display:flex}
 body.light #npad button{color:#fff}
 .nh{margin-top:6px}
 .nr{scroll-margin:10px 0 10px;padding:9px 12px;margin:0 0 6px;background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 14px 4px;cursor:pointer;scroll-margin:10px}
-.nr b{display:block;font-size:12.8px;font-weight:600;line-height:1.35}
-.nr small{display:block;color:var(--mute);font-size:10.2px;margin-top:3px}
+.nr b{display:block;font-size:15px;font-weight:600;line-height:1.45}
+.nr small{display:block;color:var(--mute);font-size:11.5px;margin-top:3px}
 .nr.sel{border-color:var(--accent);background:rgba(var(--a),.16)}
 .nmsg{color:var(--mute);font-size:11px;padding:2px 10px 10px;cursor:pointer}
 .nlbl{align-self:center;color:var(--mute);font-size:11px;margin-right:2px}
@@ -330,6 +336,31 @@ $('#main').addEventListener('click',e=>{
 $('#main').addEventListener('input',e=>{if(e.target.id==='q'){q=e.target.value;$('#lst').innerHTML=allList()}
   if(e.target.id==='sm1'||e.target.id==='sm2'){S.sms[e.target.id==='sm1'?'a':'b']=e.target.value;persist();pushSms()}});
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{closeForm();view=b.dataset.v;if(view==='news'){nsi=-1;nj=0;nanim=true;setTimeout(()=>nanim=false,1800)}render();$('#main').scrollTop=0});
+
+/* ---------- saffron breathing line above the active nav icon (glides between tabs) ---------- */
+const navGlow=document.createElement('i');navGlow.className='ng';$('nav').appendChild(navGlow);
+function navGlowPlace(){const b=document.querySelector('nav button.on');if(!b||!b.offsetWidth)return;navGlow.style.width=(b.offsetWidth-16)+'px';navGlow.style.transform='translateX('+(b.offsetLeft+8)+'px)'}
+new MutationObserver(navGlowPlace).observe($('nav'),{attributes:true,attributeFilter:['class'],subtree:true});
+window.addEventListener('resize',navGlowPlace);window.addEventListener('load',navGlowPlace);
+navGlow.style.transition='none';navGlowPlace();requestAnimationFrame(()=>requestAnimationFrame(()=>{navGlow.style.transition=''}));
+
+/* ---------- swipe left/right on the page to switch to the next/previous bottom tab (loops around) ---------- */
+{let t0=null;const pg=$('#main');
+ const slideIn=d=>{pg.classList.remove('pgl','pgr');void pg.offsetWidth;pg.classList.add(d<0?'pgl':'pgr');setTimeout(()=>pg.classList.remove('pgl','pgr'),340)};
+ pg.addEventListener('touchstart',e=>{
+  t0=null;if(e.touches.length!==1)return;
+  if(document.body.classList.contains('fo'))return;
+  const el=e.target;
+  if(el.closest('input,textarea,select,[data-tstep]'))return;
+  for(let n=el;n&&n!==pg;n=n.parentElement){if(n.scrollWidth>n.clientWidth+4&&/(auto|scroll)/.test(getComputedStyle(n).overflowX))return}
+  t0={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}},{passive:true});
+ pg.addEventListener('touchend',e=>{
+  if(!t0)return;const c=e.changedTouches[0],dx=c.clientX-t0.x,dy=c.clientY-t0.y,dt=Date.now()-t0.t;t0=null;
+  if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.8||dt>700)return;
+  const bs=[...document.querySelectorAll('nav button')],i=bs.findIndex(b=>b.classList.contains('on')),n=(i+(dx<0?1:-1)+bs.length)%bs.length;
+  if(i<0||n===i)return;
+  bs[n].click();slideIn(dx)},{passive:true});
+ pg.addEventListener('touchcancel',()=>{t0=null},{passive:true})}
 const mq=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
 if(mq&&mq.addEventListener)mq.addEventListener('change',()=>{if(S.mode==='auto')applyTheme()});
 function applyTheme(){document.body.dataset.theme=S.theme;document.body.classList.toggle('light',S.mode==='light'||(S.mode==='auto'&&!!mq&&mq.matches));const cs=getComputedStyle(document.body),m=document.querySelector('meta[name=theme-color]');if(m)m.content=cs.getPropertyValue('--ink').trim();try{if(window.AndroidEv)AndroidEv.setBars(cs.getPropertyValue('--bar').trim(),cs.getPropertyValue('--panel').trim())}catch(e){}}
@@ -585,7 +616,7 @@ setInterval(tick,1000);
 const NK='myplans.news',NCK='myplans.newscache2';
 const PROV={gnews:{name:'GNews',site:'gnews.io'},newsdata:{name:'NewsData',site:'newsdata.io'}};
 const RK='myplans.regions';
-const RDEF=[{id:'global',name:'Global'},{id:'in',name:'India',cc:'in',q:'India'},{id:'us',name:'USA',cc:'us'},{id:'pt',name:'Portugal',cc:'pt'},{id:'tg',name:'Telangana',cc:'in',q:'Telangana OR Hyderabad OR Warangal OR KCR OR Revanth',search:1},{id:'ap',name:'Andhra Pradesh',cc:'in',q:'"Andhra Pradesh" OR Amaravati OR Visakhapatnam OR Vijayawada OR Tirupati',search:1}];
+const RDEF=[{id:'global',name:'Global'},{id:'in',name:'India',cc:'in',q:'India'},{id:'us',name:'USA',cc:'us'},{id:'pt',name:'Portugal',cc:'pt'},{id:'tg',name:'Telangana',cc:'in',lang:'te',q:'తెలంగాణ OR హైదరాబాద్ OR వరంగల్ OR రేవంత్ OR కేసీఆర్',search:1},{id:'ap',name:'Andhra Pradesh',cc:'in',lang:'te',q:'ఆంధ్రప్రదేశ్ OR అమరావతి OR విశాఖపట్నం OR విజయవాడ OR తిరుపతి OR చంద్రబాబు',search:1}];
 let NSEC=RDEF.map(x=>Object.assign({},x));
 try{const r=JSON.parse(localStorage.getItem(RK));if(Array.isArray(r)&&r.length&&r.every(x=>x&&x.id&&x.name))NSEC=r}catch(e){}
 const rstore=()=>{try{localStorage.setItem(RK,JSON.stringify(NSEC))}catch(e){toast('Could not save')}};
@@ -594,12 +625,16 @@ try{const r=JSON.parse(localStorage.getItem(NK));if(r){if(PROV[r.prov])N.prov=r.
 try{NC=JSON.parse(localStorage.getItem(NCK))||{}}catch(e){NC={}}
 const nstore=()=>{try{localStorage.setItem(NK,JSON.stringify(N))}catch(e){toast('Could not save')}};
 const cstore=()=>{try{localStorage.setItem(NCK,JSON.stringify(NC))}catch(e){}};
+// one-time upgrade: Telangana / Andhra Pradesh headlines in Telugu (only if keywords are still the old defaults)
+{let ch=false;const fix={tg:['Telangana OR Hyderabad OR Warangal OR KCR OR Revanth','తెలంగాణ OR హైదరాబాద్ OR వరంగల్ OR రేవంత్ OR కేసీఆర్'],ap:['"Andhra Pradesh" OR Amaravati OR Visakhapatnam OR Vijayawada OR Tirupati','ఆంధ్రప్రదేశ్ OR అమరావతి OR విశాఖపట్నం OR విజయవాడ OR తిరుపతి OR చంద్రబాబు']};
+ NSEC.forEach(r=>{const f=fix[r.id];if(f&&!r.lang&&r.q===f[0]){r.lang='te';r.q=f[1];delete NC[r.id];ch=true}});
+ if(ch){rstore();cstore()}}
 const nago=t=>{if(!t)return'';const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'just now':m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
 
 async function nget(p,s){
   const k=encodeURIComponent(N.keys[p]),cc=s.cc;let u,a;
   const q=s.q?'&q='+encodeURIComponent(s.q):'';
-  const lg=cc==='pt'?'':'&lang=en',ln=cc==='pt'?'':'&language=en';
+  const L=s.lang||(cc==='pt'?'':'en'),lg=L?'&lang='+L:'',ln=L?'&language='+L:'';
   if(p==='gnews'){
     if(s.search)u='https://gnews.io/api/v4/search?max=10&apikey='+k+q+(cc?'&country='+cc:'')+lg;
     else u='https://gnews.io/api/v4/top-headlines?max=10&apikey='+k+q+(cc?'&country='+cc+lg:'&category=world&lang=en');
