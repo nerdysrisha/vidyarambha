@@ -420,6 +420,13 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 .vcl{white-space:nowrap}
 /* landscape: controls flush to the right edge */
 @media (orientation:landscape){.vrs{right:4px}.vtop{right:60px}}
+/* ── external player: a video opened from another app (file manager) ── */
+#ext{position:fixed;inset:0;z-index:99999;background:#000;display:none}
+#ext.on{display:block}
+#ext video{width:100%;height:100%;object-fit:contain;background:#000;opacity:0;transition:opacity .25s}
+#ext video.rdy{opacity:1}
+#extx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:26px;line-height:44px;text-align:center;z-index:2}
+#extn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:64px;right:12px;color:#fff;font:14px sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000;pointer-events:none;z-index:2}
 </style>
 </head>
 <body data-v="list">
@@ -493,6 +500,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 </div></div>
 <button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 
+<div id="ext"><button id="extx" type="button" aria-label="Close">&times;</button><div id="extn"></div><video id="extv" controls playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video></div>
 <script>
 // Running as an app (Android Capacitor, or installed to the home screen)? Already full screen: no max / min buttons.
 const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
@@ -2000,6 +2008,26 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("rn").h
       setLine("gdrive", t); try { localStorage.setItem("gdSpace", t); } catch (e) {}
     }).catch(() => {});
   }
+})();
+
+// ── VIDEO OPENED FROM ANOTHER APP (file manager "Open with") ─────────────
+(function () {
+  const ov = $("ext"), v = $("extv");
+  function closeExt() { try { v.pause(); v.removeAttribute("src"); v.load(); } catch (e) {} v.classList.remove("rdy"); ov.classList.remove("on"); }
+  $("extx").onclick = closeExt;
+  v.addEventListener("loadeddata", () => v.classList.add("rdy"));   // show the video only when its first picture is ready
+  v.addEventListener("error", () => { try { toast("", "This video cannot be played on this phone"); } catch (e) {} });
+  function take() {
+    if (!window.AndroidExt) return;
+    let r = ""; try { r = AndroidExt.take() || ""; } catch (e) {}
+    if (!r) return;
+    const p = r.split("\t");
+    $("extn").textContent = p[1] || "";
+    v.classList.remove("rdy"); v.src = p[0]; v.load(); ov.classList.add("on");
+    v.play().catch(() => {});
+  }
+  window.addEventListener("openvideo", take);   // app already running, new video sent to it
+  take();                                       // app was started by the video
 })();
 </script>
 </body>

@@ -309,6 +309,16 @@ body{-webkit-touch-callout:none}
   body[data-v=view] #app{max-width:none;margin:0;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)}
   body[data-v=view] .slide img{inset:0;width:100%;height:100%;border-radius:0}
 }
+/* ── external viewer: a photo opened from another app (file manager) ── */
+#ext{position:fixed;inset:0;z-index:99999;background:#000;display:none;overflow:auto;-webkit-overflow-scrolling:touch}
+#ext.on{display:block}
+#extw{min-width:100%;min-height:100%;display:flex;align-items:center;justify-content:center}
+#exti{max-width:100vw;max-height:100vh;object-fit:contain;opacity:0;transition:opacity .25s}
+#exti.rdy{opacity:1}
+#ext.z #extw{width:250vw;height:250vh}
+#ext.z #exti{max-width:none;max-height:none;width:250vw;height:250vh}
+#extx{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:26px;line-height:44px;text-align:center;z-index:100000}
+#extn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 18px);left:64px;right:12px;color:#fff;font:14px sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000;pointer-events:none;z-index:100000}
 </style>
 </head>
 <body data-v="list">
@@ -387,6 +397,7 @@ body{-webkit-touch-callout:none}
 </div></div>
 <button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 
+<div id="ext"><button id="extx" type="button" aria-label="Close">&times;</button><div id="extn"></div><div id="extw"><img id="exti" alt=""></div></div>
 <script>
 // Running as an app (Android Capacitor, or installed to the home screen)? Already full screen: no max / min buttons.
 const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
@@ -1971,6 +1982,29 @@ async function uploadDrive(folder) {
       setLine("gdrive", t); try { localStorage.setItem("gdSpace", t); } catch (e) {}
     }).catch(() => {});
   }
+})();
+
+// ── PHOTO OPENED FROM ANOTHER APP (file manager "Open with") ─────────────
+(function () {
+  const ov = $("ext"), im = $("exti");
+  function closeExt() { im.classList.remove("rdy"); im.removeAttribute("src"); ov.classList.remove("on", "z"); ov.scrollTo(0, 0); }
+  $("extx").onclick = closeExt;
+  im.addEventListener("load", () => im.classList.add("rdy"));            // show the photo only when it is fully ready
+  im.addEventListener("error", () => { try { toast("", "This photo cannot be shown"); } catch (e) {} });
+  let last = 0;
+  im.addEventListener("click", () => {                                    // double tap: zoom in / out
+    const t = Date.now(); if (t - last < 350) { ov.classList.toggle("z"); ov.scrollTo(0, 0); } last = t;
+  });
+  function show(r) {
+    if (!r) return;
+    const p = r.split("\t"); if (!p[0] || p[0] === "ERR") { try { toast("", "This photo cannot be shown"); } catch (e) {} return; }
+    $("extn").textContent = p[1] || "";
+    im.classList.remove("rdy"); ov.classList.remove("z");
+    im.src = window.Capacitor && Capacitor.convertFileSrc ? Capacitor.convertFileSrc("file://" + p[0]) : "file://" + p[0];
+    ov.classList.add("on");
+  }
+  window.addEventListener("openphoto", e => show(String(e.detail || "")));   // app already running, new photo sent to it
+  if (window.AndroidExt) { try { show(AndroidExt.take() || ""); } catch (e) {} }   // app was started by the photo
 })();
 </script>
 </body>

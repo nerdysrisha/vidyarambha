@@ -180,9 +180,79 @@ body.light .cancel{background:#fde3e3;color:#c62828}
 .tcard.done .tnum{color:var(--red)}
 @keyframes tp{50%{box-shadow:0 0 0 3px rgba(229,72,77,.35)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ---- scribble pad: draw a quick note, save it as a picture ---- */
+.sccard{margin-bottom:8px}
+.scic{flex:none;width:64px;height:64px;border-radius:50%;border:2.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px}
+.sctx{flex:1;min-width:0}
+.sctx b{display:block;font-size:14px}
+.sctx small{display:block;color:var(--mute);font-size:11px;margin-top:2px}
+.scgo{background:var(--accent);color:var(--ink)}
+.sccap{display:flex;align-items:center;justify-content:space-between;color:var(--mute);font-size:10.5px;margin:0 2px 5px}
+.sccap button{min-height:26px;padding:0 10px;font-size:10.5px;border-radius:13px;color:var(--mute)}
+.scg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sct{position:relative;aspect-ratio:4/3;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer}
+.sct img{width:100%;height:100%;object-fit:contain;display:block}
+.sct small{position:absolute;left:0;bottom:0;padding:1px 6px;font-size:9.5px;background:rgba(0,0,0,.55);color:#fff;border-top-right-radius:8px}
+#ink{position:fixed;inset:0;z-index:30;background:var(--ink);display:none;flex-direction:column;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+#ink.show{display:flex}
+.ikh{display:flex;align-items:center;gap:10px}
+.ikh b{flex:1;color:var(--hi);font-size:16px}
+.ikh>button{width:40px;height:40px;padding:0}
+#ikw{position:relative;flex:1;min-height:110px;border-radius:12px;overflow:hidden;background:#fff;border:2px solid rgba(var(--a),.6)}
+#ikc{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ikw span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#b6bfca;font-size:20px;pointer-events:none}
+#ikw.has span{display:none}
+.ikf{display:flex;gap:8px}
+.ikf button{flex:1;min-height:46px;padding:0 6px;font-weight:600}
+.ikf .pri{background:var(--accent);border:0;color:var(--ink)}
+#ikview{position:fixed;inset:0;z-index:31;background:var(--ink);display:none;flex-direction:column;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+#ikview.show{display:flex}
+#ikimg{flex:1;min-height:0;background:#fff;border-radius:12px;object-fit:contain;width:100%}
+#toast{z-index:60}
+/* ---- calendar ---- */
+.chd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.chd button{min-height:40px}
+.cnv{width:42px;padding:0;font-size:22px;line-height:1}
+.cmt{flex:1;font-weight:700;font-size:15px;color:var(--hi)}
+.ctd{padding:0 12px;font-size:12px;font-weight:600}
+.cwk,.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cwk span{text-align:center;font-size:10.5px;color:var(--mute);padding:2px 0 4px}
+.cd{aspect-ratio:1/1.05;min-height:0;min-width:0;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid transparent;border-radius:10px;background:none;font-size:14px}
+.cd b{font-weight:600}
+.cd.today{border-color:rgba(var(--a),.7)}
+.cd.today b{color:var(--accent)}
+.cd.sel{background:rgba(var(--a),.22);border-color:var(--accent)}
+.cd.blank{visibility:hidden}
+.cdt{display:flex;gap:3px;height:6px}
+.cdt i{width:6px;height:6px;border-radius:50%}
+.cdt .event{background:var(--event)}.cdt .reminder{background:var(--reminder)}.cdt .birthday{background:var(--birthday)}
+.cgrid.al{animation:pgInL .28s cubic-bezier(.2,.8,.3,1)}
+.cgrid.ar{animation:pgInR .28s cubic-bezier(.2,.8,.3,1)}
+.cdh{margin:14px 2px 8px;color:var(--hi);font-weight:700;font-size:14px}
+.cpy{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.cpy b{flex:1;text-align:center;font-size:17px;color:var(--hi)}
+.cpy button{width:46px;min-height:40px;padding:0;font-size:20px}
+.cpk{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.cpk button{min-height:46px;font-size:14px}
+.cpk button.on{background:rgba(var(--a),.22);border-color:var(--accent);color:var(--accent)}
+/* ---- form: calendar + half-hour slider under the details panel ---- */
+body[data-v=scr] #fab{display:none}
+#dt,#tm{pointer-events:none}
+.tsl{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 12px 8px;margin-top:12px}
+.tsb{text-align:center;font-size:30px;font-weight:700;color:var(--hi);margin:4px 0 0}
+#tsr{-webkit-appearance:none;appearance:none;display:block;width:100%;height:40px;margin:0;padding:0;border:0;background:none;min-height:0}
+#tsr::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--line)}
+#tsr::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--accent);margin-top:-11px;box-shadow:0 0 0 4px rgba(var(--a),.25)}
+.tst{display:flex;justify-content:space-between;padding:0 14px;height:12px;margin-top:-6px}
+.tst i{width:1px;height:6px;background:var(--mute);opacity:.55}
+.tst i.h{height:11px;opacity:1}
+.tsx{position:relative;height:16px;font-size:10px;color:var(--mute)}
+.tsx span{position:absolute;top:2px;transform:translateX(-50%);white-space:nowrap}
+#rpc{display:flex;flex-wrap:wrap;gap:6px}
+#drow{margin-bottom:7px}
 </style>
 </head>
-<body data-theme="midnight" data-v="home">
+<body data-theme="midnight" data-v="cal">
 <div id="app">
   <header id="top"><h1 id="h1"></h1><p id="sub"></p><button id="nfold" aria-label="Fold all regions"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button id="nadd" aria-label="Add or remove regions"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><div id="ndots"></div></header>
 <div id="sheet">
@@ -196,14 +266,15 @@ body.light .cancel{background:#fde3e3;color:#c62828}
     <div class="fld l"><span id="dl">Date</span><input id="dt" type="date"></div>
     <div class="fld l"><span>Time</span><input id="tm" type="time" required></div>
   </div>
-  <div id="rrow" class="fld"><select id="rp"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="days">Pick days</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option></select></div>
+  <div id="rrow" class="fld"><select id="rp" hidden tabindex="-1"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="days">Pick days</option><option value="weekly">Every week</option><option value="monthly">Every month</option><option value="yearly">Every year</option></select><div id="rpc" role="radiogroup" aria-label="Repeat"><button class="chip" role="radio" data-r="none">Never</button><button class="chip" role="radio" data-r="daily">Daily</button><button class="chip" role="radio" data-r="weekdays">Weekdays</button><button class="chip" role="radio" data-r="weekly">Weekly</button><button class="chip" role="radio" data-r="monthly">Monthly</button><button class="chip" role="radio" data-r="yearly">Yearly</button><button class="chip" role="radio" data-r="days">Pick days</button></div></div>
   <div id="drow" style="display:none"><div id="dch"><button class="dy" data-d="1" title="Monday">M</button><button class="dy" data-d="2" title="Tuesday">T</button><button class="dy" data-d="3" title="Wednesday">W</button><button class="dy" data-d="4" title="Thursday">T</button><button class="dy" data-d="5" title="Friday">F</button><button class="dy" data-d="6" title="Saturday">S</button><button class="dy" data-d="0" title="Sunday">S</button></div></div>
   <div class="foot"><button id="del" class="dng">Delete</button></div>
 </div>
   <div id="main"></div>
   <nav>
+    <button data-v="cal"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg>Calendar</button>
     <button data-v="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
-    <button data-v="bday"><svg viewBox="0 0 24 24"><path d="M4 12h16v8H4zM12 12V7M12 7c-1.5-1-1.5-3 0-4 1.5 1 1.5 3 0 4zM4 16c3 2 5-2 8 0s5-2 8 0"/></svg>Birthdays</button>
+    <button data-v="scr"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19zM14 7l3 3"/></svg>Scribble</button>
     <button data-v="all"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>All</button>
     <button data-v="news"><svg viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 12h7M7 15h4"/></svg>News</button>
     <button data-v="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Settings</button>
@@ -214,6 +285,16 @@ body.light .cancel{background:#fde3e3;color:#c62828}
 
 <div id="rgp"><div id="rgc"></div></div>
 <div id="tup" role="alertdialog" aria-live="assertive"><div class="ic">⏰</div><div class="big">Time's up</div><p id="tupm"></p><button id="tupok">OK</button></div>
+<div id="ink" role="dialog" aria-label="Scribble">
+  <div class="ikh"><button id="ikx" aria-label="Close">&#10005;</button><b>Scribble</b></div>
+  <div id="ikw"><canvas id="ikc"></canvas><span>Write or draw here</span></div>
+  <div class="ikf"><button id="iku">&#8630; Undo</button><button id="ikl">Clear</button><button id="ikv" class="pri">Save image</button></div>
+</div>
+<div id="ikview" role="dialog" aria-label="Saved scribble">
+  <div class="ikh"><button id="ikvx" aria-label="Close">&#10005;</button><b id="ikvt">Scribble</b></div>
+  <img id="ikimg" alt="Saved scribble">
+  <div class="ikf"><button id="ikvd">Delete</button></div>
+</div>
 <div id="toast"></div>
 <input type="file" id="imp" accept=".json,application/json" hidden>
 
@@ -262,7 +343,7 @@ function row(e){
   return `<div class="row${it.done?' dn':''}" data-id="${it.id}"><i class="dot ${it.type}">${{event:'E',reminder:'R',birthday:'B'}[it.type]||'E'}</i><span class="tx"><b>${esc(it.title)}</b><small>${esc(sub)}</small></span><span class="r"><em class="n">${when(o)}</em>${chk}</span></div>`;
 }
 
-let view='home',ft='all',q='',closed=new Set(['Done']);
+let view='cal',ft='all',q='',closed=new Set(['Done']);
 function allList(){
   const s=q.trim().toLowerCase();
   const L=ents().filter(e=>(ft==='all'||e.it.type===ft)&&(!s||e.it.title.toLowerCase().includes(s))).sort(byDate);
@@ -272,6 +353,7 @@ function render(){
   document.body.dataset.v=view;
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
   const m=$('#main'),E=ents(),t=today();let h='';
+  if(document.body.classList.contains('fo')){m.innerHTML=fpHtml();return}   // new / edit form open: calendar + time slider below it
   if(view==='home'){
     const G={Overdue:[],Today:[],'Next 7 days':[],Later:[],Done:[]};
     E.forEach(e=>{const n=diff(e.o,t);if(e.it.done)G.Done.push(e);else if(n<0)G.Overdue.push(e);else if(n===0)G.Today.push(e);else if(n<=7)G['Next 7 days'].push(e);else G.Later.push(e)});
@@ -282,6 +364,11 @@ function render(){
       h+=`<div class="grp${closed.has(k)?'':' open'}"><button class="topic hd" data-g="${k}"><b>${k}</b><span class="r"><em class="n">${G[k].length}</em><i>›</i></span></button><div class="kids">${G[k].sort(byDate).map(row).join('')}</div></div>`}
     if(!h)h='<div class="msg">Nothing here yet.<br>Tap + to add an event, reminder or birthday.</div>';
     h=timerCard()+h;
+  }else if(view==='cal'){
+    h=calHtml();
+  }else if(view==='scr'){
+    $('#h1').textContent='Scribble';$('#sub').textContent=SCR.length?SCR.length+(SCR.length===1?' saved picture':' saved pictures'):'Draw a quick note';
+    h=scribbleCard();
   }else if(view==='bday'){
     $('#h1').textContent='Birthdays';
     const L=E.filter(e=>e.it.type==='birthday').sort(byDate);
@@ -315,6 +402,24 @@ $('#main').addEventListener('click',e=>{
   const th=t.closest('[data-th]');if(th){S.theme=th.dataset.th;applyTheme();save();render();return}
   const md=t.closest('[data-md]');if(md){S.mode=md.dataset.md;applyTheme();save();render();return}
   const tt=t.closest('[data-tt]');if(tt){testTone(tt.dataset.tt);return}
+  if(document.body.classList.contains('fo')){   // form open: the calendar below it picks the date
+    const fd=t.closest('[data-fd]');if(fd){$('#dt').value=fd.dataset.fd;render();return}
+    const fn=t.closest('[data-fn]');if(fn){fpGo(+fn.dataset.fn);return}
+    if(t.closest('[data-ft]')){$('#dt').value=iso(today());fpSync();render();return}
+    if(t.closest('[data-fp]')){fpPick=!fpPick;fpPY=fpY;render();return}
+    const fy=t.closest('[data-fpy]');if(fy){fpPY=Math.min(2200,Math.max(1900,fpPY+ +fy.dataset.fpy));render();return}
+    const fm=t.closest('[data-fpm]');if(fm){fpY=fpPY;fpM=+fm.dataset.fpm;fpPick=false;fpAnim='';render();return}
+    return;
+  }
+  const cd=t.closest('[data-cd]');if(cd){calSel=cd.dataset.cd;calPick=false;render();return}
+  const cn=t.closest('[data-cn]');if(cn){calGo(+cn.dataset.cn);return}
+  if(t.closest('[data-ct]')){const n=today();calMove(n.getFullYear(),n.getMonth(),'');calSel=iso(n);render();return}
+  if(t.closest('[data-cp]')){calPick=!calPick;calPY=calY;render();return}
+  const cy=t.closest('[data-cpy]');if(cy){calPY=Math.min(2200,Math.max(1900,calPY+ +cy.dataset.cpy));render();return}
+  const cm=t.closest('[data-cpm]');if(cm){calMove(calPY,+cm.dataset.cpm,'');return}
+  const so=t.closest('[data-sc]');if(so){inkOpen();return}
+  const sv=t.closest('[data-scv]');if(sv){inkView(sv.dataset.scv);return}
+  const sa=t.closest('[data-scall]');if(sa){scAll=!scAll;render();return}
   const tg=t.closest('[data-tgo]');if(tg){timerAct(tg.dataset.tgo);return}
   const nh=t.closest('[data-nh]');if(nh){const i=+nh.dataset.nh;if(i!==nsi)nopenSec(i,'first');return}
   const np=t.closest('[data-np]');if(np){N.prov=np.dataset.np;nstore();render();return}
@@ -351,7 +456,7 @@ navGlow.style.transition='none';navGlowPlace();requestAnimationFrame(()=>request
   t0=null;if(e.touches.length!==1)return;
   if(document.body.classList.contains('fo'))return;
   const el=e.target;
-  if(el.closest('input,textarea,select,[data-tstep]'))return;
+  if(el.closest('input,textarea,select,[data-tstep],[data-calsw]'))return;
   for(let n=el;n&&n!==pg;n=n.parentElement){if(n.scrollWidth>n.clientWidth+4&&/(auto|scroll)/.test(getComputedStyle(n).overflowX))return}
   t0={x:e.touches[0].clientX,y:e.touches[0].clientY,t:Date.now()}},{passive:true});
  pg.addEventListener('touchend',e=>{
@@ -369,7 +474,8 @@ function applyTheme(){document.body.dataset.theme=S.theme;document.body.classLis
 let editing=null,ftype='event';
 let dsel=[];
 function paintDays(){document.querySelectorAll('#dch button').forEach(b=>b.classList.toggle('on',dsel.includes(+b.dataset.d)))}
-function showDays(){const on=ftype!=='birthday'&&$('#rp').value==='days';$('#drow').style.display=on?'block':'none';if(on){if(!dsel.length)dsel=[1,2,3,4,5];paintDays()}}
+function paintRp(){document.querySelectorAll('#rpc button').forEach(b=>{const on=b.dataset.r===$('#rp').value;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)})}
+function showDays(){paintRp();const on=ftype!=='birthday'&&$('#rp').value==='days';$('#drow').style.display=on?'block':'none';if(on){if(!dsel.length)dsel=[1,2,3,4,5];paintDays()}}
 function setType(t){
   ftype=t;
   document.querySelectorAll('#types button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
@@ -378,21 +484,22 @@ function setType(t){
   $('#ti').placeholder=t==='birthday'?'Name':'Title';
   $('#dl').textContent=t==='birthday'?'Born':'Date';
 }
-function openForm(id){
+function openForm(id,d0){
   editing=id||null;const it=id&&S.items.find(i=>i.id===id);
   $('#del').style.display=it?'block':'none';
-  $('#ti').value=it?it.title:'';$('#dt').value=it?it.date:iso(today());
-  $('#tm').value=it?it.time||'09:00':'';$('#rp').value=it?it.repeat:'none';
+  $('#ti').value=it?it.title:'';$('#dt').value=it?it.date:(d0||iso(today()));
+  $('#tm').value=it?it.time||'09:00':'09:00';$('#rp').value=it?it.repeat:'none';
   dsel=it&&it.days?it.days.slice():[];
   setType(it?it.type:'event');
-  $('#sheet').classList.add('show');document.body.classList.add('fo');$('#main').scrollTop=0;
+  fpSync();$('#sheet').classList.add('show');document.body.classList.add('fo');render();$('#main').scrollTop=0;
   try{history.pushState({f:1},'')}catch(e){}
 }
-const closeForm=()=>{const sh=$('#sheet');if(!sh.classList.contains('show'))return;sh.classList.remove('show');document.body.classList.remove('fo');try{if(history.state&&history.state.f)history.back()}catch(e){}};
-window.addEventListener('popstate',()=>{$('#sheet').classList.remove('show');document.body.classList.remove('fo')}); // phone Back button closes the form
-$('#fab').onclick=()=>openForm();
+const closeForm=()=>{const sh=$('#sheet');if(!sh.classList.contains('show'))return;sh.classList.remove('show');document.body.classList.remove('fo');render();try{if(history.state&&history.state.f)history.back()}catch(e){}};
+window.addEventListener('popstate',()=>{const was=document.body.classList.contains('fo');$('#sheet').classList.remove('show');document.body.classList.remove('fo');if(was)render()}); // phone Back button closes the form
+$('#fab').onclick=()=>openForm(null,view==='cal'?calSel:null);
 $('#cx').onclick=closeForm;
 $('#rp').onchange=showDays;
+$('#rpc').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#rp').value=b.dataset.r;showDays()});   // repeat: tap a chip instead of the phone's big list
 $('#dch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=+b.dataset.d;dsel=dsel.includes(d)?dsel.filter(x=>x!==d):dsel.concat(d);paintDays()});
 $('#types').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setType(b.dataset.t)});
 $('#del').onclick=()=>{if(confirm('Delete this item?')){S.items=S.items.filter(i=>i.id!==editing);save();closeForm();render();toast('Deleted')}};
@@ -542,6 +649,181 @@ $('#imp').onchange=async e=>{
 
 let tt;function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200)}
 
+// ---- calendar: month grid, coloured dots, swipe to change month, tap the title to jump to any month / year
+function occursOn(it,d){   // does this item fall on day d? (same repeat rules as nextOcc)
+  const s0=parse(it.date);if(d<s0)return false;
+  const r=it.type==='birthday'?'yearly':it.repeat;
+  if(r==='none')return diff(d,s0)===0;
+  const ds=dset(r,it);if(ds)return ds.includes(d.getDay());
+  if(r==='monthly')return d.getDate()===Math.min(s0.getDate(),dim(d.getFullYear(),d.getMonth()));
+  return d.getMonth()===s0.getMonth()&&d.getDate()===Math.min(s0.getDate(),dim(d.getFullYear(),s0.getMonth()));
+}
+let calY=today().getFullYear(),calM=today().getMonth(),calSel=iso(today()),calPick=false,calPY=calY,calAnim='';
+function calMove(y,m,anim){
+  calY=y;calM=m;calAnim=anim||'';calPick=false;
+  const sd=calSel?parse(calSel):null;
+  if(!sd||sd.getFullYear()!==y||sd.getMonth()!==m){const t=today();calSel=(t.getFullYear()===y&&t.getMonth()===m)?iso(t):iso(new Date(y,m,1))}
+  render();
+}
+function calGo(d){let m=calM+d,y=calY;while(m<0){m+=12;y--}while(m>11){m-=12;y++}if(y<1900||y>2200)return;calMove(y,m,d<0?'ar':'al')}
+function calHtml(){
+  const t=today(),first=new Date(calY,calM,1),n=dim(calY,calM),lead=(first.getDay()+6)%7;   // weeks start on Monday
+  $('#h1').textContent='Calendar';
+  const title=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  let h=`<div class="chd"><button class="cnv" data-cn="-1" aria-label="Previous month">‹</button><button class="cmt" data-cp="1">${esc(title)} ▾</button><button class="cnv" data-cn="1" aria-label="Next month">›</button><button class="ctd" data-ct="1">Today</button></div>`;
+  if(calPick){
+    $('#sub').textContent='Pick a month';
+    h+=`<div class="cpy"><button data-cpy="-1" aria-label="Previous year">‹</button><b>${calPY}</b><button data-cpy="1" aria-label="Next year">›</button></div><div class="cpk">`;
+    for(let m=0;m<12;m++)h+=`<button data-cpm="${m}"${m===calM&&calPY===calY?' class="on"':''}>${esc(new Date(2000,m,1).toLocaleDateString(undefined,{month:'short'}))}</button>`;
+    return h+'</div>';
+  }
+  const types=['event','reminder','birthday'];let total=0;
+  h+='<div data-calsw><div class="cwk">'+['M','T','W','T','F','S','S'].map(x=>`<span>${x}</span>`).join('')+`</div><div class="cgrid${calAnim?' '+calAnim:''}">`;
+  calAnim='';
+  for(let i=0;i<lead;i++)h+='<button class="cd blank" tabindex="-1" aria-hidden="true"></button>';
+  for(let d=1;d<=n;d++){
+    const dt=new Date(calY,calM,d),k=iso(dt),has=new Set();
+    S.items.forEach(it=>{if(!it.done&&occursOn(it,dt)){has.add(it.type);total++}});
+    h+=`<button class="cd${k===iso(t)?' today':''}${k===calSel?' sel':''}" data-cd="${k}"><b>${d}</b><span class="cdt">${types.filter(x=>has.has(x)).map(x=>`<i class="${x}"></i>`).join('')}</span></button>`;
+  }
+  h+='</div></div>';
+  $('#sub').textContent=total?total+(total===1?' item':' items')+' this month':'Nothing planned this month';
+  const sd=parse(calSel),L=S.items.filter(it=>occursOn(it,sd)).map(it=>({it,o:sd})).sort((a,b)=>(a.it.time||'').localeCompare(b.it.time||''));
+  h+=`<div class="cdh">${esc(sd.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div>`;
+  h+=L.length?L.map(row).join(''):'<div class="msg" style="padding:22px 12px">Nothing planned.<br>Tap + to add something on this day.</div>';
+  return h;
+}
+{let sx=0,sy=0,st=0,on=false;const pg=$('#main');   // swipe the grid left / right: next / previous month
+ pg.addEventListener('touchstart',e=>{on=false;if((view!=='cal'&&!document.body.classList.contains('fo'))||e.touches.length!==1||!e.target.closest('[data-calsw]'))return;on=true;sx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now()},{passive:true});
+ pg.addEventListener('touchend',e=>{if(!on)return;on=false;const c=e.changedTouches[0],dx=c.clientX-sx,dy=c.clientY-sy;if(Math.abs(dx)<50||Math.abs(dx)<Math.abs(dy)*1.5||Date.now()-st>800)return;(document.body.classList.contains('fo')?fpGo:calGo)(dx<0?1:-1)},{passive:true});
+ pg.addEventListener('touchcancel',()=>{on=false},{passive:true})}
+// ---- form calendar: pick the date by tapping a day, pick the time with the half-hour slider
+let fpY=0,fpM=0,fpPick=false,fpPY=0,fpAnim='';
+const fmtT=v=>{const[h,m]=String(v||'09:00').split(':').map(Number);return (h%12||12)+':'+pad(m||0)+(h<12?' AM':' PM')};
+function fpSync(){const v=$('#dt').value,d=v?parse(v):today();fpY=d.getFullYear();fpM=d.getMonth();fpPick=false;fpAnim=''}
+function fpGo(d){let m=fpM+d,y=fpY;while(m<0){m+=12;y--}while(m>11){m-=12;y++}if(y<1900||y>2200)return;fpY=y;fpM=m;fpAnim=d<0?'ar':'al';fpPick=false;render()}
+function fpHtml(){
+  const t=today(),sel=$('#dt').value||iso(t),first=new Date(fpY,fpM,1),n=dim(fpY,fpM),lead=(first.getDay()+6)%7;
+  const title=first.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  let h=`<div class="chd"><button class="cnv" data-fn="-1" aria-label="Previous month">‹</button><button class="cmt" data-fp="1">${esc(title)} ▾</button><button class="cnv" data-fn="1" aria-label="Next month">›</button><button class="ctd" data-ft="1">Today</button></div>`;
+  if(fpPick){
+    h+=`<div class="cpy"><button data-fpy="-1" aria-label="Previous year">‹</button><b>${fpPY}</b><button data-fpy="1" aria-label="Next year">›</button></div><div class="cpk">`;
+    for(let m=0;m<12;m++)h+=`<button data-fpm="${m}"${m===fpM&&fpPY===fpY?' class="on"':''}>${esc(new Date(2000,m,1).toLocaleDateString(undefined,{month:'short'}))}</button>`;
+    return h+'</div>';
+  }
+  const types=['event','reminder','birthday'];
+  h+='<div data-calsw><div class="cwk">'+['M','T','W','T','F','S','S'].map(x=>`<span>${x}</span>`).join('')+`</div><div class="cgrid${fpAnim?' '+fpAnim:''}">`;
+  fpAnim='';
+  for(let i=0;i<lead;i++)h+='<button class="cd blank" tabindex="-1" aria-hidden="true"></button>';
+  for(let d=1;d<=n;d++){
+    const dt=new Date(fpY,fpM,d),k=iso(dt),has=new Set();
+    S.items.forEach(it=>{if(it.id!==editing&&!it.done&&occursOn(it,dt))has.add(it.type)});   // the item being edited does not mark its own day
+    h+=`<button class="cd${k===iso(t)?' today':''}${k===sel?' sel':''}" data-fd="${k}"><b>${d}</b><span class="cdt">${types.filter(x=>has.has(x)).map(x=>`<i class="${x}"></i>`).join('')}</span></button>`;
+  }
+  h+='</div></div>';
+  const v=$('#tm').value||'09:00',[hh,mm]=v.split(':').map(Number),idx=Math.min(47,Math.round(((hh||0)*60+(mm||0))/30));
+  const lab=[[0,'12 AM'],[12,'6 AM'],[24,'12 PM'],[36,'6 PM'],[47,'11:30 PM']];
+  h+=`<div class="tsl"><div class="tsb">${fmtT(v)}</div><input id="tsr" type="range" min="0" max="47" step="1" value="${idx}" aria-label="Time"><div class="tst">${Array.from({length:48},(_,i)=>`<i${i%2?'':' class="h"'}></i>`).join('')}</div><div class="tsx">${lab.map(x=>`<span style="left:calc(14px + (100% - 28px) * ${x[0]} / 47)">${x[1]}</span>`).join('')}</div></div>`;
+  return h;
+}
+$('#main').addEventListener('input',e=>{   // slider: every half hour, shown big and copied into the Time box
+  if(e.target.id!=='tsr')return;
+  const mins=+e.target.value*30,v=pad(Math.floor(mins/60))+':'+pad(mins%60);
+  $('#tm').value=v;const b=document.querySelector('.tsb');if(b)b.textContent=fmtT(v);
+});
+// ---- scribble pad: draw a quick note and keep it as a picture
+let SCR=[],scAll=false,scOpen=null;try{SCR=JSON.parse(localStorage.getItem('myplans.scribbles2'))||[]}catch(e){}
+const scStore=()=>{try{localStorage.setItem('myplans.scribbles2',JSON.stringify(SCR));return true}catch(e){return false}};
+const scDay=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+function scribbleCard(){
+  let h='<div class="tcard sccard"><div class="scic">✎</div><div class="sctx"><b>Scribble pad</b><small>Jot something down, save it as a picture</small></div><button class="tgo scgo" data-sc="open">Open</button></div>';
+  if(SCR.length){
+    const L=SCR;
+    h+='<div class="sccap"><span>Saved scribbles · tap to view</span>'+''+'</div>'
+     +'<div class="scg">'+L.map(x=>`<div class="sct" data-scv="${x.id}"><img src="${x.th||x.img}" alt=""><small>${scDay(x.t)}</small></div>`).join('')+'</div>';
+  }
+  return h;
+}
+let ikStrokes=[],ikCur=null;
+const ikC=$('#ikc'),ikX=ikC.getContext('2d');
+function ikLine(p,q){ikX.beginPath();ikX.moveTo(p[0],p[1]);ikX.lineTo(q[0],q[1]);ikX.stroke()}
+function ikRedraw(){
+  const r=ikC.getBoundingClientRect();ikX.clearRect(0,0,r.width,r.height);
+  ikX.lineWidth=4;ikX.lineCap='round';ikX.lineJoin='round';ikX.strokeStyle='#111';ikX.fillStyle='#111';
+  ikStrokes.forEach(st=>{if(st.length===1){ikX.beginPath();ikX.arc(st[0][0],st[0][1],2.2,0,7);ikX.fill()}else for(let i=1;i<st.length;i++)ikLine(st[i-1],st[i])});
+  $('#ikw').classList.toggle('has',ikStrokes.length>0);
+}
+function ikSize(){const r=ikC.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;ikC.width=Math.round(r.width*d);ikC.height=Math.round(r.height*d);ikX.setTransform(d,0,0,d,0,0);ikRedraw()}
+try{new ResizeObserver(ikSize).observe($('#ikw'))}catch(e){}
+ikC.addEventListener('pointerdown',e=>{
+  e.preventDefault();try{ikC.setPointerCapture(e.pointerId)}catch(x){}
+  const r=ikC.getBoundingClientRect();
+  ikCur=[[e.clientX-r.left,e.clientY-r.top]];ikStrokes.push(ikCur);
+  $('#ikw').classList.add('has');
+  ikX.lineWidth=4;ikX.lineCap='round';ikX.fillStyle='#111';ikX.beginPath();ikX.arc(ikCur[0][0],ikCur[0][1],2.2,0,7);ikX.fill();
+});
+ikC.addEventListener('pointermove',e=>{
+  if(!ikCur)return;e.preventDefault();
+  const r=ikC.getBoundingClientRect(),p=[e.clientX-r.left,e.clientY-r.top],q=ikCur[ikCur.length-1];
+  ikCur.push(p);ikX.lineWidth=4;ikX.lineCap='round';ikX.strokeStyle='#111';ikLine(q,p);
+});
+const ikUp=()=>{ikCur=null};
+ikC.addEventListener('pointerup',ikUp);ikC.addEventListener('pointercancel',ikUp);
+$('#iku').onclick=()=>{ikStrokes.pop();ikRedraw()};
+$('#ikl').onclick=()=>{ikStrokes=[];ikRedraw()};
+function ikImage(maxW){   // white background, drawing only, at most maxW px wide
+  const r=ikC.getBoundingClientRect(),k=Math.min(1,maxW/r.width),o=document.createElement('canvas');
+  o.width=Math.round(r.width*k);o.height=Math.round(r.height*k);
+  const c=o.getContext('2d'),lw=Math.max(4,2/k);c.fillStyle='#fff';c.fillRect(0,0,o.width,o.height);c.scale(k,k);
+  c.lineWidth=lw;c.lineCap='round';c.lineJoin='round';c.strokeStyle='#111';c.fillStyle='#111';
+  ikStrokes.forEach(st=>{if(st.length===1){c.beginPath();c.arc(st[0][0],st[0][1],lw/2+.2,0,7);c.fill()}else{c.beginPath();c.moveTo(st[0][0],st[0][1]);for(let i=1;i<st.length;i++)c.lineTo(st[i][0],st[i][1]);c.stroke()}});
+  return o.toDataURL('image/png');
+}
+$('#ikv').onclick=()=>{
+  if(!ikStrokes.length){toast('Draw something first');return}
+  const full=ikImage(800),th=ikImage(240),d=new Date(),p=n=>String(n).padStart(2,'0');
+  const it={id:Date.now().toString(36),t:Date.now(),th};
+  let msg='Saved';
+  if(window.AndroidEv&&typeof AndroidEv.saveImage==='function'){   // the picture goes to Pictures/MyScribbles, the app keeps a link + thumbnail
+    const r=String(AndroidEv.saveImage('Scribble_'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.png',full.split(',')[1]));
+    if(r.indexOf('ok|')!==0){toast('Could not save: '+r.replace(/^ERR: /,''));return}
+    it.uri=r.slice(3);msg='Saved to Pictures/MyScribbles';
+  }else it.img=full;   // browser only: no phone storage, keep the picture inside the page
+  SCR.unshift(it);if(SCR.length>100)SCR.length=100;
+  if(!scStore()){SCR.shift();toast('Not enough space to save');return}
+  inkClose();render();toast(msg);
+};
+function inkOpen(){
+  ikStrokes=[];ikCur=null;$('#ink').classList.add('show');requestAnimationFrame(ikSize);
+  try{history.pushState({ik:1},'')}catch(e){}
+}
+function inkHide(){$('#ink').classList.remove('show');$('#ikview').classList.remove('show');ikCur=null}
+function inkClose(){if(!$('#ink').classList.contains('show')&&!$('#ikview').classList.contains('show'))return;inkHide();try{if(history.state&&history.state.ik)history.back()}catch(e){}}
+function inkView(id){
+  const x=SCR.find(y=>y.id===id);if(!x)return;
+  let src=x.img||'';
+  if(x.uri){try{src=AndroidEv.loadImage(x.uri)||''}catch(e){}
+    if(!src){SCR=SCR.filter(y=>y.id!==id);scStore();render();toast('That picture was deleted outside the app, so it was removed here');return}}
+  scOpen=id;$('#ikimg').src=src;$('#ikvt').textContent=scDay(x.t);$('#ikview').classList.add('show');
+  try{history.pushState({ik:1},'')}catch(e){}
+}
+$('#ikvd').onclick=()=>{
+  if(!confirm('Delete this scribble?'))return;
+  const x=SCR.find(y=>y.id===scOpen);let msg='Deleted';
+  if(x&&x.uri){let ok=false;try{ok=AndroidEv.deleteImage(x.uri)}catch(e){}
+    if(!ok){let still=false;try{still=AndroidEv.imageExists(x.uri)}catch(e){}if(still)msg='Removed here, but the picture file could not be deleted'}}
+  SCR=SCR.filter(y=>y.id!==scOpen);scStore();inkClose();render();toast(msg);
+};
+$('#ikx').onclick=inkClose;$('#ikvx').onclick=inkClose;
+window.addEventListener('popstate',inkHide);   // phone Back button closes these screens
+function scPrune(){   // a picture deleted outside the app (Gallery, file manager): its link here goes too
+  if(!window.AndroidEv||typeof AndroidEv.imageExists!=='function')return;
+  let ch=false;
+  SCR=SCR.filter(x=>{if(!x.uri)return true;let ok=true;try{ok=AndroidEv.imageExists(x.uri)}catch(e){}if(!ok)ch=true;return ok});
+  if(ch){scStore();render()}
+}
+setTimeout(scPrune,600);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scPrune()});
 // ---- quick timer: counts down, then rings with the event tone
 let tmins=5,tdone=false;
 try{tmins=Math.min(240,Math.max(1,parseInt(localStorage.getItem('myplans.tmins'))||5))}catch(e){}
