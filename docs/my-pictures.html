@@ -319,6 +319,90 @@ body{-webkit-touch-callout:none}
 #ext.z #exti{max-width:none;max-height:none;width:250vw;height:250vh}
 #extx{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:26px;line-height:44px;text-align:center;z-index:100000}
 #extn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 18px);left:64px;right:12px;color:#fff;font:14px sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000;pointer-events:none;z-index:100000}
+
+/* ── source icon (replaces the badge) ── */
+#rbadge{display:inline-grid;place-items:center;width:30px;height:30px;color:var(--acc-hi,#ffd9a0);filter:drop-shadow(0 0 6px rgba(var(--a),.6))}
+#rbadge:empty{display:none}
+#rbadge svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* ── photo viewer: edge to edge (top, left, right) ── */
+body[data-v=view] #app{padding-top:0}
+body[data-v=view] #rib{top:env(safe-area-inset-top,0px)}
+.slide img.fill{inset:0;width:100%;height:100%;border-radius:0}
+
+#top{padding-top:6px;padding-bottom:6px}
+
+
+/* ── photo editor (long-press a photo, or gear menu > crop icon) ── */
+#ed{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:#000;color:var(--text);-webkit-user-select:none;user-select:none;touch-action:none}
+#ed[hidden]{display:none}
+#ed input{-webkit-user-select:text;user-select:text}
+#edtop{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px}
+#edtop button{height:40px}
+#edx{width:40px;min-width:40px;padding:0;border-radius:50%;display:grid;place-items:center}
+#edx svg,.edic svg,#edBtn svg,#edsel svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#edok{padding:0 20px;border-radius:20px;border-color:var(--accent);color:var(--accent);font-weight:700}
+#edcmp{flex:none;min-width:0;width:auto;padding:0 14px;border-radius:20px;font-size:12px;color:var(--mute)}
+#edstage{flex:1;min-height:0;position:relative;overflow:hidden;display:grid;place-items:center}
+#edwrap{position:relative}
+#edc{display:block;width:100%;height:100%}
+#edbox{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.62);touch-action:none;cursor:move;background-image:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.4) calc(33.33% - .5px),rgba(255,255,255,.4) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.4) calc(66.66% - .5px),rgba(255,255,255,.4) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.4) calc(33.33% - .5px),rgba(255,255,255,.4) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.4) calc(66.66% - .5px),rgba(255,255,255,.4) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+#edbox.ghost{pointer-events:none;border:1px dashed rgba(255,255,255,.7);box-shadow:0 0 0 9999px rgba(0,0,0,.4);background-image:none}
+#edbox.ghost i{display:none}
+#edbox i,#edrb i{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px}
+#edbox i::after,#edrb i::after{content:"";position:absolute;inset:15px;background:#fff;border-radius:3px;box-shadow:0 0 4px rgba(0,0,0,.6)}
+#edbox i[data-h=n]::after,#edbox i[data-h=s]::after,#edrb i[data-h=n]::after,#edrb i[data-h=s]::after{inset:19px 10px}
+#edbox i[data-h=e]::after,#edbox i[data-h=w]::after,#edrb i[data-h=e]::after,#edrb i[data-h=w]::after{inset:10px 19px}
+#edbox i[data-h=nw],#edrb i[data-h=nw]{left:0;top:0}#edbox i[data-h=n],#edrb i[data-h=n]{left:50%;top:0}#edbox i[data-h=ne],#edrb i[data-h=ne]{left:100%;top:0}
+#edbox i[data-h=e],#edrb i[data-h=e]{left:100%;top:50%}#edbox i[data-h=se],#edrb i[data-h=se]{left:100%;top:100%}#edbox i[data-h=s],#edrb i[data-h=s]{left:50%;top:100%}
+#edbox i[data-h=sw],#edrb i[data-h=sw]{left:0;top:100%}#edbox i[data-h=w],#edrb i[data-h=w]{left:0;top:50%}
+#edbox.lk i[data-h=n],#edbox.lk i[data-h=e],#edbox.lk i[data-h=s],#edbox.lk i[data-h=w]{display:none}
+/* stickers / text: a layer that catches touches, and a selection frame with delete + resize handles */
+#edlay{position:absolute;inset:0;display:none;touch-action:none}
+#edsel{position:absolute;border:1.5px dashed #fff;border-radius:6px;box-shadow:0 0 0 1px rgba(0,0,0,.45);pointer-events:none;transform-origin:center}
+#edsel[hidden],#edrb[hidden]{display:none}
+#edsel b,#edsel i{position:absolute;width:32px;height:32px;border-radius:50%;pointer-events:auto;display:grid;place-items:center;touch-action:none}
+#edsel b{left:-16px;top:-16px;background:#e5484d;color:#fff}
+#edsel i{right:-16px;bottom:-16px;background:var(--accent);color:#000}
+#edsel svg{width:16px;height:16px;stroke-width:2.4}
+#edrb{position:absolute;border:2px dashed #fff;box-shadow:0 0 0 1px rgba(0,0,0,.5);background:rgba(255,255,255,.1);touch-action:none;cursor:move}
+#edpanel{flex:none;min-height:96px;padding:6px 12px;display:flex;align-items:center}
+.edp{width:100%;display:flex;gap:8px;align-items:center}
+.edp[hidden]{display:none}
+#edp-crop,#edp-blr{flex-wrap:wrap;justify-content:center;gap:6px}
+.edchip{min-width:0;height:38px;padding:0 11px;border-radius:19px;font-size:13px;font-weight:600}
+.edchip.on{border-color:var(--accent);color:var(--accent);background:rgba(var(--a),.18)}
+.edchip:disabled{opacity:.4}
+.edic{min-width:0;width:42px;height:38px;padding:0;border-radius:19px;display:grid;place-items:center}
+#edp-adj{flex-direction:column;align-items:stretch;gap:0}
+.edr{display:grid;grid-template-columns:84px 1fr 40px;align-items:center;gap:8px;font-size:12.5px}
+.edr input{width:100%;accent-color:var(--accent)}
+.edr em{font-style:normal;color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}
+#edreset{align-self:flex-end;min-width:0;height:28px;padding:0 12px;border-radius:14px;font-size:12px;color:var(--mute)}
+#edfil{display:flex;gap:8px;overflow-x:auto;width:100%;padding:2px 0}
+.edf{flex:none;min-width:0;width:72px;height:auto;padding:2px 0 3px;border:2px solid transparent;border-radius:10px;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--mute)}
+.edf canvas{width:64px;height:64px;border-radius:8px;display:block}
+.edf.on{border-color:var(--accent);color:var(--accent)}
+#edstk{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,44px);gap:6px;overflow-x:auto;width:100%;padding:2px 0}
+#edstk button{min-width:0;width:48px;height:44px;padding:0;font-size:26px;line-height:1;border-radius:12px;background:transparent}
+#edp-txt{flex-wrap:wrap;gap:6px 8px}
+#edtxt{flex:1;min-width:0;height:38px;border-radius:19px;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:0 14px;font:inherit;font-size:14px}
+#edsw{display:flex;gap:9px;flex:1;align-items:center}
+.edsw{min-width:0;width:26px;height:26px;padding:0;border-radius:50%;border:2px solid var(--line)}
+.edsw.on{border-color:#fff;box-shadow:0 0 0 2px var(--accent)}
+#edfonts{display:flex;gap:5px}
+#edfonts .edchip{height:30px;padding:0 9px;font-size:12px}
+#edtabs{flex:none;display:flex;align-items:center;gap:2px;padding:4px 8px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.edt{flex:1;min-width:0;height:40px;padding:0;border:0;background:none;border-radius:10px;font-size:12px;font-weight:600;color:var(--mute)}
+.edt.on{color:var(--accent);background:rgba(var(--a),.14)}
+#edsheet{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.55)}
+#edsheet[hidden],#edbusy[hidden],#edmsg[hidden]{display:none}
+#edsheet>div{display:flex;flex-direction:column;gap:8px;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));background:var(--panel);border-radius:18px 18px 0 0;border-top:1px solid var(--line)}
+#edsheet button{height:54px;border-radius:14px;text-align:left;padding:0 16px;font-size:14.5px;font-weight:600;line-height:1.25}
+#edsheet button small{display:block;font-weight:400;font-size:11.5px;color:var(--mute)}
+#edsheet p{margin:0 2px;color:var(--mute);font-size:12px;line-height:1.4}
+#edbusy{position:absolute;inset:0;z-index:6;display:grid;place-items:center;background:rgba(0,0,0,.6);font-weight:600}
+#edmsg{position:absolute;left:50%;top:calc(64px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:7;max-width:86%;padding:8px 16px;border-radius:12px;background:#0a1018e6;border:1px solid var(--line);font-size:13px;text-align:center;pointer-events:none}
+#edBtn[hidden]{display:none}
 </style>
 </head>
 <body data-v="list">
@@ -327,7 +411,7 @@ body{-webkit-touch-callout:none}
   <div id="stiles" role="group" aria-label="Photo source"></div>
 </div>
 <div id="app">
-  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Pictures</h1></div><span class="tr"><button id="upind" type="button" hidden aria-label="Upload running - tap to open"><b><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg></b><span id="upit"></span></button><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span id="rbadge" aria-hidden="true"></span><h1>Pictures</h1></div><span class="tr"><button id="upind" type="button" hidden aria-label="Upload running - tap to open"><b><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg></b><span id="upit"></span></button><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
   <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="upbar" hidden><span id="upn"></span><button id="upall" type="button">All</button><button id="upx" type="button">Cancel</button><button id="upgo" type="button">Upload</button></div><div id="gbox"></div></div>
   <div id="login">
@@ -369,6 +453,7 @@ body{-webkit-touch-callout:none}
       <div id="fbox" hidden></div>
       <div id="prow">
         <button id="shareBtn" aria-label="Share" hidden><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button>
+        <button id="edBtn" aria-label="Edit photo (crop, filters)" hidden><svg viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/></svg></button>
         <button id="upl" aria-label="Upload photos"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></button>
         <button id="max" aria-label="Full screen"></button>
         <button id="key" aria-label="Change token"><svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
@@ -398,6 +483,56 @@ body{-webkit-touch-callout:none}
 <button id="fsx" aria-label="Exit full screen"><svg viewBox="0 0 24 24"><path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5"/></svg></button>
 
 <div id="ext"><button id="extx" type="button" aria-label="Close">&times;</button><div id="extn"></div><div id="extw"><img id="exti" alt=""></div></div>
+<div id="ed" hidden>
+  <div id="edtop">
+    <button id="edx" type="button" aria-label="Cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button id="edcmp" type="button">Hold: original</button>
+    <button id="edok" type="button">Save</button>
+  </div>
+  <div id="edstage"><div id="edwrap"><canvas id="edc"></canvas><div id="edlay"></div><div id="edrb" hidden><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i></div><div id="edsel" hidden><b data-h="del" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></b><i data-h="rs" aria-label="Resize and rotate"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></i></div><div id="edbox"><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i></div></div></div>
+  <div id="edpanel">
+    <div class="edp" id="edp-crop">
+      <span id="edasp" style="display:contents"></span>
+      <button class="edic" id="edrot" type="button" aria-label="Rotate"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+      <button class="edic" id="edflip" type="button" aria-label="Flip"><svg viewBox="0 0 24 24"><path d="M12 3v18M8 7l-5 5 5 5V7zM16 7l5 5-5 5V7z"/></svg></button>
+    </div>
+    <div class="edp" id="edp-adj" hidden>
+      <label class="edr">Brightness<input type="range" id="edbri" min="50" max="150" value="100"><em>0</em></label>
+      <label class="edr">Contrast<input type="range" id="edcon" min="50" max="150" value="100"><em>0</em></label>
+      <label class="edr">Saturation<input type="range" id="edsat" min="0" max="200" value="100"><em>0</em></label>
+      <button id="edreset" type="button">Reset</button>
+    </div>
+    <div class="edp" id="edp-fil" hidden><div id="edfil"></div></div>
+    <div class="edp" id="edp-stk" hidden><div id="edstk"></div></div>
+    <div class="edp" id="edp-txt" hidden>
+      <input id="edtxt" type="text" maxlength="60" placeholder="Type your text, then tap Add" autocomplete="off">
+      <button id="edtadd" class="edchip" type="button">Add</button>
+      <div id="edsw"></div>
+      <div id="edfonts"></div>
+    </div>
+    <div class="edp" id="edp-blr" hidden>
+      <button id="edbadd" class="edchip" type="button">+ Add area</button>
+      <span id="edbm" style="display:contents"><button class="edchip" data-m="b" type="button">Blur</button><button class="edchip" data-m="p" type="button">Pixelate</button></span>
+      <button id="edbdel" class="edchip" type="button">Delete</button>
+    </div>
+  </div>
+  <div id="edtabs">
+    <button class="edt on" data-t="crop" type="button">Crop</button>
+    <button class="edt" data-t="adj" type="button">Adjust</button>
+    <button class="edt" data-t="fil" type="button">Filters</button>
+    <button class="edt" data-t="stk" type="button">Stickers</button>
+    <button class="edt" data-t="txt" type="button">Text</button>
+    <button class="edt" data-t="blr" type="button">Blur</button>
+  </div>
+  <div id="edsheet" hidden><div>
+    <button id="edsave" type="button">Save a copy in this folder<small></small></button>
+    <p id="edlocal" hidden>Phone / SD card photos can be shared (the share sheet also lets you save to Files, Drive, etc.).</p>
+    <button id="edshare" type="button">Share...<small>WhatsApp, Gmail and more</small></button>
+    <button id="edsx" type="button">Keep editing</button>
+  </div></div>
+  <div id="edbusy" hidden></div>
+  <div id="edmsg" hidden></div>
+</div>
 <script>
 // Running as an app (Android Capacitor, or installed to the home screen)? Already full screen: no max / min buttons.
 const IN_APP = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === "function" && window.Capacitor.isNativePlatform())
@@ -410,6 +545,7 @@ const OWNER = "nerdysrisha", REPO = "pictures";
 // Landscape phone + landscape photo: fill the whole screen (crops edges). Max share of the photo allowed to be
 // cropped; 0.5 fills normal 4:3 / 16:9 photos. Set 0 to never fill (always show the whole photo).
 const FILL_MAX_CROP = 0.5;
+const FILL_MAX_CROP_P = 0.4;                               // portrait photo on a portrait screen: fill the screen if at most this share is cropped
 const DELETE_PIN = "6559";                                   // PIN that unlocks delete mode (change it here)
 const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1, LOCAL_NEWEST_FIRST = true;   // LOCAL_NEWEST_FIRST: photos on the phone / SD card follow their date, like the gallery (false = oldest first)
    // preload: first 5 on open, then 2 ahead / 1 behind
@@ -437,7 +573,7 @@ function applySd() {
 function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
   const v = getSrc();
   document.body.dataset.src = v || ""; document.body.classList.toggle("sd", isLocal(v));
-  $("rbadge").textContent = {github: "CLOUD", phone: "PHONE", sd: "SD CARD", gdrive: "DRIVE"}[v] || "";
+  $("rbadge").innerHTML = SRC_ICO[v] || "";
   { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = (isLocal(v) || v === "gdrive") ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
   applySd();
   document.querySelectorAll("#stiles button").forEach(b => b.classList.toggle("on", b.dataset.src === v));
@@ -962,7 +1098,7 @@ function renderList() {
 const track = $("track"), V = $("viewer");
 let modOf = {};
 let cur = -1, files = [], cache = [], imgs = [], idx = 0, ticket = 0;
-let unlocked = false, delBusy = false, startAt = 0;
+let unlocked = false, delBusy = false, startAt = 0, wantName = "";
 let upSelDay = null, upToDrive = false; const upSel = new Set();   // cloud on a date: choosing which photos of that date to upload to Drive
 let selMode = false;                                       // thumbnails: Select toggle (off by default; taps open photos until it is turned on)
 let gSel = new Set(), gDel = false;                        // thumbnails ticked for multi-delete / a multi-delete is running
@@ -986,7 +1122,7 @@ function updateBar() {
   if (v !== "grid" && selMode) { selMode = false; clearSel(); }        // leaving thumbnails turns Select off
   if (!unlocked && selMode) { selMode = false; clearSel(); }
   const sb = $("selbtn"); sb.hidden = !(unlocked && v === "grid"); sb.classList.toggle("on", selMode); sb.setAttribute("aria-pressed", selMode); sb.disabled = delBusy;
-  $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); $("shareBtn").hidden = !(inView && files.length);
+  $("slide").classList.toggle("off", !(unlocked && ((inView && files.length) || (v === "grid" && selMode)))); $("shareBtn").hidden = !(inView && files.length); $("edBtn").hidden = !(inView && files.length);
   if (!gDel) $("hint").textContent = v === "grid" ? (gSel.size ? gSel.size + " selected \u00b7 slide to delete" : "tap photos to select") : "slide to delete";
   const mb = $("menu"), g2 = canGrid(); if (mb.dataset.i !== (g2 ? "g" : "m")) { mb.dataset.i = g2 ? "g" : "m"; mb.innerHTML = g2 ? GRID_ICO : MENU_ICO; mb.setAttribute("aria-label", g2 ? "Thumbnails" : "Folders"); }
   $("prevF").disabled = !(inView || v === "grid");
@@ -1012,6 +1148,7 @@ async function openFolder(i) {
     if ((isLocal(getSrc()) || getSrc() === "gdrive") && ents.some(x => x.mod)) sortByDate(ents);   // phone / SD: by date, like the gallery
     else ents.sort((a, b) => nat(a.name, b.name));
     files = ents.map(x => x.name); modOf = {}; ents.forEach(x => { modOf[x.name] = x.mod || 0; });
+    if (wantName) { const k = files.indexOf(wantName); if (k >= 0) startAt = k; wantName = ""; }          // photo editor: jump to the saved copy
     if (!files.length) { startEnd = false; pending = null; updateBar(); return note("No photos in this folder."); }
     track.innerHTML = ""; cache = new Array(files.length); imgs = [];
     files.forEach(() => {
@@ -1161,7 +1298,8 @@ function fit() {                                          // size app, viewer an
 function applyFill(im) {
   const w = im.naturalWidth, h = im.naturalHeight; if (!w || !h || !SH) return;
   const rs = SW / SH, rp = w / h, crop = 1 - Math.min(rs / rp, rp / rs);
-  im.style.objectFit = (SW > SH && w > h && crop <= FILL_MAX_CROP) ? "cover" : "contain";
+  const fill = (SW > SH && w > h && crop <= FILL_MAX_CROP) || (SH >= SW && h > w && crop <= FILL_MAX_CROP_P);
+  im.style.objectFit = fill ? "cover" : "contain"; im.classList.toggle("fill", fill);
 }
 function realign() { fit(); if (files.length) { resetZoom(); place(idx, false); } }
 window.addEventListener("resize", realign);
@@ -1933,6 +2071,424 @@ async function uploadDrive(folder) {
   $("ucancel").disabled = false; $("ucancel").textContent = "Close"; upEnded(false);
 }
 
+// ── PHOTO EDITOR ────────────────────────────────────────────────────────
+// Long-press a photo (or gear menu > crop icon): crop, rotate / flip, brightness / contrast / saturation, filters,
+// stickers, text and blur / pixelate areas. Save a copy in the same folder (Cloud / Google Drive) or share it (all sources).
+// The original is never changed.
+(function () {
+  const FILTERS = [{n: "Original", f: ""}, {n: "B&W", f: "grayscale(1) contrast(1.1)"}, {n: "Sepia", f: "sepia(.85)"}, {n: "Vivid", f: "saturate(1.55) contrast(1.1)"},
+    {n: "Warm", f: "sepia(.28) saturate(1.25) hue-rotate(-12deg)"}, {n: "Cool", f: "hue-rotate(14deg) saturate(1.1) brightness(1.03)"},
+    {n: "Vintage", f: "sepia(.4) contrast(1.05) brightness(1.05) saturate(.85)"}, {n: "Fade", f: "contrast(.85) brightness(1.1) saturate(.8)"}];
+  const ASP = [{l: "Free"}, {l: "1:1", w: 1, h: 1}, {l: "4:5", w: 4, h: 5}, {l: "3:4", w: 3, h: 4}, {l: "16:9", w: 16, h: 9}];
+  const FONTS = [["Clean", "700", "system-ui, 'Segoe UI', Roboto, sans-serif"], ["Serif", "700", "Georgia, 'Times New Roman', serif"],
+    ["Script", "400", "'Brush Script MT', 'Segoe Script', cursive"], ["Bold", "900", "Impact, 'Arial Black', sans-serif"]];
+  const COLORS = ["#ffffff", "#111111", "#ffd23f", "#ff4d4d", "#4cc3ff", "#4cc38a", "#ff8fd1"];
+  const STICKERS = ["✨", "⭐", "🌟", "💫", "❤️", "💖", "🎉", "🎊", "🎂", "🎈", "🌸", "🪷", "🌺", "🌈", "🔥", "😀",
+    "😍", "😎", "🥳", "😂", "🙏", "🪔", "🕉️", "👍", "👑", "🦋", "🌙", "☀️", "💐", "🎁"];
+  const TABS = ["crop", "adj", "fil", "stk", "txt", "blr"];
+  const PREV = 1600, EXPORT_MAX = 4800, MIN = 36, MAXITEMS = 40;   // preview size; biggest side of the saved copy (bigger originals are scaled down)
+  const hasF = (() => { try { return "filter" in CanvasRenderingContext2D.prototype; } catch (e) { return false; } })();
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+  let E = null, skipPop = false, raf = 0, dragS = null, dragR = null, hs = null, mv = null, pin = null;
+  const pts = new Map(), mctx = document.createElement("canvas").getContext("2d");
+  const box = $("edbox"), lay = $("edlay"), selEl = $("edsel"), rb = $("edrb");
+
+  const emsg = t => { const m = $("edmsg"); m.textContent = t; m.hidden = false; clearTimeout(emsg.t); emsg.t = setTimeout(() => { m.hidden = true; }, 2600); };
+  const busy = t => { const b = $("edbusy"); b.textContent = t || ""; b.hidden = !t; };
+  const filt = () => {
+    if (!hasF) return "none";
+    const p = FILTERS[E.fi].f;
+    return (p ? p + " " : "") + "brightness(" + E.bri / 100 + ") contrast(" + E.con / 100 + ") saturate(" + E.sat / 100 + ")";
+  };
+  const fontStr = (it, px) => FONTS[it.f][1] + " " + px + "px " + FONTS[it.f][2];
+  const lum = c => { const n = parseInt(c.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+
+  function mkBase(maxSide) {                                       // the photo turned / flipped as chosen, at most maxSide pixels on its long side
+    const s = E.img, w = s.naturalWidth, h = s.naturalHeight, k = Math.min(1, maxSide / Math.max(w, h));
+    const sw = Math.round(w * k), sh = Math.round(h * k), q = E.rot % 2;
+    const c = document.createElement("canvas"); c.width = q ? sh : sw; c.height = q ? sw : sh;
+    const x = c.getContext("2d");
+    x.translate(c.width / 2, c.height / 2); x.rotate(E.rot * Math.PI / 2); x.scale(E.flip ? -1 : 1, 1);
+    x.drawImage(s, -sw / 2, -sh / 2, sw, sh);
+    return c;
+  }
+
+  // Everything that ends up on the photo, drawn in this order: colours / filter, blur + pixelate areas, then stickers and text.
+  // Positions and sizes are stored as fractions of the (turned) photo, so the preview and the full-size copy come out the same.
+  // x = target context, (ox, oy, vw, vh) = the part of the photo to draw, orig = show the plain photo (compare button).
+  function compose(x, base, ox, oy, vw, vh, orig) {
+    const bw = base.width, bh = base.height, u = Math.min(bw, bh), f = (orig || !hasF) ? "none" : filt();
+    x.save(); x.translate(-ox, -oy);
+    x.filter = f; x.drawImage(base, ox, oy, vw, vh, ox, oy, vw, vh); x.filter = "none";
+    if (!orig) {
+      E.blurs.forEach(b => {
+        const rx = b.x * bw, ry = b.y * bh, rw = b.w * bw, rh = b.h * bh;
+        x.save(); x.beginPath(); x.rect(rx, ry, rw, rh); x.clip();
+        if (b.m === "p" || !hasF) {
+          const bs = Math.max(8, u * 0.035), tw = Math.max(1, Math.round(rw / bs)), th = Math.max(1, Math.round(rh / bs));
+          const t = document.createElement("canvas"); t.width = tw; t.height = th; const tx = t.getContext("2d");
+          if (hasF) tx.filter = f;
+          tx.drawImage(base, rx, ry, rw, rh, 0, 0, tw, th);
+          x.imageSmoothingEnabled = false; x.drawImage(t, 0, 0, tw, th, rx, ry, rw, rh); x.imageSmoothingEnabled = true;
+        } else {
+          const sg = Math.max(8, u * 0.03), m = Math.ceil(sg * 3);
+          const sx = Math.max(0, rx - m), sy = Math.max(0, ry - m), ex = Math.min(bw, rx + rw + m), ey = Math.min(bh, ry + rh + m);
+          x.filter = (f === "none" ? "" : f + " ") + "blur(" + sg + "px)";
+          x.drawImage(base, sx, sy, ex - sx, ey - sy, sx, sy, ex - sx, ey - sy); x.filter = "none";
+        }
+        x.restore();
+      });
+      E.items.forEach(it => {
+        const fs = it.s * u;
+        x.save(); x.translate(it.x * bw, it.y * bh); x.rotate(it.a); x.textAlign = "center"; x.textBaseline = "middle";
+        if (it.t === "t") {
+          x.font = fontStr(it, fs); x.lineJoin = "round"; x.lineWidth = fs * 0.14;
+          x.strokeStyle = lum(it.c) > 0.6 ? "rgba(0,0,0,.6)" : "rgba(255,255,255,.75)";
+          x.strokeText(it.ch, 0, 0); x.fillStyle = it.c; x.fillText(it.ch, 0, 0);
+        } else { x.font = fs + "px 'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif"; x.fillText(it.ch, 0, 0); }
+        x.restore();
+      });
+    }
+    x.restore();
+  }
+  function draw() {
+    if (!E) return;
+    const c = $("edc"), x = c.getContext("2d");
+    x.clearRect(0, 0, c.width, c.height); compose(x, E.base, 0, 0, c.width, c.height, E.orig);
+  }
+  const later = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); };
+  const cr = () => ({x: E.cn.x * E.dw, y: E.cn.y * E.dh, w: E.cn.w * E.dw, h: E.cn.h * E.dh});
+  const stkTab = () => E.tab === "stk" || E.tab === "txt";
+  function ibox(it) {                                              // size of a sticker / text frame on screen
+    const fsd = it.s * Math.min(E.dw, E.dh); let w = fsd * 1.4;
+    if (it.t === "t") { mctx.font = fontStr(it, fsd); w = mctx.measureText(it.ch).width + fsd * 0.6; }
+    return {w: Math.max(w, 34), h: Math.max(fsd * 1.4, 34)};
+  }
+  function boxPaint() {
+    const r = cr(), s = box.style;
+    s.left = r.x + "px"; s.top = r.y + "px"; s.width = r.w + "px"; s.height = r.h + "px";
+    box.classList.toggle("lk", !!E.ai);
+  }
+  function selPaint() {
+    if (!E) return;
+    const si = !!E.sel && stkTab(), ri = !!E.rsel && E.tab === "blr";
+    selEl.hidden = !si; rb.hidden = !ri;
+    if (si) { const it = E.sel, b = ibox(it), s = selEl.style; s.width = b.w + "px"; s.height = b.h + "px"; s.left = (it.x * E.dw - b.w / 2) + "px"; s.top = (it.y * E.dh - b.h / 2) + "px"; s.transform = "rotate(" + it.a + "rad)"; }
+    if (ri) { const r = E.rsel, s = rb.style; s.left = r.x * E.dw + "px"; s.top = r.y * E.dh + "px"; s.width = r.w * E.dw + "px"; s.height = r.h * E.dh + "px"; }
+  }
+  function layout() {
+    if (!E) return;
+    const st = $("edstage").getBoundingClientRect(), b = E.base, k = Math.min((st.width - 28) / b.width, (st.height - 28) / b.height);
+    E.dw = Math.max(40, Math.floor(b.width * k)); E.dh = Math.max(40, Math.floor(b.height * k));
+    $("edwrap").style.width = E.dw + "px"; $("edwrap").style.height = E.dh + "px";
+    const c = $("edc"); c.width = b.width; c.height = b.height;
+    draw(); boxPaint(); selPaint();
+  }
+  const rebase = () => { E.base = mkBase(PREV); layout(); };
+
+  // crop frame / blur areas: drag inside = move, drag a handle = resize (crop corners keep the ratio when one is chosen)
+  const ratio = () => { if (!E.ai) return 0; const a = ASP[E.ai]; return E.af ? a.h / a.w : a.w / a.h; };
+  function dragRect(d, dx, dy, asp, mn) {
+    const W = E.dw, H = E.dh, r0 = d.r, h = d.h;
+    if (h === "m") return {x: clamp(r0.x + dx, 0, W - r0.w), y: clamp(r0.y + dy, 0, H - r0.h), w: r0.w, h: r0.h};
+    const e = h.includes("e"), w_ = h.includes("w"), s_ = h.includes("s"), n = h.includes("n");
+    if (asp && h.length === 2) {
+      const ax = w_ ? r0.x + r0.w : r0.x, ay = n ? r0.y + r0.h : r0.y;
+      const px = (w_ ? r0.x : r0.x + r0.w) + dx, aw = w_ ? ax : W - ax, ah = n ? ay : H - ay;
+      let nw = clamp(Math.abs(px - ax), mn, aw), nh = nw / asp;
+      if (nh > ah) { nh = ah; nw = nh * asp; }
+      return {x: w_ ? ax - nw : ax, y: n ? ay - nh : ay, w: nw, h: nh};
+    }
+    let x1 = r0.x, y1 = r0.y, x2 = r0.x + r0.w, y2 = r0.y + r0.h;
+    if (w_) x1 = clamp(x1 + dx, 0, x2 - mn);
+    if (e) x2 = clamp(x2 + dx, x1 + mn, W);
+    if (n) y1 = clamp(y1 + dy, 0, y2 - mn);
+    if (s_) y2 = clamp(y2 + dy, y1 + mn, H);
+    return {x: x1, y: y1, w: x2 - x1, h: y2 - y1};
+  }
+  box.addEventListener("pointerdown", e => {
+    if (!E) return; e.preventDefault();
+    try { box.setPointerCapture(e.pointerId); } catch (x) {}
+    dragS = {h: e.target.dataset.h || "m", x: e.clientX, y: e.clientY, r: cr()};
+  });
+  box.addEventListener("pointermove", e => {
+    if (!dragS || !E) return;
+    const r = dragRect(dragS, e.clientX - dragS.x, e.clientY - dragS.y, ratio(), MIN);
+    E.cn = {x: r.x / E.dw, y: r.y / E.dh, w: r.w / E.dw, h: r.h / E.dh}; boxPaint();
+  });
+  ["pointerup", "pointercancel"].forEach(t => box.addEventListener(t, () => { dragS = null; }));
+  rb.addEventListener("pointerdown", e => {
+    if (!E || !E.rsel) return; e.preventDefault(); e.stopPropagation();
+    try { rb.setPointerCapture(e.pointerId); } catch (x) {}
+    const r = E.rsel; dragR = {h: e.target.dataset.h || "m", x: e.clientX, y: e.clientY, r: {x: r.x * E.dw, y: r.y * E.dh, w: r.w * E.dw, h: r.h * E.dh}};
+  });
+  rb.addEventListener("pointermove", e => {
+    if (!dragR || !E || !E.rsel) return;
+    const n = dragRect(dragR, e.clientX - dragR.x, e.clientY - dragR.y, 0, 24);
+    Object.assign(E.rsel, {x: n.x / E.dw, y: n.y / E.dh, w: n.w / E.dw, h: n.h / E.dh}); selPaint(); later();
+  });
+  ["pointerup", "pointercancel"].forEach(t => rb.addEventListener(t, () => { dragR = null; }));
+
+  function paintChips() {
+    $("edasp").querySelectorAll(".edchip").forEach((b, i) => {
+      const a = ASP[i]; b.classList.toggle("on", i === E.ai);
+      b.textContent = (i && i === E.ai && E.af && a.w !== a.h) ? a.h + ":" + a.w : a.l;
+    });
+  }
+  function setAsp(i) {                                             // tap the same ratio again = portrait / landscape
+    if (i && i === E.ai) E.af = !E.af; else { E.ai = i; E.af = false; }
+    if (E.ai) {
+      const r = ratio(), c = cr(), cx = c.x + c.w / 2, cy = c.y + c.h / 2;
+      let w = c.w, h = w / r; if (h > c.h) { h = c.h; w = h * r; }
+      E.cn = {x: (cx - w / 2) / E.dw, y: (cy - h / 2) / E.dh, w: w / E.dw, h: h / E.dh};
+    }
+    paintChips(); boxPaint();
+  }
+  ASP.forEach((a, i) => { const b = document.createElement("button"); b.type = "button"; b.className = "edchip"; b.onclick = () => E && setAsp(i); $("edasp").appendChild(b); });
+  $("edrot").onclick = () => {
+    if (!E) return; const c = E.cn;
+    E.cn = {x: 1 - c.y - c.h, y: c.x, w: c.h, h: c.w};
+    E.items.forEach(i => { const x = i.x; i.x = 1 - i.y; i.y = x; i.a += Math.PI / 2; });
+    E.blurs.forEach(b => { const x = b.x, w = b.w; b.x = 1 - b.y - b.h; b.y = x; b.w = b.h; b.h = w; });
+    E.rot = (E.rot + (E.flip ? 3 : 1)) % 4; if (E.ai) E.af = !E.af; paintChips(); rebase();
+  };
+  $("edflip").onclick = () => {
+    if (!E) return; const c = E.cn;
+    E.cn = {x: 1 - c.x - c.w, y: c.y, w: c.w, h: c.h};
+    E.items.forEach(i => { i.x = 1 - i.x; i.a = -i.a; });
+    E.blurs.forEach(b => { b.x = 1 - b.x - b.w; });
+    E.flip = !E.flip; rebase();
+  };
+
+  // adjust + filters
+  [["edbri", "bri"], ["edcon", "con"], ["edsat", "sat"]].forEach(([id, k]) => {
+    const inp = $(id), out = inp.parentNode.querySelector("em");
+    inp.addEventListener("input", () => { if (!E) return; E[k] = +inp.value; out.textContent = (inp.value - 100 > 0 ? "+" : "") + (inp.value - 100); later(); });
+  });
+  function resetAdj() {
+    [["edbri", "bri"], ["edcon", "con"], ["edsat", "sat"]].forEach(([id, k]) => { const inp = $(id); inp.value = 100; inp.parentNode.querySelector("em").textContent = "0"; if (E) E[k] = 100; });
+    later();
+  }
+  $("edreset").onclick = resetAdj;
+  function buildThumbs() {
+    const row = $("edfil"); row.innerHTML = ""; const b = E.base, m = Math.min(b.width, b.height);
+    FILTERS.forEach((f, i) => {
+      const bt = document.createElement("button"); bt.type = "button"; bt.className = "edf" + (i === E.fi ? " on" : "");
+      const c = document.createElement("canvas"); c.width = c.height = 72; const x = c.getContext("2d");
+      if (hasF) x.filter = f.f || "none";
+      x.drawImage(b, (b.width - m) / 2, (b.height - m) / 2, m, m, 0, 0, 72, 72);
+      const sp = document.createElement("span"); sp.textContent = f.n; bt.appendChild(c); bt.appendChild(sp);
+      bt.onclick = () => { E.fi = i; row.querySelectorAll(".edf").forEach((q, j) => q.classList.toggle("on", j === i)); draw(); };
+      row.appendChild(bt);
+    });
+  }
+
+  // stickers + text: tap to add, drag to move, pinch (or the corner handle) to resize / rotate, the red x removes it
+  function addItem(o) {
+    if (E.items.length >= MAXITEMS) return emsg("That is the limit for one photo");
+    const bw = E.base.width, bh = E.base.height, k = Math.min(E.cn.w * bw, E.cn.h * bh) / Math.min(bw, bh);   // sized to the crop, not the whole photo
+    const it = Object.assign({x: E.cn.x + E.cn.w / 2, y: E.cn.y + E.cn.h / 2, a: 0}, o); it.s *= k;
+    E.items.push(it); E.sel = it; E.rsel = null; syncText(); selPaint(); later();
+  }
+  STICKERS.forEach(ch => { const b = document.createElement("button"); b.type = "button"; b.textContent = ch; b.onclick = () => E && addItem({t: "s", ch, s: 0.14}); $("edstk").appendChild(b); });
+  const paintSw = c => $("edsw").querySelectorAll(".edsw").forEach(b => b.classList.toggle("on", b.dataset.c === c));
+  const paintFonts = i => $("edfonts").querySelectorAll(".edchip").forEach((b, j) => b.classList.toggle("on", j === i));
+  function syncText() {
+    if (!E) return; const t = E.sel && E.sel.t === "t" ? E.sel : null;
+    if (t) $("edtxt").value = t.ch;
+    paintSw(t ? t.c : E.tc); paintFonts(t ? t.f : E.tf);
+  }
+  COLORS.forEach(c => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "edsw"; b.dataset.c = c; b.style.background = c; b.setAttribute("aria-label", "Colour " + c);
+    b.onclick = () => { if (!E) return; if (E.sel && E.sel.t === "t") E.sel.c = c; else E.tc = c; paintSw(c); selPaint(); later(); };
+    $("edsw").appendChild(b);
+  });
+  FONTS.forEach((f, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "edchip"; b.textContent = f[0];
+    b.onclick = () => { if (!E) return; if (E.sel && E.sel.t === "t") E.sel.f = i; else E.tf = i; paintFonts(i); selPaint(); later(); };
+    $("edfonts").appendChild(b);
+  });
+  $("edtadd").onclick = () => { if (!E) return; const v = $("edtxt").value.trim() || "Your text"; addItem({t: "t", ch: v, s: 0.09, c: E.tc, f: E.tf}); $("edtxt").value = v; $("edtxt").blur(); };
+  $("edtxt").addEventListener("input", () => { if (E && E.sel && E.sel.t === "t") { E.sel.ch = $("edtxt").value || " "; selPaint(); later(); } });
+  $("edtxt").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("edtxt").blur(); } });
+
+  const hitItem = (px, py) => {
+    for (let i = E.items.length - 1; i >= 0; i--) {
+      const it = E.items[i], b = ibox(it), dx = px - it.x * E.dw, dy = py - it.y * E.dh, c = Math.cos(-it.a), s = Math.sin(-it.a);
+      if (Math.abs(dx * c - dy * s) <= b.w / 2 && Math.abs(dx * s + dy * c) <= b.h / 2) return it;
+    }
+    return null;
+  };
+  const hitReg = (px, py) => {
+    for (let i = E.blurs.length - 1; i >= 0; i--) { const r = E.blurs[i]; if (px >= r.x * E.dw && px <= (r.x + r.w) * E.dw && py >= r.y * E.dh && py <= (r.y + r.h) * E.dh) return r; }
+    return null;
+  };
+  const lpos = e => { const r = $("edwrap").getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top}; };
+  lay.addEventListener("pointerdown", e => {
+    if (!E) return; e.preventDefault();
+    try { lay.setPointerCapture(e.pointerId); } catch (x) {}
+    const p = lpos(e); pts.set(e.pointerId, p);
+    if (pts.size === 2 && E.sel && stkTab()) {                      // two fingers on a selected item: resize + rotate
+      const [a, b] = [...pts.values()];
+      pin = {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, g: Math.atan2(b.y - a.y, b.x - a.x), s: E.sel.s, a: E.sel.a}; mv = null; return;
+    }
+    if (pts.size > 1) return;
+    if (stkTab()) { const it = hitItem(p.x, p.y); E.sel = it; if (it) { mv = {x: p.x, y: p.y, ix: it.x, iy: it.y}; } syncText(); }
+    else if (E.tab === "blr") { const r = hitReg(p.x, p.y); E.rsel = r; if (r) mv = {x: p.x, y: p.y, rx: r.x, ry: r.y}; syncBlur(); }
+    selPaint();
+  });
+  lay.addEventListener("pointermove", e => {
+    if (!E || !pts.has(e.pointerId)) return;
+    const p = lpos(e); pts.set(e.pointerId, p);
+    if (pin && E.sel && pts.size === 2) {
+      const [a, b] = [...pts.values()];
+      E.sel.s = clamp(pin.s * (Math.hypot(a.x - b.x, a.y - b.y) / pin.d), 0.03, 0.9); E.sel.a = pin.a + (Math.atan2(b.y - a.y, b.x - a.x) - pin.g);
+      selPaint(); later(); return;
+    }
+    if (!mv) return;
+    if (mv.ix !== undefined && E.sel) { E.sel.x = clamp(mv.ix + (p.x - mv.x) / E.dw, 0, 1); E.sel.y = clamp(mv.iy + (p.y - mv.y) / E.dh, 0, 1); }
+    else if (mv.rx !== undefined && E.rsel) { const r = E.rsel; r.x = clamp(mv.rx + (p.x - mv.x) / E.dw, 0, 1 - r.w); r.y = clamp(mv.ry + (p.y - mv.y) / E.dh, 0, 1 - r.h); }
+    selPaint(); later();
+  });
+  ["pointerup", "pointercancel"].forEach(t => lay.addEventListener(t, e => { pts.delete(e.pointerId); if (pts.size < 2) pin = null; if (!pts.size) mv = null; }));
+  selEl.addEventListener("pointerdown", e => {
+    const h = e.target.closest("[data-h]"); if (!h || !E || !E.sel) return; e.preventDefault(); e.stopPropagation();
+    if (h.dataset.h === "del") { E.items = E.items.filter(i => i !== E.sel); E.sel = null; syncText(); selPaint(); later(); return; }
+    try { selEl.setPointerCapture(e.pointerId); } catch (x) {}
+    const r = $("edwrap").getBoundingClientRect(), it = E.sel, cx = r.left + it.x * E.dw, cy = r.top + it.y * E.dh;
+    hs = {cx, cy, d: Math.hypot(e.clientX - cx, e.clientY - cy) || 1, g: Math.atan2(e.clientY - cy, e.clientX - cx), s: it.s, a: it.a};
+  });
+  selEl.addEventListener("pointermove", e => {
+    if (!hs || !E || !E.sel) return;
+    E.sel.s = clamp(hs.s * Math.hypot(e.clientX - hs.cx, e.clientY - hs.cy) / hs.d, 0.03, 0.9);
+    E.sel.a = hs.a + (Math.atan2(e.clientY - hs.cy, e.clientX - hs.cx) - hs.g); selPaint(); later();
+  });
+  ["pointerup", "pointercancel"].forEach(t => selEl.addEventListener(t, () => { hs = null; }));
+
+  // blur / pixelate areas (to hide faces, number plates ...)
+  function syncBlur() {
+    if (!E) return; const m = E.rsel ? E.rsel.m : E.bm;
+    $("edbm").querySelectorAll(".edchip").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+    $("edbdel").disabled = !E.rsel;
+  }
+  $("edbadd").onclick = () => {
+    if (!E) return;
+    const bw = E.base.width, bh = E.base.height, side = 0.3 * Math.min(E.cn.w * bw, E.cn.h * bh), w = side / bw, h = side / bh;
+    const r = {x: clamp(E.cn.x + E.cn.w / 2 - w / 2, 0, 1 - w), y: clamp(E.cn.y + E.cn.h / 2 - h / 2, 0, 1 - h), w, h, m: E.bm};
+    E.blurs.push(r); E.rsel = r; syncBlur(); selPaint(); later();
+  };
+  $("edbm").querySelectorAll(".edchip").forEach(b => { b.onclick = () => { if (!E) return; if (E.rsel) E.rsel.m = b.dataset.m; E.bm = b.dataset.m; syncBlur(); later(); }; });
+  $("edbdel").onclick = () => { if (!E || !E.rsel) return; E.blurs = E.blurs.filter(r => r !== E.rsel); E.rsel = null; syncBlur(); selPaint(); later(); };
+
+  function tab(t) {
+    document.querySelectorAll(".edt").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+    TABS.forEach(k => { $("edp-" + k).hidden = k !== t; });
+    box.classList.toggle("ghost", t !== "crop");                   // the crop frame stays visible, but only as an outline, on the other tabs
+    lay.style.display = (t === "stk" || t === "txt" || t === "blr") ? "block" : "none";
+    if (E) { E.tab = t; E.sel = null; E.rsel = null; syncText(); syncBlur(); selPaint(); requestAnimationFrame(layout); }
+  }
+  document.querySelectorAll(".edt").forEach(b => { b.onclick = () => E && tab(b.dataset.t); if (!hasF && (b.dataset.t === "adj" || b.dataset.t === "fil")) b.hidden = true; });
+  const cmp = on => () => { if (!E) return; E.orig = on; draw(); };
+  $("edcmp").addEventListener("pointerdown", cmp(true));
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t => $("edcmp").addEventListener(t, cmp(false)));
+
+  // open / close
+  async function openEd() {
+    if (E || document.body.dataset.v !== "view" || !files.length) return;
+    const im = imgs[idx], name = files[idx];
+    if (!im || !im.src || !im.naturalWidth) { toast("", "Photo is still loading"); return; }
+    if (/\.gif$/i.test(name)) { toast("", "GIF photos cannot be edited"); return; }
+    closePanel();
+    const img = new Image(); img.src = im.currentSrc || im.src;
+    try { await img.decode(); } catch (e) { toast("", "This photo cannot be edited"); return; }
+    E = {img, name, folder: parsed[cur].n, src: getSrc(), rot: 0, flip: false, cn: {x: 0, y: 0, w: 1, h: 1}, ai: 0, af: false, bri: 100, con: 100, sat: 100, fi: 0, orig: false, tab: "crop",
+         items: [], blurs: [], sel: null, rsel: null, tc: "#ffffff", tf: 0, bm: "b"};
+    E.base = mkBase(PREV);
+    $("ed").hidden = false; $("edsheet").hidden = true; busy(""); $("edmsg").hidden = true; $("edtxt").value = "";
+    history.pushState({ed: 1}, "", location.href);                // Android back button closes the editor, not the viewer
+    resetAdj(); paintChips(); tab("crop"); buildThumbs();
+    requestAnimationFrame(layout);
+  }
+  function closeEd() {
+    if (!E) return;
+    const had = history.state && history.state.ed;
+    E = null; dragS = dragR = hs = mv = pin = null; pts.clear();
+    selEl.hidden = true; rb.hidden = true;
+    $("ed").hidden = true; $("edsheet").hidden = true; busy(""); $("edfil").innerHTML = ""; $("edc").width = 1; $("edc").height = 1;
+    if (had) { skipPop = true; history.back(); }
+  }
+  window.addEventListener("popstate", () => { if (skipPop) { skipPop = false; return; } if (E) closeEd(); });
+  window.addEventListener("resize", () => { if (E) layout(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && E) { if (!$("edsheet").hidden) $("edsheet").hidden = true; else closeEd(); } });
+  $("edx").onclick = closeEd;
+
+  // save / share
+  async function renderOut() {
+    const base = mkBase(EXPORT_MAX), c = E.cn;
+    const sx = clamp(Math.round(c.x * base.width), 0, base.width - 1), sy = clamp(Math.round(c.y * base.height), 0, base.height - 1);
+    const sw = Math.max(1, Math.min(base.width - sx, Math.round(c.w * base.width))), sh = Math.max(1, Math.min(base.height - sy, Math.round(c.h * base.height)));
+    const out = document.createElement("canvas"); out.width = sw; out.height = sh;
+    compose(out.getContext("2d"), base, sx, sy, sw, sh, false);
+    return new Promise((ok, no) => out.toBlob(b => b ? ok(b) : no(new Error("blob")), "image/jpeg", 0.93));
+  }
+  const stem = () => E.name.replace(/\.[^.]+$/, "") + "_edit.jpg";
+  $("edok").onclick = () => {
+    if (!E) return;
+    const local = isLocal(E.src);
+    $("edsave").hidden = local; $("edlocal").hidden = !local;
+    $("edsave").querySelector("small").textContent = (E.src === "gdrive" ? "Google Drive" : "Cloud") + " \u00b7 " + E.folder.replace(/\//g, " / ");
+    $("edsheet").hidden = false;
+  };
+  $("edsx").onclick = () => { $("edsheet").hidden = true; };
+  $("edsheet").addEventListener("click", e => { if (e.target === $("edsheet")) $("edsheet").hidden = true; });
+  $("edshare").onclick = async () => {
+    if (!E) return;
+    if (!window.AndroidShare) return emsg("Sharing works only inside the Android app.");
+    busy("Preparing...");
+    try { const blob = await renderOut(); await sendBlob(blob, stem(), "image/jpeg"); busy(""); $("edsheet").hidden = true; }
+    catch (e) { busy(""); emsg("Could not share this photo"); }
+  };
+  $("edsave").onclick = async () => {
+    if (!E) return;
+    busy("Saving...");
+    try {
+      const blob = await renderOut(), folder = E.folder, src = E.src, taken = takenSet(folder);
+      let name = uniqName(stem(), taken), entry = null;
+      if (src === "gdrive") {
+        const pid = await gdEnsure(folder);
+        const j = await gdUpload(new File([blob], name, {type: "image/jpeg", lastModified: Date.now()}), name, pid, "jpg"), th = j.thumbnailLink || "";
+        entry = {name, type: "file", sha: "", id: j.id, thumb: th, mod: Date.now()}; GDI[folder + "/" + name] = {id: j.id, thumb: th};
+      } else {
+        const b64 = await readB64(blob);
+        for (let t = 0; t < 6 && !entry; t++) {
+          const r = await fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + enc(folder + "/" + name), {
+            method: "PUT", headers: {...hdr(false), "Content-Type": "application/json"}, body: JSON.stringify({message: "Add " + name, content: b64})});
+          if (r.ok) { const j = await r.json(); entry = {name, type: "file", sha: j.content && j.content.sha}; }
+          else if (r.status === 422) name = uniqName(stem(), taken);          // name taken: try the next one
+          else throw new Error(r.status === 401 || r.status === 403 || r.status === 404 ? "The PIN needs Contents: read & write for this repository." : "GitHub error " + r.status);
+        }
+        if (!entry) throw new Error("Could not find a free name");
+      }
+      (listCache[folder] = listCache[folder] || []).push(entry);
+      wantName = name; pending = {a: "Saved a copy", b: name};
+      closeEd(); openFolder(cur);
+    } catch (e) { const gd = E && E.src === "gdrive"; busy(""); $("edsheet").hidden = true; emsg("Could not save: " + (gd ? gdMsg(e) : (e && e.message) || "error")); }
+  };
+
+  // long-press a photo to edit
+  let lp = 0, lx = 0, ly = 0;
+  V.addEventListener("touchstart", e => {
+    clearTimeout(lp); lp = 0;
+    if (e.touches.length !== 1 || !files.length || sc > 1 || E) return;
+    lx = e.touches[0].clientX; ly = e.touches[0].clientY;
+    lp = setTimeout(() => { lp = 0; g = null; if (navigator.vibrate) { try { navigator.vibrate(25); } catch (x) {} } openEd(); }, 550);
+  }, {passive: true});
+  V.addEventListener("touchmove", e => { if (lp && Math.hypot(e.touches[0].clientX - lx, e.touches[0].clientY - ly) > 10) { clearTimeout(lp); lp = 0; } }, {passive: true});
+  ["touchend", "touchcancel"].forEach(t => V.addEventListener(t, () => { clearTimeout(lp); lp = 0; }, {passive: true}));
+  V.addEventListener("contextmenu", e => e.preventDefault());
+  $("edBtn").onclick = () => { closePanel(); openEd(); };
+})();
+
 // ── START SCREEN ────────────────────────────────────────────────────────
 // Full screen can only be requested from a tap, so the tap on "Start" asks for it, then the screen fades away (2.5 s).
 // (iPhone Safari has no full-screen API: there only the top ribbon is hidden. In an app it is already full screen.)
@@ -1982,6 +2538,51 @@ async function uploadDrive(folder) {
       setLine("gdrive", t); try { localStorage.setItem("gdSpace", t); } catch (e) {}
     }).catch(() => {});
   }
+})();
+
+
+// ── SWIPE LEFT / RIGHT = next / previous source (loops, fades) ──────────
+// Works on the folder list, the thumbnail grid, the top ribbon and the bottom bar. In the photo viewer a swipe still changes the photo.
+(function () {
+  const srcOk = v => {
+    if (v === "github") return !!getTok();
+    if (v === "gdrive") { try { return !!window.AndroidGDrive && localStorage.getItem("gdok") === "1"; } catch (e) { return false; } }
+    if (!window.AndroidSd) return false;
+    if (v === "sd" && !sdOk()) return false;
+    try { return AndroidSd.status(v).indexOf("ok") === 0; } catch (e) { return false; }
+  };
+  let busy = false;
+  function swipeSrc(d) {
+    if (busy) return;
+    const av = SRC_ORDER.filter(srcOk), c = av.indexOf(getSrc());
+    if (av.length < 2) return;
+    const nxt = av[c < 0 ? 0 : (c + d + av.length) % av.length], app = $("app");
+    busy = true;
+    app.style.transition = "opacity .18s ease"; app.style.opacity = "0";
+    setTimeout(() => {
+      goSrc(nxt);
+      app.style.transition = "opacity .5s ease"; app.style.opacity = "1";
+      setTimeout(() => { app.style.transition = ""; app.style.opacity = ""; busy = false; }, 520);
+    }, 190);
+  }
+  let t0 = null;
+  const blocked = () => {
+    const v = document.body.dataset.v;
+    return (v !== "list" && v !== "grid" && v !== "view") || $("start-screen") || $("selbtn").classList.contains("on") || !$("upbar").hidden || (typeof upBusy !== "undefined" && upBusy) || !$("panel").hidden;
+  };
+  ["list", "grid", "top", "foot"].forEach(id => {
+    const el = $(id);
+    el.addEventListener("touchstart", e => {
+      if (e.touches.length !== 1 || blocked() || e.target.closest("#slide,#panel")) { t0 = null; return; }
+      t0 = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()};
+    }, {passive: true});
+    el.addEventListener("touchend", e => {
+      if (!t0) return;
+      const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y, ms = Date.now() - t0.t; t0 = null;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2 && ms < 900) swipeSrc(dx < 0 ? 1 : -1);
+    }, {passive: true});
+    el.addEventListener("touchcancel", () => { t0 = null; }, {passive: true});
+  });
 })();
 
 // ── PHOTO OPENED FROM ANOTHER APP (file manager "Open with") ─────────────

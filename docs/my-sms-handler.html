@@ -176,6 +176,54 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
 .sk{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 6px}
 .sk label{display:flex;align-items:center;font-size:13px;color:var(--mu)}
 .sk input{width:auto;margin:0 6px 0 0}
+/* settings panels */
+.pn{border:1.5px solid var(--ln)}
+.pn input[type=text],.pn input[type=password]{border:1px solid var(--ln);margin:0 0 8px}
+.pnh{display:flex;gap:12px;align-items:flex-start}
+.pnl{flex:1;min-width:0}
+.pnr{display:flex;flex-direction:column;gap:10px;flex:none}
+.pt1{font-size:15px;line-height:1.45;color:var(--tx)}
+.pt1 b{font-weight:700}.pt1 .rp{color:var(--ac)}
+.pm .pt1{margin-bottom:10px}
+.pe{border:0;background:none;color:var(--mu);font-size:17px;line-height:1;padding:0 4px;margin-left:2px}
+.pe.on{color:var(--ac)}
+.pn .sk{display:block;margin:12px 0 0}
+.pn .sg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pn .sr{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 10px;border:1px solid var(--ln);border-radius:10px;background:var(--bg);font-size:13px}
+.pn .sr.full{margin-top:6px}
+.pn .sr input{position:absolute;opacity:0;width:0;height:0;margin:0}
+.pn .sr span{color:var(--mu);white-space:nowrap}
+.pn .sr input:checked~span{color:var(--tx)}
+.pn .tk{flex:none;position:relative;width:32px;height:16px;border-radius:8px;background:#33415f}
+.pn .tk::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#cfd8ea}
+.pn .sr input:checked~.tk{background:#2e9e68}
+.pn .sr input:checked~.tk::after{transform:translateX(16px);background:#fff}
+#syls{margin-top:3px}
+#sym{margin:8px 0 0}#sym:empty{display:none}
+#syed{margin-top:12px;border-top:1px solid var(--ln);padding-top:12px}
+#syts{margin:0 0 8px}
+#syo{margin-top:12px}
+.chev{color:var(--mu);font-size:22px;padding:0 4px;line-height:1}
+.pn .ab{background:var(--bg)}
+.ib{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ln);background:var(--bg);color:var(--ac);display:flex;align-items:center;justify-content:center;font-size:22px;padding:0;-webkit-tap-highlight-color:transparent}
+.ib:active,.ib.on{border-color:var(--ac)}
+.ib.on{background:rgba(77,163,255,.16)}
+.ib svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.ib .ck{opacity:0}
+.ib.busy{pointer-events:none;color:var(--ac2);border-color:var(--ac2)}
+.ib.busy .ar{animation:syup .9s linear infinite}
+.ib.done{color:#3DDC84;border-color:#3DDC84;animation:sypop .45s ease-out}
+.ib.done .ar{opacity:0}
+.ib.done .ck{opacity:1;stroke-dasharray:16;stroke-dashoffset:16;animation:syck .4s .08s ease-out forwards}
+.ib.err{color:var(--rd);border-color:var(--rd);animation:syshk .4s}
+@keyframes syup{0%{transform:translateY(7px);opacity:0}30%{opacity:1}100%{transform:translateY(-7px);opacity:0}}
+@keyframes syck{to{stroke-dashoffset:0}}
+@keyframes sypop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes syshk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.tb{border:1px solid var(--ln);background:var(--bg);color:var(--tx);border-radius:10px;padding:7px 14px;font-size:14px;margin-right:8px}
+.tb.pri{background:var(--ac);border-color:var(--ac);color:#06182E;font-weight:700}
+#syta{margin:0 0 8px}
+#syts.ok{color:#3DDC84}
 </style></head><body>
 <div id="top">
  <div class="hd"><h1>💬 MySMSHandler</h1><div class="hb"><button id="fd" title="Fold all">−</button><button id="tr" title="Delete mode">🗑</button></div></div>
@@ -227,18 +275,32 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
  <div id="uh"></div>
 </div>
 <div id="set" class="hide">
- <div class="card" id="sy">
-  <b>Sync · GitHub</b>
-  <input id="syn" type="text" placeholder="Name of this phone (e.g. Sri)" autocomplete="off" style="margin-top:8px">
-  <input id="syr" type="text" placeholder="owner/repo" autocomplete="off" autocapitalize="off">
-  <input id="syt" type="password" placeholder="GitHub token (this repo only)" autocomplete="off">
-  <p class="mu hide" id="syts" style="margin:6px 2px 10px">🔑 Token saved ✓ <button class="cp" id="sytc" style="margin:0 0 0 8px">Change</button></p>
-  <div class="sk"><label><input type="checkbox" data-k="m">Messages</label><label><input type="checkbox" data-k="s">Sent</label><label><input type="checkbox" data-k="l">Links</label><label><input type="checkbox" data-k="u">USSD</label><label><input type="checkbox" id="sya">Push when app opens</label></div>
-  <button class="go" id="syp">⬆ Push to GitHub</button>
-  <button class="go alt" id="syl">🔄 Show phones</button>
-  <p class="mu" id="sym" style="margin:8px 2px 0;min-height:18px"></p>
-  <div id="syo" style="margin-top:6px"></div>
+ <div class="card pn" id="sy">
+  <div class="pnh">
+   <div class="pnl">
+    <div class="pt1"><span id="syh">Sync this phone to GitHub</span><button class="pe" id="syet" aria-label="Edit details">✎</button></div>
+    <div class="mu" id="syls"></div>
+   </div>
+   <div class="pnr">
+    <button class="ib" id="syp" aria-label="Push to GitHub"><svg viewBox="0 0 24 24"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><g class="ar"><path d="M12 13v8"/><path d="m8 17 4-4 4 4"/></g><path class="ck" d="m8.5 12.5 2.5 2.5 4.5-5"/></svg></button>
+    <button class="ib" id="syl" aria-label="Show phones">👥</button>
+   </div>
+  </div>
+  <div class="sk">
+   <div class="sg"><label class="sr"><input type="checkbox" data-k="m"><span>💬 Messages</span><i class="tk"></i></label><label class="sr"><input type="checkbox" data-k="s"><span>📤 Sent</span><i class="tk"></i></label><label class="sr"><input type="checkbox" data-k="l"><span>🔗 Links</span><i class="tk"></i></label><label class="sr"><input type="checkbox" data-k="u"><span>☎️ USSD</span><i class="tk"></i></label></div>
+   <label class="sr full"><input type="checkbox" id="sya"><span>⚡ Auto push when app opens</span><i class="tk"></i></label>
+  </div>
+  <p class="mu" id="sym"></p>
+  <div id="syed" class="hide">
+   <input id="syn" type="text" placeholder="Name of this phone (e.g. Sri)" autocomplete="off">
+   <input id="syr" type="text" placeholder="owner/repo" autocomplete="off" autocapitalize="off">
+   <p class="mu hide" id="syts">🔑 <span id="sytx">Token saved ✓</span> <button class="cp" id="sytc" style="margin:0 0 0 8px">Change</button></p>
+   <input id="syt" type="password" placeholder="GitHub token (this repo only)" autocomplete="off">
+   <div id="syta" class="hide"><button class="tb pri" id="sysv">💾 Save</button><button class="tb" id="syx">✕ Close</button></div>
+  </div>
+  <div id="syo"></div>
  </div>
+ <div class="card pn pm"><div class="pt1">📱 This phone</div>
  <div class="sbar">
   <button class="ab" id="im" title="Import from phone" aria-label="Import from phone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 7v6"/><path d="m9.5 10.5 2.5 2.5 2.5-2.5"/><path d="M11 18h2"/></svg><span>Import</span></button>
   <button class="ab" id="bs" title="Backup now" aria-label="Backup now"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg><span>Backup</span></button>
@@ -246,6 +308,7 @@ summary.navflash{border-radius:8px;animation:navflash 1.8s ease-out}
   <label class="ab" title="Load backup file" aria-label="Load backup file"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg><span>Load</span><input id="ld" type="file" accept=".json,application/json" style="display:none"></label>
  </div>
  <p class="mu" id="bm" style="margin:10px 2px 0;min-height:18px"></p>
+ </div>
  <div class="card" style="margin-top:10px"><p class="mu" style="margin:0;line-height:1.55">
   <b style="color:var(--tx)">Import</b> · re-scan the phone's inbox and sent items (duplicates and messages you deleted here are skipped).<br>
   <b style="color:var(--tx)">Backup</b> · save everything to Downloads as MySMSHandler-backup.json: messages, links and USSD codes. Also saved automatically once a day when an SMS arrives.<br>
@@ -796,21 +859,32 @@ const myFile=()=>{const n=slug(SY().name);return n?n+'-phone.json':''};
 const symsg=s=>{$('sym').textContent=s};
 const GH=(path,o={})=>fetch('https://api.github.com/repos/'+(SY().repo||'').trim()+'/contents/'+path,Object.assign({},o,{headers:Object.assign({Authorization:'Bearer '+(SY().token||''),Accept:'application/vnd.github+json','Content-Type':'application/json'},o.headers||{})}));
 const ghErr=async r=>r.status==401?'Token rejected':r.status==403?'No permission (token needs Contents: read & write)':r.status==404?'Repo not found (check name / token access)':'GitHub error '+r.status;
-function syTok(){const h=!!SY().token;$('syt').classList.toggle('hide',h);$('syts').classList.toggle('hide',!h)}
-$('sytc').onclick=()=>{$('syts').classList.add('hide');$('syt').classList.remove('hide');$('syt').placeholder='Paste the new token';$('syt').focus()};
-$('syt').onblur=()=>setTimeout(syTok,150);
+let tokEd=false;   // true while the token box is open for a new token
+function syTok(){const h=!!SY().token,e=!h||tokEd;
+ $('syt').classList.toggle('hide',!e);$('syta').classList.toggle('hide',!e);$('syx').classList.toggle('hide',!h);$('syts').classList.toggle('hide',e)}
+$('sytc').onclick=()=>{tokEd=true;syTok();$('syt').placeholder='Paste the new token';$('syt').focus()};
+$('sysv').onclick=()=>{const t=$('syt').value.trim();if(!t){toast('Paste the token first');return}
+ const s=SY();s.token=t;saveSY(s);$('syt').value='';tokEd=false;syTok();
+ const x=$('sytx'),b=$('syts');x.textContent='New token saved ✓';b.classList.add('ok');toast('Token saved ✓');
+ setTimeout(()=>{x.textContent='Token saved ✓';b.classList.remove('ok')},3000)};
+$('syx').onclick=()=>{$('syt').value='';tokEd=false;syTok()};
+function syTitle(){const n=$('syn').value.trim(),r=$('syr').value.trim()||'owner/repo';
+ $('syh').innerHTML='Sync this phone'+(n?' (<b>'+esc(n)+'</b>)':'')+' to GitHub at <b class="rp">'+esc(r)+'</b>'}
+function syEdit(on){$('syed').classList.toggle('hide',!on);$('syet').classList.toggle('on',!!on)}
+$('syet').onclick=()=>syEdit($('syed').classList.contains('hide'));
 function syLoadUi(){const s=SY();
  if(!s.id){s.id='p_'+Math.random().toString(36).slice(2,8);saveSY(s)}
  $('syn').value=s.name||'';$('syn').disabled=!!s.pushed;$('syr').value=s.repo||'nerdysrisha/databackup';$('syt').value='';syTok();
  const k=s.k||{m:1,s:1,l:1,u:1};document.querySelectorAll('#sy .sk [data-k]').forEach(c=>c.checked=!!k[c.dataset.k]);$('sya').checked=!!s.auto;
- if(s.pushed)symsg('Last pushed: '+new Date(s.pushed).toLocaleString('default',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}))}
-function syKeep(){const s=SY();s.name=$('syn').value.trim();s.repo=$('syr').value.trim();{const t=$('syt').value.trim();if(t)s.token=t}s.auto=$('sya').checked;
- s.k={};document.querySelectorAll('#sy .sk [data-k]').forEach(c=>s.k[c.dataset.k]=c.checked?1:0);saveSY(s);return s}
-['syn','syr','syt'].forEach(id=>$(id).oninput=syKeep);$('sy').addEventListener('change',syKeep);
+ $('syls').textContent=s.pushed?'🕒 Last pushed: '+new Date(s.pushed).toLocaleString('default',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+ syTitle();syEdit(!(s.name&&s.token&&s.repo))}
+function syKeep(){const s=SY();s.name=$('syn').value.trim();s.repo=$('syr').value.trim();s.auto=$('sya').checked;
+ s.k={};document.querySelectorAll('#sy .sk [data-k]').forEach(c=>s.k[c.dataset.k]=c.checked?1:0);saveSY(s);syTitle();return s}
+['syn','syr'].forEach(id=>$(id).oninput=syKeep);$('sy').addEventListener('change',syKeep);
 const gather=ty=>{const o=[];J('months','',ty).forEach(m=>J('list',m.m,'',ty).forEach(x=>o.push(x)));return o};
-async function syPush(){
- const s=syKeep();if(!s.name||!s.token||!s.repo){symsg('Fill in phone name, repo and token first');return}
- symsg('Pushing…');
+async function syPush0(){
+ const s=syKeep();if(!s.name||!s.token||!s.repo){symsg('Fill in phone name, repo and token first');syEdit(true);return false}
+ symsg('');
  try{
   const d={app:'sms-handler',version:1,source:{id:s.id,name:s.name,color:colFor(s.name)},savedAt:new Date().toISOString()};
   if(s.k.m||s.k.s){const fav=new Set(gather(3).map(x=>x.i));
@@ -819,23 +893,32 @@ async function syPush(){
   if(s.k.l)d.links=LK().map(x=>({id:x.id,title:x.t,url:x.u,icon:x.ic,group:x.g}));
   if(s.k.u)d.ussd=UC().map(x=>({id:x.id,name:x.n,code:x.c}));
   const file=myFile(),ls=await GH('sms-handler'),arr=ls.ok?await ls.json():[],ex=Array.isArray(arr)?arr.find(f=>f.name===file):null;
-  if(!ls.ok&&ls.status!=404){symsg(await ghErr(ls));return}
+  if(!ls.ok&&ls.status!=404){symsg(await ghErr(ls));return false}
   const b64=btoa(unescape(encodeURIComponent(JSON.stringify(d,null,1))));
   const r=await GH('sms-handler/'+file,{method:'PUT',body:JSON.stringify(Object.assign({message:'sync '+s.name,content:b64},ex?{sha:ex.sha}:{}))});
-  if(!r.ok){symsg(await ghErr(r));return}
-  s.pushed=Date.now();saveSY(s);$('syn').disabled=true;syLoadUi();toast('Pushed ✓');syList()
- }catch(e){symsg('No internet / blocked')}}
+  if(!r.ok){symsg(await ghErr(r));return false}
+  s.pushed=Date.now();saveSY(s);$('syn').disabled=true;syLoadUi();symsg('');return true
+ }catch(e){symsg('No internet / blocked');return false}}
+/* cloud button: arrows float up while pushing, then a green tick (or a red shake on failure) */
+async function syPush(){const b=$('syp');if(b.classList.contains('busy'))return;
+ b.className='ib busy';const t0=Date.now();let ok=false;
+ try{ok=await syPush0()}catch(e){}
+ const w=900-(Date.now()-t0);if(w>0)await new Promise(r=>setTimeout(r,w));
+ b.className='ib '+(ok?'done':'err');setTimeout(()=>{b.className='ib'},ok?2200:1600)}
 async function syList(){
- const s=syKeep();if(!s.token||!s.repo){symsg('Fill in repo and token first');return}
+ const s=syKeep();if(!s.token||!s.repo){symsg('Fill in repo and token first');syEdit(true);$('syl').classList.remove('on');return}
  symsg('Loading phones…');
  try{const r=await GH('sms-handler');
   if(r.status==404){$('syo').innerHTML='<p class="mu">No phones yet. Push from this phone first.</p>';symsg('');return}
-  if(!r.ok){symsg(await ghErr(r));return}
+  if(!r.ok){symsg(await ghErr(r));$('syl').classList.remove('on');return}
   const f=(await r.json()).filter(x=>/-phone\.json$/.test(x.name)&&x.name!==myFile());symsg('');
   $('syo').innerHTML=f.length?f.map(x=>{const n=x.name.replace(/-phone\.json$/,'').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-   return `<div class="sw lw srow"><div class="lk" data-f="${esc(x.name)}"><span class="sdot" style="background:${colFor(n)};margin:0 2px 0 0"></span><div class="lx"><b>${esc(n)}</b><span>tap to view (read-only)</span></div></div></div>`}).join(''):'<p class="mu">No other phones yet.</p>'
- }catch(e){symsg('No internet / blocked')}}
-$('syp').onclick=syPush;$('syl').onclick=syList;
+   return `<div class="sw lw srow"><div class="lk" data-f="${esc(x.name)}"><span class="sdot" style="background:${colFor(n)};margin:0 2px 0 0"></span><div class="lx"><b>${esc(n)}</b><span>tap to view (read-only)</span></div><span class="chev">›</span></div></div>`}).join(''):'<p class="mu">No other phones yet.</p>'
+ }catch(e){symsg('No internet / blocked');$('syl').classList.remove('on')}}
+$('syp').onclick=syPush;
+$('syl').onclick=()=>{const b=$('syl');   // 👥 opens / folds the list of other phones
+ if(b.classList.contains('on')){b.classList.remove('on');$('syo').innerHTML='';symsg('');return}
+ b.classList.add('on');syList()};
 $('syo').onclick=async e=>{const k=e.target.closest('.lk');if(!k)return;const f=k.dataset.f;
  if(f===myFile()){toast('This is your own phone');return}
  symsg('Loading…');

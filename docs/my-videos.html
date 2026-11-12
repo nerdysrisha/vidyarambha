@@ -427,6 +427,17 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
 #ext video.rdy{opacity:1}
 #extx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);left:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:26px;line-height:44px;text-align:center;z-index:2}
 #extn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:64px;right:12px;color:#fff;font:14px sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000;pointer-events:none;z-index:2}
+
+
+#rbadge{display:inline-grid;place-items:center;width:30px;height:30px;color:var(--acc-hi,#ffd9a0);filter:drop-shadow(0 0 6px rgba(var(--a),.6))}
+#rbadge:empty{display:none}
+#rbadge svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+body[data-v=view] #app{padding-top:0}
+body[data-v=view] #rib{top:env(safe-area-inset-top,0px)}
+.slide video.fill{inset:0;width:100%;height:100%;border-radius:0}
+#top{padding-top:6px;padding-bottom:6px}
+
+
 </style>
 </head>
 <body data-v="list">
@@ -435,7 +446,7 @@ body[data-v=view],body[data-v=view] #app,body[data-v=view] #viewer,body[data-v=v
   <div id="stiles" role="group" aria-label="Video source"></div>
 </div>
 <div id="app">
-  <header id="top"><div class="tl"><span class="tapes"><i class="t2"></i><span class="tape" id="rbadge"></span></span><h1>Videos</h1></div><span class="tr"><button id="upind" type="button" hidden aria-label="Upload running - tap to open"><b><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg></b><span id="upit"></span></button><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
+  <header id="top"><div class="tl"><span id="rbadge" aria-hidden="true"></span><h1>Videos</h1></div><span class="tr"><button id="upind" type="button" hidden aria-label="Upload running - tap to open"><b><svg viewBox="0 0 24 24"><path d="M12 20V5M6 11l6-6 6 6"/></svg></b><span id="upit"></span></button><small id="rtxt"></small><button id="refresh" aria-label="Refresh folders" title="Refresh"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg></button></span><i class="glint"></i></header>
   <div id="list"><div id="box"></div></div>
   <div id="grid"><div id="gtop"><b id="gtit"></b><span id="gright"><button id="syncbtn" type="button" hidden>★ Sync</button><button id="selbtn" type="button" aria-pressed="false" hidden>Select</button><small id="gcnt"></small></span></div><div id="upbar" hidden><span id="upn"></span><button id="upall" type="button">All</button><button id="upx" type="button">Cancel</button><button id="upgo" type="button">Upload</button></div><div id="gbox"></div></div>
   <div id="source">
@@ -510,6 +521,9 @@ if (IN_APP) document.body.classList.add("app");
 // Landscape phone + landscape video: fill the whole screen (crops edges). Max share of the video allowed to be
 // cropped; 0.5 fills normal 4:3 / 16:9 videos. Set 0 to never fill (always show the whole video).
 const FILL_MAX_CROP = 0.5;
+const FILL_MAX_CROP_P = 0.4;
+
+
 const DELETE_PIN = "6559";                                   // PIN that unlocks delete mode (change it here)
 const NEWEST_FIRST = true, FIRST = 5, AHEAD = 2, BEHIND = 1, LOCAL_NEWEST_FIRST = true;   // LOCAL_NEWEST_FIRST: videos on the phone / SD card follow their date, like the gallery (false = oldest first)
    // preload: first 5 on open, then 2 ahead / 1 behind
@@ -534,7 +548,7 @@ function applySd() {
 function showSrcIco() {                                    // colour theme follows the source in use; the gear menu changes it
   const v = getSrc();
   document.body.dataset.src = v || ""; document.body.classList.toggle("sd", isLocal(v));
-  $("rbadge").textContent = {phone: "PHONE", sd: "SD CARD", gdrive: "DRIVE"}[v] || "";
+  $("rbadge").innerHTML = SRC_ICO[v] || "";
   { const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = (isLocal(v) || v === "gdrive") ? (getComputedStyle(document.body).getPropertyValue("--bar-end").trim() || "#2a1604") : "#2a1604"; }
   applySd();
   document.querySelectorAll("#stiles button").forEach(b => b.classList.toggle("on", b.dataset.src === v));
@@ -888,6 +902,8 @@ function makeSlide(name) {                                 // our own player: fi
   };
   const dur = () => { q(".vd").textContent = fmtT(v.duration); };
   v.addEventListener("loadedmetadata", dur); v.addEventListener("durationchange", dur);
+  v.addEventListener("loadedmetadata", () => applyFill(v));
+  
   v.addEventListener("timeupdate", () => { if (s._drag || !v.duration) return; paint(v.currentTime / v.duration); q(".vt").textContent = fmtT(v.currentTime); });
   v.addEventListener("progress", () => { try { const b = v.buffered, t = v.currentTime; let e = 0; for (let i = 0; i < b.length; i++) if (b.start(i) <= t + 0.5 && b.end(i) > e) e = b.end(i); q(".bf").style.width = (v.duration ? e / v.duration * 100 : 0) + "%"; } catch (er) {} });
   v.addEventListener("play", () => { s.classList.add("pl"); s._ui(); });
@@ -1108,10 +1124,13 @@ function fit() {                                          // size app, viewer an
   SH = H; imgs.forEach(applyFill);
 }
 function applyFill(im) {
-  const w = im.naturalWidth, h = im.naturalHeight; if (!w || !h || !SH) return;
+  const w = im.videoWidth, h = im.videoHeight; if (!w || !h || !SH) return;
   const rs = SW / SH, rp = w / h, crop = 1 - Math.min(rs / rp, rp / rs);
-  im.style.objectFit = (SW > SH && w > h && crop <= FILL_MAX_CROP) ? "cover" : "contain";
+  const fill = (SW > SH && w > h && crop <= FILL_MAX_CROP) || (SH >= SW && h > w && crop <= FILL_MAX_CROP_P);
+  im.style.objectFit = fill ? "cover" : "contain"; im.classList.toggle("fill", fill);
 }
+
+
 function realign() { fit(); if (files.length) { resetZoom(); place(idx, false); } }
 window.addEventListener("resize", realign);
 window.addEventListener("orientationchange", () => { setTimeout(realign, 100); setTimeout(realign, 500); });
@@ -2008,6 +2027,47 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("rn").h
       setLine("gdrive", t); try { localStorage.setItem("gdSpace", t); } catch (e) {}
     }).catch(() => {});
   }
+})();
+
+(function () {
+  const srcOk = v => {
+    if (v === "gdrive") { try { return !!window.AndroidGDrive && localStorage.getItem("gdok") === "1"; } catch (e) { return false; } }
+    if (!window.AndroidSd) return false;
+    if (v === "sd" && !sdOk()) return false;
+    try { return AndroidSd.status(v).indexOf("ok") === 0; } catch (e) { return false; }
+  };
+  let busy = false;
+  function swipeSrc(d) {
+    if (busy) return;
+    const av = SRC_ORDER.filter(srcOk), c = av.indexOf(getSrc());
+    if (av.length < 2) return;
+    const nxt = av[c < 0 ? 0 : (c + d + av.length) % av.length], app = $("app");
+    busy = true;
+    app.style.transition = "opacity .18s ease"; app.style.opacity = "0";
+    setTimeout(() => {
+      goSrc(nxt);
+      app.style.transition = "opacity .5s ease"; app.style.opacity = "1";
+      setTimeout(() => { app.style.transition = ""; app.style.opacity = ""; busy = false; }, 520);
+    }, 190);
+  }
+  let t0 = null;
+  const blocked = () => {
+    const v = document.body.dataset.v;
+    return (v !== "list" && v !== "grid" && v !== "view") || $("start-screen") || $("selbtn").classList.contains("on") || !$("upbar").hidden || upBusy || !$("panel").hidden;
+  };
+  ["list", "grid", "top", "foot"].forEach(id => {
+    const el = $(id);
+    el.addEventListener("touchstart", e => {
+      if (e.touches.length !== 1 || blocked() || e.target.closest("#slide,#panel")) { t0 = null; return; }
+      t0 = {x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now()};
+    }, {passive: true});
+    el.addEventListener("touchend", e => {
+      if (!t0) return;
+      const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y, ms = Date.now() - t0.t; t0 = null;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 2 && ms < 900) swipeSrc(dx < 0 ? 1 : -1);
+    }, {passive: true});
+    el.addEventListener("touchcancel", () => { t0 = null; }, {passive: true});
+  });
 })();
 
 // ── VIDEO OPENED FROM ANOTHER APP (file manager "Open with") ─────────────

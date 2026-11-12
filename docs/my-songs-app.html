@@ -789,6 +789,49 @@ async function playCurrent() {
     toast("Could not load this song"); skip();
   }
 }
+
+
+
+let opening = false;
+async function playOpened() {                              // song handed over by Android "Open with"
+  if (opening || typeof AndroidSd === "undefined" || !AndroidSd.pendingOpen) return;
+  const info = AndroidSd.pendingOpen();
+  if (!info) return;
+  const [uri, name] = info.split("\t");
+  opening = true;
+  try {
+    const parts = [];
+    for (let i = 0; ; i++) {
+      const b64 = AndroidSd.openChunk(uri, i);
+      if (b64.startsWith("ERR:")) throw new Error(b64);
+      if (!b64) break;
+      const bin = atob(b64), u = new Uint8Array(bin.length);
+      for (let j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+      parts.push(u);
+      await new Promise(r => setTimeout(r));               // let the UI breathe between 1 MB pieces
+    }
+    AndroidSd.clearOpen();
+    const ext = ((name.match(/\.([^.]+)$/) || [])[1] || "").toLowerCase();
+    const key = "Opened/" + name;
+    urlCache.set(key, Promise.resolve(URL.createObjectURL(new Blob(parts, {type: MIME[ext] || "audio/mp4"}))));
+    Q = {dir: "Opened", names: [name], pos: 0, global: false, next: null};
+    errRun = 0; lsDir = 1;
+    const keep = getLast();                                // playCurrent() bookmarks the folder; undo that for this one-off
+    playCurrent();
+    setLast(keep); refreshMarks();
+  } catch (e) {
+    toast("Could not open this file");
+  } finally {
+    opening = false;
+  }
+}
+window.addEventListener("openfile", playOpened);           // app was already running
+setTimeout(playOpened, 1500);                              // app was started by "Open with"
+
+
+
+
+
 function startQueue(dir, k) {                              // tapped a song: play it, then the rest of the folder, then the next folder
   const all = filesOf(dir);
   if (gActive) Q = {dir, names: [all[k], ...shuffle(all.filter((_, i) => i !== k))], pos: 0, global: true, next: null};   // Global Play on: shuffle the rest
