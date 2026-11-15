@@ -785,6 +785,7 @@ DATEREMOVAL--
     background:#28a745; color:#fff; border:2px solid #1e8a38; box-shadow:0 2px 6px rgba(0,0,0,0.3);
     display:inline-flex; align-items:center; justify-content:center; }
 .eng-spk.on { background:#d9480f; border-color:#b23a0a; }
+#control-container.ctl-away { display:none !important; }
 .eng-sec-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
 .eng-sec-headtxt { flex:1; min-width:0; }
 @media (max-width: 700px) {
@@ -2524,6 +2525,8 @@ const ENG_PAGE_LOAD = Date.now();
 function engFetch(cfg, file) {
     return fetch(cfg.url + file + "?t=" + Date.now(), { cache: "no-store" });
 }
+// Speech speed (1 = normal). Lower = slower. Change here if it is still too fast / too slow.
+const ENG_RATE = { para: 0.7, word: 0.6, letter: 0.7 };
 // Only one thing speaks at a time. engCurReset puts the speaker button that is playing back to 🔊.
 let engCurReset = null;
 function engStop() {
@@ -2558,7 +2561,7 @@ function engSpkBtn(getText, cfg, box) {
         e.stopPropagation();
         if (playing) { engStop(); return; }
         playing = true; b.textContent = "\u23F9"; b.classList.add("on"); box.classList.add("speaking");
-        engSay(getText(), cfg, 0.85, reset);
+        engSay(getText(), cfg, ENG_RATE.para, reset);
     };
     return b;
 }
@@ -2576,7 +2579,7 @@ function engWordSpan(word, cfg) {
     s.onclick = e => {
         e.stopPropagation();
         s.classList.add("hit"); setTimeout(() => s.classList.remove("hit"), 700);
-        engSay(word, cfg, 0.7);
+        engSay(word, cfg, ENG_RATE.word);
     };
     return s;
 }
@@ -2603,6 +2606,20 @@ function engWordify(el, cfg) {
             tn.parentNode.replaceChild(frag, tn);
         }
     });
+}
+// While a lesson is scrolled down, the top control bar (All Qs / Jump / Show) goes away so the kid stays focused;
+// the green lesson ribbon (title + prev / next) stays pinned. The bar comes back when the lesson is scrolled to the top.
+function engTopBarShow() { const c = document.getElementById("control-container"); if (c) c.classList.remove("ctl-away"); }
+function engAutoHideTop(body) {
+    engTopBarShow();
+    body.addEventListener("scroll", () => {
+        const c = document.getElementById("control-container");
+        if (!c) return;
+        const away = c.classList.contains("ctl-away");
+        // only hide when there is plenty left to scroll (otherwise the layout change could bounce it back and forth)
+        if (!away && body.scrollTop > 40 && body.scrollHeight - body.clientHeight > c.offsetHeight + 140) c.classList.add("ctl-away");
+        else if (away && body.scrollTop < 8) c.classList.remove("ctl-away");
+    }, { passive: true });
 }
 // What a question row should say: the question only, never the answer, the (a) letter, the numbers or the ( ) box
 function engRowText(row) {
@@ -2646,7 +2663,7 @@ function engSpeak(text, cfg) {
     try {
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.lang = cfg.speech; u.rate = 0.8;
+        u.lang = cfg.speech; u.rate = ENG_RATE.letter;
         speechSynthesis.speak(u);
     } catch (e) {}
 }
@@ -2737,23 +2754,6 @@ function engStoryCard(parts, cfg) {
     return { card, plain };
 }
 
-function engReadBtn(plain, cfg) {
-    if (!window.speechSynthesis || !plain.length) return null;
-    let reading = false;
-    const rb = engEl("button", "eng-btn alt", "🔊 Read aloud");
-    const reset = () => { reading = false; rb.textContent = "🔊 Read aloud"; };
-    rb.onclick = () => {
-        if (reading) { speechSynthesis.cancel(); reset(); return; }
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(plain.join(" "));
-        u.lang = cfg.speech; u.rate = 0.85;
-        u.onend = reset; u.onerror = reset;
-        reading = true; rb.textContent = "⏹ Stop";
-        speechSynthesis.speak(u);
-    };
-    return rb;
-}
-
 function engRenderSections(root, sections, n, bi, cfg) {
     sections.forEach((sec, si) => {
         const wrap = engEl("div", "eng-sec");
@@ -2781,26 +2781,22 @@ function engRenderLesson(root, idx, n, L, cfg) {
     root.appendChild(engRibbon(root, idx, n, L, cfg));
     const body = engEl("div", "eng-body");
     root.appendChild(body);
-    const bar = engEl("div", "eng-bar");   // holds Read aloud for the original layout
+    engAutoHideTop(body);   // top control bar slides away while the lesson is scrolled; the lesson ribbon stays
 
     if (Array.isArray(L.blocks)) {
         // NEW layout: each block = its own context (text + image) followed by ITS OWN questions
         L.blocks.forEach((blk, bi) => {
             const ctx = blk.context ? (Array.isArray(blk.context) ? blk.context : [blk.context]) : [];
             if (ctx.length) {
-                const { card, plain } = engStoryCard(ctx, cfg);
-                const rb = engReadBtn(plain, cfg);
-                if (rb) { const row = engEl("div", "eng-bar"); row.appendChild(rb); body.appendChild(row); }
+                const { card } = engStoryCard(ctx, cfg);
                 body.appendChild(card);
             }
             engRenderSections(body, blk.sections || [], n, bi, cfg);
         });
     } else {
         // ORIGINAL layout: whole story first, then all questions (lesson 1 style)
-        const { card, plain } = engStoryCard(L.story || [], cfg);
+        const { card } = engStoryCard(L.story || [], cfg);
         body.appendChild(card);
-        const rb = engReadBtn(plain, cfg);
-        if (rb) { bar.appendChild(rb); body.insertBefore(bar, card); }
         engRenderSections(body, L.sections || [], n, 0, cfg);
     }
 
@@ -3959,6 +3955,15 @@ document.getElementById("selectAllBtn").onclick = async () => {
     window.addEventListener("resize", () => { size(); });
     if (window.ResizeObserver) new ResizeObserver(() => size()).observe(box);
     update();
+})();
+
+// ── Top control bar: always back when no lesson is showing ──
+(function () {
+    const qs = document.getElementById("questions");
+    if (!qs) return;
+    new MutationObserver(() => {
+        if (!qs.querySelector(".stack-wrapper.visible-stack .eng-body")) engTopBarShow();
+    }).observe(qs, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
 })();
 
 // ── SCREEN WAKE LOCK ──────────────────────────────────────────────────────────
