@@ -660,8 +660,8 @@ DATEREMOVAL--
 .eng-btn { background:#28a745; color:#fff; border:2px solid #28a745; padding:8px 16px; border-radius:20px; font-size:16px; }
 .eng-btn.alt { background:transparent; color:#ddd; border-color:#666; }
 .eng-btn.on { background:#0d5c24; }
-.eng-story { background:#161616; border-left:4px solid #28a745; border-radius:8px; padding:14px 18px; font-size:28px; line-height:1.6; }
-.eng-story p { margin:0 0 0.8em; }
+.eng-story { background:transparent; border:none; padding:0; font-size:28px; line-height:1.6; }
+.eng-story p { margin:0; }
 .eng-img { display:block; width:100%; max-width:760px; margin:10px auto 14px; border-radius:10px; cursor:zoom-in; }
 .eng-sec { margin-top:22px; }
 .eng-sec-title { color:#ffc800; font-weight:bold; font-size:24px; }
@@ -748,7 +748,7 @@ DATEREMOVAL--
 @media (max-width: 700px) {
     .eng-grid { grid-template-columns:repeat(3,1fr); gap:8px; }
     .eng-lesson-title { font-size:19px; }
-    .eng-story { font-size:19px; padding:10px 12px; }
+    .eng-story { font-size:19px; padding:0; }
     .eng-sec-title { font-size:19px; }
     .eng-sec-note { font-size:14px; }
     .eng-root .question-row { font-size:19px; }
@@ -757,6 +757,40 @@ DATEREMOVAL--
     .eng-box, .eng-blank { min-width:48px; }
     .eng-match { grid-template-columns:1fr; padding-left:4px; }
     .eng-btn { font-size:14px; padding:7px 12px; }
+}
+
+/* ── BOXED READING CARDS + SPEAKER BUTTONS (English / Telugu / Hindi lessons) ──────────────
+   Every story paragraph and every question sits in its own light rounded box with a speaker button on the right.
+   Colours: .story = pale blue (what to read), .q = pale cream (what to answer). Change them here. */
+.eng-pbox { display:flex; align-items:flex-start; gap:12px; margin:0 0 10px; padding:10px 10px 10px 16px;
+    border-radius:14px; color:#1d2433; border:1px solid rgba(0,0,0,0.10); box-shadow:0 1px 3px rgba(0,0,0,0.25);
+    transition:background .2s, box-shadow .2s; }
+.eng-pbox.story { background:#e8f2ff; }
+.eng-pbox.q { background:#fff6e0; }
+.eng-pbox > :first-child { flex:1; min-width:0; }
+.eng-pbox.speaking { box-shadow:0 0 0 3px #28a745; }
+.eng-pbox.story.speaking { background:#d3e8ff; }
+.eng-pbox.q.speaking { background:#ffefc2; }
+.eng-pbox p { margin:0; }
+.eng-pbox .question-row, .eng-pbox .eng-seq-row, .eng-pbox .eng-m-row, .eng-pbox .eng-wq { border-bottom:none; padding:0; }
+.eng-pbox .answer { color:#0a7a3a; }
+.eng-pbox .eng-paren { color:#5b6475; }
+.eng-pbox .word-answer-line > span:first-child { color:#5b6475 !important; }
+.eng-pbox .eng-box, .eng-pbox .eng-blank { border-color:#8a93a6; }
+.eng-pbox .eng-box.given { border-color:#28a745; color:#0a7a3a; }
+.eng-w { text-decoration:underline dotted; text-decoration-color:rgba(90,100,120,0.85); text-decoration-thickness:2px;
+    text-underline-offset:5px; cursor:pointer; border-radius:4px; -webkit-tap-highlight-color:transparent; }
+.eng-w.hit { background:#ffd84d; color:#111; text-decoration:none; }
+.eng-spk { flex:none; width:46px; height:46px; padding:0; border-radius:50%; font-size:20px; line-height:1;
+    background:#28a745; color:#fff; border:2px solid #1e8a38; box-shadow:0 2px 6px rgba(0,0,0,0.3);
+    display:inline-flex; align-items:center; justify-content:center; }
+.eng-spk.on { background:#d9480f; border-color:#b23a0a; }
+.eng-sec-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
+.eng-sec-headtxt { flex:1; min-width:0; }
+@media (max-width: 700px) {
+    .eng-pbox { gap:8px; padding:8px 8px 8px 10px; margin-bottom:8px; border-radius:12px; }
+    .eng-spk { width:38px; height:38px; font-size:17px; }
+    .eng-sec-head { gap:8px; }
 }
 
 /* ── LANDING SCREEN (all devices) ──────────────────────────────────────────────
@@ -2490,7 +2524,101 @@ const ENG_PAGE_LOAD = Date.now();
 function engFetch(cfg, file) {
     return fetch(cfg.url + file + "?t=" + Date.now(), { cache: "no-store" });
 }
-function engStop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
+// Only one thing speaks at a time. engCurReset puts the speaker button that is playing back to 🔊.
+let engCurReset = null;
+function engStop() {
+    try {
+        if (engCurReset) { const r = engCurReset; engCurReset = null; r(); }
+        if (window.speechSynthesis) speechSynthesis.cancel();
+    } catch (e) {}
+}
+function engSay(text, cfg, rate, reset) {
+    if (!window.speechSynthesis || !text) return;
+    try {
+        if (engCurReset) { const r = engCurReset; engCurReset = null; r(); }
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = cfg.speech; u.rate = rate;
+        if (reset) {
+            engCurReset = reset;
+            const done = () => { if (engCurReset === reset) { engCurReset = null; reset(); } };
+            u.onend = done; u.onerror = done;
+        }
+        speechSynthesis.speak(u);
+    } catch (e) {}
+}
+// 🔊 / ⏹ button for one paragraph or question. getText() gives what to read; box gets a green outline while speaking.
+function engSpkBtn(getText, cfg, box) {
+    if (!window.speechSynthesis) return null;
+    const b = engEl("button", "eng-spk", "\uD83D\uDD0A");
+    b.type = "button"; b.title = "Read aloud"; b.setAttribute("aria-label", "Read aloud");
+    let playing = false;
+    const reset = () => { playing = false; b.textContent = "\uD83D\uDD0A"; b.classList.remove("on"); box.classList.remove("speaking"); };
+    b.onclick = e => {
+        e.stopPropagation();
+        if (playing) { engStop(); return; }
+        playing = true; b.textContent = "\u23F9"; b.classList.add("on"); box.classList.add("speaking");
+        engSay(getText(), cfg, 0.85, reset);
+    };
+    return b;
+}
+// Light rounded box: content on the left, speaker button on the right
+function engBox(content, kind, cfg, getText) {
+    const box = engEl("div", "eng-pbox " + kind);
+    box.appendChild(content);
+    const b = engSpkBtn(getText, cfg, box);
+    if (b) box.appendChild(b);
+    return box;
+}
+// Tap a word to hear it slowly
+function engWordSpan(word, cfg) {
+    const s = engEl("span", "eng-w", word);
+    s.onclick = e => {
+        e.stopPropagation();
+        s.classList.add("hit"); setTimeout(() => s.classList.remove("hit"), 700);
+        engSay(word, cfg, 0.7);
+    };
+    return s;
+}
+// Makes every English word with 5 or more letters tappable (letters only count; ' and - are ignored).
+// Hidden answers, number boxes and blanks are left alone. Telugu / Hindi lessons are not touched.
+function engWordify(el, cfg) {
+    if (!/^en/i.test(cfg.speech)) return;
+    const skip = ".answer,.num-word,.eng-paren,.eng-spk,.eng-box,.eng-blank,.eng-w";
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const nodes = []; let n;
+    while ((n = walker.nextNode())) { if (!n.parentElement || !n.parentElement.closest(skip)) nodes.push(n); }
+    nodes.forEach(tn => {
+        const s = tn.nodeValue, re = /[A-Za-z]+(?:['\u2019][A-Za-z]+)*/g;
+        let m, last = 0, frag = null;
+        while ((m = re.exec(s))) {
+            if (m[0].replace(/[^A-Za-z]/g, "").length < 5) continue;
+            frag = frag || document.createDocumentFragment();
+            if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+            frag.appendChild(engWordSpan(m[0], cfg));
+            last = m.index + m[0].length;
+        }
+        if (frag) {
+            if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+            tn.parentNode.replaceChild(frag, tn);
+        }
+    });
+}
+// What a question row should say: the question only, never the answer, the (a) letter, the numbers or the ( ) box
+function engRowText(row) {
+    const c = row.cloneNode(true);
+    c.querySelectorAll(".answer,.num-word,.eng-paren,.eng-spk,.word-answer-line,.question-letter,.eng-box,.eng-blank").forEach(x => x.remove());
+    if (c.classList.contains("eng-m-row") && c.firstElementChild) c.firstElementChild.remove();   // the "1." / "A." label
+    return c.textContent.replace(/_{2,}|\.{4,}/g, " blank ").replace(/\s+/g, " ").trim();
+}
+// Puts every question row of a section into its own box with a speaker button
+function engBoxRows(list, cfg) {
+    list.querySelectorAll(".question-row, .eng-seq-row, .eng-m-row, .eng-wq").forEach(row => {
+        const parent = row.parentNode, next = row.nextSibling;
+        engWordify(row, cfg);
+        parent.insertBefore(engBox(row, "q", cfg, () => engRowText(row)), next);
+    });
+}
 function engEl(tag, cls, text) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -2590,7 +2718,12 @@ function engStoryCard(parts, cfg) {
     const plain = [];
     parts.forEach(part => {
         const paras = part.paras || (part.text ? [part.text] : []);
-        paras.forEach(t => { card.appendChild(engEl("p", null, t)); plain.push(t); });
+        paras.forEach(t => {
+            const p = engEl("p", null, t);
+            engWordify(p, cfg);
+            card.appendChild(engBox(p, "story", cfg, () => t));   // each paragraph: own box + own speaker button
+            plain.push(t);
+        });
         if (part.image) {
             const im = document.createElement("img");
             im.className = "eng-img";
@@ -2624,8 +2757,15 @@ function engReadBtn(plain, cfg) {
 function engRenderSections(root, sections, n, bi, cfg) {
     sections.forEach((sec, si) => {
         const wrap = engEl("div", "eng-sec");
-        wrap.appendChild(engEl("div", "eng-sec-title", sec.heading || ""));
-        if (sec.note) wrap.appendChild(engEl("div", "eng-sec-note", sec.note));
+        const head = engEl("div", "eng-sec-head"), htxt = engEl("div", "eng-sec-headtxt");
+        htxt.appendChild(engEl("div", "eng-sec-title", sec.heading || ""));
+        if (sec.note) htxt.appendChild(engEl("div", "eng-sec-note", sec.note));
+        engWordify(htxt, cfg);
+        head.appendChild(htxt);
+        const hText = [sec.heading, sec.note].filter(Boolean).join(". ");
+        const hb = hText ? engSpkBtn(() => hText, cfg, head) : null;
+        if (hb) head.appendChild(hb);
+        wrap.appendChild(head);
         const list = document.createElement("div");
         engRenderSection(list, sec, n, bi * 100 + si, cfg);   // unique shuffle seed per block + section
         wrap.appendChild(list);
@@ -2819,6 +2959,7 @@ function engRenderSection(list, sec, n, si, cfg) {
                 row(a ? renderWordRow(letter(i), q, a) : bare("(" + letter(i) + ")", q));
             });
     }
+    engBoxRows(list, cfg);      // every question gets its own box + speaker button
 }
 
 function generate(box, val) {
