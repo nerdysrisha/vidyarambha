@@ -133,8 +133,8 @@ Define a throwaway test helper. It uses your already-pushed image, so it needs n
 
 ```bash
 nettest() { kubectl run nettest-$RANDOM -n "$APP_NS" --rm -i --restart=Never \
-  --image=fr2.icr.io/env-conf-container-cr/my-python-app:latest \
-  --overrides='{"spec":{"imagePullSecrets":[{"name":"fr2-icr-io-secret"}]}}' \
+  --image=useast.icr.io/env-conf-container-cr/my-python-app:latest \
+  --overrides='{"spec":{"imagePullSecrets":[{"name":"useast-icr-io-secret"}]}}' \
   --command -- python -c "$1"; }
 ```
 
@@ -147,7 +147,7 @@ nettest "import socket;print(socket.gethostbyname('kubernetes.default.svc'))"
 Egress to the container registry (expected status `401`, which proves reachability):
 
 ```bash
-nettest "import http.client as h;c=h.HTTPSConnection('fr2.icr.io',timeout=5);c.request('GET','/v2/');print(c.getresponse().status)"
+nettest "import http.client as h;c=h.HTTPSConnection('useast.icr.io',timeout=5);c.request('GET','/v2/');print(c.getresponse().status)"
 ```
 
 Egress to IBM Cloud IAM and the VPC API. CAA will call these from the worker in Step 3. Any HTTP status means reachable; a timeout or DNS error means blocked. In a dedicated or on-prem environment the VPC endpoint may differ, so use the one IBM gives you.
@@ -163,7 +163,7 @@ Good: DNS returns a service IP, and each egress test prints an HTTP status witho
 
 ```bash
 kubectl get ns $APP_NS
-kubectl get secret fr2-icr-io-secret -n $APP_NS
+kubectl get secret useast-icr-io-secret -n $APP_NS
 kubectl get sa default -n $APP_NS -o jsonpath='{.imagePullSecrets}{"\n"}'
 ```
 
@@ -259,3 +259,183 @@ Good: enough free CPU and memory on each worker for the operators, mesh control 
 - [ ] Pull secret present in the app namespace on both clusters.
 - [ ] Sandboxed containers and Service Mesh 3 operators visible in OperatorHub.
 - [ ] VPC, subnet, SG and ACL values recorded.
+
+
+
+---
+
+## Step 2: Container registry checkpoint
+
+Goal: prove the image registry is ready for the POC. The image is stored, tagged and pinned by digest, a scoped pull-only credential exists on both clusters, and the pull path works from the confidential cluster.
+
+Already done earlier: namespace `env-conf-container-cr` in `eu-useast` (`useast.icr.io`), `my-python-app:latest` pushed, and a plain pod pull on `non-conf-cluster` using `useast-icr-io-secret`. This step turns that into a repeatable, pinned and least-privilege setup.
+
+### 2.0 Set variables
+
+```bash
+export CR_HOST=useast.icr.io
+export CR_NS=env-conf-container-cr
+export IMG=my-python-app
+```
+
+`CLUSTER` and `APP_NS` come from Step 1.0.
+
+### 2.1 Registry region, plan and namespace
+
+```bash
+ibmcloud cr info
+ibmcloud cr plan
+ibmcloud cr quota
+ibmcloud cr namespace-list
+```
+
+Good:
+- Region is `eu-useast` and the registry is `useast.icr.io`. The private endpoint is `private.useast.icr.io`.
+- `env-conf-container-cr` is in the namespace list.
+- Plan and quota leave headroom for storage and pull traffic.
+
+### 2.2 Image present: tags, digest and architecture
+
+```bash
+ibmcloud cr image-list --restrict $CR_NS
+ibmcloud cr image-digests --restrict $CR_NS
+ibmcloud cr image-inspect $CR_HOST/$CR_NS/$IMG:latest
+docker image inspect $IMG:latest --format '{{.Os}}/{{.Architecture}}'
+```
+
+Good:
+- The image shows in the list with a digest (`sha256:...`).
+- The architecture is `linux/amd64`. TDX hosts are x86, so an `arm64` image built on Apple Silicon will not run in the peer pod.
+
+### 2.3 Add a version tag and record the digest (for pinning later)
+
+```bash
+ibmcloud cr image-tag $CR_HOST/$CR_NS/$IMG:latest $CR_HOST/$CR_NS/$IMG:v1
+ibmcloud cr image-digests --restrict $CR_NS
+```
+
+Record the digest. Tags can move, so Steps 5 and 6 (reference values and policy) will use the digest form:
+
+```
+useast.icr.io/env-conf-container-cr/my-python-app@sha256:<digest>
+```
+
+### 2.4 Vulnerability scan (optional)
+
+```bash
+ibmcloud cr vulnerability-assessment $CR_HOST/$CR_NS/$IMG:v1
+```
+
+Good: the scan completes. Note any critical findings, since this is a bank-style POC.
+
+### 2.5 Review the credential the clusters use today
+
+```bash
+ibmcloud iam service-ids
+ibmcloud iam service-policies <SERVICE_ID_NAME_OR_ID>
+kubectl get secret useast-icr-io-secret -n $APP_NS
+```
+
+Good: you know which identity backs `useast-icr-io-secret` and how wide its access is. IBM-created cluster credentials often have read access to registry namespaces beyond this POC. The worker node can read pod pull secrets, so the confidential cluster should use a scoped pull-only credential (2.6).
+
+### 2.6 Create a scoped pull-only credential for the POC
+
+Create a service ID that has Reader on this one registry namespace:
+
+```bash
+ibmcloud iam service-id-create coco-poc-icr-pull -d "Pull-only for CoCo POC"
+ibmcloud iam service-policy-create coco-poc-icr-pull --roles Reader --service-name container-registry --resource-type namespace --resource $CR_NS
+```
+
+Create an API key and write it to a local file (it is shown only once, and don't paste it in chat):
+
+```bash
+ibmcloud iam service-api-key-create coco-poc-icr-pull-key coco-poc-icr-pull -d "CoCo POC pull key" --file ./coco-poc-icr-key.json
+chmod 600 ./coco-poc-icr-key.json
+```
+
+Create the pull secret in `$APP_NS`. Repeat this on both clusters by switching context first (1.3):
+
+```bash
+kubectl create secret docker-registry coco-icr-pull -n $APP_NS \
+  --docker-server=$CR_HOST \
+  --docker-username=iamapikey \
+  --docker-password="$(jq -r .apikey ./coco-poc-icr-key.json)"
+```
+
+When the secret exists on both clusters, remove the key file or move it into your vault:
+
+```bash
+shred -u ./coco-poc-icr-key.json || rm -P ./coco-poc-icr-key.json
+```
+
+Good:
+- `ibmcloud iam service-policies coco-poc-icr-pull` shows only Reader on namespace `env-conf-container-cr`.
+- `kubectl get secret coco-icr-pull -n $APP_NS` exists on both clusters.
+
+If you will use the private endpoint, create a second secret with `--docker-server=private.useast.icr.io`, or give your pod spec both.
+
+### 2.7 Pull test on the confidential cluster (plain pod, new secret, pinned tag)
+
+Switch to `conf-cluster` (1.3), then:
+
+```bash
+kubectl run pulltest-v1 -n $APP_NS --image=$CR_HOST/$CR_NS/$IMG:v1 \
+  --overrides='{"spec":{"imagePullSecrets":[{"name":"coco-icr-pull"}]}}'
+kubectl get pod pulltest-v1 -n $APP_NS
+kubectl describe pod pulltest-v1 -n $APP_NS | tail -15
+```
+
+Good: the pod reaches `Running` or `Completed`, and the events show the image pulled successfully.
+
+Clean up:
+
+```bash
+kubectl delete pod pulltest-v1 -n $APP_NS
+```
+
+Repeat 2.7 on `non-conf-cluster` if you want both proven with the new secret.
+
+### 2.8 Registry reachability for the peer pod VM path
+
+By default the peer pod VM's traffic, including its image pulls, goes through VXLAN to the worker and out via the worker's egress. So the worker network must reach the registry. This was tested in 1.9. For the private endpoint, re-define the `nettest` helper from 1.9 in this terminal if needed, then:
+
+```bash
+nettest "import http.client as h;c=h.HTTPSConnection('private.useast.icr.io',timeout=5);c.request('GET','/v2/');print(c.getresponse().status)"
+```
+
+Good: status `401` means reachable. A timeout means the private endpoint is not reachable from this network, so use the public hostname in image references.
+
+### 2.9 Image naming for the POC (no commands, decide now)
+
+| Image | Repository path | Runs as | Tag policy |
+|---|---|---|---|
+| App 1 (CVM, calls CDH) | `useast.icr.io/env-conf-container-cr/app1-cvm-api` | peer pod (`kata-remote`) | version tag plus digest pin |
+| App 2 (web UI) | `useast.icr.io/env-conf-container-cr/app2-web-ui` | normal worker pod | version tag |
+| Test image | `useast.icr.io/env-conf-container-cr/my-python-app` | plain pod | `v1` |
+
+Rename if you prefer. The names are used in Steps 8 and 9.
+
+---
+
+### Values to record
+
+| Item | Value |
+|---|---|
+| Registry host and region | |
+| Namespace | |
+| Image digest (`my-python-app:v1`) | |
+| Image architecture | |
+| Pull secret name | |
+| Pull credential scope (service ID, role, namespace) | |
+| Public / private endpoint used for pulls | |
+
+### Step 2 exit criteria
+
+- [ ] Image is in `env-conf-container-cr` with a `v1` tag and a recorded digest.
+- [ ] Image architecture is `linux/amd64`.
+- [ ] A pull-only IAM credential is scoped to this one registry namespace.
+- [ ] The `coco-icr-pull` secret exists in the app namespace on both clusters, and the key file is removed.
+- [ ] A plain-pod pull works on `conf-cluster` with the new secret.
+- [ ] Registry reachability from the cluster network is confirmed (public and/or private).
+- [ ] The image naming plan for App 1 and App 2 is agreed.
