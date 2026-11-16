@@ -610,7 +610,867 @@ ibmcloud cr image-digests --restrict env-conf-container-cr
 | Key env vars | `CDH_BASE_URL`, `KBS_RESOURCE_PATH`, `SECRET_TTL_SECONDS` | `APP1_BASE_URL`, `APP1_TIMEOUT_SECONDS` |
 | Runs on | peer pod (`kata-remote`) | normal worker |
 
- 
+
+
+
+
+---
+
+## Step 3: Kata peer pod runtime (OpenShift sandboxed containers) on `conf-cluster`
+
+Goal: install the OpenShift sandboxed containers operator, import the IBM peer pod image, configure the credentials and `peer-pods-cm`, enable `KataConfig`, and prove that a `kata-remote` pod creates a TDX VSI. This is IBM's "confidential containers" guide, reorganized with a check after every action.
+
+Source and versions (from IBM's guide):
+- OpenShift sandboxed containers operator **1.10.3**, supported on OpenShift 4.16 to 4.19.
+- Peer pod image: RHEL 9.6 based, with TDX driver code and a kbs client baked in.
+- TDX instance profile used in the guide: `bx3dc-2x10`.
+- The IBM guide uses `ibmcloud ks` and `oc`. `ibmcloud oc` is the same plugin, and `kubectl` works for every `oc` command here.
+
+### 3.0 Set variables (once per terminal)
+
+```bash
+export CLUSTER_NAME=conf-cluster
+export CLUSTER_ID=<cluster-id>
+export VPC_ID=<vpc-id>                      # required: used by the commands in 3.7
+export ZONE=<zone>                          # e.g. eu-de-1
+export SUBNET_ID=<subnet-id>
+export RESOURCE_GROUP=<resource-group>
+export OSC_NS=openshift-sandboxed-containers-operator
+export PODVM_IMAGE_NAME=<lowercase-image-name>   # image names don't support capitals
+```
+
+Take the IDs from your Step 1 "values to record" table. Make sure `kubectl config current-context` points at `conf-cluster`.
+
+### 3.1 Prerequisite checks
+
+IBM's prerequisites: the cluster is in a region that supports TDX VSIs, the cluster has a public interface or you have VPN access, the cluster security group `kube-<CLUSTER_ID>` exists, and OperatorHub is enabled.
+
+```bash
+ibmcloud is instance-profiles | grep -i bx3dc
+ibmcloud ks cluster get --cluster $CLUSTER_NAME
+ibmcloud ks security-group ls --cluster $CLUSTER_NAME
+kubectl get operatorhub cluster -o jsonpath='{.spec.disableAllDefaultSources}{"\n"}'
+kubectl get packagemanifests -n openshift-marketplace | grep -i sandboxed
+```
+
+Good:
+- `bx3dc-*` profiles are listed. These are the TDX-capable profiles (the guide uses `bx3dc-2x10`). If nothing is listed, stop: TDX isn't offered to you in this region or environment.
+- The cluster is `normal`, and has a public endpoint or you reach it over VPN.
+- A security group of type `cluster` named `kube-<CLUSTER_ID>` is listed. Note its ID.
+- `disableAllDefaultSources` prints `false` (or empty), and the sandboxed containers package appears.
+
+### 3.2 Install the operator (OperatorHub)
+
+1. Open the cluster in the IBM Cloud dashboard, click **OpenShift web console**, then **Operators -> OperatorHub**.
+2. Search for **OpenShift sandboxed containers Operator** and open the tile.
+3. Click **Install**. IBM's guide says this gives the supported and stable version 1.10.3. Compare with Red Hat's Operator Update Information Checker for your OpenShift version.
+4. Keep the defaults on the **Install Operator** page and click **Install**. The operator goes into `openshift-sandboxed-containers-operator`.
+
+Check 3.2:
+
+```bash
+kubectl get subscription -n $OSC_NS
+kubectl get csv -n $OSC_NS
+kubectl get pods -n $OSC_NS
+kubectl get crd | grep -i kataconfig
+```
+
+Good: the CSV phase is `Succeeded` and the version matches what IBM supports (1.10.3 at the time of the guide), the controller manager pod is `Running`, and the `KataConfig` CRD exists.
+
+### 3.3 CLI setup (skip what you already have)
+
+You are already logged in from Step 1. For reference, IBM's guide does this:
+
+```bash
+ibmcloud login --apikey API_KEY -g RESOURCE_GROUP
+ibmcloud ks cluster ls
+ibmcloud ks cluster config --cluster CLUSTER_ID --admin --endpoint link
+kubectl get nodes
+kubectl config set-context --current --namespace=$OSC_NS
+```
+
+`--endpoint link` uses the private link endpoint. Use it only if you connect over VPN or private connectivity. The `is` CLI plugin was installed in Step 1.1.
+
+Good: `kubectl get nodes` lists both workers `Ready` on `conf-cluster`.
+
+### 3.4 Import the peer pod image
+
+The operator needs a special OS image (RHEL 9.6 with the software to start a container inside a confidential VM) in your IBM Cloud account.
+
+```bash
+ibmcloud is image-create "$PODVM_IMAGE_NAME" --file cos://us-south/podvm-image/rhel9-podvm-latest.qcow2 --os-name red-9-amd64
+```
+
+Wait for the image to become available (repeat until the status is `available`):
+
+```bash
+ibmcloud is image $PODVM_IMAGE_NAME
+```
+
+Record the image ID:
+
+```bash
+export PODVM_IMAGE_ID=$(ibmcloud is image $PODVM_IMAGE_NAME --output JSON | jq -r .id)
+echo $PODVM_IMAGE_ID
+```
+
+Good: the status is `available` and the ID prints. Repeat the import when IBM publishes a new image version. This image is what Step 5 measures for the reference values, so record its name, ID and import date.
+
+### 3.5 Create the credential Cloud API Adapter (CAA) uses to create VSIs
+
+Use an API key for testing, or a trusted profile if you use Secrets Manager or want to avoid a long-lived key. The credential is stored in the cluster (3.7), so keep its permissions minimal.
+
+Option A: API key. Write it to a file so it isn't printed on screen:
+
+```bash
+ibmcloud iam api-key-create peerpods-poc-key -d "CoCo POC peer pods" --file ./peerpods-apikey.json
+chmod 600 ./peerpods-apikey.json
+export IBMCLOUD_API_KEY=$(jq -r .apikey ./peerpods-apikey.json)
+```
+
+Option B: trusted profile (IBM's steps a to e):
+
+```bash
+ibmcloud iam trusted-profile-create PROFILE_NAME --description "CoCo POC peer pods"
+ibmcloud iam trusted-profile-rule-create PROFILE_NAME_OR_ID --name RULE_NAME --type Profile-CR --conditions claim:namespace,operator:EQUALS,value:$OSC_NS --cr-type ROKS_SA
+ibmcloud iam trusted-profile-policy-create PROFILE_NAME_OR_ID --roles Editor,Writer --service-name is
+ibmcloud iam trusted-profile-policy-create PROFILE_NAME_OR_ID --roles Viewer --resource-type resource-group --resource RESOURCE_GROUP_ID
+ibmcloud iam trusted-profile-policy-create PROFILE_NAME_OR_ID --roles Viewer --service-name containers-kubernetes [--resource-group-id RESOURCE_GROUP_ID]
+```
+
+(Rule: pods in `$OSC_NS` may use the profile. Policy 1: create VSIs. Policy 2: Viewer on the resource group, so CAA can create VSIs there. Policy 3: Viewer on the Kubernetes service, so CAA can look up the cluster security group at startup.)
+
+Check 3.5:
+
+```bash
+ibmcloud iam api-keys | grep -i peerpods-poc-key
+ibmcloud iam trusted-profile PROFILE_NAME_OR_ID
+ibmcloud iam trusted-profile-policies PROFILE_NAME_OR_ID
+ibmcloud iam trusted-profile-rules PROFILE_NAME_OR_ID
+```
+
+Good: the key exists (Option A), or the profile shows one rule for `$OSC_NS` and the three policies (Option B). If a subcommand name differs in your CLI version, check `ibmcloud iam --help`.
+
+Set `export IBMCLOUD_TRUSTED_PROFILE_ID=<profile-id>` for Option B.
+
+### 3.6 SSH key (optional, test clusters only)
+
+A key helps you debug a peer pod VSI that won't start. Skip it in production, where it widens the attack surface.
+
+```bash
+ibmcloud is keys
+export SSH_KEY_ID=<key-id>
+```
+
+Good: the key is listed and `SSH_KEY_ID` is set. If you skip the key, remove the `IBMCLOUD_SSH_KEY_ID` line in 3.7.
+
+### 3.7 Create the configuration objects
+
+Work in a scratch directory and save the variables in a script so you can reload them:
+
+```bash
+mkdir -p ~/coco-poc/peerpods && cd ~/coco-poc/peerpods
+cat > env-vars.sh <<'EOF'
+export IBMCLOUD_API_KEY=<your API key>                 # remove if using a trusted profile
+export IBMCLOUD_TRUSTED_PROFILE_ID=<trusted profile ID> # remove if using an API key
+export CLUSTER_NAME=<cluster-name>
+export PODVM_IMAGE_ID=<PodVM image ID>
+export SSH_KEY_ID=<SSH key ID>                          # remove if you skipped 3.6
+export VPC_ID=<VPC ID>                                  # IBM marks it optional, but the commands below use it
+EOF
+chmod 600 env-vars.sh
+. ./env-vars.sh
+```
+
+Do not commit `env-vars.sh`, `peer-pods-secret.yaml` or any key file to git.
+
+**1. Feature gates ConfigMap**
+
+```bash
+cat > feature-gates.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: osc-feature-gates
+  namespace: $OSC_NS
+data:
+  deploymentMode: "DaemonSetFallback"   # or DaemonSet to force it
+  confidential: "true"
+  layeredImageDeployment: "false"
+EOF
+kubectl apply --dry-run=server -f feature-gates.yaml && kubectl apply -f feature-gates.yaml
+```
+
+**2. Credentials Secret**
+
+```bash
+cat > peer-pods-secret.yaml <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: peer-pods-secret
+  namespace: $OSC_NS
+type: Opaque
+stringData:
+  # either IBMCLOUD_API_KEY or IBMCLOUD_IAM_PROFILE_ID must be set;
+  # if both are set, the API key is used
+  IBMCLOUD_API_KEY: "$IBMCLOUD_API_KEY"
+  IBMCLOUD_IAM_ENDPOINT: "https://iam.cloud.ibm.com/identity/token"
+  IBMCLOUD_IAM_PROFILE_ID: "$IBMCLOUD_TRUSTED_PROFILE_ID"
+EOF
+kubectl apply --dry-run=server -f peer-pods-secret.yaml && kubectl apply -f peer-pods-secret.yaml
+shred -u peer-pods-secret.yaml 2>/dev/null || rm -P peer-pods-secret.yaml
+```
+
+The Secret is readable by anyone with secret access in `$OSC_NS`, and the worker can see it. That is one more reason to use a trusted profile or a tightly scoped key.
+
+**3. Peer pods ConfigMap**
+
+```bash
+cat > peer-pods-cm.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peer-pods-cm
+  namespace: $OSC_NS
+data:
+  CLOUD_PROVIDER: "ibmcloud"
+  IBMCLOUD_PODVM_IMAGE_ID: "$PODVM_IMAGE_ID"
+  IBMCLOUD_PODVM_INSTANCE_PROFILE_LIST: "bx3dc-2x10"
+  IBMCLOUD_PODVM_INSTANCE_PROFILE_NAME: "bx3dc-2x10"
+  IBMCLOUD_RESOURCE_GROUP_ID: "$(ibmcloud is vpc "$VPC_ID" -json | jq -r .resource_group.id)"
+  IBMCLOUD_SSH_KEY_ID: "$SSH_KEY_ID"
+  IBMCLOUD_VPC_ID: "$VPC_ID"
+  IBMCLOUD_VPC_SG_ID: "$(ibmcloud ks security-group ls --cluster $CLUSTER_NAME -json | jq -r '.[] | select(.type == "cluster") | .id')"
+  CLOUD_CONFIG_VERIFY: "false"
+  CRI_RUNTIME_ENDPOINT: "/run/cri-runtime/containerd.sock"
+  ENABLE_CLOUD_PROVIDER_EXTERNAL_PLUGIN: "false"
+  VXLAN_PORT: ""
+  TUNNEL_TYPE: ""
+  INITDATA: ""
+  PEERPODS_LIMIT_PER_NODE: "10"
+EOF
+grep -E "IMAGE_ID|RESOURCE_GROUP_ID|VPC_ID|VPC_SG_ID" peer-pods-cm.yaml
+```
+
+Check the generated values before applying. The four lines must show non-empty IDs. Empty values mean one of the lookup commands or variables failed.
+
+```bash
+kubectl apply --dry-run=server -f peer-pods-cm.yaml && kubectl apply -f peer-pods-cm.yaml
+```
+
+Notes on this ConfigMap (confirm the starred items with IBM):
+- `IBMCLOUD_VPC_SG_ID` is the cluster security group `kube-<CLUSTER_ID>` (the peer pod VSIs are attached to it).
+- `INITDATA` stays empty until Step 4 provides a Trustee.
+- (*) `CLOUD_CONFIG_VERIFY: "false"` is IBM's example value. Ask what it controls before using it outside the POC.
+- (*) `CRI_RUNTIME_ENDPOINT` points at a containerd socket in IBM's guide, while your nodes report cri-o. Keep IBM's value unless IBM says otherwise, and tell me if pods fail to start.
+- `PEERPODS_LIMIT_PER_NODE` caps peer pod VSIs per worker (default 10). Each peer pod costs the worker about 250m CPU and 120Mi memory for the pod shell.
+
+**4. KataConfig**
+
+```bash
+cat > kata-runtime-settings.yaml <<EOF
+apiVersion: kataconfiguration.openshift.io/v1
+kind: KataConfig
+metadata:
+  name: kata-runtime-settings
+  namespace: $OSC_NS
+spec:
+  enablePeerPods: true
+  logLevel: info
+ #checkNodeEligibility: true
+ #kataConfigPoolSelector:
+ #  matchLabels:
+ #    <label_key>: '<label_value>'
+EOF
+kubectl apply --dry-run=server -f kata-runtime-settings.yaml && kubectl apply -f kata-runtime-settings.yaml
+```
+
+Check 3.7 (objects exist):
+
+```bash
+kubectl get cm osc-feature-gates peer-pods-cm -n $OSC_NS
+kubectl get secret peer-pods-secret -n $OSC_NS
+kubectl get kataconfig -n $OSC_NS
+```
+
+### 3.8 Watch the Kata install and reboot the workers
+
+Watch the node labels move through the states (every 30 to 60 seconds):
+
+```bash
+kubectl get nodes --output yaml | egrep "kata-ds-rpm-install|ibm-cloud.kubernetes.io/worker-id"
+kubectl get kataconfig -n $OSC_NS
+kubectl get pods -n $OSC_NS
+```
+
+States: `waiting_to_install`, `installing`, `installed`, `waiting_for_reboot`, `waiting_to_uninstall`, `uninstalling`, `uninstalled`.
+
+When a node shows `waiting_for_reboot`, reboot the workers **one at a time**. Do the next only when the previous is `Ready` again:
+
+```bash
+kubectl get nodes -L ibm-cloud.kubernetes.io/worker-id
+kubectl drain <node> --ignore-daemonsets --delete-emptydir-data
+ibmcloud ks worker reboot --cluster $CLUSTER_NAME --worker <worker-id>
+kubectl get nodes -w
+kubectl uncordon <node>
+```
+
+If the `worker reboot` subcommand is not available for your cluster type, check `ibmcloud ks worker --help` or reboot from the console.
+
+Check 3.8:
+
+```bash
+kubectl get nodes --output yaml | egrep "kata-ds-rpm-install"
+kubectl get runtimeclass kata-remote
+kubectl get ds osc-caa-ds -n $OSC_NS
+kubectl get pods -n $OSC_NS -o wide
+kubectl logs ds/osc-caa-ds -n $OSC_NS --tail=30
+```
+
+Good:
+- Every worker shows `installed`, and the `KataConfig` is complete.
+- The `kata-remote` RuntimeClass exists.
+- `osc-caa-ds` has one pod per worker, all `Running`, and the logs have no repeating errors (credential or VPC API failures show here).
+
+### 3.9 Check peer pod capacity
+
+```bash
+kubectl get nodes -o json | jq -r '[.items[] | select (.status.allocatable["kata.peerpods.io/vm"] != null)| .status.allocatable["kata.peerpods.io/vm"] | tonumber] | add'
+kubectl get pods -A -o json | jq '.items[] | select(.spec.runtimeClassName == "kata-remote") | "\(.metadata.namespace)/\(.metadata.name)"' | wc -l
+```
+
+Good: the first command prints the total peer pod slots (10 per worker by default, so 20 with two workers). The second prints the number of `kata-remote` pods now running (0 at first).
+
+To raise the limit later:
+
+```bash
+kubectl -n $OSC_NS patch cm peer-pods-cm --type merge -p '{"data":{"PEERPODS_LIMIT_PER_NODE":"24"}}'
+kubectl -n $OSC_NS rollout restart daemonset/osc-caa-ds
+```
+
+### 3.10 Smoke test: a peer pod starts and a TDX VSI appears
+
+This test needs no Trustee. The attestation call comes in Step 4.
+
+Option A: IBM's example. The VM must pull from `docker.io`:
+
+```bash
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: helloworld
+    version: v1
+  name: helloworld
+spec:
+  containers:
+  - name: helloworld
+    image: docker.io/istio/examples-helloworld-v1:1.0
+    ports:
+    - containerPort: 5000
+  runtimeClassName: kata-remote
+EOF
+```
+
+Option B (recommended): your own image from ICR, which also proves the registry path from the peer pod. Use a namespace without mesh injection (Step 7), or set `sidecar.istio.io/inject: "false"` as a label:
+
+```bash
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: peerpod-smoke
+  namespace: $APP_NS
+  labels:
+    sidecar.istio.io/inject: "false"
+spec:
+  runtimeClassName: kata-remote
+  imagePullSecrets:
+  - name: coco-icr-pull
+  containers:
+  - name: app
+    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+EOF
+```
+
+Check 3.10:
+
+```bash
+kubectl get pods -A | grep -E "helloworld|peerpod-smoke"
+kubectl describe pod peerpod-smoke -n $APP_NS | tail -25
+kubectl logs ds/osc-caa-ds -n $OSC_NS --tail=50
+ibmcloud is instances --output JSON | jq -r '.[] | select(.profile.name=="bx3dc-2x10") | "\(.name)  \(.status)  \(.zone.name)"'
+```
+
+(Use `helloworld` instead of `peerpod-smoke -n $APP_NS` for Option A.)
+
+Good:
+- The pod reaches `Running`.
+- A new VSI with profile `bx3dc-2x10` appears and goes from `starting` to `running`, in your VPC.
+- The CAA logs show the VSI being created, with no credential or quota errors.
+
+Delete the smoke pod when done. This also deletes its VSI:
+
+```bash
+kubectl delete pod peerpod-smoke -n $APP_NS
+ibmcloud is instances | grep -i -E "podvm|peer"
+```
+
+Good: the VSI disappears (confirm within a few minutes, to avoid being billed for leftovers).
+
+### 3.11 Troubleshooting
+
+| Symptom | Where to look |
+|---|---|
+| Pod `Pending` or `ContainerCreating` for long | `kubectl describe pod`, then CAA logs: `kubectl logs ds/osc-caa-ds -n $OSC_NS` |
+| CAA logs show IAM or VPC API errors | Credential and policies (3.5), IAM endpoint reachability from the worker (Step 1.9), resource group and VPC IDs in `peer-pods-cm` |
+| VSI created but stuck `starting` | VSI logs in the console, the image ID (3.4), the profile and zone, and the SSH key if you set one |
+| No slots for peer pods | `PEERPODS_LIMIT_PER_NODE` (3.9) |
+| Operator problems | `kubectl logs deploy/controller-manager -n $OSC_NS` (the pod name is `controller-manager-<id>`) |
+
+### 3.12 Removal order (important: wrong order leaves VSIs that you are billed for)
+
+1. Delete every workload using `kata-remote`. This deletes its VSIs.
+
+```bash
+kubectl get pods -A -o json | jq '.items[] | select(.spec.runtimeClassName == "kata-remote") | "\(.metadata.namespace)/\(.metadata.name)"'
+kubectl delete pod <name> -n <namespace>
+```
+
+2. Delete `KataConfig`, which removes Kata from the workers. Watch the labels until `waiting_for_reboot`, then reboot the workers one at a time. Wait until the deletion finishes before continuing. Do not continue if the `KataConfig` fails to delete.
+
+```bash
+kubectl delete kataconfig kata-runtime-settings -n $OSC_NS
+```
+
+3. Delete the ConfigMaps (`peer-pods-cm`, `osc-feature-gates`) and the `peer-pods-secret`. If you break the credentials or ConfigMaps first, CAA can't call the VPC API and you must remove VSIs by hand.
+4. Uninstall the operator in OperatorHub, check that `$OSC_NS` is empty, then delete the namespace.
+
+### Values to record (Step 3)
+
+| Item | Value |
+|---|---|
+| Operator version | |
+| Peer pod image name, ID, import date | |
+| TDX instance profile | `bx3dc-2x10` (confirm) |
+| Credential type and name | |
+| `kube-<CLUSTER_ID>` security group ID | |
+| `PEERPODS_LIMIT_PER_NODE` and total slots | |
+| Open questions for IBM (CRI endpoint, `CLOUD_CONFIG_VERIFY`) | |
+
+### Step 3 exit criteria
+
+- [ ] Operator CSV `Succeeded`, `KataConfig` complete, and all workers `installed`.
+- [ ] `kata-remote` RuntimeClass exists, and `osc-caa-ds` runs on every worker with clean logs.
+- [ ] A smoke pod reaches `Running` and a `bx3dc-2x10` VSI is created, then removed when the pod is deleted.
+- [ ] Registry pull from the peer pod works (Option B).
+- [ ] Credentials are scoped and the temporary files are removed.
+
+---
+
+## Step 4: Trustee (KBS + Attestation Service + RVPS) on a VSI
+
+Goal: run a Trustee in the same VPC, load a test secret (`default/kbsres1/key1`), point the peer pods at it with INITDATA, and prove that a peer pod can fetch the secret through CDH.
+
+### Is IBM's Trustee setup the same as setting up from the Trustee GitHub repo?
+
+Yes, it is the same. IBM's "Deploy a test Trustee" runs `git clone https://github.com/confidential-containers/trustee.git` and `docker compose up -d`, which is the repo's own docker compose deployment. IBM adds the VSI creation and the INITDATA wiring on top. What you should know about that compose deployment (I read it in the repo):
+
+| Topic | What the compose setup does |
+|---|---|
+| Services | `kbs` (port 8080), `as` (gRPC 50004), `rvps` (gRPC 50003), and a one-shot `setup` container that generates keys and exits |
+| Transport | `insecure_http = true`, so KBS speaks plain HTTP. Test only. In production, use HTTPS |
+| Images | Prebuilt `ghcr.io/confidential-containers/staged-images/*:latest`. These move, so record digests |
+| Admin auth | `setup` generates an Ed25519 key and a 10-year admin JWT in `kbs/config/docker-compose/admin-token`. `kbs-client --admin-token-file` uses it |
+| Attestation token signing | A generated CA and a 90-day token certificate. Tokens live 5 minutes (`duration_min: 5`). KBS trusts the generated CA |
+| Reference values | RVPS starts **empty** |
+| Resource policy | The built-in default allows any non-`sample` TEE to read any resource |
+| TDX collateral | The compose AS config has no TDX verifier settings, so the verifier default applies: Intel PCS at `https://api.trustedservices.intel.com/sgx/certification/v4/`. The Trustee VSI needs HTTPS egress to it, or you configure a PCCS |
+| Published ports | Compose also publishes 50003 and 50004 on all interfaces. Only 8080 needs to be reachable from the cluster |
+| Other options | The repo also has a Helm chart (`deployment/helm-chart`) for Kubernetes. IBM's guide doesn't use it |
+
+Because RVPS is empty and the default policy is permissive, IBM's end-to-end test succeeds even though your image measurements aren't checked yet. A successful fetch proves the evidence path and the channel, not strong attestation. Step 5 (reference values) and Step 6 (policies) turn that on. The repo ships `affirming.rego`, which releases a resource only when the AS returns an `affirming` result.
+
+### 4.0 Set variables
+
+```bash
+export CLUSTER_NAME=conf-cluster
+export VPC_ID=<vpc-id>
+export ZONE=<zone>
+export SUBNET_ID=<subnet-id>
+export SSH_KEY_ID=<ssh-key-id>
+export OSC_NS=openshift-sandboxed-containers-operator
+```
+
+### 4.1 Prepare the network rules for the Trustee VSI
+
+IBM's guide doesn't mention security groups, but the Trustee needs: inbound 8080 from the cluster (workers and peer pod VSIs share the `kube-<CLUSTER_ID>` group), inbound 22 for you, and outbound internet (apt, Docker, ghcr.io, and Intel PCS on 443).
+
+```bash
+KUBE_SG=$(ibmcloud ks security-group ls --cluster $CLUSTER_NAME -json | jq -r '.[] | select(.type == "cluster") | .id')
+ibmcloud is security-group-create trustee-sg $VPC_ID
+ibmcloud is security-group-rule-add trustee-sg inbound tcp --port-min 8080 --port-max 8080 --remote $KUBE_SG
+ibmcloud is security-group-rule-add trustee-sg inbound tcp --port-min 22 --port-max 22 --remote <your-admin-cidr-or-sg>
+ibmcloud is security-group-rule-add trustee-sg outbound all --remote 0.0.0.0/0
+```
+
+(Outbound `all` is a POC shortcut. Tighten it later.)
+
+Check 4.1:
+
+```bash
+ibmcloud is security-group trustee-sg
+ibmcloud is public-gateways
+```
+
+Good: three rules exist (8080 from the kube SG, 22, outbound all). The subnet has a public gateway, or another way to reach the internet (needed for package, image and Intel PCS access). In a restricted or on-prem environment, ask IBM which mirrors or proxies to use.
+
+### 4.2 Create the Trustee VSI
+
+IBM's guide hard-codes an Ubuntu image ID (`r014-85b1...`). Image IDs differ per region, so look up the one for your zone:
+
+```bash
+ibmcloud is images | grep -i ubuntu
+export UBUNTU_IMAGE_ID=<id of an ubuntu amd64 image in your region>
+```
+
+Create the VSI. I added `--security-groups`, so check `ibmcloud is instance-create --help` if it errors:
+
+```bash
+ibmcloud is instance-create "$CLUSTER_NAME-trustee" "$VPC_ID" "$ZONE" "bx2-2x8" "$SUBNET_ID" \
+  --image "$UBUNTU_IMAGE_ID" --keys "$SSH_KEY_ID" --allow-ip-spoofing false --security-groups trustee-sg
+```
+
+Check 4.2:
+
+```bash
+ibmcloud is instance "$CLUSTER_NAME-trustee" --output JSON | jq -r '.status, (.network_interfaces[].primary_ip.address)'
+```
+
+Good: the status is `running`, and the private IP prints. Record it as `TRUSTEE_IP`.
+
+### 4.3 Install Docker and oras on the VSI
+
+SSH to the private IP. IBM's tip: you can reach it from a pod or node in the cluster, since it is in the same VPC.
+
+```bash
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo snap install oras --classic
+```
+
+Check 4.3:
+
+```bash
+docker --version
+docker compose version
+oras version
+curl -sI https://ghcr.io | head -1
+curl -s -o /dev/null -w "%{http_code}\n" https://api.trustedservices.intel.com/sgx/certification/v4/
+```
+
+Good: versions print, `ghcr.io` answers, and the Intel PCS URL returns an HTTP code (any HTTP code means reachable; a timeout means the AS can't fetch TDX collateral later).
+
+### 4.4 Deploy Trustee from the GitHub repo
+
+```bash
+git clone https://github.com/confidential-containers/trustee.git
+cd trustee
+git rev-parse HEAD
+sudo docker compose up -d
+```
+
+`git clone` takes the default branch. Record the commit from `git rev-parse HEAD`. The KBS protocol version must match the attestation agent in the peer pod image (the code I read requires exactly 0.4.0). If `/auth` fails later with a version error, the Trustee version and the peer pod image are out of step, so ask IBM which Trustee version their image expects.
+
+Check 4.4:
+
+```bash
+sudo docker compose ps -a
+sudo docker compose logs setup | tail -5
+sudo docker compose logs kbs --tail=20
+sudo docker compose logs as --tail=20
+ls kbs/config/docker-compose
+sudo ss -ltnp | grep -E ":8080|:50003|:50004"
+```
+
+Good:
+- `kbs`, `as` and `rvps` are `Up`. `setup` shows `Exited (0)`.
+- `ls` shows `private.key`, `public.pub`, `admin-token`, `ca-cert.pem`, `token.key` and `token-cert-chain.pem`.
+- Ports 8080, 50003 and 50004 are listening.
+- The `kbs` logs show it started and connected to `as` without errors.
+
+Record the image digests, because `latest` moves:
+
+```bash
+sudo docker compose images
+sudo docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/confidential-containers/staged-images/kbs-grpc-as:latest
+```
+
+Test the KBS API locally. A JSON challenge containing a `nonce` proves KBS is up. The response must come with a `kbs-session-id` cookie:
+
+```bash
+curl -si -X POST http://127.0.0.1:8080/kbs/v0/auth -H 'Content-Type: application/json' \
+  -d '{"version":"0.4.0","tee":"tdx","extra-params":{}}' | head -12
+```
+
+Good: `HTTP/1.1 200` with `set-cookie: kbs-session-id=...` and a nonce in the body. A 4xx still proves reachability, so tell me the body if you see one.
+
+Protect the admin material. `setup` leaves `admin-token` world-readable (mode 644), and `private.key` is the key behind the admin identity:
+
+```bash
+chmod 600 kbs/config/docker-compose/admin-token kbs/config/docker-compose/private.key
+```
+
+### 4.5 Load the test secret
+
+```bash
+oras pull ghcr.io/confidential-containers/staged-images/kbs-client:latest
+chmod +x kbs-client
+cat > kbsres1_key1 << EOF
+res1val1
+EOF
+./kbs-client --url http://127.0.0.1:8080 config --admin-token-file kbs/config/docker-compose/admin-token set-resource --resource-file kbsres1_key1 --path default/kbsres1/key1
+```
+
+Check 4.5:
+
+```bash
+find kbs/data -type f | head -20
+```
+
+Good: the `set-resource` command returns without an error, and the stored resource file shows under `kbs/data` (the storage layout may differ by version, so tell me what the `find` shows if you don't see `kbsres1`). Delete the plain text test file afterwards: `shred -u kbsres1_key1`.
+
+### 4.6 Check the network path from the cluster
+
+Run from your machine with the `conf-cluster` context. Set `TRUSTEE_IP` first:
+
+```bash
+export TRUSTEE_IP=<trustee private IP>
+nettest() { kubectl run nettest-$RANDOM -n "$APP_NS" --rm -i --restart=Never \
+  --image=fr2.icr.io/env-conf-container-cr/my-python-app:v1 \
+  --overrides='{"spec":{"imagePullSecrets":[{"name":"coco-icr-pull"}]}}' \
+  --command -- python -c "$1"; }
+nettest "import http.client as h;c=h.HTTPConnection('$TRUSTEE_IP',8080,timeout=5);c.request('GET','/');print(c.getresponse().status)"
+nettest "import socket;s=socket.socket();s.settimeout(5);print('50003 open' if s.connect_ex(('$TRUSTEE_IP',50003))==0 else '50003 closed')"
+```
+
+Good:
+- The first command prints an HTTP status (any status means 8080 is reachable from the cluster).
+- The second prints `50003 closed` (or times out). The AS and RVPS ports must not be reachable from the cluster.
+
+If 8080 is blocked, fix `trustee-sg` (4.1) and the ACLs from Step 1.12.
+
+### 4.7 Create INITDATA and wire it into peer pods
+
+```bash
+export KBS_SERVICE_ENDPOINT="http://$(ibmcloud is instance "$CLUSTER_NAME-trustee" --output JSON | jq -r '.network_interfaces[].primary_ip.address'):8080"
+export INITDATA=$(cat <<EOF | gzip | base64 -w0
+algorithm = "sha256"
+version = "0.1.0"
+
+[data]
+"aa.toml" = '''
+[token_configs]
+[token_configs.coco_as]
+url = "$KBS_SERVICE_ENDPOINT"
+
+[token_configs.kbs]
+url = "$KBS_SERVICE_ENDPOINT"
+'''
+
+"cdh.toml"  = '''
+socket = 'unix:///run/confidential-containers/cdh.sock'
+credentials = []
+
+[kbc]
+name = "cc_kbc"
+url = "$KBS_SERVICE_ENDPOINT"
+'''
+EOF
+)
+```
+
+Check the value decodes to what you expect (the content holds only URLs, no secrets):
+
+```bash
+echo "$KBS_SERVICE_ENDPOINT"
+echo "$INITDATA" | base64 -d | gunzip
+```
+
+Good: the endpoint shows the right IP, and the decoded text shows the URLs in `aa.toml` and `cdh.toml`.
+
+Choose how to apply it:
+
+Option A: for all peer pods in the cluster, put it in `peer-pods-cm` and restart CAA. (IBM's Trustee page mentions a `peerpods-cluster.properties` file. That belongs to a different install method. With the operator install from Step 3, use the ConfigMap.)
+
+```bash
+kubectl -n $OSC_NS patch cm peer-pods-cm --type merge -p "{\"data\":{\"INITDATA\":\"$INITDATA\"}}"
+kubectl -n $OSC_NS rollout restart daemonset/osc-caa-ds
+kubectl -n $OSC_NS rollout status daemonset/osc-caa-ds
+kubectl get pods -n $OSC_NS
+```
+
+Good: the `osc-caa-ds` pods show a fresh `AGE`. If a pod did not restart, delete it so it is re-created.
+
+Option B (recommended while testing): per pod, with an annotation. It is safer when you test a new Trustee, because one bad INITDATA can't break every peer pod:
+
+```yaml
+metadata:
+  annotations:
+    io.katacontainers.config.hypervisor.cc_init_data: <the INITDATA value>
+```
+
+The annotation name `io.katacontainers.config.hypervisor.cc_init_data` is the one in the Trustee page and in the Cloud API Adaptor code. IBM's Step 7 text shows `io.katacontainers.config.runtime.cc_init_data`, which looks like a typo. Use the `hypervisor` one.
+
+### 4.8 End-to-end test: fetch the secret from inside a peer pod
+
+Use Option B annotation for this pod. Pick a namespace without mesh injection, or use the label shown:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: attest-test
+  namespace: $APP_NS
+  labels:
+    sidecar.istio.io/inject: "false"
+  annotations:
+    io.katacontainers.config.hypervisor.cc_init_data: "$INITDATA"
+spec:
+  runtimeClassName: kata-remote
+  imagePullSecrets:
+  - name: coco-icr-pull
+  containers:
+  - name: app
+    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+EOF
+kubectl get pod attest-test -n $APP_NS -w
+```
+
+When it is `Running`, call CDH from inside the pod (this is the same call App 1 will make):
+
+```bash
+kubectl exec -it attest-test -n $APP_NS -- sh -c 'curl -s http://127.0.0.1:8006/cdh/resource/default/kbsres1/key1; echo'
+```
+
+If `curl` isn't in the image, use Python (this image has it):
+
+```bash
+kubectl exec attest-test -n $APP_NS -- python -c "import urllib.request as u;print(u.urlopen('http://127.0.0.1:8006/cdh/resource/default/kbsres1/key1').read())"
+```
+
+Good: it prints `res1val1`. If `kubectl exec` is denied, the kata agent policy in the image or initdata is blocking exec. Tell me the error.
+
+On the Trustee VSI, confirm the attestation traffic arrived:
+
+```bash
+cd ~/trustee
+sudo docker compose logs kbs --since 10m | tail -30
+sudo docker compose logs as --since 10m | tail -30
+```
+
+Good: the KBS logs show the auth, attest and resource requests for this pod, and the AS logs show a TDX evidence verification (they may show warnings about missing reference values, which is expected while RVPS is empty).
+
+Optional: look at what the AS concluded. The token's payload shows the result (`ear.status`, trust vector). Print only the token, **never the `tee_keypair` field**:
+
+```bash
+kubectl exec attest-test -n $APP_NS -- python -c "import urllib.request as u,json;print(json.loads(u.urlopen('http://127.0.0.1:8006/aa/token?token_type=kbs').read())['token'])" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq .
+```
+
+Good: you see claims such as the TEE type and status. Expect something other than `affirming` for now, since there are no reference values. That gap is what Steps 5 and 6 close. The token lives for 5 minutes and holds no secret, but don't paste the `tee_keypair`.
+
+Clean up:
+
+```bash
+kubectl delete pod attest-test -n $APP_NS
+ibmcloud is instances | grep -i -E "podvm|peer"
+```
+
+Good: the peer pod VSI is gone.
+
+### 4.9 Hardening backlog (do in Steps 5 and 6)
+
+| Item | Why |
+|---|---|
+| HTTPS for KBS (`insecure_http = false` with a cert, and the cert in the initdata) | Plain HTTP exposes the attestation exchange to the network and the worker |
+| Reference values in RVPS from your measured peer pod image | Without them nothing is checked |
+| Replace the default resource policy (for example start with `affirming.rego`, then per-resource rules) | The default releases any resource to any non-sample TEE |
+| PCCS or a controlled Intel PCS path | The AS needs TDX collateral |
+| Rotate and store the admin key and token safely | The compose token is valid for 10 years |
+| Close ports 50003 and 50004 to everything except localhost | Compose publishes them on all interfaces |
+| Pin the repo commit and image digests, and back up `kbs/data` and `kbs/config/docker-compose` | Reproducibility and recovery |
+
+Applying a policy later (from the repo README), for reference:
+
+```bash
+./kbs-client --url http://127.0.0.1:8080 config --admin-token-file kbs/config/docker-compose/admin-token set-resource-policy --policy-file kbs/sample_policies/affirming.rego
+```
+
+### 4.10 Teardown
+
+```bash
+# on the Trustee VSI
+cd ~/trustee && sudo docker compose down
+# from your machine
+ibmcloud is instance-delete "$CLUSTER_NAME-trustee"
+ibmcloud is security-group-delete trustee-sg
+```
+
+Note that `docker compose down` doesn't remove the key and data directories. Delete `kbs/data` and `kbs/config/docker-compose` keys on purpose if you need a clean start.
+
+### Values to record (Step 4)
+
+| Item | Value |
+|---|---|
+| Trustee VSI name, ID, private IP | |
+| Ubuntu image ID and profile | |
+| Trustee repo commit | |
+| Image digests (kbs, as, rvps) | |
+| KBS endpoint used in INITDATA | |
+| INITDATA applied via (cluster ConfigMap or per-pod annotation) | |
+| Security group and rules | |
+| Result of the attestation test, and the `ear.status` seen | |
+
+### Step 4 exit criteria
+
+- [ ] Trustee VSI is running with `trustee-sg`, and 8080 is reachable from the cluster but 50003 and 50004 are not.
+- [ ] `docker compose ps` shows `kbs`, `as` and `rvps` up, and `setup` exited 0.
+- [ ] The test secret `default/kbsres1/key1` is loaded.
+- [ ] INITDATA decodes correctly and is applied (ConfigMap or annotation).
+- [ ] A peer pod returns `res1val1` from `127.0.0.1:8006`, and the KBS and AS logs show the request.
+- [ ] Repo commit, image digests, and the known gaps (empty RVPS, permissive policy, HTTP) are recorded for Steps 5 and 6.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
 
 ## Step 7: Red Hat OpenShift Service Mesh 3 (OSSM 3) installation on `conf-cluster`
