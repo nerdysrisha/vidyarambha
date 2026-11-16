@@ -439,3 +439,173 @@ Rename if you prefer. The names are used in Steps 8 and 9.
 - [ ] A plain-pod pull works on `conf-cluster` with the new secret.
 - [ ] Registry reachability from the cluster network is confirmed (public and/or private).
 - [ ] The image naming plan for App 1 and App 2 is agreed.
+
+
+
+
+---
+
+## Step 2a: Build App 1 (runs in the CVM, talks to CDH)
+
+Goal: a small Python API that runs as a peer pod, fetches a secret from CDH at `127.0.0.1:8006`, uses it, and exposes an API for other apps. It never returns or logs the secret.
+
+How to use: paste the prompt below into a fresh Claude chat that has code execution or file access (or into Claude Code). Attach `api.json` if the tool can't clone from GitHub. The spec lives in the guest-components repo at `api-server-rest/openapi/api.json`.
+
+### Prompt for App 1
+
+```text
+You are helping me build App 1 of a Confidential Containers POC. App 1 is a Python HTTP API that will run inside a Kata peer pod (an Intel TDX confidential VM) on IBM Cloud. Write production-quality, minimal code. Do not write Kubernetes manifests yet.
+
+CONTEXT
+- Inside the pod, the CoCo REST API server listens on http://127.0.0.1:8006. It proxies to the Confidential Data Hub (CDH) and Attestation Agent (AA). Its OpenAPI 3.1 spec is api-server-rest/openapi/api.json in https://github.com/confidential-containers/guest-components (clone it with --depth 1, or I will attach the file). Read the spec first and base the client on it. Endpoints: GET /cdh/resource/{repository}/{type}/{tag}, GET /aa/token, GET /aa/evidence, GET /aa/additional-evidence, POST /aa/aael, GET /info.
+- The secret is at KBS resource path default/kbsres1/key1, which means GET /cdh/resource/default/kbsres1/key1. Treat the response as raw bytes. Check the spec for the content type and do not assume text or JSON.
+- Inside the pod the app is wrapped by an Istio sidecar that handles mTLS, so the app itself speaks plain HTTP on 0.0.0.0:$PORT (default 8080).
+
+CLIENT
+- Generate a typed Python client from api.json (for example with openapi-python-client) into app/cdh_client/ and leave generated code untouched. Wrap it in app/cdh.py. If the generator cannot handle the 3.1 spec, hand-write a thin httpx client that matches the spec's paths and say so in the README.
+- Use timeouts (connect 3s, total 10s), retry at most 2 times on connection errors only (never on 4xx), and sanitize errors.
+
+API OF APP 1
+- GET /healthz: 200 {"status":"ok"} (process alive, no CDH call).
+- GET /readyz: 200 if GET {CDH_BASE_URL}/info succeeds, otherwise 503.
+- GET /api/v1/status: returns {app, version, hostname, tdx_guest_flag, cdh_reachable, resource_path, secret_available}. tdx_guest_flag is true if "tdx_guest" appears in the flags line of /proc/cpuinfo (informational only, not a security proof). It must never include the secret or a fingerprint of it.
+- POST /api/v1/compute: body {"message": "<string, 1 to 1024 chars>"}. Fetch the secret from CDH, compute HMAC-SHA256(secret, message), and return {request_id, result (hex), algorithm, resource, elapsed_ms}. The secret is never returned.
+- Errors: 400 for invalid input; 502 {"error":"secret_unavailable","detail":"<sanitized>"} when CDH returns an error such as 403 or 404 (log the upstream status code only); 503 when CDH is unreachable.
+
+SECRET HANDLING
+- Cache the secret in memory for SECRET_TTL_SECONDS (default 300). Value 0 means fetch on every request, which I need for policy tests.
+- Never log the secret, tokens, evidence, request bodies or response bodies. Log structured JSON to stdout with request_id, route, status and elapsed_ms.
+- No hardcoded secrets. No mock logic in the production code path.
+
+CONFIG (environment variables, all with defaults)
+PORT=8080, CDH_BASE_URL=http://127.0.0.1:8006, KBS_RESOURCE_PATH=default/kbsres1/key1, SECRET_TTL_SECONDS=300, LOG_LEVEL=info.
+
+STACK
+FastAPI, uvicorn, httpx, pydantic. Pin all dependency versions. Python 3.12.
+
+LOCAL TESTING
+- Provide a separate dev-only mock CDH (mock_cdh/, a tiny FastAPI app on 127.0.0.1:8006 that serves GET /info and GET /cdh/resource/{repository}/{type}/{tag} with a dummy value and supports a mode that returns 403). It must not ship in the production image.
+- Provide pytest tests (using the mock or respx) covering success, bad input, CDH 403, CDH unreachable, cache TTL 0 vs 300, and a test proving the secret never appears in responses or logs.
+
+CONTAINER
+- Multi-stage Dockerfile, linux/amd64, slim base image, non-root user (UID 10001), no dev dependencies, .dockerignore, HEALTHCHECK not required.
+- Give me the build and push commands for useast.icr.io/env-conf-container-cr/app1-cvm-api:v1 using docker buildx with --platform linux/amd64.
+
+OUTPUT
+Give the full file tree, then the full content of every file, then a README with run, test, build and push commands. Ask me before assuming anything that the spec does not answer.
+```
+
+### 2a acceptance checks (run locally before pushing)
+
+```bash
+# terminal 1: mock CDH on 8006; terminal 2: App 1 on 8080
+curl -s localhost:8080/healthz
+curl -s localhost:8080/readyz
+curl -s localhost:8080/api/v1/status
+curl -s -X POST localhost:8080/api/v1/compute -H 'content-type: application/json' -d '{"message":"hello"}'
+docker logs <container> | grep -c "<dummy secret value>"    # expect 0
+docker image inspect app1-cvm-api:v1 --format '{{.Os}}/{{.Architecture}}'    # expect linux/amd64
+docker run --rm app1-cvm-api:v1 id -u    # expect 10001
+```
+
+Then push and record the digest (re-run `ibmcloud cr login` first if needed):
+
+```bash
+docker buildx build --platform linux/amd64 -t useast.icr.io/env-conf-container-cr/app1-cvm-api:v1 --push .
+ibmcloud cr image-digests --restrict env-conf-container-cr
+```
+
+### Step 2a exit criteria
+
+- [ ] The client is generated from `api.json` (or the hand-written fallback is documented).
+- [ ] All endpoints behave as specified against the mock CDH, and the tests pass.
+- [ ] The secret never appears in responses or logs (checked).
+- [ ] The image is `linux/amd64`, non-root, and pushed as `app1-cvm-api:v1`, with the digest recorded.
+
+---
+
+## Step 2b: Build App 2 (normal worker, web UI that calls App 1)
+
+Goal: a small web app on a regular worker with a form and a button. Clicking it calls App 1's API and shows the result, and it explains failures in a way that helps the later negative tests (Step 10).
+
+### Prompt for App 2
+
+```text
+You are helping me build App 2 of a Confidential Containers POC. App 2 is a small Python web app that runs as a normal pod on an OpenShift worker (not a confidential VM). A user types some text and clicks a button, and App 2 calls App 1, an API running in a confidential peer pod, and shows the result. Do not write Kubernetes manifests yet.
+
+APP 1 CONTRACT (call it over plain HTTP; the Istio sidecars handle mTLS)
+- GET /healthz, GET /readyz
+- GET /api/v1/status returns {app, version, hostname, tdx_guest_flag, cdh_reachable, resource_path, secret_available}
+- POST /api/v1/compute with body {"message": "<1 to 1024 chars>"} returns {request_id, result, algorithm, resource, elapsed_ms}
+- Error responses from App 1: 400 invalid input; 502 {"error":"secret_unavailable","detail":"..."} when it cannot fetch its secret; 503 when its CDH is unreachable.
+
+APP 2 BEHAVIOUR
+- GET / renders a server-side HTML page with: a text input (max 1024 chars), a Run button, an "App 1 status" panel (from GET /api/v1/status on page load: reachable, tdx_guest_flag, secret_available, hostname) and a result panel.
+- POST /run validates the input, calls POST /api/v1/compute on App 1, and renders the result (result hex, algorithm, elapsed_ms, request_id) plus App 2's own round-trip time.
+- GET /healthz returns 200 {"status":"ok"} without calling App 1.
+- Show a clear message for each failure case:
+  * timeout or connection refused: "App 1 is not responding"
+  * HTTP 403 with a body that starts with "RBAC: access denied": "Access denied by the service mesh policy"
+  * HTTP 503 (including "no healthy upstream"): "App 1 unavailable (check sidecar, mTLS or readiness)"
+  * HTTP 502 secret_unavailable: "App 1 could not obtain its secret (attestation or policy failure)"
+  * HTTP 400: show App 1's validation message
+  Always show the HTTP status and request_id in a small details line.
+
+MESH AND OPERATIONS
+- Forward these headers from the incoming request to App 1 when present, so traces connect: x-request-id, x-b3-traceid, x-b3-spanid, x-b3-parentspanid, x-b3-sampled, x-b3-flags, b3, traceparent, tracestate. Generate x-request-id if it is missing.
+- Use httpx with timeouts (connect 3s, total APP1_TIMEOUT_SECONDS), and no automatic retries on POST.
+- Config by environment variables with defaults: PORT=8080, APP1_BASE_URL=http://app1:8080, APP1_TIMEOUT_SECONDS=10, LOG_LEVEL=info.
+- Structured JSON logs to stdout with request_id, route, upstream_status, elapsed_ms. Never log the user's input or App 1's result values.
+- App 2 holds no secrets and never calls KBS, CDH or AA directly.
+
+WEB SECURITY
+- Jinja2 autoescaping on, no inline scripts, no external CDNs or fonts, no JavaScript framework (plain server-rendered HTML and a small static CSS file).
+- CSRF protection for the POST form (double-submit cookie), a Content-Security-Policy of default-src 'self', X-Content-Type-Options: nosniff, and Cache-Control: no-store on responses containing results.
+
+STACK
+FastAPI, uvicorn, httpx, Jinja2, pydantic. Pin all dependency versions. Python 3.12.
+
+TESTING
+Provide pytest tests with respx mocking App 1 for success, each failure case above (including a 403 with "RBAC: access denied"), header forwarding, CSRF rejection, input validation (empty and over-length) and HTML escaping of reflected input. Also provide a docker-compose.yml for local development that runs App 2 against App 1 and a mock CDH, using the images and the mock from Step 2a.
+
+CONTAINER
+Multi-stage Dockerfile, linux/amd64, slim base image, non-root user (UID 10001), .dockerignore. Give me the build and push commands for useast.icr.io/env-conf-container-cr/app2-web-ui:v1 using docker buildx with --platform linux/amd64.
+
+OUTPUT
+Give the full file tree, then the full content of every file, then a README with run, test, build and push commands. Ask me before assuming anything the contract above does not answer.
+```
+
+### 2b acceptance checks (local, with App 1 + mock CDH running)
+
+```bash
+curl -s localhost:8081/healthz
+curl -s -i localhost:8081/ | head -20                 # check CSP and nosniff headers
+# open http://localhost:8081 in a browser, submit text, confirm the result panel
+# stop the mock CDH or switch it to 403 mode, submit again, confirm the failure message
+# stop App 1, submit again, confirm "App 1 is not responding"
+docker image inspect app2-web-ui:v1 --format '{{.Os}}/{{.Architecture}}'    # expect linux/amd64
+```
+
+Push and record the digest:
+
+```bash
+docker buildx build --platform linux/amd64 -t useast.icr.io/env-conf-container-cr/app2-web-ui:v1 --push .
+ibmcloud cr image-digests --restrict env-conf-container-cr
+```
+
+### Step 2b exit criteria
+
+- [ ] The web page works end to end locally (form, result, status panel).
+- [ ] Every failure case shows the expected message.
+- [ ] CSRF, escaping and security headers verified, and tests pass.
+- [ ] The image is `linux/amd64`, non-root, and pushed as `app2-web-ui:v1`, with the digest recorded.
+
+### Values to record
+
+| Item | App 1 | App 2 |
+|---|---|---|
+| Image | `useast.icr.io/env-conf-container-cr/app1-cvm-api:v1` | `useast.icr.io/env-conf-container-cr/app2-web-ui:v1` |
+| Digest | | |
+| Port | 8080 | 8080 |
+| Key env vars | `CDH_BASE_URL`, `KBS_RESOURCE_PATH`, `SECRET_TTL_SECONDS` | `APP1_BASE_URL`, `APP1_TIMEOUT_SECONDS` |
+| Runs on | peer pod (`kata-remote`) | normal worker |
