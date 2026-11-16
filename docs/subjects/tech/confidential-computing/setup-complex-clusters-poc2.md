@@ -1200,3 +1200,592 @@ Good: no CSV is left. The CRDs may remain, and removing them is a separate decis
 - [ ] Strict mTLS rejects plain text from a non-meshed namespace.
 - [ ] The 7.11 peer pod gate is documented as pass, or fail with an agreed workaround from IBM and Red Hat.
 - [ ] Written answers on ROKS, Calico and peer pod support are recorded.
+
+
+
+---
+
+## Step 7: Red Hat OpenShift Service Mesh 3 (OSSM 3) installation on `conf-cluster`
+
+Goal: install Red Hat OpenShift Service Mesh 3 from OperatorHub (sidecar mode), deploy the Istio control plane, the Istio CNI plugin and an ingress gateway, enroll the app namespace, and then prove that a sidecar works inside a peer pod. Every action has a check so you can confirm the previous command went well.
+
+Numbering follows the master POC plan (Step 7 = service mesh). Renumber it if you add it after Step 2.
+
+Docs version used: Red Hat OpenShift Service Mesh **3.2** (the supported-platforms page names release 3.2.9). Pin or compare it with the version IBM and Red Hat recommend.
+
+### Reference links (official)
+
+| Topic | Link |
+|---|---|
+| OSSM 3.2 documentation home | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2 |
+| Installing guide (index) | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing |
+| 1. Supported platforms and configurations | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-supported-platforms-configurations |
+| 2. Installing OpenShift Service Mesh (operator, Istio, IstioCNI, discovery selectors, gateways, HA) | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-installing-service-mesh |
+| 3. Sidecar injection (labels, revisions, IstioRevisionTag) | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-sidecar-injection |
+| 6. cert-manager and istio-csr (your own CA) | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-cert-manager |
+| 8. Multiple control planes on one cluster | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-deploying-multiple-service-meshes-on-single-cluster |
+| 10. Istioctl tool | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-istioctl-tool |
+| 11. Enabling mutual TLS | https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.2/html/installing/ossm-enabling-mtls |
+| Operator lifecycle and support policy | https://access.redhat.com/support/policy/updates/openshift_operators |
+| Certified OpenShift CNI plugins (Calico question) | https://access.redhat.com/articles/5436171 |
+| Sample ingress gateway manifest (Sail Operator) | https://raw.githubusercontent.com/istio-ecosystem/sail-operator/main/chart/samples/ingress-gateway.yaml |
+| Sail Operator upstream repo | https://github.com/istio-ecosystem/sail-operator |
+| Istio: sidecar injection troubleshooting | https://istio.io/latest/docs/ops/common-problems/injection/ |
+| IBM: Setting up a Network Load Balancer for VPC (ROKS) | https://cloud.ibm.com/docs/openshift?topic=openshift-setup_vpc_nlb |
+| IBM: Private VPC NLB (ROKS) | https://cloud.ibm.com/docs/openshift?topic=openshift-setup_vpc_nlb_pp |
+| IBM: About Ingress on ROKS (Route, HAProxy router) | https://cloud.ibm.com/docs/openshift?topic=openshift-ingress-about-roks4 |
+
+### What gets installed and where
+
+| Component | Kind / namespace | Notes |
+|---|---|---|
+| Service Mesh 3 Operator | OLM Subscription, `openshift-operators` | Installed from OperatorHub, cluster-wide |
+| Istio control plane (`istiod`) | `Istio` resource named `default`, namespace `istio-system` | Created from the `Istio` CR by the operator |
+| Istio CNI plugin | `IstioCNI` resource named `default`, namespace `istio-cni` | DaemonSet on every worker |
+| Ingress gateway | Deployment + Service, namespace `istio-ingress` | The operator does not deploy gateways; you do, with gateway injection |
+| App namespace | Labels `istio-injection=enabled`, `istio-discovery=enabled` | Sidecars are injected at pod creation |
+
+### Read first: caveats from the docs and from my analysis
+
+1. **Platform support:** The 3.2 supported-platforms page lists OpenShift Container Platform, OpenShift Dedicated, ARO and ROSA. It does not name ROKS (IBM Cloud). Ask IBM and Red Hat in writing whether OSSM 3 is supported on your ROKS 4.19 cluster.
+2. **CNI:** The doc lists OpenShift-SDN, OVN-Kubernetes and third-party CNIs that are certified by Red Hat and validated by Service Mesh. Your cluster uses Calico, so confirm it is covered (see the certified CNI list link above).
+3. **Support scope:** The doc says supported configurations do not integrate external services such as virtual machines, and that `EnvoyFilter` is not supported except where documented. A peer pod is a pod from Kubernetes' point of view, but it runs in a VM, so ask whether that scenario is supported. Avoid `EnvoyFilter` for rate limiting.
+4. **Sidecar mode only:** Ambient mode uses a node-level ztunnel on the worker, outside the TEE, so it can't protect traffic inside the CVM.
+5. **IstioCNI and peer pods (my analysis, not in the docs):** The docs make `IstioCNI` a prerequisite for injection. With CNI enabled, sidecar injection normally uses an `istio-validation` init container instead of `istio-init`, and the CNI plugin sets the redirect rules in the pod's network namespace on the worker. In a peer pod the sidecar and app run in the VM, so those rules may not exist where they are needed. Section 7.11 is a gate test for this, and the result decides the next move with IBM and Red Hat.
+6. **Single cluster mesh:** App 1 (peer pod) and App 2 must be in the same cluster to be in the same mesh. Install the mesh on `conf-cluster` and run App 2 there on the normal runtime.
+7. **OSSM 2:** Don't run OSSM 2 and OSSM 3 in the same cluster (doc warning). 7.1 checks for it.
+
+### 7.0 Set variables and confirm the cluster
+
+```bash
+export CLUSTER=conf-cluster
+export APP_NS=<your-app-namespace>        # same as Step 1
+export GW_NS=istio-ingress
+ibmcloud oc cluster config --cluster $CLUSTER
+kubectl config current-context
+```
+
+Good: the current context points at `conf-cluster`. Everything below runs there. The docs use `oc`; every `kubectl` command here is equivalent.
+
+### 7.1 Pre-checks
+
+```bash
+kubectl get clusterversion
+kubectl auth can-i '*' '*'
+kubectl get crd | grep -i -E "maistra|servicemeshcontrolplane"
+kubectl get crd | grep -i -E "istio.io|sailoperator.io"
+kubectl get catalogsource -n openshift-marketplace
+kubectl get packagemanifests -n openshift-marketplace | grep -i servicemesh
+```
+
+Good:
+- OpenShift is 4.19.x (the doc requires 4.14 or later for the operator) and `can-i` returns `yes`.
+- No `maistra` or `servicemeshcontrolplane` CRDs, so there is no OSSM 2.
+- No existing Istio or Sail CRDs. If there are, stop and tell me what exists, because OSSM needs a clean scope.
+- Catalog sources are `READY`, and a Service Mesh 3 package appears. Note its exact name.
+
+Find the channels and default channel (replace `servicemeshoperator3` if your package name differs):
+
+```bash
+kubectl get packagemanifest servicemeshoperator3 -n openshift-marketplace -o jsonpath='{.status.defaultChannel}{"\n"}{.status.channels[*].name}{"\n"}'
+```
+
+Good: you see `stable` and version channels such as `stable-3.2`.
+
+### 7.2 Install the operator from OperatorHub (console)
+
+On OCP 4.19 this is **Operators -> OperatorHub**. Newer consoles call it **Ecosystem -> Software Catalog**, which is the wording in the doc.
+
+1. Search for **Red Hat OpenShift Service Mesh 3** and select the Red Hat provided operator.
+2. A prompt about community operators may appear (the doc mentions it). Read it and click **Continue** only if the operator is the Red Hat one.
+3. Click **Install**, then choose:
+   - **Installation Mode:** All namespaces on the cluster (installs in `openshift-operators`).
+   - **Update channel:** `stable-3.2` to pin the minor version for the POC (the doc says `stable` installs the latest stable, and `stable-<version>` pins a version).
+   - **Approval:** Automatic, as the doc recommends. Choose Manual if you want to control upgrades during the POC.
+4. Click **Install**.
+
+Optional CLI equivalent, not from the doc (use the package name and channel from 7.1):
+
+```bash
+cat <<'EOF' | kubectl apply -f -
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: servicemeshoperator3
+  namespace: openshift-operators
+spec:
+  channel: stable-3.2
+  installPlanApproval: Automatic
+  name: servicemeshoperator3
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+EOF
+```
+
+Check 7.2: the operator is installed.
+
+```bash
+kubectl get subscription -n openshift-operators
+kubectl get installplan -n openshift-operators
+kubectl get csv -n openshift-operators | grep -i servicemesh
+kubectl get pods -n openshift-operators
+kubectl get crd | grep -E "sailoperator.io"
+```
+
+Good:
+- The CSV phase is `Succeeded`. The doc's console check is **Installed Operators -> Succeeded**.
+- The install plan shows `Complete` (or `Approved`).
+- The operator pod is `Running`.
+- The CRDs include `istios`, `istiocnis`, `istiorevisions` and `ztunnels` under `sailoperator.io`, plus `istio.io` groups such as `networking.istio.io` and `security.istio.io`.
+
+### 7.3 Create the namespaces
+
+```bash
+kubectl create namespace istio-system
+kubectl create namespace istio-cni
+kubectl get ns istio-system istio-cni
+```
+
+Good: both namespaces are `Active`. (The doc creates them as projects, which is the same thing.)
+
+### 7.4 Create the Istio resource (control plane)
+
+Console path (the doc's procedure, which pre-fills the OpenShift-specific settings): **Operators -> Installed Operators**, select project `istio-system`, open the Service Mesh Operator, click **Istio -> Create Istio**, keep the name `default`, namespace `istio-system`, and click **Create**.
+
+Then save what the console generated, so it is in your repo:
+
+```bash
+kubectl get istio default -o yaml > istio-default.yaml
+```
+
+Check 7.4:
+
+```bash
+kubectl get istio
+kubectl get istiorevisions
+kubectl get pods -n istio-system
+kubectl get svc -n istio-system
+kubectl get mutatingwebhookconfigurations | grep -i istio
+kubectl logs deploy/istiod -n istio-system --tail=20
+```
+
+Good:
+- `Istio` shows `READY`, status `Healthy` (the doc's check is `State: Healthy`) and a version of 1.24 or similar.
+- The `IstioRevision` is named `default` (this decides the injection labels in 7.9). If it is not `default`, see "Other revision names" in 7.9.
+- The `istiod` pod is `1/1 Running`.
+- The `istiod` service exposes the xDS and CA ports (15012 is the one the sidecars in the VM will use).
+- An `istio-sidecar-injector` mutating webhook exists.
+- The logs show no repeated errors.
+
+### 7.5 Scope the mesh with discovery selectors (recommended)
+
+Why: by default the control plane discovers every namespace. Scoping keeps proxies' config small and limits the mesh to your namespaces. The doc says discovery selectors are not a security boundary.
+
+```bash
+kubectl label namespace istio-system istio-discovery=enabled
+kubectl label namespace $GW_NS istio-discovery=enabled --overwrite 2>/dev/null || true
+kubectl label namespace $APP_NS istio-discovery=enabled
+```
+
+Patch the `Istio` resource (this adds the doc's `discoverySelectors` section):
+
+```bash
+kubectl patch istio default --type merge -p '{"spec":{"values":{"meshConfig":{"discoverySelectors":[{"matchLabels":{"istio-discovery":"enabled"}}]}}}}'
+```
+
+Check 7.5:
+
+```bash
+kubectl get istio default -o jsonpath='{.spec.values.meshConfig.discoverySelectors}{"\n"}'
+kubectl get istio
+kubectl get ns -l istio-discovery=enabled
+```
+
+Good: the selector prints back, `Istio` returns to `Healthy`, and the labeled namespaces are listed. `$GW_NS` may not exist yet (created in 7.8). Re-run the `label` for it after 7.8.
+
+### 7.6 Create the IstioCNI resource
+
+Console path (the doc): **Installed Operators**, select project `istio-cni`, Service Mesh Operator, **IstioCNI -> Create IstioCNI**, name must be `default`, then **Create**.
+
+CLI equivalent:
+
+```bash
+cat <<'EOF' | kubectl apply -f -
+apiVersion: sailoperator.io/v1
+kind: IstioCNI
+metadata:
+  name: default
+spec:
+  namespace: istio-cni
+EOF
+```
+
+Check 7.6:
+
+```bash
+kubectl get istiocni
+kubectl get ds -n istio-cni
+kubectl get pods -n istio-cni -o wide
+kubectl logs -n istio-cni ds/istio-cni-node --tail=20
+```
+
+Good:
+- `IstioCNI` shows `Healthy` (the doc's check is `State: Healthy`).
+- The DaemonSet desired equals ready (2 workers = 2 pods), `Running` on each node.
+- The logs show no repeated errors.
+
+### 7.7 Optional: control plane high availability (two `istiod` replicas)
+
+You have two workers, so two replicas is reasonable. The doc's replica count method:
+
+```bash
+kubectl patch istio default --type merge -p '{"spec":{"values":{"pilot":{"autoscaleEnabled":false,"replicaCount":2}}}}'
+kubectl get pods -n istio-system -l app=istiod
+```
+
+Good: two `istiod` pods are `Running`. The doc also describes autoscaling with `autoscaleMin` and `autoscaleMax`.
+
+### 7.8 Ingress gateway (gateway injection)
+
+The doc says the operator does not deploy gateways, and recommends a namespace separate from the control plane.
+
+```bash
+kubectl create namespace $GW_NS
+kubectl label namespace $GW_NS istio-injection=enabled istio-discovery=enabled
+kubectl get ns $GW_NS --show-labels
+```
+
+Download the sample (the doc applies it straight from `main`). Pin or review it before applying:
+
+```bash
+curl -fsSL -o ingress-gateway.yaml https://raw.githubusercontent.com/istio-ecosystem/sail-operator/main/chart/samples/ingress-gateway.yaml
+grep -n -E "kind:|type:|name:|image:" ingress-gateway.yaml
+```
+
+Good: it defines a Deployment and a Service named `istio-ingressgateway` with image `auto` (the injector fills it in). Note the Service `type`.
+
+Choose how to expose it. You can do both, but pick one first.
+
+Option A: OpenShift Route, as in the doc (uses the VPC load balancer that ROKS already created for the cluster's HAProxy router):
+
+```bash
+kubectl apply -n $GW_NS -f ingress-gateway.yaml
+oc expose service istio-ingressgateway -n $GW_NS
+```
+
+Option B: dedicated VPC Network Load Balancer, which matches your diagram (`LoadBalancer Service` in front of the gateway). Edit `ingress-gateway.yaml` before applying: set the Service `type: LoadBalancer` and add the IBM annotation shown below. For a private load balancer, follow the IBM private NLB doc linked above.
+
+```yaml
+metadata:
+  annotations:
+    service.kubernetes.io/ibm-load-balancer-cloud-provider-enable-features: "nlb"
+```
+
+```bash
+kubectl apply -n $GW_NS -f ingress-gateway.yaml
+```
+
+Optional (from the doc): autoscaling and a disruption budget for the gateway. Create `gw-ha.yaml` with the following and apply it:
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ingressgatewayhpa
+  namespace: istio-ingress
+  labels: {istio: ingressgateway, release: istio}
+spec:
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target: {type: Utilization, averageUtilization: 80}
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: istio-ingressgateway}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ingressgatewaypdb
+  namespace: istio-ingress
+  labels: {istio: ingressgateway, release: istio}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: {istio: ingressgateway}
+```
+
+```bash
+kubectl apply -f gw-ha.yaml
+```
+
+Check 7.8:
+
+```bash
+kubectl get pods -n $GW_NS -o wide
+kubectl get svc -n $GW_NS
+kubectl get route -n $GW_NS
+kubectl logs deploy/istio-ingressgateway -n $GW_NS --tail=20
+ibmcloud is load-balancers
+```
+
+Good:
+- The gateway pod is `1/1 Running` (the gateway is the proxy itself, so it shows `1/1`). The logs show Envoy became ready and received config from `istiod`.
+- Option A: a Route exists with a host. Option B: the Service gets an `EXTERNAL-IP` or hostname, and `ibmcloud is load-balancers` shows the new VPC load balancer as `online` and `active`.
+- Reach test (no routes exist yet, so a 404 is the expected result and it proves the gateway answered):
+
+```bash
+GW_HOST=$(kubectl get route istio-ingressgateway -n $GW_NS -o jsonpath='{.spec.host}' 2>/dev/null || kubectl get svc istio-ingressgateway -n $GW_NS -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+curl -sI http://$GW_HOST | head -5
+```
+
+Good: an HTTP response (usually `404`) with a `server: istio-envoy` header. A timeout means the load balancer security group or ACL is blocking traffic. Check the SG and ACL from Step 1.12.
+
+Now that `$GW_NS` exists, if you skipped it in 7.5, re-run `kubectl label namespace $GW_NS istio-discovery=enabled --overwrite`.
+
+### 7.9 Enroll the app namespace and prove injection (normal runtime first)
+
+Revision name check. The default labels below only work if the revision is called `default`:
+
+```bash
+kubectl get istiorevisions
+```
+
+Label the app namespace:
+
+```bash
+kubectl label namespace $APP_NS istio-injection=enabled istio-discovery=enabled --overwrite
+kubectl get ns $APP_NS --show-labels
+```
+
+Other revision names: if the revision is not `default`, either use `istio.io/rev=<revision>` instead of `istio-injection=enabled`, or create an `IstioRevisionTag` named `default` that targets your `Istio` resource (doc section 3.4). Note that if both labels are present, `istio-injection` wins.
+
+Deploy a throwaway test workload (normal runtime) with your image and pull secret:
+
+```bash
+kubectl create deployment mesh-test --image=$CR_HOST/$CR_NS/$IMG:v1 -n $APP_NS
+kubectl patch deployment mesh-test -n $APP_NS -p '{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"coco-icr-pull"}]}}}}'
+kubectl rollout status deployment/mesh-test -n $APP_NS --timeout=180s
+```
+
+Check 7.9:
+
+```bash
+kubectl get pods -n $APP_NS -l app=mesh-test
+POD=$(kubectl get pod -n $APP_NS -l app=mesh-test -o jsonpath='{.items[0].metadata.name}')
+kubectl get pod $POD -n $APP_NS -o jsonpath='{.spec.containers[*].name}{"\n"}{.spec.initContainers[*].name}{"\n"}'
+kubectl logs $POD -n $APP_NS -c istio-proxy --tail=15
+kubectl exec $POD -n $APP_NS -c istio-proxy -- curl -s -o /dev/null -w "%{http_code}\n" localhost:15021/healthz/ready
+```
+
+Good:
+- The pod is `2/2 Running` (the doc's check for successful injection).
+- Containers include your app and `istio-proxy`.
+- **Write down the init container name.** With IstioCNI enabled it is normally `istio-validation`. If you see `istio-init`, tell me.
+- The `istio-proxy` logs show it started and connected to `istiod`.
+- The readiness call prints `200`.
+
+If it stays `1/1`, the webhook did not inject. Check the namespace labels, the revision name, and the `istio-sidecar-injector` webhook, then see the Istio injection troubleshooting link above. Remember that injection only happens at pod creation, so run `kubectl rollout restart deployment/mesh-test -n $APP_NS` after changing labels.
+
+### 7.10 Enable strict mTLS for the app namespace
+
+Doc reference: chapter 11.2 (namespace) and 11.3 (whole mesh). Use the namespace scope now. Don't make it mesh-wide until the gateway and external callers are decided.
+
+Confirm the API version first:
+
+```bash
+kubectl api-resources --api-group=security.istio.io
+```
+
+If `PeerAuthentication` shows version `v1`, use it as below. Otherwise change it to `v1beta1`.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: $APP_NS
+spec:
+  mtls:
+    mode: STRICT
+EOF
+kubectl get peerauthentication -n $APP_NS
+```
+
+Check 7.10 (needs a meshed workload that listens on a port; use App 1 or App 2 once deployed, or set `SVC` and `PORT` for any meshed service):
+
+```bash
+export SVC=<service-name> PORT=<service-port>
+kubectl run plain-test -n default --rm -i --restart=Never --image=$CR_HOST/$CR_NS/$IMG:v1 \
+  --overrides='{"spec":{"imagePullSecrets":[{"name":"useast-icr-io-secret"}]}}' \
+  --command -- python -c "import http.client as h;c=h.HTTPConnection('$SVC.$APP_NS.svc',$PORT,timeout=5);c.request('GET','/');print(c.getresponse().status)"
+```
+
+Good: from the non-meshed `default` namespace the call fails with a connection reset or similar (plain text is rejected). The same call from a pod in `$APP_NS` with a sidecar succeeds. Repeat this when App 1 is deployed. You can also validate encryption visually with Kiali (doc section 11.4).
+
+### 7.11 GATE: sidecar inside a peer pod (run after Step 3 provides `kata-remote`)
+
+This is the part that no Red Hat doc covers. Do not deploy App 1 until it passes or you have an agreed workaround.
+
+```bash
+kubectl get runtimeclass kata-remote
+```
+
+Create the test peer pod. The namespace already has injection enabled:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: peerpod-mesh-test
+  namespace: $APP_NS
+  labels:
+    app: peerpod-mesh-test
+spec:
+  runtimeClassName: kata-remote
+  imagePullSecrets:
+  - name: coco-icr-pull
+  containers:
+  - name: app
+    image: $CR_HOST/$CR_NS/$IMG:v1
+EOF
+```
+
+Observe:
+
+```bash
+kubectl get pod peerpod-mesh-test -n $APP_NS -o wide -w
+kubectl get pod peerpod-mesh-test -n $APP_NS -o jsonpath='{.spec.containers[*].name}{"\n"}{.spec.initContainers[*].name}{"\n"}'
+kubectl describe pod peerpod-mesh-test -n $APP_NS | tail -30
+kubectl logs peerpod-mesh-test -n $APP_NS -c istio-proxy --tail=30
+kubectl logs peerpod-mesh-test -n $APP_NS -c istio-validation 2>&1 | tail -20
+kubectl logs peerpod-mesh-test -n $APP_NS -c istio-init 2>&1 | tail -20
+ibmcloud is instances | grep -i -E "podvm|peer|$APP_NS"
+```
+
+(The `istio-validation` and `istio-init` logs: one of them will say the container does not exist. That is expected.)
+
+Decision table:
+
+| Observation | Meaning | Next step |
+|---|---|---|
+| `2/2 Running`, `istio-proxy` ready, and traffic from another meshed pod shows up in the sidecar (see below) | Redirect works inside the VM | Proceed to Steps 8 and 9 |
+| `Init:Error` or `Init:CrashLoopBackOff` on `istio-validation` | CNI mode: the rules are not where the validator expects them in the VM | Raise with IBM and Red Hat. Options to ask about: `istio-init` mode for peer pods (needs a SCC that allows NET_ADMIN) or another interception approach |
+| `2/2 Running` but traffic is not intercepted (no sidecar logs for inbound requests) | Pod starts but redirect rules are missing | Same as above |
+| `istio-proxy` is not ready, logs show connection failures to `istiod:15012` | Network path from the VM to `istiod` is blocked | Check the VXLAN and egress path, SG, ACL, and any NetworkPolicy (Steps 1.8, 1.12) |
+| Pod stuck `Pending` or `ContainerCreating` | Not a mesh issue (CAA, VPC API, image or profile) | Debug in Step 3 |
+
+Prove interception. First enable access logs for the namespace (standard Istio Telemetry API, not from the Red Hat doc):
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: access-logs
+  namespace: $APP_NS
+spec:
+  accessLogging:
+  - providers:
+    - name: envoy
+EOF
+```
+
+Then call the peer pod from the meshed `mesh-test` pod (set `PEER_IP` from `kubectl get pod peerpod-mesh-test -o wide`, and `PORT` to a port your test image listens on) and check the logs:
+
+```bash
+PEER_IP=$(kubectl get pod peerpod-mesh-test -n $APP_NS -o jsonpath='{.status.podIP}')
+kubectl exec deploy/mesh-test -n $APP_NS -c mesh-test -- python -c "import http.client as h;c=h.HTTPConnection('$PEER_IP',$PORT,timeout=5);c.request('GET','/');print(c.getresponse().status)"
+kubectl logs peerpod-mesh-test -n $APP_NS -c istio-proxy --tail=10
+```
+
+Good: the peer pod's `istio-proxy` logs show the inbound request. Note that `kubectl exec` into peer pods may be blocked by the kata agent policy in your initdata, so use logs there.
+
+Clean up the test pod when done:
+
+```bash
+kubectl delete pod peerpod-mesh-test -n $APP_NS
+kubectl delete telemetry access-logs -n $APP_NS
+```
+
+### 7.12 Baseline AuthorizationPolicy (apply after Steps 8 and 9 create the apps)
+
+Template that allows only App 2's identity to call App 1. It assumes App 1 pods carry the label `app: app1`, App 2 runs as service account `app2`, and the default trust domain `cluster.local` (confirm with `kubectl get istio default -o jsonpath='{.spec.values.meshConfig.trustDomain}'`; empty means the default).
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: app1-allow-app2
+  namespace: $APP_NS
+spec:
+  selector:
+    matchLabels:
+      app: app1
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/$APP_NS/sa/app2"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/healthz", "/readyz", "/api/v1/*"]
+EOF
+kubectl get authorizationpolicy -n $APP_NS
+```
+
+Good: App 2 still reaches App 1. A call from any other pod (for example `mesh-test`) gets `403 RBAC: access denied`, which App 2's UI maps to "Access denied by the service mesh policy". Check the health probes still pass after applying it.
+
+### 7.13 Rollback (if you need to remove the mesh)
+
+```bash
+kubectl label namespace $APP_NS istio-injection- istio-discovery-
+kubectl rollout restart deployment -n $APP_NS
+kubectl delete deployment mesh-test -n $APP_NS
+kubectl delete peerauthentication default -n $APP_NS
+kubectl delete namespace $GW_NS
+kubectl delete istiocni default
+kubectl delete istio default
+kubectl delete namespace istio-cni istio-system
+```
+
+Then uninstall the operator in OperatorHub (**Installed Operators -> Uninstall**) and confirm:
+
+```bash
+kubectl get csv -n openshift-operators | grep -i servicemesh
+kubectl get crd | grep -E "sailoperator.io|istio.io"
+```
+
+Good: no CSV is left. The CRDs may remain, and removing them is a separate decision, since it deletes any remaining Istio custom resources.
+
+### Values to record
+
+| Item | Value |
+|---|---|
+| Operator channel and CSV version | |
+| Istio version and revision name | |
+| Istio resource name / namespace | `default` / `istio-system` |
+| IstioCNI namespace | `istio-cni` |
+| Gateway namespace and exposure option (Route or NLB) | |
+| Gateway hostname or LB name | |
+| Discovery selector label | `istio-discovery=enabled` |
+| App namespace and injection label | |
+| Init container seen on normal pod (`istio-validation` or `istio-init`) | |
+| Result of the 7.11 peer pod gate | |
+| Written answers from IBM / Red Hat on ROKS, Calico and peer pod support | |
+
+### Step 7 exit criteria
+
+- [ ] Operator CSV is `Succeeded`, and the `Istio` and `IstioCNI` resources are `Healthy`.
+- [ ] `istiod` is running, the injector webhook exists, and `istio-cni-node` runs on every worker.
+- [ ] Discovery selectors are applied and the right namespaces are labeled.
+- [ ] The ingress gateway is running and answers through the Route or VPC load balancer (HTTP response with `server: istio-envoy`).
+- [ ] A normal pod in the app namespace shows `2/2` with `istio-proxy`, readiness `200`.
+- [ ] Strict mTLS rejects plain text from a non-meshed namespace.
+- [ ] The 7.11 peer pod gate is documented as pass, or fail with an agreed workaround from IBM and Red Hat.
+- [ ] Written answers on ROKS, Calico and peer pod support are recorded.
