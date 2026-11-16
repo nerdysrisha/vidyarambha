@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>VCap</title>
+<style>
+:root{--t:0px;--l:0px;--r:0px;--b:0px;--bg:#0a0f14;--card:#111a22;--card2:#16222c;--line:#1f2f3b;--tx:#e6f1f5;--mut:#8aa1ad;--acc:#2dd4bf;--acc2:#0f766e;--warn:#fbbf24;--bad:#f43f5e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{display:flex;flex-direction:column;min-height:100vh}
+button,select,input{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:calc(10px + var(--t)) calc(16px + var(--r)) 10px calc(16px + var(--l));background:linear-gradient(var(--bg) 80%,transparent)}
+.brand{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;letter-spacing:.3px}
+.brand svg{width:28px;height:28px}
+.chip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid var(--line);color:var(--mut);background:var(--card)}
+.chip.rec{color:#fff;border-color:var(--bad);background:#3a1119}
+.chip.warn{color:var(--warn);border-color:#5a4410}
+main{flex:1;padding:4px calc(14px + var(--r)) calc(14px + var(--b)) calc(14px + var(--l));display:flex;flex-direction:column;gap:12px;max-width:640px;width:100%;margin:0 auto}
+section{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.card h3{margin:0 0 4px;font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);font-weight:700}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.row+.row{border-top:1px solid var(--line)}
+.row>label,.row>span.l{flex:1;min-width:0}
+.sub{display:block;font-size:12px;color:var(--mut);margin-top:2px}
+select,.time{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;max-width:58%;min-width:96px}
+.seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:9px;color:var(--mut);font-weight:600}
+.seg button.on{background:var(--acc);color:#04201c}
+.seg button:disabled{opacity:.3}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:46px;height:28px;border-radius:99px;background:var(--card2);border:1px solid var(--line);position:relative;margin:0;transition:background .2s}
+input[type=checkbox]::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--mut);transition:transform .2s,background .2s}
+input[type=checkbox]:checked{background:var(--acc2);border-color:var(--acc2)}
+input[type=checkbox]:checked::after{transform:translateX(18px);background:#fff}
+input[type=range]{width:100%;accent-color:var(--acc);margin:6px 0}
+.btn{border:1px solid var(--line);background:var(--card2);border-radius:10px;padding:9px 14px;font-weight:600}
+.btn.pri{background:var(--acc);color:#04201c;border-color:var(--acc)}
+.path{font-size:12px;color:var(--mut);word-break:break-all}
+.note{font-size:12px;color:var(--mut);margin:6px 0 2px}
+.card.attn{border-color:#5a4410;background:#1a1608}
+#msg{font-size:13px;text-align:center;padding:2px 8px;color:var(--warn);word-break:break-word}
+#msg.bad{color:var(--bad)}
+#msg:empty{display:none}
+
+/* bottom dock with the big button */
+.dock{position:sticky;bottom:0;z-index:3;margin:0 calc(-14px - var(--r)) calc(-14px - var(--b)) calc(-14px - var(--l));padding:16px calc(14px + var(--r)) calc(12px + var(--b)) calc(14px + var(--l));background:linear-gradient(transparent,var(--bg) 35%);display:flex;flex-direction:column;gap:8px}
+.go{width:100%;border:0;border-radius:16px;padding:16px;font-size:17px;font-weight:700;background:var(--acc);color:#04201c;box-shadow:0 6px 24px #2dd4bf33}
+.go.stop{background:var(--bad);color:#fff;box-shadow:0 6px 24px #f43f5e33}
+.go:disabled{opacity:.5}
+.live .dock{align-self:stretch}
+#sum{font-size:12px;color:var(--mut);text-align:center}
+
+/* live view */
+.live{align-items:center;text-align:center;padding-top:10px}
+.ring{width:72px;height:72px;border-radius:50%;border:3px solid var(--bad);display:flex;align-items:center;justify-content:center;animation:p 2s ease-in-out infinite}
+.ring i{width:28px;height:28px;border-radius:50%;background:var(--bad)}
+@keyframes p{50%{box-shadow:0 0 0 14px #f43f5e18;border-color:#f43f5e88}}
+#big{font-size:46px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 4px}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.8px}
+.mo{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-weight:600;color:var(--mut)}
+.mo i{width:10px;height:10px;border-radius:50%;background:var(--mut)}
+.mo.on{color:var(--warn);border-color:#5a4410}
+.mo.on i{background:var(--warn);box-shadow:0 0 10px var(--warn)}
+.tip{font-size:13px;color:var(--mut);max-width:34ch}
+#cur{font-size:12px;color:var(--mut);word-break:break-all}
+#pvBox{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+#pv{max-width:100%;max-height:42vh;border-radius:14px;border:1px solid var(--line);background:#000}
+#pvEmpty{color:var(--mut);font-size:13px;padding:24px 0}
+
+/* clips */
+.hi{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer}
+.hi+.hi{border-top:1px solid var(--line)}
+.hi:active{opacity:.7}
+.ic{flex:none;width:38px;height:38px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.mt{flex:1;min-width:0}
+.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.more{flex:none;border:0;background:none;color:var(--mut);font-size:22px;padding:4px 10px}
+.empty{color:var(--mut);text-align:center;padding:18px 0;font-size:14px}
+
+/* overlays */
+.ov{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding:calc(12px + var(--t)) calc(14px + var(--r)) calc(12px + var(--b)) calc(14px + var(--l));gap:10px}
+.ov h2{margin:0;font-size:18px}
+#list{flex:1;overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.fr{padding:13px 14px;border-bottom:1px solid var(--line)}
+.fr:active{background:var(--card2)}
+.bar{display:flex;gap:8px;flex-wrap:wrap}.bar .btn{flex:1}
+.center{align-items:center;justify-content:center;text-align:center;gap:14px}
+#cdn{font-size:110px;font-weight:700;line-height:1;color:var(--acc)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:14px 14px calc(14px + var(--b));display:flex;flex-direction:column;gap:8px}
+.sheet .nm{font-size:13px;color:var(--mut);text-align:center;margin-bottom:4px}
+.sheet .btn{padding:14px}
+.sheet .btn.del{color:var(--bad)}
+.shade{position:fixed;inset:0;z-index:29;background:#000a}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#111a22"/><circle cx="16" cy="16" r="9" stroke="#2dd4bf" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="#2dd4bf"/></svg>
+    <span>VCap</span>
+  </div>
+  <span id="chip" class="chip">Ready</span>
+</header>
+
+<main>
+  <!-- ================= setup ================= -->
+  <section id="setup">
+    <div id="msg"></div>
+
+    <div id="perm" class="card attn" hidden>
+      <div>VCap needs <b>All files access</b> to save videos into the folder you choose.</div>
+      <p class="note">Tap Allow, switch it on for VCap, then come back.</p>
+      <button class="btn pri" id="permBtn">Allow file access</button>
+    </div>
+
+    <div class="card">
+      <h3>Camera</h3>
+      <div class="row"><span class="l">Lens</span>
+        <div class="seg" data-k="cam"><button data-v="back">Back</button><button data-v="front">Front</button></div></div>
+      <div class="row"><span class="l">Quality</span>
+        <div class="seg" data-k="res" data-t="num"><button data-v="720">720p</button><button data-v="1080">1080p</button><button data-v="2160">4K</button></div></div>
+      <div class="note" id="resNote" hidden></div>
+      <div class="row"><label for="orient">Phone position<span class="sub">Auto = the way you hold it when recording starts</span></label>
+        <select id="orient" data-k="orient"><option value="auto">Auto</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option><option value="flip">Landscape (flipped)</option></select></div>
+      <div class="row"><label for="h265">Smaller files (H.265)<span class="sub">About 40% smaller. A few old players cannot play it.</span></label>
+        <input type="checkbox" id="h265" data-k="h265"></div>
+      <div class="row"><label for="preview">Live preview<span class="sub">Also show the camera picture on the recording screen. It is always shown on the Get ready screen.</span></label>
+        <input type="checkbox" id="preview" data-k="preview"></div>
+    </div>
+
+    <div class="card">
+      <h3>Audio</h3>
+      <div class="row"><label for="mute">Mute<span class="sub" id="muteSub"></span></label>
+        <input type="checkbox" id="mute" data-k="mute"></div>
+    </div>
+
+    <div class="card">
+      <h3>Motion</h3>
+      <div class="row"><label for="motion">Record only when something moves<span class="sub">The camera watches all the time. A clip is saved when motion starts and ends a little after it stops.</span></label>
+        <input type="checkbox" id="motion" data-k="motion"></div>
+      <div id="motionOpts">
+        <div class="row" style="display:block"><div style="display:flex;justify-content:space-between"><span>Sensitivity</span><b id="sensV"></b></div>
+          <input type="range" min="1" max="10" step="1" id="sens" data-k="sens" data-t="num">
+          <span class="sub">Higher catches smaller movement, and more false alarms.</span></div>
+        <div class="row"><label for="pad">Keep recording after motion stops</label>
+          <select id="pad" data-k="pad" data-t="num"><option value="5">5 s</option><option value="10">10 s</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option></select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Recording</h3>
+      <div class="row"><label for="seg">Longest single clip<span class="sub">Long movement is split into files of about this length.</span></label>
+        <select id="seg" data-k="seg" data-t="num"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="30">30 min</option></select></div>
+      <div class="row"><label for="delay">Start delay<span class="sub">Time to put the phone in place. Keep the screen on until it starts.</span></label>
+        <select id="delay" data-k="delay" data-t="num"><option value="0">None</option><option value="10">10 s</option><option value="30">30 s</option><option value="60">60 s</option></select></div>
+    </div>
+
+    <div class="card">
+      <h3>Safety</h3>
+      <div class="row"><label for="hours">Stop after</label>
+        <select id="hours" data-k="hours" data-t="num"><option value="0">Never</option><option value="1">1 hour</option><option value="2">2 hours</option><option value="4">4 hours</option><option value="6">6 hours</option><option value="8">8 hours</option><option value="10">10 hours</option><option value="12">12 hours</option></select></div>
+      <div class="row"><label for="stopAt">Stop at time<span class="sub">Optional, e.g. 06:00</span></label>
+        <input type="time" id="stopAt" class="time" data-k="stopAt"></div>
+      <div class="row"><label for="bat">Stop when battery is at<span class="sub">Only when not charging</span></label>
+        <select id="bat" data-k="bat" data-t="num"><option value="5">5%</option><option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="30">30%</option></select></div>
+      <div class="row"><label for="temp">Stop if phone reaches<span class="sub">Battery temperature</span></label>
+        <select id="temp" data-k="temp" data-t="num"><option value="40">40 °C</option><option value="43">43 °C</option><option value="45">45 °C</option><option value="48">48 °C</option><option value="50">50 °C</option></select></div>
+      <div class="row"><label for="gb">Keep at most<span class="sub">Oldest VCap clips are deleted first</span></label>
+        <select id="gb" data-k="gb" data-t="num"><option value="0">No limit</option><option value="5">5 GB</option><option value="10">10 GB</option><option value="20">20 GB</option><option value="30">30 GB</option><option value="50">50 GB</option><option value="100">100 GB</option><option value="200">200 GB</option></select></div>
+    </div>
+
+    <div class="card">
+      <h3>Storage</h3>
+      <div class="row"><span class="l">Save folder<span class="sub path" id="dirTxt"></span></span><button class="btn" id="chg">Change</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Player</h3>
+      <div class="row"><label for="player">Open clips with<span class="sub">Tap a clip to open it here. ⋯ always offers “Open with”.</span></label>
+        <select id="player" data-k="player"><option value="">Ask every time</option></select></div>
+    </div>
+
+    <div class="card">
+      <h3>Keep it running</h3>
+      <div class="row"><span class="l">Background running<span class="sub" id="batTxt"></span></span><button class="btn" id="batBtn">Allow</button></div>
+      <div class="note">On Xiaomi / Redmi also set Settings → Apps → VCap → Battery saver → <b>No restrictions</b>, and turn on Autostart. Keep the phone plugged in and cool.</div>
+    </div>
+
+    <div class="card" id="clipsCard">
+      <h3>Clips <span id="cc" style="color:var(--mut);text-transform:none;letter-spacing:0;font-weight:400"></span></h3>
+      <div id="clips"></div>
+    </div>
+
+    <div class="dock">
+      <div id="sum"></div>
+      <button class="go" id="go">Get ready</button>
+    </div>
+  </section>
+
+  <div id="pvBox" hidden><img id="pv" alt="" hidden><div id="pvEmpty">Waiting for the camera…</div></div>
+
+  <!-- ================= get ready (aim the camera) ================= -->
+  <section id="ready" class="live" hidden>
+    <p class="tip">Aim the camera and check the picture. Nothing is recorded yet. When it looks right, press Start.</p>
+    <div class="dock">
+      <button class="go" id="start" disabled>Start recording</button>
+      <button class="btn" id="rcancel">Cancel</button>
+    </div>
+  </section>
+
+  <!-- ================= while recording ================= -->
+  <section id="live" class="live" hidden>
+    <div class="ring"><i></i></div>
+    <div id="big">00:00:00</div>
+    <div class="mo" id="mo"><i></i><span id="moT">Watching</span></div>
+    <button class="btn" id="pvBtn">Hide preview</button>
+    <div class="stats">
+      <div class="stat"><b id="sSeg">0</b><span>Clips saved</span></div>
+      <div class="stat"><b id="sKept">00:00:00</b><span>Recorded</span></div>
+    </div>
+    <div id="liveNote" class="note"></div>
+    <div id="cur"></div>
+    <p class="tip">Clips are saved only when something moves. It keeps watching with the screen off, so press the power button once the phone is aimed, and keep it plugged in.</p>
+    <div class="dock">
+      <button class="go stop" id="stop">Stop recording</button>
+    </div>
+  </section>
+</main>
+
+<!-- start delay -->
+<div id="cd" class="ov center" hidden>
+  <div>Recording starts in</div>
+  <div id="cdn">10</div>
+  <div class="note">Place the phone. Leave the screen on until recording starts.</div>
+  <button class="btn" id="cdx">Cancel</button>
+</div>
+
+<!-- folder browser -->
+<div id="br" class="ov" hidden>
+  <h2>Choose save folder</h2>
+  <div class="path" id="bpath"></div>
+  <div id="list"></div>
+  <div class="bar" id="nfrow" hidden><input id="nfn" type="text" placeholder="New folder name" style="flex:2;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--tx)"><button class="btn" id="nfok">Create</button></div>
+  <div class="bar"><button class="btn" id="up">Up</button><button class="btn" id="nf">New folder</button></div>
+  <div class="bar"><button class="btn" id="bc">Cancel</button><button class="btn pri" id="use">Use this folder</button></div>
+</div>
+
+<!-- clip actions -->
+<div id="shade" class="shade" hidden></div>
+<div id="sheet" class="sheet" hidden>
+  <div class="nm" id="shn"></div>
+  <button class="btn" id="shOpen">Open</button>
+  <button class="btn" id="shWith">Open with…</button>
+  <button class="btn del" id="shDel">Delete</button>
+  <button class="btn" id="shX">Cancel</button>
+</div>
+
+<script>
+/* ---------- bridge (a tiny fake is used when the page is opened in a desktop browser) ---------- */
+function mock() {
+  let rec = false, rdy = false, t0 = 0;
+  const L = [1, 2, 3].map(i => ({ n: 'vcap-20261116-22000' + i + '-p00' + i + '.mp4', s: 600e6 * i, t: Date.now() - i * 6e5 }));
+  return {
+    hasFiles: () => true, requestFiles() {}, defaultDir: () => '/storage/emulated/0/Movies/VCap',
+    roots: () => '[{"n":"Phone storage","p":"/storage/emulated/0"}]', listDir: () => '{"ok":true,"dirs":["DCIM","Movies","Download"]}', mkdir: () => 'ok',
+    caps: () => '{"back":[720,1080,2160],"front":[720,1080]}', players: () => '[{"l":"My Player","p":"com.example.player"}]',
+    clips: () => JSON.stringify(L), openClip: () => 'ok', deleteClip: () => 'ok', batteryOk: () => false, askBattery() {}, keepScreen() {},
+    insets: () => '24|0|0|0', preview: () => '', setPreview() {}, ack() {}, stop() { rec = false; rdy = false; }, startNow() { rdy = false; rec = true; t0 = Date.now(); },
+    start(o) { if (JSON.parse(o).ready) rdy = true; else { rec = true; t0 = Date.now(); } },
+    status() { const s = Math.floor((Date.now() - t0) / 1000); return JSON.stringify(rdy ? { s: 'ready', t: 0, seg: 0, kept: 0, del: 0, mo: 0, rc: 0, rt: 0, mf: 1, rd: 1, cur: '', msg: '' } : rec ? { s: 'rec', t: s, seg: 1 + (s / 30 | 0), kept: s / 30 | 0, del: 0, mo: s % 8 < 3 ? 1 : 0, rc: s % 20 < 12 ? 1 : 0, rt: s, mf: 1, cur: 'vcap-demo-p001.mp4', msg: '' } : { s: 'idle', t: 0, seg: 0, kept: 0, del: 0, mo: 0, rc: 0, rt: 0, mf: 0, cur: '', msg: '' }); }
+  };
+}
+const A = window.AndroidRec || mock();
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+/* ---------- settings (remembered on this phone) ---------- */
+const DEF = { cam: 'back', res: 1080, orient: 'auto', h265: false, mute: true, motion: true, sens: 5, pad: 10, seg: 10,
+  delay: 10, hours: 0, stopAt: '', bat: 15, temp: 45, gb: 30, dir: '', player: '', preview: true };
+const S = Object.assign({}, DEF);
+try { Object.assign(S, JSON.parse(localStorage.getItem('vcap') || '{}')); } catch (e) {}
+if (!S.dir) S.dir = A.defaultDir();
+const save = () => { try { localStorage.setItem('vcap', JSON.stringify(S)); } catch (e) {} };
+let CAPS = {};
+try { CAPS = JSON.parse(A.caps()); } catch (e) {}
+let curNow = '';
+
+function showMsg(t, bad) { const m = $('msg'); m.textContent = t || ''; m.className = bad ? 'bad' : ''; }
+const fmtT = s => [s / 3600 | 0, (s % 3600) / 60 | 0, s % 60].map(x => String(x).padStart(2, '0')).join(':');
+const fmtS = b => b >= 1e9 ? (b / 1e9).toFixed(2) + ' GB' : (b / 1e6).toFixed(0) + ' MB';
+
+/* ---------- bind every control that has data-k ---------- */
+document.querySelectorAll('select[data-k],input[data-k]').forEach(c => {
+  const k = c.dataset.k;
+  if (c.type === 'checkbox') c.checked = !!S[k]; else c.value = S[k];
+  c.addEventListener('input', () => {
+    S[k] = c.type === 'checkbox' ? c.checked : (c.dataset.t === 'num' ? Number(c.value) : c.value);
+    save(); refresh();
+  });
+});
+document.querySelectorAll('.seg[data-k] button').forEach(b => b.onclick = () => {
+  const g = b.parentNode, k = g.dataset.k;
+  S[k] = g.dataset.t === 'num' ? Number(b.dataset.v) : b.dataset.v;
+  save(); refresh();
+});
+
+function resList() { return CAPS[S.cam] || [720, 1080]; }
+
+function refresh() {
+  const rl = resList();
+  if (!rl.includes(S.res)) { S.res = rl.filter(x => x <= S.res).pop() || rl[rl.length - 1]; save(); }
+  document.querySelectorAll('.seg[data-k]').forEach(g => g.querySelectorAll('button').forEach(b => {
+    const v = g.dataset.t === 'num' ? Number(b.dataset.v) : b.dataset.v;
+    b.classList.toggle('on', S[g.dataset.k] === v);
+    if (g.dataset.k === 'res') b.disabled = !rl.includes(v);
+  }));
+  const n = $('resNote');
+  n.hidden = false;
+  n.textContent = S.res >= 2160 ? '4K makes big files and warms the phone. Good for detail, so keep it plugged in and ventilated.'
+    : !rl.includes(2160) ? '4K is not offered to apps by this camera.' : '';
+  n.hidden = !n.textContent;
+  $('muteSub').textContent = S.mute ? 'Audio is never recorded, and the microphone is not even requested.' : 'Sound is recorded with the video (microphone permission needed).';
+  $('motionOpts').hidden = !S.motion;
+  $('sensV').textContent = S.sens;
+  $('dirTxt').textContent = S.dir.replace(/^\/storage\/emulated\/0/, 'Internal storage');
+  $('sum').textContent = (S.cam === 'back' ? 'Back' : 'Front') + ' camera · ' + (S.res === 2160 ? '4K' : S.res + 'p') + ' · ' + S.seg + '-min max clip · '
+    + (S.mute ? 'no audio' : 'with audio') + ' · ' + (S.motion ? 'records on motion' : 'records everything');
+}
+
+/* ---------- permissions / background ---------- */
+function checkPerm() {
+  $('perm').hidden = A.hasFiles();
+  const ok = A.batteryOk();
+  $('batTxt').textContent = ok ? 'Allowed ✓' : 'Not allowed yet. Android may stop the recording overnight.';
+  $('batBtn').hidden = ok;
+}
+$('permBtn').onclick = () => A.requestFiles();
+$('batBtn').onclick = () => A.askBattery();
+document.addEventListener('visibilitychange', () => { poll(); if (!document.hidden) { checkPerm(); loadClips(); } });
+
+/* ---------- player choice ---------- */
+function fillPlayers() {
+  const sel = $('player');
+  let L = []; try { L = JSON.parse(A.players()); } catch (e) {}
+  L.forEach(p => { const o = el('option', '', p.l); o.value = p.p; sel.appendChild(o); });
+  if (S.player && !L.some(p => p.p === S.player)) S.player = '';
+  sel.value = S.player;
+}
+
+/* ---------- start / stop ---------- */
+function opts() {
+  return { dir: S.dir, cam: S.cam, res: S.res, orient: S.orient, h265: S.h265, audio: !S.mute, seg: S.seg, motion: S.motion,
+    sens: S.sens, pad: S.pad, hours: S.hours, stopAt: S.stopAt, bat: S.bat, temp: S.temp, gb: S.gb };
+}
+let cdT = null;
+$('go').onclick = () => {                 // "Get ready": open the camera in preview-only mode
+  if (!A.hasFiles()) { checkPerm(); A.requestFiles(); showMsg('Allow file access, then press Get ready again'); return; }
+  showMsg(''); A.keepScreen(true);
+  A.start(JSON.stringify(Object.assign(opts(), { ready: true })));
+};
+$('start').onclick = () => {              // "Start recording": optional countdown, then the service begins
+  let n = S.delay | 0;
+  if (n <= 0) return A.startNow();
+  $('cd').hidden = false; $('cdn').textContent = n;
+  cdT = setInterval(() => {
+    if (--n <= 0) { clearInterval(cdT); cdT = null; $('cd').hidden = true; A.startNow(); } else $('cdn').textContent = n;
+  }, 1000);
+};
+$('cdx').onclick = () => { clearInterval(cdT); cdT = null; $('cd').hidden = true; };
+$('rcancel').onclick = () => A.stop();
+$('stop').onclick = () => A.stop();
+window.addEventListener('recerr', e => { A.keepScreen(false); showMsg(e.detail, true); });
+
+/* ---------- live status ---------- */
+let pvWant = false, view = 'setup';
+function pvTick() {
+  if (!pvWant) return;
+  let b = ''; try { b = A.preview(); } catch (e) {}
+  if (b) { $('pv').src = 'data:image/jpeg;base64,' + b; $('pv').hidden = false; $('pvEmpty').hidden = true; }
+}
+$('pvBtn').onclick = () => { S.preview = !S.preview; $('preview').checked = S.preview; save(); poll(); };
+setInterval(pvTick, 500);
+
+function poll() {
+  let st; try { st = JSON.parse(A.status()); } catch (e) { return; }
+  const busy = st.s !== 'idle';
+  const v = !busy ? 'setup' : (st.rd ? 'ready' : 'live');
+  if (v !== view) {                              // keep the screen on while aiming; let it sleep otherwise
+    A.keepScreen(v === 'ready');
+    view = v;
+  }
+  $('setup').hidden = v !== 'setup'; $('ready').hidden = v !== 'ready'; $('live').hidden = v !== 'live';
+  const c = $('chip');
+  c.textContent = st.s === 'ready' ? 'Get ready' : st.s === 'rec' ? (st.rc ? '● REC' : 'Watching') : st.s === 'starting' ? 'Starting…' : st.s === 'saving' ? 'Saving…' : 'Ready';
+  c.className = 'chip' + (st.s === 'rec' && st.rc ? ' rec' : busy ? ' warn' : '');
+  curNow = st.cur || '';
+  const showPv = v === 'ready' || (v === 'live' && !!S.preview);
+  $('pvBox').hidden = !showPv;
+  const want = showPv && !document.hidden;
+  if (want !== pvWant) { pvWant = want; try { A.setPreview(want); } catch (e) {} }
+  if (v === 'ready') {
+    $('start').disabled = st.s !== 'ready';
+  } else if (v === 'live') {
+    $('big').textContent = fmtT(st.t);
+    $('sSeg').textContent = st.kept; $('sKept').textContent = fmtT(st.rt || 0);
+    $('mo').className = 'mo' + (st.rc ? ' on' : '');
+    $('moT').textContent = !st.mf ? (S.motion ? 'Motion not available · recording everything' : 'Recording everything (motion off)')
+      : st.rc ? (st.mo ? 'Recording · motion' : 'Recording · waiting to stop') : 'Watching · no motion';
+    $('pvBtn').textContent = S.preview ? 'Hide preview' : 'Show preview';
+    $('cur').textContent = st.cur || '';
+    $('liveNote').textContent = st.msg || '';
+    $('stop').disabled = st.s === 'saving';
+  } else {
+    $('pv').hidden = true; $('pvEmpty').hidden = false;
+    if (st.msg) {
+      const bad = /^Error/.test(st.msg);
+      showMsg(st.msg + (st.kept ? ' · ' + st.kept + ' clips saved' : ''), bad);
+      A.ack(); loadClips();
+    }
+  }
+}
+
+/* ---------- clips ---------- */
+let sel = null;
+function openClip(c, chooser) {
+  const r = A.openClip(S.dir, c.n, S.player, !!chooser);
+  if (r && r !== 'ok') showMsg(r, true);
+}
+function loadClips() {
+  let L = []; try { L = JSON.parse(A.clips(S.dir)); } catch (e) {}
+  const box = $('clips'); box.innerHTML = '';
+  const tot = L.reduce((a, c) => a + c.s, 0);
+  $('cc').textContent = L.length ? '· ' + L.length + ' · ' + fmtS(tot) : '';
+  if (!L.length) { box.appendChild(el('div', 'empty', 'No clips in this folder yet')); return; }
+  L.forEach(c => {
+    const live = c.n === curNow;
+    const r = el('div', 'hi'); r.onclick = () => { if (!live) openClip(c, false); };
+    r.appendChild(el('div', 'ic', live ? '●' : '🎞'));
+    const m = el('div', 'mt');
+    m.appendChild(el('div', 'nm', c.n));
+    m.appendChild(el('div', 'sub', (live ? 'Recording now · ' : '') + new Date(c.t).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' · ' + fmtS(c.s)));
+    r.appendChild(m);
+    const more = el('button', 'more', '⋯'); more.onclick = ev => { ev.stopPropagation(); openSheet(c, live); };
+    r.appendChild(more);
+    box.appendChild(r);
+  });
+}
+function openSheet(c, live) {
+  sel = c; $('shn').textContent = c.n;
+  $('shOpen').hidden = live; $('shWith').hidden = live; $('shDel').hidden = live;
+  $('shade').hidden = false; $('sheet').hidden = false;
+}
+function closeSheet() { $('shade').hidden = true; $('sheet').hidden = true; }
+$('shade').onclick = $('shX').onclick = closeSheet;
+$('shOpen').onclick = () => { closeSheet(); openClip(sel, false); };
+$('shWith').onclick = () => { closeSheet(); openClip(sel, true); };
+$('shDel').onclick = () => {
+  const c = sel; closeSheet();
+  if (!confirm('Delete ' + c.n + '?')) return;
+  const r = A.deleteClip(S.dir, c.n);
+  if (r !== 'ok') showMsg(r, true);
+  loadClips();
+};
+
+/* ---------- folder browser ---------- */
+let bp = null, roots = [];
+function row(t, f) { const d = el('div', 'fr', t); if (f) d.onclick = f; $('list').appendChild(d); }
+function goDir(p) {
+  bp = p; $('list').innerHTML = '';
+  ['use', 'nf', 'up'].forEach(i => $(i).hidden = p === null);
+  $('nfrow').hidden = true;
+  $('bpath').textContent = p === null ? 'Choose storage' : p;
+  if (p === null) { roots.forEach(r => row('💾 ' + r.n, () => goDir(r.p))); return; }
+  const d = JSON.parse(A.listDir(p));
+  if (!d.ok) { row('Cannot open this folder (is file access allowed?)'); return; }
+  if (!d.dirs.length) row('No folders here. Use this folder, or make a new one.');
+  d.dirs.forEach(n => row('📁 ' + n, () => goDir(p + '/' + n)));
+}
+$('chg').onclick = () => {
+  if (!A.hasFiles()) { checkPerm(); showMsg('Allow file access first', true); return; }
+  roots = JSON.parse(A.roots());
+  let p = S.dir;
+  while (p && p.length > 1 && !JSON.parse(A.listDir(p)).ok) p = p.substring(0, p.lastIndexOf('/'));
+  $('br').hidden = false;
+  goDir(p && p.length > 1 ? p : null);
+};
+$('up').onclick = () => { if (roots.some(r => r.p === bp)) goDir(null); else goDir(bp.substring(0, bp.lastIndexOf('/'))); };
+$('nf').onclick = () => { $('nfrow').hidden = !$('nfrow').hidden; };
+$('nfok').onclick = () => {
+  const r = A.mkdir(bp, $('nfn').value);
+  if (r === 'ok') { $('nfn').value = ''; goDir(bp); } else $('bpath').textContent = r;
+};
+$('use').onclick = () => { S.dir = bp; save(); $('br').hidden = true; refresh(); loadClips(); };
+$('bc').onclick = () => { $('br').hidden = true; };
+
+/* ---------- native events ---------- */
+function ins(s) {
+  const a = s.split('|');
+  ['t', 'l', 'r', 'b'].forEach((k, i) => document.documentElement.style.setProperty('--' + k, (a[i] || 0) + 'px'));
+}
+window.addEventListener('insets', e => ins(e.detail));
+ins(A.insets());
+
+fillPlayers();
+refresh();
+checkPerm();
+loadClips();
+setInterval(poll, 1000);
+poll();
+</script>
+</body>
+</html>
