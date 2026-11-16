@@ -445,14 +445,15 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box details.fold[open] > summary::before { content: "\25BE"; }
 #content-box details.fold > .fold-body { padding: 4px 16px 10px 16px; }
 #content-box { --tb: 44px; }
-#content-box .fold-tools { position: sticky; top: 0; z-index: 30; display: flex; gap: 6px; align-items: center; box-sizing: border-box; margin: -30px -40px 14px -40px; padding: 7px 40px; background: #faf8f4; border-bottom: 1px solid #e8e2d5; }
+#content-box.has-fold { padding-top: 0; }
+#content-box .fold-tools { position: sticky; top: 0; z-index: 30; display: flex; gap: 6px; align-items: center; box-sizing: border-box; margin: 0 -40px 14px -40px; padding: 8px 40px; background: #faf8f4; border-bottom: 1px solid #e8e2d5; }
 #content-box .fold-tools select { flex: 1; min-width: 0; font: inherit; font-size: 0.85em; padding: 3px 6px; border: 1px solid #c9a15a88; border-radius: 6px; background: #fffdf8; color: #6b4f1d; }
 #content-box .fold-tools button { font: inherit; font-size: 0.8em; cursor: pointer; padding: 3px 10px; border: 1px solid #c9a15a88; border-radius: 6px; background: #fffdf8; color: #a1521f; white-space: nowrap; }
-#content-box details.fold > summary { position: sticky; top: var(--tb); z-index: 20; background: #f3ecdc; border-radius: 8px; }
+#content-box details.fold > summary { position: sticky; top: calc(var(--tb) - 1px); z-index: 20; background: #f3ecdc; border-radius: 8px; }
 #content-box details.fold[open] > summary { border-bottom: 1px solid #e8e2d5; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 #content-box .fold-next { display: block; width: 100%; margin: 14px 0 4px 0; font: inherit; font-size: 0.85em; cursor: pointer; padding: 7px 10px; border: 1px dashed #c9a15a; border-radius: 6px; background: #fffdf8; color: #a1521f; text-align: center; }
 @media (max-width: 700px) {
-  #content-box .fold-tools { margin: -14px -10px 12px -10px; padding: 6px 10px; }
+  #content-box .fold-tools { margin: 0 -10px 12px -10px; padding: 6px 10px; }
 }
 </style>
 </head>
@@ -686,6 +687,7 @@ updateFoldBtn();
 function makeFoldable(root) {
     const h2s = Array.from(root.children).filter(el => el.tagName === "H2");
     if (!h2s.length) return;
+    root.classList.add("has-fold");
     const dets = [];
     h2s.forEach(h2 => {
         const det = document.createElement("details");
@@ -790,6 +792,7 @@ function loadTopic(flatIndex) {
         .then(raw => {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = topic.ext === "md" ? html : '<div class="page-canvas">' + html + '</div>';
+            contentBox.classList.remove("has-fold");
             if (topic.ext === "md") makeFoldable(contentBox);
             contentBox.scrollTop = 0;
             contentBox.scrollLeft = 0;
