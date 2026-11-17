@@ -991,7 +991,7 @@ spec:
   - name: coco-icr-pull
   containers:
   - name: app
-    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+    image: useast.icr.io/env-conf-container-cr/my-python-app:v1
 EOF
 ```
 
@@ -1258,7 +1258,7 @@ Run from your machine with the `conf-cluster` context. Set `TRUSTEE_IP` first:
 ```bash
 export TRUSTEE_IP=<trustee private IP>
 nettest() { kubectl run nettest-$RANDOM -n "$APP_NS" --rm -i --restart=Never \
-  --image=fr2.icr.io/env-conf-container-cr/my-python-app:v1 \
+  --image=useast.icr.io/env-conf-container-cr/my-python-app:v1 \
   --overrides='{"spec":{"imagePullSecrets":[{"name":"coco-icr-pull"}]}}' \
   --command -- python -c "$1"; }
 nettest "import http.client as h;c=h.HTTPConnection('$TRUSTEE_IP',8080,timeout=5);c.request('GET','/');print(c.getresponse().status)"
@@ -1354,7 +1354,7 @@ spec:
   - name: coco-icr-pull
   containers:
   - name: app
-    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+    image: useast.icr.io/env-conf-container-cr/my-python-app:v1
 EOF
 kubectl get pod attest-test -n $APP_NS -w
 ```
@@ -1659,7 +1659,7 @@ spec:
   - name: coco-icr-pull
   containers:
   - name: app
-    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+    image: useast.icr.io/env-conf-container-cr/my-python-app:v1
 EOF
 kubectl get pod golden-ref -n $APP_NS -w
 ```
@@ -2749,3 +2749,779 @@ Good: no CSV is left. The CRDs may remain, and removing them is a separate decis
 - [ ] Written answers on ROKS, Calico and peer pod support are recorded.
 
 
+---
+
+## Step 8: Deploy App 1 as a peer pod (runs in the CVM, talks to CDH)
+
+Goal: run the App 1 image from Step 2a as a `kata-remote` peer pod, with the Step 5 initdata, so that it fetches `default/kbsres1/key1` through CDH on `http://127.0.0.1:8006` and returns a result derived from that secret. I stage it: first without the sidecar, to prove the CDH and attestation path on its own, then with the Istio sidecar.
+
+Done when: App 1 runs as a peer pod and returns a result derived from the KBS secret.
+
+Build and push are done in Step 2a. 8.0 checks the image is there and tells you how to rebuild if not.
+
+### What I verified, and what I'm assuming
+
+| Topic | Source |
+|---|---|
+| The pod spec still needs `imagePullSecrets`, because the worker reads image metadata even though the VM pulls the image. CAA builds the VM's `auth.json` from the pod's **and the service account's** pull secrets | CAA doc `registries-authentication.md` |
+| The pull secret is visible to the untrusted worker, so use signed or encrypted images and a pull-only credential | same doc |
+| The per-pod initdata annotation is `io.katacontainers.config.hypervisor.cc_init_data` | CAA code and docs |
+| Every container in the pod shares the pod network namespace inside the VM, so App 1 reaches the REST API server at `127.0.0.1:8006` | guest-components `api-server-rest` |
+| Assumption: peer pod VSI start takes minutes, not seconds. The probes below allow ten minutes. Record your real time | mine |
+| Assumption: OpenShift's `restricted` SCC assigns the UID. A fixed `runAsUser` (like 10001 from Step 2a) may be rejected | OpenShift behaviour, see 8.8 |
+
+### 8.0 Prerequisites and variables
+
+Required from earlier steps:
+- Step 2a: `app1-cvm-api:v1` is in ICR (digest recorded).
+- Steps 5 and 6: the initdata, reference values, AS policy, KBS resource policy and the real secret are in place. The secret fingerprint (first 16 hex of its SHA-256) is noted.
+- Step 7: the mesh is installed, and you recorded whether the 7.11 peer pod gate passed.
+- `$APP_NS` is the namespace for both apps (it is labeled for injection from 7.9). The commands below keep App 1 out of the mesh until 8.6.
+
+```bash
+export APP_NS=<your-app-namespace>
+export CR_HOST=useast.icr.io CR_NS=env-conf-container-cr
+export OSC_NS=openshift-sandboxed-containers-operator
+export APP1_DIGEST=sha256:<digest of app1-cvm-api:v1>
+export TRUSTEE_IP=<trustee private IP>
+```
+
+Check the image, the runtime and the capacity:
+
+```bash
+ibmcloud cr image-digests --restrict $CR_NS | grep -i app1
+kubectl get runtimeclass kata-remote
+kubectl get secret coco-icr-pull -n $APP_NS
+kubectl get nodes -o json | jq -r '[.items[] | select (.status.allocatable["kata.peerpods.io/vm"] != null)| .status.allocatable["kata.peerpods.io/vm"] | tonumber] | add'
+```
+
+Good: the `app1-cvm-api` digest matches `APP1_DIGEST`, the RuntimeClass and pull secret exist, and the peer pod slot count is greater than 0. If the image is missing, go back to 2a. Rebuild with `docker buildx build --platform linux/amd64 -t $CR_HOST/$CR_NS/app1-cvm-api:v1 --push .`
+
+Build the initdata on your workstation. Copy `initdata.toml` from the Trustee VSI (it holds no secrets, only the URL, certificate and policy). Use the POC kata policy variant for bring-up. You lock it down in 8.9:
+
+```bash
+export INITDATA=$(gzip -c initdata.toml | base64 -w0)
+echo ${#INITDATA}
+echo "$INITDATA" | base64 -d | gunzip | grep -E "^url|policy|ExecProcessRequest"
+```
+
+Good: a length prints, and the decoded text shows `https://$TRUSTEE_IP:8080` and `ExecProcessRequest := true` (the POC variant).
+
+### 8.1 Service accounts and pull secrets
+
+```bash
+kubectl create serviceaccount app1 -n $APP_NS
+kubectl create serviceaccount app2 -n $APP_NS
+kubectl patch serviceaccount app1 -n $APP_NS -p '{"imagePullSecrets":[{"name":"coco-icr-pull"}]}'
+kubectl patch serviceaccount app2 -n $APP_NS -p '{"imagePullSecrets":[{"name":"coco-icr-pull"}]}'
+kubectl get sa app1 app2 -n $APP_NS -o custom-columns=NAME:.metadata.name,PULLSECRETS:.imagePullSecrets[*].name
+```
+
+Good: both accounts exist and list `coco-icr-pull`. The service account names matter, because the mesh policy in Step 9 uses them as identities (`.../sa/app1` and `.../sa/app2`).
+
+### 8.2 Deploy App 1 without the sidecar (staging)
+
+The image is referenced by digest. The probes tolerate a slow VM start. The `sidecar.istio.io/inject: "false"` label keeps the mesh out for now.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1
+  namespace: $APP_NS
+  labels:
+    app: app1
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: app1
+  template:
+    metadata:
+      labels:
+        app: app1
+        version: v1
+        sidecar.istio.io/inject: "false"
+      annotations:
+        io.katacontainers.config.hypervisor.cc_init_data: "$INITDATA"
+    spec:
+      runtimeClassName: kata-remote
+      serviceAccountName: app1
+      imagePullSecrets:
+      - name: coco-icr-pull
+      containers:
+      - name: app
+        image: $CR_HOST/$CR_NS/app1-cvm-api@$APP1_DIGEST
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CDH_BASE_URL
+          value: "http://127.0.0.1:8006"
+        - name: KBS_RESOURCE_PATH
+          value: "default/kbsres1/key1"
+        - name: SECRET_TTL_SECONDS
+          value: "300"
+        - name: LOG_LEVEL
+          value: "info"
+        startupProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 10
+          failureThreshold: 60
+        readinessProbe:
+          httpGet: {path: /readyz, port: http}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 20
+        resources:
+          requests: {cpu: 100m, memory: 128Mi}
+          limits: {memory: 512Mi}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: ["ALL"]}
+          runAsNonRoot: true
+          seccompProfile: {type: RuntimeDefault}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1
+  namespace: $APP_NS
+  labels:
+    app: app1
+spec:
+  selector:
+    app: app1
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+EOF
+```
+
+Notes:
+- `Recreate` avoids two peer pod VSIs at once during a rollout. Use the default rolling update later if you want no downtime.
+- No fixed `runAsUser` is set, so the SCC can assign one. 8.8 has the fix if the pod is rejected.
+
+Watch it come up (it creates a VSI, so this takes minutes):
+
+```bash
+kubectl rollout status deployment/app1 -n $APP_NS --timeout=900s
+kubectl get pods -n $APP_NS -l app=app1 -o wide
+ibmcloud is instances --output JSON | jq -r '.[] | select(.profile.name=="bx3dc-2x10") | "\(.name)  \(.status)"'
+```
+
+Check 8.2:
+
+```bash
+kubectl describe pod -n $APP_NS -l app=app1 | tail -25
+kubectl logs deploy/app1 -n $APP_NS --tail=20
+kubectl logs ds/osc-caa-ds -n $OSC_NS --tail=20
+```
+
+Good:
+- The pod is `1/1 Running`, and a `bx3dc-2x10` VSI shows `running`.
+- The events show the image pulled, with no `ErrImagePull`.
+- The App 1 logs show startup in JSON, and no secret, token or certificate text.
+- The CAA logs show the VSI created, with no errors.
+
+Write down how long the pod took to become ready. That's your baseline.
+
+### 8.3 Helpers for calling App 1 from inside the cluster
+
+`kubectl port-forward` may not work for peer pods, so call the Service from a temporary client pod (without a sidecar, while App 1 has none):
+
+```bash
+svccall() {  # usage: svccall HOST PORT METHOD PATH [JSON_BODY]
+  kubectl run "svccall-$RANDOM" -n $APP_NS --rm -i --restart=Never --quiet \
+    --labels=sidecar.istio.io/inject=false \
+    --image=$CR_HOST/$CR_NS/my-python-app:v1 \
+    --overrides='{"spec":{"imagePullSecrets":[{"name":"coco-icr-pull"}]}}' \
+    --command -- python - "$@" <<'PY'
+import sys, http.client
+host, port, method, path = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+body = sys.argv[5] if len(sys.argv) > 5 else None
+c = http.client.HTTPConnection(host, port, timeout=90)
+c.request(method, path, body=body, headers={"content-type": "application/json"})
+r = c.getresponse()
+print(r.status, r.read().decode()[:700])
+PY
+}
+```
+
+For calls from an existing meshed workload (used in Step 9), exec into it instead:
+
+```bash
+meshcall() {  # usage: meshcall DEPLOYMENT CONTAINER HOST PORT METHOD PATH [JSON_BODY]
+  dep=$1; ctr=$2; shift 2
+  kubectl exec -i deploy/$dep -n $APP_NS -c $ctr -- python - "$@" <<'PY'
+import sys, http.client
+host, port, method, path = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+body = sys.argv[5] if len(sys.argv) > 5 else None
+c = http.client.HTTPConnection(host, port, timeout=90)
+c.request(method, path, body=body, headers={"content-type": "application/json"})
+r = c.getresponse()
+print(r.status, r.read().decode()[:700])
+PY
+}
+```
+
+### 8.4 Test App 1's API
+
+```bash
+svccall app1 8080 GET /healthz
+svccall app1 8080 GET /readyz
+svccall app1 8080 GET /api/v1/status
+svccall app1 8080 POST /api/v1/compute '{"message":"hello"}'
+svccall app1 8080 POST /api/v1/compute '{"message":""}'
+```
+
+Good:
+- `/healthz` returns `200`, and `/readyz` returns `200` (this proves CDH answers on `127.0.0.1:8006`).
+- `/api/v1/status` shows `cdh_reachable: true`. `tdx_guest_flag: true` is a hint that the pod runs in a TDX guest. It is informational only.
+- The first `compute` call returns `200` with a hex `result` (the first call is slower because it runs the full attestation). It must not contain the secret.
+- The empty message returns `400`.
+
+Confirm on the Trustee VSI that attestation really happened for this call:
+
+```bash
+cd ~/trustee
+sudo docker compose logs kbs --since 10m | grep -i -E "auth|attest|resource" | tail -15
+sudo docker compose logs as --since 10m | tail -15
+```
+
+Good: the KBS logs show the auth, attest and resource requests. Call `compute` again right away. With `SECRET_TTL_SECONDS=300`, the second call must not add new attest requests, because the secret is cached in App 1.
+
+### 8.5 Prove the result is derived from the KBS secret
+
+The App 1 spec computes HMAC-SHA256 of the message with the secret. Retrieve `key1` from your vault temporarily and compute the same value locally. Use bytes, not a shell string (a shell strips the trailing newline of the file):
+
+```bash
+python3 -c "import hmac,hashlib;k=open('key1.txt','rb').read();print(hmac.new(k,b'hello',hashlib.sha256).hexdigest())"
+shred -u key1.txt 2>/dev/null || rm -P key1.txt
+```
+
+Good: the value equals the `result` from the `compute` call for `{"message":"hello"}`. If it differs, check whether the generated App 1 strips whitespace from the secret (its README says), and compute the same way.
+
+Check log hygiene:
+
+```bash
+kubectl logs deploy/app1 -n $APP_NS | grep -i -E "secret|token|tee_keypair|BEGIN|key1" | head
+```
+
+Good: nothing sensitive. Lines that only mention the resource path are acceptable. A secret value, a token or a PEM block is a bug in App 1.
+
+### 8.6 Enable the mesh sidecar for App 1 (only if the 7.11 gate passed)
+
+If the gate failed, stop here and don't continue with 8.6. Keep App 1 without a sidecar for now, and bring the IBM and Red Hat answer to Step 9, where App 2 would be calling App 1 over plain HTTP inside the cluster (acceptable for a lab, not for the real thing). One option to discuss with them is for App 1 to terminate TLS itself, with its certificate retrieved from KBS.
+
+**Sidecar image credentials.** The sidecar and `istio-validation` or `istio-init` images are pulled inside the VM. The VM only gets the pod's and service account's pull secrets (not the cluster-wide pull secret). Find out where the injected images come from first, by creating a throwaway meshed pod description:
+
+```bash
+kubectl get cm -n istio-system | grep -i injector
+kubectl get pods -n $APP_NS -l app=mesh-test -o jsonpath='{range .items[0].spec.containers[*]}{.name}{"  "}{.image}{"\n"}{end}{range .items[0].spec.initContainers[*]}{.name}{"  "}{.image}{"\n"}{end}'
+```
+
+(`mesh-test` is the meshed test deployment from 7.9, if you still have it. Otherwise read the images after the first injection attempt below.)
+
+If the images are on `registry.redhat.io`, that registry needs credentials. Create a scoped secret from a Red Hat registry service account (see https://access.redhat.com/terms-based-registry/). Don't copy the whole cluster pull secret, because the worker can read pull secrets:
+
+```bash
+read -rsp "Red Hat registry token: " RH_TOKEN; echo
+kubectl create secret docker-registry rh-registry-pull -n $APP_NS \
+  --docker-server=registry.redhat.io \
+  --docker-username='<registry-service-account-name>' \
+  --docker-password="$RH_TOKEN"
+unset RH_TOKEN
+kubectl patch serviceaccount app1 -n $APP_NS --type merge -p '{"imagePullSecrets":[{"name":"coco-icr-pull"},{"name":"rh-registry-pull"}]}'
+kubectl get sa app1 -n $APP_NS -o jsonpath='{.imagePullSecrets[*].name}{"\n"}'
+```
+
+The stronger alternative is to mirror the sidecar image into ICR and point the `Istio` resource at it. Ask IBM and Red Hat which they prefer.
+
+**Egress to Trustee.** If your mesh uses `outboundTrafficPolicy` of `REGISTRY_ONLY`, App 1's calls to the KBS IP will be blocked. Check:
+
+```bash
+kubectl get istio default -o jsonpath='{.spec.values.meshConfig.outboundTrafficPolicy}{"\n"}'
+```
+
+Empty or `ALLOW_ANY` is fine. For `REGISTRY_ONLY`, add this:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1
+kind: ServiceEntry
+metadata:
+  name: trustee-kbs
+  namespace: $APP_NS
+spec:
+  hosts: ["trustee.kbs.internal"]
+  addresses: ["$TRUSTEE_IP/32"]
+  ports:
+  - {number: 8080, name: tls-kbs, protocol: TLS}
+  resolution: STATIC
+  location: MESH_EXTERNAL
+  endpoints:
+  - address: $TRUSTEE_IP
+EOF
+```
+
+**Switch the label and roll the pod:**
+
+```bash
+kubectl patch deployment app1 -n $APP_NS --type merge -p '{"spec":{"template":{"metadata":{"labels":{"sidecar.istio.io/inject":"true"}}}}}'
+kubectl rollout status deployment/app1 -n $APP_NS --timeout=900s
+```
+
+Check 8.6:
+
+```bash
+kubectl get pods -n $APP_NS -l app=app1
+kubectl get pod -n $APP_NS -l app=app1 -o jsonpath='{.items[0].spec.containers[*].name}{"\n"}{.items[0].spec.initContainers[*].name}{"\n"}'
+kubectl describe pod -n $APP_NS -l app=app1 | tail -30
+kubectl logs deploy/app1 -n $APP_NS -c istio-proxy --tail=20
+kubectl logs deploy/app1 -n $APP_NS -c app --tail=10
+```
+
+Good:
+- The pod is `2/2 Running`, with containers `app` and `istio-proxy`, and an init container (`istio-validation` or `istio-init`).
+- `istio-proxy` logs show it connected to `istiod` and is ready.
+- No `ImagePullBackOff` on the sidecar images. If there is one, the registry credential is missing (see above).
+
+Repeat the 8.4 calls. With the sidecar in place, a plain client without a sidecar (like `svccall`) is rejected by the STRICT mTLS policy from 7.10, which is expected, and the test now goes through the mesh in Step 9. For now, confirm that the CDH call still works from inside the pod through its own sidecar:
+
+```bash
+kubectl logs deploy/app1 -n $APP_NS -c istio-proxy --tail=5
+kubectl get pod -n $APP_NS -l app=app1 -o jsonpath='{.items[0].status.containerStatuses[*].ready}{"\n"}'
+```
+
+Good: both containers show `true`, and the pod's `/readyz` stays healthy (kubelet probes are rewritten by Istio to go through the sidecar agent). The first successful `compute` through the mesh comes in Step 9.
+
+If the pod fails to start after the switch, undo the label (patch it back to `"false"`), and send me the `istio-validation` or `istio-init` log and the pod events.
+
+### 8.7 Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| Pod `Pending` for long | `kubectl describe pod`, the peer pod slot count (8.0), and the CAA logs |
+| `ErrImagePull` | `coco-icr-pull` on the SA, the digest, and whether the registry is reachable from the worker (metadata) and the VM |
+| Admission error mentioning security context constraints | 8.8 |
+| `/readyz` returns 503 | CDH not reachable on `127.0.0.1:8006`: wrong initdata, or the VM failed to start the guest components. Read the pod logs and the VSI console logs |
+| `compute` returns 502 `secret_unavailable` | KBS denied the request or the AS failed. Read the KBS and AS logs (403 means policy or measurement), and re-check Step 5 and 6 values |
+| `compute` is very slow or times out | The Trustee is unreachable from the VM (security group, ACL, or the egress path), or the AS can't reach Intel PCS |
+| Sidecar pulls fail | Red Hat registry secret (8.6) |
+
+### 8.8 If the pod is rejected by the SCC
+
+The Step 2a image runs as UID 10001, and OpenShift's `restricted` SCC assigns its own UID from the namespace range. The pod spec above doesn't fix a UID, but if the image only works under UID 10001 (for example, it writes into directories owned by that UID), it will fail at runtime. Make the image arbitrary-UID friendly: group `0` ownership with group write permission on the writable directories, and no `USER`-specific paths. Don't grant `anyuid` just to fix this. Rebuild, push, update `APP1_DIGEST`, and redeploy.
+
+### 8.9 Lock down after bring-up
+
+When everything works:
+1. Switch the kata policy from `policy-poc.rego` to `policy-locked.rego` (exec off, `SetPolicyRequest false`).
+2. Rebuild `initdata.toml`, and compute the new SHA-384.
+3. If you pinned `init_data` in the AS policy (6.1), register the new value in RVPS and keep the old one only until the rollout ends.
+4. Update `INITDATA` here, redeploy App 1, and re-run 8.4 and the Step 6 tests.
+
+Logs still work with the locked policy (the shipped file allows `ReadStreamRequest`), but `kubectl exec` is blocked.
+
+### 8.10 Cleanup
+
+```bash
+kubectl delete deployment app1 -n $APP_NS
+kubectl delete service app1 -n $APP_NS
+ibmcloud is instances | grep -i -E "podvm|peer"
+```
+
+Good: the VSI disappears within minutes. Check, to avoid being billed for leftovers.
+
+### Values to record (Step 8)
+
+| Item | Value |
+|---|---|
+| App 1 image digest deployed | |
+| Time from `kubectl apply` to ready | |
+| Peer pod VSI name and profile | |
+| Initdata SHA-384 in use (POC or locked variant) | |
+| Result of `compute("hello")` and local HMAC match | |
+| Sidecar enabled (yes/no), init container name, sidecar image registry | |
+| Red Hat registry credential used (or mirror to ICR) | |
+
+### Step 8 exit criteria
+
+- [ ] The App 1 peer pod runs, with a `bx3dc-2x10` VSI and the pinned image digest.
+- [ ] `/readyz` is healthy, so CDH is reachable on `127.0.0.1:8006`.
+- [ ] `compute` returns a result that matches the locally computed HMAC (derived from the KBS secret).
+- [ ] KBS logs show the attestation and resource request, and a second call within the TTL shows none.
+- [ ] No secret, token or certificate text in App 1's logs.
+- [ ] Sidecar enabled and healthy (or the 7.11 failure is documented with IBM and Red Hat).
+
+---
+
+## Step 9: Deploy App 2 (normal worker) and connect it to App 1 through the mesh
+
+Goal: run the App 2 web UI on a regular runtime, expose it through the ingress gateway, and have it call App 1 over the mesh (Service, mTLS and AuthorizationPolicy). Clicking the button in App 2 reaches App 1 and shows the result.
+
+Done when: clicking the button in App 2 reaches App 1 and shows the result.
+
+Trust boundary to keep in mind: App 2 runs outside the TEE, so it (and its node) sees what the user types and what App 1 returns. The secret never leaves App 1, because only the HMAC result is returned. The confidential part of this design is the secret and the computation in App 1.
+
+### 9.0 Prerequisites and variables
+
+- Step 8 complete with the sidecar enabled. If the 7.11 gate failed, the mesh parts of this step (9.3) don't apply. You can still test the UI with plain HTTP.
+- App 2 image from Step 2b is in ICR, and you have its digest.
+- The gateway from 7.8 is running.
+
+```bash
+export APP2_DIGEST=sha256:<digest of app2-web-ui:v1>
+export GW_NS=istio-ingress
+export GW_SA=$(kubectl get pod -n $GW_NS -l istio=ingressgateway -o jsonpath='{.items[0].spec.serviceAccountName}')
+echo "gateway service account: $GW_SA"
+kubectl get svc istio-ingressgateway -n $GW_NS -o jsonpath='{range .spec.ports[*]}{.name}{" "}{.port}{" -> "}{.targetPort}{"\n"}{end}'
+```
+
+Good: the gateway service account name prints, and the Service shows an HTTP port (usually `80 -> 8080`). If the label `istio=ingressgateway` doesn't match your gateway pod, check `kubectl get pods -n $GW_NS --show-labels`.
+
+### 9.1 Deploy App 2
+
+App 2 uses the default runtime (no `runtimeClassName`), so it runs on a worker, with a sidecar from namespace injection. The generous `APP1_TIMEOUT_SECONDS` covers App 1's first call, which runs a full attestation.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2
+  namespace: $APP_NS
+  labels:
+    app: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+        version: v1
+        sidecar.istio.io/inject: "true"
+    spec:
+      serviceAccountName: app2
+      imagePullSecrets:
+      - name: coco-icr-pull
+      containers:
+      - name: app2
+        image: $CR_HOST/$CR_NS/app2-web-ui@$APP2_DIGEST
+        ports:
+        - name: http
+          containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: APP1_BASE_URL
+          value: "http://app1:8080"
+        - name: APP1_TIMEOUT_SECONDS
+          value: "60"
+        - name: LOG_LEVEL
+          value: "info"
+        startupProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 5
+          failureThreshold: 30
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /healthz, port: http}
+          periodSeconds: 20
+        resources:
+          requests: {cpu: 50m, memory: 96Mi}
+          limits: {memory: 256Mi}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: ["ALL"]}
+          runAsNonRoot: true
+          seccompProfile: {type: RuntimeDefault}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app2
+  namespace: $APP_NS
+  labels:
+    app: app2
+spec:
+  selector:
+    app: app2
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+EOF
+kubectl rollout status deployment/app2 -n $APP_NS --timeout=300s
+```
+
+Check 9.1:
+
+```bash
+kubectl get pods -n $APP_NS -o wide
+kubectl get pod -n $APP_NS -l app=app2 -o jsonpath='{.items[0].spec.runtimeClassName}{"|"}{.items[0].spec.containers[*].name}{"\n"}'
+kubectl logs deploy/app2 -n $APP_NS -c app2 --tail=10
+kubectl logs deploy/app2 -n $APP_NS -c istio-proxy --tail=5
+```
+
+Good: App 2 is `2/2 Running`, the runtime class field is empty (so it's a normal pod, on a worker), and the containers are `app2` and `istio-proxy`. The logs show JSON lines and no sensitive values.
+
+### 9.2 Test App 2 inside the cluster (before exposing it)
+
+From the meshed `mesh-test` pod from 7.9 (a different service account from `app2`; recreate it with the 7.9 commands if you deleted it):
+
+```bash
+meshcall mesh-test mesh-test app2 8080 GET /healthz
+meshcall mesh-test mesh-test app2 8080 GET / | head -c 1500
+```
+
+Good: `/healthz` returns `200`, and the root page returns HTML. In its "App 1 status" panel look for the reachable and TDX flag values. If it shows App 1 as unreachable, go to 9.3 and 9.6 for the likely cause.
+
+### 9.3 Mesh policies
+
+Check that strict mTLS is in effect (from 7.10), then add explicit allow rules before any deny rule.
+
+```bash
+kubectl get peerauthentication -n $APP_NS
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: app1-allow-app2
+  namespace: $APP_NS
+spec:
+  selector:
+    matchLabels:
+      app: app1
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/$APP_NS/sa/app2"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/healthz", "/readyz", "/api/v1/*"]
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: app2-allow-gateway
+  namespace: $APP_NS
+spec:
+  selector:
+    matchLabels:
+      app: app2
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/$GW_NS/sa/$GW_SA"]
+EOF
+kubectl get authorizationpolicy -n $APP_NS
+```
+
+Test, then lock down. The trust domain is `cluster.local` by default (check `kubectl get istio default -o jsonpath='{.spec.values.meshConfig.trustDomain}'`, where an empty value means the default).
+
+Allowed path, with App 2's own identity:
+
+```bash
+meshcall app2 app2 app1 8080 GET /healthz
+meshcall app2 app2 app1 8080 POST /api/v1/compute '{"message":"hello"}'
+```
+
+Good: `200` for both, and the `result` equals the 8.5 value.
+
+Denied path, with a different identity (the `mesh-test` service account is not `app2`):
+
+```bash
+meshcall mesh-test mesh-test app1 8080 GET /healthz
+```
+
+Good: `403` with a body starting `RBAC: access denied`.
+
+Plain text from outside the mesh (STRICT mTLS):
+
+```bash
+svccall app1 8080 GET /healthz
+```
+
+Good: the call fails (connection reset or similar), and it does not return `200`.
+
+Now add the namespace-wide default deny:
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: $APP_NS
+spec: {}
+EOF
+meshcall app2 app2 app1 8080 GET /healthz
+kubectl get pods -n $APP_NS
+```
+
+Good: App 2 to App 1 still returns `200` (the allow policies take effect), and the pods stay `Ready` (Istio rewrites kubelet probes to bypass the policy). If something breaks, delete `deny-all` first and inspect the other policies:
+
+```bash
+kubectl delete authorizationpolicy deny-all -n $APP_NS
+```
+
+### 9.4 Expose App 2 through the ingress gateway
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: app2-gateway
+  namespace: $GW_NS
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts: ["*"]
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: app2
+  namespace: $APP_NS
+spec:
+  hosts: ["*"]
+  gateways: ["$GW_NS/app2-gateway"]
+  http:
+  - route:
+    - destination:
+        host: app2
+        port:
+          number: 8080
+EOF
+kubectl get gateway -n $GW_NS
+kubectl get virtualservice -n $APP_NS
+```
+
+Get the address (Route host if you used 7.8 Option A, otherwise the load balancer hostname):
+
+```bash
+GW_HOST=$(kubectl get route istio-ingressgateway -n $GW_NS -o jsonpath='{.spec.host}' 2>/dev/null || kubectl get svc istio-ingressgateway -n $GW_NS -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+echo $GW_HOST
+curl -si http://$GW_HOST/ | head -25
+```
+
+Good:
+- The response is `200` with HTML.
+- You see the security headers from Step 2b (a `content-security-policy`, `x-content-type-options: nosniff`) and a CSRF cookie (`set-cookie`).
+- A `404` with `server: istio-envoy` means the gateway answers but the route isn't matched. Check the `hosts` and the `gateways` reference. A `403 RBAC: access denied` means the `app2-allow-gateway` policy has the wrong gateway service account.
+
+Optional but recommended: HTTPS at the gateway, with a self-signed certificate for the POC (use a real certificate later). The secret must be in the gateway's namespace:
+
+```bash
+openssl req -x509 -nodes -newkey rsa:2048 -days 90 -keyout app2.key -out app2.crt -subj "/CN=$GW_HOST" -addext "subjectAltName=DNS:$GW_HOST"
+kubectl create secret tls app2-tls -n $GW_NS --cert=app2.crt --key=app2.key
+shred -u app2.key 2>/dev/null || rm -P app2.key
+kubectl patch gateway app2-gateway -n $GW_NS --type json -p '[{"op":"add","path":"/spec/servers/-","value":{"port":{"number":443,"name":"https","protocol":"HTTPS"},"tls":{"mode":"SIMPLE","credentialName":"app2-tls"},"hosts":["*"]}}]'
+curl -sk -o /dev/null -w "%{http_code}\n" https://$GW_HOST/
+```
+
+Good: `200` on HTTPS (`-k` because the certificate is self-signed). For Option A (Route), the HTTPS path needs a passthrough Route to the gateway's HTTPS port; for Option B (NLB), the Service must expose port 443. Check the `kubectl get svc` output from 9.0.
+
+### 9.5 End-to-end test: click the button
+
+1. Open `http://$GW_HOST/` (or HTTPS) in a browser.
+2. Check the "App 1 status" panel: reachable, `secret_available`, `tdx_guest_flag`.
+3. Type `hello` and click **Run**. Expect a result panel with the hex result, algorithm, App 1's elapsed time and a request ID.
+4. Compare the hex result with the local HMAC from 8.5.
+
+Command line version of the same (field names depend on the generated page, so inspect them first):
+
+```bash
+curl -s http://$GW_HOST/ | grep -i -E "csrf|<input|<form"
+JAR=$(mktemp)
+TOKEN=$(curl -s -c $JAR http://$GW_HOST/ | grep -o 'name="csrf[^"]*" value="[^"]*"' | head -1 | sed 's/.*value="//;s/"$//')
+curl -s -b $JAR -d "message=hello" --data-urlencode "csrf_token=$TOKEN" http://$GW_HOST/run | grep -i -E "result|elapsed|request"
+```
+
+Trace one request across the hops, using the request ID shown in the UI (`REQID`):
+
+```bash
+REQID=<request id from the UI>
+kubectl logs deploy/app2 -n $APP_NS -c app2 | grep $REQID
+kubectl logs deploy/app1 -n $APP_NS -c app | grep $REQID
+kubectl logs deploy/app1 -n $APP_NS -c istio-proxy --tail=50 | grep -i -E "$REQID|POST"
+kubectl logs deploy/istio-ingressgateway -n $GW_NS --tail=50 | grep -i -E "$REQID|POST"
+```
+
+Good: the same request ID appears in App 2's and App 1's logs (App 2 forwards `x-request-id`). The Envoy logs show the hops if access logging is enabled (7.11 shows the `Telemetry` resource for that). The logs contain no user input or result values, and no secret.
+
+### 9.6 Failure modes and the UI messages (the full suite is Step 10)
+
+Run each, check the UI message, then restore. Click Run in the browser each time.
+
+| Test | How | Expected UI message |
+|---|---|---|
+| App 1 down | `kubectl scale deployment app1 -n $APP_NS --replicas=0`, then back to `1` | "App 1 unavailable (check sidecar, mTLS or readiness)" (503), or "App 1 is not responding" |
+| Mesh policy denies | `kubectl delete authorizationpolicy app1-allow-app2 -n $APP_NS`, then re-apply it (needs `deny-all` in place) | "Access denied by the service mesh policy" (403) |
+| Secret not releasable | Change an RVPS value (as in 5.7), then restart App 1 with `kubectl rollout restart deployment/app1 -n $APP_NS` and call again | "App 1 could not obtain its secret (attestation or policy failure)" (502) |
+
+After the secret test, restore the RVPS value, restart App 1 again, and confirm the UI works.
+
+### 9.7 Hardening notes (do after the POC works)
+
+- Replace the self-signed gateway certificate with a real one, and decide on the hostname.
+- Add `NetworkPolicy` objects (default deny, then allow gateway to App 2, App 2 to App 1, and App 1 to Trustee). Check Step 1.8 for existing policies first.
+- Switch the kata policy to the locked variant (8.9) and re-test.
+- Consider per-workload kata policies (`genpolicy`), signed or encrypted images, and the stricter KBS policy ideas from 6.2.
+- Keep App 2's logs free of user input. If it needs to store anything, treat it as outside the trust boundary.
+
+### 9.8 Cleanup
+
+```bash
+kubectl delete authorizationpolicy deny-all app1-allow-app2 app2-allow-gateway -n $APP_NS --ignore-not-found
+kubectl delete virtualservice app2 -n $APP_NS
+kubectl delete gateway app2-gateway -n $GW_NS
+kubectl delete deployment app1 app2 -n $APP_NS
+kubectl delete service app1 app2 -n $APP_NS
+kubectl delete secret app2-tls -n $GW_NS --ignore-not-found
+ibmcloud is instances | grep -i -E "podvm|peer"
+```
+
+Good: no leftover VSIs.
+
+### Values to record (Step 9)
+
+| Item | Value |
+|---|---|
+| App 2 image digest | |
+| Gateway address, and HTTP/HTTPS | |
+| Gateway service account used in the policy | |
+| Policies applied (names) | |
+| Result of the browser test (hex result matches the local HMAC: yes/no) | |
+| UI message seen for each 9.6 test | |
+
+### Step 9 exit criteria
+
+- [ ] App 2 runs on a normal worker (`2/2` with the sidecar), and App 1 runs as a peer pod.
+- [ ] Strict mTLS, the two allow policies and the default deny are in force, and a call from a different identity gets `403 RBAC: access denied`.
+- [ ] Clicking the button in the browser returns a result that matches the locally computed HMAC.
+- [ ] The same request ID appears in the App 2 and App 1 logs, and no logs contain secrets or user input.
+- [ ] The three failure modes in 9.6 show the expected messages, and the system recovers after each.
