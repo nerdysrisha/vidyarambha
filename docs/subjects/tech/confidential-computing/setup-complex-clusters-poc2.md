@@ -1458,7 +1458,696 @@ Note that `docker compose down` doesn't remove the key and data directories. Del
 
 
 
+---
 
+## Step 5: Pod VM image, initdata and reference values
+
+Goal: deliver the KBS URL and certificate to the peer pod through initdata, set a kata agent policy, collect the real TDX measurements from a pod you trust, load them into RVPS, and prove that attestation passes with the right values and fails with a wrong one.
+
+Done when: a peer pod attestation succeeds against your reference values and fails with a wrong one.
+
+### What I verified in the repos (so you know what this step rests on)
+
+| Topic | What the code and docs say |
+|---|---|
+| Reference values | RVPS keeps named values. The default TDX policy reads `mr_td`, `xfam`, `rtmr_1` and `rtmr_2`, and optionally `tdvfkernel` and `tdvfkernelparams`. A value is a list, and a claim passes if it matches any entry |
+| `sample` provenance | The only extractor that works without signed provenance. It does not verify any signature and is meant for tests and demos. Values expire after 12 months by default. For production, use signed provenance (CoRIM or SWID) |
+| Other checks in the default TDX policy | Not from RVPS: TDX tee type and Intel vendor ID, `tcb_status == "UpToDate"`, `collateral_expiration_status == "0"`, and debug off |
+| Not checked by default | `rtmr_0` and `rtmr_3`. RTMR3 holds runtime events (the initdata digest event, for example), so don't pin it yet |
+| Two kinds of failure | A measurement that doesn't match RVPS gives a token with a non-affirming status (no HTTP error). A broken evidence signature, report data or initdata binding makes the AS fail the request, so no token is issued |
+| Initdata binding on TDX | The AS accepts it if `mr_config_id` is non-zero and equals the initdata digest. If `mr_config_id` is all zero, the AA records an `InitData` event in RTMR3 and the AS requires exactly one such event |
+| Initdata is not secret | The host can read it. It is integrity-protected only |
+| Pod VM default kata policy | The IBM/CAA peer pod image ships `allow-all.rego` and copies it to `/run/peerpod/policy.rego`. That is why `kubectl exec` worked in Step 4 |
+| Tokens | The AS signs a token that carries the TDX claims and, when initdata is verified, `init_data` and `init_data_claims` |
+
+### 5.0 Prerequisites and variables
+
+- Step 4 works: a peer pod returned the test secret.
+- You are on the Trustee VSI for the `kbs-client` commands, and on your workstation (with the `conf-cluster` context) for the `kubectl` commands.
+- `jq` and `openssl` are installed on both. On the Trustee VSI: `sudo apt-get install -y jq`.
+
+```bash
+export TRUSTEE_IP=<trustee private IP>
+export APP_NS=<your-app-namespace>        # a namespace WITHOUT Istio injection for this step
+export OSC_NS=openshift-sandboxed-containers-operator
+```
+
+On the Trustee VSI (from `~/trustee`), define a helper once per terminal. It uses HTTPS, which you enable in 5.2:
+
+```bash
+cd ~/trustee
+kbsc() { ./kbs-client --url "https://$TRUSTEE_IP:8080" --cert-file kbs/config/docker-compose/https.crt "$@"; }
+export ADM="--admin-token-file kbs/config/docker-compose/admin-token"
+```
+
+Good: `kbsc --help` prints the usage.
+
+### 5.1 What is bound where
+
+| Item | Where it is set | How it is protected or checked |
+|---|---|---|
+| Peer pod image (kernel, initrd, rootfs, firmware) | Step 3 (`PODVM_IMAGE_ID`) | Measured into `mr_td`, `rtmr_1`, `rtmr_2`. Checked against RVPS |
+| KBS URL and certificate | Initdata `aa.toml` and `cdh.toml` | The initdata digest is bound to the TD (`mr_config_id` or an RTMR3 event) |
+| Kata agent policy | Initdata `policy.rego` | Same binding. The policy is enforced by the kata agent inside the VM |
+| VM size, host firmware | IBM | Reflected in `mr_td` and possibly `rtmr_0` |
+| Runtime events (initdata, image pulls) | Guest | RTMR3 (not pinned in this POC) |
+
+Use initdata for the KBS URL and certificate, which is what IBM's guide and the CAA docs do. The older kernel command line route (`agent.aa_kbc_params`) I did not verify for your image, so skip it.
+
+### 5.2 Enable HTTPS on KBS (self-signed, with the Trustee IP in the certificate)
+
+Why now: initdata will carry the certificate, so create it before you build the initdata. Plain HTTP exposes the attestation exchange to the network and the worker.
+
+On the Trustee VSI:
+
+```bash
+cd ~/trustee
+cat > https.conf <<EOF
+[req]
+distinguished_name = dn
+x509_extensions = v3
+prompt = no
+[dn]
+CN = trustee
+[v3]
+subjectAltName = IP:$TRUSTEE_IP
+EOF
+openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+  -keyout kbs/config/docker-compose/https.key \
+  -out kbs/config/docker-compose/https.crt -config https.conf
+chmod 600 kbs/config/docker-compose/https.key
+openssl x509 -in kbs/config/docker-compose/https.crt -noout -subject -ext subjectAltName -enddate
+```
+
+Good: the SAN shows `IP Address:<TRUSTEE_IP>` and the expiry is a year out (note it).
+
+Edit the KBS config (the compose file mounts `kbs/config/docker-compose` into the container as `/opt/confidential-containers/kbs/user-keys`):
+
+```bash
+cp kbs/config/docker-compose/kbs-config.toml ~/kbs-config.toml.bak
+sed -i 's|^insecure_http = true|insecure_http = false\nprivate_key = "/opt/confidential-containers/kbs/user-keys/https.key"\ncertificate = "/opt/confidential-containers/kbs/user-keys/https.crt"|' kbs/config/docker-compose/kbs-config.toml
+sed -n 1,8p kbs/config/docker-compose/kbs-config.toml
+sudo docker compose restart kbs
+```
+
+Check 5.2:
+
+```bash
+sudo docker compose ps
+sudo docker compose logs kbs --tail=15
+curl -s -o /dev/null -w "https: %{http_code}\n" --cacert kbs/config/docker-compose/https.crt https://$TRUSTEE_IP:8080/kbs/v0/auth
+curl -s -o /dev/null -w "http: %{http_code}\n" --max-time 5 http://$TRUSTEE_IP:8080/kbs/v0/auth
+kbsc config $ADM get-reference-value --id mr_td
+```
+
+Good:
+- The config shows `insecure_http = false` with the two paths, and `kbs` is `Up` (if the logs show a permission error on the key, relax its mode to `640` and restart).
+- The HTTPS call returns an HTTP code (a 4xx for a GET is fine). The plain HTTP call fails or errors, which shows HTTP is off.
+- `get-reference-value` returns an error or an empty result now (nothing is loaded yet), but it must connect over TLS.
+
+Important: from now on every peer pod needs the HTTPS URL and the certificate in its initdata (5.3). Pods still carrying the Step 4 HTTP initdata cannot reach KBS.
+
+### 5.3 Build the initdata
+
+**Kata agent policy.** The POC uses the policy files shipped with the CAA project, with one security fix:
+- `SetPolicyRequest := true` lets the host replace the policy after boot. Set it to `false`.
+- Exec is off by default in this file. For the POC variant turn it on, so you can use `kubectl exec`. Switch to the locked variant before any real use.
+
+```bash
+curl -fsSL -o policy-base.rego https://raw.githubusercontent.com/confidential-containers/cloud-api-adaptor/main/src/cloud-api-adaptor/podvm/files/etc/kata-opa/allow-all-except-exec-process.rego
+sed 's/default SetPolicyRequest := true/default SetPolicyRequest := false/' policy-base.rego > policy-locked.rego
+sed 's/default ExecProcessRequest := false/default ExecProcessRequest := true/' policy-locked.rego > policy-poc.rego
+grep -n -E "SetPolicyRequest|ExecProcessRequest|ReadStreamRequest" policy-poc.rego policy-locked.rego
+```
+
+Good: `policy-poc.rego` has Exec `true`, SetPolicy `false`. `policy-locked.rego` has both `false`.
+
+Limits of this policy: it still allows any container to be created (`CreateContainerRequest := true`). A per-workload policy that restricts the image, command and mounts is generated with Kata's `genpolicy` tool (see https://github.com/kata-containers/kata-containers/blob/main/docs/how-to/how-to-use-the-kata-agent-policy.md). That is the production route.
+
+**Initdata file.** This puts the certificate in both config files and the policy inline. I recommend `sha384` (the CAA and Trustee docs use it, and 48 bytes matches the TDX register size). IBM's guide uses `sha256`. Pick one and use it everywhere. If the AS later reports an initdata mismatch, switch and test again.
+
+```bash
+export KBS_URL="https://$TRUSTEE_IP:8080"
+export KBS_CERT="$(cat kbs/config/docker-compose/https.crt)"
+export POLICY="$(cat policy-poc.rego)"
+cat > initdata.toml <<EOF
+algorithm = "sha384"
+version = "0.1.0"
+
+[data]
+"aa.toml" = '''
+[token_configs]
+[token_configs.coco_as]
+url = "$KBS_URL"
+
+[token_configs.kbs]
+url = "$KBS_URL"
+cert = """
+$KBS_CERT
+"""
+'''
+
+"cdh.toml" = '''
+socket = 'unix:///run/confidential-containers/cdh.sock'
+credentials = []
+
+[kbc]
+name = "cc_kbc"
+url = "$KBS_URL"
+kbs_cert = """
+$KBS_CERT
+"""
+'''
+
+"policy.rego" = '''
+$POLICY
+'''
+EOF
+python3 -c "import tomllib;d=tomllib.load(open('initdata.toml','rb'));print(list(d['data'].keys()))"
+sha384sum initdata.toml
+export INITDATA=$(gzip -c initdata.toml | base64 -w0)
+echo ${#INITDATA}
+```
+
+Notes: the `coco_as` entry follows IBM's example, and it has no certificate option. The CDH flow in this POC uses the `kbs` entry. Keep `initdata.toml` in git.
+
+Good:
+- The Python check prints `['aa.toml', 'cdh.toml', 'policy.rego']`, which proves the TOML parses.
+- The SHA-384 prints. Record it as the **initdata digest** (needed in 6.1).
+- The encoded length prints. Peer pod annotations have size limits, so tell me if the pod is rejected.
+
+Apply it per pod through the annotation (as in 4.8), using the `hypervisor` annotation name. For the whole cluster, patch `peer-pods-cm` and restart CAA (4.7). Do the per-pod route first.
+
+### 5.4 Launch a reference pod and collect its measurements
+
+This trusts the pod you launch (trust on first use), so do it in a controlled moment, with the IBM image you intend to use and the final initdata.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: golden-ref
+  namespace: $APP_NS
+  labels:
+    sidecar.istio.io/inject: "false"
+  annotations:
+    io.katacontainers.config.hypervisor.cc_init_data: "$INITDATA"
+spec:
+  runtimeClassName: kata-remote
+  imagePullSecrets:
+  - name: coco-icr-pull
+  containers:
+  - name: app
+    image: fr2.icr.io/env-conf-container-cr/my-python-app:v1
+EOF
+kubectl get pod golden-ref -n $APP_NS -w
+```
+
+When it is `Running`, fetch the attestation token. Only the token is printed, never the `tee_keypair`:
+
+```bash
+kubectl exec golden-ref -n $APP_NS -- python -c "import urllib.request as u,json;print(json.loads(u.urlopen('http://127.0.0.1:8006/aa/token?token_type=kbs',timeout=60).read())['token'])" > golden.jwt
+python3 - <<'PY' > golden-claims.json
+import base64, json
+p = open("golden.jwt").read().strip().split(".")[1]
+p += "=" * (-len(p) % 4)
+print(json.dumps(json.loads(base64.urlsafe_b64decode(p)), indent=2))
+PY
+jq '.submods.cpu0 | del(."ear.veraison.annotated-evidence")' golden-claims.json
+```
+
+(This decode handles base64 padding. Use it instead of the one-liner in 4.8 if that one failed.)
+
+Extract the values:
+
+```bash
+TDX=$(jq -c '[.. | objects | select(has("quote"))][0]' golden-claims.json)
+echo "$TDX" | jq '{tcb_status, collateral_expiration_status, debug: (.td_attributes.debug // .quote.body.td_attributes), mr_td: .quote.body.mr_td, xfam: .quote.body.xfam, rtmr_0: .quote.body.rtmr_0, rtmr_1: .quote.body.rtmr_1, rtmr_2: .quote.body.rtmr_2, rtmr_3: .quote.body.rtmr_3, mr_config_id: .quote.body.mr_config_id}'
+jq '[.. | objects | select(has("init_data_claims"))][0] | {init_data, init_data_claims}' golden-claims.json | head -40
+```
+
+Good: you see the claims. Check these:
+- `tcb_status` is `UpToDate` and `collateral_expiration_status` is `"0"`. If not, the default policy can't affirm the hardware even with correct values. See the decision in 5.6.
+- `mr_config_id`: non-zero means the host bound your initdata (compare it with the SHA-384 from 5.3). All zero means the binding is through an RTMR3 event.
+- The status of the first command is probably not `affirming` yet, because RVPS is empty.
+
+Stability test. Launch two more reference pods (delete and recreate `golden-ref` under new names), and compare which registers stay identical:
+
+```bash
+for f in golden-claims*.json; do echo "== $f"; jq -c '[.. | objects | select(has("quote"))][0].quote.body | {mr_td, xfam, rtmr_0, rtmr_1, rtmr_2, rtmr_3}' $f; done
+```
+
+Good: `mr_td`, `xfam`, `rtmr_1` and `rtmr_2` are identical across launches. If `rtmr_0` differs by VM size or launch, that is why it isn't pinned. If RTMR1 or RTMR2 changes between launches, tell me, because pinning would break.
+
+Ask IBM for their official expected values (or release notes) for the image you imported, and cross-check them. IBM updating the host firmware will change `mr_td`, so plan to hold more than one value (5.5).
+
+### 5.5 Load the reference values into RVPS
+
+From the extracted claims (still on a machine that has `golden-claims.json`; copy the file to the Trustee VSI if needed, since it contains no secrets):
+
+```bash
+TDX=$(jq -c '[.. | objects | select(has("quote"))][0]' golden-claims.json)
+MR_TD=$(echo "$TDX" | jq -r .quote.body.mr_td)
+XFAM=$(echo "$TDX" | jq -r .quote.body.xfam)
+RTMR_1=$(echo "$TDX" | jq -r .quote.body.rtmr_1)
+RTMR_2=$(echo "$TDX" | jq -r .quote.body.rtmr_2)
+for v in MR_TD XFAM RTMR_1 RTMR_2; do echo "$v=${!v}"; done
+```
+
+Good: four non-empty hex strings print (no `null`).
+
+Register them (each call stores the value as a one-element list):
+
+```bash
+kbsc config $ADM set-sample-reference-value mr_td "$MR_TD"
+kbsc config $ADM set-sample-reference-value xfam "$XFAM"
+kbsc config $ADM set-sample-reference-value rtmr_1 "$RTMR_1"
+kbsc config $ADM set-sample-reference-value rtmr_2 "$RTMR_2"
+```
+
+Check 5.5:
+
+```bash
+for n in mr_td xfam rtmr_1 rtmr_2; do echo "== $n"; kbsc config $ADM get-reference-value --id $n; done
+ls -R kbs/data/reference-values | head
+```
+
+Good: each name returns its value (and an expiry about 12 months out), and files exist under `kbs/data/reference-values`.
+
+To accept more than one value for a name (for example, during an IBM firmware change), use a provenance file with a list per name:
+
+```bash
+cat > rv-prov.json <<EOF
+{"mr_td": ["$MR_TD", "<second accepted mr_td>"]}
+EOF
+kbsc config $ADM set-reference-value --type sample --provenance-file rv-prov.json
+```
+
+Optional, for a stricter boot chain check: add `tdvfkernel` and `tdvfkernelparams` (the digests of the `File(kernel)` and `LOADED_IMAGE::LoadOptions` events under `uefi_event_logs`). The default policy then moves the executables result from 4 to 3. Skip it for now.
+
+### 5.6 Positive test: attestation succeeds with your values
+
+Re-launch a pod (a fresh one, not `golden-ref`) with the same initdata and fetch its token again:
+
+```bash
+kubectl delete pod golden-ref -n $APP_NS
+# re-run the pod manifest from 5.4 under the name check-ok, then:
+kubectl exec check-ok -n $APP_NS -- python -c "import urllib.request as u,json;print(json.loads(u.urlopen('http://127.0.0.1:8006/aa/token?token_type=kbs',timeout=60).read())['token'])" > ok.jwt
+python3 - <<'PY' | jq '.submods.cpu0 | del(."ear.veraison.annotated-evidence")'
+import base64, json
+p = open("ok.jwt").read().strip().split(".")[1]
+p += "=" * (-len(p) % 4)
+print(json.dumps(json.loads(base64.urlsafe_b64decode(p))))
+PY
+```
+
+Good: `ear.status` is `affirming`. In the trust vector, `hardware` is 2, `executables` is 3 or 4, and `configuration` is 2.
+
+If it is not affirming, read the vector. The defaults mean failure: executables 33, hardware 97, configuration 36.
+
+| Vector entry | What failed |
+|---|---|
+| `hardware` | `mr_td` mismatch, or `tcb_status` not `UpToDate`, or collateral expired |
+| `executables` | `rtmr_1` or `rtmr_2` mismatch |
+| `configuration` | Debug is on, or `xfam` mismatch |
+
+Decision if `tcb_status` is not `UpToDate`: either ask IBM about the platform TCB level, or accept an explicit set of statuses in your own policy (6.1, `allowed_tcb_status`), and record that as a risk. Don't do it silently.
+
+### 5.7 Negative test: attestation fails with a wrong value
+
+Step 4's resource policy is still the permissive default, so a wrong measurement still gets a token and the secret. This step shows the failed measurement in the token, and then makes it a hard failure with a built-in policy.
+
+Save the current values, then break one (`rtmr_2` set to 96 zeros):
+
+```bash
+for n in mr_td xfam rtmr_1 rtmr_2; do kbsc config $ADM get-reference-value --id $n; done > rv-backup.txt
+kbsc config $ADM set-sample-reference-value rtmr_2 "$(printf '0%.0s' {1..96})"
+kbsc config $ADM get-reference-value --id rtmr_2
+```
+
+Launch a new pod (`check-bad`) with the same manifest, fetch its token as in 5.6, and decode it.
+
+Good: `ear.status` is `warning` or worse, and the `executables` entry is 33. The pod still received the token, because a measurement mismatch is not an error.
+
+Now enforce it. The repo has a built-in policy that releases resources only for an affirming token:
+
+```bash
+kbsc config $ADM set-resource-policy --affirming
+```
+
+Test the fetch from the bad pod (the helper `getres` is defined in 6.4; for now use this one-liner):
+
+```bash
+kubectl exec check-bad -n $APP_NS -- python -c "import urllib.request as u,urllib.error as e
+try: print('HTTP 200', len(u.urlopen('http://127.0.0.1:8006/cdh/resource/default/kbsres1/key1',timeout=60).read()))
+except e.HTTPError as x: print('HTTP', x.code, x.read()[:200])"
+```
+
+Good: it does not return the secret. Confirm on the Trustee VSI that the KBS logged a denial:
+
+```bash
+sudo docker compose logs kbs --since 10m | grep -i -E "403|forbidden|policy" | tail
+```
+
+Restore the good value and re-test:
+
+```bash
+kbsc config $ADM set-sample-reference-value rtmr_2 "$RTMR_2"
+kubectl delete pod check-bad -n $APP_NS
+# launch check-ok2 with the same manifest, then run the same fetch
+```
+
+Good: the fetch now succeeds with HTTP 200, so the same pod configuration passes with the right value and fails with the wrong one. That meets this step's "done when".
+
+Clean up: `kubectl delete pod check-ok check-ok2 check-bad -n $APP_NS --ignore-not-found`, and check `ibmcloud is instances | grep -i -E "podvm|peer"` shows no leftovers.
+
+### 5.8 Notes and open points (confirm with IBM)
+
+- Whether the IBM host sets `mr_config_id`. This decides how initdata is pinned in 6.1.
+- Whether `sha256` or `sha384` initdata binds correctly on the IBM platform. 5.3 tells you what to watch for in the AS logs.
+- The platform's `tcb_status`, and how IBM handles TCB updates.
+- IBM's published values for the peer pod image, and a notice process for firmware or image changes.
+- You pinned no RTMR3 value. Runtime events (image pulls, and the sidecar from Step 7) land there.
+
+### Values to record (Step 5)
+
+| Item | Value |
+|---|---|
+| Initdata SHA-384 (and algorithm used) | |
+| `mr_td`, `xfam`, `rtmr_1`, `rtmr_2` | |
+| `mr_config_id` (zero or not) | |
+| `tcb_status`, `collateral_expiration_status` | |
+| Reference value expiry date | |
+| KBS certificate expiry date | |
+| Stable across launches (yes/no, which registers) | |
+
+### Step 5 exit criteria
+
+- [ ] KBS serves HTTPS only, and the certificate (with the Trustee IP) is in the initdata.
+- [ ] Initdata carries `aa.toml`, `cdh.toml` and a kata policy with `SetPolicyRequest := false`, and its digest is recorded.
+- [ ] Reference values for `mr_td`, `xfam`, `rtmr_1` and `rtmr_2` are in RVPS, and they were stable across launches.
+- [ ] A reference pod gets an `affirming` token.
+- [ ] With a wrong `rtmr_2` the token is not affirming, and with `--affirming` the secret fetch is denied. With the right value it works again.
+
+---
+
+## Step 6: Policies and secret
+
+Goal: replace the permissive defaults with real policies: a custom attestation (AS) policy for TDX, and a KBS resource policy that releases one named resource only to an affirming TDX attestation. Upload the real secret `default/kbsres1/key1`.
+
+Done when: an allowed pod gets the secret, and a pod with a wrong measurement gets a 403.
+
+### What I verified
+
+| Topic | What the code says |
+|---|---|
+| Two policy layers | The AS policy turns evidence into a trust vector and a status. The KBS resource policy decides what a given status may read |
+| AS policy upload | `kbs-client config set-attestation-policy --type rego --id <id> --policy-file <file>` |
+| Default AS policy ID | The built-in policy is stored as `default_cpu`. The AS builds the policy ID as `<selected id>_<tee class>`, with `default` as the selected id when none is given and `cpu` as the class for TDX |
+| Starting point | The default policy file is `attestation-service/src/ear_token/ear_default_policy_cpu.rego` in the Trustee repo |
+| Resource policy upload | `set-resource-policy --policy-file <file>`, or built-ins `--affirming`, `--deny-all`, `--allow-all`, `--default` |
+| Resource policy input | Token claims as `input` (for example `input.submods.cpu0["ear.status"]`). `data.plugin` is `"resource"` for resource requests, and `data["resource-path"]` is a three-item list like `["default","kbsres1","key1"]` |
+| HTTP codes | A policy deny returns 403. A missing token returns 401 |
+
+### 6.0 Prerequisites
+
+- Step 5 complete: reference values loaded, a pod gets an `affirming` token, and `kbsc` and `$ADM` from 5.0 are defined.
+- A copy of the current default AS policy, for rollback and as a base:
+
+```bash
+cd ~/trustee
+curl -fsSL -o as-policy-default.rego https://raw.githubusercontent.com/confidential-containers/trustee/main/attestation-service/src/ear_token/ear_default_policy_cpu.rego
+wc -l as-policy-default.rego
+```
+
+Good: the file downloads (it is a few hundred lines).
+
+### 6.1 Write the attestation policy (TDX only)
+
+This keeps the structure of the default policy (same defaults and the same `trust_claims` block) and keeps only the TDX logic. It requires the firmware, boot chain, configuration and, optionally, the initdata digest.
+
+Decide two things first:
+- `allowed_tcb_status`: start with `{"UpToDate"}`. If 5.4 showed another status and IBM accepts it, add it here explicitly and document why.
+- The initdata line: enable it only if 5.4 showed a **non-zero** `mr_config_id` that equals your SHA-384 digest. If `mr_config_id` is all zero, leave it commented and tell me, because the initdata then needs a different rule (the AS verifies the RTMR3 binding, and I would write the rule against the `init_data_claims` shape in your golden token).
+
+```bash
+cat > as-policy-tdx.rego <<'EOF'
+package policy
+import rego.v1
+
+default executables := 33
+default hardware := 97
+default configuration := 36
+default file_system := 0
+default instance_identity := 0
+default runtime_opaque := 0
+default storage_opaque := 0
+default sourced_data := 0
+
+trust_claims := {
+	"executables": executables,
+	"hardware": hardware,
+	"configuration": configuration,
+	"file-system": file_system,
+	"instance-identity": instance_identity,
+	"runtime-opaque": runtime_opaque,
+	"storage-opaque": storage_opaque,
+	"sourced-data": sourced_data,
+}
+
+# Accepted platform TCB statuses. Widen only with a written reason.
+allowed_tcb_status := {"UpToDate"}
+
+# Boot chain (kernel, initrd, command line) matches the reference values.
+executables := 3 if {
+	input.tdx
+	input.tdx.quote.body.rtmr_1 in query_reference_value("rtmr_1")
+	input.tdx.quote.body.rtmr_2 in query_reference_value("rtmr_2")
+}
+
+# Genuine TDX, expected firmware, acceptable TCB level, fresh collateral.
+hardware := 2 if {
+	input.tdx
+	input.tdx.quote.header.tee_type == "81000000"
+	input.tdx.quote.header.vendor_id == "939a7233f79c4ca9940a0db3957f0607"
+	input.tdx.quote.body.mr_td in query_reference_value("mr_td")
+	input.tdx.tcb_status in allowed_tcb_status
+	input.tdx.collateral_expiration_status == "0"
+}
+
+# Debug off, expected XFAM, and (optional) the exact initdata (KBS cert + kata policy).
+configuration := 2 if {
+	input.tdx
+	input.tdx.td_attributes.debug == false
+	input.tdx.quote.body.xfam in query_reference_value("xfam")
+	# Uncomment ONLY if mr_config_id is non-zero (see 6.1 text):
+	# input.init_data in query_reference_value("init_data")
+}
+EOF
+```
+
+If you enabled the initdata line, register its reference value now. It is the `mr_config_id` hex from 5.4 (the AS exposes it as the `init_data` claim for TDX):
+
+```bash
+MRCFG=$(echo "$TDX" | jq -r .quote.body.mr_config_id)
+kbsc config $ADM set-sample-reference-value init_data "$MRCFG"
+kbsc config $ADM get-reference-value --id init_data
+```
+
+Good: `get-reference-value` shows the value, and it equals the SHA-384 from 5.3.
+
+Upload the policy (the ID `default_cpu` replaces the built-in TDX/CPU policy):
+
+```bash
+kbsc config $ADM set-attestation-policy --type rego --id default_cpu --policy-file as-policy-tdx.rego
+sudo docker compose logs as --tail=15
+```
+
+Check 6.1: launch a pod (`check-p1`) with the unchanged initdata, get its token (as in 5.6), and decode it.
+
+Good: `ear.status` is `affirming` with `hardware` 2, `executables` 3 and `configuration` 2. If the policy fails to parse, the AS logs show a policy error, and nothing else changes until a valid policy exists. To roll back: 6.6.
+
+I'm fairly sure about the policy ID (`default_cpu`) from the code, but the proof is behavioural, and the initdata test in 6.4 (T3) shows the custom policy is really active.
+
+### 6.2 Write the KBS resource policy
+
+It releases only `default/kbsres1/key1`, only for the `resource` plugin, only when the attestation is `affirming` and comes from TDX evidence (this also excludes the `sample` TEE).
+
+```bash
+cat > kbs-resource-policy.rego <<'EOF'
+package policy
+import rego.v1
+
+default allow := false
+
+plugin := data.plugin
+
+cpu := input.submods.cpu0
+
+allowed_resources := {["default", "kbsres1", "key1"]}
+
+allow if {
+	plugin == "resource"
+	data["resource-path"] in allowed_resources
+	cpu["ear.status"] == "affirming"
+	cpu["ear.veraison.annotated-evidence"].tdx
+}
+EOF
+kbsc config $ADM set-resource-policy --policy-file kbs-resource-policy.rego
+sudo docker compose logs kbs --tail=10
+```
+
+Good: the upload returns without an error. A pod with the correct configuration still gets the secret (6.4 T1).
+
+Later hardening ideas (not needed now): add a per-workload rule that also pins the initdata claim, so each workload can read only its own resources, and split resources by repository (for example `default/app1/...`).
+
+### 6.3 Upload the real secret
+
+Generate a random secret. Don't reuse the `res1val1` test value. It is also the key App 1 uses for its HMAC:
+
+```bash
+openssl rand -base64 32 > key1.txt
+chmod 600 key1.txt
+sha256sum key1.txt | cut -c1-16          # note this fingerprint: it lets you check retrieval without printing the secret
+kbsc config $ADM set-resource --path default/kbsres1/key1 --resource-file key1.txt
+```
+
+A second secret outside the allowlist, to prove denial in T4:
+
+```bash
+echo "not-for-this-workload" > other.txt
+kbsc config $ADM set-resource --path default/kbsres1/other --resource-file other.txt
+find kbs/data -type f | grep -i kbsres1
+```
+
+Check 6.3: both resource files exist under `kbs/data`. Store a copy of `key1.txt` in your vault, then delete the local files:
+
+```bash
+shred -u key1.txt other.txt 2>/dev/null || rm -P key1.txt other.txt
+```
+
+Note: with this storage backend the KBS keeps resources as plain files in `kbs/data/kbs-storage`. Protect the Trustee VSI (disk encryption, SSH access, the security group). The repo docs describe other backends (`kbs/docs/resource_storage_backend.md`, and `kbs/docs/vault_kv.md` for Vault).
+
+### 6.4 Tests
+
+A helper that fetches a resource from inside a pod without printing the secret (run on your workstation, with the `conf-cluster` context):
+
+```bash
+getres() { kubectl exec -i "$1" -n $APP_NS -- python - "$2" <<'PY'
+import sys, urllib.request, urllib.error, hashlib
+p = sys.argv[1]
+try:
+    d = urllib.request.urlopen("http://127.0.0.1:8006/cdh/resource/" + p, timeout=90).read()
+    print("HTTP 200 sha256[:16]:", hashlib.sha256(d).hexdigest()[:16], "len:", len(d))
+except urllib.error.HTTPError as e:
+    print("HTTP", e.code, e.read()[:300])
+PY
+}
+```
+
+Every test pod uses the manifest from 5.4 under a new name, with the annotation set from the initdata you want to test.
+
+**T1: allowed pod gets the secret.** Pod `t1` with the correct initdata.
+
+```bash
+getres t1 default/kbsres1/key1
+```
+
+Good: `HTTP 200`, and the `sha256[:16]` equals the fingerprint you noted in 6.3.
+
+**T2: wrong measurement gives 403.** Break `rtmr_2` as in 5.7, launch `t2`, then:
+
+```bash
+kbsc config $ADM set-sample-reference-value rtmr_2 "$(printf '0%.0s' {1..96})"   # on the Trustee VSI
+getres t2 default/kbsres1/key1
+kbsc config $ADM set-sample-reference-value rtmr_2 "$RTMR_2"                     # restore
+```
+
+Good: `HTTP 403` (or an error body that names the KBS denial), and the KBS logs show the deny. After the restore, `t1`-style pods succeed again.
+
+**T3: modified initdata gives 403 (needs the initdata line from 6.1).** Change one character in `policy-poc.rego` (for example flip `ExecProcessRequest` to `false`), rebuild `INITDATA` as in 5.3, launch `t3` with that annotation:
+
+```bash
+getres t3 default/kbsres1/key1
+```
+
+Good: `HTTP 403`. The hardware digest of the initdata differs from the pinned reference, so `configuration` fails and the status is not affirming. This also proves that your custom AS policy is the one in force, since the old default policy doesn't check initdata. If you instead see an error before any token (not a 403), the initdata binding itself failed, which also blocks the pod, so read the AS logs. Restore the initdata afterwards.
+
+**T4: resource outside the allowlist gives 403.** From the good pod `t1`:
+
+```bash
+getres t1 default/kbsres1/other
+```
+
+Good: `HTTP 403`, even though the pod is fully attested.
+
+**T5 (optional): a client with no TDX evidence is refused.** On the Trustee VSI:
+
+```bash
+kbsc get-resource --path default/kbsres1/key1
+```
+
+Good: the request fails (no secret). This only exercises the sample attester if your AS build includes it. If it errors earlier for another reason, tell me what it says.
+
+Read the logs for each test to confirm what you saw:
+
+```bash
+sudo docker compose logs kbs --since 15m | grep -i -E "attest|resource|403|forbidden|policy" | tail -30
+sudo docker compose logs as --since 15m | tail -30
+```
+
+Clean up the test pods and check for leftover VSIs:
+
+```bash
+kubectl delete pod t1 t2 t3 -n $APP_NS --ignore-not-found
+ibmcloud is instances | grep -i -E "podvm|peer"
+```
+
+### 6.5 Operating the policies
+
+- Keep `as-policy-tdx.rego`, `kbs-resource-policy.rego`, `initdata.toml` and the policy files in git. There is no `get-policy` command in `kbs-client`, so the source files are the record.
+- Change process: edit, upload, then re-run T1 to T4 before you rely on it.
+- When IBM changes the host firmware or the peer pod image: collect new values (5.4), add them next to the old ones with the provenance file (5.5), roll the pods, and then remove the old values.
+- Reference values expire after 12 months, and the KBS certificate after the days you chose in 5.2. Put both in your calendar.
+- Admin access: the admin JWT is long-lived and sits in `admin-token`. Restrict who can read it, and rotate it with the key pair in `kbs/config/docker-compose`.
+
+### 6.6 Rollback
+
+```bash
+# back to the built-in resource policy
+kbsc config $ADM set-resource-policy --default
+# back to the repo's default attestation policy
+kbsc config $ADM set-attestation-policy --type rego --id default_cpu --policy-file as-policy-default.rego
+```
+
+Don't use `--allow-all` except for a short, isolated debug.
+
+### 6.7 Notes and open points
+
+- The `default_cpu` policy ID is inferred from the code. If a test shows the old behaviour, check the AS logs and tell me.
+- I wrote the Rego by following the default policy's structure and I haven't executed it, so the AS and KBS logs are the first check after each upload. If the engine rejects the `in` check on the set of arrays in the KBS policy, I'll rewrite it with an explicit comparison.
+- Whether the 403 reaches your app unchanged through CDH and the REST API server. T2 to T4 print what you actually get.
+- The POC kata policy still allows any container. Generate per-workload policies with `genpolicy` for production.
+
+### Values to record (Step 6)
+
+| Item | Value |
+|---|---|
+| AS policy file, ID and git commit | |
+| `allowed_tcb_status` and the reason | |
+| Initdata pinned (yes/no) and why | |
+| KBS resource policy file and git commit | |
+| Secret path and fingerprint (first 16 hex of SHA-256) | |
+| Results of T1 to T5 (status codes) | |
+
+### Step 6 exit criteria
+
+- [ ] The custom AS policy is uploaded, and a correctly configured pod is `affirming`.
+- [ ] The KBS resource policy is uploaded and allows only `default/kbsres1/key1` for affirming TDX attestations.
+- [ ] The real secret is uploaded, its fingerprint is recorded, and the local copies are deleted.
+- [ ] T1 passes (secret retrieved, fingerprint matches), and T2, T3 and T4 return 403.
+- [ ] Rollback commands are tested or at least documented, and the policy files are in git.
 
 
 
