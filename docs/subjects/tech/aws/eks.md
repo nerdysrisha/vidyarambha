@@ -5,10 +5,10 @@
 | **Version**             | **1.0**         |
 | **Created on**          | **01 Dec 2020** |
 | **Last Updated on**     | **01 Dec 2020** |
-| **Prepared by**         | **Bring**       |
+| **Prepared by**         | **SelfDoc**     |
 |                         |                 |
-| Document Classification | CONFIDENTIAL    |
-| Distribution            | Bring           |
+| Document Classification | OPEN DOC        |
+| Distribution            | SelfDoc         |
 
 <span id="_Toc13447" class="anchor"></span>Table of Contents
 
@@ -114,19 +114,7 @@
 
 [5.6 xxx [53](#xxx-7)](#xxx-7)
 
-# Approval
-
-|              |          |         |       |
-|--------------|----------|---------|-------|
-| Project Role | Approver | Company | Email |
-|              |          |         |       |
-
-# Revision History
-
-|      |                 |         |                  |           |
-|------|-----------------|---------|------------------|-----------|
-| Date | Description     | Version | Author           | Role      |
-|      | Initial Version | 1.0     | Sridhara Shastry | Architect |
+ 
 
 **\**
 
