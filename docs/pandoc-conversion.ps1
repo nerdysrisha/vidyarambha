@@ -4,12 +4,12 @@
 
 
 cd C:\ws\vidyarambha\docs
-$docx = "az-vms-basics-of-services.docx"
+$docx = "az-104-n-305-labs.docx"
 $cat  = "azure"
-$name = "vms-basic-services"
-$label = "VMs Basic SVCs"
-$desc = "VMs Basic SVCs"
-$keywords = "vms services"
+$name = "az-104-n-305-labs"
+$label = "az-104-n-305-labs"
+$desc = "az-104-n-305-labs.docx"
+$keywords = "104 305"
 $script = "C:\ws\vidyarambha\docs\convert-all-pics-to-web-retain-names.py"
 
 # 1. folder + word to md
@@ -86,3 +86,5 @@ $x = $x -replace '(img/media/[^)\s"]+)\.png', '$1.webp'
 [IO.File]::WriteAllText("$PWD\$md", $x, (New-Object Text.UTF8Encoding $false))
 "Done: $md"
 
+
+& "C:\Program Files\Notepad++\notepad++.exe" (Resolve-Path "subjects\tech\$cat\$name\$name.md")
