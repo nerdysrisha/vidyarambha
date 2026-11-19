@@ -4,11 +4,11 @@
 
 
 cd C:\ws\vidyarambha\docs
-$docx = "az-104-n-305-labs.docx"
+$docx = "az-104-elearn-portal-labs.docx"
 $cat  = "azure"
-$name = "az-104-n-305-labs"
-$label = "az-104-n-305-labs"
-$desc = "az-104-n-305-labs.docx"
+$name = "az-104-elearn-portal-labs"
+$label = "az-104-elearn-portal-labs"
+$desc = "az-104-elearn-portal-labs"
 $keywords = "104 305"
 $script = "C:\ws\vidyarambha\docs\convert-all-pics-to-web-retain-names.py"
 
