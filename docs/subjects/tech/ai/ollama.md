@@ -3,12 +3,7 @@
 |                         |                 |
 |-------------------------|-----------------|
 | **Version**             | **1.0**         |
-| **Created on**          | **01 Dec 2020** |
-| **Last Updated on**     | **01 Dec 2020** |
-| **Prepared by**         | **Bring**       |
-|                         |                 |
-| Document Classification | CONFIDENTIAL    |
-| Distribution            |                 |
+
 
 <span id="_Toc3037" class="anchor"></span>Table of Contents
 
@@ -64,19 +59,7 @@
 
 [3.21 xxxx [39](#_Toc32006)](#_Toc32006)
 
-# Approval
-
-|              |          |         |       |
-|:-------------|:---------|:--------|:------|
-| Project Role | Approver | Company | Email |
-|              |          |         |       |
-
-# Revision History
-
-|      |                 |         |                  |           |
-|:-----|:----------------|:--------|:-----------------|-----------|
-| Date | Description     | Version | Author           | Role      |
-|      | Initial Version | 1.0     | Sridhara Shastry | Architect |
+ 
 
 #  AI - LLM - RAG - LOCAL
 
@@ -92,11 +75,11 @@
 </colgroup>
 <tbody>
 <tr>
-<td style="text-align: left;"><p>PS C:\Users\Sridhara&gt; systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"</p>
+<td style="text-align: left;"><p>PS C:\Users\nerdy&gt; systeminfo | findstr /B /C:"OS Name" /C:"OS Version" /C:"System Type"</p>
 <p>OS Name: Microsoft Windows 11 Pro</p>
 <p>OS Version: 10.0.26100 N/A Build 26100</p>
 <p>System Type: x64-based PC</p>
-<p>PS C:\Users\Sridhara&gt;</p></td>
+<p>PS C:\Users\nerdy&gt;</p></td>
 </tr>
 </tbody>
 </table>
