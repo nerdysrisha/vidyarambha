@@ -1,13 +1,7 @@
 > Azure
 
 | **Version**             | **1.0**         |
-|-------------------------|-----------------|
-| **Created on**          | **01 Dec 2020** |
-| **Last Updated on**     | **01 Dec 2020** |
-| **Prepared by**         | **Bring**       |
-|                         |                 |
-| Document Classification | CONFIDENTIAL    |
-| Distribution            | Bring           |
+ 
 
 <span id="_Toc47124717" class="anchor"></span>Table of Contents
 
@@ -27,17 +21,7 @@
 
 [3.2.2 xxxxx [4](#_Toc47124724)](#_Toc47124724)
 
-# Approval
-
-| Project Role | Approver | Company | Email |
-|--------------|----------|---------|-------|
-|              |          |         |       |
-
-# Revision History
-
-| Date        | Description     | Version | Author           | Role      |
-|-------------|-----------------|---------|------------------|-----------|
-| 01 Dec 2020 | Initial Version | 1.0     | Sridhara Shastry | Architect |
+ 
 
 **\**
 
