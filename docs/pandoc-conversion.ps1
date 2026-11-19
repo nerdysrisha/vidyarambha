@@ -1,6 +1,19 @@
  
 #Change only the three variables at the top. -Force creates the folder if it’s missing and does nothing if it already exists.
 #have the document in 'docs' folder. 
+#INSTRUCTIONS. 
+
+# GET THE WORD DOCUMENT THAT WE WANT TO EXTRACT IMAGES AND CONVER REMAINING TEXT TO MD FILE AND PUT IN BELOW LOCATION 
+# CHANGE VALUES OF THESE VARIABLES: --> [docx, name, label, description, keywords]  as per the context and content. 
+# RUN THE FOLLOWING COMMANDS IN SEQUENCE. 
+# IT CREATES A FOLDER UNDER 'cat' (Eg. azure folder), a foldernamed 'name' (Eg. az-104-and-305-labs) and then places the md file using 'az-104-and-305-labs' (Eg. az-104-and-305-labs.md)
+# THEN IT EXTRACTS ALL THE IMAGES FROM DOC FILE AND PLACES UNDER 'IMG' FOLDER. 
+# IT CONVERTS THEM TO WEBP SO THAT IMAGES ARE LOWER SIZED. 
+# IT CHECKS IN MD FILE ANY TOKENS ETC ARE THERE IT MASKS THEM. 
+
+
+
+
 
 
 cd C:\ws\vidyarambha\docs

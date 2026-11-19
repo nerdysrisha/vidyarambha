@@ -278,7 +278,8 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box li { margin-bottom: 5px; }
 #content-box a { color: #a1521f; text-decoration: none; border-bottom: 1px solid #c9a15a88; }
 #content-box a:hover { border-bottom-color: #a1521f; }
-#content-box img, #content-box svg { max-width: none; height: auto; border-radius: 6px; }  /* original size */
+#content-box img, #content-box svg { width: auto !important; height: auto !important; max-width: 100%; border-radius: 6px; cursor: zoom-in; }  /* ignore width/height set in the md/html; natural size, capped to pane */
+#content-box img.orig { max-width: none; cursor: zoom-out; }  /* click an image = true original size (scrolls) */
 #content-box hr { border: none; border-top: 1px solid #e8e2d5; margin: 24px 0; }
 
 /* inline code */
@@ -894,6 +895,8 @@ document.addEventListener("keydown", e => {
 
 // keep the drop-down showing the section you are currently in
 let scrollTick = false;
+contentBox.addEventListener("click", e => { if (e.target.tagName === "IMG") e.target.classList.toggle("orig"); });
+
 contentBox.addEventListener("scroll", () => {
     if (!activeFold || scrollTick) return;
     scrollTick = true;
