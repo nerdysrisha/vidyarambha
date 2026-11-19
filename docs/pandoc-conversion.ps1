@@ -4,11 +4,11 @@
 
 
 cd C:\ws\vidyarambha\docs
-$docx = "az-104-elearn-portal-labs.docx"
+$docx = "az-104-and-305-labs.docx"
 $cat  = "azure"
-$name = "az-104-elearn-portal-labs"
-$label = "az-104-elearn-portal-labs"
-$desc = "az-104-elearn-portal-labs"
+$name = "az-104-and-305-labs"
+$label = "az-104-and-305-labs"
+$desc = "az-104-and-305-labs"
 $keywords = "104 305"
 $script = "C:\ws\vidyarambha\docs\convert-all-pics-to-web-retain-names.py"
 
@@ -93,3 +93,4 @@ $x = $x -replace '(img/media/[^)\s"]+)\.png', '$1.webp'
 
 
 & "C:\Program Files\Notepad++\notepad++.exe" (Resolve-Path "subjects\tech\$cat\$name\$name.md")
+#
