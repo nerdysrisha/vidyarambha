@@ -16,18 +16,20 @@ $script = "C:\ws\vidyarambha\docs\convert-all-pics-to-web-retain-names.py"
 New-Item -ItemType Directory -Force -Path "subjects\tech\$cat\$name" | Out-Null
 pandoc "$docx" -t gfm --wrap=none "--extract-media=subjects/tech/$cat/$name/img" -o "subjects/tech/$cat/$name/$name.md"
 
-
-
+  
 
 $md = "subjects\tech\$cat\$name\$name.md"
 $x = [IO.File]::ReadAllText("$PWD\$md")
 $rules = @(
+  @('[A-Za-z0-9_.~-]{3}[78]Q~[A-Za-z0-9_.~-]{31,34}', '<removed-azure-ad-secret>'),
+  @('(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{86}==', '<removed-storage-key>'),
   @('(?i)([?&]code=)[^&\s>)"'']+', '$1<removed>'),
   @('(?i)([?&]sig=)[^&\s>)"'']+', '$1<removed>'),
   @('(?i)((?:AccountKey|SharedAccessKey|PrimaryKey|SecondaryKey|Password|Pwd)\s*=\s*)[^;\s"'']+', '$1<removed>'),
   @('(?i)((?:x-functions-key|api-key|ocp-apim-subscription-key|authorization)\s*:\s*(?:bearer\s+)?)\S+', '$1<removed>'),
   @('(?i)((?:password|passwd|secret|token|apikey|api_key|client_secret|access_key)\s*[:=]\s*)[^\s"'',;]+', '$1<removed>'),
   @('eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}', '<removed-jwt>'),
+  @('github_pat_[A-Za-z0-9_]{50,}', '<removed-token>'),
   @('gh[pousr]_[A-Za-z0-9]{30,}', '<removed-token>'),
   @('AKIA[0-9A-Z]{16}', '<removed-aws-key>'),
   @('(?s)-----BEGIN [A-Z ]*PRIVATE KEY-----.*?-----END [A-Z ]*PRIVATE KEY-----', '<removed-private-key>')
@@ -40,6 +42,9 @@ foreach ($r in $rules) {
 [IO.File]::WriteAllText("$PWD\$md", $x, (New-Object Text.UTF8Encoding $false))
 "Lines now containing a placeholder:"
 Select-String -Path $md -Pattern "<removed" | ForEach-Object { "$($_.LineNumber): $($_.Line.Trim())" }
+
+
+
 
 
 
