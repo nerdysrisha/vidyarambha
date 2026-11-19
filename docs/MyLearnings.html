@@ -449,6 +449,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
 #content-box .fold-tools { position: sticky; top: 0; z-index: 30; display: flex; gap: 6px; align-items: center; box-sizing: border-box; margin: 0 -40px 14px -40px; padding: 8px 40px; background: #faf8f4; border-bottom: 1px solid #e8e2d5; }
 #content-box .fold-tools select { flex: 1; min-width: 0; font: inherit; font-size: 0.85em; padding: 3px 6px; border: 1px solid #c9a15a88; border-radius: 6px; background: #fffdf8; color: #6b4f1d; }
 #content-box .fold-tools button { font: inherit; font-size: 0.8em; cursor: pointer; padding: 3px 10px; border: 1px solid #c9a15a88; border-radius: 6px; background: #fffdf8; color: #a1521f; white-space: nowrap; }
+#content-box .fold-tools button.nav { padding: 3px 9px; font-size: 0.85em; }
 #content-box details.fold > summary { position: sticky; top: calc(var(--tb) - 1px); z-index: 20; background: #f3ecdc; border-radius: 8px; }
 #content-box details.fold[open] > summary { border-bottom: 1px solid #e8e2d5; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 #content-box .fold-next { display: block; width: 100%; margin: 14px 0 4px 0; font: inherit; font-size: 0.85em; cursor: pointer; padding: 7px 10px; border: 1px dashed #c9a15a; border-radius: 6px; background: #fffdf8; color: #a1521f; text-align: center; }
@@ -609,8 +610,7 @@ const categories = [
             ["ollama", "ollama-setup", "ollama-setup", "ollama-setup", "md"]
 
         ]
-    }	
-	
+    }
 ];
 
 // ── STATE ───────────────────────────────────────────────────────────────
@@ -701,6 +701,7 @@ foldAllBtn.addEventListener("click", () => {
 updateFoldBtn();
 
 // ── FOLDABLE SECTIONS: every "##" heading becomes a collapsed block ─────
+let activeFold = null;   // set by makeFoldable for the open topic (used by keyboard + scroll sync)
 function makeFoldable(root) {
     const h2s = Array.from(root.children).filter(el => el.tagName === "H2");
     if (!h2s.length) return;
@@ -744,6 +745,7 @@ function makeFoldable(root) {
         sel.appendChild(o);
     });
     tools.appendChild(sel);
+    tools.insertAdjacentHTML("beforeend", '<button class="nav" data-a="prev" title="Previous section (Up arrow)">&#9650;</button><button class="nav" data-a="next" title="Next section (Down arrow)">&#9660;</button>');
     tools.insertAdjacentHTML("beforeend", '<button data-a="open">Expand all</button><button data-a="close">Collapse all</button>');
     root.insertBefore(tools, root.firstChild);
 
@@ -758,16 +760,52 @@ function makeFoldable(root) {
         root.scrollTo({ top: y - tb() - sumH - 6, behavior: "smooth" });
     }
 
+    // ── Up/Down section navigation (buttons + keyboard) ──
+    const topIdx = dets.map(d => targets.findIndex(t => t.top && t.det === d));
+    let cur = -1, lastGo = 0;
+    const locked = () => Date.now() - lastGo < 700;     // while a smooth scroll is running, trust our own state
+    function current() {
+        const limit = root.getBoundingClientRect().top + tb() + 12;
+        let c = -1;
+        dets.forEach((d, i) => { if (d.getBoundingClientRect().top <= limit) c = i; });
+        return c;
+    }
+    const curIdx = () => locked() ? cur : current();
+    function syncSel() {
+        const c = curIdx();
+        sel.value = c >= 0 ? String(topIdx[c]) : "";
+    }
+    function go(dir) {
+        const c = curIdx();
+        const n = c + dir;
+        if (n >= dets.length) return;                    // already on the last section
+        if (n < 0) {                                     // above the first section: back to the top
+            cur = -1; lastGo = Date.now();
+            root.scrollTo({ top: 0, behavior: "smooth" });
+            sel.value = "";
+            return;
+        }
+        if (c >= 0 && c !== n) dets[c].open = false;     // close the one we are leaving (others you opened stay open)
+        dets[n].open = true;
+        cur = n; lastGo = Date.now();
+        sel.value = String(topIdx[n]);
+        requestAnimationFrame(() => scrollToEl(dets[n], dets[n], true));
+    }
+
     tools.addEventListener("click", e => {
         const a = e.target.dataset && e.target.dataset.a;
         if (!a) return;
+        if (a === "next") { go(1); return; }
+        if (a === "prev") { go(-1); return; }
         dets.forEach(d => d.open = (a === "open"));
     });
     sel.addEventListener("change", () => {
         if (sel.value === "") return;
         const t = targets[+sel.value];
         t.det.open = true;
-        sel.value = "";
+        cur = dets.indexOf(t.det); lastGo = Date.now();
+        sel.value = String(topIdx[cur]);
+        sel.blur();                                      // so Up/Down keys go to section navigation, not the drop-down
         requestAnimationFrame(() => scrollToEl(t.top ? t.det : t.el, t.det, t.top));
     });
 
@@ -786,6 +824,14 @@ function makeFoldable(root) {
         });
         d.querySelector(".fold-body").appendChild(btn);
     });
+
+    // blank space at the end so even the last section can be scrolled up to the top
+    const spacer = document.createElement("div");
+    spacer.style.height = "55vh";
+    root.appendChild(spacer);
+
+    syncSel();
+    activeFold = { go, sync: syncSel };
 }
 
 // ── LOAD TOPIC ──────────────────────────────────────────────────────────
@@ -810,6 +856,7 @@ function loadTopic(flatIndex) {
             const html = (topic.ext === "md" && window.marked) ? marked.parse(raw) : raw;
             contentBox.innerHTML = topic.ext === "md" ? html : '<div class="page-canvas">' + html + '</div>';
             contentBox.classList.remove("has-fold");
+            activeFold = null;
             if (topic.ext === "md") makeFoldable(contentBox);
             contentBox.scrollTop = 0;
             contentBox.scrollLeft = 0;
@@ -833,6 +880,20 @@ document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (e.key === "ArrowRight") { e.preventDefault(); document.getElementById("nextBtn").click(); }
     if (e.key === "ArrowLeft")  { e.preventDefault(); document.getElementById("prevBtn").click(); }
+    if ((e.key === "ArrowDown" || e.key === "ArrowUp") && activeFold &&
+        !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey &&
+        e.target.tagName !== "SELECT" && !e.target.isContentEditable) {
+        e.preventDefault();
+        activeFold.go(e.key === "ArrowDown" ? 1 : -1);
+    }
+});
+
+// keep the drop-down showing the section you are currently in
+let scrollTick = false;
+contentBox.addEventListener("scroll", () => {
+    if (!activeFold || scrollTick) return;
+    scrollTick = true;
+    requestAnimationFrame(() => { scrollTick = false; if (activeFold) activeFold.sync(); });
 });
 
 // ── COPY-CODE BUTTONS (added to every <pre> in loaded topic content) ────
