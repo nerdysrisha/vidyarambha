@@ -3,12 +3,7 @@
 |                         |                 |
 |-------------------------|-----------------|
 | **Version**             | **1.0**         |
-| **Created on**          | **01 Dec 2020** |
-| **Last Updated on**     | **01 Dec 2020** |
-| **Prepared by**         | **SelfDoc**     |
-|                         |                 |
-| Document Classification | OPEN DOC        |
-| Distribution            | SelfDoc         |
+
 
 <span id="_Toc13447" class="anchor"></span>Table of Contents
 
@@ -122,13 +117,13 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image1.png" style="width:7.66806in;height:1.94792in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image1.webp" style="width:7.66806in;height:1.94792in" /> |
 
 ## Provide Cluster Details - Disable Auto Mode
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image2.png" style="width:7.68611in;height:2.09931in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image2.webp" style="width:7.68611in;height:2.09931in" /> |
 
 ## Provide Cluster Configuration 
 
@@ -140,7 +135,7 @@
 <tr>
 <td><p>Provide name and choose the IAM Role that we have created previously using the command line.</p>
 <p><mark>ADD A NEW STEP PREVIOUS TO THE FIRST STEP REGARDING VPC/IAM/KEYPAIR ETC.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image3.png" style="width:7.68333in;height:1.7875in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image3.webp" style="width:7.68333in;height:1.7875in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -149,7 +144,7 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image4.png" style="width:7.68403in;height:1.78542in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image4.webp" style="width:7.68403in;height:1.78542in" /> |
 
 ## Configure Cluster Access Details 
 
@@ -159,7 +154,7 @@
 </colgroup>
 <tbody>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image5.png" style="width:7.67778in;height:1.96042in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image5.webp" style="width:7.67778in;height:1.96042in" /></p></td>
 </tr>
 <tr>
 <td><p><strong>EKS API (API mode):</strong></p>
@@ -186,25 +181,25 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image6.png" style="width:7.68611in;height:1.35625in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image6.webp" style="width:7.68611in;height:1.35625in" /> |
 
 ## Configure Zonal Shift and Delete Protection 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image7.png" style="width:7.6875in;height:2.31389in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image7.webp" style="width:7.6875in;height:2.31389in" /> |
 
 ## Provide Tags Information 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image8.png" style="width:7.68403in;height:2.06736in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image8.webp" style="width:7.68403in;height:2.06736in" /> |
 
 ## Specify Networking 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image9.png" style="width:7.67847in;height:3.84861in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image9.webp" style="width:7.67847in;height:3.84861in" /> |
 
 ## Choose Public Endpoint 
 
@@ -214,7 +209,7 @@
 </colgroup>
 <tbody>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image10.png" style="width:7.675in;height:2.84306in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image10.webp" style="width:7.675in;height:2.84306in" /></p></td>
 </tr>
 <tr>
 <td><p><strong>ecommended: Public and Private (Both Enabled)</strong></p>
@@ -247,75 +242,75 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image11.png" style="width:7.68611in;height:2.88472in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image12.png" style="width:7.67639in;height:2.45556in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image11.webp" style="width:7.68611in;height:2.88472in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image12.webp" style="width:7.67639in;height:2.45556in" /> |
 
 ##  Select Add-Ons
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image13.png" style="width:7.67917in;height:2.55694in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image14.png" style="width:7.67431in;height:2.43125in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image15.png" style="width:7.68403in;height:4.46528in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image16.png" style="width:7.6875in;height:4.55764in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image17.png" style="width:7.68333in;height:3.14861in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image18.png" style="width:7.6875in;height:4.41181in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image19.png" style="width:7.68333in;height:3.94653in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image20.png" style="width:7.68611in;height:1.53264in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image13.webp" style="width:7.67917in;height:2.55694in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image14.webp" style="width:7.67431in;height:2.43125in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image15.webp" style="width:7.68403in;height:4.46528in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image16.webp" style="width:7.6875in;height:4.55764in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image17.webp" style="width:7.68333in;height:3.14861in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image18.webp" style="width:7.6875in;height:4.41181in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image19.webp" style="width:7.68333in;height:3.94653in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image20.webp" style="width:7.68611in;height:1.53264in" /> |
 |  |
 
 ##  Configure Add-Ons
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image21.png" style="width:7.67639in;height:2.23819in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image22.png" style="width:7.68472in;height:2.93472in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image23.png" style="width:7.67917in;height:2.94861in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image24.png" style="width:7.67986in;height:2.1125in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image25.png" style="width:7.67431in;height:2.13889in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image26.png" style="width:7.67569in;height:2.08056in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image27.png" style="width:7.67986in;height:2.41181in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image21.webp" style="width:7.67639in;height:2.23819in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image22.webp" style="width:7.68472in;height:2.93472in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image23.webp" style="width:7.67917in;height:2.94861in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image24.webp" style="width:7.67986in;height:2.1125in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image25.webp" style="width:7.67431in;height:2.13889in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image26.webp" style="width:7.67569in;height:2.08056in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image27.webp" style="width:7.67986in;height:2.41181in" /> |
 
 ##  Review + Create
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image28.png" style="width:7.67917in;height:2.64236in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image29.png" style="width:7.68472in;height:3.12639in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image30.png" style="width:7.68194in;height:2.29375in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image31.png" style="width:7.68472in;height:4.06806in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image32.png" style="width:7.68472in;height:2.67708in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image33.png" style="width:7.67847in;height:1.65347in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image28.webp" style="width:7.67917in;height:2.64236in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image29.webp" style="width:7.68472in;height:3.12639in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image30.webp" style="width:7.68194in;height:2.29375in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image31.webp" style="width:7.68472in;height:4.06806in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image32.webp" style="width:7.68472in;height:2.67708in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image33.webp" style="width:7.67847in;height:1.65347in" /> |
 
 ##  Dashboard - Cluster
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image34.png" style="width:7.67014in;height:3.14028in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image35.png" style="width:7.68472in;height:3.24167in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image34.webp" style="width:7.67014in;height:3.14028in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image35.webp" style="width:7.68472in;height:3.24167in" /> |
 
 ##  Monitor Cluster
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image36.png" style="width:7.67569in;height:1.57222in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image37.png" style="width:7.67361in;height:2.63472in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image38.png" style="width:7.67639in;height:3.72083in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image39.png" style="width:7.68333in;height:3.06458in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image40.png" style="width:7.68125in;height:2.04375in" /> |
-| <img src="subjects/tech/aws/eks-img/media/image41.png" style="width:7.68681in;height:3.85556in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image36.webp" style="width:7.67569in;height:1.57222in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image37.webp" style="width:7.67361in;height:2.63472in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image38.webp" style="width:7.67639in;height:3.72083in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image39.webp" style="width:7.68333in;height:3.06458in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image40.webp" style="width:7.68125in;height:2.04375in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image41.webp" style="width:7.68681in;height:3.85556in" /> |
 
 ##  Status Check - After few minus - Still Creating 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image42.png" style="width:7.67222in;height:1.93611in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image42.webp" style="width:7.67222in;height:1.93611in" /> |
 
 ##  Status Check - After 10 odd min - Active Now
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image43.png" style="width:7.67569in;height:2.11875in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image43.webp" style="width:7.67569in;height:2.11875in" /> |
 
 ##  Cluster View - Detailed
 
@@ -327,13 +322,13 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image44.png" style="width:7.67917in;height:3.12361in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image44.webp" style="width:7.67917in;height:3.12361in" /> |
 
 ###  Resources - Workloads 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image45.png" style="width:7.68611in;height:3.50278in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image45.webp" style="width:7.68611in;height:3.50278in" /> |
 
 ###  Resources - Clsuter 
 
@@ -344,7 +339,7 @@
 <tbody>
 <tr>
 <td><p>Notice there are NO nodes configured. Once an eks cluster is created, we need to add nodes to it.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image46.png" style="width:7.675in;height:3.07292in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image46.webp" style="width:7.675in;height:3.07292in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -358,7 +353,7 @@
 <tbody>
 <tr>
 <td><p>Note that these are the control plane resources.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image47.png" style="width:7.68333in;height:3.03681in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image47.webp" style="width:7.68333in;height:3.03681in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -367,37 +362,37 @@
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image48.png" style="width:7.67639in;height:3.05486in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image48.webp" style="width:7.67639in;height:3.05486in" /> |
 
 ###  Networking 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image49.png" style="width:7.68333in;height:2.95486in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image49.webp" style="width:7.68333in;height:2.95486in" /> |
 
 ### Add Ons
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image50.png" style="width:7.67153in;height:3.71458in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image50.webp" style="width:7.67153in;height:3.71458in" /> |
 
 ### Access 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image51.png" style="width:7.67153in;height:3.68125in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image51.webp" style="width:7.67153in;height:3.68125in" /> |
 
 ### Observability 
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image52.png" style="width:7.67431in;height:3.45139in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image52.webp" style="width:7.67431in;height:3.45139in" /> |
 
 ### Tags
 
 |  |
 |----|
-| <img src="subjects/tech/aws/eks-img/media/image53.png" style="width:7.68333in;height:3.07153in" /> |
+| <img src="subjects/tech/aws/eks-img/media/image53.webp" style="width:7.68333in;height:3.07153in" /> |
 
 ## Create Node Group - With SSH Access
 
@@ -408,25 +403,25 @@
 <tbody>
 <tr>
 <td><p>Remember that we do not have any nodes yet. We are now going to add nodes to it. Click the NodeGroup button</p>
-<p><img src="subjects/tech/aws/eks-img/media/image54.png" style="width:7.67847in;height:3.35417in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image54.webp" style="width:7.67847in;height:3.35417in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image55.png" style="width:7.67639in;height:2.43889in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image55.webp" style="width:7.67639in;height:2.43889in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image56.png" style="width:7.67778in;height:4.26389in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image56.webp" style="width:7.67778in;height:4.26389in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image57.png" style="width:7.68125in;height:3.86458in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image57.webp" style="width:7.68125in;height:3.86458in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image58.png" style="width:7.67639in;height:4.15417in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image58.webp" style="width:7.67639in;height:4.15417in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image59.png" style="width:7.67778in;height:1.60417in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image59.webp" style="width:7.67778in;height:1.60417in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image60.png" style="width:7.67847in;height:3.76111in" /></p>
+<td><p><img src="subjects/tech/aws/eks-img/media/image60.webp" style="width:7.67847in;height:3.76111in" /></p>
 <p><mark>--Enable remote access to nodes - Next screenshot has warning as well.</mark></p>
 <p><strong>Choose BOTH subnets even with just 1 node!</strong></p>
 <p><strong>Here's why:</strong></p>
@@ -447,40 +442,40 @@
 </tr>
 <tr>
 <td><p>Here we are configuring the remote access to the workernode</p>
-<p><img src="subjects/tech/aws/eks-img/media/image61.png" style="width:7.68681in;height:4.37778in" /></p>
+<p><img src="subjects/tech/aws/eks-img/media/image61.webp" style="width:7.68681in;height:4.37778in" /></p>
 <p>Choose the Keypair that was previously created</p>
-<p><img src="subjects/tech/aws/eks-img/media/image62.png" style="width:7.68264in;height:3.28889in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image62.webp" style="width:7.68264in;height:3.28889in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image63.png" style="width:7.68333in;height:2.61528in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image63.webp" style="width:7.68333in;height:2.61528in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image64.png" style="width:7.68056in;height:3.10417in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image64.webp" style="width:7.68056in;height:3.10417in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image65.png" style="width:7.68611in;height:4.09722in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image65.webp" style="width:7.68611in;height:4.09722in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image66.png" style="width:7.68403in;height:1.46528in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image66.webp" style="width:7.68403in;height:1.46528in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image67.png" style="width:7.68333in;height:3.59444in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image67.webp" style="width:7.68333in;height:3.59444in" /></p></td>
 </tr>
 <tr>
 <td><p>Without the Blue Banner. Notice it is creating.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image68.png" style="width:7.67639in;height:0.90069in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image68.webp" style="width:7.67639in;height:0.90069in" /></p></td>
 </tr>
 <tr>
 <td><p>Navigate back to EKS Cluster again and check that node group is not ready yet.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image69.png" style="width:7.67708in;height:3.68542in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image69.webp" style="width:7.67708in;height:3.68542in" /></p></td>
 </tr>
 <tr>
 <td><p>Notice the node is not ready yet.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image70.png" style="width:7.67639in;height:3.55903in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image70.webp" style="width:7.67639in;height:3.55903in" /></p></td>
 </tr>
 <tr>
 <td><p>After Few minutes</p>
-<p><img src="subjects/tech/aws/eks-img/media/image71.png" style="width:7.67431in;height:3.75139in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image71.webp" style="width:7.67431in;height:3.75139in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -499,13 +494,13 @@
 <p><mark>--filters "Name=tag:eks:nodegroup-name,Values=eks-normal-nodegroup" \</mark></p>
 <p><mark>--query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId' --output text</mark></p>
 <p><mark>sg-0fa23ae497445b183 sg-09cf9de69819bd36e</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image72.png" style="width:7.67847in;height:0.93056in" /></p>
-<p><img src="subjects/tech/aws/eks-img/media/image73.png" style="width:7.68333in;height:1.84722in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image72.webp" style="width:7.67847in;height:0.93056in" /></p>
+<p><img src="subjects/tech/aws/eks-img/media/image73.webp" style="width:7.68333in;height:1.84722in" /></p></td>
 </tr>
 <tr>
 <td><p>We get below. Click the Edit Inbound rules if SSH IS not added.</p>
 <p>Here it is already included so no need to add anything else, as ‘all traffic’ all protocol is already there.</p>
-<p><img src="subjects/tech/aws/eks-img/media/image74.png" style="width:7.67153in;height:2.54236in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image74.webp" style="width:7.67153in;height:2.54236in" /></p></td>
 </tr>
 <tr>
 <td></td>
@@ -542,11 +537,11 @@
 <td><p>As a first step we will create Keypair, which will be used to access the workernodes. If we do not want to access workernodes, then we will not need this step.</p>
 <p>The key will be downloaded to the same folder parallel to the script. Keep it safe as it cannot be obtained again!.</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image75.png" style="width:7.68611in;height:3.29722in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image75.webp" style="width:7.68611in;height:3.29722in" /></p></td>
 </tr>
 <tr>
 <td><p>Same can be seen on the UI</p>
-<p><img src="subjects/tech/aws/eks-img/media/image76.png" style="width:7.67847in;height:1.36181in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image76.webp" style="width:7.67847in;height:1.36181in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -561,11 +556,11 @@
 <tr>
 <td><p>Create VPC</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image77.png" style="width:7.68681in;height:3.63403in" /></p>
-<p><img src="subjects/tech/aws/eks-img/media/image78.png" style="width:5.89236in;height:1.00556in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image77.webp" style="width:7.68681in;height:3.63403in" /></p>
+<p><img src="subjects/tech/aws/eks-img/media/image78.webp" style="width:5.89236in;height:1.00556in" /></p></td>
 </tr>
 <tr>
-<td><p><img src="subjects/tech/aws/eks-img/media/image79.png" style="width:7.67222in;height:2.0375in" /></p></td>
+<td><p><img src="subjects/tech/aws/eks-img/media/image79.webp" style="width:7.67222in;height:2.0375in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -580,7 +575,7 @@
 <tr>
 <td><p>Create IAM Roles</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image80.png" style="width:7.67639in;height:3.51944in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image80.webp" style="width:7.67639in;height:3.51944in" /></p></td>
 </tr>
 <tr>
 <td><p>These are <strong>Trust Policies</strong> (also called Assume Role Policies) that define <strong>who</strong> can assume these IAM roles. </p>
@@ -631,13 +626,13 @@
 </tr>
 <tr>
 <td><p>Roles created - UI view. Notice the same at the last of listing</p>
-<p><img src="subjects/tech/aws/eks-img/media/image81.png" style="width:7.68056in;height:3.38125in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image81.webp" style="width:7.68056in;height:3.38125in" /></p></td>
 </tr>
 <tr>
 <td><p>Policies create - UI View</p>
-<p><img src="subjects/tech/aws/eks-img/media/image82.png" style="width:5.5in;height:1.41667in" /></p>
+<p><img src="subjects/tech/aws/eks-img/media/image82.webp" style="width:5.5in;height:1.41667in" /></p>
 <p>Given there are many policies, filter few that mathces with AmazongEKS</p>
-<p><img src="subjects/tech/aws/eks-img/media/image83.png" style="width:7.67569in;height:3.35833in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image83.webp" style="width:7.67569in;height:3.35833in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -676,7 +671,7 @@
 <tr>
 <td><p>Delete Key Pair as part of clean up</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image84.png" style="width:7.67708in;height:2.25625in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image84.webp" style="width:7.67708in;height:2.25625in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -691,7 +686,7 @@
 <tr>
 <td><p>Delete VPC as part of clean up</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image85.png" style="width:7.68194in;height:5.725in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image85.webp" style="width:7.68194in;height:5.725in" /></p></td>
 </tr>
 </tbody>
 </table>
@@ -706,7 +701,7 @@
 <tr>
 <td><p>Delete IAM ROLE as part of clean up</p>
 <p><mark>PUT THE SCRIPT AFTER FINALIZATION.</mark></p>
-<p><img src="subjects/tech/aws/eks-img/media/image86.png" style="width:7.68333in;height:4.88403in" /></p></td>
+<p><img src="subjects/tech/aws/eks-img/media/image86.webp" style="width:7.68333in;height:4.88403in" /></p></td>
 </tr>
 </tbody>
 </table>
