@@ -17,12 +17,12 @@
 
 
 cd C:\ws\vidyarambha\docs
-$docx = "az-104-and-305-labs.docx"
+$docx = "az-hub-and-spoke-flat.docx"
 $cat  = "azure"
-$name = "az-104-and-305-labs"
-$label = "az-104-and-305-labs"
-$desc = "az-104-and-305-labs"
-$keywords = "104 305"
+$name = "az-hub-and-spoke"
+$label = "az-hub-and-spoke"
+$desc = "az-hub-and-spoke"
+$keywords = "500"
 $script = "C:\ws\vidyarambha\docs\convert-all-pics-to-web-retain-names.py"
 
 # 1. folder + word to md
