@@ -10,7 +10,8 @@
 *Run on: peerpod VM*
 
 **A1. Create the SAN config file**
- 
+
+```bash
 cat > proxy_san.cnf <<'EOF'
 [req]
 distinguished_name = req_distinguished_name
@@ -23,33 +24,37 @@ CN = local-proxy
 [v3_req]
 subjectAltName = IP:127.0.0.1
 EOF
- 
+```
 
 **A2. Verify its not empty**
- 
+
+```bash
 cat proxy_san.cnf
- 
+```
 
 **A3. Generate the self-signed cert**
- 
+
+```bash
 openssl req -x509 -newkey rsa:2048 -nodes \
   -keyout proxy-key.pem -out proxy-cert.pem \
   -days 30 -config proxy_san.cnf -extensions v3_req
- 
+```
 
 **A4. Verify cert files exist and arent empty**
- 
+
+```bash
 ls -la proxy-cert.pem proxy-key.pem
- 
- 
+```
+
 ---
 
 ## Part B — Create the HTTPS proxy script
 *Run on: peerpod VM*
 
 **B1. Create https_proxy.py**
- 
- cat > https_proxy.py <<'EOF'
+
+```bash
+cat > https_proxy.py <<'EOF'
 import ssl
 import http.server
 import urllib.request
@@ -101,12 +106,13 @@ if __name__ == "__main__":
     server.socket = ctx.wrap_socket(server.socket, server_side=True)
     server.serve_forever()
 EOF
- 
+```
 
 **B2. Verify file created**
- 
+
+```bash
 cat https_proxy.py | head -5
- 
+```
 
 ---
 
@@ -114,59 +120,53 @@ cat https_proxy.py | head -5
 *Run on: peerpod VM*
 
 **C1. Start https_proxy.py in background (root netns)**
- 
+
+```bash
 sudo nohup python3 https_proxy.py > https_proxy.log 2>&1 < /dev/null &
 disown
- 
+```
 
 **C2. Confirm its running**
- 
+
+```bash
 ps aux | grep https_proxy
- 
+```
 
 **C3. Confirm its listening on 9443**
- 
+
+```bash
 sudo ss -tlnp | grep 9443
- 
+```
 
 **C4. Test locally on the VM itself (root-to-root — must succeed before continuing)**
 
-
+```bash
 curl -k -X POST https://127.0.0.1:9443/dummy/secret \
   -H "Authorization: Bearer dummy-poc-token-abc123" \
   -H "Content-Type: application/json" \
   -d '{"input":"111223"}'
- 
-
-
-
-
-
-
-
-
-
-
- 
+```
 
 **C5. Check the log shows the request/response**
- 
-cat https_proxy.log
- 
 
- 
+```bash
+cat https_proxy.log
+```
+
 ---
 
 ## Part D — Create and start the namespace bridge
 *Run on: peerpod VM*
 
 **D1. Confirm the pod netns name (may not always be `podns`)**
- 
+
+```bash
 ls -la /run/netns/
- 
+```
 
 **D2. Create tcp_bridge.py** (adjust /run/netns/podns below if D1 showed a different name)
- 
+
+```bash
 cat > tcp_bridge.py <<'EOF'
 import socket
 import threading
@@ -229,24 +229,28 @@ def main():
 if __name__ == "__main__":
     main()
 EOF
- 
+```
 
 **D3. Start tcp_bridge.py in background**
- 
+
+```bash
 sudo nohup python3 tcp_bridge.py > tcp_bridge.log 2>&1 < /dev/null &
 disown
- 
+```
 
 **D4. Confirm it started correctly** (should NOT show a raw connection storm — just the startup line for now)
- 
+
+```bash
 cat tcp_bridge.log
- 
+```
+
 Expected only: listening in pod netns on :9443, forwarding via root netns to 127.0.0.1:9443
 
 **D5. Confirm both processes are alive**
- 
+
+```bash
 ps aux | grep -E "https_proxy|tcp_bridge"
- 
+
 sudo ss -tlnp | grep 9443
 
 openssl s_client -connect 127.0.0.1:9443
@@ -255,11 +259,7 @@ curl -k -X POST https://127.0.0.1:9443/dummy/secret \
   -H "Authorization: Bearer dummy-poc-token-abc123" \
   -H "Content-Type: application/json" \
   -d '{"input":"111223"}'
-  
-  
 
-  
-  
 sudo ip netns exec podns ss -tlnp | grep 9443
 
 sudo ip netns exec podns openssl s_client -connect 127.0.0.1:9443
@@ -268,30 +268,29 @@ sudo ip netns exec podns curl -k -X POST https://127.0.0.1:9443/dummy/secret \
   -H "Authorization: Bearer dummy-poc-token-abc123" \
   -H "Content-Type: application/json" \
   -d '{"input":"111223"}'
-  
-  
- 
+```
 
 ## Part E — Final test
 *Run on: sidecar container, via kubectl exec, or via the pods own args loop*
 
 **E1. Manual test first**
- 
+
+```bash
 kubectl exec -it helloworld-cvm-withsidecar -n default -c pingsidecar -- curl -k -X POST https://127.0.0.1:9443/dummy/secret \
   -H "Authorization: Bearer dummy-poc-token-abc123" \
   -H "Content-Type: application/json" \
   -d '{"input":"111223"}'
- 
- 
+```
 
 **E2. Confirm both logs show the full round trip on the peerpod**
- 
+
+```bash
 cat https_proxy.log
 cat tcp_bridge.log
- 
- 
- 
- +------------------------------------+
+```
+
+```text
++------------------------------------+
 | Sidecar container (client)         |
 | curl -k https://127.0.0.1:9443     |   <- runs inside POD netns
 +------------------------------------+
@@ -332,6 +331,7 @@ cat tcp_bridge.log
 | Flask dummy_server.py              |
 | TLS termination                    |
 +------------------------------------+
+```
 
 NOTE: Every network hop is TLS-encrypted, and https_proxy.log
 no longer contains plaintext request/response data. However,

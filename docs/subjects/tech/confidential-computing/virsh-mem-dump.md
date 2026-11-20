@@ -581,61 +581,61 @@ These are not "dangerous" in the destructive sense (see §4/§6 for that) — th
 ### Syntax &amp; examples
 
 **1. Full memory dump**
-```
+```bash
 virsh dump <domain> <output-file> --memory-only [--format <fmt>]
 virsh dump nontdxvsi /evidence/vsixxx.dump --memory-only
 ```
 
 **2. Raw QMP memory extraction**
-```
+```bash
 virsh qemu-monitor-command <domain> --hmp '<qmp/hmp command>'
 virsh qemu-monitor-command nontdxvsi --hmp 'pmemsave 0 4294967296 /evidence/nontdxvsi.raw'
 ```
 
 **3. Live console attach**
-```
+```bash
 virsh console <domain> [--force]
 virsh console nontdxvsi --force
 ```
 
 **4. VNC/SPICE password + live screen**
-```
+```bash
 virsh domdisplay <domain> --include-password
 virsh domdisplay nontdxvsi --include-password
 ```
 
 **5. Point-in-time screenshot**
-```
+```bash
 virsh screenshot <domain> <output-file> [--screen N]
 virsh screenshot nontdxvsi /evidence/nontdxvsi-screen.ppm
 ```
 
 **6. Save full RAM + CPU state to disk**
-```
+```bash
 virsh save <domain> <state-file>
 virsh save nontdxvsi /var/lib/libvirt/save/nontdxvsi.save
 ```
 
 **7. Execute/read inside the guest via agent**
-```
+```bash
 virsh qemu-agent-command <domain> '<json-command>'
 virsh qemu-agent-command nontdxvsi '{"execute":"guest-file-open","arguments":{"path":"/etc/shadow","mode":"r"}}'
 ```
 
 **8. Cleartext credentials from domain XML**
-```
+```bash
 virsh dumpxml <domain> --security-info
 virsh dumpxml nontdxvsi --security-info
 ```
 
 **9. Guest user/OS/filesystem inventory**
-```
+```bash
 virsh guestinfo <domain> [--user] [--os] [--filesystem] [--disk]
 virsh guestinfo nontdxvsi --user --os --filesystem --disk
 ```
 
 **10. Mounted filesystem list**
-```
+```bash
 virsh domfsinfo <domain>
 virsh domfsinfo nontdxvsi
 ```

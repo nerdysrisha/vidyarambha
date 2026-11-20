@@ -8,106 +8,7 @@
 <span id="_Toc13447" class="anchor"></span>Table of Contents
 
 [Table of Contents [2](#_Toc13447)](#_Toc13447)
-
-[1 Approval [4](#approval)](#approval)
-
-[2 Revision History [4](#revision-history)](#revision-history)
-
-[3 EKS - Creation - UI DRIVEN [5](#eks---creation---ui-driven)](#eks---creation---ui-driven)
-
-[3.1 Provide Cluster Details - Disable Auto Mode [5](#provide-cluster-details---disable-auto-mode)](#provide-cluster-details---disable-auto-mode)
-
-[3.2 Provide Cluster Configuration [5](#provide-cluster-configuration)](#provide-cluster-configuration)
-
-[3.3 Choose K8 Version [6](#choose-k8-version)](#choose-k8-version)
-
-[3.4 Configure Cluster Access Details [6](#configure-cluster-access-details)](#configure-cluster-access-details)
-
-[3.5 Envelope Encryption [7](#envelope-encryption)](#envelope-encryption)
-
-[3.6 Configure Zonal Shift and Delete Protection [8](#configure-zonal-shift-and-delete-protection)](#configure-zonal-shift-and-delete-protection)
-
-[3.7 Provide Tags Information [8](#provide-tags-information)](#provide-tags-information)
-
-[3.8 Specify Networking [8](#specify-networking)](#specify-networking)
-
-[3.9 Choose Public Endpoint [9](#choose-public-endpoint)](#choose-public-endpoint)
-
-[3.10 Observability [10](#observability)](#observability)
-
-[3.11 Select Add-Ons [11](#select-add-ons)](#select-add-ons)
-
-[3.12 Configure Add-Ons [16](#configure-add-ons)](#configure-add-ons)
-
-[3.13 Review + Create [18](#review-create)](#review-create)
-
-[3.14 Dashboard - Cluster [21](#dashboard---cluster)](#dashboard---cluster)
-
-[3.15 Monitor Cluster [22](#monitor-cluster)](#monitor-cluster)
-
-[3.16 Status Check - After few minus - Still Creating [24](#status-check---after-few-minus---still-creating)](#status-check---after-few-minus---still-creating)
-
-[3.17 Status Check - After 10 odd min - Active Now [25](#status-check---after-10-odd-min---active-now)](#status-check---after-10-odd-min---active-now)
-
-[3.18 Cluster View - Detailed [25](#cluster-view---detailed)](#cluster-view---detailed)
-
-[3.18.1 Overview [25](#overview)](#overview)
-
-[3.18.2 Resources - Workloads [26](#resources---workloads)](#resources---workloads)
-
-[3.18.3 Resources - Clsuter [27](#resources---clsuter)](#resources---clsuter)
-
-[3.18.4 Resources - Cluster - Namespaces [27](#resources---cluster---namespaces)](#resources---cluster---namespaces)
-
-[3.18.5 Compute [28](#compute)](#compute)
-
-[3.18.6 Networking [29](#networking)](#networking)
-
-[3.18.7 Add Ons [29](#add-ons)](#add-ons)
-
-[3.18.8 Access [30](#access)](#access)
-
-[3.18.9 Observability [31](#observability-1)](#observability-1)
-
-[3.18.10 Tags [32](#tags)](#tags)
-
-[3.19 Create Node Group - With SSH Access [32](#create-node-group---with-ssh-access)](#create-node-group---with-ssh-access)
-
-[3.19.1 Add SSH Rule to Security Group - if not added [42](#add-ssh-rule-to-security-group---if-not-added)](#add-ssh-rule-to-security-group---if-not-added)
-
-[3.20 xxx [43](#xxx)](#xxx)
-
-[3.21 xxx [43](#xxx-1)](#xxx-1)
-
-[4 EKS - Creation - NORMAL - Command Line [44](#eks---creation---normal---command-line)](#eks---creation---normal---command-line)
-
-[4.1 Create Key Pair [44](#create-key-pair)](#create-key-pair)
-
-[4.2 Create VPC [45](#create-vpc)](#create-vpc)
-
-[4.3 Create IAM Role [46](#create-iam-role)](#create-iam-role)
-
-[Key Difference: [48](#key-difference)](#key-difference)
-
-[4.4 xxx [49](#xxx-2)](#xxx-2)
-
-[4.5 xxx [49](#xxx-3)](#xxx-3)
-
-[4.6 xxx [49](#xxx-4)](#xxx-4)
-
-[5 EKS - Clean up - NORMAL - Command Line [50](#eks---clean-up---normal---command-line)](#eks---clean-up---normal---command-line)
-
-[5.1 Delete Key Pair [50](#delete-key-pair)](#delete-key-pair)
-
-[5.2 Delete VPC [50](#delete-vpc)](#delete-vpc)
-
-[5.3 Delete IAM Role [51](#delete-iam-role)](#delete-iam-role)
-
-[5.4 xxx [52](#xxx-5)](#xxx-5)
-
-[5.5 xxx [53](#xxx-6)](#xxx-6)
-
-[5.6 xxx [53](#xxx-7)](#xxx-7)
+ 
 
  
 
@@ -491,10 +392,10 @@
 <tr>
 <td><p>Navigate to Ec2--&gt; Security Groups --&gt;Select the first one</p>
 <p>Below is the command to fetch which SecurityGroups are attached to the nodegroup we have configured.</p>
-<p><mark>aws ec2 describe-instances --region eu-west-1 \</mark></p>
-<p><mark>--filters "Name=tag:eks:nodegroup-name,Values=eks-normal-nodegroup" \</mark></p>
-<p><mark>--query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId' --output text</mark></p>
-<p><mark>sg-0fa23ae497445b183 sg-09cf9de69819bd36e</mark></p>
+<pre><code class="nohighlight language-bash"><mark>aws ec2 describe-instances --region eu-west-1 \</mark>
+<mark>--filters "Name=tag:eks:nodegroup-name,Values=eks-normal-nodegroup" \</mark>
+<mark>--query 'Reservations[*].Instances[*].SecurityGroups[*].GroupId' --output text</mark>
+<mark>sg-0fa23ae497445b183 sg-09cf9de69819bd36e</mark></code></pre>
 <p><img src="subjects/tech/kubernetes/aws-eks-complete/eks-img/media/image72.webp" style="width:7.67847in;height:0.93056in" /></p>
 <p><img src="subjects/tech/kubernetes/aws-eks-complete/eks-img/media/image73.webp" style="width:7.68333in;height:1.84722in" /></p></td>
 </tr>

@@ -6,61 +6,7 @@
 
 
 <span id="_Toc3037" class="anchor"></span>Table of Contents
-
-[Table of Contents [2](#_Toc3037)](#_Toc3037)
-
-[1 Approval [3](#approval)](#approval)
-
-[2 Revision History [3](#revision-history)](#revision-history)
-
-[3 xxxx [4](#_Toc13693)](#_Toc13693)
-
-[3.1 Check Windows Compatability [4](#check-windows-compatability)](#check-windows-compatability)
-
-[3.2 Download Super basic LLM model [4](#download-super-basic-llm-model)](#download-super-basic-llm-model)
-
-[3.3 Start LMS [6](#start-lms)](#start-lms)
-
-[3.4 Load a Model - Super basic (3 GB Model) [9](#load-a-model---super-basic-3-gb-model)](#load-a-model---super-basic-3-gb-model)
-
-[3.5 Give Simple Prompt [13](#give-simple-prompt)](#give-simple-prompt)
-
-[3.6 Eject the model [16](#eject-the-model)](#eject-the-model)
-
-[3.7 Delete downloaded Model [16](#delete-downloaded-model)](#delete-downloaded-model)
-
-[3.8 Load a Model - A Bit Latest [18](#load-a-model---a-bit-latest)](#load-a-model---a-bit-latest)
-
-[3.9 Load another model and test Curl [19](#load-another-model-and-test-curl)](#load-another-model-and-test-curl)
-
-[3.9.1 Curl invocation - Server Mode [24](#curl-invocation---server-mode)](#curl-invocation---server-mode)
-
-[3.10 Load - simple model - tiny Lama [31](#load---simple-model---tiny-lama)](#load---simple-model---tiny-lama)
-
-[3.11 xxxx [37](#usage-of-temperature-for-creativity-driven-answers.)](#usage-of-temperature-for-creativity-driven-answers.)
-
-[3.12 xxxx [37](#_Toc9454)](#_Toc9454)
-
-[3.13 xxxx [38](#_Toc8379)](#_Toc8379)
-
-[3.14 xxxx [38](#_Toc31766)](#_Toc31766)
-
-[3.15 xxxx [38](#_Toc28853)](#_Toc28853)
-
-[3.16 xxxx [38](#_Toc26103)](#_Toc26103)
-
-[3.17 xxxx [38](#_Toc5953)](#_Toc5953)
-
-[3.18 xxxx [39](#_Toc28899)](#_Toc28899)
-
-[3.19 xxxx [39](#navigate-to-azure-ai-foundry)](#navigate-to-azure-ai-foundry)
-
-[3.20 xxxx [39](#_Toc17822)](#_Toc17822)
-
-[3.21 xxxx [39](#_Toc32006)](#_Toc32006)
-
  
-
 #  AI - LLM - RAG - LOCAL
 
 |     |
@@ -721,36 +667,7 @@
 </tr>
 </tbody>
 </table>
-
-### xxx
-
-|     |
-|:----|
-|     |
-
-### xxx
-
-|     |
-|:----|
-|     |
-
-### xxx
-
-|     |
-|:----|
-|     |
-
-### xxx
-
-|     |
-|:----|
-|     |
-
-### xxx
-
-|     |
-|:----|
-|     |
+ 
 
 #  RAG - AZURE - Basic Understanding 
 

@@ -318,13 +318,6 @@ Steps:
 ---
 
 
-<br>
-
-# ═══════════════════════════════════════════════════════════
-# INSERT (Part 4): Istio components only
-# ═══════════════════════════════════════════════════════════
-
----
 
 ### Istio / service mesh components
 
@@ -547,12 +540,6 @@ Steps:
 
 
 
-<br>
-
-# ═══════════════════════════════════════════════════════════
-# ADDITIONS: Illumio, Sysdig, and how they differ from Istio
-# ═══════════════════════════════════════════════════════════
-
 ---
 
 ## Part 6: Illumio (microsegmentation / "who can talk to whom")
@@ -726,12 +713,6 @@ Steps:
 
 
 
-
-<br>
-
-# ═══════════════════════════════════════════════════════════
-# ADDITIONS: CDH, AA and Trustee (KBS, AS, RVPS, client-tool)
-# ═══════════════════════════════════════════════════════════
 
 ---
 
