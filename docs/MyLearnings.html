@@ -298,7 +298,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     border: 1px solid #2e2a22;
     border-radius: 8px;
     padding: 16px 18px;
-    overflow-x: auto;
+    overflow-x: hidden;               /* long lines wrap instead of scrolling sideways */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+    box-sizing: border-box;
     position: relative;
     margin: 8px 0 18px 0;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
@@ -308,8 +312,11 @@ html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; backgrou
     color: #eaeaea;
     padding: 0;
     font-size: 0.88em;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: visible;
 }
-#content-box pre code.hljs { background: none; }
+#content-box pre code.hljs { background: none; padding: 0; overflow-x: visible; }
 
 /* callouts — a plain markdown blockquote becomes a styled note box */
 #content-box blockquote {
