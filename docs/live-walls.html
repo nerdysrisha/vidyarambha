@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LiveWalls</title>
+<style>
+  :root{
+    --night:#05070d; --panel:#0b111d; --line:#1a2538;
+    --text:#e6edf8; --muted:#8696b5; --glow:#5fd4ff; --ok:#7ee8b0; --warn:#ffb86b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--night);color:var(--text);
+    font-family:"Segoe UI",Roboto,system-ui,-apple-system,sans-serif}
+  button{font-family:inherit;cursor:pointer}
+  main{max-width:520px;margin:0 auto;
+    padding:max(22px,env(safe-area-inset-top)) 18px max(26px,env(safe-area-inset-bottom))}
+  h1{font-size:30px;font-weight:600;margin:6px 0 6px;letter-spacing:.2px}
+  h2{font-size:17px;font-weight:600;margin:22px 0 4px}
+  .sub{color:var(--muted);margin:0 0 16px;font-size:15px;line-height:1.45}
+  .note{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 10px}
+  .status{display:inline-block;padding:6px 13px;border-radius:999px;font-size:13px;
+    border:1px solid var(--line);color:var(--muted);margin-bottom:6px}
+  .status.on{color:var(--ok);border-color:#1d5a3c;background:#0a1912}
+
+  .panel{border:1.5px solid var(--line);background:var(--panel);border-radius:20px;
+    padding:4px 16px 8px;margin-top:14px}
+  .panel h2{margin:14px 0 4px}
+  .phead{display:flex;align-items:baseline;justify-content:space-between}
+  .count{color:var(--muted);font-size:13px}
+  #pmsg{min-height:6px;margin:0 0 6px}
+  #pmsg.err{color:var(--warn)}
+
+  /* photo strip: every tile shows exactly the part that will be on the screen */
+  .strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;-webkit-overflow-scrolling:touch}
+  .tile{position:relative;flex:0 0 auto;width:96px;border-radius:14px;border:1.5px solid var(--line);
+    background-color:#070b14;background-repeat:no-repeat;overflow:hidden}
+  .tile:active{transform:scale(.97)}
+  .tx{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:0;padding:0;
+    background:rgba(0,0,0,.62);color:#fff;font-size:17px;line-height:1}
+  .addtile{flex:0 0 auto;width:96px;border-radius:14px;border:1.5px dashed #2a3a58;background:transparent;
+    color:var(--glow);font-size:13px;font-weight:600;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:2px;padding:0 6px;text-align:center}
+  .addtile b{font-size:30px;font-weight:400;line-height:1}
+  .addtile[disabled]{opacity:.5}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .chip{padding:9px 13px;border-radius:999px;border:1px solid var(--line);background:#121b2c;
+    color:var(--muted);font-size:14px;font-weight:600}
+  .chip.on{color:#03202b;background:var(--glow);border-color:var(--glow)}
+
+  .card{position:relative;border:1.5px solid var(--line);background:var(--panel);
+    border-radius:20px;overflow:hidden;margin-bottom:16px;cursor:pointer;
+    transition:border-color .2s, box-shadow .2s}
+  .card canvas{display:block;width:100%;height:160px;background:var(--night)}
+  .card.sel{border-color:var(--glow);box-shadow:0 0 0 1px var(--glow),0 0 26px rgba(95,212,255,.22)}
+  .info{padding:13px 16px 15px}
+  .info b{font-size:18px;font-weight:600}
+  .info span{display:block;color:var(--muted);font-size:14px;margin-top:3px;line-height:1.4}
+  .badge{position:absolute;top:12px;right:12px;display:none;
+    background:var(--glow);color:#03202b;font-weight:700;font-size:12px;
+    padding:4px 11px;border-radius:8px}
+  .card.sel .badge{display:block}
+  #look{margin-top:-4px;margin-bottom:16px}
+
+  #setbtn{width:100%;padding:15px;border:0;border-radius:14px;font-size:16px;font-weight:700;
+    color:#03202b;background:var(--glow);margin-top:4px}
+  #setbtn:active{transform:scale(.98)}
+  #cleanbtn{width:100%;padding:14px;border-radius:14px;font-size:15px;font-weight:700;margin-top:4px;
+    color:var(--glow);background:transparent;border:1.5px solid var(--glow)}
+  #cleanbtn:active{transform:scale(.98)}
+  .pbtn{width:100%;padding:15px;border:0;border-radius:14px;font-size:16px;font-weight:700;
+    color:#03202b;background:var(--glow);margin-top:6px}
+  .sbtn{width:100%;padding:14px;border-radius:14px;font-size:15px;font-weight:700;margin-top:8px;
+    color:var(--glow);background:transparent;border:1.5px solid var(--glow)}
+  .pbtn:active,.sbtn:active{transform:scale(.98)}
+  .tl{position:absolute;left:5px;bottom:5px;padding:2px 7px;border-radius:8px;background:rgba(0,0,0,.62);
+    color:#fff;font-size:11px;font-weight:600;pointer-events:none}
+  #fmode{margin:0 0 8px;padding:0 4px}
+  .hint{color:var(--muted);font-size:13px;line-height:1.55;margin:16px 2px 0}
+
+  /* framing screen */
+  #framer{position:fixed;inset:0;z-index:50;background:var(--night);display:flex;flex-direction:column;
+    padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))}
+  .fhead{padding:2px 4px 10px}
+  .fhead b{font-size:18px;font-weight:600;display:block}
+  .fhead span{color:var(--muted);font-size:13px}
+  #stage{position:relative;flex:1;min-height:0;overflow:hidden;border-radius:16px;background:#000;touch-action:none}
+  #fimg{position:absolute;max-width:none;user-select:none;-webkit-user-select:none;pointer-events:none}
+  #fframe{position:absolute;border:2px solid var(--glow);border-radius:22px;pointer-events:none;
+    box-shadow:0 0 0 3000px rgba(3,5,10,.66)}
+  .frow{display:flex;align-items:center;gap:12px;padding:12px 4px 4px;color:var(--muted);font-size:14px}
+  .frow input{flex:1;accent-color:#5fd4ff}
+  .fbtns{display:flex;gap:10px;padding-top:10px}
+  .fbtns button{flex:1;padding:13px;border-radius:12px;border:1px solid var(--line);background:#121b2c;
+    color:var(--text);font-size:15px;font-weight:600}
+  .fbtns #fsave{flex:1.4;border:0;background:var(--glow);color:#03202b;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+  <h1>LiveWalls</h1>
+  <p class="sub">Add your photos, choose an effect on top, and your phone changes straight away.</p>
+  <div id="status" class="status"></div>
+
+  <section class="panel">
+    <div class="phead"><h2>Your photos</h2><span id="pcount" class="count"></span></div>
+    <p class="note">Each photo shows the part that will be on your screen. Tap a photo to move or zoom it.</p>
+    <div id="strip" class="strip"></div>
+    <p id="pmsg" class="note"></p>
+  </section>
+
+  <section class="panel" id="show" hidden>
+    <h2>Slideshow</h2>
+    <p class="note">Change the photo</p>
+    <div id="chInterval" class="chips"></div>
+    <p class="note">Order</p>
+    <div id="chShuffle" class="chips"></div>
+    <p class="note">Only changes while the screen is on, so it uses no battery in the background.</p>
+  </section>
+
+  <div id="list"></div>
+
+  <section class="panel" id="look" hidden>
+    <h2>Effect look</h2>
+    <div id="strrow">
+      <p class="note">Effect strength</p>
+      <div id="chStrength" class="chips"></div>
+    </div>
+    <p class="note">Dim the photo (makes the effect stand out)</p>
+    <div id="chDim" class="chips"></div>
+  </section>
+
+  <section class="panel" id="disp">
+    <h2>Display mode</h2>
+    <p class="note">Plug in your phone, tilt it, and your photos play full screen with the effect picked above. Tap to leave.</p>
+    <p class="note">Screen</p>
+    <div id="chDOrient" class="chips"></div>
+    <p class="note">Photos shown</p>
+    <div id="chDShow" class="chips"></div>
+    <p class="note">Change the photo every</p>
+    <div id="chDInt" class="chips"></div>
+    <p class="note">Go dark after (tap once to wake it)</p>
+    <div id="chDDark" class="chips"></div>
+    <p class="note">Keep the screen on</p>
+    <div id="chDKeep" class="chips"></div>
+    <p class="note">Animation speed. Also used by the wallpaper. Saver uses the least battery, and switches on by itself when the battery is low.</p>
+    <div id="chSpeed" class="chips"></div>
+    <button id="dispbtn" type="button" class="pbtn">Start display mode</button>
+    <button id="dreambtn" type="button" class="sbtn">Set as screen saver</button>
+    <p class="note" style="margin-top:8px">A screen saver starts by itself while the phone charges. Choose &ldquo;LiveWalls photos&rdquo; there. On some phones (Xiaomi) this setting may be hidden.</p>
+  </section>
+
+  <button id="setbtn" type="button">Set as live wallpaper</button>
+  <button id="cleanbtn" type="button" hidden>Show wallpaper only</button>
+  <p id="cleanhint" class="hint" hidden style="margin-top:8px">Hides your icons and status bar so only the live wallpaper shows. Tap anywhere to come back.</p>
+  <p class="hint">On Xiaomi phones, pick Home screen and lock screen (Both) when asked. Dark photos work best.</p>
+</main>
+
+<div id="framer" hidden>
+  <div class="fhead"><b>Choose the part that shows</b><span>Drag the photo. Pinch or use the slider to zoom. The bright frame is your screen.</span></div>
+  <div id="fmode" class="chips"><button type="button" class="chip on">Portrait</button><button type="button" class="chip">Landscape (tilted phone)</button></div>
+  <div id="stage"><img id="fimg" alt="" draggable="false"><div id="fframe"></div></div>
+  <div class="frow"><span>Zoom</span><input id="fzoom" type="range" min="1" max="3" step="0.01" value="1"></div>
+  <div class="fbtns"><button id="freset" type="button">Reset</button><button id="fcancel" type="button">Cancel</button><button id="fsave" type="button">Save</button></div>
+</div>
+
+<script>
+(function () {
+  var DIMS = [0, 0.20, 0.35, 0.50];         // "Dim photo": off, light, medium, strong (same as the wallpaper)
+  var SMULT = [0, 0.8, 1.4, 2.0];           // preview only: how strong the smoke / mist is drawn
+  var MAXZ = 3;                             // biggest zoom (same as the wallpaper)
+
+  /* ---------- the bridge to MainActivity.java; in a normal browser a small stand-in is used for testing ---------- */
+  function makeMock() {
+    var st = { choice: 1, effect: 1, strength: 2, dim: 1, interval: 0, shuffle: 0, speed: 2, dorient: 0, dshow: 1, dint: 30, ddark: 0, dkeep: 1 }, list = [], big = {}, n = 0;
+    function fire(name, d) { window.dispatchEvent(new CustomEvent(name, { detail: d || "" })); }
+    return {
+      getSettings: function () { return JSON.stringify(st); },
+      setSetting: function (k, v) { st[k] = v; },
+      isActive: function () { return false; },
+      openChooser: function () {},
+      showClean: function () {},
+      showDisplay: function () {},
+      openDreamSettings: function () {},
+      setFrameL: function (id, cx, cy, z) { list.forEach(function (p) { if (p.id === id) { p.lcx = cx; p.lcy = cy; p.lz = z; } }); },
+      screenAspect: function () { return 0.46; },
+      getPhotosJson: function () { return JSON.stringify(list); },
+      photoThumb: function (id) { return big[id] || ""; },
+      setFrame: function (id, cx, cy, z) { list.forEach(function (p) { if (p.id === id) { p.cx = cx; p.cy = cy; p.z = z; } }); },
+      removePhoto: function (id) { list = list.filter(function (p) { return p.id !== id; }); delete big[id]; },
+      pickPhotos: function () {
+        var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.multiple = true;
+        inp.onchange = function () {
+          var fs = [].slice.call(inp.files); if (!fs.length) return;
+          fire("photostart", String(fs.length)); var i = 0;
+          (function next() {
+            if (i >= fs.length) { fire("photodone", "ok"); return; }
+            var r = new FileReader();
+            r.onload = function () {
+              var im = new Image();
+              im.onload = function () {
+                var k = Math.min(1, 1024 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+                c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+                c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+                var id = "m" + (n++); big[id] = c.toDataURL("image/jpeg", 0.85);
+                list.push({ id: id, a: c.width / c.height, cx: 0.5, cy: 0.5, z: 1 }); next();
+              };
+              im.onerror = next; im.src = r.result;
+            };
+            r.readAsDataURL(fs[i++]);
+          })();
+        };
+        inp.click();
+      }
+    };
+  }
+  var B = window.AndroidWall || makeMock();
+
+  var S = { choice: 1, effect: 1, strength: 2, dim: 1, interval: 0, shuffle: 0, speed: 2, dorient: 0, dshow: 1, dint: 30, ddark: 0, dkeep: 1 };
+  try { var o = JSON.parse(B.getSettings()); for (var k in o) S[k] = Number(o[k]); } catch (e) {}
+  if (S.effect < 1 || S.effect > 3) S.effect = 1;
+  if (S.strength < 1 || S.strength > 3) S.strength = 2;
+  if (S.dim < 0 || S.dim > 3) S.dim = 1;
+  function setS(name, v) { S[name] = v; try { B.setSetting(name, v); } catch (e) {} }
+
+  var SA = 0.46;                            // screen shape: width / height
+  try { var sa = Number(B.screenAspect()); if (sa > 0.2 && sa < 1.2) SA = sa; } catch (e) {}
+
+  var photos = [];                          // [{id, a (aspect), cx, cy, z}]
+  var thumbs = {};                          // id -> small picture (data url)
+  var list = document.getElementById("list");
+  var st = document.getElementById("status");
+  var btn = document.getElementById("setbtn");
+  var cbtn = document.getElementById("cleanbtn"), chint = document.getElementById("cleanhint");
+  var strip = document.getElementById("strip");
+  var pmsg = document.getElementById("pmsg");
+  var sims = [];
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  /* ---------- the picture behind the previews: your first photo, or a dark gradient ---------- */
+  var fallback = (function () {
+    var c = document.createElement("canvas"); c.width = 320; c.height = 180;
+    var x = c.getContext("2d"), g = x.createLinearGradient(0, 0, 0, 180);
+    g.addColorStop(0, "#38506f"); g.addColorStop(0.5, "#0f1729"); g.addColorStop(1, "#03050a");
+    x.fillStyle = g; x.fillRect(0, 0, 320, 180);
+    var b = x.createRadialGradient(135, 145, 0, 135, 145, 70);
+    b.addColorStop(0, "rgba(80,120,200,0.35)"); b.addColorStop(1, "rgba(80,120,200,0)");
+    x.fillStyle = b; x.fillRect(0, 0, 320, 180);
+    return c;
+  })();
+  var scene = fallback;
+
+  function dimIt(x, W, H) {                 // preview of "Dim photo" (the gradient is never dimmed, like in the wallpaper)
+    var d = DIMS[S.dim];
+    if (d > 0 && scene !== fallback) { x.fillStyle = "rgba(0,0,0," + d + ")"; x.fillRect(0, 0, W, H); }
+  }
+
+  function fit(cv) {
+    var r = cv.getBoundingClientRect(), k = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(r.width * k));
+    cv.height = Math.max(1, Math.round(r.height * k));
+    var x = cv.getContext("2d");
+    x.setTransform(k, 0, 0, k, 0, 0);
+    return { x: x, W: r.width, H: r.height, k: k };
+  }
+  function off(W, H, k) {
+    var c = document.createElement("canvas");
+    c.width = Math.max(1, Math.round(W * k)); c.height = Math.max(1, Math.round(H * k));
+    var x = c.getContext("2d"); x.setTransform(k, 0, 0, k, 0, 0);
+    return { c: c, x: x };
+  }
+  function cover(x, img, W, H) {
+    var iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    var s = Math.max(W / iw, H / ih), dw = iw * s, dh = ih * s;
+    x.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  }
+
+  /* ---------- previews (small 2D versions of the real effects) ---------- */
+  function rainSim(cv) {
+    var s, d = [];
+    function mk(top) {
+      return { x: Math.random() * s.W, y: top ? -12 : Math.random() * s.H,
+               v: 20 + Math.random() * 20, l: 8 + Math.random() * 6, a: 0.25 + Math.random() * 0.5 };
+    }
+    function init() {
+      s = fit(cv);
+      var n = Math.max(5, Math.round(s.W * s.H / 1600 * 0.2));
+      d = []; for (var i = 0; i < n; i++) d.push(mk(false));
+    }
+    init();
+    return { init: init, tick: function (dt) {
+      var x = s.x;
+      x.fillStyle = "#05070d"; x.fillRect(0, 0, s.W, s.H);
+      x.lineCap = "round"; x.lineWidth = 1.6;
+      for (var i = 0; i < d.length; i++) {
+        var p = d[i]; p.y += p.v * dt;
+        if (p.y - p.l > s.H) d[i] = p = mk(true);
+        x.strokeStyle = "rgba(150,190,233," + p.a + ")";
+        x.beginPath(); x.moveTo(p.x, p.y - p.l); x.lineTo(p.x, p.y); x.stroke();
+      }
+    } };
+  }
+
+  function dotSim(cv) {
+    var s, px, py, ang, R = 46, speed = 22;
+    function init() {
+      s = fit(cv);
+      px = s.W * (0.25 + Math.random() * 0.5); py = s.H * (0.25 + Math.random() * 0.5);
+      ang = Math.random() * Math.PI * 2;
+    }
+    init();
+    return { init: init, tick: function (dt) {
+      var x = s.x, m = 6;
+      ang += (Math.random() - 0.5) * 1.2 * dt;
+      px += Math.cos(ang) * speed * dt; py += Math.sin(ang) * speed * dt;
+      if (px < m)       { px = m;       ang = Math.PI - ang; }
+      if (px > s.W - m) { px = s.W - m; ang = Math.PI - ang; }
+      if (py < m)       { py = m;       ang = -ang; }
+      if (py > s.H - m) { py = s.H - m; ang = -ang; }
+      x.fillStyle = "#05070d"; x.fillRect(0, 0, s.W, s.H);
+      var g = x.createRadialGradient(px, py, 0, px, py, R);
+      g.addColorStop(0, "rgba(191,233,255,0.95)");
+      g.addColorStop(0.25, "rgba(56,182,255,0.33)");
+      g.addColorStop(1, "rgba(56,182,255,0)");
+      x.fillStyle = g; x.beginPath(); x.arc(px, py, R, 0, 7); x.fill();
+      x.fillStyle = "#eaf8ff"; x.beginPath(); x.arc(px, py, 3.5, 0, 7); x.fill();
+    } };
+  }
+
+  function smokeSim(cv) {
+    var s, bgc, puffs = [];
+    function init() {
+      s = fit(cv); bgc = off(s.W, s.H, s.k); cover(bgc.x, scene, s.W, s.H); dimIt(bgc.x, s.W, s.H);
+      puffs = [];
+      for (var i = 0; i < 10; i++) puffs.push({
+        x: Math.random() * s.W, y: Math.random() * s.H * 1.4, r: s.H * (0.35 + Math.random() * 0.5),
+        vx: 3 + Math.random() * 4, vy: -(8 + Math.random() * 8), a: Math.min(0.6, (0.10 + Math.random() * 0.08) * SMULT[S.strength]) });
+    }
+    init();
+    return { init: init, tick: function (dt) {
+      var x = s.x;
+      x.drawImage(bgc.c, 0, 0, s.W, s.H);
+      puffs.forEach(function (p) {
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.y < -p.r) { p.y = s.H + p.r; p.x = Math.random() * s.W; }
+        if (p.x > s.W + p.r) p.x = -p.r;
+        var g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, "rgba(205,212,228," + p.a + ")"); g.addColorStop(1, "rgba(205,212,228,0)");
+        x.fillStyle = g; x.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      });
+    } };
+  }
+
+  function mistSim(cv) {
+    var s, bgc, banks = [];
+    function init() {
+      s = fit(cv); bgc = off(s.W, s.H, s.k); cover(bgc.x, scene, s.W, s.H); dimIt(bgc.x, s.W, s.H);
+      banks = [];
+      for (var i = 0; i < 6; i++) banks.push({
+        x: Math.random() * s.W * 1.4 - s.W * 0.2, y: s.H * (0.45 + Math.random() * 0.5), r: s.H * (0.3 + Math.random() * 0.3),
+        sx: 2.2 + Math.random(), v: (i % 2 ? -1 : 1) * (4 + Math.random() * 5), a: Math.min(0.6, (0.12 + Math.random() * 0.08) * SMULT[S.strength]) });
+    }
+    init();
+    return { init: init, tick: function (dt) {
+      var x = s.x;
+      x.drawImage(bgc.c, 0, 0, s.W, s.H);
+      banks.forEach(function (b) {
+        b.x += b.v * dt;
+        if (b.x > s.W * 1.3) b.x = -s.W * 0.3;
+        if (b.x < -s.W * 0.3) b.x = s.W * 1.3;
+        x.save(); x.translate(b.x, b.y); x.scale(b.sx, 1);
+        var g = x.createRadialGradient(0, 0, 0, 0, 0, b.r);
+        g.addColorStop(0, "rgba(190,202,222," + b.a + ")"); g.addColorStop(1, "rgba(190,202,222,0)");
+        x.fillStyle = g; x.fillRect(-b.r, -b.r, b.r * 2, b.r * 2); x.restore();
+      });
+    } };
+  }
+
+  function glassSim(cv) {
+    var s, sharp, blur, beads = [], sl = [];
+    function lens(cx, cy, r, K) {      // a drop shows the photo upside down and magnified
+      var c = s.x;
+      c.save(); c.beginPath(); c.arc(cx, cy, r, 0, 7); c.clip();
+      c.transform(-K, 0, 0, -K, (1 + K) * cx, (1 + K) * cy);
+      c.drawImage(sharp.c, 0, 0, s.W, s.H);
+      c.restore();
+      var g = c.createRadialGradient(cx, cy, r * 0.6, cx, cy, r);
+      g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.55)");
+      c.fillStyle = g; c.beginPath(); c.arc(cx, cy, r, 0, 7); c.fill();
+      c.fillStyle = "rgba(255,255,255,0.85)";
+      c.beginPath(); c.arc(cx - r * 0.35, cy - r * 0.4, Math.max(0.6, r * 0.2), 0, 7); c.fill();
+    }
+    function spawn(d, first) {
+      d.r = 4.5 + Math.random() * 2; d.x = s.W * (0.08 + Math.random() * 0.84);
+      d.y = first ? Math.random() * s.H * 0.7 : -d.r * 1.5;
+      d.v = 11 * (0.6 + Math.random() * 0.8); d.t = 0; d.max = 36 * (0.6 + Math.random() * 0.4); d.p = 0;
+    }
+    function init() {
+      s = fit(cv);
+      sharp = off(s.W, s.H, s.k); cover(sharp.x, scene, s.W, s.H); dimIt(sharp.x, s.W, s.H);
+      blur = off(s.W, s.H, s.k); blur.x.filter = "blur(3px)"; cover(blur.x, scene, s.W, s.H); blur.x.filter = "none"; dimIt(blur.x, s.W, s.H);
+      var cell = 14, nx = Math.ceil(s.W / cell), ny = Math.ceil(s.H / cell);
+      beads = [];
+      for (var gx = 0; gx < nx; gx++) for (var gy = 0; gy < ny; gy++) {
+        if (Math.random() < 0.10) {
+          var q = Math.random();
+          beads.push({ x: (gx + 0.5 + (Math.random() - 0.5) * 0.5) * cell,
+                       y: (gy + 0.5 + (Math.random() - 0.5) * 0.5) * cell, r: cell * (0.12 + 0.18 * q * q) + 1.2 });
+        }
+      }
+      sl = [{}, {}, {}]; sl.forEach(function (d) { spawn(d, true); });
+    }
+    init();
+    return { init: init, tick: function (dt) {
+      var c = s.x;
+      c.drawImage(blur.c, 0, 0, s.W, s.H);
+      beads.forEach(function (o) { lens(o.x, o.y, o.r, 3); });
+      sl.forEach(function (d) {
+        if (d.p > 0) d.p -= dt;
+        else { d.y += d.v * dt; d.t += d.v * dt; if (Math.random() < 0.5 * dt) d.p = 0.4 + Math.random() * 1.2; }
+        var tr = Math.min(d.t, d.max);
+        if (tr > 0) {
+          var lg = c.createLinearGradient(0, d.y - tr, 0, d.y);
+          lg.addColorStop(0, "rgba(170,200,240,0)"); lg.addColorStop(1, "rgba(170,200,240,0.22)");
+          c.strokeStyle = lg; c.lineWidth = d.r * 0.55; c.lineCap = "round";
+          c.beginPath(); c.moveTo(d.x, d.y - tr); c.lineTo(d.x, d.y); c.stroke();
+        }
+        lens(d.x, d.y, d.r, 3);
+        if (d.y - tr > s.H) spawn(d, false);
+      });
+    } };
+  }
+
+
+  /* ---------- the cards ---------- */
+  var groups = [
+    { title: "Photo effects", note: "Drawn over your photos. Add photos above.", after: "look", items: [
+      { kind: "photo", fx: 1, name: "Smoke", desc: "Slow smoke drifting up over your photo.", sim: smokeSim },
+      { kind: "photo", fx: 2, name: "Mist", desc: "Soft fog banks sliding across your photo.", sim: mistSim },
+      { kind: "photo", fx: 3, name: "Rain on Glass", desc: "Real-looking water drops on a window, a few sliding down slowly.", sim: glassSim } ] },
+    { title: "Simple wallpapers", note: "No photo needed.", items: [
+      { kind: "simple", id: 1, name: "Rain Drops", desc: "A dark screen with a few slow drops falling.", sim: rainSim },
+      { kind: "simple", id: 2, name: "Glowing Dot", desc: "A soft glowing dot drifting and bouncing off the edges.", sim: dotSim } ] }
+  ];
+
+  groups.forEach(function (g) {
+    var h = document.createElement("h2"); h.textContent = g.title; list.appendChild(h);
+    var n = document.createElement("p"); n.className = "note"; n.textContent = g.note; list.appendChild(n);
+    g.items.forEach(function (it) {
+      var c = document.createElement("div");
+      c.className = "card";
+      c.innerHTML = '<canvas></canvas><div class="badge">Selected</div>' +
+                    '<div class="info"><b>' + it.name + '</b><span>' + it.desc + '</span></div>';
+      c._it = it;
+      c.addEventListener("click", function () { pickCard(it); });
+      list.appendChild(c);
+      sims.push(it.sim(c.querySelector("canvas")));
+    });
+    if (g.after) list.appendChild(document.getElementById(g.after));   // the "Effect look" panel sits right under the photo effects
+  });
+
+  function pickCard(it) {
+    if (it.kind === "photo") { setS("choice", 3); setS("effect", it.fx); }
+    else setS("choice", it.id);
+    paint();
+  }
+
+  /* ---------- chips (strength, dim, slideshow) ---------- */
+  var chipSets = [];
+  function makeChips(el, opts, key, after) {
+    opts.forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = o[1]; b._v = o[0];
+      b.addEventListener("click", function () { setS(key, o[0]); paint(); if (after) after(); });
+      el.appendChild(b);
+    });
+    chipSets.push({ el: el, key: key });
+  }
+  makeChips(document.getElementById("chInterval"),
+    [[0, "Off"], [60, "1 min"], [300, "5 min"], [900, "15 min"], [1800, "30 min"], [3600, "1 hour"], [-1, "Each time I unlock"]], "interval");
+  makeChips(document.getElementById("chShuffle"), [[0, "In order"], [1, "Shuffle"]], "shuffle");
+  makeChips(document.getElementById("chStrength"), [[1, "Light"], [2, "Medium"], [3, "Strong"]], "strength", reinit);
+  makeChips(document.getElementById("chDim"), [[0, "Off"], [1, "Light"], [2, "Medium"], [3, "Strong"]], "dim", reinit);
+  makeChips(document.getElementById("chDOrient"), [[0, "Auto (tilt)"], [1, "Portrait"], [2, "Landscape"]], "dorient");
+  makeChips(document.getElementById("chDShow"), [[1, "Match the screen"], [0, "All photos"]], "dshow");
+  makeChips(document.getElementById("chDInt"), [[10, "10 sec"], [30, "30 sec"], [60, "1 min"], [300, "5 min"], [0, "Off"]], "dint");
+  makeChips(document.getElementById("chDDark"), [[0, "Never"], [10, "10 min"], [30, "30 min"], [60, "1 hour"]], "ddark");
+  makeChips(document.getElementById("chDKeep"), [[1, "On"], [0, "Off"]], "dkeep");
+  makeChips(document.getElementById("chSpeed"), [[1, "Smooth"], [2, "Balanced"], [3, "Saver"]], "speed");
+
+  function reinit() { sims.forEach(function (s) { s.init(); }); }
+
+  function paint() {
+    var cs = list.querySelectorAll(".card");
+    for (var i = 0; i < cs.length; i++) {
+      var it = cs[i]._it;
+      var sel = it.kind === "photo" ? (S.choice === 3 && S.effect === it.fx) : (S.choice === it.id);
+      cs[i].classList.toggle("sel", sel);
+    }
+    document.getElementById("look").hidden = S.choice !== 3;
+    document.getElementById("strrow").hidden = S.effect === 3;          // strength is for smoke and mist
+    document.getElementById("show").hidden = photos.length < 2;
+    chipSets.forEach(function (c) {
+      var kids = c.el.children;
+      for (var i = 0; i < kids.length; i++) kids[i].classList.toggle("on", kids[i]._v === S[c.key]);
+    });
+    document.getElementById("pcount").textContent = photos.length ? photos.length + (photos.length === 1 ? " photo" : " photos") : "";
+  }
+
+  /* ---------- photo strip ---------- */
+  function msg(t, err) { pmsg.textContent = t || ""; pmsg.className = "note" + (err ? " err" : ""); }
+
+  function base(p, land) {                  // how much of the photo fills the screen at zoom 1 (land = screen turned sideways)
+    var sa = land ? 1 / SA : SA, pa = p.a || sa;
+    return pa > sa ? { x: sa / pa, y: 1 } : { x: 1, y: pa / sa };
+  }
+  function region(p) {                      // the visible part of the photo (fractions), kept inside the photo
+    var b = base(p), z = clamp(p.z || 1, 1, MAXZ), vx = b.x / z, vy = b.y / z;
+    return { vx: vx, vy: vy, cx: clamp(p.cx, vx / 2, 1 - vx / 2), cy: clamp(p.cy, vy / 2, 1 - vy / 2) };
+  }
+
+  var q = [], busy = false;                 // small pictures are fetched one by one so the page stays smooth
+  function getThumb(id, cb) {
+    if (thumbs[id]) { cb(thumbs[id]); return; }
+    q.push([id, cb]); if (!busy) pump();
+  }
+  function pump() {
+    busy = true;
+    var it = q.shift(); if (!it) { busy = false; return; }
+    setTimeout(function () {
+      var u = ""; try { u = B.photoThumb(it[0], false); } catch (e) {}
+      if (u) { thumbs[it[0]] = u; it[1](u); }
+      pump();
+    }, 12);
+  }
+
+  function cropTile(t, p) {                 // show exactly the framed part inside the tile
+    var r = region(p);
+    t.style.backgroundSize = (100 / r.vx) + "% " + (100 / r.vy) + "%";
+    t.style.backgroundPosition = (r.vx >= 0.9999 ? 0 : (r.cx - r.vx / 2) / (1 - r.vx) * 100) + "% " +
+                                 (r.vy >= 0.9999 ? 0 : (r.cy - r.vy / 2) / (1 - r.vy) * 100) + "%";
+  }
+
+  function renderStrip() {
+    strip.innerHTML = "";
+    var th = Math.round(96 / SA);
+    photos.forEach(function (p) {
+      var t = document.createElement("div");
+      t.className = "tile"; t.style.height = th + "px"; t._id = p.id;
+      cropTile(t, p);
+      getThumb(p.id, function (u) { t.style.backgroundImage = 'url("' + u + '")'; });
+      t.addEventListener("click", function () { openFramer(p.id); });
+      var x = document.createElement("button");
+      x.type = "button"; x.className = "tx"; x.textContent = "\u00d7"; x.setAttribute("aria-label", "Remove photo");
+      x.addEventListener("click", function (e) { e.stopPropagation(); removePhoto(p.id); });
+      t.appendChild(x);
+      if (p.a > 1.05) { var wl = document.createElement("span"); wl.className = "tl"; wl.textContent = "Wide"; t.appendChild(wl); }
+      strip.appendChild(t);
+    });
+    var a = document.createElement("button");
+    a.type = "button"; a.className = "addtile"; a.style.height = th + "px"; a.id = "addbtn";
+    a.innerHTML = "<b>+</b>Add photos";
+    a.addEventListener("click", function () { msg(""); try { B.pickPhotos(); } catch (e) {} });
+    strip.appendChild(a);
+  }
+
+  function rebuildScene() {                 // previews use the first photo
+    if (!photos.length) { scene = fallback; reinit(); return; }
+    var url = ""; try { url = B.photoThumb(photos[0].id, true); } catch (e) {}
+    if (!url) { scene = fallback; reinit(); return; }
+    var im = new Image();
+    im.onload = function () { scene = im; reinit(); };
+    im.src = url;
+  }
+
+  function loadPhotos() {
+    try { photos = JSON.parse(B.getPhotosJson()); } catch (e) { photos = []; }
+    photos.forEach(function (p) {
+      p.a = Number(p.a) || SA; p.cx = Number(p.cx); p.cy = Number(p.cy); p.z = Number(p.z) || 1;
+      if (!(p.cx >= 0)) p.cx = 0.5; if (!(p.cy >= 0)) p.cy = 0.5;
+      p.lcx = Number(p.lcx); p.lcy = Number(p.lcy); p.lz = Number(p.lz) || 1;
+      if (!(p.lcx >= 0)) p.lcx = 0.5; if (!(p.lcy >= 0)) p.lcy = 0.5;
+    });
+    renderStrip(); paint(); rebuildScene();
+  }
+
+  function removePhoto(id) {
+    try { B.removePhoto(id); } catch (e) {}
+    delete thumbs[id];
+    loadPhotos();
+  }
+
+  window.addEventListener("photostart", function () {
+    msg("Adding photos\u2026");
+    var a = document.getElementById("addbtn"); if (a) a.disabled = true;
+  });
+  window.addEventListener("photoprogress", function (e) { msg("Added " + String(e.detail || "") + "\u2026"); });
+  window.addEventListener("photodone", function (e) {
+    var d = String(e.detail || "");
+    if (d.indexOf("ok") === 0) {
+      msg(d.indexOf("limit") > 0 ? "Added. 30 photos is the limit." : "Photos added.");
+      loadPhotos();
+      if (S.choice !== 3) pickCard({ kind: "photo", fx: S.effect });      // show the photos with the current effect right away
+    } else if (d === "cancel") { msg(""); loadPhotos(); }
+    else if (d === "limit") { msg("You already have 30 photos. Remove one first.", true); loadPhotos(); }
+    else { msg("Could not use that photo. Please try another one.", true); loadPhotos(); }
+  });
+
+  /* ---------- framing screen ---------- */
+  var framer = document.getElementById("framer"), stage = document.getElementById("stage");
+  var fimg = document.getElementById("fimg"), fframe = document.getElementById("fframe"), fzoom = document.getElementById("fzoom");
+  var fp = null, fcx = 0.5, fcy = 0.5, fz = 1, DW = 1, DH = 1, fland = false, fwk = null;
+  var ptrs = {}, pinch0 = 0, z0 = 1;
+
+  function fclamp() {
+    var b = base(fp, fland); fz = clamp(fz, 1, MAXZ);
+    var vx = b.x / fz, vy = b.y / fz;
+    fcx = clamp(fcx, vx / 2, 1 - vx / 2); fcy = clamp(fcy, vy / 2, 1 - vy / 2);
+  }
+  function layout() {
+    if (!fp) return;
+    fclamp();
+    var r = stage.getBoundingClientRect(), SW = r.width, SH = r.height, b = base(fp, fland), SAx = fland ? 1 / SA : SA;
+    var Fh = SH * 0.86, Fw = Fh * SAx;
+    if (Fw > SW * 0.88) { Fw = SW * 0.88; Fh = Fw / SAx; }
+    fframe.style.width = Fw + "px"; fframe.style.height = Fh + "px";
+    fframe.style.left = (SW - Fw) / 2 + "px"; fframe.style.top = (SH - Fh) / 2 + "px";
+    DW = Fw * fz / b.x; DH = Fh * fz / b.y;                  // size of the whole photo on screen
+    fimg.style.width = DW + "px"; fimg.style.height = DH + "px";
+    fimg.style.left = (SW / 2 - fcx * DW) + "px"; fimg.style.top = (SH / 2 - fcy * DH) + "px";   // the chosen centre sits in the middle of the frame
+    fzoom.value = String(fz);
+  }
+  var fmodeBtns = document.getElementById("fmode").children;
+  function markMode() { for (var i = 0; i < fmodeBtns.length; i++) fmodeBtns[i].classList.toggle("on", (i === 1) === fland); }
+  function stashF() {                       // keep the frame of the orientation being edited
+    if (!fp || !fwk) return;
+    fclamp();
+    if (fland) { fwk.lcx = fcx; fwk.lcy = fcy; fwk.lz = fz; } else { fwk.cx = fcx; fwk.cy = fcy; fwk.z = fz; }
+  }
+  function loadF() {
+    if (!fwk) return;
+    if (fland) { fcx = fwk.lcx; fcy = fwk.lcy; fz = fwk.lz; } else { fcx = fwk.cx; fcy = fwk.cy; fz = fwk.z; }
+    markMode(); layout();
+  }
+  [].forEach.call(fmodeBtns, function (b, i) {
+    b.addEventListener("click", function () { if (!fp || (i === 1) === fland) return; stashF(); fland = (i === 1); loadF(); });
+  });
+  function openFramer(id) {
+    fp = null;
+    for (var i = 0; i < photos.length; i++) if (photos[i].id === id) fp = photos[i];
+    if (!fp) return;
+    var url = ""; try { url = B.photoThumb(id, true); } catch (e) {}
+    if (!url) return;
+    fwk = { cx: fp.cx, cy: fp.cy, z: fp.z, lcx: fp.lcx, lcy: fp.lcy, lz: fp.lz };   // working copy: Cancel throws it away
+    fland = false; markMode();
+    fcx = fwk.cx; fcy = fwk.cy; fz = fwk.z;
+    framer.hidden = false;
+    fimg.onload = layout;
+    fimg.src = url;
+    layout();
+  }
+  function closeFramer() { framer.hidden = true; fp = null; fwk = null; ptrs = {}; fimg.removeAttribute("src"); }
+
+  function dist() {
+    var k = Object.keys(ptrs); if (k.length < 2) return 0;
+    var a = ptrs[k[0]], b = ptrs[k[1]]; return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+  stage.addEventListener("pointerdown", function (e) {
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+    ptrs[e.pointerId] = { x: e.clientX, y: e.clientY };
+    if (Object.keys(ptrs).length === 2) { pinch0 = dist(); z0 = fz; }
+  });
+  stage.addEventListener("pointermove", function (e) {
+    var p = ptrs[e.pointerId]; if (!p || !fp) return;
+    var n = Object.keys(ptrs).length;
+    if (n === 1) { fcx -= (e.clientX - p.x) / DW; fcy -= (e.clientY - p.y) / DH; }
+    p.x = e.clientX; p.y = e.clientY;
+    if (n === 2 && pinch0 > 0) fz = z0 * dist() / pinch0;
+    layout();
+  });
+  function endPtr(e) { delete ptrs[e.pointerId]; if (Object.keys(ptrs).length < 2) pinch0 = 0; }
+  stage.addEventListener("pointerup", endPtr);
+  stage.addEventListener("pointercancel", endPtr);
+  stage.addEventListener("wheel", function (e) { e.preventDefault(); fz *= Math.exp(-e.deltaY * 0.0015); layout(); }, { passive: false });
+  fzoom.addEventListener("input", function () { fz = parseFloat(fzoom.value) || 1; layout(); });
+  document.getElementById("freset").addEventListener("click", function () { fcx = 0.5; fcy = 0.5; fz = 1; layout(); });
+  document.getElementById("fcancel").addEventListener("click", closeFramer);
+  document.getElementById("fsave").addEventListener("click", function () {
+    if (fp && fwk) {
+      stashF();
+      fp.cx = fwk.cx; fp.cy = fwk.cy; fp.z = fwk.z; fp.lcx = fwk.lcx; fp.lcy = fwk.lcy; fp.lz = fwk.lz;
+      try { B.setFrame(fp.id, fwk.cx, fwk.cy, fwk.z); B.setFrameL(fp.id, fwk.lcx, fwk.lcy, fwk.lz); } catch (e) {}
+    }
+    closeFramer(); renderStrip();
+  });
+
+  /* ---------- status + set button ---------- */
+  function refresh() {
+    var on = false;
+    try { on = !!B.isActive(); } catch (e) {}
+    st.textContent = on ? "Live wallpaper is active \u2713" : "Not set as your wallpaper yet";
+    st.className = "status" + (on ? " on" : "");
+    btn.style.display = on ? "none" : "block";
+    cbtn.hidden = !on; chint.hidden = !on;
+  }
+
+  btn.addEventListener("click", function () { try { B.openChooser(); } catch (e) {} });
+  cbtn.addEventListener("click", function () { try { B.showClean(); } catch (e) {} });
+  document.getElementById("dispbtn").addEventListener("click", function () { try { B.showDisplay(); } catch (e) {} });
+  document.getElementById("dreambtn").addEventListener("click", function () { try { B.openDreamSettings(); } catch (e) {} });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { refresh(); loadPhotos(); } });
+  window.addEventListener("focus", refresh);
+  window.addEventListener("resize", function () { reinit(); layout(); });
+
+  paint(); refresh(); loadPhotos();
+
+  /* ---------- one animation loop for all previews ---------- */
+  var last = performance.now();
+  function loop(now) {
+    var dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (!document.hidden && framer.hidden) sims.forEach(function (s) { s.tick(dt); });
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

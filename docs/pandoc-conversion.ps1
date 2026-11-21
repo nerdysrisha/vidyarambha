@@ -1,7 +1,7 @@
  
-#Change only the three variables at the top. -Force creates the folder if it’s missing and does nothing if it already exists.
-#have the document in 'docs' folder. 
 #INSTRUCTIONS. 
+# What this code does: It converts a word document into Mark Down file. It extracts images etc and also links them to Markdown. 
+# It maintains the formatting etc as well. 
 
 # GET THE WORD DOCUMENT THAT WE WANT TO EXTRACT IMAGES AND CONVER REMAINING TEXT TO MD FILE AND PUT IN BELOW LOCATION 
 # CHANGE VALUES OF THESE VARIABLES: --> [docx, name, label, description, keywords]  as per the context and content. 
