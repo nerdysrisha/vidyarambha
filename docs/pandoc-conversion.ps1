@@ -116,47 +116,4 @@ $x = $x -replace '(img/media/[^)\s"]+)\.png', '$1.webp'
 
 
 
-
-
-############ADD ONLY ENTRIES #############
-
-
  
- 
-$dir = "C:\ws\vidyarambha\docs\subjects\tech\kubernetes\kubernetes-cs"
-New-Item -ItemType Directory -Force -Path $dir | Out-Null
-
-
-
-cd C:\ws\vidyarambha\docs
-$cat      = "cheatsheets"                     # category slug in the HTML
-$name     = "kubernetes"                      # folder name AND file name (kubernetes\kubernetes.md)
-$label    = "Kubernetes"  					# title
-$desc     = "AKS, kubectl, Istio"   		# description
-$keywords = "kubectl aks eks istio az login context namespace"       # search words
-
-
-
-# 2. add the entry to the html
-$html = "MyLearnings.html"
-$t = [IO.File]::ReadAllText("$PWD\$html")
-$nl = if ($t.Contains("`r`n")) { "`r`n" } else { "`n" }
-$entry = "[`"$name/$name`", `"$label`", `"$desc`", `"$keywords`", `"md`"]"
-$m = [regex]::Match($t, '(?s)(slug:\s*"' + [regex]::Escape($cat) + '",\s*topics:\s*\[)(.*?)(\]\s*\})')
-if ($t.Contains("`"$name/$name`"")) { "Entry already exists - nothing changed" } elseif (-not $m.Success) { "Category '$cat' not found in $html" } else {
-  $body = $m.Groups[2].Value.TrimEnd()
-  if ($body.Trim() -ne "" -and -not $body.EndsWith(",")) { $body += "," }
-  $new = $m.Groups[1].Value + $body + $nl + "            " + $entry + $nl + "        " + $m.Groups[3].Value
-  $t = $t.Substring(0, $m.Index) + $new + $t.Substring($m.Index + $m.Length)
-  Copy-Item $html "$env:TEMP\MyLearnings.bak.html" -Force
-  [IO.File]::WriteAllText("$PWD\$html", $t, (New-Object Text.UTF8Encoding $false))
-  "Added: $entry"
-}
-
-
-
-
-
-############ADD ONLY ENTRIES #############
-
-
