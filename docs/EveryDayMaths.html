@@ -917,6 +917,19 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
     }
     .stacked-row .stacked-numbers { font-size: 28px; }
 }
+
+/* ── DARK READING MODE for English/Telugu/Hindi boxes (toggle button 🌙/☀️ above A+) ── */
+body.eng-dark .eng-pbox { color:#e4e8f0; border-color:rgba(255,255,255,0.10); box-shadow:none; }
+body.eng-dark .eng-pbox.story { background:#1b2433; }
+body.eng-dark .eng-pbox.q { background:#262218; }
+body.eng-dark .eng-pbox.story.speaking { background:#22314a; }
+body.eng-dark .eng-pbox.q.speaking { background:#37301c; }
+body.eng-dark .eng-pbox .answer { color:#58D68D; }
+body.eng-dark .eng-pbox .eng-paren, body.eng-dark .eng-pbox .word-answer-line > span:first-child { color:#9aa3b5 !important; }
+body.eng-dark .eng-pbox .eng-box, body.eng-dark .eng-pbox .eng-blank { border-color:#6b7488; }
+body.eng-dark .eng-pbox .eng-box.given { color:#58D68D; }
+body.eng-dark .eng-w { text-decoration-color:rgba(170,180,200,0.7); }
+#theme-btn { font-size:18px !important; }
 </style>
 </head>
 <body>
@@ -957,6 +970,7 @@ body.idle-on:not(.allqs-done) #selectAllBtn { animation: idleBtnPulse 1.6s ease-
         <!--<legend>Questions Panel</legend> -->
         <!-- TEXT SIZE: floating A+ / A- (base size = smallest; only grows) -->
         <div id="font-fab">
+            <button type="button" id="theme-btn" aria-label="Dark reading mode" title="Dark / light reading boxes">&#127769;</button>
             <button type="button" id="fab-plus" aria-label="Bigger text" title="Bigger text">A+</button>
             <button type="button" id="fab-minus" aria-label="Smaller text" title="Smaller text">A&minus;</button>
         </div>
@@ -4019,6 +4033,16 @@ requestWakeLock();
     plus.onclick  = () => { if (lvl < LEVELS.length - 1) { lvl++; apply(); } };
     minus.onclick = () => { if (lvl > 0) { lvl--; apply(); } };
     apply();
+})();
+</script>
+<script>
+(function(){
+    const b = document.getElementById("theme-btn");
+    function apply(d){ document.body.classList.toggle("eng-dark", d); b.textContent = d ? "\u2600\uFE0F" : "\uD83C\uDF19"; }
+    let dark = false;
+    try { dark = localStorage.getItem("emEngDark") === "1"; } catch (e) {}
+    apply(dark);
+    b.addEventListener("click", function(){ dark = !dark; apply(dark); try { localStorage.setItem("emEngDark", dark ? "1" : "0"); } catch (e) {} });
 })();
 </script>
 </body>
