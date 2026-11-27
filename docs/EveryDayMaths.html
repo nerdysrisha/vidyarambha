@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, user-scalable=yes">
 <title>EveryDayMaths</title>
-<!--v22: landing page + daily quote, full-screen button in bottom nav, minimal phone top bar | v21: shared lesson engine + Telugu & Hindi | v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
+<!--v23: Reading entry (story only, big text) | v22: landing page + daily quote, full-screen button in bottom nav, minimal phone top bar | v21: shared lesson engine + Telugu & Hindi | v20: Daily English (sequential lessons) | v18: Scales for Liquids and Weights | v19: mobile layout, maximize button, swipe, live clock moved into Identify Time -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Telugu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
@@ -788,6 +788,10 @@ DATEREMOVAL--
     display:inline-flex; align-items:center; justify-content:center; }
 .eng-spk.on { background:#d9480f; border-color:#b23a0a; }
 #control-container.ctl-away { display:none !important; }
+/* Reading mode: story only, big text (change the sizes here) */
+.eng-readmode .eng-pbox.story p { font-size:30px; line-height:1.7; }
+.eng-readmode .eng-pbox.story { padding:16px 14px 16px 20px; }
+@media (max-width: 700px) { .eng-readmode .eng-pbox.story p { font-size:24px; line-height:1.65; } }
 .eng-sec-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:8px; }
 .eng-sec-headtxt { flex:1; min-width:0; }
 @media (max-width: 700px) {
@@ -1041,7 +1045,8 @@ const options = [
     ["average-numbers",      "37. Average"],
     ["english-daily",        "38. Daily English"],
     ["telugu-daily",         "39. Telugu"],
-    ["hindi-daily",          "40. Hindi"]
+    ["hindi-daily",          "40. Hindi"],
+    ["english-reading",      "41. Reading"]
 ];
 
 const control   = document.getElementById("control");
@@ -2381,7 +2386,7 @@ const AUTO_SIZE = new Set(["word-problems","bodmas","simple-equations",
     "units-length","units-weight","units-liquid","units-time","units-money",
     "spell-the-word","general-knowledge","missing-number","pattern-completion",
     "true-or-false","neg-pos-numbers","ascending-order","descending-order",
-    "number-names","draw-clock","identify-time","shapes-draw","english-daily","telugu-daily","hindi-daily"]);
+    "number-names","draw-clock","identify-time","shapes-draw","english-daily","telugu-daily","hindi-daily","english-reading"]);
 
 // ── FIX 2: refreshStack for perimeter calls generatePerimeter with a new seed ─
 function refreshStack(val) {
@@ -2530,6 +2535,7 @@ const NUM_MAP = {
 const ENG_ROOT = "https://raw.githubusercontent.com/nerdysrisha/vidyarambha/refs/heads/main/docs/subjects/";
 const ENG_LANGS = {
     "english-daily": { dir: "english", speech: "en-IN", cls: "" },
+    "english-reading": { dir: "english", speech: "en-IN", cls: "eng-readmode", reading: true },   // same lessons, story only (no questions)
     "telugu-daily":  { dir: "telugu",  speech: "te-IN", cls: "eng-lang eng-te" },
     "hindi-daily":   { dir: "hindi",   speech: "hi-IN", cls: "eng-lang eng-hi" }
 };
@@ -2807,13 +2813,13 @@ function engRenderLesson(root, idx, n, L, cfg) {
                 const { card } = engStoryCard(ctx, cfg);
                 body.appendChild(card);
             }
-            engRenderSections(body, blk.sections || [], n, bi, cfg);
+            if (!cfg.reading) engRenderSections(body, blk.sections || [], n, bi, cfg);   // Reading mode: story only
         });
     } else {
         // ORIGINAL layout: whole story first, then all questions (lesson 1 style)
         const { card } = engStoryCard(L.story || [], cfg);
         body.appendChild(card);
-        engRenderSections(body, L.sections || [], n, 0, cfg);
+        if (!cfg.reading) engRenderSections(body, L.sections || [], n, 0, cfg);
     }
 
     body.appendChild(engEl("div", "eng-foot"));   // small breathing space at the end
