@@ -2557,19 +2557,36 @@ function engStop() {
         if (window.speechSynthesis) speechSynthesis.cancel();
     } catch (e) {}
 }
+// Picks a voice for the language: exact match (en-IN), else same language (en-US / en-GB), else the browser default.
+// Laptops often have no en-IN voice, and some browsers stay silent unless a voice is set explicitly.
+let engUtter = null;   // keeps the utterance alive (Chrome can drop it otherwise)
+function engPickVoice(lang) {
+    try {
+        const vs = speechSynthesis.getVoices() || [];
+        const l = lang.toLowerCase(), pre = l.split("-")[0];
+        return vs.find(v => v.lang.toLowerCase().replace("_", "-") === l)
+            || vs.find(v => v.lang.toLowerCase().replace("_", "-").split("-")[0] === pre)
+            || null;
+    } catch (e) { return null; }
+}
+if (window.speechSynthesis) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } catch (e) {} }
 function engSay(text, cfg, rate, reset) {
     if (!window.speechSynthesis || !text) return;
     try {
         if (engCurReset) { const r = engCurReset; engCurReset = null; r(); }
         speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.lang = cfg.speech; u.rate = rate;
+        const v = engPickVoice(cfg.speech);
+        if (v) { u.voice = v; u.lang = v.lang; } else u.lang = cfg.speech;
+        u.rate = rate;
+        engUtter = u;
         if (reset) {
             engCurReset = reset;
             const done = () => { if (engCurReset === reset) { engCurReset = null; reset(); } };
             u.onend = done; u.onerror = done;
         }
-        speechSynthesis.speak(u);
+        // tiny delay after cancel(): Chrome ignores a speak() that comes right after cancel()
+        setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) {} }, 80);
     } catch (e) {}
 }
 // 🔊 / ⏹ button for one paragraph or question. getText() gives what to read; box gets a green outline while speaking.
@@ -2683,10 +2700,7 @@ function engShuffle(arr, seedStr) {
 function engSpeak(text, cfg) {
     if (!window.speechSynthesis) return;
     try {
-        speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = cfg.speech; u.rate = ENG_RATE.letter;
-        speechSynthesis.speak(u);
+        engSay(text, cfg, ENG_RATE.letter);
     } catch (e) {}
 }
 
@@ -4045,8 +4059,8 @@ requestWakeLock();
 (function(){
     const b = document.getElementById("theme-btn");
     function apply(d){ document.body.classList.toggle("eng-dark", d); b.textContent = d ? "\u2600\uFE0F" : "\uD83C\uDF19"; }
-    let dark = false;
-    try { dark = localStorage.getItem("emEngDark") === "1"; } catch (e) {}
+    let dark = true;   // default = dark; a saved choice (🌙/☀️ button) still wins
+    try { const sv = localStorage.getItem("emEngDark"); if (sv !== null) dark = sv === "1"; } catch (e) {}
     apply(dark);
     b.addEventListener("click", function(){ dark = !dark; apply(dark); try { localStorage.setItem("emEngDark", dark ? "1" : "0"); } catch (e) {} });
 })();
